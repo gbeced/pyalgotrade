@@ -1,0 +1,6 @@
+quote -- Instrument prices
+==========================
+
+.. automodule:: pyalgotrade.quote
+    :members:
+

@@ -1,0 +1,6 @@
+dataseries -- Basic dataseries classes
+======================================
+
+.. automodule:: pyalgotrade.dataseries
+    :members:
+

@@ -1,0 +1,9 @@
+quotefeed -- Quote providers
+============================
+
+.. automodule:: pyalgotrade.quotefeed.base
+    :members: 
+
+.. automodule:: pyalgotrade.quotefeed.csvfeed
+    :members: 
+
