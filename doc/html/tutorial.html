@@ -57,9 +57,9 @@
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>The goal of this tutorial is to give you a quick introduction to PyAlgoTrade.
-As described in the introduction, the goal of PyAlgoTrade is to help you evaluate stock trading strategies using historical data.
-Lets say you have an idea for a trading strategy and you&#8217;d like to evaluate it with historical data and see how it behaves.
-PyAlgoTrade should allow you to do that with minimal effort.</p>
+As described in the introduction, the goal of PyAlgoTrade is to help you backtest stock trading strategies.
+Let&#8217;s say you have an idea for a trading strategy and you&#8217;d like to evaluate it with historical data and see how it behaves,
+then PyAlgoTrade should allow you to do so with minimal effort.</p>
 <p><strong>This tutorial was developed on a UNIX environment, but the steps to adapt it to a Windows environment should be straightforward.</strong></p>
 <p>The PyAlgoTrade library has 4 main components:</p>
 <blockquote>
@@ -75,17 +75,16 @@ PyAlgoTrade should allow you to do that with minimal effort.</p>
 <dd>These are the classes that you define, that implement a certain trading strategy. When to buy, when to sell, etc.</dd>
 <dt>Technicals</dt>
 <dd>These are a set of filters that you use to make calculations over a stream of values to decide what to do.
-For example SMA (Simple Moving Averiage), RSI (Relative Strenght Index), etc.</dd>
+For example SMA (Simple Moving Average), RSI (Relative Strength Index), etc.</dd>
 <dt>Feeds</dt>
 <dd>These are data providing abstractions. For example, you&#8217;ll use a CSV feed that loads quotes from a CSV
 (Comma-separated values) formatted file to feed data to a strategy.</dd>
 <dt>Optimizer</dt>
-<dd>These are a set of classes that allow you to find optimal parameter values for a strategy by distributing work
-among different computers, or different processes in the same computer, or a combination of both.
-They make horizontal scaling easy.</dd>
+<dd>These are a set of classes that allow you to distribute backtesting among different computers,
+or different processes running in the same computer, or a combination of both. They make horizontal scaling easy.</dd>
 </dl>
 <p>Having said all that, the first thing that we&#8217;ll need to test our strategy is some data.
-Lets use Oracle&#8217;s stock quotes for year 2000, which we&#8217;ll download with the following command:</p>
+Let&#8217;s use Oracle&#8217;s stock quotes for year 2000, which we&#8217;ll download with the following command:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pyalgotrade</span><span class="o">/</span><span class="n">tools</span><span class="o">/</span><span class="n">download_yahoo_data</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">instrument</span><span class="o">=</span><span class="n">orcl</span> <span class="o">--</span><span class="n">year</span><span class="o">=</span><span class="mi">2000</span>
 </pre></div>
 </div>
@@ -100,17 +99,17 @@ Lets use Oracle&#8217;s stock quotes for year 2000, which we&#8217;ll download w
 2000-01-03,124.62,125.19,111.62,118.12,98122000,28.81</pre>
 </div>
 <p>The download_yahoo_data.py script downloads CSV formatted data from Yahoo! Finance.
-Lets save that as orcl-2000.csv with the following command:</p>
+Let&#8217;s save that as orcl-2000.csv with the following command:</p>
 <div class="highlight-python"><pre>pyalgotrade/tools/download_yahoo_data.py --instrument=orcl --year=2000 &gt; orcl-2000.csv</pre>
 </div>
-<p>Lets start with a simple strategy, that is, one that just prints closing prices as they are processed:</p>
+<p>Let&#8217;s start with a simple strategy, that is, one that just prints closing prices as they are processed:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="o">.</span><span class="n">Broker</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">onTick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
         <span class="n">quote</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">getQuote</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
@@ -121,8 +120,8 @@ Lets save that as orcl-2000.csv with the following command:</p>
 <span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
 
 <span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
-<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">()</span>
-<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <dl class="docutils">
@@ -142,7 +141,7 @@ Lets save that as orcl-2000.csv with the following command:</p>
 2000-12-28 00:00:00: 31.06
 2000-12-29 00:00:00: 29.06</pre>
 </div>
-<p>Lets move on with a strategy that prints closing SMA prices, to illustrate how technicals are used:</p>
+<p>Let&#8217;s move on with a strategy that prints closing SMA prices, to illustrate how technicals are used:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
@@ -150,7 +149,7 @@ Lets save that as orcl-2000.csv with the following command:</p>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
-        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="o">.</span><span class="n">Broker</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
         <span class="c"># We want a 15 period SMA over the closing prices.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">15</span><span class="p">)</span>
 
@@ -164,7 +163,7 @@ Lets save that as orcl-2000.csv with the following command:</p>
 
 <span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
 <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
-<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This is very similar to the previous example, except that:</p>
@@ -208,7 +207,7 @@ For example, getting an SMA over the RSI over the closing prices is as simple as
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
-        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="o">.</span><span class="n">Broker</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span> <span class="o">=</span> <span class="n">rsi</span><span class="o">.</span><span class="n">RSI</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">14</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
 
@@ -222,7 +221,7 @@ For example, getting an SMA over the RSI over the closing prices is as simple as
 
 <span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
 <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
-<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>If you run the script you should see a bunch of values on the screen where:</p>
@@ -268,7 +267,7 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
 2000-12-28 00:00:00: 31.06 52.1646203455 49.997518354
 2000-12-29 00:00:00: 29.06 47.3776678335 50.0790646925</pre>
 </div>
-<p>Lets move on with a simple strategy, this time simulating actual trading. The idea is very simple:</p>
+<p>Let&#8217;s move on with a simple strategy, this time simulating actual trading. The idea is very simple:</p>
 <blockquote>
 <div><ul class="simple">
 <li>If the closing price is above the SMA(15) we enter a long position (we place a buy market order).</li>
@@ -282,7 +281,7 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">):</span>
-        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="o">.</span><span class="n">Broker</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="n">smaPeriod</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -330,8 +329,7 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
 
     <span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
     <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">)</span>
-    <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
-
+    <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
 <span class="n">run_strategy</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
 </pre></div>
@@ -379,13 +377,13 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
 2000-12-22 00:00:00: BUY at $30.37
 Final portfolio value: $1013.40</pre>
 </div>
-<p>But what if we use 30 as the SMA period instead of 15 ? Would that yield better results or worse ?
-We could certainly do something like this to find out:</p>
+<p>But what if we used 30 as the SMA period instead of 15 ? Would that yield better results or worse ?
+We could certainly do something like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span>
     <span class="n">run_strategy</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>and we&#8217;ll find that we get better results with a SMA(20):</p>
+<p>and we would find out that we can get better results with a SMA(20):</p>
 <div class="highlight-python"><pre>Final portfolio value: $1124.90</pre>
 </div>
 <p>This is ok if we only have to try a limited set of parameters values. But if we have to test a strategy with multiple
@@ -428,7 +426,7 @@ which requires the following parameters:</p>
 and we execute those serially, then we&#8217;ll need 102 days to evaluate all of them and find the best set of parameters.
 Thats a long time. If you can get ten 8-core computers, you can take that down to about 2 days.</p>
 <p>Long story short, <strong>we need to go parallel</strong>.</p>
-<p>Lets start by downloading 3 years of daily quotes for &#8216;Dow Jones Industrial Average&#8217;:</p>
+<p>Let&#8217;s start by downloading 3 years of daily quotes for &#8216;Dow Jones Industrial Average&#8217;:</p>
 <div class="highlight-python"><pre>pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2009 &gt; dia-2009.csv
 pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2010 &gt; dia-2010.csv
 pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2011.csv</pre>
@@ -475,9 +473,9 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">rsi</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quoteFeed</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">):</span>
-        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="o">.</span><span class="n">Broker</span><span class="p">(</span><span class="mi">2000</span><span class="p">))</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">quoteFeed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span> <span class="o">=</span> <span class="n">rsi</span><span class="o">.</span><span class="n">RSI</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">)</span>
@@ -554,7 +552,7 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
         <span class="n">overBoughtThreshold</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="n">overSoldThreshold</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
         <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
-        <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+        <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
 
 <span class="c"># Create a worker and run it.</span>
@@ -603,6 +601,7 @@ Running strategy with parameters (150, 5, 2, 82, 5)
 .</pre>
 </div>
 <p>Note that you should run <strong>only one server and one or more workers</strong>. For this tutorial I ran both on the same computer.</p>
+<p>Last but not least, I would like to thank Pablo Jorge who helped reviewing the design and documentation.</p>
 </div>
 
 
