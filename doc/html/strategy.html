@@ -132,7 +132,11 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cash</strong> (<em>int/float.</em>) &#8211; The amount of cash available.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>quoteFeed</strong> (<tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.quotefeed.base.QuoteFeed</span></tt>) &#8211; The quote feed to use to backtest the strategy.</li>
+<li><strong>cash</strong> (<em>int/float.</em>) &#8211; The amount of cash available.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -213,7 +217,7 @@
 <dl class="method">
 <dt id="pyalgotrade.strategy.Strategy.getFeed">
 <tt class="descname">getFeed</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.getFeed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">quotefeed.base.BasicQuoteFeed</span></tt> that this strategy is using.</p>
+<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.quotefeed.base.QuoteFeed</span></tt> that this strategy is using.</p>
 </dd></dl>
 
 <dl class="method">
