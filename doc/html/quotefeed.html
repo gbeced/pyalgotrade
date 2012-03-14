@@ -58,7 +58,61 @@
             
   <div class="section" id="module-pyalgotrade.quotefeed.base">
 <span id="quotefeed-quote-providers"></span><h1>quotefeed &#8211; Quote providers<a class="headerlink" href="#module-pyalgotrade.quotefeed.base" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-pyalgotrade.quotefeed.csvfeed"></span></div>
+<dl class="class">
+<dt id="pyalgotrade.quotefeed.base.QuoteFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.quotefeed.base.</tt><tt class="descname">QuoteFeed</tt><a class="headerlink" href="#pyalgotrade.quotefeed.base.QuoteFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for <a class="reference internal" href="quote.html#pyalgotrade.quote.Quote" title="pyalgotrade.quote.Quote"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.quote.Quote</span></tt></a> providing feeds.</p>
+<dl class="method">
+<dt id="pyalgotrade.quotefeed.base.QuoteFeed.getDataSeries">
+<tt class="descname">getDataSeries</tt><big>(</big><em>instrument=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.quotefeed.base.QuoteFeed.getDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a quote data series for a given instrument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier. If None, the last registered instrument is returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.QuoteDataSeries" title="pyalgotrade.dataseries.QuoteDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.QuoteDataSeries</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.quotefeed.base.QuoteFeed.getRegisteredInstruments">
+<tt class="descname">getRegisteredInstruments</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.quotefeed.base.QuoteFeed.getRegisteredInstruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of registered intstrument names.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.quotefeed.csvfeed"></span><dl class="class">
+<dt id="pyalgotrade.quotefeed.csvfeed.YahooFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.quotefeed.csvfeed.</tt><tt class="descname">YahooFeed</tt><a class="headerlink" href="#pyalgotrade.quotefeed.csvfeed.YahooFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#pyalgotrade.quotefeed.base.QuoteFeed" title="pyalgotrade.quotefeed.base.QuoteFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.quotefeed.base.QuoteFeed</span></tt></a> that loads quotes from a CSV file downloaded from Yahoo! Finance.</p>
+<dl class="method">
+<dt id="pyalgotrade.quotefeed.csvfeed.YahooFeed.addQuotesFromCSV">
+<tt class="descname">addQuotesFromCSV</tt><big>(</big><em>instrument</em>, <em>path</em>, <em>timeZone=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.quotefeed.csvfeed.YahooFeed.addQuotesFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads quotes for a given instrument from a CSV formatted file.
+The instrument gets registered in the quote feed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the file.</li>
+<li><strong>timeZone</strong> (<em>int.</em>) &#8211; The timezone for quotes. 0 if quote dates are in UTC.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 
 
           </div>

@@ -2,8 +2,9 @@ quotefeed -- Quote providers
 ============================
 
 .. automodule:: pyalgotrade.quotefeed.base
-    :members: 
+    :members: QuoteFeed
+    :inherited-members:
 
 .. automodule:: pyalgotrade.quotefeed.csvfeed
-    :members: 
+    :members: YahooFeed
 

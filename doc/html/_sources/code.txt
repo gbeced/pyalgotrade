@@ -8,6 +8,8 @@ Contents:
 
     quote
     dataseries
+    quotefeed
+    technical
     strategy
     broker
 
