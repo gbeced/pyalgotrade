@@ -1,6 +1,9 @@
 technical -- Technical indicators
 =================================
 
-.. automodule:: pyalgotrade.technical
-    :members:
+.. automodule:: pyalgotrade.technical.base
+    :members: DataSeriesFilter
+
+.. automodule:: pyalgotrade.technical.ma
+    :members: SMA, EMA, WMA
 

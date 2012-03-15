@@ -56,8 +56,116 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-pyalgotrade.technical">
-<span id="technical-technical-indicators"></span><h1>technical &#8211; Technical indicators<a class="headerlink" href="#module-pyalgotrade.technical" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pyalgotrade.technical.base">
+<span id="technical-technical-indicators"></span><h1>technical &#8211; Technical indicators<a class="headerlink" href="#module-pyalgotrade.technical.base" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.technical.base.DataSeriesFilter">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.base.</tt><tt class="descname">DataSeriesFilter</tt><big>(</big><em>dataSeries</em>, <em>windowSize</em>, <em>cacheSize=512</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>A DataSeriesFilter is a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance that decorates another <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance
+to make some calculations with the values from the DataSeries being decorated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>windowSize</strong> (<em>int.</em>) &#8211; The amount of values to use from the filtered DataSeries to calculate our own values. Must be &gt; 0.</li>
+<li><strong>cacheSize</strong> (<em>int.</em>) &#8211; The cache size. The values that this filter calculates will be cached so they don&#8217;t have to be calculated twice.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.technical.base.DataSeriesFilter.calculateValue">
+<tt class="descname">calculateValue</tt><big>(</big><em>firstPos</em>, <em>lastPos</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter.calculateValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method has to be overriden to add the filtering logic and return a new value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>firstPos</strong> (<em>int.</em>) &#8211; Absolute position for the first value to use from the DataSeries being filtered.</li>
+<li><strong>lastPos</strong> (<em>int.</em>) &#8211; Absolute position for the last value to use from the DataSeries being filtered.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.technical.base.DataSeriesFilter.getDataSeries">
+<tt class="descname">getDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter.getDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> being filtered.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.technical.base.DataSeriesFilter.getWindowSize">
+<tt class="descname">getWindowSize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter.getWindowSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the window size.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.technical.ma"></span><dl class="class">
+<dt id="pyalgotrade.technical.ma.SMA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.ma.</tt><tt class="descname">SMA</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.ma.SMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple Moving Average filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The number of values to use to calculate the SMA.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.technical.ma.EMA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.ma.</tt><tt class="descname">EMA</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.ma.EMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential Moving Average filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The number of values to use to calculate the EMA.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.technical.ma.WMA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.ma.</tt><tt class="descname">WMA</tt><big>(</big><em>dataSeries</em>, <em>weights</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.ma.WMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted Moving Average filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>weights</strong> (<em>list.</em>) &#8211; A list of int/float with the weights.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
