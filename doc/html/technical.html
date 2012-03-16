@@ -166,6 +166,42 @@ to make some calculations with the values from the DataSeries being decorated.</
 </table>
 </dd></dl>
 
+<span class="target" id="module-pyalgotrade.technical.rsi"></span><dl class="class">
+<dt id="pyalgotrade.technical.rsi.RSI">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.rsi.</tt><tt class="descname">RSI</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.rsi.RSI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relative Strength Index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The period. Note that if period is <strong>n</strong>, then <strong>n+1</strong> values are used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.technical.trend"></span><dl class="class">
+<dt id="pyalgotrade.technical.trend.Slope">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.trend.</tt><tt class="descname">Slope</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.trend.Slope" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Slope filter calculates the slope of the least-squares regression line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The number of values to use to calculate the slope.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
