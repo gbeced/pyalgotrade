@@ -117,47 +117,55 @@
 </dd></dl>
 
 <dl class="class">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries">
-<em class="property">class </em><tt class="descclassname">pyalgotrade.dataseries.</tt><tt class="descname">QuoteDataSeries</tt><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> of <a class="reference internal" href="quote.html#pyalgotrade.quote.Quote" title="pyalgotrade.quote.Quote"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.quote.Quote</span></tt></a> instances.</p>
+<dt id="pyalgotrade.dataseries.SequenceDataSeries">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.dataseries.</tt><tt class="descname">SequenceDataSeries</tt><big>(</big><em>values=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.SequenceDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sequence based <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> (<em>list.</em>) &#8211; The values that this DataSeries will hold. If its None, an empty list is used. <strong>Note that the list is not cloned and it takes ownership of it</strong>.</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries.getAdjCloseDataSeries">
-<tt class="descname">getAdjCloseDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries.getAdjCloseDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the adjusted close prices.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries.getCloseDataSeries">
-<tt class="descname">getCloseDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries.getCloseDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the close prices.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries.getHighDataSeries">
-<tt class="descname">getHighDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries.getHighDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the high prices.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries.getLowDataSeries">
-<tt class="descname">getLowDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries.getLowDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the low prices.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries.getOpenDataSeries">
-<tt class="descname">getOpenDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries.getOpenDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the open prices.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyalgotrade.dataseries.QuoteDataSeries.getVolumeDataSeries">
-<tt class="descname">getVolumeDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.QuoteDataSeries.getVolumeDataSeries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the volume.</p>
+<dt id="pyalgotrade.dataseries.SequenceDataSeries.appendValue">
+<tt class="descname">appendValue</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.SequenceDataSeries.appendValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a value.</p>
 </dd></dl>
 
 </dd></dl>
 
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">dataseries</span>
+
+<span class="c"># Build a sequence based DataSeries.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">dataseries</span><span class="o">.</span><span class="n">SequenceDataSeries</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+
+<span class="c"># Get the last value.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span>
+
+<span class="c"># Get the previous value.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span>
+
+<span class="c"># Get the first value.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output should be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mi">49</span>
+<span class="mi">49</span>
+<span class="mi">48</span>
+<span class="mi">48</span>
+<span class="mi">0</span>
+<span class="mi">0</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -166,6 +174,14 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dataseries &#8211; Basic dataseries classes</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="quote.html"
                         title="previous chapter">quote &#8211; Instrument prices</a></p>
