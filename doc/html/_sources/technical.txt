@@ -1,7 +1,7 @@
 technical -- Technical indicators
 =================================
 
-.. automodule:: pyalgotrade.technical.base
+.. automodule:: pyalgotrade.technical
     :members: DataSeriesFilter
 
 Example
@@ -10,11 +10,11 @@ Example
 Creating a custom filter is easy: ::
 
     from pyalgotrade import dataseries
-    from pyalgotrade.technical import base
+    from pyalgotrade import technical
 
-    class Accumulator(base.DataSeriesFilter):
+    class Accumulator(technical.DataSeriesFilter):
         def __init__(self, dataSeries, windowSize):
-            base.DataSeriesFilter.__init__(self, dataSeries, windowSize)
+            technical.DataSeriesFilter.__init__(self, dataSeries, windowSize)
 
         def calculateValue(self, firstPos, lastPos):
             accum = 0

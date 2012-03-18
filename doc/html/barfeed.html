@@ -56,19 +56,19 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-pyalgotrade.barfeed.base">
-<span id="barfeed-bar-providers"></span><h1>barfeed &#8211; Bar providers<a class="headerlink" href="#module-pyalgotrade.barfeed.base" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pyalgotrade.barfeed">
+<span id="barfeed-bar-providers"></span><h1>barfeed &#8211; Bar providers<a class="headerlink" href="#module-pyalgotrade.barfeed" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pyalgotrade.barfeed.base.BarFeed">
-<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.base.</tt><tt class="descname">BarFeed</tt><a class="headerlink" href="#pyalgotrade.barfeed.base.BarFeed" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.barfeed.BarFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.</tt><tt class="descname">BarFeed</tt><a class="headerlink" href="#pyalgotrade.barfeed.BarFeed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> providing feeds.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This is a base class and should not be used directly.</p>
 </div>
 <dl class="method">
-<dt id="pyalgotrade.barfeed.base.BarFeed.getDataSeries">
-<tt class="descname">getDataSeries</tt><big>(</big><em>instrument=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.base.BarFeed.getDataSeries" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.barfeed.BarFeed.getDataSeries">
+<tt class="descname">getDataSeries</tt><big>(</big><em>instrument=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BarFeed.getDataSeries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.BarDataSeries" title="pyalgotrade.dataseries.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.BarDataSeries</span></tt></a> for a given instrument.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -83,14 +83,14 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="pyalgotrade.barfeed.base.BarFeed.getRegisteredInstruments">
-<tt class="descname">getRegisteredInstruments</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.base.BarFeed.getRegisteredInstruments" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.barfeed.BarFeed.getRegisteredInstruments">
+<tt class="descname">getRegisteredInstruments</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BarFeed.getRegisteredInstruments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of registered intstrument names.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyalgotrade.barfeed.base.BarFeed.next">
-<tt class="descname">next</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.base.BarFeed.next" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.barfeed.BarFeed.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BarFeed.next" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the next <a class="reference internal" href="bar.html#pyalgotrade.bar.Bars" title="pyalgotrade.bar.Bars"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bars</span></tt></a> in the feed. If there are not more values StopIteration is raised.</p>
 </dd></dl>
 
@@ -99,7 +99,7 @@
 <span class="target" id="module-pyalgotrade.barfeed.csvfeed"></span><dl class="class">
 <dt id="pyalgotrade.barfeed.csvfeed.YahooFeed">
 <em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.csvfeed.</tt><tt class="descname">YahooFeed</tt><a class="headerlink" href="#pyalgotrade.barfeed.csvfeed.YahooFeed" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference internal" href="#pyalgotrade.barfeed.base.BarFeed" title="pyalgotrade.barfeed.base.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.base.BarFeed</span></tt></a> that loads bars from a CSV file downloaded from Yahoo! Finance.</p>
+<dd><p>A <a class="reference internal" href="#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a> that loads bars from a CSV file downloaded from Yahoo! Finance.</p>
 <dl class="method">
 <dt id="pyalgotrade.barfeed.csvfeed.YahooFeed.addBarsFromCSV">
 <tt class="descname">addBarsFromCSV</tt><big>(</big><em>instrument</em>, <em>path</em>, <em>timeZone=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.csvfeed.YahooFeed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>

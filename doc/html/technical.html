@@ -56,11 +56,11 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-pyalgotrade.technical.base">
-<span id="technical-technical-indicators"></span><h1>technical &#8211; Technical indicators<a class="headerlink" href="#module-pyalgotrade.technical.base" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pyalgotrade.technical">
+<span id="technical-technical-indicators"></span><h1>technical &#8211; Technical indicators<a class="headerlink" href="#module-pyalgotrade.technical" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pyalgotrade.technical.base.DataSeriesFilter">
-<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.base.</tt><tt class="descname">DataSeriesFilter</tt><big>(</big><em>dataSeries</em>, <em>windowSize</em>, <em>cacheSize=512</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.technical.DataSeriesFilter">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.</tt><tt class="descname">DataSeriesFilter</tt><big>(</big><em>dataSeries</em>, <em>windowSize</em>, <em>cacheSize=512</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>A DataSeriesFilter is a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance that decorates another <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance
 to make some calculations with the values from the DataSeries being decorated.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -81,8 +81,8 @@ to make some calculations with the values from the DataSeries being decorated.</
 <p class="last">This is a base class and should not be used directly.</p>
 </div>
 <dl class="method">
-<dt id="pyalgotrade.technical.base.DataSeriesFilter.calculateValue">
-<tt class="descname">calculateValue</tt><big>(</big><em>firstPos</em>, <em>lastPos</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter.calculateValue" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.technical.DataSeriesFilter.calculateValue">
+<tt class="descname">calculateValue</tt><big>(</big><em>firstPos</em>, <em>lastPos</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter.calculateValue" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method has to be overriden to add the filtering logic and return a new value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -99,14 +99,14 @@ to make some calculations with the values from the DataSeries being decorated.</
 </dd></dl>
 
 <dl class="method">
-<dt id="pyalgotrade.technical.base.DataSeriesFilter.getDataSeries">
-<tt class="descname">getDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter.getDataSeries" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.technical.DataSeriesFilter.getDataSeries">
+<tt class="descname">getDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter.getDataSeries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> being filtered.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyalgotrade.technical.base.DataSeriesFilter.getWindowSize">
-<tt class="descname">getWindowSize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.base.DataSeriesFilter.getWindowSize" title="Permalink to this definition">¶</a></dt>
+<dt id="pyalgotrade.technical.DataSeriesFilter.getWindowSize">
+<tt class="descname">getWindowSize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter.getWindowSize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the window size.</p>
 </dd></dl>
 
@@ -116,11 +116,11 @@ to make some calculations with the values from the DataSeries being decorated.</
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <p>Creating a custom filter is easy:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">dataseries</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">technical</span>
 
-<span class="k">class</span> <span class="nc">Accumulator</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DataSeriesFilter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Accumulator</span><span class="p">(</span><span class="n">technical</span><span class="o">.</span><span class="n">DataSeriesFilter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataSeries</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">):</span>
-        <span class="n">base</span><span class="o">.</span><span class="n">DataSeriesFilter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataSeries</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">)</span>
+        <span class="n">technical</span><span class="o">.</span><span class="n">DataSeriesFilter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataSeries</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">calculateValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firstPos</span><span class="p">,</span> <span class="n">lastPos</span><span class="p">):</span>
         <span class="n">accum</span> <span class="o">=</span> <span class="mi">0</span>

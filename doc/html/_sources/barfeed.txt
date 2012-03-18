@@ -1,7 +1,7 @@
 barfeed -- Bar providers
 ========================
 
-.. automodule:: pyalgotrade.barfeed.base
+.. automodule:: pyalgotrade.barfeed
     :members: BarFeed
     :inherited-members:
 
