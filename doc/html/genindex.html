@@ -60,9 +60,9 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
- | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#W"><strong>W</strong></a>
@@ -73,7 +73,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="quotefeed.html#pyalgotrade.quotefeed.csvfeed.YahooFeed.addQuotesFromCSV">addQuotesFromCSV() (pyalgotrade.quotefeed.csvfeed.YahooFeed method)</a>
+  <dt><a href="barfeed.html#pyalgotrade.barfeed.csvfeed.YahooFeed.addBarsFromCSV">addBarsFromCSV() (pyalgotrade.barfeed.csvfeed.YahooFeed method)</a>
   </dt>
 
   </dl></td>
@@ -88,6 +88,24 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="bar.html#pyalgotrade.bar.Bar">Bar (class in pyalgotrade.bar)</a>
+  </dt>
+
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries">BarDataSeries (class in pyalgotrade.dataseries)</a>
+  </dt>
+
+      
+  <dt><a href="barfeed.html#pyalgotrade.barfeed.base.BarFeed">BarFeed (class in pyalgotrade.barfeed.base)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="bar.html#pyalgotrade.bar.Bars">Bars (class in pyalgotrade.bar)</a>
+  </dt>
+
       
   <dt><a href="broker.html#pyalgotrade.broker.Broker">Broker (class in pyalgotrade.broker)</a>
   </dt>
@@ -159,7 +177,15 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getAdjClose">getAdjClose() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getAdjClose">getAdjClose() (pyalgotrade.bar.Bar method)</a>
+  </dt>
+
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries.getAdjCloseDataSeries">getAdjCloseDataSeries() (pyalgotrade.dataseries.BarDataSeries method)</a>
+  </dt>
+
+      
+  <dt><a href="bar.html#pyalgotrade.bar.Bars.getBar">getBar() (pyalgotrade.bar.Bars method)</a>
   </dt>
 
       
@@ -171,7 +197,11 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getClose">getClose() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getClose">getClose() (pyalgotrade.bar.Bar method)</a>
+  </dt>
+
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries.getCloseDataSeries">getCloseDataSeries() (pyalgotrade.dataseries.BarDataSeries method)</a>
   </dt>
 
       
@@ -183,7 +213,7 @@
   </dt>
 
       
-  <dt><a href="quotefeed.html#pyalgotrade.quotefeed.base.QuoteFeed.getDataSeries">getDataSeries() (pyalgotrade.quotefeed.base.QuoteFeed method)</a>
+  <dt><a href="barfeed.html#pyalgotrade.barfeed.base.BarFeed.getDataSeries">getDataSeries() (pyalgotrade.barfeed.base.BarFeed method)</a>
   </dt>
 
       <dd><dl>
@@ -193,16 +223,16 @@
 
       </dl></dd>
       
-  <dt><a href="broker.html#pyalgotrade.broker.OrderExecutionInfo.getDateTime">getDateTime() (pyalgotrade.broker.OrderExecutionInfo method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getDateTime">getDateTime() (pyalgotrade.bar.Bar method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getDateTime">(pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bars.getDateTime">(pyalgotrade.bar.Bars method)</a>
   </dt>
 
         
-  <dt><a href="quote.html#pyalgotrade.quote.Quotes.getDateTime">(pyalgotrade.quote.Quotes method)</a>
+  <dt><a href="broker.html#pyalgotrade.broker.OrderExecutionInfo.getDateTime">(pyalgotrade.broker.OrderExecutionInfo method)</a>
   </dt>
 
       </dl></dd>
@@ -235,9 +265,15 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getHigh">getHigh() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getHigh">getHigh() (pyalgotrade.bar.Bar method)</a>
   </dt>
 
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries.getHighDataSeries">getHighDataSeries() (pyalgotrade.dataseries.BarDataSeries method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="broker.html#pyalgotrade.broker.Order.getInstrument">getInstrument() (pyalgotrade.broker.Order method)</a>
   </dt>
@@ -248,10 +284,8 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quotes.getInstruments">getInstruments() (pyalgotrade.quote.Quotes method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bars.getInstruments">getInstruments() (pyalgotrade.bar.Bars method)</a>
   </dt>
 
       
@@ -259,7 +293,11 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getLow">getLow() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getLow">getLow() (pyalgotrade.bar.Bar method)</a>
+  </dt>
+
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries.getLowDataSeries">getLowDataSeries() (pyalgotrade.dataseries.BarDataSeries method)</a>
   </dt>
 
       
@@ -267,7 +305,11 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getOpen">getOpen() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getOpen">getOpen() (pyalgotrade.bar.Bar method)</a>
+  </dt>
+
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries.getOpenDataSeries">getOpenDataSeries() (pyalgotrade.dataseries.BarDataSeries method)</a>
   </dt>
 
       
@@ -285,11 +327,7 @@
 
       </dl></dd>
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quotes.getQuote">getQuote() (pyalgotrade.quote.Quotes method)</a>
-  </dt>
-
-      
-  <dt><a href="quotefeed.html#pyalgotrade.quotefeed.base.QuoteFeed.getRegisteredInstruments">getRegisteredInstruments() (pyalgotrade.quotefeed.base.QuoteFeed method)</a>
+  <dt><a href="barfeed.html#pyalgotrade.barfeed.base.BarFeed.getRegisteredInstruments">getRegisteredInstruments() (pyalgotrade.barfeed.base.BarFeed method)</a>
   </dt>
 
       
@@ -297,7 +335,7 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getSessionClose">getSessionClose() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getSessionClose">getSessionClose() (pyalgotrade.bar.Bar method)</a>
   </dt>
 
       
@@ -323,7 +361,11 @@
   </dt>
 
       
-  <dt><a href="quote.html#pyalgotrade.quote.Quote.getVolume">getVolume() (pyalgotrade.quote.Quote method)</a>
+  <dt><a href="bar.html#pyalgotrade.bar.Bar.getVolume">getVolume() (pyalgotrade.bar.Bar method)</a>
+  </dt>
+
+      
+  <dt><a href="dataseries.html#pyalgotrade.dataseries.BarDataSeries.getVolumeDataSeries">getVolumeDataSeries() (pyalgotrade.dataseries.BarDataSeries method)</a>
   </dt>
 
       
@@ -363,9 +405,23 @@
   </dl></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="barfeed.html#pyalgotrade.barfeed.base.BarFeed.next">next() (pyalgotrade.barfeed.base.BarFeed method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="strategy.html#pyalgotrade.strategy.Strategy.onBars">onBars() (pyalgotrade.strategy.Strategy method)</a>
+  </dt>
+
       
   <dt><a href="strategy.html#pyalgotrade.strategy.Strategy.onEnterCanceled">onEnterCanceled() (pyalgotrade.strategy.Strategy method)</a>
   </dt>
@@ -382,18 +438,14 @@
   <dt><a href="strategy.html#pyalgotrade.strategy.Strategy.onExitOk">onExitOk() (pyalgotrade.strategy.Strategy method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="strategy.html#pyalgotrade.strategy.Strategy.onFinish">onFinish() (pyalgotrade.strategy.Strategy method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="strategy.html#pyalgotrade.strategy.Strategy.onStart">onStart() (pyalgotrade.strategy.Strategy method)</a>
-  </dt>
-
-      
-  <dt><a href="strategy.html#pyalgotrade.strategy.Strategy.onTick">onTick() (pyalgotrade.strategy.Strategy method)</a>
   </dt>
 
       
@@ -419,25 +471,25 @@
   </dt>
 
       
+  <dt><a href="bar.html#module-pyalgotrade.bar">pyalgotrade.bar (module)</a>
+  </dt>
+
+      
+  <dt><a href="barfeed.html#module-pyalgotrade.barfeed.base">pyalgotrade.barfeed.base (module)</a>
+  </dt>
+
+      
+  <dt><a href="barfeed.html#module-pyalgotrade.barfeed.csvfeed">pyalgotrade.barfeed.csvfeed (module)</a>
+  </dt>
+
+      
   <dt><a href="broker.html#module-pyalgotrade.broker">pyalgotrade.broker (module)</a>
-  </dt>
-
-      
-  <dt><a href="dataseries.html#module-pyalgotrade.dataseries">pyalgotrade.dataseries (module)</a>
-  </dt>
-
-      
-  <dt><a href="quote.html#module-pyalgotrade.quote">pyalgotrade.quote (module)</a>
-  </dt>
-
-      
-  <dt><a href="quotefeed.html#module-pyalgotrade.quotefeed.base">pyalgotrade.quotefeed.base (module)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="quotefeed.html#module-pyalgotrade.quotefeed.csvfeed">pyalgotrade.quotefeed.csvfeed (module)</a>
+  <dt><a href="dataseries.html#module-pyalgotrade.dataseries">pyalgotrade.dataseries (module)</a>
   </dt>
 
       
@@ -458,26 +510,6 @@
 
       
   <dt><a href="technical.html#module-pyalgotrade.technical.trend">pyalgotrade.technical.trend (module)</a>
-  </dt>
-
-  </dl></td>
-</tr></table>
-
-<h2 id="Q">Q</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="quote.html#pyalgotrade.quote.Quote">Quote (class in pyalgotrade.quote)</a>
-  </dt>
-
-      
-  <dt><a href="quotefeed.html#pyalgotrade.quotefeed.base.QuoteFeed">QuoteFeed (class in pyalgotrade.quotefeed.base)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="quote.html#pyalgotrade.quote.Quotes">Quotes (class in pyalgotrade.quote)</a>
   </dt>
 
   </dl></td>
@@ -541,7 +573,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="quotefeed.html#pyalgotrade.quotefeed.csvfeed.YahooFeed">YahooFeed (class in pyalgotrade.quotefeed.csvfeed)</a>
+  <dt><a href="barfeed.html#pyalgotrade.barfeed.csvfeed.YahooFeed">YahooFeed (class in pyalgotrade.barfeed.csvfeed)</a>
   </dt>
 
   </dl></td>

@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="PyAlgoTrade 0.1 documentation" href="index.html" />
-    <link rel="next" title="Documentation for the Code" href="code.html" />
+    <link rel="next" title="Documentation for the code" href="code.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="code.html" title="Documentation for the Code"
+          <a href="code.html" title="Documentation for the code"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="intro.html" title="Introduction"
@@ -78,14 +78,14 @@ then PyAlgoTrade should allow you to do so with minimal effort.</p>
 <dd>These are a set of filters that you use to make calculations over a stream of values to decide what to do.
 For example SMA (Simple Moving Average), RSI (Relative Strength Index), etc.</dd>
 <dt>Feeds</dt>
-<dd>These are data providing abstractions. For example, you&#8217;ll use a CSV feed that loads quotes from a CSV
+<dd>These are data providing abstractions. For example, you&#8217;ll use a CSV feed that loads bars from a CSV
 (Comma-separated values) formatted file to feed data to a strategy.</dd>
 <dt>Optimizer</dt>
 <dd>These are a set of classes that allow you to distribute backtesting among different computers,
 or different processes running in the same computer, or a combination of both. They make horizontal scaling easy.</dd>
 </dl>
 <p>Having said all that, the first thing that we&#8217;ll need to test our strategy is some data.
-Let&#8217;s use Oracle&#8217;s stock quotes for year 2000, which we&#8217;ll download with the following command:</p>
+Let&#8217;s use Oracle&#8217;s stock prices for year 2000, which we&#8217;ll download with the following command:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pyalgotrade</span><span class="o">/</span><span class="n">tools</span><span class="o">/</span><span class="n">download_yahoo_data</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">instrument</span><span class="o">=</span><span class="n">orcl</span> <span class="o">--</span><span class="n">year</span><span class="o">=</span><span class="mi">2000</span>
 </pre></div>
 </div>
@@ -106,21 +106,21 @@ Let&#8217;s save that as orcl-2000.csv with the following command:</p>
 <p>Let&#8217;s start with a simple strategy, that is, one that just prints closing prices as they are processed:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
         <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">onTick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="n">quote</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">getQuote</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">())</span>
 
 <span class="c"># Load the yahoo feed from the CSV file</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
-<span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
 
-<span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
+<span class="c"># Evaluate the strategy with the feed&#39;s bars.</span>
 <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
 <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -128,9 +128,9 @@ Let&#8217;s save that as orcl-2000.csv with the following command:</p>
 <dl class="docutils">
 <dt>The code is doing 3 main things:</dt>
 <dd><ol class="first last arabic simple">
-<li>Declaring a new strategy. There is only one method that has to be defined, <em>onTick</em>, which is called for every quote in the feed.</li>
+<li>Declaring a new strategy. There is only one method that has to be defined, <em>onBars</em>, which is called for every bar in the feed.</li>
 <li>Loading the feed from a CSV file.</li>
-<li>Running the strategy with the quotes supplied by the feed.</li>
+<li>Running the strategy with the bars supplied by the feed.</li>
 </ol>
 </dd>
 </dl>
@@ -145,24 +145,24 @@ Let&#8217;s save that as orcl-2000.csv with the following command:</p>
 <p>Let&#8217;s move on with a strategy that prints closing SMA prices, to illustrate how technicals are used:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
         <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
         <span class="c"># We want a 15 period SMA over the closing prices.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">15</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">15</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">onTick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="n">quote</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">getQuote</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">())</span>
 
 <span class="c"># Load the yahoo feed from the CSV file</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
-<span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
 
-<span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
+<span class="c"># Evaluate the strategy with the feed&#39;s bars.</span>
 <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
 <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -202,25 +202,25 @@ That is because we need at least 15 values to get something out of the SMA:</p>
 For example, getting an SMA over the RSI over the closing prices is as simple as this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">rsi</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
         <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span> <span class="o">=</span> <span class="n">rsi</span><span class="o">.</span><span class="n">RSI</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">14</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span> <span class="o">=</span> <span class="n">rsi</span><span class="o">.</span><span class="n">RSI</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">14</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">onTick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="n">quote</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">getQuote</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">())</span>
 
 <span class="c"># Load the yahoo feed from the CSV file</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
-<span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
 
-<span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
+<span class="c"># Evaluate the strategy with the feed&#39;s bars.</span>
 <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
 <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -277,13 +277,13 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
 </div></blockquote>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">):</span>
         <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="n">smaPeriod</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="n">smaPeriod</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">onStart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -305,30 +305,30 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
         <span class="c"># If the exit was canceled, re-submit it.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">onTick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="c"># Wait for enough quotes to be available to calculate a SMA.</span>
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="c"># Wait for enough bars to be available to calculate a SMA.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">quote</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">getQuote</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
         <span class="c"># If a position was not opened, check if we should enter a long position.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">():</span>
                 <span class="c"># Enter a buy market order for 10 orcl shares. The order is good till canceled.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLong</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
         <span class="c"># Check if we have to exit the position.</span>
-        <span class="k">elif</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">():</span>
+        <span class="k">elif</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="o">.</span><span class="n">getValue</span><span class="p">():</span>
              <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">onFinish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="k">print</span> <span class="s">&quot;Final portfolio value: $</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">onFinish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;Final portfolio value: $</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="n">bars</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">run_strategy</span><span class="p">(</span><span class="n">smaPeriod</span><span class="p">):</span>
     <span class="c"># Load the yahoo feed from the CSV file</span>
     <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
-    <span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
+    <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
 
-    <span class="c"># Evaluate the strategy with the feed&#39;s quotes.</span>
+    <span class="c"># Evaluate the strategy with the feed&#39;s bars.</span>
     <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">)</span>
     <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
@@ -395,7 +395,7 @@ parameters, then the serial approach is definitely not going to scale as strateg
 <li><dl class="first docutils">
 <dt>There is one server responsible for:</dt>
 <dd><ul class="first last simple">
-<li>Providing the quotes to run the strategy.</li>
+<li>Providing the bars to run the strategy.</li>
 <li>Providing the parameters to run the strategy.</li>
 <li>Recording the strategy results from each of the workers.</li>
 </ul>
@@ -405,7 +405,7 @@ parameters, then the serial approach is definitely not going to scale as strateg
 <li><dl class="first docutils">
 <dt>There are multiple workers responsible for:</dt>
 <dd><ul class="first last simple">
-<li>Running the strategy with the quotes and parameters provided by the server.</li>
+<li>Running the strategy with the bars and parameters provided by the server.</li>
 </ul>
 </dd>
 </dl>
@@ -427,13 +427,13 @@ which requires the following parameters:</p>
 and we execute those serially, then we&#8217;ll need 102 days to evaluate all of them and find the best set of parameters.
 Thats a long time. If you can get ten 8-core computers, you can take that down to about 2 days.</p>
 <p>Long story short, <strong>we need to go parallel</strong>.</p>
-<p>Let&#8217;s start by downloading 3 years of daily quotes for &#8216;Dow Jones Industrial Average&#8217;:</p>
+<p>Let&#8217;s start by downloading 3 years of daily bars for &#8216;Dow Jones Industrial Average&#8217;:</p>
 <div class="highlight-python"><pre>pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2009 &gt; dia-2009.csv
 pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2010 &gt; dia-2010.csv
 pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2011.csv</pre>
 </div>
 <p>This is the server script:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">server</span>
 
 <span class="k">def</span> <span class="nf">parameters_generator</span><span class="p">():</span>
@@ -445,11 +445,11 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
                         <span class="k">yield</span> <span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
 
 <span class="c"># Load the feed from the CSV files.</span>
-<span class="k">print</span> <span class="s">&quot;Loading quotes&quot;</span>
+<span class="k">print</span> <span class="s">&quot;Loading bars&quot;</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
-<span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2009.csv&quot;</span><span class="p">)</span>
-<span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2010.csv&quot;</span><span class="p">)</span>
-<span class="n">feed</span><span class="o">.</span><span class="n">addQuotesFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2011.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2009.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2010.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2011.csv&quot;</span><span class="p">)</span>
 
 <span class="c"># Initialize and run the server.</span>
 <span class="k">print</span> <span class="s">&quot;Running server&quot;</span>
@@ -461,7 +461,7 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 <blockquote>
 <div><ol class="arabic simple">
 <li>Declaring a generator function that builds parameters.</li>
-<li>Loading the feed from a CSV file. In this case we load the quotes from the 3 files we just downloaded.</li>
+<li>Loading the feed from a CSV file. In this case we load the bars from the 3 files we just downloaded.</li>
 <li>Running the server that will wait for incoming local connections on port 5000.</li>
 </ol>
 </div></blockquote>
@@ -469,7 +469,7 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">worker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.quotefeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">rsi</span>
 
@@ -509,38 +509,38 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
         <span class="c"># If the exit was canceled, re-submit it.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">onTick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="c"># Wait for enough quotes to be available to calculate SMA and RSI.</span>
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="c"># Wait for enough bars to be available to calculate SMA and RSI.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">quote</span> <span class="o">=</span> <span class="n">quotes</span><span class="o">.</span><span class="n">getQuote</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">)</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitLongSignal</span><span class="p">(</span><span class="n">quote</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitLongSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitShortSignal</span><span class="p">(</span><span class="n">quote</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitShortSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLongSignal</span><span class="p">(</span><span class="n">quote</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLongSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLong</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterShortSignal</span><span class="p">(</span><span class="n">quote</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterShortSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterShort</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">enterLongSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quote</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__overSoldThreshold</span>
+    <span class="k">def</span> <span class="nf">enterLongSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__overSoldThreshold</span>
 
-    <span class="k">def</span> <span class="nf">exitLongSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quote</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">exitLongSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">enterShortSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quote</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__overBoughtThreshold</span>
+    <span class="k">def</span> <span class="nf">enterShortSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__overBoughtThreshold</span>
 
-    <span class="k">def</span> <span class="nf">exitShortSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quote</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">quote</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">exitShortSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">onFinish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quotes</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">onFinish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="n">bars</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">getResult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__result</span>
@@ -570,9 +570,9 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 </ol>
 </div></blockquote>
 <p>When you run the server and the client/s you&#8217;ll see something like this on the server console:</p>
-<div class="highlight-python"><pre>Loading quotes
+<div class="highlight-python"><pre>Loading bars
 Running server
-Processing quotes
+Processing bars
 Waiting for workers
 Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
 Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)
@@ -615,7 +615,7 @@ Running strategy with parameters (150, 5, 2, 82, 5)
                         title="previous chapter">Introduction</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="code.html"
-                        title="next chapter">Documentation for the Code</a></p>
+                        title="next chapter">Documentation for the code</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/tutorial.txt"
@@ -648,7 +648,7 @@ Running strategy with parameters (150, 5, 2, 82, 5)
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="code.html" title="Documentation for the Code"
+          <a href="code.html" title="Documentation for the code"
              >next</a> |</li>
         <li class="right" >
           <a href="intro.html" title="Introduction"

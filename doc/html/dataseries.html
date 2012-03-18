@@ -26,9 +26,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="PyAlgoTrade 0.1 documentation" href="index.html" />
-    <link rel="up" title="Documentation for the Code" href="code.html" />
-    <link rel="next" title="quotefeed – Quote providers" href="quotefeed.html" />
-    <link rel="prev" title="quote – Instrument prices" href="quote.html" /> 
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="barfeed – Bar providers" href="barfeed.html" />
+    <link rel="prev" title="bar – Instrument prices" href="bar.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,13 +41,13 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="quotefeed.html" title="quotefeed – Quote providers"
+          <a href="barfeed.html" title="barfeed – Bar providers"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="quote.html" title="quote – Instrument prices"
+          <a href="bar.html" title="bar – Instrument prices"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">PyAlgoTrade 0.1 documentation</a> &raquo;</li>
-          <li><a href="code.html" accesskey="U">Documentation for the Code</a> &raquo;</li> 
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -136,6 +136,48 @@
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pyalgotrade.dataseries.BarDataSeries">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.dataseries.</tt><tt class="descname">BarDataSeries</tt><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> of <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> instances.</p>
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getAdjCloseDataSeries">
+<tt class="descname">getAdjCloseDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getAdjCloseDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the adjusted close prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getCloseDataSeries">
+<tt class="descname">getCloseDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getCloseDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the close prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getHighDataSeries">
+<tt class="descname">getHighDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getHighDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the high prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getLowDataSeries">
+<tt class="descname">getLowDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getLowDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the low prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getOpenDataSeries">
+<tt class="descname">getOpenDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getOpenDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the open prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getVolumeDataSeries">
+<tt class="descname">getVolumeDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getVolumeDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the volume.</p>
+</dd></dl>
+
+</dd></dl>
+
 <div class="section" id="example">
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">dataseries</span>
@@ -183,11 +225,11 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="quote.html"
-                        title="previous chapter">quote &#8211; Instrument prices</a></p>
+  <p class="topless"><a href="bar.html"
+                        title="previous chapter">bar &#8211; Instrument prices</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="quotefeed.html"
-                        title="next chapter">quotefeed &#8211; Quote providers</a></p>
+  <p class="topless"><a href="barfeed.html"
+                        title="next chapter">barfeed &#8211; Bar providers</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/dataseries.txt"
@@ -220,13 +262,13 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="quotefeed.html" title="quotefeed – Quote providers"
+          <a href="barfeed.html" title="barfeed – Bar providers"
              >next</a> |</li>
         <li class="right" >
-          <a href="quote.html" title="quote – Instrument prices"
+          <a href="bar.html" title="bar – Instrument prices"
              >previous</a> |</li>
         <li><a href="index.html">PyAlgoTrade 0.1 documentation</a> &raquo;</li>
-          <li><a href="code.html" >Documentation for the Code</a> &raquo;</li> 
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -1,0 +1,10 @@
+barfeed -- Bar providers
+========================
+
+.. automodule:: pyalgotrade.barfeed.base
+    :members: BarFeed
+    :inherited-members:
+
+.. automodule:: pyalgotrade.barfeed.csvfeed
+    :members: YahooFeed
+

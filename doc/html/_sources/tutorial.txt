@@ -25,7 +25,7 @@ Technicals
     For example SMA (Simple Moving Average), RSI (Relative Strength Index), etc.
 
 Feeds
-    These are data providing abstractions. For example, you'll use a CSV feed that loads quotes from a CSV
+    These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
 
 Optimizer
@@ -33,7 +33,7 @@ Optimizer
     or different processes running in the same computer, or a combination of both. They make horizontal scaling easy.
 
 Having said all that, the first thing that we'll need to test our strategy is some data.
-Let's use Oracle's stock quotes for year 2000, which we'll download with the following command: ::
+Let's use Oracle's stock prices for year 2000, which we'll download with the following command: ::
 
     pyalgotrade/tools/download_yahoo_data.py --instrument=orcl --year=2000
 
@@ -57,28 +57,28 @@ Let's start with a simple strategy, that is, one that just prints closing prices
 
     from pyalgotrade import strategy
     from pyalgotrade import broker
-    from pyalgotrade.quotefeed import csvfeed
+    from pyalgotrade.barfeed import csvfeed
 
     class MyStrategy(strategy.Strategy):
         def __init__(self, feed):
             strategy.Strategy.__init__(self, feed)
 
-        def onTick(self, quotes):
-            quote = quotes.getQuote("orcl")
-            print "%s: %s" % (quote.getDateTime(), quote.getClose())
+        def onBars(self, bars):
+            bar = bars.getBar("orcl")
+            print "%s: %s" % (bar.getDateTime(), bar.getClose())
 
     # Load the yahoo feed from the CSV file
     feed = csvfeed.YahooFeed()
-    feed.addQuotesFromCSV("orcl", "orcl-2000.csv")
+    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
-    # Evaluate the strategy with the feed's quotes.
+    # Evaluate the strategy with the feed's bars.
     myStrategy = MyStrategy(feed)
     myStrategy.run()
 
 The code is doing 3 main things:
- 1. Declaring a new strategy. There is only one method that has to be defined, *onTick*, which is called for every quote in the feed.
+ 1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar in the feed.
  2. Loading the feed from a CSV file.
- 3. Running the strategy with the quotes supplied by the feed.
+ 3. Running the strategy with the bars supplied by the feed.
 
 If you run the script you should see the closing prices in order: ::
 
@@ -93,24 +93,24 @@ Let's move on with a strategy that prints closing SMA prices, to illustrate how 
 
     from pyalgotrade import strategy
     from pyalgotrade import broker
-    from pyalgotrade.quotefeed import csvfeed
+    from pyalgotrade.barfeed import csvfeed
     from pyalgotrade.technical import ma
 
     class MyStrategy(strategy.Strategy):
         def __init__(self, feed):
             strategy.Strategy.__init__(self, feed)
             # We want a 15 period SMA over the closing prices.
-            self.__sma = ma.SMA(feed.getDataSeries().getCloseDataSeries(), 15)
+            self.__sma = ma.SMA(feed.getDataSeries("orcl").getCloseDataSeries(), 15)
 
-        def onTick(self, quotes):
-            quote = quotes.getQuote("orcl")
-            print "%s: %s %s" % (quote.getDateTime(), quote.getClose(), self.__sma.getValue())
+        def onBars(self, bars):
+            bar = bars.getBar("orcl")
+            print "%s: %s %s" % (bar.getDateTime(), bar.getClose(), self.__sma.getValue())
 
     # Load the yahoo feed from the CSV file
     feed = csvfeed.YahooFeed()
-    feed.addQuotesFromCSV("orcl", "orcl-2000.csv")
+    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
-    # Evaluate the strategy with the feed's quotes.
+    # Evaluate the strategy with the feed's bars.
     myStrategy = MyStrategy(feed)
     myStrategy.run()
 
@@ -150,25 +150,25 @@ For example, getting an SMA over the RSI over the closing prices is as simple as
 
     from pyalgotrade import strategy
     from pyalgotrade import broker
-    from pyalgotrade.quotefeed import csvfeed
+    from pyalgotrade.barfeed import csvfeed
     from pyalgotrade.technical import ma
     from pyalgotrade.technical import rsi
 
     class MyStrategy(strategy.Strategy):
         def __init__(self, feed):
             strategy.Strategy.__init__(self, feed)
-            self.__rsi = rsi.RSI(feed.getDataSeries().getCloseDataSeries(), 14)
+            self.__rsi = rsi.RSI(feed.getDataSeries("orcl").getCloseDataSeries(), 14)
             self.__sma = ma.SMA(self.__rsi, 15)
 
-        def onTick(self, quotes):
-            quote = quotes.getQuote("orcl")
-            print "%s: %s %s %s" % (quote.getDateTime(), quote.getClose(), self.__rsi.getValue(), self.__sma.getValue())
+        def onBars(self, bars):
+            bar = bars.getBar("orcl")
+            print "%s: %s %s %s" % (bar.getDateTime(), bar.getClose(), self.__rsi.getValue(), self.__sma.getValue())
 
     # Load the yahoo feed from the CSV file
     feed = csvfeed.YahooFeed()
-    feed.addQuotesFromCSV("orcl", "orcl-2000.csv")
+    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
-    # Evaluate the strategy with the feed's quotes.
+    # Evaluate the strategy with the feed's bars.
     myStrategy = MyStrategy(feed)
     myStrategy.run()
 
@@ -224,13 +224,13 @@ Let's move on with a simple strategy, this time simulating actual trading. The i
 
     from pyalgotrade import strategy
     from pyalgotrade import broker
-    from pyalgotrade.quotefeed import csvfeed
+    from pyalgotrade.barfeed import csvfeed
     from pyalgotrade.technical import ma
 
     class MyStrategy(strategy.Strategy):
         def __init__(self, feed, smaPeriod):
             strategy.Strategy.__init__(self, feed, 1000)
-            self.__sma = ma.SMA(feed.getDataSeries().getCloseDataSeries(), smaPeriod)
+            self.__sma = ma.SMA(feed.getDataSeries("orcl").getCloseDataSeries(), smaPeriod)
             self.__position = None
 
         def onStart(self):
@@ -252,30 +252,30 @@ Let's move on with a simple strategy, this time simulating actual trading. The i
             # If the exit was canceled, re-submit it. 
             self.exitPosition(self.__position)
 
-        def onTick(self, quotes):
-            # Wait for enough quotes to be available to calculate a SMA.
+        def onBars(self, bars):
+            # Wait for enough bars to be available to calculate a SMA.
             if self.__sma.getValue() is None:
                 return
 
-            quote = quotes.getQuote("orcl")
+            bar = bars.getBar("orcl")
             # If a position was not opened, check if we should enter a long position.
             if self.__position == None:
-                if quote.getClose() > self.__sma.getValue():
+                if bar.getClose() > self.__sma.getValue():
                     # Enter a buy market order for 10 orcl shares. The order is good till canceled.
                     self.__position = self.enterLong("orcl", 10, True)
             # Check if we have to exit the position.
-            elif quote.getClose() < self.__sma.getValue():
+            elif bar.getClose() < self.__sma.getValue():
                  self.exitPosition(self.__position)
 
-        def onFinish(self, quotes):
-            print "Final portfolio value: $%.2f" % self.getBroker().getValue(quotes)
+        def onFinish(self, bars):
+            print "Final portfolio value: $%.2f" % self.getBroker().getValue(bars)
 
     def run_strategy(smaPeriod):
         # Load the yahoo feed from the CSV file
         feed = csvfeed.YahooFeed()
-        feed.addQuotesFromCSV("orcl", "orcl-2000.csv")
+        feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
-        # Evaluate the strategy with the feed's quotes.
+        # Evaluate the strategy with the feed's bars.
         myStrategy = MyStrategy(feed, smaPeriod)
         myStrategy.run()
 
@@ -343,11 +343,11 @@ parameters, then the serial approach is definitely not going to scale as strateg
 Meet the optimizer component. The idea is very simple:
 
  * There is one server responsible for:
-    * Providing the quotes to run the strategy.
+    * Providing the bars to run the strategy.
     * Providing the parameters to run the strategy.
     * Recording the strategy results from each of the workers.
  * There are multiple workers responsible for:
-    * Running the strategy with the quotes and parameters provided by the server.
+    * Running the strategy with the bars and parameters provided by the server.
 
 To illustrate this we'll use a strategy known as RSI2 (http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2)
 which requires the following parameters:
@@ -364,7 +364,7 @@ Thats a long time. If you can get ten 8-core computers, you can take that down t
 
 Long story short, **we need to go parallel**.
 
-Let's start by downloading 3 years of daily quotes for 'Dow Jones Industrial Average': ::
+Let's start by downloading 3 years of daily bars for 'Dow Jones Industrial Average': ::
 
     pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2009 > dia-2009.csv
     pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2010 > dia-2010.csv
@@ -372,7 +372,7 @@ Let's start by downloading 3 years of daily quotes for 'Dow Jones Industrial Ave
 
 This is the server script: ::
 
-    from pyalgotrade.quotefeed import csvfeed
+    from pyalgotrade.barfeed import csvfeed
     from pyalgotrade.optimizer import server
 
     def parameters_generator():
@@ -384,11 +384,11 @@ This is the server script: ::
                             yield (entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
 
     # Load the feed from the CSV files.
-    print "Loading quotes"
+    print "Loading bars"
     feed = csvfeed.YahooFeed()
-    feed.addQuotesFromCSV("dia", "dia-2009.csv")
-    feed.addQuotesFromCSV("dia", "dia-2010.csv")
-    feed.addQuotesFromCSV("dia", "dia-2011.csv")
+    feed.addBarsFromCSV("dia", "dia-2009.csv")
+    feed.addBarsFromCSV("dia", "dia-2010.csv")
+    feed.addBarsFromCSV("dia", "dia-2011.csv")
 
     # Initialize and run the server.
     print "Running server"
@@ -398,7 +398,7 @@ This is the server script: ::
 The server code is doing 3 things:
 
  1. Declaring a generator function that builds parameters.
- 2. Loading the feed from a CSV file. In this case we load the quotes from the 3 files we just downloaded.
+ 2. Loading the feed from a CSV file. In this case we load the bars from the 3 files we just downloaded.
  3. Running the server that will wait for incoming local connections on port 5000.
 
 This is the worker script: ::
@@ -406,7 +406,7 @@ This is the worker script: ::
     from pyalgotrade.optimizer import worker
     from pyalgotrade import strategy
     from pyalgotrade import broker
-    from pyalgotrade.quotefeed import csvfeed
+    from pyalgotrade.barfeed import csvfeed
     from pyalgotrade.technical import ma
     from pyalgotrade.technical import rsi
 
@@ -446,38 +446,38 @@ This is the worker script: ::
             # If the exit was canceled, re-submit it. 
             self.exitPosition(position)
 
-        def onTick(self, quotes):
-            # Wait for enough quotes to be available to calculate SMA and RSI.
+        def onBars(self, bars):
+            # Wait for enough bars to be available to calculate SMA and RSI.
             if self.__exitSMA.getValue() is None or self.__entrySMA.getValue() is None or self.__rsi.getValue() is None:
                 return
 
-            quote = quotes.getQuote("dia")
+            bar = bars.getBar("dia")
             if self.__longPos != None:
-                if self.exitLongSignal(quote):
+                if self.exitLongSignal(bar):
                     self.exitPosition(self.__longPos)
             elif self.__shortPos != None:
-                if self.exitShortSignal(quote):
+                if self.exitShortSignal(bar):
                     self.exitPosition(self.__shortPos)
             else:
-                if self.enterLongSignal(quote):
+                if self.enterLongSignal(bar):
                     self.__longPos = self.enterLong("dia", 10, True)
-                elif self.enterShortSignal(quote):
+                elif self.enterShortSignal(bar):
                     self.__shortPos = self.enterShort("dia", 10, True)
 
-        def enterLongSignal(self, quote):
-            return quote.getClose() > self.__entrySMA.getValue() and self.__rsi.getValue() <= self.__overSoldThreshold
+        def enterLongSignal(self, bar):
+            return bar.getClose() > self.__entrySMA.getValue() and self.__rsi.getValue() <= self.__overSoldThreshold
 
-        def exitLongSignal(self, quote):
-            return quote.getClose() > self.__exitSMA.getValue()
+        def exitLongSignal(self, bar):
+            return bar.getClose() > self.__exitSMA.getValue()
 
-        def enterShortSignal(self, quote):
-            return quote.getClose() < self.__entrySMA.getValue() and self.__rsi.getValue() >= self.__overBoughtThreshold
+        def enterShortSignal(self, bar):
+            return bar.getClose() < self.__entrySMA.getValue() and self.__rsi.getValue() >= self.__overBoughtThreshold
 
-        def exitShortSignal(self, quote):
-            return quote.getClose() < self.__exitSMA.getValue()
+        def exitShortSignal(self, bar):
+            return bar.getClose() < self.__exitSMA.getValue()
 
-        def onFinish(self, quotes):
-            self.__result = self.getBroker().getValue(quotes)
+        def onFinish(self, bars):
+            self.__result = self.getBroker().getValue(bars)
 
         def getResult(self):
             return self.__result
@@ -505,9 +505,9 @@ The worker code is doing 3 things:
 
 When you run the server and the client/s you'll see something like this on the server console: ::
 
-    Loading quotes
+    Loading bars
     Running server
-    Processing quotes
+    Processing bars
     Waiting for workers
     Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
     Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)

@@ -1,4 +1,4 @@
-Documentation for the Code
+Documentation for the code
 ==========================
 
 Contents:
@@ -6,9 +6,9 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    quote
+    bar
     dataseries
-    quotefeed
+    barfeed
     technical
     strategy
     broker
