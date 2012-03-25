@@ -105,7 +105,6 @@ Let&#8217;s save that as orcl-2000.csv with the following command:</p>
 </div>
 <p>Let&#8217;s start with a simple strategy, that is, one that just prints closing prices as they are processed:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 
 <span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
@@ -144,7 +143,6 @@ Let&#8217;s save that as orcl-2000.csv with the following command:</p>
 </div>
 <p>Let&#8217;s move on with a strategy that prints closing SMA prices, to illustrate how technicals are used:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 
@@ -201,7 +199,6 @@ That is because we need at least 15 values to get something out of the SMA:</p>
 <p>One important thing about technicals is that they can be stacked. That is because they&#8217;re modeled as data series too.
 For example, getting an SMA over the RSI over the closing prices is as simple as this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">rsi</span>
@@ -276,7 +273,6 @@ Only when we have 15 not None values we can calculate the SMA(15).</li>
 </ul>
 </div></blockquote>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 
@@ -445,15 +441,13 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
                         <span class="k">yield</span> <span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
 
 <span class="c"># Load the feed from the CSV files.</span>
-<span class="k">print</span> <span class="s">&quot;Loading bars&quot;</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
 <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2009.csv&quot;</span><span class="p">)</span>
 <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2010.csv&quot;</span><span class="p">)</span>
 <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2011.csv&quot;</span><span class="p">)</span>
 
-<span class="c"># Initialize and run the server.</span>
-<span class="k">print</span> <span class="s">&quot;Running server&quot;</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
+<span class="c"># Run the server.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="s">&quot;192.168.1.112&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
 <span class="n">s</span><span class="o">.</span><span class="n">serve</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">parameters_generator</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -461,14 +455,14 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 <blockquote>
 <div><ol class="arabic simple">
 <li>Declaring a generator function that builds parameters.</li>
-<li>Loading the feed from a CSV file. In this case we load the bars from the 3 files we just downloaded.</li>
-<li>Running the server that will wait for incoming local connections on port 5000.</li>
+<li>Loading the feed with the CSV files we downloaded.</li>
+<li>Running the server that will wait for incoming connections on port 5000.</li>
 </ol>
 </div></blockquote>
 <p>This is the worker script:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">worker</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">worker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">rsi</span>
@@ -545,63 +539,176 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
     <span class="k">def</span> <span class="nf">getResult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__result</span>
 
-<span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="n">worker</span><span class="o">.</span><span class="n">Worker</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">runStrategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
-        <span class="n">entrySMA</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">exitSMA</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">rsiPeriod</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">overBoughtThreshold</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-        <span class="n">overSoldThreshold</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-        <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
-        <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
-
-<span class="c"># Create a worker and run it.</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">Worker</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">worker</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="s">&quot;192.168.1.112&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>The worker code is doing 3 things:</p>
+<p>The worker code is doing 2 things:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li>Declaring the RSI2 strategy.</li>
-<li>Declaring the Worker class. The <em>runStrategy</em> method has to be implemented to run the strategy with the feed and parameters that the server provided.</li>
-<li>Creating and running the worker.</li>
+<li>Using pyalgotrade.optimizer.worker module to run the strategy in parallel with the data supplied by the server.</li>
 </ol>
 </div></blockquote>
 <p>When you run the server and the client/s you&#8217;ll see something like this on the server console:</p>
-<div class="highlight-python"><pre>Loading bars
-Running server
-Processing bars
-Waiting for workers
-Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
-Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)
-Partial result $2100.40 with parameters: (150, 5, 2, 77, 5)
-Partial result $2100.40 with parameters: (150, 5, 2, 78, 5)
-Partial result $2100.40 with parameters: (150, 5, 2, 79, 5)
-Partial result $2112.20 with parameters: (150, 5, 2, 80, 5)
-Partial result $2115.50 with parameters: (150, 5, 2, 81, 5)
-Partial result $2076.60 with parameters: (150, 5, 2, 82, 5)
-Partial result $2003.60 with parameters: (150, 5, 2, 83, 5)
-Partial result $2003.60 with parameters: (150, 5, 2, 84, 5)
-Partial result $2003.60 with parameters: (150, 5, 2, 85, 5)
-Partial result $2048.60 with parameters: (150, 5, 2, 86, 5)
+<div class="highlight-python"><pre>INFO 2012-03-24 22:29:29,860: Loading bars
+INFO 2012-03-24 22:29:30,053: Waiting for workers
+INFO 2012-03-24 22:29:33,640: Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
+INFO 2012-03-24 22:29:33,769: Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)
+INFO 2012-03-24 22:29:33,896: Partial result $2100.40 with parameters: (150, 5, 2, 77, 5)
+INFO 2012-03-24 22:29:34,025: Partial result $2100.40 with parameters: (150, 5, 2, 78, 5)
+INFO 2012-03-24 22:29:34,153: Partial result $2100.40 with parameters: (150, 5, 2, 79, 5)
+INFO 2012-03-24 22:29:34,280: Partial result $2112.20 with parameters: (150, 5, 2, 80, 5)
 .
 .</pre>
 </div>
 <p>and something like this on the worker/s console:</p>
-<div class="highlight-python"><pre>Running strategy with parameters (150, 5, 2, 75, 5)
-Running strategy with parameters (150, 5, 2, 76, 5)
-Running strategy with parameters (150, 5, 2, 77, 5)
-Running strategy with parameters (150, 5, 2, 78, 5)
-Running strategy with parameters (150, 5, 2, 79, 5)
-Running strategy with parameters (150, 5, 2, 80, 5)
-Running strategy with parameters (150, 5, 2, 81, 5)
-Running strategy with parameters (150, 5, 2, 82, 5)
+<div class="highlight-python"><pre>INFO 2012-03-24 22:29:33,515: Running strategy with parameters (150, 5, 2, 75, 5)
+INFO 2012-03-24 22:29:33,638: Result 2036.9
+INFO 2012-03-24 22:29:33,643: Running strategy with parameters (150, 5, 2, 76, 5)
+INFO 2012-03-24 22:29:33,767: Result 2089.2
+INFO 2012-03-24 22:29:33,772: Running strategy with parameters (150, 5, 2, 77, 5)
+INFO 2012-03-24 22:29:33,895: Result 2100.4
+INFO 2012-03-24 22:29:33,899: Running strategy with parameters (150, 5, 2, 78, 5)
+INFO 2012-03-24 22:29:34,023: Result 2100.4
+INFO 2012-03-24 22:29:34,028: Running strategy with parameters (150, 5, 2, 79, 5)
+INFO 2012-03-24 22:29:34,151: Result 2100.4
+INFO 2012-03-24 22:29:34,156: Running strategy with parameters (150, 5, 2, 80, 5)
+INFO 2012-03-24 22:29:34,278: Result 2112.2
 .
 .</pre>
 </div>
-<p>Note that you should run <strong>only one server and one or more workers</strong>. For this tutorial I ran both on the same computer.</p>
+<p>Note that you should run <strong>only one server and one or more workers</strong>.</p>
+<p>If you just want to run strategies in parallel in your own desktop you can take advantage of the pyalgotrade.optimizer.local
+module like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">local</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">rsi</span>
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">feed</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">entrySMA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span> <span class="o">=</span> <span class="n">rsi</span><span class="o">.</span><span class="n">RSI</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__overBoughtThreshold</span> <span class="o">=</span> <span class="n">overBoughtThreshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__overSoldThreshold</span> <span class="o">=</span> <span class="n">overSoldThreshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__result</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">onEnterOk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">onEnterCanceled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">==</span> <span class="n">position</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">==</span> <span class="n">position</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onExitOk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">==</span> <span class="n">position</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">==</span> <span class="n">position</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onExitCanceled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="c"># If the exit was canceled, re-submit it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="c"># Wait for enough bars to be available to calculate SMA and RSI.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitLongSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitShortSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exitPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLongSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__longPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLong</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterShortSignal</span><span class="p">(</span><span class="n">bar</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__shortPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterShort</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">enterLongSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__overSoldThreshold</span>
+
+    <span class="k">def</span> <span class="nf">exitLongSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">enterShortSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__entrySMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rsi</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__overBoughtThreshold</span>
+
+    <span class="k">def</span> <span class="nf">exitShortSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exitSMA</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">onFinish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="n">bars</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getResult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__result</span>
+
+<span class="k">def</span> <span class="nf">parameters_generator</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">entrySMA</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">251</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">exitSMA</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">rsiPeriod</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">overSoldThreshold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">overBoughtThreshold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
+
+<span class="c"># Load the feed from the CSV files.</span>
+<span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2009.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2010.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2011.csv&quot;</span><span class="p">)</span>
+
+<span class="n">local</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">parameters_generator</span><span class="p">(),</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>The code is doing 4 things:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Declaring the RSI2 strategy.</li>
+<li>Declaring a generator function that builds parameters.</li>
+<li>Loading the feed with the CSV files we downloaded.</li>
+<li>Using the pyalgotrade.optimizer.local module to run the strategy in parallel and find the best result.</li>
+</ol>
+</div></blockquote>
+<p>When you run this code you should see something like this:</p>
+<div class="highlight-python"><pre>INFO 2012-03-25 00:07:34,793: Loading bars
+INFO 2012-03-25 00:07:34,996: Waiting for workers
+INFO 2012-03-25 00:07:35,366: Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
+INFO 2012-03-25 00:07:35,385: Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)
+INFO 2012-03-25 00:07:35,499: Partial result $2100.40 with parameters: (150, 5, 2, 77, 5)
+INFO 2012-03-25 00:07:35,515: Partial result $2100.40 with parameters: (150, 5, 2, 78, 5)
+INFO 2012-03-25 00:07:35,632: Partial result $2100.40 with parameters: (150, 5, 2, 79, 5)
+INFO 2012-03-25 00:07:35,646: Partial result $2112.20 with parameters: (150, 5, 2, 80, 5)
+INFO 2012-03-25 00:07:35,763: Partial result $2115.50 with parameters: (150, 5, 2, 81, 5)
+INFO 2012-03-25 00:07:35,775: Partial result $2076.60 with parameters: (150, 5, 2, 82, 5)
+INFO 2012-03-25 00:07:35,895: Partial result $2003.60 with parameters: (150, 5, 2, 83, 5)
+INFO 2012-03-25 00:07:35,902: Partial result $2003.60 with parameters: (150, 5, 2, 84, 5)
+INFO 2012-03-25 00:07:36,026: Partial result $2003.60 with parameters: (150, 5, 2, 85, 5)
+INFO 2012-03-25 00:07:36,033: Partial result $2048.60 with parameters: (150, 5, 2, 86, 5)
+INFO 2012-03-25 00:07:36,157: Partial result $2061.70 with parameters: (150, 5, 2, 87, 5)
+INFO 2012-03-25 00:07:36,163: Partial result $2075.00 with parameters: (150, 5, 2, 88, 5)
+INFO 2012-03-25 00:07:36,288: Partial result $2082.00 with parameters: (150, 5, 2, 89, 5)
+INFO 2012-03-25 00:07:36,293: Partial result $2080.70 with parameters: (150, 5, 2, 90, 5)
+INFO 2012-03-25 00:07:36,418: Partial result $2086.80 with parameters: (150, 5, 2, 91, 5)
+INFO 2012-03-25 00:07:36,424: Partial result $2086.80 with parameters: (150, 5, 2, 92, 5)
+.
+.</pre>
+</div>
 </div>
 
 
