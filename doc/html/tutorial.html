@@ -447,8 +447,7 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2011.csv&quot;</span><span class="p">)</span>
 
 <span class="c"># Run the server.</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="s">&quot;192.168.1.112&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">serve</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">parameters_generator</span><span class="p">())</span>
+<span class="n">server</span><span class="o">.</span><span class="n">serve</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">parameters_generator</span><span class="p">(),</span> <span class="s">&quot;192.168.1.112&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The server code is doing 3 things:</p>

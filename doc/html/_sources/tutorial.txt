@@ -386,8 +386,7 @@ This is the server script: ::
     feed.addBarsFromCSV("dia", "dia-2011.csv")
 
     # Run the server.
-    s = server.Server("192.168.1.112", 5000)
-    s.serve(feed, parameters_generator())
+    server.serve(feed, parameters_generator(), "192.168.1.112", 5000)
 
 The server code is doing 3 things:
 

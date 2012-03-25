@@ -12,4 +12,5 @@ Contents:
     technical
     strategy
     broker
+    optimizer
 
