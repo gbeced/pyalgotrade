@@ -19,7 +19,7 @@
 """
 
 import unittest
-from pyalgotrade.testcases import common
+import common
 from pyalgotrade.technical import rsi
 
 class TestCase(unittest.TestCase):
