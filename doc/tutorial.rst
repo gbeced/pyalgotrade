@@ -368,16 +368,17 @@ Let's start by downloading 3 years of daily bars for 'Dow Jones Industrial Avera
 
 This is the server script: ::
 
+    import itertools
     from pyalgotrade.barfeed import csvfeed
     from pyalgotrade.optimizer import server
 
     def parameters_generator():
-        for entrySMA in range(150, 251):
-            for exitSMA in range(5, 16):
-                for rsiPeriod in range(2, 11):
-                    for overSoldThreshold in range(5, 26):
-                        for overBoughtThreshold in range(75, 96):
-                            yield (entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
+        entrySMA = range(150, 251)
+        exitSMA = range(5, 16)
+        rsiPeriod = range(2, 11)
+        overBoughtThreshold = range(75, 96)
+        overSoldThreshold = range(5, 26)
+        return itertools.product(entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
 
     # Load the feed from the CSV files.
     feed = csvfeed.YahooFeed()
@@ -396,7 +397,6 @@ The server code is doing 3 things:
 
 This is the worker script: ::
 
-    import multiprocessing
     from pyalgotrade.optimizer import worker
     from pyalgotrade import strategy
     from pyalgotrade.barfeed import csvfeed
@@ -475,7 +475,7 @@ This is the worker script: ::
         def getResult(self):
             return self.__result
 
-    worker.run(MyStrategy, "192.168.1.112", 5000, multiprocessing.cpu_count())
+    worker.run(MyStrategy, "192.168.1.112", 5000)
 
 The worker code is doing 2 things:
 
@@ -518,7 +518,7 @@ Note that you should run **only one server and one or more workers in different 
 If you just want to run strategies in parallel in your own desktop you can take advantage of the pyalgotrade.optimizer.local
 module like this: ::
 
-    import multiprocessing
+    import itertools
     from pyalgotrade.optimizer import local
     from pyalgotrade.barfeed import csvfeed
     from pyalgotrade import strategy
@@ -598,12 +598,12 @@ module like this: ::
             return self.__result
 
     def parameters_generator():
-        for entrySMA in range(150, 251):
-            for exitSMA in range(5, 16):
-                for rsiPeriod in range(2, 11):
-                    for overSoldThreshold in range(5, 26):
-                        for overBoughtThreshold in range(75, 96):
-                            yield (entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
+        entrySMA = range(150, 251)
+        exitSMA = range(5, 16)
+        rsiPeriod = range(2, 11)
+        overBoughtThreshold = range(75, 96)
+        overSoldThreshold = range(5, 26)
+        return itertools.product(entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
 
     # Load the feed from the CSV files.
     feed = csvfeed.YahooFeed()
@@ -611,7 +611,7 @@ module like this: ::
     feed.addBarsFromCSV("dia", "dia-2010.csv")
     feed.addBarsFromCSV("dia", "dia-2011.csv")
 
-    local.run(MyStrategy, feed, parameters_generator(), multiprocessing.cpu_count())
+    local.run(MyStrategy, feed, parameters_generator())
 
 The code is doing 4 things:
 

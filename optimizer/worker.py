@@ -109,7 +109,7 @@ def worker_process(strategyClass, address, port):
 	w = MyWorker(address, port)
 	w.run()
 
-def run(strategyClass, address, port, workerCount):
+def run(strategyClass, address, port, workerCount = None):
 	"""Executes one or more worker processes that will run a strategy with the bars and parameters supplied by the server.
 
 	:param strategyClass: The strategy class. Must have a *getResult* method that returns the strategy result.
@@ -117,11 +117,13 @@ def run(strategyClass, address, port, workerCount):
 	:type address: string.
 	:param port: The port where the server is listening for incoming connections.
 	:type port: int.
-	:param workerCount: The number of worker processes to run.
+	:param workerCount: The number of worker processes to run. If None then as many workers as CPUs are used.
 	:type workerCount: int.
 	"""
 
-	assert(workerCount > 0)
+	assert(workerCount == None or workerCount > 0)
+	if workerCount == None:
+		workerCount = multiprocessing.cpu_count()
 
 	workers = []
 	# Build the worker processes.
