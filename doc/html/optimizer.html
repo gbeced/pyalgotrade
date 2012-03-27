@@ -76,7 +76,7 @@
 
 <span class="target" id="module-pyalgotrade.optimizer.worker"></span><dl class="function">
 <dt id="pyalgotrade.optimizer.worker.run">
-<tt class="descclassname">pyalgotrade.optimizer.worker.</tt><tt class="descname">run</tt><big>(</big><em>strategyClass</em>, <em>address</em>, <em>port</em>, <em>workerCount</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.worker.run" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyalgotrade.optimizer.worker.</tt><tt class="descname">run</tt><big>(</big><em>strategyClass</em>, <em>address</em>, <em>port</em>, <em>workerCount=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.worker.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes one or more worker processes that will run a strategy with the bars and parameters supplied by the server.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -86,7 +86,7 @@
 <li><strong>strategyClass</strong> &#8211; The strategy class. Must have a <em>getResult</em> method that returns the strategy result.</li>
 <li><strong>address</strong> (<em>string.</em>) &#8211; The address of the server.</li>
 <li><strong>port</strong> (<em>int.</em>) &#8211; The port where the server is listening for incoming connections.</li>
-<li><strong>workerCount</strong> (<em>int.</em>) &#8211; The number of worker processes to run.</li>
+<li><strong>workerCount</strong> (<em>int.</em>) &#8211; The number of worker processes to run. If None then as many workers as CPUs are used.</li>
 </ul>
 </td>
 </tr>
@@ -96,7 +96,7 @@
 
 <span class="target" id="module-pyalgotrade.optimizer.local"></span><dl class="function">
 <dt id="pyalgotrade.optimizer.local.run">
-<tt class="descclassname">pyalgotrade.optimizer.local.</tt><tt class="descname">run</tt><big>(</big><em>strategyClass</em>, <em>barFeed</em>, <em>strategyParameters</em>, <em>workerCount</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.local.run" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyalgotrade.optimizer.local.</tt><tt class="descname">run</tt><big>(</big><em>strategyClass</em>, <em>barFeed</em>, <em>strategyParameters</em>, <em>workerCount=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.local.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes many instances of a strategy in parallel and finds the parameters that yield the best results.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -106,7 +106,7 @@
 <li><strong>strategyClass</strong> &#8211; The strategy class. Must have a <em>getResult</em> method that returns the strategy result.</li>
 <li><strong>barFeed</strong> (<a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a>.) &#8211; The bar feed to use to backtest the strategy.</li>
 <li><strong>strategyParameters</strong> &#8211; The set of parameters to use for backtesting. An iterable object where each element is a tuple that holds parameter values.</li>
-<li><strong>workerCount</strong> (<em>int.</em>) &#8211; The number of strategies to run in parallel.</li>
+<li><strong>workerCount</strong> (<em>int.</em>) &#8211; The number of strategies to run in parallel. If None then as many workers as CPUs are used.</li>
 </ul>
 </td>
 </tr>

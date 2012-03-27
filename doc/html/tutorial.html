@@ -429,16 +429,17 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2010 &gt; dia-2
 pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2011.csv</pre>
 </div>
 <p>This is the server script:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">server</span>
 
 <span class="k">def</span> <span class="nf">parameters_generator</span><span class="p">():</span>
-    <span class="k">for</span> <span class="n">entrySMA</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">251</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">exitSMA</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">rsiPeriod</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">overSoldThreshold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span>
-                    <span class="k">for</span> <span class="n">overBoughtThreshold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span>
-                        <span class="k">yield</span> <span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
+    <span class="n">entrySMA</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">251</span><span class="p">)</span>
+    <span class="n">exitSMA</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">rsiPeriod</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+    <span class="n">overBoughtThreshold</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">96</span><span class="p">)</span>
+    <span class="n">overSoldThreshold</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
 
 <span class="c"># Load the feed from the CSV files.</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
@@ -459,8 +460,7 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
 </ol>
 </div></blockquote>
 <p>This is the worker script:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">worker</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">worker</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
@@ -538,7 +538,7 @@ pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 &gt; dia-2
     <span class="k">def</span> <span class="nf">getResult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__result</span>
 
-<span class="n">worker</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="s">&quot;192.168.1.112&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+<span class="n">worker</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="s">&quot;192.168.1.112&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The worker code is doing 2 things:</p>
@@ -579,7 +579,7 @@ INFO 2012-03-24 22:29:34,278: Result 2112.2
 <p>Note that you should run <strong>only one server and one or more workers in different computers</strong>.</p>
 <p>If you just want to run strategies in parallel in your own desktop you can take advantage of the pyalgotrade.optimizer.local
 module like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">multiprocessing</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.optimizer</span> <span class="kn">import</span> <span class="n">local</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
 <span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
@@ -659,12 +659,12 @@ module like this:</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__result</span>
 
 <span class="k">def</span> <span class="nf">parameters_generator</span><span class="p">():</span>
-    <span class="k">for</span> <span class="n">entrySMA</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">251</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">exitSMA</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">rsiPeriod</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">overSoldThreshold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span>
-                    <span class="k">for</span> <span class="n">overBoughtThreshold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span>
-                        <span class="k">yield</span> <span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
+    <span class="n">entrySMA</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">251</span><span class="p">)</span>
+    <span class="n">exitSMA</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">rsiPeriod</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+    <span class="n">overBoughtThreshold</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">96</span><span class="p">)</span>
+    <span class="n">overSoldThreshold</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">entrySMA</span><span class="p">,</span> <span class="n">exitSMA</span><span class="p">,</span> <span class="n">rsiPeriod</span><span class="p">,</span> <span class="n">overBoughtThreshold</span><span class="p">,</span> <span class="n">overSoldThreshold</span><span class="p">)</span>
 
 <span class="c"># Load the feed from the CSV files.</span>
 <span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">YahooFeed</span><span class="p">()</span>
@@ -672,7 +672,7 @@ module like this:</p>
 <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2010.csv&quot;</span><span class="p">)</span>
 <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;dia&quot;</span><span class="p">,</span> <span class="s">&quot;dia-2011.csv&quot;</span><span class="p">)</span>
 
-<span class="n">local</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">parameters_generator</span><span class="p">(),</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+<span class="n">local</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">parameters_generator</span><span class="p">())</span>
 </pre></div>
 </div>
 <p>The code is doing 4 things:</p>
