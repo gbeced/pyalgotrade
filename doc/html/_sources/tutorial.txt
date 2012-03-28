@@ -35,7 +35,7 @@ Optimizer
 Having said all that, the first thing that we'll need to test our strategy is some data.
 Let's use Oracle's stock prices for year 2000, which we'll download with the following command: ::
 
-    pyalgotrade/tools/download_yahoo_data.py --instrument=orcl --year=2000
+    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)"
 
 The output of that command should be something like this: ::
 
@@ -48,10 +48,10 @@ The output of that command should be something like this: ::
     2000-01-04,115.50,118.62,105.00,107.69,116850000,26.26
     2000-01-03,124.62,125.19,111.62,118.12,98122000,28.81
 
-The download_yahoo_data.py script downloads CSV formatted data from Yahoo! Finance. 
+The pyalgotrade.tools.yahoofinance package downloads CSV formatted data from Yahoo! Finance. 
 Let's save that as orcl-2000.csv with the following command: ::
 
-    pyalgotrade/tools/download_yahoo_data.py --instrument=orcl --year=2000 > orcl-2000.csv
+    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)" > orcl-2000.csv
 
 Let's start with a simple strategy, that is, one that just prints closing prices as they are processed: ::
 
@@ -362,9 +362,9 @@ Long story short, **we need to go parallel**.
 
 Let's start by downloading 3 years of daily bars for 'Dow Jones Industrial Average': ::
 
-    pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2009 > dia-2009.csv
-    pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2010 > dia-2010.csv
-    pyalgotrade/tools/download_yahoo_data.py --instrument=dia --year=2011 > dia-2011.csv
+    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2009)" > dia-2009.csv
+    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2010)" > dia-2010.csv
+    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2011)" > dia-2011.csv
 
 This is the server script: ::
 
