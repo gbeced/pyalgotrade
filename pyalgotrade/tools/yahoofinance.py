@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # PyAlgoTrade
 # 
 # Copyright 2011 Gabriel Martin Becedillas Ruiz
@@ -20,9 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import argparse
 import urllib
-import sys
 
 def __adjust_month(month):
 	if month > 12 or month < 1:
@@ -38,7 +34,7 @@ def __get_last_day(month):
 		ret = 28
 	return ret
 
-def download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYear):
+def __download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYear):
 	fromDay = 1
 	toDay = __get_last_day(toMonth)
 	fromMonth = __adjust_month(fromMonth)
@@ -54,22 +50,8 @@ def download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYear)
 
 	return buff
 
-def main():
-	parser = argparse.ArgumentParser(description='Download bars from Yahoo! Finance.')
-	parser.add_argument('--month', required=False, type=int, nargs=1, help='The month to download. A number between 1 and 12. If it is not present, all months are downloaded.')
-	parser.add_argument('--year', required=True, type=int, nargs=1, help='The year to download.')
-	parser.add_argument('--instrument', required=True, type=str, nargs=1, help='The instrument to download.')
-	args = parser.parse_args()
-
-	instrument =  args.instrument[-1]
-	year = args.year[-1]
+def get_daily_csv(instrument, year):
 	fromMonth = 1
 	toMonth = 12
-	if args.month:
-		fromMonth = toMonth = args.month[-1]
-	csv = download_instrument_prices(instrument, fromMonth, year, toMonth, year)
-	print csv
-
-if __name__ == "__main__":
-	main()
+	return __download_instrument_prices(instrument, fromMonth, year, toMonth, year)
 
