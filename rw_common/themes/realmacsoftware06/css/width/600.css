@@ -1,0 +1,13 @@
+#container,
+#pageHeader,
+#footerBottomGrad,
+#headerBottomGrad,
+.photo-navigation { 
+	width: 600px;
+}
+
+/* Navcontainer to stretch entire width
+   so that submenu does not wrap */
+#topbar {
+	width: 580px;
+}

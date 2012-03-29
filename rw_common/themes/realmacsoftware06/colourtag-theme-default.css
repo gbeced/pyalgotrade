@@ -1,0 +1,74 @@
+body {
+	background-color: #E7E6D9;
+	color: #666666;
+}
+
+#container,
+#pageHeader,
+.photo-navigation { 
+	background-color: #FFFFFF;
+}
+
+.photo-links {
+	color: #FFFFFF;
+}
+
+#topbar {
+	border-color: #FFFFFF;
+}
+
+.photo-links {
+	border-top-color: #378AD7;
+}
+
+.blog-entry-title a:hover,
+a:link,
+a:visited,
+#sidebarContainer a:link,
+#sidebarContainer a:visited {
+	color: #378AD7;
+}
+
+a:hover,
+a:active {
+	color: #666;
+}
+
+#sidebarContainer a:hover {
+	color: #000;
+}
+
+#topbar {
+	background-color: #378AD7;
+}
+
+
+#navcontainer a:hover,
+.photo-navigation a:hover {
+	border-color: #69BCFF;
+}
+
+#navcontainer ul ul li a:hover {
+	color: #69BCFF;
+}
+
+#navcontainer #current,
+#navcontainer a:active,
+#navcontainer ul li a:link.currentAncestor,
+#navcontainer ul li a:visited.currentAncestor,
+.photo-navigation a:active {
+	border-color: #378AD7;
+}
+
+#navcontainer ul ul #current {
+	color: #378AD7;
+}
+
+
+/* Flickr Hover Colour */
+#flickr_badge_uber_wrapper a:hover,
+#flickr_badge_uber_wrapper a:link,
+#flickr_badge_uber_wrapper a:active,
+#flickr_badge_uber_wrapper a:visited {
+	color: #378AD7;
+}

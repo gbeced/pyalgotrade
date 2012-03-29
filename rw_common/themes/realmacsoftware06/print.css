@@ -1,0 +1,107 @@
+body {
+	font: 11pt/1.5em 'Lucida Grande', Geneva, Arial, Verdana, sans-serif;
+	color: #666;
+}
+
+a:link, a:visited {
+	color: #308bd9;
+	text-decoration: underline;
+}
+
+img {
+	width: 100%;
+}
+
+h1, h2, h3, h4 {
+	color: #000;
+	margin: 0 0 5px 0;
+}
+
+#container { 
+	width: 100%;
+	background: #ffffff;
+}
+
+.clearer {
+	clear: both;
+}
+
+#pageHeader {
+	background: #ffffff;
+	width: 100%;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+	
+}
+
+#pageHeader h1 {
+	margin: 0 0 5px 0;
+	color: #000;
+}
+
+#pageHeader h2 {
+	margin: 0 0 10px 0;
+	color: #000;
+}
+
+#topbar {
+	display: none;
+}
+
+#rmlogo {	display: none;}
+
+#contentContainer {
+	width: 70%;
+	float: left;
+	margin-bottom: 10px;
+	border-right: 1px solid #ccc;
+}
+
+#contentContainer #content {
+	padding: 10px;
+}
+
+#sidebarContainer {
+	width: 28%;
+	float: right;
+}
+
+#sidebarContainer #sidebar {
+	font-size: 10pt;
+}
+
+.sidebar_box {
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.sidebar_box p {
+	color: #666;
+	margin: 5px 0 0 0;
+	padding: 0 0 10px 0;
+}
+
+.sidebar_box b, strong {
+	color: #000;
+}
+
+.sidebar_box img {
+	float: left;
+	margin-right: 5px;
+	margin-top: 5px;
+}
+
+#footer {
+	border-top: 1px solid #ccc;
+	text-align: center;
+	height: 30px;
+}
+
+#footer p {
+	margin: 0;
+	padding: 10px 5px 5px;
+}
+
+#navcontainer {
+	display: none;
+}
