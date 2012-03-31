@@ -55,5 +55,5 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, rev
 	for i in generator:
 		value = normalize_value(filterInstance.getValueAbsolute(i), roundDecimals)
 		expectedValue = normalize_value(expectedDS.getValueAbsolute(i), roundDecimals)
-		testcase.assertTrue(value == expectedValue)
+		testcase.assertEquals(value, expectedValue)
 
