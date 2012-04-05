@@ -20,7 +20,51 @@
 
 from pyalgotrade import dataseries
 
-class DataSeriesFilter(dataseries.DataSeries):
+class TechnicalIndicatorBase(dataseries.DataSeries):
+	def __init__(self, windowSize, cacheSize=512):
+		assert(windowSize > 0)
+		self.__windowSize = windowSize
+		self.__cache = Cache(cacheSize)
+
+	def getCache(self):
+		return self.__cache
+
+	def getWindowSize(self):
+		"""Returns the window size."""
+		return self.__windowSize
+
+	# Override to implement filtering logic. Should never be called directly.
+	# firstPos <= lastPos
+	def calculateValue(self, firstPos, lastPos):
+		"""This method has to be overriden to add the filtering logic and return a new value.
+
+		:param firstPos: Absolute position for the first value to use from the DataSeries being filtered.
+		:type firstPos: int.
+		:param lastPos: Absolute position for the last value to use from the DataSeries being filtered.
+		:type lastPos: int.
+		"""
+		raise Exception("Not implemented")
+
+	def getValueAbsolute(self, pos):
+		# Check that there are enough values to calculate this (given the current window size and the nested ones).
+		if pos < self.getFirstValidPos() or pos >= self.getLength():
+			return None
+ 
+		# Check that we have enough values to use
+		firstPos = pos - self.__windowSize + 1
+		assert(firstPos >= 0)
+ 
+		# Try to get the value from the cache.
+		if self.getCache().isCached(pos):
+			ret = self.getCache().getValue(pos)
+		else:
+			ret = self.calculateValue(firstPos, pos)
+			# Avoid caching None's in case a invalid pos is requested that becomes valid in the future.
+			if ret != None:
+				self.getCache().putValue(pos, ret)
+		return ret
+
+class DataSeriesFilter(TechnicalIndicatorBase):
 	"""A DataSeriesFilter is a :class:`pyalgotrade.dataseries.DataSeries` instance that decorates another :class:`pyalgotrade.dataseries.DataSeries` instance
 	to make some calculations with the values from the DataSeries being decorated.
 
@@ -35,56 +79,19 @@ class DataSeriesFilter(dataseries.DataSeries):
 		This is a base class and should not be used directly.
 	"""
 	def __init__(self, dataSeries, windowSize, cacheSize=512):
-		assert(windowSize > 0)
+		TechnicalIndicatorBase.__init__(self, windowSize, cacheSize)
 		self.__dataSeries = dataSeries
-		self.__windowSize = windowSize
-		self.__cache = Cache(cacheSize)
 
 	def getFirstValidPos(self):
-		return (self.__windowSize - 1) + self.__dataSeries.getFirstValidPos()
-
-	def getWindowSize(self):
-		"""Returns the window size."""
-		return self.__windowSize
+		return (self.getWindowSize() - 1) + self.__dataSeries.getFirstValidPos()
 
 	def getDataSeries(self):
 		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
 		return self.__dataSeries
 
-	# Override to implement filtering logic. Should never be called directly.
-	# firstPos <= lastPos
-	def calculateValue(self, firstPos, lastPos):
-		"""This method has to be overriden to add the filtering logic and return a new value.
-
-		:param firstPos: Absolute position for the first value to use from the DataSeries being filtered.
-		:type firstPos: int.
-		:param lastPos: Absolute position for the last value to use from the DataSeries being filtered.
-		:type lastPos: int.
-		"""
-		raise Exception("Not implemented")
-
 	def getLength(self):
 		return self.__dataSeries.getLength()
 
-	def getValueAbsolute(self, pos):
-		# Check that there are enough values to calculate this (given the current window size and the nested ones).
-		if pos < self.getFirstValidPos() or pos >= self.getLength():
-			return None
- 
-		# Check that we have enough values to use
-		firstPos = pos - self.__windowSize + 1
-		assert(firstPos >= 0)
- 
-		# Try to get the value from the cache.
-		if self.__cache.isCached(pos):
-			ret = self.__cache.getValue(pos)
-		else:
-			ret = self.calculateValue(firstPos, pos)
-			# Avoid caching None's in case a invalid pos is requested that becomes valid in the future.
-			if ret != None:
-				self.__cache.putValue(pos, ret)
-		return ret
- 
 # Cache with FIFO replacement policy.
 class Cache:
 	def __init__(self, size):

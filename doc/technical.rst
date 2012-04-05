@@ -1,8 +1,9 @@
 technical -- Technical indicators
 =================================
 
-.. automodule:: pyalgotrade.technical
-    :members: DataSeriesFilter
+.. module:: pyalgotrade.technical
+.. autoclass:: pyalgotrade.technical.DataSeriesFilter
+    :members: calculateValue, getDataSeries, getWindowSize
 
 Example
 -------
@@ -66,4 +67,7 @@ Other Indicators
 
 .. automodule:: pyalgotrade.technical.trend
     :members: Slope
+
+.. automodule:: pyalgotrade.technical.cross
+    :members: CrossAbove, CrossBelow
 

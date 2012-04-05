@@ -46,12 +46,13 @@ class DataSeries:
 		"""
 		raise Exception("Not implemented")
 
-	# Returns a sequence of absolute values [firstPos, lastPos], or None if any of the values are None.
-	def getValuesAbsolute(self, firstPos, lastPos):
+	# Returns a sequence of absolute values [firstPos, lastPos].
+	# if includeNone is False and at least one value is None, then None is returned.
+	def getValuesAbsolute(self, firstPos, lastPos, includeNone = False):
 		ret = []
 		for i in xrange(firstPos, lastPos+1):
 			value = self.getValueAbsolute(i)
-			if value is None:
+			if value is None and not includeNone:
 				return None
 			ret.append(value)
 		return ret
