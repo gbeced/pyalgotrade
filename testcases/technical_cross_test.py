@@ -22,6 +22,7 @@ import unittest
 import copy
 
 from pyalgotrade.technical import cross
+from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
@@ -132,12 +133,26 @@ class TestCase(unittest.TestCase):
 		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 100)
 		self.assertTrue(crs.getValue() == count / 2 - 1)
 
+	def testWithSMAs(self):
+		ds1 = dataseries.SequenceDataSeries()
+		ds2 = dataseries.SequenceDataSeries()
+		crs = cross.CrossAbove(ma.SMA(ds1, 15),  ma.SMA(ds2, 25), 2)
+		for i in range(100):
+			ds1.appendValue(i)
+			ds2.appendValue(50)
+			if i < 24:
+				self.assertTrue(crs.getValue() == None)
+			elif i == 58:
+				self.assertTrue(crs.getValue() == 1)
+			else:
+				self.assertTrue(crs.getValue() == 0)
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testCrossAboveOnce"))
 	ret.append(TestCase("testCrossAboveMany"))
 	ret.append(TestCase("testCrossBelowOnce"))
 	ret.append(TestCase("testCrossBelowMany"))
-
+	ret.append(TestCase("testWithSMAs"))
 	return ret
 
