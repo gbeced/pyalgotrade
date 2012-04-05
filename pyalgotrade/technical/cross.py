@@ -83,7 +83,7 @@ class CrossAbove(Base):
 	:type period: int.
 	"""
 
-	def __init__(self, ds1, ds2, period):
+	def __init__(self, ds1, ds2, period = 2):
 		Base.__init__(self, ds1, ds2, period, possitive)
 
 class CrossBelow(Base):
@@ -99,6 +99,6 @@ class CrossBelow(Base):
 	:type period: int.
 	"""
 
-	def __init__(self, ds1, ds2, period):
+	def __init__(self, ds1, ds2, period = 2):
 		Base.__init__(self, ds1, ds2, period, negative)
 
