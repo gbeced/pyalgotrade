@@ -20,10 +20,10 @@
 
 import unittest
 import datetime
-import os
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import csvfeed
+import common
 
 class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
@@ -33,7 +33,7 @@ class StrategyTestCase(unittest.TestCase):
 		rowParser = csvfeed.IBIntraDayRowParser()
 		barFeed = csvfeed.BarFeed()
 		barFeed.setBarFilter(barFilter)
-		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "SPY-2011.csv"), rowParser)
+		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("SPY-2011.csv"), rowParser)
 		return barFeed
 
 	class TestStrategy(strategy.Strategy):
@@ -131,7 +131,7 @@ class StrategyTestCase(unittest.TestCase):
 
 	def __createObjects(self):
 		barFeed = csvfeed.YahooFeed()
-		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "orcl-2000-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		strat = StrategyTestCase.TestStrategy(barFeed, 1000)
 		return strat
 
@@ -282,7 +282,7 @@ class StrategyTestCase(unittest.TestCase):
 					self.exitPosition(self.__position)
 
 		barFeed = csvfeed.YahooFeed()
-		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "orcl-2000-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		strat = TestStrategy(barFeed, 0)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close

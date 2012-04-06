@@ -23,6 +23,7 @@ import datetime
 import os
 
 from pyalgotrade.barfeed import csvfeed
+import common
 
 class YahooTestCase(unittest.TestCase):
 	TestInstrument = "orcl"
@@ -52,8 +53,8 @@ class YahooTestCase(unittest.TestCase):
 
 	def testCSVFeedLoadOrder(self):
 		barFeed = csvfeed.YahooFeed()
-		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "orcl-2000-yahoofinance.csv"))
-		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "orcl-2001-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
 		count = 0
 		prevDateTime = None
@@ -72,8 +73,8 @@ class YahooTestCase(unittest.TestCase):
 	def __testFilteredRangeImpl(self, fromDate, toDate, year):
 		barFeed = csvfeed.YahooFeed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
-		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "orcl-2000-yahoofinance.csv"))
-		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, os.path.join(os.path.split(__file__)[0], "data", "orcl-2001-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 		count = 0
 		for bars in barFeed:
 			count += 1

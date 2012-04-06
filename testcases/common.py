@@ -20,6 +20,7 @@
 
 import csv
 import os
+
 from pyalgotrade import dataseries
 
 def load_test_csv(path):
@@ -43,8 +44,11 @@ def normalize_value(value, decimals):
 		value = round(value, decimals)
 	return value
 
+def get_data_file_path(fileName):
+	return os.path.join(os.path.split(__file__)[0], "data", fileName)
+
 def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, reverseOrder = False):
-	inputDS, expectedDS = load_test_csv(os.path.join(os.path.split(__file__)[0], "data", filename))
+	inputDS, expectedDS = load_test_csv(get_data_file_path(filename))
 
 	if reverseOrder:
 		generator = xrange(inputDS.getLength()-1, -1, -1)
