@@ -29,6 +29,7 @@ from testcases import dataseries_test
 from testcases import csvbarfeed_test
 from testcases import broker_test
 from testcases import strategy_test
+from testcases import smacrossover_strategy_test
 
 def getTestCases():
 	ret = []
@@ -42,6 +43,7 @@ def getTestCases():
 	ret += csvbarfeed_test.getTestCases()
 	ret += broker_test.getTestCases()
 	ret += strategy_test.getTestCases()
+	ret += smacrossover_strategy_test.getTestCases()
 	return ret
 
 def main():
