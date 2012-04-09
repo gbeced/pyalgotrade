@@ -152,13 +152,9 @@ class Order:
 			self.tryExecuteImpl(broker, bars)
 			self.__checkCanceled(bars)
 
-	# Override to execute the order, and return True if it succeeded.
+	# Override to execute the order. Return True if succeeded.
 	def tryExecuteImpl(self, broker, bars):
 		raise Exception("Not implemented")
-
-# class LimitOrder(Order):
-# class StopLossOrder(Order):
-# class TrailingStopOrder(Order):
 
 class MarketOrder(Order):
 	"""
@@ -192,7 +188,40 @@ class MarketOrder(Order):
 		except KeyError:
 			pass
 
-# Special order wrapper that executes an order only if another another order was filled.
+class LimitOrder(Order):
+	"""
+	An :class:`Order` subclass that instructs the broker to buy or sell the stock stock at a particular price.
+	The purchase or sale will not happen unless you get your price.
+	"""
+
+	def __init__(self, action, instrument, price, quantity, goodTillCanceled = False):
+		Order.__init__(self, action, instrument, quantity, goodTillCanceled)
+		self.__price = price
+
+	def __getPrice(self, broker, bar_):
+		if broker.getUseAdjustedValues():
+			high = bar_.getAdjHigh()
+			low = bar_.getAdjLow()
+		else:
+			high = bar_.getHigh()
+			low = bar_.getLow()
+
+		if self.__price >= low and self.__price <= high:
+			ret = self.__price
+		else:
+			ret = None
+		return ret
+
+	def tryExecuteImpl(self, broker, bars):
+		try:
+			bar_ = bars.getBar(self.getInstrument())
+			price = self.__getPrice(broker, bar_)
+			if price:
+				broker.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
+		except KeyError:
+			pass
+
+# Special order wrapper that executes an order (dependent) only if another order (independent) was filled.
 class ExecuteIfFilled:
 	def __init__(self, dependent, independent):
 		self.__dependent = dependent

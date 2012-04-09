@@ -63,22 +63,25 @@ class Position:
 		"""Returns the number of shares used to enter this position."""
 		return self.__entryOrder.getQuantity()
 
-	def close(self, broker_):
-		self.closeImpl(broker_)
+	def close(self, price, broker_):
+		assert(self.getExitOrder() == None or self.getExitOrder().isCanceled())
+		closeOrder = self.buildExitOrder(price)
+		broker_.placeOrder(closeOrder)
+		self.setExitOrder(closeOrder)
 
 	def checkExitOnSessionClose(self, bars, broker_):
 		ret = None
 		try:
 			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getSessionClose() == True:
 				assert(self.getEntryOrder() != None)
-				ret = self.placeExitOnSessionCloseOrder(broker_)
+				ret = self.buildExitOnSessionCloseOrder()
+				ret = broker.ExecuteIfFilled(ret, self.getEntryOrder())
+				broker_.placeOrder(ret)
+				self.setExitOrder(ret)
 		except KeyError:
 			pass
 
 		return ret
-
-	def closeImpl(self, broker_):
-		raise Exception("Not implemented")
 
 	def getResult(self):
 		"""Returns the ratio between the order prices. **It doesn't include commisions**."""
@@ -102,22 +105,21 @@ class Position:
 	def getNetProfitImpl(self):
 		raise Exception("Not implemented")
 
-	def placeExitOnSessionCloseOrder(self, broker_):
-		# Return the order placed or None.
+	def buildExitOrder(self, price):
+		raise Exception("Not implemented")
+
+	def buildExitOnSessionCloseOrder(self):
 		raise Exception("Not implemented")
 
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
-	def __init__(self, broker_, instrument, quantity, goodTillCanceled):
-		buyOrder = broker.MarketOrder(broker.Order.Action.BUY, instrument, quantity, goodTillCanceled)
-		Position.__init__(self, buyOrder)
-		broker_.placeOrder(buyOrder)
-
-	def closeImpl(self, broker_):
-		assert(self.getExitOrder() == None or self.getExitOrder().isCanceled())
-		sellOrder = broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity())
-		broker_.placeOrder(sellOrder)
-		self.setExitOrder(sellOrder)
+	def __init__(self, broker_, instrument, price, quantity, goodTillCanceled):
+		if price != None:
+			entryOrder = broker.LimitOrder(broker.Order.Action.BUY, instrument, price, quantity, goodTillCanceled)
+		else:
+			entryOrder = broker.MarketOrder(broker.Order.Action.BUY, instrument, quantity, goodTillCanceled)
+		Position.__init__(self, entryOrder)
+		broker_.placeOrder(entryOrder)
 
 	def getResultImpl(self):
 		return utils.get_change_percentage(self.getExitOrder().getExecutionInfo().getPrice(), self.getEntryOrder().getExecutionInfo().getPrice())
@@ -128,26 +130,24 @@ class LongPosition(Position):
 		ret -= self.getExitOrder().getExecutionInfo().getCommission()
 		return ret
 
-	def placeExitOnSessionCloseOrder(self, broker_):
-		assert(self.getExitOrder() == None)
-		sellOrder = broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), useClosingPrice=True)
-		sellOrder = broker.ExecuteIfFilled(sellOrder, self.getEntryOrder())
-		broker_.placeOrder(sellOrder)
-		self.setExitOrder(sellOrder)
-		return sellOrder
+	def buildExitOrder(self, price):
+		if price:
+			assert(False)
+		else:
+			return broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity())
+
+	def buildExitOnSessionCloseOrder(self):
+		return broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), useClosingPrice=True)
 
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
-	def __init__(self, broker_, instrument, quantity, goodTillCanceled):
-		sellOrder = broker.MarketOrder(broker.Order.Action.SELL_SHORT, instrument, quantity, goodTillCanceled)
-		Position.__init__(self, sellOrder)
-		broker_.placeOrder(sellOrder)
-
-	def closeImpl(self, broker_):
-		assert(self.getExitOrder() == None or self.getExitOrder().isCanceled())
-		buyOrder = broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity())
-		broker_.placeOrder(buyOrder)
-		self.setExitOrder(buyOrder)
+	def __init__(self, broker_, instrument, price, quantity, goodTillCanceled):
+		if price != None:
+			entryOrder = broker.LimitOrder(broker.Order.Action.SELL_SHORT, instrument, price, quantity, goodTillCanceled)
+		else:
+			entryOrder = broker.MarketOrder(broker.Order.Action.SELL_SHORT, instrument, quantity, goodTillCanceled)
+		Position.__init__(self, entryOrder)
+		broker_.placeOrder(entryOrder)
 
 	def getResultImpl(self):
 		return utils.get_change_percentage(self.getEntryOrder().getExecutionInfo().getPrice(), self.getExitOrder().getExecutionInfo().getPrice())
@@ -158,13 +158,14 @@ class ShortPosition(Position):
 		ret -= self.getExitOrder().getExecutionInfo().getCommission()
 		return ret
 
-	def placeExitOnSessionCloseOrder(self, broker_):
-		assert(self.getExitOrder() == None)
-		buyOrder = broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity(), useClosingPrice=True)
-		buyOrder = broker.ExecuteIfFilled(buyOrder, self.getEntryOrder())
-		broker_.placeOrder(buyOrder)
-		self.setExitOrder(buyOrder)
-		return buyOrder
+	def buildExitOrder(self, price):
+		if price:
+			assert(False)
+		else:
+			return broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity())
+
+	def buildExitOnSessionCloseOrder(self):
+		return broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity(), useClosingPrice=True)
 
 class Strategy:
 	"""Base class for strategies. 
@@ -227,12 +228,12 @@ class Strategy:
 		:rtype: The :class:`Position` entered.
 		"""
 
-		ret = LongPosition(self.__broker, instrument, quantity, goodTillCanceled)
+		ret = LongPosition(self.__broker, instrument, None, quantity, goodTillCanceled)
 		self.__registerActivePosition(ret)
 		return ret
 
 	def enterShort(self, instrument, quantity, goodTillCanceled = False):
-		"""Generates a sell market order to enter a short position.
+		"""Generates a sell short market order to enter a short position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
@@ -243,15 +244,53 @@ class Strategy:
 		:rtype: The :class:`Position` entered.
 		"""
 
-		ret = ShortPosition(self.__broker, instrument, quantity, goodTillCanceled)
+		ret = ShortPosition(self.__broker, instrument, None, quantity, goodTillCanceled)
 		self.__registerActivePosition(ret)
 		return ret
 
-	def exitPosition(self, position):
+	def enterLongLimit(self, instrument, price, quantity, goodTillCanceled = False):
+		"""Generates a buy limit order to enter a long position.
+
+		:param instrument: Instrument identifier.
+		:type instrument: string.
+		:param price: Entry price.
+		:type price: float.
+		:param quantity: Entry order quantity.
+		:type quantity: int.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled.
+		:type goodTillCanceled: boolean.
+		:rtype: The :class:`Position` entered.
+		"""
+
+		ret = LongPosition(self.__broker, instrument, price, quantity, goodTillCanceled)
+		self.__registerActivePosition(ret)
+		return ret
+
+	def enterShortLimit(self, instrument, price, quantity, goodTillCanceled = False):
+		"""Generates a sell short limit order to enter a short position.
+
+		:param instrument: Instrument identifier.
+		:type instrument: string.
+		:param price: Entry price.
+		:type price: float.
+		:param quantity: Entry order quantity.
+		:type quantity: int.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled.
+		:type goodTillCanceled: boolean.
+		:rtype: The :class:`Position` entered.
+		"""
+
+		ret = ShortPosition(self.__broker, instrument, price, quantity, goodTillCanceled)
+		self.__registerActivePosition(ret)
+		return ret
+
+	def exitPosition(self, position, price = None):
 		"""Generates the exit order for the position.
 
-		:param position: A position returned by :meth:`enterLong` or :meth:`enterShort`.
+		:param position: A position returned by :meth:`enterLong`, :meth:`enterShort`, :meth:`enterLongLimit` or :meth:`enterShortLimit` methods.
 		:type position: :class:`Position`.
+		:param price: Exit price. If set then a limit order is used instead of a market order.
+		:type price: float.
 		"""
 
 		if	position.getExitOrder() != None and \
@@ -261,7 +300,7 @@ class Strategy:
 
 		# Before exiting a position, the entry order must have been filled.
 		if position.getEntryOrder().isFilled():
-			position.close(self.__broker)
+			position.close(price, self.__broker)
 			self.__registerActivePosition(position)
 		else: # If the entry was not filled, cancel it.
 			position.getEntryOrder().cancel()

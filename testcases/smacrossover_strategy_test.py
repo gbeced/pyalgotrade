@@ -38,6 +38,12 @@ class SMACrossOverStrategy(strategy.Strategy):
 		self.__shortPos = None
 		self.__finalValue = None
 
+	def enterLongPosition(self, bars):
+		raise Exception("Not implemented")
+
+	def enterShortPosition(self, bars):
+		raise Exception("Not implemented")
+
 	def getFinalValue(self):
 		return self.__finalValue
 
@@ -68,29 +74,54 @@ class SMACrossOverStrategy(strategy.Strategy):
 
 		if self.__crossAbove.getValue() == 1:
 			assert(self.__longPos == None)
-			self.__longPos = self.enterLong("orcl", 10, True)
+			self.__longPos = self.enterLongPosition(bars)
 			if self.__shortPos:
 				self.exitPosition(self.__shortPos)
 		elif self.__crossBelow.getValue() == 1:
 			assert(self.__shortPos == None)
-			self.__shortPos = self.enterShort("orcl", 10, True)
+			self.__shortPos = self.enterShortPosition(bars)
 			if self.__longPos:
 				self.exitPosition(self.__longPos)
 
 	def onFinish(self, bars):
 		self.__finalValue = self.getBroker().getValue(bars)
 
-class TestCase(unittest.TestCase):
-	def testSMACrossOver(self):
+class MarketOrderStrategy(SMACrossOverStrategy):
+	def enterLongPosition(self, bars):
+		return self.enterLong("orcl", 10)
+
+	def enterShortPosition(self, bars):
+		return self.enterShort("orcl", 10)
+
+class LimitOrderStrategy(SMACrossOverStrategy):
+	def enterLongPosition(self, bars):
+		price = bars.getBar("orcl").getClose() * 1.05
+		return self.enterLongLimit("orcl", price, 10)
+
+	def enterShortPosition(self, bars):
+		price = bars.getBar("orcl").getClose() * 0.95
+		return self.enterShortLimit("orcl", price, 10)
+
+class TestSMACrossOver(unittest.TestCase):
+	def __test(self, strategyClass, finalValue):
 		feed = csvfeed.YahooFeed()
 		feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		myStrategy = SMACrossOverStrategy(feed, 10, 25)
+		myStrategy = strategyClass(feed, 10, 25)
 		myStrategy.run()
+		# print round(myStrategy.getFinalValue(), 2)
+		self.assertTrue(round(myStrategy.getFinalValue(), 2) == finalValue)
+
+	def testWithMarketOrder(self):
 		# This is the exact same result that we get using NinjaTrader.
-		self.assertTrue(round(myStrategy.getFinalValue(), 2) == 977.3)
+		self.__test(MarketOrderStrategy, 1000 - 22.7)
+
+	def testWithLimitOrder(self):
+		# This is the exact same result that we get using NinjaTrader.
+		self.__test(LimitOrderStrategy, 1000 - 138.88)
 
 def getTestCases():
 	ret = []
-	ret.append(TestCase("testSMACrossOver"))
+	ret.append(TestSMACrossOver("testWithMarketOrder"))
+	ret.append(TestSMACrossOver("testWithLimitOrder"))
 	return ret
 
