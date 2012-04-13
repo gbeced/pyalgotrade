@@ -44,10 +44,24 @@ class SMACrossOverStrategy(strategy.Strategy):
 	def enterShortPosition(self, bars):
 		raise Exception("Not implemented")
 
+	def exitLongPosition(self, bars, position):
+		raise Exception("Not implemented")
+
+	def exitShortPosition(self, bars, position):
+		raise Exception("Not implemented")
+
 	def getFinalValue(self):
 		return self.__finalValue
 
+	def printDebug(self, *args):
+		args = [str(arg) for arg in args]
+		# print " ".join(args)
+
+	def onEnterOk(self, position):
+		self.printDebug("enterOk: ", self.getCurrentDateTime(), position.getEntryOrder().getExecutionInfo().getPrice(), position)
+
 	def onEnterCanceled(self, position):
+		self.printDebug("enterCanceled: ", self.getCurrentDateTime(), position)
 		if position == self.__longPos:
 			self.__longPos = None
 		elif position == self.__shortPos:
@@ -56,6 +70,7 @@ class SMACrossOverStrategy(strategy.Strategy):
 			assert(False)
 
 	def onExitOk(self, position):
+		self.printDebug("exitOk: ", self.getCurrentDateTime(), position.getExitOrder().getExecutionInfo().getPrice(), position)
 		if position == self.__longPos:
 			self.__longPos = None
 		elif position == self.__shortPos:
@@ -73,15 +88,15 @@ class SMACrossOverStrategy(strategy.Strategy):
 			return
 
 		if self.__crossAbove.getValue() == 1:
+			if self.__shortPos:
+				self.exitShortPosition(bars, self.__shortPos)
 			assert(self.__longPos == None)
 			self.__longPos = self.enterLongPosition(bars)
-			if self.__shortPos:
-				self.exitPosition(self.__shortPos)
 		elif self.__crossBelow.getValue() == 1:
+			if self.__longPos:
+				self.exitLongPosition(bars, self.__longPos)
 			assert(self.__shortPos == None)
 			self.__shortPos = self.enterShortPosition(bars)
-			if self.__longPos:
-				self.exitPosition(self.__longPos)
 
 	def onFinish(self, bars):
 		self.__finalValue = self.getBroker().getValue(bars)
@@ -93,14 +108,40 @@ class MarketOrderStrategy(SMACrossOverStrategy):
 	def enterShortPosition(self, bars):
 		return self.enterShort("orcl", 10)
 
+	def exitLongPosition(self, bars, position):
+		self.exitPosition(position)
+
+	def exitShortPosition(self, bars, position):
+		self.exitPosition(position)
+
 class LimitOrderStrategy(SMACrossOverStrategy):
+	def __getMiddlePrice(self, bars):
+		bar = bars.getBar("orcl")
+		ret = bar.getLow() + (bar.getHigh() - bar.getLow()) / 2.0
+		ret = round(ret, 2)
+		return ret
+
 	def enterLongPosition(self, bars):
-		price = bars.getBar("orcl").getClose() * 1.05
-		return self.enterLongLimit("orcl", price, 10)
+		price = self.__getMiddlePrice(bars)
+		ret = self.enterLongLimit("orcl", price, 10)
+		self.printDebug("enterLong:", self.getCurrentDateTime(), price, ret)
+		return ret
 
 	def enterShortPosition(self, bars):
-		price = bars.getBar("orcl").getClose() * 0.95
-		return self.enterShortLimit("orcl", price, 10)
+		price = self.__getMiddlePrice(bars)
+		ret = self.enterShortLimit("orcl", price, 10)
+		self.printDebug("enterShort:", self.getCurrentDateTime(), price, ret)
+		return ret
+
+	def exitLongPosition(self, bars, position):
+		price = self.__getMiddlePrice(bars)
+		self.printDebug("exitLong:", self.getCurrentDateTime(), price, position)
+		self.exitPosition(position, price)
+
+	def exitShortPosition(self, bars, position):
+		price = self.__getMiddlePrice(bars)
+		self.printDebug("exitShort:", self.getCurrentDateTime(), price, position)
+		self.exitPosition(position, price)
 
 class TestSMACrossOver(unittest.TestCase):
 	def __test(self, strategyClass, finalValue):
@@ -108,7 +149,7 @@ class TestSMACrossOver(unittest.TestCase):
 		feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 		myStrategy = strategyClass(feed, 10, 25)
 		myStrategy.run()
-		# print round(myStrategy.getFinalValue(), 2)
+		myStrategy.printDebug("Final result:", round(myStrategy.getFinalValue(), 2))
 		self.assertTrue(round(myStrategy.getFinalValue(), 2) == finalValue)
 
 	def testWithMarketOrder(self):
@@ -116,8 +157,10 @@ class TestSMACrossOver(unittest.TestCase):
 		self.__test(MarketOrderStrategy, 1000 - 22.7)
 
 	def testWithLimitOrder(self):
-		# This is the exact same result that we get using NinjaTrader.
-		self.__test(LimitOrderStrategy, 1000 - 138.88)
+		# The result is very similar to what we get using NinjaTrader. The difference is because in NinjaTrader the
+		# last exitLong (submitted on 2001-12-26) is not processed on 2001-12-28 but at the end of the data series
+		# (2001-12-31) triggered by an ExitOnClose.
+		self.__test(LimitOrderStrategy, 1000 + 6.9)
 
 def getTestCases():
 	ret = []

@@ -227,9 +227,11 @@ class ExecuteIfFilled:
 		self.__dependent = dependent
 		self.__independent = independent
 
-	def tryExecuteImpl(self, broker, bars):
+	def tryExecute(self, broker, bars):
 		if self.__independent.isFilled():
-			self.__dependent.tryExecuteImpl(broker, bars)
+			self.__dependent.tryExecute(broker, bars)
+		elif self.__independent.isCanceled(): 
+			self.__dependent.cancel()
 
 	def __getattr__(self, name):
 		return getattr(self.__dependent, name) 

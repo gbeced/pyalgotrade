@@ -1,4 +1,5 @@
 Version 0.2
 . [NEW] CrossAbove and CrossBelow technical indicators.
 . [NEW] Limit order support.
+. [FIX] Fixed a bug when a position was set to exit on session close but the entry was not filled.
 

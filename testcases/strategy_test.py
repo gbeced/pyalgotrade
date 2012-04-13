@@ -28,8 +28,8 @@ import common
 class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
 
-	def __loadIntradayBarFeed(self):
-		barFilter = csvfeed.USEquitiesRTH(datetime.date(2011, 1, 1), datetime.date(2011, 1, 3))
+	def __loadIntradayBarFeed(self, fromMonth=1, toMonth=1, fromDay=3, toDay=3):
+		barFilter = csvfeed.USEquitiesRTH(datetime.date(2011, fromMonth, fromDay), datetime.date(2011, toMonth, toDay))
 		rowParser = csvfeed.IBIntraDayRowParser()
 		barFeed = csvfeed.BarFeed()
 		barFeed.setBarFilter(barFilter)
@@ -58,10 +58,12 @@ class StrategyTestCase(unittest.TestCase):
 			self.__exitOnSessionClose = exitOnSessionClose
 
 		def addLongDatetimes(self, entryDateTime, exitDateTime):
+			assert(entryDateTime != None)
 			longPosInfo = [entryDateTime, exitDateTime, None]
 			self.__longPositions.append(longPosInfo)
 
 		def addShortDatetimes(self, entryDateTime, exitDateTime):
+			assert(entryDateTime != None)
 			shortPosInfo = [entryDateTime, exitDateTime, None]
 			self.__shortPositions.append(shortPosInfo)
 		
@@ -114,7 +116,7 @@ class StrategyTestCase(unittest.TestCase):
 					posInfo[2] = self.enterLong(StrategyTestCase.TestInstrument, 1, self.__gtc)
 					posInfo[2].setExitOnSessionClose(self.__exitOnSessionClose)
 				elif posInfo[1] == dateTime:
-					assert(posInfo[2] != None)
+					assert(posInfo[2] != None) # Check that we actually entered the position.
 					self.exitPosition(posInfo[2])
 
 			# Check entry/exit for short positions.
@@ -370,10 +372,40 @@ class StrategyTestCase(unittest.TestCase):
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.4 - 127.05), 2))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(127.4 - 127.05, 2))
 
-	def testIntradayBuyOnLastTick(self):
+	def testIntradayExitOnClose_EntryNotFilled(self):
+		# Test that if the entry gets canceled, then the exit on close order doesn't get submitted.
+		barFeed = self.__loadIntradayBarFeed()
+		strat = StrategyTestCase.TestStrategy(barFeed, 1)
+		strat.setExitOnSessionClose(True)
+
+		strat.addLongDatetimes(datetime.datetime(2011, 1, 3, 14, 30), None)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 0)
+		self.assertTrue(strat.getExitOkEvents() == 0)
+		self.assertTrue(strat.getEnterCanceledEvents() == 1)
+		self.assertTrue(strat.getExitCanceledEvents() == 1)
+
+	def testIntradayExitOnClose_AllInOneDay(self):
+		barFeed = self.__loadIntradayBarFeed()
+		strat = StrategyTestCase.TestStrategy(barFeed, 1000)
+		strat.setExitOnSessionClose(True)
+
+		# Enter on first bar, exit on close.
+		strat.addLongDatetimes(datetime.datetime(2011, 1, 3, 14, 30), None)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+
+	def testIntradayExitOnClose_BuyOnLastBar(self):
 		barFeed = self.__loadIntradayBarFeed()
 		strat = StrategyTestCase.TestStrategy(barFeed, 1000)
 		strat.setExitOnSessionClose(True)
@@ -386,6 +418,8 @@ class StrategyTestCase(unittest.TestCase):
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.05 - 127.07), 2))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(127.05 - 127.07, 2))
 
@@ -400,7 +434,8 @@ def getTestCases():
 	ret.append(StrategyTestCase("testLongPositionGTC"))
 	ret.append(StrategyTestCase("testExitOnCanceledEntry"))
 	ret.append(StrategyTestCase("testIntradayExitOnClose"))
-	ret.append(StrategyTestCase("testIntradayBuyOnLastTick"))
-
+	ret.append(StrategyTestCase("testIntradayExitOnClose_AllInOneDay"))
+	ret.append(StrategyTestCase("testIntradayExitOnClose_EntryNotFilled"))
+	ret.append(StrategyTestCase("testIntradayExitOnClose_BuyOnLastBar"))
 	return ret
 

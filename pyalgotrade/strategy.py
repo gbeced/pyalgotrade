@@ -132,7 +132,7 @@ class LongPosition(Position):
 
 	def buildExitOrder(self, price):
 		if price:
-			assert(False)
+			return broker.LimitOrder(broker.Order.Action.SELL, self.getInstrument(), price, self.getQuantity())
 		else:
 			return broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity())
 
@@ -160,7 +160,7 @@ class ShortPosition(Position):
 
 	def buildExitOrder(self, price):
 		if price:
-			assert(False)
+			return broker.LimitOrder(broker.Order.Action.BUY, self.getInstrument(), price, self.getQuantity())
 		else:
 			return broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity())
 
@@ -183,26 +183,33 @@ class Strategy:
 		self.__feed = barFeed
 		self.__broker = broker.Broker(cash)
 		self.__broker.getOrderExecutedEvent().subscribe(self.__onOrderUpdate)
-		self.__activePositions = []
+		self.__activePositions = {}
 		self.__orderToPosition = {}
 		self.__currentDateTime = None
 
-	def __registerActivePosition(self, position):
-		if position not in self.__activePositions:
-			self.__activePositions.append(position)
-		if position.getEntryOrder():
-			self.__orderToPosition[position.getEntryOrder()] = position
-		if position.getExitOrder():
-			self.__orderToPosition[position.getExitOrder()] = position
+	def __registerOrder(self, position, order):
+		try:
+			orders = self.__activePositions[position]
+		except KeyError:
+			orders = set()
+			self.__activePositions[position] = orders
 
-	def __unregisterActivePosition(self, position):
-		self.__activePositions.remove(position)
+		if order.isAccepted():
+			self.__orderToPosition[order] = position
+			orders.add(order)
+
+	def __unregisterOrder(self, position, order):
+		del self.__orderToPosition[order]
+
+		orders = self.__activePositions[position]
+		orders.remove(order)
+		if len(orders) == 0:
+			del self.__activePositions[position]
+
+	def __registerActivePosition(self, position):
 		for order in [position.getEntryOrder(), position.getExitOrder()]:
-			try:
-				if order:
-					del self.__orderToPosition[order]
-			except KeyError:
-				pass
+			if order and order.isAccepted():
+				self.__registerOrder(position, order)
 
 	def getFeed(self):
 		"""Returns the :class:`pyalgotrade.barfeed.BarFeed` that this strategy is using."""
@@ -223,7 +230,7 @@ class Strategy:
 		:type instrument: string.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -239,7 +246,7 @@ class Strategy:
 		:type instrument: string.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -257,7 +264,7 @@ class Strategy:
 		:type price: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -275,7 +282,7 @@ class Strategy:
 		:type price: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -368,23 +375,27 @@ class Strategy:
 			if order.isFilled():
 				self.onEnterOk(position)
 			elif order.isCanceled():
-				self.__unregisterActivePosition(position)
+				self.__unregisterOrder(position, order)
 				self.onEnterCanceled(position)
+			else:
+				assert(False)
 		elif position.getExitOrder() == order:
 			if order.isFilled():
-				self.__unregisterActivePosition(position)
+				self.__unregisterOrder(position, order)
 				self.onExitOk(position)
 			elif order.isCanceled():
-				self.__unregisterActivePosition(position)
+				self.__unregisterOrder(position, order)
 				self.onExitCanceled(position)
+			else:
+				assert(False)
 		else:
 			assert(False)
 
 	def __checkExitOnSessionClose(self, bars):
-		for position in self.__activePositions:
+		for position in self.__activePositions.keys():
 			order = position.checkExitOnSessionClose(bars, self.getBroker())
 			if order:
-				self.__orderToPosition[order] = position
+				self.__registerOrder(position, order)
 
 	def run(self):
 		"""Call once (**and only once**) to backtest the strategy. """
