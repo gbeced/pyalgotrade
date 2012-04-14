@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>broker – Order management classes &mdash; PyAlgoTrade 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.2 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="optimizer – Parallel optimizers" href="optimizer.html" />
+    <link rel="prev" title="strategy – Basic strategy classes" href="strategy.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="optimizer.html" title="optimizer – Parallel optimizers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.2 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.broker">
+<span id="broker-order-management-classes"></span><h1>broker &#8211; Order management classes<a class="headerlink" href="#module-pyalgotrade.broker" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.broker.Broker">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">Broker</tt><big>(</big><em>cash</em>, <em>commission=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class responsible for processing orders.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cash</strong> (<em>int or float.</em>) &#8211; The initial amount of cash.</li>
+<li><strong>commission</strong> (<tt class="xref py py-class docutils literal"><span class="pre">Commission</span></tt>) &#8211; An object responsible for calculating order commissions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.getCash">
+<tt class="descname">getCash</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.getCash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the amount of cash.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.getShares">
+<tt class="descname">getShares</tt><big>(</big><em>instrument</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.getShares" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of shares for an instrument.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.getValue">
+<tt class="descname">getValue</tt><big>(</big><em>bars</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.getValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the portfolio value (cash + shares) for the given bars prices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bars</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bars" title="pyalgotrade.bar.Bars"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bars</span></tt></a>.) &#8211; The bars to use to calculate share values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.placeOrder">
+<tt class="descname">placeOrder</tt><big>(</big><em>order</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.placeOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submits an order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">Order</span></tt></a>.) &#8211; The order to submit.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.Order">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">Order</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>quantity</em>, <em>goodTillCanceled=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for orders.</p>
+<dl class="docutils">
+<dt>Valid order actions are:</dt>
+<dd><ul class="first last simple">
+<li>Order.Action.BUY</li>
+<li>Order.Action.SELL</li>
+<li>Order.Action.SELL_SHORT</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>action</strong> &#8211; The order action.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Order quantity.</li>
+<li><strong>goodTillCanceled</strong> (<em>boolean.</em>) &#8211; True if the order is good till canceled. Orders that are not filled by the time the session closes will be will be automatically canceled if they were not set as good till canceled.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.cancel">
+<tt class="descname">cancel</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancels an accepted order. If the order is filled an Exception is raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getAction">
+<tt class="descname">getAction</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order action.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getExecutionInfo">
+<tt class="descname">getExecutionInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getExecutionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order execution info if the order was filled, or None otherwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyalgotrade.broker.OrderExecutionInfo" title="pyalgotrade.broker.OrderExecutionInfo"><tt class="xref py py-class docutils literal"><span class="pre">OrderExecutionInfo</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getGoodTillCanceled">
+<tt class="descname">getGoodTillCanceled</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getGoodTillCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order is good till canceled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getInstrument">
+<tt class="descname">getInstrument</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getInstrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the instrument identifier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getQuantity">
+<tt class="descname">getQuantity</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getQuantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the quantity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getState">
+<tt class="descname">getState</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order state.</p>
+<dl class="docutils">
+<dt>Valid order states are:</dt>
+<dd><ul class="first last simple">
+<li>Order.State.ACCEPTED (the initial state).</li>
+<li>Order.State.CANCELED</li>
+<li>Order.State.ACCEPTED</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.isAccepted">
+<tt class="descname">isAccepted</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.isAccepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order state is Order.State.ACCEPTED.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.isCanceled">
+<tt class="descname">isCanceled</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.isCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order state is Order.State.CANCELED.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.isFilled">
+<tt class="descname">isFilled</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.isFilled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order state is Order.State.FILLED.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.MarketOrder">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">MarketOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>quantity</em>, <em>goodTillCanceled=False</em>, <em>useClosingPrice=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.MarketOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>An <a class="reference internal" href="#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">Order</span></tt></a> subclass that instructs the broker to buy or sell the stock immediately at the prevailing price, whatever that may be.
+If useClosingPrice is set to False then the opening price will be used to fill the order, otherwise the closing price will be used.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.LimitOrder">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">LimitOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>price</em>, <em>quantity</em>, <em>goodTillCanceled=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.LimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>An <a class="reference internal" href="#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">Order</span></tt></a> subclass that instructs the broker to buy or sell the stock stock at a particular price.
+The purchase or sale will not happen unless you get your price.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.OrderExecutionInfo">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">OrderExecutionInfo</tt><big>(</big><em>price</em>, <em>commission</em>, <em>dateTime</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execution information for a filled order.</p>
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getCommission">
+<tt class="descname">getCommission</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getCommission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns commission applied.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getDateTime">
+<tt class="descname">getDateTime</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">datatime.datetime</span></tt> when the order was executed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getPrice">
+<tt class="descname">getPrice</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns execution price.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="strategy.html"
+                        title="previous chapter">strategy &#8211; Basic strategy classes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="optimizer.html"
+                        title="next chapter">optimizer &#8211; Parallel optimizers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/broker.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="optimizer.html" title="optimizer – Parallel optimizers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.2 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
