@@ -6,5 +6,9 @@ PyAlgoTrade is a Python library that I started with one simple goal in mind: **T
 That is, given a certain amount of historical data for one stock, I want to check how a certain stock trading strategy behaves.
 It should also make it easy to optimize a strategy using multiple computers.
 
-PyAlgoTrade was developed with Python 2.7 and depends on NumPy and SciPy, so you need to have those installed in order to use this library.
+PyAlgoTrade was developed with Python 2.7 and depends on:
+ * NumPy and SciPy (http://numpy.scipy.org/)
+ * matplotlib (http://matplotlib.sourceforge.net/)
+
+so you need to have those installed in order to use this library.
 

@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import dataseries
+from pyalgotrade import observer
 from pyalgotrade import bar
 import session
 
@@ -26,6 +27,15 @@ class BasicBarFeed:
 	def __init__(self):
 		self.__ds = {}
 		self.__defaultInstrument = None
+		self.__newBarsEvent = observer.Event()
+
+	def getNewBarsEvent(self):
+		return self.__newBarsEvent
+
+	# Process every element in the feed and emit an event for each one.
+	def processAll(self):
+		for bars in self:
+			self.__newBarsEvent.emit(bars)
 
 	def getRegisteredInstruments(self):
 		"""Returns a list of registered intstrument names."""

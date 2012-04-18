@@ -185,7 +185,7 @@ class Strategy:
 		self.__broker.getOrderExecutedEvent().subscribe(self.__onOrderUpdate)
 		self.__activePositions = {}
 		self.__orderToPosition = {}
-		self.__currentDateTime = None
+		self.__currentBars = None
 
 	def __registerOrder(self, position, order):
 		try:
@@ -217,7 +217,10 @@ class Strategy:
 
 	def getCurrentDateTime(self):
 		"""Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bar`."""
-		return self.__currentDateTime
+		ret = None
+		if self.__currentBars:
+			ret = self.__currentBars.getDateTime()
+		return ret
 
 	def getBroker(self):
 		"""Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
@@ -397,20 +400,31 @@ class Strategy:
 			if order:
 				self.__registerOrder(position, order)
 
+	def __onBars(self, bars):
+		# THE ORDER HERE IS VERY IMPORTANT
+		self.__currentBars = bars
+
+		# 1: Register exit-on-session-close orders if necessary.
+		self.__checkExitOnSessionClose(bars)
+
+		# 2: Let the broker process orders placed during previous call to onBars.
+		# IT IS IMPORTANT TO EXECUTE THE BROKER FIRST TO AVOID EXECUTING ORDERS PLACED IN THE CURRENT TICK.
+		self.getBroker().onBars(bars)
+
+		# 3: Let the strategy process current bars and place orders.
+		self.onBars(bars)
+
 	def run(self):
 		"""Call once (**and only once**) to backtest the strategy. """
-
-		self.onStart()
-		bars = None
-		for bars in self.__feed:
-			self.__currentDateTime = bars.getDateTime()
-			self.__checkExitOnSessionClose(bars)
-			# Process orders placed during previous onBars.
-			# It is important to execute the broker first to avoid executing orders placed in the current tick.
-			self.getBroker().onBars(bars)
-			self.onBars(bars)
-		if bars != None:
-			self.onFinish(bars)
-		else:
-			raise Exception("Feed was empty")
+		assert(self.__currentBars == None) # run should be called only once.
+		try:
+			self.__feed.getNewBarsEvent().subscribe(self.__onBars)
+			self.onStart()
+			self.__feed.processAll()
+			if self.__currentBars != None:
+				self.onFinish(self.__currentBars)
+			else:
+				raise Exception("Feed was empty")
+		finally:
+			self.__feed.getNewBarsEvent().unsubscribe(self.__onBars)
 
