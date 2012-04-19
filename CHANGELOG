@@ -1,3 +1,6 @@
+Version 0.3
+. [NEW] Support for plotting strategies (StrategyPlotter).
+
 Version 0.2
 . [NEW] CrossAbove and CrossBelow technical indicators.
 . [NEW] Limit order support.

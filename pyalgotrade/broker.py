@@ -277,10 +277,10 @@ class Broker:
 			self.__commission = commission
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False
-		self.__orderExecutedEvent = observer.Event()
+		self.__orderUpdatedEvent = observer.Event()
 
-	def getOrderExecutedEvent(self):
-		return self.__orderExecutedEvent
+	def getOrderUpdatedEvent(self):
+		return self.__orderUpdatedEvent
 
 	def getUseAdjustedValues(self):
 		return self.__useAdjustedValues
@@ -374,7 +374,7 @@ class Broker:
 				if order.isAccepted():
 					self.__pendingOrders.append(order)
 				else:
-					self.__orderExecutedEvent.emit(order)
+					self.__orderUpdatedEvent.emit(self, order)
 			else:
-				self.__orderExecutedEvent.emit(order)
+				self.__orderUpdatedEvent.emit(self, order)
 

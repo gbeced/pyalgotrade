@@ -29,7 +29,7 @@ class Callback:
 	def __init__(self):
 		self.eventCount = 0
 
-	def onOrderUpdated(self, order):
+	def onOrderUpdated(self, broker_, order):
 		self.eventCount += 1
 
 class BaseTestCase(unittest.TestCase):
@@ -53,7 +53,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 		# Buy
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = broker.MarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
@@ -67,7 +67,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 		# Sell
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = broker.MarketOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 1)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
@@ -86,7 +86,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 		# Fail to buy. No money.
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isAccepted())
@@ -98,7 +98,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 		# Fail to buy. Canceled.
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(11, 15, 8, 12, True))
 		self.assertTrue(order.isCanceled())
 		self.assertTrue(order.getExecutionInfo() == None)
@@ -114,7 +114,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 		# Fail to buy. No money.
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.placeOrder(order)
 		# Set sessionClose to true test that the order doesn't get canceled.
 		brk.onBars(self.buildBars(10, 15, 8, 12, True))
@@ -127,7 +127,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 		# Buy
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(2, 15, 1, 12))
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 2)
@@ -329,7 +329,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 		# Buy
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = broker.LimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 11, 1)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
@@ -343,7 +343,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 		# Sell
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = broker.LimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 15, 1)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
@@ -362,7 +362,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 		# Fail to buy (couldn't get specific price).
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isAccepted())
@@ -374,7 +374,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 		# Fail to buy. Canceled.
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(11, 15, 8, 12, True))
 		self.assertTrue(order.isCanceled())
 		self.assertTrue(order.getExecutionInfo() == None)
@@ -390,7 +390,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 		# Fail to buy (couldn't get specific price).
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.placeOrder(order)
 		# Set sessionClose to true test that the order doesn't get canceled.
 		brk.onBars(self.buildBars(10, 15, 8, 12, True))
@@ -403,7 +403,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 		# Buy
 		cb = Callback()
-		brk.getOrderExecutedEvent().subscribe(cb.onOrderUpdated)
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(2, 15, 1, 12))
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 4)

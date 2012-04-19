@@ -19,43 +19,72 @@
 """
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
+class Series:
+	def __init__(self):
+		self.__values = {} # date -> value
+
+	def addValue(self, dateTime, value):
+		self.__values[dateTime] = value
+
+	def getValue(self, dateTime):
+		return self.__values.get(dateTime, None)
 
 class Subplot:
 	def __init__(self):
-		self.__values = {} # date -> signals -> value
-		self.__signalNames = set()
+		self.__series = {}
 
-	def getSignalValue(self, signalName, dateTime):
-		ret = None
-		signals = self.__values.get(dateTime, None)
-		if signals != None:
-			ret = signals.get(signalName, None)
+	def getSeries(self, name):
+		try:
+			ret = self.__series[name]
+		except KeyError:
+			ret = Series()
+			self.__series[name] = ret
 		return ret
 
-	def addSignalValue(self, signalName, dateTime, value):
-		self.__signalNames.add(signalName)
-		self.__values.setdefault(dateTime, {})
-		self.__values[dateTime][signalName] = value
+	def customizeSubplot(self, mplSubplot):
+		# Don't scale the Y axis
+		mplSubplot.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
 
 	def plot(self, mplSubplot, dateTimes):
-		for signalName in self.__signalNames:
+		for seriesName in self.__series.keys():
+			series = self.getSeries(seriesName)
 			values = []
 			for dateTime in dateTimes:
-				values.append(self.getSignalValue(signalName, dateTime))
+				values.append(series.getValue(dateTime))
 			mplSubplot.plot(dateTimes, values)
+
+		# Legend
+		mplSubplot.legend(self.__series.keys(), shadow=True, loc="best")
+		self.customizeSubplot(mplSubplot)
 
 class StrategyPlotter:
 	def __init__(self, strat):
 		self.__strategy = strat
-		strat.getFeed().getNewBarsEvent().subscribe(self.__onBars)
 		self.__dateTimes = set()
-		self.__subplots = [Subplot()]
+		self.__mainSubplot = Subplot()
+		self.__portfolioSubplot = Subplot()
+		self.__subplots = [self.__mainSubplot, self.__portfolioSubplot]
 
-	def __onBars(self, bars):
+		# This is to feed
+		# - The main subplot with bar values.
+		# - The portfolio evolution subplot.
+		strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
+
+	def __onBarsProcessed(self, strat, bars):
 		dateTime = bars.getDateTime()
 		self.__dateTimes.add(dateTime)
+
+		# Feed the main subplot with bar values.
 		for instrument in bars.getInstruments():
-			self.__subplots[0].addSignalValue(instrument, dateTime, bars.getBar(instrument).getClose())
+			self.__mainSubplot.getSeries(instrument).addValue(dateTime, bars.getBar(instrument).getClose())
+
+		# Feed the portfolio evolution subplot.
+		self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, self.__strategy.getBroker().getValue(bars))
+
+	def getMainSubPlot(self):
+		return self.__mainSubplot
 
 	def plot(self):
 		dateTimes = [dateTime for dateTime in self.__dateTimes]

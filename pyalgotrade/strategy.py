@@ -20,6 +20,7 @@
 
 import broker
 import utils
+import observer
 
 class Position:
 	"""Base class for positions. 
@@ -182,10 +183,14 @@ class Strategy:
 	def __init__(self, barFeed, cash = 0):
 		self.__feed = barFeed
 		self.__broker = broker.Broker(cash)
-		self.__broker.getOrderExecutedEvent().subscribe(self.__onOrderUpdate)
+		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 		self.__activePositions = {}
 		self.__orderToPosition = {}
 		self.__currentBars = None
+		self.__barsProcessedEvent = observer.Event()
+
+	def getBarsProcessedEvent(self):
+		return self.__barsProcessedEvent
 
 	def __registerOrder(self, position, order):
 		try:
@@ -372,7 +377,7 @@ class Strategy:
 		"""
 		raise Exception("Not implemented")
 
-	def __onOrderUpdate(self, order):
+	def __onOrderUpdate(self, broker_, order):
 		position = self.__orderToPosition[order]
 		if position.getEntryOrder() == order:
 			if order.isFilled():
@@ -413,6 +418,9 @@ class Strategy:
 
 		# 3: Let the strategy process current bars and place orders.
 		self.onBars(bars)
+
+		# 4: Notify that the bars were processed.
+		self.__barsProcessedEvent.emit(self, bars)
 
 	def run(self):
 		"""Call once (**and only once**) to backtest the strategy. """
