@@ -58,6 +58,7 @@ class Subplot:
 
 	def __init__(self):
 		self.__series = {}
+		self.__ds = {}
 		self.__nextColor = 1
 
 	def __getColor(self, series):
@@ -66,6 +67,13 @@ class Subplot:
 			ret = Subplot.colors[len(Subplot.colors) % self.__nextColor]
 			self.__nextColor += 1
 		return ret
+
+	def addDataSeries(self, name, ds):
+		self.__ds[ds] = self.getSeries(name)
+
+	def addValuesFromDataSeries(self, dateTime):
+		for ds, series in self.__ds.iteritems():
+			series.addValue(dateTime, ds.getValue())
 
 	def getSeries(self, name, defaultClass=Series):
 		try:
@@ -92,39 +100,53 @@ class Subplot:
 		self.customizeSubplot(mplSubplot)
 
 class StrategyPlotter:
-	def __init__(self, strat):
+	def __init__(self, strat, plotAllClosingPrices=True, plotBuySell=True, plotPortfolio=True):
 		self.__dateTimes = set()
-		self.__mainSubplot = Subplot()
-		self.__portfolioSubplot = Subplot()
-		self.__subplots = [self.__mainSubplot, self.__portfolioSubplot]
+		self.__subplots = []
+		self.__plotAllClosingPrices = plotAllClosingPrices
 
-		# This is to feed
+		self.__mainSubplot = Subplot()
+		self.__subplots.append(self.__mainSubplot)
+
+		self.__portfolioSubplot = None
+		if plotPortfolio:
+			self.__portfolioSubplot = Subplot()
+			self.__subplots.append(self.__portfolioSubplot)
+
+
+		# This is to feed:
 		# - The main subplot with bar values.
 		# - The portfolio evolution subplot.
 		strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
 
 		# This is to feed buy/sell markes in the main subplot.
-		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
+		if plotBuySell:
+			strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
 
 	def __onBarsProcessed(self, strat, bars):
 		dateTime = bars.getDateTime()
 		self.__dateTimes.add(dateTime)
 
+		for subplot in self.__subplots:
+			subplot.addValuesFromDataSeries(dateTime)
+
 		# Feed the main subplot with bar values.
-		for instrument in bars.getInstruments():
-			self.__mainSubplot.getSeries(instrument).addValue(dateTime, bars.getBar(instrument).getClose())
+		if self.__plotAllClosingPrices:
+			for instrument in bars.getInstruments():
+				self.__mainSubplot.getSeries(instrument).addValue(dateTime, bars.getBar(instrument).getClose())
 
 		# Feed the portfolio evolution subplot.
-		self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getValue(bars))
+		if self.__portfolioSubplot:
+			self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getValue(bars))
 
 	def __onOrderUpdated(self, broker_, order):
 		if order.isFilled():
 			action = order.getAction()
 			execInfo = order.getExecutionInfo()
 			if action == broker.Order.Action.BUY:
-				self.__mainSubplot.getSeries("buy", BuyMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
+				self.__mainSubplot.getSeries("Buy", BuyMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
 			elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-				self.__mainSubplot.getSeries("sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
+				self.__mainSubplot.getSeries("Sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
 
 	def getMainSubPlot(self):
 		return self.__mainSubplot
