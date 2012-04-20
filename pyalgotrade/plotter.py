@@ -23,6 +23,37 @@ import broker
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
+def _min(value1, value2):
+	if value1 is None:
+		return value2
+	elif value2 is None:
+		return value1
+	else:
+		return min(value1, value2)
+
+def _max(value1, value2):
+	if value1 is None:
+		return value2
+	elif value2 is None:
+		return value1
+	else:
+		return max(value1, value2)
+
+def _adjustXAxis(mplSubplots):
+	minX = None
+	maxX = None
+
+	# Calculate min and max x values.
+	for mplSubplot in mplSubplots:
+		axis = mplSubplot.axis()
+		minX = _min(minX, axis[0])
+		maxX = _max(maxX, axis[1])
+
+	for mplSubplot in mplSubplots:
+		axis = mplSubplot.axis()
+		axis = (minX, maxX, axis[2], axis[3])
+		mplSubplot.axis(axis)
+
 class Series:
 	def __init__(self):
 		self.__values = {}
@@ -54,11 +85,12 @@ class SellMarker(Series):
 		return "v"
 
 class Subplot:
+	""" """
 	colors = ['b', 'c', 'm', 'y', 'k']
 
 	def __init__(self):
 		self.__series = {}
-		self.__ds = {}
+		self.__dataSeries = {}
 		self.__nextColor = 1
 
 	def __getColor(self, series):
@@ -68,11 +100,18 @@ class Subplot:
 			self.__nextColor += 1
 		return ret
 
-	def addDataSeries(self, name, ds):
-		self.__ds[ds] = self.getSeries(name)
+	def addDataSeries(self, label, dataSeries):
+		"""Adds a DataSeries to the subplot.
+
+		:param label: A name for the DataSeries values.
+		:type label: string.
+		:param dataSeries: The DataSeries to add.
+		:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+		"""
+		self.__dataSeries[dataSeries] = self.getSeries(label)
 
 	def addValuesFromDataSeries(self, dateTime):
-		for ds, series in self.__ds.iteritems():
+		for ds, series in self.__dataSeries.iteritems():
 			series.addValue(dateTime, ds.getValue())
 
 	def getSeries(self, name, defaultClass=Series):
@@ -100,9 +139,22 @@ class Subplot:
 		self.customizeSubplot(mplSubplot)
 
 class StrategyPlotter:
+	"""Class responsible for plotting a strategy execution.
+
+	:param strat: The strategy to plot.
+	:type strat: :class:`pyalgotrade.strategy.Strategy`.
+	:param plotAllClosingPrices: Set to True to get the closing prices plotted.
+	:type plotAllClosingPrices: boolean.
+	:param plotBuySell: Set to True to get the buy/sell events plotted.
+	:type plotBuySell: boolean.
+	:param plotPortfolio: Set to True to get the portfolio value (shares + cash) plotted.
+	:type plotPortfolio: boolean.
+	"""
+
 	def __init__(self, strat, plotAllClosingPrices=True, plotBuySell=True, plotPortfolio=True):
 		self.__dateTimes = set()
 		self.__subplots = []
+		self.__namedSubplots = {}
 		self.__plotAllClosingPrices = plotAllClosingPrices
 
 		self.__mainSubplot = Subplot()
@@ -112,7 +164,6 @@ class StrategyPlotter:
 		if plotPortfolio:
 			self.__portfolioSubplot = Subplot()
 			self.__subplots.append(self.__portfolioSubplot)
-
 
 		# This is to feed:
 		# - The main subplot with bar values.
@@ -149,21 +200,50 @@ class StrategyPlotter:
 				self.__mainSubplot.getSeries("Sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
 
 	def getMainSubPlot(self):
+		"""Returns the main subplot, where closing prices and buy/sell events get plotted.
+
+		:rtype: :class:`Subplot`.
+		"""
 		return self.__mainSubplot
 
 	def getPortfolioSubPlot(self):
+		"""Returns the subplot where the portfolio values get plotted.
+
+		:rtype: :class:`Subplot`.
+		"""
 		return self.__portfolioSubplot
 
+	def getOrCreateSubplot(self, name):
+		"""Returns a Subplot by name. If the subplot doesn't exist, it gets created.
+
+		:param name: The name of the Subplot to get or create.
+		:type name: string.
+		:rtype: :class:`Subplot`.
+		"""
+		try:
+			ret = self.__namedSubplots[name]
+		except KeyError:
+			ret = Subplot()
+			self.__namedSubplots[name] = ret
+			self.__subplots.append(ret)
+		return ret
+
 	def plot(self):
+		"""Plots the strategy execution. Must be called after running the strategy. """
+
 		dateTimes = [dateTime for dateTime in self.__dateTimes]
 		dateTimes.sort()
 
 		# Build each subplot.
 		fig = plt.figure()
+		mplSubplots = []
 		for i in range(len(self.__subplots)):
 			mplSubplot = fig.add_subplot(len(self.__subplots), 1, i+1)
+			mplSubplots.append(mplSubplot)
 			self.__subplots[i].plot(mplSubplot, dateTimes)
 			mplSubplot.grid(True)
+
+		_adjustXAxis(mplSubplots)
 
 		# Display
 		plt.show()

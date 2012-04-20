@@ -11,6 +11,7 @@ Contents:
     barfeed
     technical
     strategy
+    plotter
     broker
     optimizer
 
