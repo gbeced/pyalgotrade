@@ -193,7 +193,7 @@ def serve(barFeed, strategyParameters, address, port):
 
 	:param barFeed: The bar feed that each worker will use to backtest the strategy.
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-	:param strategyParameters: The set of parameters to use for backtesting. An iterable object where each element is a tuple that holds parameter values.
+	:param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is a tuple that holds parameter values**.
 	:param address: The address to listen for incoming worker connections.
 	:type address: string.
 	:param port: The port to listen for incoming worker connections.

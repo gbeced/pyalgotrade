@@ -58,7 +58,7 @@ def run(strategyClass, barFeed, strategyParameters, workerCount = None):
 	:param strategyClass: The strategy class. Must have a *getResult* method that returns the strategy result.
 	:param barFeed: The bar feed to use to backtest the strategy.
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-	:param strategyParameters: The set of parameters to use for backtesting. An iterable object where each element is a tuple that holds parameter values.
+	:param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is a tuple that holds parameter values**.
 	:param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
 	:type workerCount: int.
 	"""
