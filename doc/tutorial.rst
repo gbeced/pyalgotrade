@@ -154,6 +154,9 @@ If you run the script you should see a bunch of values on the screen where:
     2000-12-28 00:00:00: 31.06 52.1646203455 49.997518354
     2000-12-29 00:00:00: 29.06 47.3776678335 50.0790646925
 
+Trading
+-------
+
 Let's move on with a simple strategy, this time simulating actual trading. The idea is very simple:
 
  * If the closing price is above the SMA(15) we enter a long position (we place a buy market order).
@@ -219,6 +222,9 @@ and we would find out that we can get better results with a SMA(20): ::
 
 This is ok if we only have to try a limited set of parameters values. But if we have to test a strategy with multiple
 parameters, then the serial approach is definitely not going to scale as strategies get more complex.
+
+Optimizing
+----------
 
 Meet the optimizer component. The idea is very simple:
 
@@ -338,4 +344,22 @@ When you run this code you should see something like this: ::
     INFO 2012-03-25 00:07:36,424: Partial result $2086.80 with parameters: (150, 5, 2, 92, 5)
     .
     .
+
+Plotting
+--------
+
+PyAlgoTrade makes it very easy to plot a strategy execution.
+
+.. literalinclude:: ../samples/tutorial-5.py
+
+The code is doing 4 things:
+
+ 1. Declaring the strategy. In this case a simple SMA crossover.
+ 2. Loading the feed from a CSV file.
+ 3. Running the strategy with the bars supplied by the feed and a StrategyPlotter attached.
+ 4. Plotting the strategy.
+
+This is what the plot looks like:
+
+.. image:: ../samples/tutorial-5.png
 
