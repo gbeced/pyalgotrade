@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dataseries – Basic dataseries classes &mdash; PyAlgoTrade 0.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.3 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="barfeed – Bar providers" href="barfeed.html" />
+    <link rel="prev" title="bar – Instrument prices" href="bar.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="barfeed.html" title="barfeed – Bar providers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bar.html" title="bar – Instrument prices"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.3 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.dataseries">
+<span id="dataseries-basic-dataseries-classes"></span><h1>dataseries &#8211; Basic dataseries classes<a class="headerlink" href="#module-pyalgotrade.dataseries" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.dataseries.DataSeries">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.dataseries.</tt><tt class="descname">DataSeries</tt><a class="headerlink" href="#pyalgotrade.dataseries.DataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for data series. A data series is an abstraction used to manage historical data.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.dataseries.DataSeries.getFirstValidPos">
+<tt class="descname">getFirstValidPos</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.DataSeries.getFirstValidPos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first valid position in the dataseries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.DataSeries.getLength">
+<tt class="descname">getLength</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.DataSeries.getLength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of values in the data series.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.DataSeries.getValue">
+<tt class="descname">getValue</tt><big>(</big><em>valuesAgo=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.DataSeries.getValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value at a given instant, relative to the last value, or None if the value doesn&#8217;t exist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>valuesAgo</strong> (<em>int</em>) &#8211; The position of the value relative to the last one. Must be &gt;= 0.</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>getValue() returns the last value.</li>
+<li>getValue(1) returns the previous value (assuming that the dataseries has at least 2 values).</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.DataSeries.getValueAbsolute">
+<tt class="descname">getValueAbsolute</tt><big>(</big><em>pos</em><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.DataSeries.getValueAbsolute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value at a given instant, or None if the value doesn&#8217;t exist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pos</strong> &#8211; The absolute position of the value in the dataseries. Must be &gt;= 0.</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>getValueAbsolute(0) returns the first value.</li>
+<li>getValueAbsolute(1) returns the second value.</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.dataseries.SequenceDataSeries">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.dataseries.</tt><tt class="descname">SequenceDataSeries</tt><big>(</big><em>values=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.SequenceDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sequence based <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> (<em>list.</em>) &#8211; The values that this DataSeries will hold. If its None, an empty list is used. <strong>Note that the list is not cloned and it takes ownership of it</strong>.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.dataseries.SequenceDataSeries.appendValue">
+<tt class="descname">appendValue</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.SequenceDataSeries.appendValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.dataseries.BarDataSeries">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.dataseries.</tt><tt class="descname">BarDataSeries</tt><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> of <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> instances.</p>
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getAdjCloseDataSeries">
+<tt class="descname">getAdjCloseDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getAdjCloseDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the adjusted close prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getCloseDataSeries">
+<tt class="descname">getCloseDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getCloseDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the close prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getHighDataSeries">
+<tt class="descname">getHighDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getHighDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the high prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getLowDataSeries">
+<tt class="descname">getLowDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getLowDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the low prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getOpenDataSeries">
+<tt class="descname">getOpenDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getOpenDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the open prices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.dataseries.BarDataSeries.getVolumeDataSeries">
+<tt class="descname">getVolumeDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.dataseries.BarDataSeries.getVolumeDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">DataSeries</span></tt></a> with the volume.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">dataseries</span>
+
+<span class="c"># Build a sequence based DataSeries.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">dataseries</span><span class="o">.</span><span class="n">SequenceDataSeries</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+
+<span class="c"># Get the last value.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span>
+
+<span class="c"># Get the previous value.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span>
+
+<span class="c"># Get the first value.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output should be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mi">49</span>
+<span class="mi">49</span>
+<span class="mi">48</span>
+<span class="mi">48</span>
+<span class="mi">0</span>
+<span class="mi">0</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dataseries &#8211; Basic dataseries classes</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bar.html"
+                        title="previous chapter">bar &#8211; Instrument prices</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="barfeed.html"
+                        title="next chapter">barfeed &#8211; Bar providers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/dataseries.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="barfeed.html" title="barfeed – Bar providers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bar.html" title="bar – Instrument prices"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.3 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
