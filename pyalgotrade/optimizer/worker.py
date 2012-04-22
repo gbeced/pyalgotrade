@@ -28,22 +28,22 @@ import multiprocessing
 from pyalgotrade import optimizer
 from pyalgotrade import barfeed
 
-def call_function(function, parameters):
-	if parameters != None:
+def call_function(function, *parameters):
+	if len(parameters) > 0:
 		return function(*parameters)
 	else:
 		return function()
 
-def call_and_retry_on_network_error(function, parameters, retryCount = 3):
+def call_and_retry_on_network_error(function, retryCount, *parameters):
 	ret = None
 	while retryCount > 0:
 		retryCount -= 1
 		try:
-			ret = call_function(function, parameters)
+			ret = call_function(function, *parameters)
 			return ret
 		except socket.error:
 			time.sleep(random.randint(1, 3))
-	ret = call_function(function, parameters)
+	ret = call_function(function, *parameters)
 	return ret
 
 class Worker:
@@ -59,19 +59,19 @@ class Worker:
 		self.__logger = logger
 
 	def getInstrumentsAndBars(self):
-		ret = call_and_retry_on_network_error(self.__server.getInstrumentsAndBars, None, 10)
+		ret = call_and_retry_on_network_error(self.__server.getInstrumentsAndBars, 10)
 		ret = pickle.loads(ret)
 		return ret
 
 	def getNextJob(self):
-		ret = call_and_retry_on_network_error(self.__server.getNextJob, None, 10)
+		ret = call_and_retry_on_network_error(self.__server.getNextJob, 10)
 		ret = pickle.loads(ret)
 		return ret
 
 	def pushJobResults(self, jobId, result):
 		jobId = pickle.dumps(jobId)
 		result = pickle.dumps(result)
-		call_and_retry_on_network_error(self.__server.pushJobResults, (jobId, result), 10)
+		call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result)
 
 	def __processJob(self, job, instruments, bars):
 		# Wrap the bars into a feed.

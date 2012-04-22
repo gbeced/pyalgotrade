@@ -76,5 +76,5 @@ class MyStrategy(strategy.Strategy):
     def getResult(self):
         return self.__result
 
-worker.run(MyStrategy, "192.168.1.112", 5000)
+worker.run(MyStrategy, "localhost", 5000)
 

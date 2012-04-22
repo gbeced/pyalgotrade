@@ -17,5 +17,5 @@ feed.addBarsFromCSV("dia", "dia-2010.csv")
 feed.addBarsFromCSV("dia", "dia-2011.csv")
 
 # Run the server.
-server.serve(feed, parameters_generator(), "192.168.1.112", 5000)
+server.serve(feed, parameters_generator(), "localhost", 5000)
 
