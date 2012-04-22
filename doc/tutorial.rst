@@ -53,26 +53,9 @@ Let's save that as orcl-2000.csv with the following command: ::
 
     python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)" > orcl-2000.csv
 
-Let's start with a simple strategy, that is, one that just prints closing prices as they are processed: ::
+Let's start with a simple strategy, that is, one that just prints closing prices as they are processed:
 
-    from pyalgotrade import strategy
-    from pyalgotrade.barfeed import csvfeed
-
-    class MyStrategy(strategy.Strategy):
-        def __init__(self, feed):
-            strategy.Strategy.__init__(self, feed)
-
-        def onBars(self, bars):
-            bar = bars.getBar("orcl")
-            print "%s: %s" % (bar.getDateTime(), bar.getClose())
-
-    # Load the yahoo feed from the CSV file
-    feed = csvfeed.YahooFeed()
-    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
-
-    # Evaluate the strategy with the feed's bars.
-    myStrategy = MyStrategy(feed)
-    myStrategy.run()
+.. literalinclude:: ../samples/tutorial-1.py
 
 The code is doing 3 main things:
  1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar in the feed.
@@ -88,29 +71,9 @@ If you run the script you should see the closing prices in order: ::
     2000-12-28 00:00:00: 31.06
     2000-12-29 00:00:00: 29.06
 
-Let's move on with a strategy that prints closing SMA prices, to illustrate how technicals are used: ::
+Let's move on with a strategy that prints closing SMA prices, to illustrate how technicals are used:
 
-    from pyalgotrade import strategy
-    from pyalgotrade.barfeed import csvfeed
-    from pyalgotrade.technical import ma
-
-    class MyStrategy(strategy.Strategy):
-        def __init__(self, feed):
-            strategy.Strategy.__init__(self, feed)
-            # We want a 15 period SMA over the closing prices.
-            self.__sma = ma.SMA(feed.getDataSeries("orcl").getCloseDataSeries(), 15)
-
-        def onBars(self, bars):
-            bar = bars.getBar("orcl")
-            print "%s: %s %s" % (bar.getDateTime(), bar.getClose(), self.__sma.getValue())
-
-    # Load the yahoo feed from the CSV file
-    feed = csvfeed.YahooFeed()
-    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
-
-    # Evaluate the strategy with the feed's bars.
-    myStrategy = MyStrategy(feed)
-    myStrategy.run()
+.. literalinclude:: ../samples/tutorial-2.py
 
 This is very similar to the previous example, except that:
 
@@ -144,30 +107,9 @@ That is because we need at least 15 values to get something out of the SMA: ::
 All the technicals will return None when the value can't be calculated at a given time.
 
 One important thing about technicals is that they can be stacked. That is because they're modeled as data series too.
-For example, getting an SMA over the RSI over the closing prices is as simple as this: ::
+For example, getting an SMA over the RSI over the closing prices is as simple as this:
 
-    from pyalgotrade import strategy
-    from pyalgotrade.barfeed import csvfeed
-    from pyalgotrade.technical import ma
-    from pyalgotrade.technical import rsi
-
-    class MyStrategy(strategy.Strategy):
-        def __init__(self, feed):
-            strategy.Strategy.__init__(self, feed)
-            self.__rsi = rsi.RSI(feed.getDataSeries("orcl").getCloseDataSeries(), 14)
-            self.__sma = ma.SMA(self.__rsi, 15)
-
-        def onBars(self, bars):
-            bar = bars.getBar("orcl")
-            print "%s: %s %s %s" % (bar.getDateTime(), bar.getClose(), self.__rsi.getValue(), self.__sma.getValue())
-
-    # Load the yahoo feed from the CSV file
-    feed = csvfeed.YahooFeed()
-    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
-
-    # Evaluate the strategy with the feed's bars.
-    myStrategy = MyStrategy(feed)
-    myStrategy.run()
+.. literalinclude:: ../samples/tutorial-3.py
 
 If you run the script you should see a bunch of values on the screen where:
 
@@ -217,65 +159,7 @@ Let's move on with a simple strategy, this time simulating actual trading. The i
  * If the closing price is above the SMA(15) we enter a long position (we place a buy market order).
  * If a long order is in place, and the closing price drops below the SMA(15) we exit the long position (we place a sell market order).
 
-::
-
-    from pyalgotrade import strategy
-    from pyalgotrade.barfeed import csvfeed
-    from pyalgotrade.technical import ma
-
-    class MyStrategy(strategy.Strategy):
-        def __init__(self, feed, smaPeriod):
-            strategy.Strategy.__init__(self, feed, 1000)
-            self.__sma = ma.SMA(feed.getDataSeries("orcl").getCloseDataSeries(), smaPeriod)
-            self.__position = None
-
-        def onStart(self):
-            print "Initial portfolio value: $%.2f" % self.getBroker().getCash()
-
-        def onEnterOk(self, position):
-            execInfo = position.getEntryOrder().getExecutionInfo()
-            print "%s: BUY at $%.2f" % (execInfo.getDateTime(), execInfo.getPrice())
-
-        def onEnterCanceled(self, position):
-            self.__position = None
-
-        def onExitOk(self, position):
-            execInfo = position.getExitOrder().getExecutionInfo()
-            print "%s: SELL at $%.2f" % (execInfo.getDateTime(), execInfo.getPrice())
-            self.__position = None
-
-        def onExitCanceled(self, position):
-            # If the exit was canceled, re-submit it. 
-            self.exitPosition(self.__position)
-
-        def onBars(self, bars):
-            # Wait for enough bars to be available to calculate a SMA.
-            if self.__sma.getValue() is None:
-                return
-
-            bar = bars.getBar("orcl")
-            # If a position was not opened, check if we should enter a long position.
-            if self.__position == None:
-                if bar.getClose() > self.__sma.getValue():
-                    # Enter a buy market order for 10 orcl shares. The order is good till canceled.
-                    self.__position = self.enterLong("orcl", 10, True)
-            # Check if we have to exit the position.
-            elif bar.getClose() < self.__sma.getValue():
-                 self.exitPosition(self.__position)
-
-        def onFinish(self, bars):
-            print "Final portfolio value: $%.2f" % self.getBroker().getValue(bars)
-
-    def run_strategy(smaPeriod):
-        # Load the yahoo feed from the CSV file
-        feed = csvfeed.YahooFeed()
-        feed.addBarsFromCSV("orcl", "orcl-2000.csv")
-
-        # Evaluate the strategy with the feed's bars.
-        myStrategy = MyStrategy(feed, smaPeriod)
-        myStrategy.run()
-
-    run_strategy(15)
+.. literalinclude:: ../samples/tutorial-4.py
 
 If you run the script you should see something like this: ::
 
@@ -366,28 +250,9 @@ Let's start by downloading 3 years of daily bars for 'Dow Jones Industrial Avera
     python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2010)" > dia-2010.csv
     python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2011)" > dia-2011.csv
 
-This is the server script: ::
+This is the server script:
 
-    import itertools
-    from pyalgotrade.barfeed import csvfeed
-    from pyalgotrade.optimizer import server
-
-    def parameters_generator():
-        entrySMA = range(150, 251)
-        exitSMA = range(5, 16)
-        rsiPeriod = range(2, 11)
-        overBoughtThreshold = range(75, 96)
-        overSoldThreshold = range(5, 26)
-        return itertools.product(entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
-
-    # Load the feed from the CSV files.
-    feed = csvfeed.YahooFeed()
-    feed.addBarsFromCSV("dia", "dia-2009.csv")
-    feed.addBarsFromCSV("dia", "dia-2010.csv")
-    feed.addBarsFromCSV("dia", "dia-2011.csv")
-
-    # Run the server.
-    server.serve(feed, parameters_generator(), "192.168.1.112", 5000)
+.. literalinclude:: ../samples/tutorial-optimizer-server.py
 
 The server code is doing 3 things:
 
@@ -395,87 +260,9 @@ The server code is doing 3 things:
  2. Loading the feed with the CSV files we downloaded.
  3. Running the server that will wait for incoming connections on port 5000.
 
-This is the worker script: ::
+This is the worker script:
 
-    from pyalgotrade.optimizer import worker
-    from pyalgotrade import strategy
-    from pyalgotrade.barfeed import csvfeed
-    from pyalgotrade.technical import ma
-    from pyalgotrade.technical import rsi
-
-    class MyStrategy(strategy.Strategy):
-        def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
-            strategy.Strategy.__init__(self, feed, 2000)
-            ds = feed.getDataSeries("dia").getCloseDataSeries()
-            self.__entrySMA = ma.SMA(ds, entrySMA)
-            self.__exitSMA = ma.SMA(ds, exitSMA)
-            self.__rsi = rsi.RSI(ds, rsiPeriod)
-            self.__overBoughtThreshold = overBoughtThreshold
-            self.__overSoldThreshold = overSoldThreshold
-            self.__longPos = None
-            self.__shortPos = None
-            self.__result = 0
-
-        def onEnterOk(self, position):
-            pass
-
-        def onEnterCanceled(self, position):
-            if self.__longPos == position:
-                self.__longPos = None
-            elif self.__shortPos == position:
-                self.__shortPos = None
-            else:
-                assert(False)
-
-        def onExitOk(self, position):
-            if self.__longPos == position:
-                self.__longPos = None
-            elif self.__shortPos == position:
-                self.__shortPos = None
-            else:
-                assert(False)
-
-        def onExitCanceled(self, position):
-            # If the exit was canceled, re-submit it.
-            self.exitPosition(position)
-
-        def onBars(self, bars):
-            # Wait for enough bars to be available to calculate SMA and RSI.
-            if self.__exitSMA.getValue() is None or self.__entrySMA.getValue() is None or self.__rsi.getValue() is None:
-                return
-
-            bar = bars.getBar("dia")
-            if self.__longPos != None:
-                if self.exitLongSignal(bar):
-                    self.exitPosition(self.__longPos)
-            elif self.__shortPos != None:
-                if self.exitShortSignal(bar):
-                    self.exitPosition(self.__shortPos)
-            else:
-                if self.enterLongSignal(bar):
-                    self.__longPos = self.enterLong("dia", 10, True)
-                elif self.enterShortSignal(bar):
-                    self.__shortPos = self.enterShort("dia", 10, True)
-
-        def enterLongSignal(self, bar):
-            return bar.getClose() > self.__entrySMA.getValue() and self.__rsi.getValue() <= self.__overSoldThreshold
-
-        def exitLongSignal(self, bar):
-            return bar.getClose() > self.__exitSMA.getValue()
-
-        def enterShortSignal(self, bar):
-            return bar.getClose() < self.__entrySMA.getValue() and self.__rsi.getValue() >= self.__overBoughtThreshold
-
-        def exitShortSignal(self, bar):
-            return bar.getClose() < self.__exitSMA.getValue()
-
-        def onFinish(self, bars):
-            self.__result = self.getBroker().getValue(bars)
-
-        def getResult(self):
-            return self.__result
-
-    worker.run(MyStrategy, "192.168.1.112", 5000)
+.. literalinclude:: ../samples/tutorial-optimizer-worker.py
 
 The worker code is doing 2 things:
 
@@ -516,102 +303,9 @@ and something like this on the worker/s console: ::
 Note that you should run **only one server and one or more workers in different computers**.
 
 If you just want to run strategies in parallel in your own desktop you can take advantage of the pyalgotrade.optimizer.local
-module like this: ::
+module like this:
 
-    import itertools
-    from pyalgotrade.optimizer import local
-    from pyalgotrade.barfeed import csvfeed
-    from pyalgotrade import strategy
-    from pyalgotrade.technical import ma
-    from pyalgotrade.technical import rsi
-
-    class MyStrategy(strategy.Strategy):
-        def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
-            strategy.Strategy.__init__(self, feed, 2000)
-            ds = feed.getDataSeries("dia").getCloseDataSeries()
-            self.__entrySMA = ma.SMA(ds, entrySMA)
-            self.__exitSMA = ma.SMA(ds, exitSMA)
-            self.__rsi = rsi.RSI(ds, rsiPeriod)
-            self.__overBoughtThreshold = overBoughtThreshold
-            self.__overSoldThreshold = overSoldThreshold
-            self.__longPos = None
-            self.__shortPos = None
-            self.__result = 0
-
-        def onEnterOk(self, position):
-            pass
-
-        def onEnterCanceled(self, position):
-            if self.__longPos == position:
-                self.__longPos = None
-            elif self.__shortPos == position:
-                self.__shortPos = None
-            else:
-                assert(False)
-
-        def onExitOk(self, position):
-            if self.__longPos == position:
-                self.__longPos = None
-            elif self.__shortPos == position:
-                self.__shortPos = None
-            else:
-                assert(False)
-
-        def onExitCanceled(self, position):
-            # If the exit was canceled, re-submit it.
-            self.exitPosition(position)
-
-        def onBars(self, bars):
-            # Wait for enough bars to be available to calculate SMA and RSI.
-            if self.__exitSMA.getValue() is None or self.__entrySMA.getValue() is None or self.__rsi.getValue() is None:
-                return
-
-            bar = bars.getBar("dia")
-            if self.__longPos != None:
-                if self.exitLongSignal(bar):
-                    self.exitPosition(self.__longPos)
-            elif self.__shortPos != None:
-                if self.exitShortSignal(bar):
-                    self.exitPosition(self.__shortPos)
-            else:
-                if self.enterLongSignal(bar):
-                    self.__longPos = self.enterLong("dia", 10, True)
-                elif self.enterShortSignal(bar):
-                    self.__shortPos = self.enterShort("dia", 10, True)
-
-        def enterLongSignal(self, bar):
-            return bar.getClose() > self.__entrySMA.getValue() and self.__rsi.getValue() <= self.__overSoldThreshold
-
-        def exitLongSignal(self, bar):
-            return bar.getClose() > self.__exitSMA.getValue()
-
-        def enterShortSignal(self, bar):
-            return bar.getClose() < self.__entrySMA.getValue() and self.__rsi.getValue() >= self.__overBoughtThreshold
-
-        def exitShortSignal(self, bar):
-            return bar.getClose() < self.__exitSMA.getValue()
-
-        def onFinish(self, bars):
-            self.__result = self.getBroker().getValue(bars)
-
-        def getResult(self):
-            return self.__result
-
-    def parameters_generator():
-        entrySMA = range(150, 251)
-        exitSMA = range(5, 16)
-        rsiPeriod = range(2, 11)
-        overBoughtThreshold = range(75, 96)
-        overSoldThreshold = range(5, 26)
-        return itertools.product(entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
-
-    # Load the feed from the CSV files.
-    feed = csvfeed.YahooFeed()
-    feed.addBarsFromCSV("dia", "dia-2009.csv")
-    feed.addBarsFromCSV("dia", "dia-2010.csv")
-    feed.addBarsFromCSV("dia", "dia-2011.csv")
-
-    local.run(MyStrategy, feed, parameters_generator())
+.. literalinclude:: ../samples/tutorial-optimizer-local.py
 
 The code is doing 4 things:
 
