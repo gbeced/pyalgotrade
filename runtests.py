@@ -25,6 +25,7 @@ from testcases import technical_ratio_test
 from testcases import technical_trend_test
 from testcases import technical_rsi_test
 from testcases import technical_cross_test
+from testcases import technical_roc_test
 from testcases import dataseries_test
 from testcases import csvbarfeed_test
 from testcases import broker_test
@@ -39,6 +40,7 @@ def getTestCases():
 	ret += technical_trend_test.getTestCases()
 	ret += technical_rsi_test.getTestCases()
 	ret += technical_cross_test.getTestCases()
+	ret += technical_roc_test.getTestCases()
 	ret += dataseries_test.getTestCases()
 	ret += csvbarfeed_test.getTestCases()
 	ret += broker_test.getTestCases()

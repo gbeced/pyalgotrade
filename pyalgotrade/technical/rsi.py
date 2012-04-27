@@ -21,7 +21,6 @@
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
-# http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
 # RSI = 100 - 100 / (1 + RS)
 # RS = Average gain / Average loss
 # First Average Gain = Sum of Gains over the past 14 periods / 14
@@ -64,7 +63,7 @@ def avg_gain_loss(values):
 	return (gain/float(len(values)-1), loss/float(len(values)-1))
 
 class RSI(technical.DataSeriesFilter):
-	"""Relative Strength Index filter.
+	"""Relative Strength Index filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
 
 	:param dataSeries: The DataSeries instance being filtered.
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
