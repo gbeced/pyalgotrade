@@ -40,5 +40,5 @@ class RateOfChange(technical.DataSeriesFilter):
 		if actual is None or prev is None or prev == 0:
 			return None
 
-		return (actual - prev) / prev * 100
+		return (actual - prev) / float(prev) * 100
 
