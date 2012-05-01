@@ -42,6 +42,8 @@ def __download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYea
 	url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=d&ignore=.csv" % (instrument, fromMonth, fromDay, fromYear, toMonth, toDay, toYear)
 
 	f = urllib.urlopen(url)
+	if f.headers['Content-Type'] != 'text/csv':
+		raise Exception("Failed to download data")
 	buff = f.read()
 
 	# Remove the BOM
