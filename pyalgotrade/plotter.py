@@ -84,6 +84,10 @@ class SellMarker(Series):
 	def getMarker(self):
 		return "v"
 
+class CustomMarker(Series):
+	def getMarker(self):
+		return "o"
+
 class Subplot:
 	""" """
 	colors = ['b', 'c', 'm', 'y', 'k']
@@ -121,6 +125,9 @@ class Subplot:
 			ret = defaultClass()
 			self.__series[name] = ret
 		return ret
+
+	def getCustomMarksSeries(self, name):
+		return self.getSeries(name, CustomMarker)
 
 	def customizeSubplot(self, mplSubplot):
 		# Don't scale the Y axis
