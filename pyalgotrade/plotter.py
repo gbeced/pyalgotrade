@@ -163,6 +163,7 @@ class StrategyPlotter:
 		self.__subplots = []
 		self.__namedSubplots = {}
 		self.__plotAllClosingPrices = plotAllClosingPrices
+		self.__plotAdjClose = False
 
 		self.__mainSubplot = Subplot()
 		self.__subplots.append(self.__mainSubplot)
@@ -191,7 +192,11 @@ class StrategyPlotter:
 		# Feed the main subplot with bar values.
 		if self.__plotAllClosingPrices:
 			for instrument in bars.getInstruments():
-				self.__mainSubplot.getSeries(instrument).addValue(dateTime, bars.getBar(instrument).getClose())
+				if self.__plotAdjClose:
+					price = bars.getBar(instrument).getAdjClose()
+				else:
+					price = bars.getBar(instrument).getClose()
+				self.__mainSubplot.getSeries(instrument).addValue(dateTime, price)
 
 		# Feed the portfolio evolution subplot.
 		if self.__portfolioSubplot:
@@ -206,14 +211,17 @@ class StrategyPlotter:
 			elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
 				self.__mainSubplot.getSeries("Sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
 
-	def getMainSubPlot(self):
+	def setPlotAdjClose(self, plotAdjClose):
+		self.__plotAdjClose = plotAdjClose
+
+	def getMainSubplot(self):
 		"""Returns the main subplot, where closing prices and buy/sell events get plotted.
 
 		:rtype: :class:`Subplot`.
 		"""
 		return self.__mainSubplot
 
-	def getPortfolioSubPlot(self):
+	def getPortfolioSubplot(self):
 		"""Returns the subplot where the portfolio values get plotted.
 
 		:rtype: :class:`Subplot`.
