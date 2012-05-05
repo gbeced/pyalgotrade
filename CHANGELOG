@@ -1,6 +1,7 @@
 Version 0.4
 . [NEW] Rate of change technical indicator.
 . [FIX] Added error checking to yahoofinance.get_daily_csv.
+. [FIX] Normalized some method names in StrategyPlotter.
 
 Version 0.3
 . [NEW] Support for plotting strategies (StrategyPlotter).
