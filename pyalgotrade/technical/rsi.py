@@ -67,7 +67,7 @@ class RSI(technical.DataSeriesFilter):
 
 	:param dataSeries: The DataSeries instance being filtered.
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param period: The period. Note that if period is **n**, then **n+1** values are used.
+	:param period: The period. Note that if period is **n**, then **n+1** values are used. Must be > 1.
 	:type period: int.
 	"""
 
