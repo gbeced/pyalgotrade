@@ -62,6 +62,9 @@ Momentum Indicators
 .. automodule:: pyalgotrade.technical.rsi
     :members: RSI
 
+.. automodule:: pyalgotrade.technical.stoch
+    :members: StochasticOscillator
+
 .. automodule:: pyalgotrade.technical.roc
     :members: RateOfChange
 
