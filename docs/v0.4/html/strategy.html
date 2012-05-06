@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>strategy – Basic strategy classes &mdash; PyAlgoTrade 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.4 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="plotter – Strategy plotter" href="plotter.html" />
+    <link rel="prev" title="technical – Technical indicators" href="technical.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="technical.html" title="technical – Technical indicators"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.4 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.strategy">
+<span id="strategy-basic-strategy-classes"></span><h1>strategy &#8211; Basic strategy classes<a class="headerlink" href="#module-pyalgotrade.strategy" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.strategy.Position">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.strategy.</tt><tt class="descname">Position</tt><big>(</big><em>entryOrder</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for positions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entryOrder</strong> (<a class="reference internal" href="broker.html#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.Order</span></tt></a>) &#8211; The order used to enter the position.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getEntryOrder">
+<tt class="descname">getEntryOrder</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getEntryOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="broker.html#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.Order</span></tt></a> used to enter the position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getExitOnSessionClose">
+<tt class="descname">getExitOnSessionClose</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getExitOnSessionClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if an order to exit the position should be automatically placed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getExitOrder">
+<tt class="descname">getExitOrder</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getExitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="broker.html#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.Order</span></tt></a> used to exit the position. If this position hasn&#8217;t been closed yet, None is returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getInstrument">
+<tt class="descname">getInstrument</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getInstrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the instrument used for this position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getNetProfit">
+<tt class="descname">getNetProfit</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getNetProfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the difference between the order prices. <strong>It does include commisions</strong>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getQuantity">
+<tt class="descname">getQuantity</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getQuantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of shares used to enter this position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.getResult">
+<tt class="descname">getResult</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.getResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ratio between the order prices. <strong>It doesn&#8217;t include commisions</strong>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Position.setExitOnSessionClose">
+<tt class="descname">setExitOnSessionClose</tt><big>(</big><em>exitOnSessionClose</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Position.setExitOnSessionClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to True to automatically place the exit order in the last bar for the session.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.strategy.Strategy">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.strategy.</tt><tt class="descname">Strategy</tt><big>(</big><em>barFeed</em>, <em>cash=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for strategies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>barFeed</strong> (<a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a>.) &#8211; The bar feed to use to backtest the strategy.</li>
+<li><strong>cash</strong> (<em>int/float.</em>) &#8211; The amount of cash available.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.enterLong">
+<tt class="descname">enterLong</tt><big>(</big><em>instrument</em>, <em>quantity</em>, <em>goodTillCanceled=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.enterLong" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a buy market order to enter a long position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Entry order quantity.</li>
+<li><strong>goodTillCanceled</strong> (<em>boolean.</em>) &#8211; True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">The <a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a> entered.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.enterLongLimit">
+<tt class="descname">enterLongLimit</tt><big>(</big><em>instrument</em>, <em>price</em>, <em>quantity</em>, <em>goodTillCanceled=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.enterLongLimit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a buy limit order to enter a long position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>price</strong> (<em>float.</em>) &#8211; Entry price.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Entry order quantity.</li>
+<li><strong>goodTillCanceled</strong> (<em>boolean.</em>) &#8211; True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">The <a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a> entered.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.enterShort">
+<tt class="descname">enterShort</tt><big>(</big><em>instrument</em>, <em>quantity</em>, <em>goodTillCanceled=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.enterShort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a sell short market order to enter a short position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Entry order quantity.</li>
+<li><strong>goodTillCanceled</strong> (<em>boolean.</em>) &#8211; True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">The <a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a> entered.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.enterShortLimit">
+<tt class="descname">enterShortLimit</tt><big>(</big><em>instrument</em>, <em>price</em>, <em>quantity</em>, <em>goodTillCanceled=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.enterShortLimit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a sell short limit order to enter a short position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>price</strong> (<em>float.</em>) &#8211; Entry price.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Entry order quantity.</li>
+<li><strong>goodTillCanceled</strong> (<em>boolean.</em>) &#8211; True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">The <a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a> entered.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.exitPosition">
+<tt class="descname">exitPosition</tt><big>(</big><em>position</em>, <em>price=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.exitPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the exit order for the position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>position</strong> (<a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a>.) &#8211; A position returned by <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterLong" title="pyalgotrade.strategy.Strategy.enterLong"><tt class="xref py py-meth docutils literal"><span class="pre">enterLong()</span></tt></a>, <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterShort" title="pyalgotrade.strategy.Strategy.enterShort"><tt class="xref py py-meth docutils literal"><span class="pre">enterShort()</span></tt></a>, <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterLongLimit" title="pyalgotrade.strategy.Strategy.enterLongLimit"><tt class="xref py py-meth docutils literal"><span class="pre">enterLongLimit()</span></tt></a> or <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterShortLimit" title="pyalgotrade.strategy.Strategy.enterShortLimit"><tt class="xref py py-meth docutils literal"><span class="pre">enterShortLimit()</span></tt></a> methods.</li>
+<li><strong>price</strong> (<em>float.</em>) &#8211; Exit price. If set then a limit order is used instead of a market order.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.getBroker">
+<tt class="descname">getBroker</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.getBroker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="broker.html#pyalgotrade.broker.Broker" title="pyalgotrade.broker.Broker"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.Broker</span></tt></a> used to handle order executions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.getCurrentDateTime">
+<tt class="descname">getCurrentDateTime</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.getCurrentDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">datetime.datetime</span></tt> for the current <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.getFeed">
+<tt class="descname">getFeed</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.getFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a> that this strategy is using.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onBars">
+<tt class="descname">onBars</tt><big>(</big><em>bars</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onBars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (mandatory) to get notified when new bars are available. The default implementation raises an Exception.</p>
+<p><strong>This is the method to override to enter your trading logic and enter/exit positions</strong>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bars</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bars" title="pyalgotrade.bar.Bars"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bars</span></tt></a>.) &#8211; The current bars.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onEnterCanceled">
+<tt class="descname">onEnterCanceled</tt><big>(</big><em>position</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onEnterCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (optional) to get notified when the order submitted to enter a position was canceled. The default implementation is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a>.) &#8211; A position returned by <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterLong" title="pyalgotrade.strategy.Strategy.enterLong"><tt class="xref py py-meth docutils literal"><span class="pre">enterLong()</span></tt></a> or <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterShort" title="pyalgotrade.strategy.Strategy.enterShort"><tt class="xref py py-meth docutils literal"><span class="pre">enterShort()</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onEnterOk">
+<tt class="descname">onEnterOk</tt><big>(</big><em>position</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onEnterOk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (optional) to get notified when the order submitted to enter a position was filled. The default implementation is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a>.) &#8211; A position returned by <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterLong" title="pyalgotrade.strategy.Strategy.enterLong"><tt class="xref py py-meth docutils literal"><span class="pre">enterLong()</span></tt></a> or <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterShort" title="pyalgotrade.strategy.Strategy.enterShort"><tt class="xref py py-meth docutils literal"><span class="pre">enterShort()</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onExitCanceled">
+<tt class="descname">onExitCanceled</tt><big>(</big><em>position</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onExitCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (optional) to get notified when the order submitted to exit a position was canceled. The default implementation is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a>.) &#8211; A position returned by <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterLong" title="pyalgotrade.strategy.Strategy.enterLong"><tt class="xref py py-meth docutils literal"><span class="pre">enterLong()</span></tt></a> or <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterShort" title="pyalgotrade.strategy.Strategy.enterShort"><tt class="xref py py-meth docutils literal"><span class="pre">enterShort()</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onExitOk">
+<tt class="descname">onExitOk</tt><big>(</big><em>position</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onExitOk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (optional) to get notified when the order submitted to exit a position was filled. The default implementation is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<a class="reference internal" href="#pyalgotrade.strategy.Position" title="pyalgotrade.strategy.Position"><tt class="xref py py-class docutils literal"><span class="pre">Position</span></tt></a>.) &#8211; A position returned by <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterLong" title="pyalgotrade.strategy.Strategy.enterLong"><tt class="xref py py-meth docutils literal"><span class="pre">enterLong()</span></tt></a> or <a class="reference internal" href="#pyalgotrade.strategy.Strategy.enterShort" title="pyalgotrade.strategy.Strategy.enterShort"><tt class="xref py py-meth docutils literal"><span class="pre">enterShort()</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onFinish">
+<tt class="descname">onFinish</tt><big>(</big><em>bars</em><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onFinish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (optional) to get notified when the strategy finished executing. The default implementation is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bars</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bars" title="pyalgotrade.bar.Bars"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bars</span></tt></a>.) &#8211; The latest bars processed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.onStart">
+<tt class="descname">onStart</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.onStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (optional) to get notified when the strategy starts executing. The default implementation is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.strategy.Strategy.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.strategy.Strategy.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call once (<strong>and only once</strong>) to backtest the strategy.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="technical.html"
+                        title="previous chapter">technical &#8211; Technical indicators</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plotter.html"
+                        title="next chapter">plotter &#8211; Strategy plotter</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/strategy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="technical.html" title="technical – Technical indicators"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.4 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
