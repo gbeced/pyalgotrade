@@ -54,6 +54,22 @@ def _adjustXAxis(mplSubplots):
 		axis = (minX, maxX, axis[2], axis[3])
 		mplSubplot.axis(axis)
 
+def _filter_datetimes(dateTimes, fromDate = None, toDate = None):
+	class DateTimeFilter:
+		def __init__(self, fromDate = None, toDate = None):
+			self.__fromDate = fromDate
+			self.__toDate = toDate
+
+		def includeDateTime(self, dateTime):
+			if self.__toDate and dateTime > self.__toDate:
+				return False
+			if self.__fromDate and dateTime < self.__fromDate:
+				return False
+			return True
+
+	dateTimeFilter = DateTimeFilter(fromDate, toDate)
+	return filter(lambda x: dateTimeFilter.includeDateTime(x), dateTimes)
+
 class Series:
 	def __init__(self):
 		self.__values = {}
@@ -174,8 +190,9 @@ class StrategyPlotter:
 			self.__subplots.append(self.__portfolioSubplot)
 
 		# This is to feed:
-		# - The main subplot with bar values.
-		# - The portfolio evolution subplot.
+		# - Record datetimes
+		# - Feed the main subplot with bar values.
+		# - Feed the portfolio evolution subplot.
 		strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
 
 		# This is to feed buy/sell markes in the main subplot.
@@ -243,10 +260,17 @@ class StrategyPlotter:
 			self.__subplots.append(ret)
 		return ret
 
-	def plot(self):
-		"""Plots the strategy execution. Must be called after running the strategy. """
+	def plot(self, fromDateTime = None, toDateTime = None):
+		"""Plots the strategy execution. Must be called after running the strategy.
 
-		dateTimes = [dateTime for dateTime in self.__dateTimes]
+		:param fromDateTime: An optional starting datetime.datetime. Everyting before it won't get plotted.
+		:type fromDateTime: datetime.datetime
+		:param toDateTime: An optional ending datetime.datetime. Everyting after it won't get plotted.
+		:type toDateTime: datetime.datetime
+		"""
+
+		# dateTimes = [dateTime for dateTime in self.__dateTimes]
+		dateTimes = _filter_datetimes(self.__dateTimes, fromDateTime, toDateTime)
 		dateTimes.sort()
 
 		# Build each subplot.
