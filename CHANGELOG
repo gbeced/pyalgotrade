@@ -1,5 +1,6 @@
 Version 0.5
-. [NEW] StrategyPlotter now supports plotting a range.
+. [NEW] StrategyPlotter supports plotting a range.
+. [NEW] Stochastic oscillator supports using adjusted values.
 
 Version 0.4
 . [NEW] Rate of change technical indicator.

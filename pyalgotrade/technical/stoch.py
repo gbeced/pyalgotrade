@@ -21,14 +21,36 @@
 from pyalgotrade import technical
 from pyalgotrade.technical import ma
 
-def get_low_high_values(bars):
+class BarWrapper:
+	def __init__(self, useAdjusted):
+		self.__useAdjusted = useAdjusted
+
+	def getLow(self, bar_):
+		if self.__useAdjusted:
+			return bar_.getAdjLow()
+		else:
+			return bar_.getLow()
+
+	def getHigh(self, bar_):
+		if self.__useAdjusted:
+			return bar_.getAdjHigh()
+		else:
+			return bar_.getHigh()
+
+	def getClose(self, bar_):
+		if self.__useAdjusted:
+			return bar_.getAdjClose()
+		else:
+			return bar_.getClose()
+
+def get_low_high_values(barWrapper, bars):
 	currBar = bars[0]
-	lowestLow = currBar.getLow()
-	highestHigh = currBar.getHigh()
+	lowestLow = barWrapper.getLow(currBar)
+	highestHigh = barWrapper.getHigh(currBar)
 	for i in range(len(bars)):
 		currBar = bars[i]
-		lowestLow = min(lowestLow, currBar.getLow())
-		highestHigh = max(highestHigh, currBar.getHigh())
+		lowestLow = min(lowestLow, barWrapper.getLow(currBar))
+		highestHigh = max(highestHigh, barWrapper.getHigh(currBar))
 	return (lowestLow, highestHigh)
 
 class StochasticOscillator(technical.DataSeriesFilter):
@@ -41,21 +63,24 @@ class StochasticOscillator(technical.DataSeriesFilter):
 	:type period: int.
 	:param dSMAPeriod: The %D SMA period. Must be > 1.
 	:type dSMAPeriod: int.
+	:param useAdjustedValues: True to use adjusted Low/High/Close values.
+	:type useAdjustedValues: boolean.
 	"""
 
-	def __init__(self, barDataSeries, period, dSMAPeriod = 3):
+	def __init__(self, barDataSeries, period, dSMAPeriod = 3, useAdjustedValues = False):
 		assert(period > 1)
 		assert(dSMAPeriod > 1)
 		technical.DataSeriesFilter.__init__(self, barDataSeries, period)
 		self.__d = ma.SMA(self, dSMAPeriod)
+		self.__barWrapper = BarWrapper(useAdjustedValues)
 
 	def calculateValue(self, firstPos, lastPos):
 		bars = self.getDataSeries().getValuesAbsolute(firstPos, lastPos)
 		if bars == None:
 			return None
 
-		lowestLow, highestHigh = get_low_high_values(bars)
-		currentClose = bars[-1].getClose()
+		lowestLow, highestHigh = get_low_high_values(self.__barWrapper, bars)
+		currentClose = self.__barWrapper.getClose(bars[-1])
 		return (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100
 
 	def getD(self):
