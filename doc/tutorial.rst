@@ -363,3 +363,6 @@ This is what the plot looks like:
 
 .. image:: ../samples/tutorial-5.png
 
+I hope you enjoyed this quick introduction. I'd recommend you to download PyAlgoTrade here: http://gbeced.github.com/pyalgotrade/downloads/index.html
+and get started writing you own strategies.
+
