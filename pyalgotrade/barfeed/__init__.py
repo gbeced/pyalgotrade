@@ -32,6 +32,10 @@ class BasicBarFeed:
 	def getNewBarsEvent(self):
 		return self.__newBarsEvent
 
+	def getDefaultInstrument(self):
+		"""Returns the default instrument."""
+		return self.__defaultInstrument
+
 	# Process every element in the feed and emit an event for each one.
 	def processAll(self):
 		for bars in self:
@@ -52,7 +56,7 @@ class BasicBarFeed:
 	def getDataSeries(self, instrument = None):
 		"""Returns the :class:`pyalgotrade.dataseries.BarDataSeries` for a given instrument.
 
-		:param instrument: Instrument identifier. If None, the last registered instrument is returned.
+		:param instrument: Instrument identifier. If None, the default instrument is returned.
 		:type instrument: string.
 		:rtype: :class:`pyalgotrade.dataseries.BarDataSeries`.
 		"""

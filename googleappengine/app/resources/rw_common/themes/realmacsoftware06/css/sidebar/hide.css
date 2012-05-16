@@ -1,0 +1,11 @@
+#contentContainer {
+	width: auto;
+}
+
+#contentContainer #content {
+	padding: 10px;
+}
+
+#sidebarContainer {
+	display: none;
+}

@@ -1,0 +1,14 @@
+Release checklist
+
+[ ] Update CHANGELOG.
+[ ] Update version in setup.py.
+[ ] Update version doc/conf.py.
+[ ] Rebuild and review documentation.
+[ ] Run tutorial examples using the installed lib.
+[ ] Run testcases using the installed lib.
+[ ] Build package and upload to the downloads section.
+[ ] Update the website using RapidWeaver (doc + package).
+[ ] Merge into master branch.
+[ ] Tag (git tag v0.x-rtm -m "Version 0.x").
+[ ] Push (git push; git push --tags).
+[ ] Update PyPi.
