@@ -263,9 +263,9 @@ class StrategyPlotter:
 	def plot(self, fromDateTime = None, toDateTime = None):
 		"""Plots the strategy execution. Must be called after running the strategy.
 
-		:param fromDateTime: An optional starting datetime.datetime. Everyting before it won't get plotted.
+		:param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
 		:type fromDateTime: datetime.datetime
-		:param toDateTime: An optional ending datetime.datetime. Everyting after it won't get plotted.
+		:param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
 		:type toDateTime: datetime.datetime
 		"""
 
