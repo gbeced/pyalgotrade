@@ -13,6 +13,7 @@ Contents:
 
     intro
     tutorial
+    googleappengine
     code
 
 Indices and tables

@@ -16,12 +16,14 @@
 
 from optparse import OptionParser
 import sys
+import os
 import tempfile
 import hashlib
 import subprocess
 
-# Temporary. Must have pyalgotrade installed.
-sys.path.append("../..")
+# Just in case pyalgotrade isn't installed.
+uploadBarsPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(uploadBarsPath, "..", ".."))
 
 from pyalgotrade.barfeed import csvfeed
 
@@ -36,8 +38,9 @@ def datetimeToCSV(dateTime):
 def parse_cmdline():
 	usage = "usage: %prog [options] csv1 csv2 ..."
 	parser = OptionParser(usage=usage)
-	parser.add_option("-i", "--instrument", dest="instrument", help="Manatory. The instrument's symbol. Note that all csv files must belong to the same instrument.")
+	parser.add_option("-i", "--instrument", dest="instrument", help="Mandatory. The instrument's symbol. Note that all csv files must belong to the same instrument.")
 	parser.add_option("-u", "--url", dest="url", help="The location of the remote_api endpoint. Example: http://YOURAPPID.appspot.com/remote_api")
+	parser.add_option("-c", "--appcfg_path", dest="appcfg_path", help="Path where appcfg.py resides")
 	mandatory_options = [
 		"instrument",
 		"url",
@@ -89,11 +92,14 @@ def write_intermediate_csv(instrument, csvFiles, csvToUpload):
 def upload_intermediate_csv(options, csvPath):
 	print "Uploading %s" % csvPath
 	cmd = []
-	cmd.append("appcfg.py")
+	if options.appcfg_path:
+		cmd.append(os.path.join(options.appcfg_path, "appcfg.py"))
+	else:
+		cmd.append("appcfg.py")
 	cmd.append("upload_data")
 	cmd.append("--kind=Bar")
 	cmd.append("--filename=%s" % csvPath)
-	cmd.append("--config_file=bulkloader.yaml")
+	cmd.append("--config_file=%s" % os.path.join(uploadBarsPath, "bulkloader.yaml"))
 	cmd.append("--url=%s" % options.url)
 
 	popenObj = subprocess.Popen(args=cmd)

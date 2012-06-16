@@ -1,4 +1,4 @@
-application: pyalgotrade-optimizer
+application: <YOUR_APPLICATION_ID_HERE>
 version: 1
 runtime: python
 api_version: 1
