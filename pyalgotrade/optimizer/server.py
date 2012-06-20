@@ -39,26 +39,36 @@ class AutoStopThread(threading.Thread):
 class Job:
 	def __init__(self, strategyParameters):
 		self.__strategyParameters = strategyParameters
-		self.__result = None
+		self.__bestResult = None
+		self.__bestParameters = None
 		self.__id = id(self)
 
 	def getId(self):
 		return self.__id
 
-	def getStrategyParameters(self):
-		return self.__strategyParameters
+	def getNextParameters(self):
+		ret = None
+		if len(self.__strategyParameters):
+			ret = self.__strategyParameters.pop()
+		return ret
 
-	def getResult(self):
-		return self.__result
+	def getBestParameters(self):
+		return self.__bestParameters
 
-	def setResult(self, result):
-		self.__result = result
+	def getBestResult(self):
+		return self.__bestResult
+
+	def setBestResult(self, result, parameters):
+		self.__bestResult = result
+		self.__bestParameters = parameters
 
 # Restrict to a particular path.
 class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/PyAlgoTradeRPC',)
 
 class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
+	defaultBatchSize = 200
+
 	def __init__(self, address, port, autoStop = True):
 		SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
 
@@ -87,6 +97,19 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 				ret = random.choice(self.__activeJobs.values())
 		return ret
 
+	def __getNextParams(self):
+		ret = []
+
+		# Get the next set of parameters.
+		with self.__parametersLock:
+			if self.__parametersIterator != None:
+				try:
+					for i in xrange(Server.defaultBatchSize):
+						ret.append(self.__parametersIterator.next())
+				except StopIteration:
+					self.__parametersIterator = None
+		return ret
+
 	def getLogger(self):
 		return self.__logger
 
@@ -101,18 +124,13 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
 	def getNextJob(self):
 		ret = None
-		params = None
+		params = []
 
 		# Get the next set of parameters.
-		with self.__parametersLock:
-			try:
-				if self.__parametersIterator:
-					params = self.__parametersIterator.next()
-			except StopIteration:
-				self.__parametersIterator = None
+		params = self.__getNextParams()
 
 		# Map the active job
-		if params != None:
+		if len(params):
 			ret = Job(params)
 			with self.__activeJobsLock:
 				self.__activeJobs[ret.getId()] = ret
@@ -133,9 +151,10 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			activeJobs = len(self.__activeJobs) > 0
 		return jobsPending or activeJobs
 
-	def pushJobResults(self, jobId, result):
+	def pushJobResults(self, jobId, result, parameters):
 		jobId = pickle.loads(jobId)
 		result = pickle.loads(result)
+		parameters = pickle.loads(parameters)
 
 		job = None
 
@@ -149,11 +168,11 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 				return
 
 		# Save the job with the best result
-		if self.__bestJob == None or result > self.__bestJob.getResult():
-			job.setResult(result)
+		if self.__bestJob == None or result > self.__bestJob.getBestResult():
+			job.setBestResult(result, parameters)
 			self.__bestJob = job
 
-		self.getLogger().info("Partial result $%.2f with parameters: %s" % (result, job.getStrategyParameters()))
+		self.getLogger().info("Partial result $%.2f with parameters: %s" % (result, parameters))
 
 	def stop(self):
 		self.shutdown()
@@ -182,7 +201,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			# Show the best result.
 			bestJob = self.getBestJob()
 			if bestJob:
-				self.getLogger().info("Best final result $%.2f with parameters: %s" % (bestJob.getResult(), bestJob.getStrategyParameters()))
+				self.getLogger().info("Best final result $%.2f with parameters: %s" % (bestJob.getBestResult(), bestJob.getBestParameters()))
 			else:
 				self.getLogger().error("No jobs processed")
 		finally:

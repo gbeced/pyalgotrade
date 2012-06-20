@@ -244,9 +244,11 @@ which requires the following parameters:
  * An RSI oversold threshold for long position entry. We'll call this overSoldThreshold and will range between 5 and 25.
  * An RSI overbought threshold for short position entry. We'll call this overBoughtThreshold and will range between 75 and 95.
 
-If my math is ok, those are 4409559 different combinations. If testing the strategy for one set of parameters takes 2 seconds,
-and we execute those serially, then we'll need 102 days to evaluate all of them and find the best set of parameters.
-Thats a long time. If you can get ten 8-core computers, you can take that down to about 2 days.
+If my math is ok, those are 4409559 different combinations.
+
+Testing this strategy for one set of parameters took me about 0.16 seconds. If I execute all the combinations serially
+it'll take me about 8.5 days to evaluate all of them and find the best set of parameters. That is a long time, but
+if I can get ten 8-core computers to do the job then the total time will go down to about 2.5 hours.
 
 Long story short, **we need to go parallel**.
 

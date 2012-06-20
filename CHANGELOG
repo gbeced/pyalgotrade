@@ -2,6 +2,7 @@ Version 0.5
 . [NEW] StrategyPlotter supports plotting a range.
 . [NEW] Stochastic oscillator supports using adjusted values.
 . [NEW] Added support for optimizing strategies inside Google App Engine.
+. [NEW] Improved optimizer module to distribute strategy executions in chunks.
 
 Version 0.4
 . [NEW] Rate of change technical indicator.

@@ -68,21 +68,31 @@ class Worker:
 		ret = pickle.loads(ret)
 		return ret
 
-	def pushJobResults(self, jobId, result):
+	def pushJobResults(self, jobId, result, parameters):
 		jobId = pickle.dumps(jobId)
 		result = pickle.dumps(result)
-		call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result)
+		parameters = pickle.dumps(parameters)
+		call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters)
 
 	def __processJob(self, job, instruments, bars):
-		# Wrap the bars into a feed.
-		feed = barfeed.OptimizerBarFeed(instruments, bars)
+		bestResult = 0
+		parameters = job.getNextParameters()
+		bestParams = parameters 
+		while parameters != None:
+			# Wrap the bars into a feed.
+			feed = barfeed.OptimizerBarFeed(instruments, bars)
+			# Run the strategy.
+			self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
+			result = self.runStrategy(feed, *parameters)
+			self.getLogger().info("Result %s" % result)
+			if result > bestResult:
+				bestResult = result
+				bestParams = parameters
+			# Run with the next set of parameters.
+			parameters = job.getNextParameters()
 
-		# Run the strategy and push back the results.
-		parameters = job.getStrategyParameters()
-		self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
-		result = self.runStrategy(feed, *parameters)
-		self.getLogger().info("Result %s" % result)
-		self.pushJobResults(job.getId(), result)
+		assert(bestParams != None)
+		self.pushJobResults(job.getId(), bestResult, bestParams)
 
 	# Run the strategy and return the result.
 	def runStrategy(self, feed, parameters):
