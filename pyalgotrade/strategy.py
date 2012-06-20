@@ -189,6 +189,12 @@ class Strategy:
 		self.__currentBars = None
 		self.__barsProcessedEvent = observer.Event()
 
+	def getResult(self):
+		ret = 0
+		if self.__currentBars != None:
+			ret = self.getBroker().getValue(self.__currentBars)
+		return ret
+
 	def getBarsProcessedEvent(self):
 		return self.__barsProcessedEvent
 

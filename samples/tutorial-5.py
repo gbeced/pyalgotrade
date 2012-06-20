@@ -12,7 +12,6 @@ class MyStrategy(strategy.Strategy):
 		self.__crossAbove = cross.CrossAbove(closeDS, self.__sma)
 		self.__crossBelow = cross.CrossBelow(closeDS, self.__sma)
 		self.__position = None
-		self.__result = 0
 
 	def getSMA(self):
 		return self.__sma
@@ -42,11 +41,7 @@ class MyStrategy(strategy.Strategy):
 			 self.exitPosition(self.__position)
 
 	def onFinish(self, bars):
-		print "Final portfolio value: $%.2f" % self.getBroker().getValue(bars)
-		self.__result = self.getBroker().getValue(bars)
-
-	def getResult(self):
-		return self.__result
+		print "Final portfolio value: $%.2f" % self.getResult()
 
 def run_strategy(smaPeriod):
 	# Load the yahoo feed from the CSV file

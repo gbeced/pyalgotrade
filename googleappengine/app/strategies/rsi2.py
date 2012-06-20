@@ -22,7 +22,6 @@ class Strategy(strategy.Strategy):
 	def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
 		initialCash = 2000
 		strategy.Strategy.__init__(self, feed, initialCash)
-		self.__result = initialCash
 		self.__instrument = feed.getDefaultInstrument()
 		ds = feed.getDataSeries().getCloseDataSeries()
 		self.__entrySMA = ma.SMA(ds, entrySMA)
@@ -82,10 +81,4 @@ class Strategy(strategy.Strategy):
 
 	def exitShortSignal(self, bar):
 		return bar.getClose() < self.__exitSMA.getValue()
-
-	def onFinish(self, bars):
-		self.__result = self.getBroker().getValue(bars)
-
-	def getResult(self):
-		return self.__result
 

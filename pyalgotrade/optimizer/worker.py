@@ -122,7 +122,7 @@ def worker_process(strategyClass, address, port):
 def run(strategyClass, address, port, workerCount = None):
 	"""Executes one or more worker processes that will run a strategy with the bars and parameters supplied by the server.
 
-	:param strategyClass: The strategy class. Must have a *getResult* method that returns the strategy result.
+	:param strategyClass: The strategy class.
 	:param address: The address of the server.
 	:type address: string.
 	:param port: The port where the server is listening for incoming connections.

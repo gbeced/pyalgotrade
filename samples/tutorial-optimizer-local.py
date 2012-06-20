@@ -16,7 +16,6 @@ class MyStrategy(strategy.Strategy):
         self.__overSoldThreshold = overSoldThreshold
         self.__longPos = None
         self.__shortPos = None
-        self.__result = 0
 
     def onEnterOk(self, position):
         pass
@@ -70,12 +69,6 @@ class MyStrategy(strategy.Strategy):
 
     def exitShortSignal(self, bar):
         return bar.getClose() < self.__exitSMA.getValue()
-
-    def onFinish(self, bars):
-        self.__result = self.getBroker().getValue(bars)
-
-    def getResult(self):
-        return self.__result
 
 def parameters_generator():
     entrySMA = range(150, 251)
