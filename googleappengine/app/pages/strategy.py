@@ -41,7 +41,9 @@ def get_stratexecconfig_for_template(stratExecConfigs):
 			props["best_result"] = stratExecConfig.bestResult
 			props["best_result_parameters"] = stratExecConfig.bestResultParameters
 		if stratExecConfig.status == persistence.StratExecConfig.Status.CANCELED_TOO_MANY_ERRORS:
-			props["additional_info"] = "The strategy execution was cancelled because it generated too many errors"
+			props["additional_info"] = "The strategy execution was cancelled because it generated too many errors."
+		elif stratExecConfig.errors > 0:
+			props["additional_info"] = "%d errors were found. Take a look at the application logs." % (stratExecConfig.errors)
 		ret.append(props)
 	return ret
 
