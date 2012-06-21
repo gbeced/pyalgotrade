@@ -22,6 +22,8 @@
 					<key>Name</key>
 					<string>HTML Code</string>
 				</dict>
+				<key>PublishingManifest</key>
+				<dict/>
 			</dict>
 			<key>Files</key>
 			<array/>
