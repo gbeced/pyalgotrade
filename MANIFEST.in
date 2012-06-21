@@ -1,0 +1,3 @@
+recursive-include googleappengine *
+prune googleappengine/app/pyalgotrade
+global-exclude .DS_Store
