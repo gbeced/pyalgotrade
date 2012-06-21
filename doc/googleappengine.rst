@@ -19,6 +19,8 @@ Once this is in place, the next steps are:
  3. Uploading bars.
  4. Running the strategy optimization.
 
+**All the commands in this tutorial assume that you're inside the directory where you extracted the PyAlgoTrade package.**
+
 To create an application, you first have to log in to your **Google App Engine** account. Once inside, hit the **Create Application**
 button. You'll need to pick an **Application Identifier**. For this tutorial I used **pyalgotrade-tutorial** and
 for the rest of the settings I used the default values. Note that you'll have to pick a different, unique **Application Identifier**
@@ -66,8 +68,6 @@ The output you should see should be very similar to this one: ::
     Uploading task queue entries.
 
 This basic application that you just uploaded includes the RSI2 strategy from the tutorial section.
-You should now be able to browse your application in http://pyalgotrade-tutorial.appspot.com/, but you won't be able
-to queue a new execution for the sample strategy (**strategies.rsi2.Strategy**) because you need to upload some bars first.
 
 Next, you'll download 3 years of daily bars for 'Dow Jones Industrial Average': ::
 
@@ -112,10 +112,18 @@ Note that this command requires 3 important things:
  * The url for your application's remote api. 
  * The cvs files that you want to upload
 
-Now that you have your application deployed into **Google App Engine** and some bars available, lets queue a strategy execution.
+Now that you have your application deployed into **Google App Engine** and some bars available, you should be ready to queue a
+strategy execution.
+Try opening http://pyalgotrade-tutorial.appspot.com/ in a browser and login with your **Google App Engine** credentials.
+It is possible that you get an error that says: ::
 
-Open http://pyalgotrade-tutorial.appspot.com/ in a browser and login with your **Google App Engine** credentials. Once inside,
-click on the **strategies.rsi2.Strategy** link. Next, click on **Queue a new execution**. Complete the form with the following
+    The index for this query is not ready to serve. See the Datastore Indexes page in the Admin Console.
+
+This is because **Google App Engine** is still building your application indexes. The only thing you can do at this point is to wait.
+In my experience, it took less than 10 minutes.
+
+Once inside, click on the **strategies.rsi2.Strategy** link. Next, click on **Queue a new execution**.
+Complete the form with the following
 values:
 
 .. image:: images/queue_execution.png
