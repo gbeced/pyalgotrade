@@ -95,6 +95,7 @@ helpful when you don&#8217;t have access to a cluster of computers to optimize y
 <li>Running the strategy optimization.</li>
 </ol>
 </div></blockquote>
+<p><strong>All the commands in this tutorial assume that you&#8217;re inside the directory where you extracted the PyAlgoTrade package.</strong></p>
 <p>To create an application, you first have to log in to your <strong>Google App Engine</strong> account. Once inside, hit the <strong>Create Application</strong>
 button. You&#8217;ll need to pick an <strong>Application Identifier</strong>. For this tutorial I used <strong>pyalgotrade-tutorial</strong> and
 for the rest of the settings I used the default values. Note that you&#8217;ll have to pick a different, unique <strong>Application Identifier</strong>
@@ -138,9 +139,7 @@ Completed update of app: pyalgotrade-tutorial, version: 1
 Uploading index definitions.
 Uploading task queue entries.</pre>
 </div>
-<p>This basic application that you just uploaded includes the RSI2 strategy from the tutorial section.
-You should now be able to browse your application in <a class="reference external" href="http://pyalgotrade-tutorial.appspot.com/">http://pyalgotrade-tutorial.appspot.com/</a>, but you won&#8217;t be able
-to queue a new execution for the sample strategy (<strong>strategies.rsi2.Strategy</strong>) because you need to upload some bars first.</p>
+<p>This basic application that you just uploaded includes the RSI2 strategy from the tutorial section.</p>
 <p>Next, you&#8217;ll download 3 years of daily bars for &#8216;Dow Jones Industrial Average&#8217;:</p>
 <div class="highlight-python"><pre>python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2009)" &gt; dia-2009.csv
 python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2010)" &gt; dia-2010.csv
@@ -183,9 +182,16 @@ Password for YOUR_USER_NAME_HERE@gmail.com:
 <li>The cvs files that you want to upload</li>
 </ul>
 </div></blockquote>
-<p>Now that you have your application deployed into <strong>Google App Engine</strong> and some bars available, lets queue a strategy execution.</p>
-<p>Open <a class="reference external" href="http://pyalgotrade-tutorial.appspot.com/">http://pyalgotrade-tutorial.appspot.com/</a> in a browser and login with your <strong>Google App Engine</strong> credentials. Once inside,
-click on the <strong>strategies.rsi2.Strategy</strong> link. Next, click on <strong>Queue a new execution</strong>. Complete the form with the following
+<p>Now that you have your application deployed into <strong>Google App Engine</strong> and some bars available, you should be ready to queue a
+strategy execution.
+Try opening <a class="reference external" href="http://pyalgotrade-tutorial.appspot.com/">http://pyalgotrade-tutorial.appspot.com/</a> in a browser and login with your <strong>Google App Engine</strong> credentials.
+It is possible that you get an error that says:</p>
+<div class="highlight-python"><pre>The index for this query is not ready to serve. See the Datastore Indexes page in the Admin Console.</pre>
+</div>
+<p>This is because <strong>Google App Engine</strong> is still building your application indexes. The only thing you can do at this point is to wait.
+In my experience, it took less than 10 minutes.</p>
+<p>Once inside, click on the <strong>strategies.rsi2.Strategy</strong> link. Next, click on <strong>Queue a new execution</strong>.
+Complete the form with the following
 values:</p>
 <img alt="_images/queue_execution.png" src="_images/queue_execution.png" />
 <p>After filling in those values, click on <strong>Queue execution</strong> and you should get redirected back to the strategy page like this:</p>
