@@ -347,6 +347,8 @@ When you run this code you should see something like this: ::
     .
     .
 
+If you don't have access to a cluster of computers, then you can take advante of :doc:`googleappengine`.
+
 Plotting
 --------
 
