@@ -34,7 +34,7 @@ as the path were your app.yaml resides: ::
 
 updateapp.py uses the appcfg.py utility from the **Google App Engine SDK for Python**, so you'll be asked for your email
 and password. If appcfg.py is not in the PATH, then you'll need to supply the --appcfg_path parameter too.
-The output you should see should be very similar to this one: ::
+The output should look like this: ::
 
     Updating app.yaml
     Preparing pyalgotrade package
@@ -81,7 +81,7 @@ and then upload those to your app with the following command: ::
 
 uploadbars.py uses the appcfg.py utility from the **Google App Engine SDK for Python**, so you'll be asked for your email
 and password. If appcfg.py is not in the PATH, then you'll need to supply the --appcfg_path parameter too.
-The output you should see should be very similar to this one: ::
+The output should look like this: ::
 
     Loading bars from dia-2009.csv
     Loading bars from dia-2010.csv
