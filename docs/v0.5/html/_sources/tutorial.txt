@@ -37,7 +37,7 @@ Let's use Oracle's stock prices for year 2000, which we'll download with the fol
 
     python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)"
 
-The output of that command should be something like this: ::
+The output should look like this: ::
 
     Date,Open,High,Low,Close,Volume,Adj Close
     2000-12-29,30.87,31.31,28.69,29.06,31655500,28.35
