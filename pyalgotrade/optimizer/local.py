@@ -48,6 +48,7 @@ def find_port():
 		try:
 			s = socket.socket()
 			s.bind(("localhost", ret))
+			s.close()
 			return ret
 		except socket.error:
 			pass
