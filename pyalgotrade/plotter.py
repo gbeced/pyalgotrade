@@ -78,7 +78,7 @@ class Series:
 		return None
 
 	def getMarker(self):
-		return "-"
+		return " "
 
 	def addValue(self, dateTime, value):
 		self.__values[dateTime] = value
