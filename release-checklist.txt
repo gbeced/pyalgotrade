@@ -12,3 +12,4 @@ Release checklist
 [ ] Tag (git tag v0.x-rtm -m "Version 0.x").
 [ ] Push (git push; git push --tags).
 [ ] Update PyPi.
+[ ] Tweet about it.
