@@ -1,4 +1,14 @@
-<h2>Current version: 0.5</h2>
+<h2>Current version: 0.6</h2>
+Download here: <a href="https://github.com/downloads/gbeced/pyalgotrade/PyAlgoTrade-0.6.tar.gz">PyAlgoTrade-0.6.tar.gz</a>
+<ul>
+  <li>Added initial support for NinjaTrader export format (csvfeed.NinjaTraderRowParser).</li>
+  <li>pyalgotrade.optimizer.server.serve now returns the best results found.</li>
+  <li>Fixes to the optimizer.local module when running on Windows.</li>
+  <li>Fixes to the optimizer.local module. The socket used to find a random port to listen on was not being closed. Thanks Tibor Kiss for fixing this.</li>
+  <li>Fixes to plotter.py. The marker style used was not supported in some matplotlib versions. Thanks Tibor Kiss for fixing this.</li>
+</ul>
+
+<h2>Version 0.5</h2>
 Download here: <a href="https://github.com/downloads/gbeced/pyalgotrade/PyAlgoTrade-0.5.tar.gz">PyAlgoTrade-0.5.tar.gz</a>
 <ul>
   <li>Added support for optimizing strategies inside <b>Google App Engine</b>.</li>
