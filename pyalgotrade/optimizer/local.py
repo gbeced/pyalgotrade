@@ -19,6 +19,7 @@
 """
 
 import multiprocessing
+import threading
 import logging
 import socket
 import random
@@ -26,9 +27,8 @@ from pyalgotrade import optimizer
 from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
 
-def server_process(barFeed, strategyParameters, port):
-	s = server.Server("localhost", port, True)
-	s.serve(barFeed, strategyParameters)
+def server_thread(srv, barFeed, strategyParameters, port):
+	srv.serve(barFeed, strategyParameters)
 
 def worker_process(strategyClass, port):
 	class Worker(worker.Worker):
@@ -72,9 +72,10 @@ def run(strategyClass, barFeed, strategyParameters, workerCount = None):
 	if port == None:
 		raise Exception("Failed to find a port to listen")
 
-	# Build and start the server.
-	serverProcess = multiprocessing.Process(target=server_process, args=(barFeed, strategyParameters, port))
-	serverProcess.start()
+	# Build and start the server thread before the worker processes. We'll manually stop the server once workers have finished.
+	srv = server.Server("localhost", port, False)
+	serverThread = threading.Thread(target=server_thread, args=(srv, barFeed, strategyParameters, port))
+	serverThread.start()
 	
 	# Build the worker processes.
 	for i in range(workerCount):
@@ -88,6 +89,7 @@ def run(strategyClass, barFeed, strategyParameters, workerCount = None):
 	for process in workers:
 		process.join()
 
-	# Wait the server to finish.
-	serverProcess.join()
+	# Stop and wait the server to finish.
+	srv.stop()
+	serverThread.join()
 

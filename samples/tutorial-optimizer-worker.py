@@ -69,5 +69,7 @@ class MyStrategy(strategy.Strategy):
     def exitShortSignal(self, bar):
         return bar.getClose() < self.__exitSMA.getValue()
 
-worker.run(MyStrategy, "localhost", 5000)
+# The if __name__ == '__main__' part is necessary if running on Windows.
+if __name__ == '__main__':
+    worker.run(MyStrategy, "localhost", 5000)
 

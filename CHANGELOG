@@ -1,3 +1,6 @@
+Version 0.6
+. [FIX] Fixes to the optimizer.local module when running on Windows.
+
 Version 0.5
 . [NEW] StrategyPlotter supports plotting a range.
 . [NEW] Stochastic oscillator supports using adjusted values.
