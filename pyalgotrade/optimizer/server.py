@@ -36,6 +36,20 @@ class AutoStopThread(threading.Thread):
 			time.sleep(1)
 		self.__server.stop()
 
+class Results:
+	"""The results of the strategy executions."""
+	def __init__(self, parameters, result):
+		self.__parameters = parameters
+		self.__result = result
+
+	def getParameters(self):
+		"""Returns a sequence of parameter values."""
+		return self.__parameters
+
+	def getResult(self):
+		"""Returns the result for a given set of parameters."""
+		return self.__result
+
 class Job:
 	def __init__(self, strategyParameters):
 		self.__strategyParameters = strategyParameters
@@ -178,6 +192,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 		self.shutdown()
 
 	def serve(self, barFeed, strategyParameters):
+		ret = None
 		try:
 			# Initialize instruments, bars and parameters.
 			self.getLogger().info("Loading bars")
@@ -202,10 +217,12 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			bestJob = self.getBestJob()
 			if bestJob:
 				self.getLogger().info("Best final result $%.2f with parameters: %s" % (bestJob.getBestResult(), bestJob.getBestParameters()))
+				ret = Results(bestJob.getBestParameters(), bestJob.getBestResult())
 			else:
 				self.getLogger().error("No jobs processed")
 		finally:
 			self.__forcedStop = True
+		return ret
 
 def serve(barFeed, strategyParameters, address, port):
 	"""Executes a server that will provide bars and strategy parameters for workers to use.
@@ -217,7 +234,8 @@ def serve(barFeed, strategyParameters, address, port):
 	:type address: string.
 	:param port: The port to listen for incoming worker connections.
 	:type port: int.
+	:rtype: A :class:`Results` instance with the best results found.
 	"""
 	s = Server(address, port)
-	s.serve(barFeed, strategyParameters)
+	return s.serve(barFeed, strategyParameters)
 

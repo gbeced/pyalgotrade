@@ -1,5 +1,8 @@
 Version 0.6
 . [FIX] Fixes to the optimizer.local module when running on Windows.
+. [FIX] The marker style used by plotter.py was not supported in some matplotlib versions. Thanks Tibor Kiss for fixing this.
+. [FIX] Socket used to find a random port to listen on was not being closed (optimizer.local.find_port). Thanks Tibor Kiss for fixing this.
+. [NEW] pyalgotrade.optimizer.server.serve now returns the best results found.
 
 Version 0.5
 . [NEW] StrategyPlotter supports plotting a range.

@@ -82,7 +82,11 @@
 				<integer>0</integer>
 				<key>SidebarPlain</key>
 				<string>&lt;!-- Plus One Button --&gt;
-&lt;g:plusone size="medium"&gt;&lt;/g:plusone&gt;</string>
+&lt;g:plusone size="medium"&gt;&lt;/g:plusone&gt;
+&lt;br /&gt;
+&lt;!-- Twitter --&gt;
+&lt;a href="https://twitter.com/pyalgotrade" class="twitter-follow-button" data-show-count="false"&gt;Follow @pyalgotrade&lt;/a&gt;
+&lt;script&gt;!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");&lt;/script&gt;</string>
 				<key>TextEncoding</key>
 				<string>utf-8</string>
 				<key>ThemeStyles</key>
