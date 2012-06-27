@@ -78,19 +78,21 @@ def run(strategyClass, barFeed, strategyParameters, workerCount = None):
 	serverThread = threading.Thread(target=server_thread, args=(srv, barFeed, strategyParameters, port))
 	serverThread.start()
 	
-	# Build the worker processes.
-	for i in range(workerCount):
-		workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, port)))
+	try:
+		# Build the worker processes.
+		for i in range(workerCount):
+			workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, port)))
 
-	# Start workers
-	for process in workers:
-		process.start()
+		# Start workers
+		for process in workers:
+			process.start()
 
-	# Wait workers
-	for process in workers:
-		process.join()
+		# Wait workers
+		for process in workers:
+			process.join()
 
-	# Stop and wait the server to finish.
-	srv.stop()
-	serverThread.join()
+	finally:
+		# Stop and wait the server to finish.
+		srv.stop()
+		serverThread.join()
 
