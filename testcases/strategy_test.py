@@ -30,10 +30,10 @@ class StrategyTestCase(unittest.TestCase):
 
 	def __loadIntradayBarFeed(self, fromMonth=1, toMonth=1, fromDay=3, toDay=3):
 		barFilter = csvfeed.USEquitiesRTH(datetime.date(2011, fromMonth, fromDay), datetime.date(2011, toMonth, toDay))
-		rowParser = csvfeed.IBIntraDayRowParser()
+		rowParser = csvfeed.NinjaTraderRowParser(csvfeed.NinjaTraderRowParser.Frequency.MINUTE)
 		barFeed = csvfeed.BarFeed()
 		barFeed.setBarFilter(barFilter)
-		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("SPY-2011.csv"), rowParser)
+		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"), rowParser)
 		return barFeed
 
 	class TestStrategy(strategy.Strategy):

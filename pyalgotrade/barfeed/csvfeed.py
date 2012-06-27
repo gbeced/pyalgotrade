@@ -29,6 +29,12 @@ class RowParser:
 	def parseBar(self, csvRowDict):
 		raise Exception("Not implemented")
 
+	def getFieldNames(self):
+		raise Exception("Not implemented")
+
+	def getDelimiter(self):
+		raise Exception("Not implemented")
+
 # Interface for bar filters.
 class BarFilter:
 	def includeBar(self, bar_):
@@ -90,7 +96,7 @@ class BarFeed(barfeed.BarFeed):
 
 		# Load the csv file
 		loadedBars = []
-		reader = csv.DictReader(open(path, "r"))
+		reader = csv.DictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
 		for row in reader:
 			bar_ = rowParser.parseBar(row)
 			if self.__barFilter is None or self.__barFilter.includeBar(bar_):
@@ -114,7 +120,13 @@ class BarFeed(barfeed.BarFeed):
 
 ######################################################################
 ## Yahoo CSV parser
+# Each bar must be on its own line and fields must be separated by comma (,).
+#
+# Bars Format:
+# Date,Open,High,Low,Close,Volume,Adj Close
+#
 # The csv Date column must have the following format: YYYY-MM-DD
+
 
 class YahooRowParser(RowParser):
 	# zone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as "Greenwich Mean Time") 
@@ -125,6 +137,13 @@ class YahooRowParser(RowParser):
 		ret = datetime.datetime.strptime(dateString, "%Y-%m-%d")
 		ret += datetime.timedelta(hours= (-1 * self.__zone))
 		return ret
+
+	def getFieldNames(self):
+		# It is expected for the first row to have the field names.
+		return None
+
+	def getDelimiter(self):
+		return ","
 
 	def parseBar(self, csvRowDict):
 		date = self.__parseDate(csvRowDict["Date"])
@@ -156,18 +175,41 @@ class YahooFeed(BarFeed):
 		BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 
 ######################################################################
-## Interactive Brokers intraday CSV parser
-# The csv 'Date Time' column must have the following format: YYYYMMDD HHMMSS
+## NinjaTrader CSV parser
+# Each bar must be on its own line and fields must be separated by semicolon (;).
+#
+# Minute Bars Format:
+# yyyyMMdd HHmmss;open price;high price;low price;close price;volume
+#
+# Daily Bars Format:
+# yyyyMMdd;open price;high price;low price;close price;volume
 
-class IBIntraDayRowParser(RowParser):
+class NinjaTraderRowParser(RowParser):
+	class Frequency:
+		MINUTE = 1
+		DAILY = 2
+
 	# zone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as "Greenwich Mean Time") 
-	def __init__(self, zone = 0):
+	def __init__(self, frequency, zone = 0):
+		self.__frequency = frequency
 		self.__zone = zone
 
 	def __parseDateTime(self, dateTime):
-		ret = datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
-		ret += datetime.timedelta(hours= (-1 * self.__zone))
+		ret = None
+		if self.__frequency == NinjaTraderRowParser.Frequency.MINUTE:
+			ret = datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
+			ret += datetime.timedelta(hours= (-1 * self.__zone))
+		elif self.__frequency == NinjaTraderRowParser.Frequency.DAILY:
+			ret = datetime.datetime.strptime(dateTime, "%Y%m%d")
+		else:
+			assert(False)
 		return ret
+
+	def getFieldNames(self):
+		return ["Date Time", "Open", "High", "Low", "Close", "Volume"]
+
+	def getDelimiter(self):
+		return ";"
 
 	def parseBar(self, csvRowDict):
 		dateTime = self.__parseDateTime(csvRowDict["Date Time"])
