@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Google App Engine support &mdash; PyAlgoTrade 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.6 documentation" href="index.html" />
+    <link rel="next" title="Documentation for the code" href="code.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="code.html" title="Documentation for the code"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="google-app-engine-support">
+<h1>Google App Engine support<a class="headerlink" href="#google-app-engine-support" title="Permalink to this headline">¶</a></h1>
+<p>This section assumes that you already read the tutorial (the Optimizing section specially), and that you are
+a bit familiar with <strong>Google App Engine</strong>.</p>
+<p>The main idea is to take advante of Google&#8217;s cloud computing services to optimize your strategies, which is specially
+helpful when you don&#8217;t have access to a cluster of computers to optimize your strategies in parallel.</p>
+<p>In order to follow the steps described in this section you&#8217;ll need:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <strong>Google App Engine SDK for Python</strong> installed (<a class="reference external" href="https://developers.google.com/appengine/downloads">https://developers.google.com/appengine/downloads</a>).</li>
+<li>A <strong>Google App Engine</strong> account (<a class="reference external" href="https://appengine.google.com/">https://appengine.google.com/</a>).</li>
+</ul>
+</div></blockquote>
+<p>Once this is in place, the next steps are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Creating an application inside <strong>Google App Engine</strong>.</li>
+<li>Uploading your application.</li>
+<li>Uploading bars.</li>
+<li>Running the strategy optimization.</li>
+</ol>
+</div></blockquote>
+<p><strong>All the commands in this tutorial assume that you&#8217;re inside the directory where you extracted the PyAlgoTrade package.</strong></p>
+<p>To create an application, you first have to log in to your <strong>Google App Engine</strong> account. Once inside, hit the <strong>Create Application</strong>
+button. You&#8217;ll need to pick an <strong>Application Identifier</strong>. For this tutorial I used <strong>pyalgotrade-tutorial</strong> and
+for the rest of the settings I used the default values. Note that you&#8217;ll have to pick a different, unique <strong>Application Identifier</strong>
+to create your application. So, whenever you read <strong>pyalgotrade-tutorial</strong> keep in mind that you have to replace that with your
+own <strong>Application Identifier</strong>.</p>
+<p>Next, you&#8217;ll use the updateapp.py script to upload your app. Note that you need to supply your <strong>Application Identifier</strong> as well
+as the path were your app.yaml resides:</p>
+<div class="highlight-python"><pre>python googleappengine/tools/updateapp.py --app_id=pyalgotrade-tutorial --app_path=googleappengine/app</pre>
+</div>
+<p>updateapp.py uses the appcfg.py utility from the <strong>Google App Engine SDK for Python</strong>, so you&#8217;ll be asked for your email
+and password. If appcfg.py is not in the PATH, then you&#8217;ll need to supply the &#8211;appcfg_path parameter too.
+The output should look like this:</p>
+<div class="highlight-python"><pre>Updating app.yaml
+Preparing pyalgotrade package
+Updating application using appcfg.py
+Application: pyalgotrade-tutorial; version: 1
+Host: appengine.google.com
+
+Starting update of app: pyalgotrade-tutorial, version: 1
+Getting current resource limits.
+Email: YOUR_USER_NAME_HERE@gmail.com
+Password for YOUR_USER_NAME_HERE@gmail.com:
+Scanning files on local disk.
+Could not guess mimetype for resources/rw_common/themes/realmacsoftware06/png/pngbehavior.htc.  Using application/octet-stream.
+Could not guess mimetype for resources/rw_common/themes/realmacsoftware06/png/pngbehavior.htc.  Using application/octet-stream.
+Cloning 34 static files.
+Cloning 24 application files.
+Uploading 9 files and blobs.
+Uploaded 9 files and blobs
+Compilation starting.
+Compilation completed.
+Starting deployment.
+Checking if deployment succeeded.
+Will check again in 1 seconds.
+Checking if deployment succeeded.
+Will check again in 2 seconds.
+Checking if deployment succeeded.
+Deployment successful.
+Checking if updated app version is serving.
+Completed update of app: pyalgotrade-tutorial, version: 1
+Uploading index definitions.
+Uploading task queue entries.</pre>
+</div>
+<p>This basic application that you just uploaded includes the RSI2 strategy from the tutorial section.</p>
+<p>Next, you&#8217;ll download 3 years of daily bars for &#8216;Dow Jones Industrial Average&#8217;:</p>
+<div class="highlight-python"><pre>python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2009)" &gt; dia-2009.csv
+python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2010)" &gt; dia-2010.csv
+python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2011)" &gt; dia-2011.csv</pre>
+</div>
+<p>and then upload those to your app with the following command:</p>
+<div class="highlight-python"><pre>python googleappengine/tools/uploadbars.py --instrument=dia --url=http://pyalgotrade-tutorial.appspot.com/remote_api dia-2009.csv dia-2010.csv dia-2011.csv</pre>
+</div>
+<p>uploadbars.py uses the appcfg.py utility from the <strong>Google App Engine SDK for Python</strong>, so you&#8217;ll be asked for your email
+and password. If appcfg.py is not in the PATH, then you&#8217;ll need to supply the &#8211;appcfg_path parameter too.
+The output should look like this:</p>
+<div class="highlight-python"><pre>Loading bars from dia-2009.csv
+Loading bars from dia-2010.csv
+Loading bars from dia-2011.csv
+Writing intermediate csv into /var/folders/3W/3WD8TM0IEhCchht8mudSQ++++TM/-Tmp-/tmpRvLGvE
+Uploading /var/folders/3W/3WD8TM0IEhCchht8mudSQ++++TM/-Tmp-/tmpRvLGvE
+Uploading data records.
+[INFO    ] Logging to bulkloader-log-20120615.231426
+[INFO    ] Throttling transfers:
+[INFO    ] Bandwidth: 250000 bytes/second
+[INFO    ] HTTP connections: 8/second
+[INFO    ] Entities inserted/fetched/modified: 20/second
+[INFO    ] Batch Size: 10
+Please enter login credentials for pyalgotrade-tutorial.appspot.com
+Email: YOUR_USER_NAME_HERE@gmail.com
+Password for YOUR_USER_NAME_HERE@gmail.com:
+[INFO    ] Opening database: bulkloader-progress-20120615.231426.sql3
+[INFO    ] Connecting to pyalgotrade-tutorial.appspot.com/remote_api
+[INFO    ] Starting import; maximum 10 entities per post
+............................................................................
+[INFO    ] 758 entities total, 0 previously transferred
+[INFO    ] 758 entities (840720 bytes) transferred in 38.0 seconds
+[INFO    ] All entities successfully transferred</pre>
+</div>
+<p>Note that this command requires 3 important things:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The instrument&#8217;s symbol for the bars that you&#8217;re about to upload.</li>
+<li>The url for your application&#8217;s remote api.</li>
+<li>The cvs files that you want to upload</li>
+</ul>
+</div></blockquote>
+<p>Now that you have your application deployed into <strong>Google App Engine</strong> and some bars available, you should be ready to queue a
+strategy execution.
+Try opening <a class="reference external" href="http://pyalgotrade-tutorial.appspot.com/">http://pyalgotrade-tutorial.appspot.com/</a> in a browser and login with your <strong>Google App Engine</strong> credentials.
+It is possible that you get an error that says:</p>
+<div class="highlight-python"><pre>The index for this query is not ready to serve. See the Datastore Indexes page in the Admin Console.</pre>
+</div>
+<p>This is because <strong>Google App Engine</strong> is still building your application indexes. The only thing you can do at this point is to wait.
+In my experience, it took less than 10 minutes.</p>
+<p>Once inside, click on the <strong>strategies.rsi2.Strategy</strong> link. Next, click on <strong>Queue a new execution</strong>.
+Complete the form with the following
+values:</p>
+<img alt="_images/queue_execution.png" src="_images/queue_execution.png" />
+<p>After filling in those values, click on <strong>Queue execution</strong> and you should get redirected back to the strategy page like this:</p>
+<img alt="_images/execution_running_1.png" src="_images/execution_running_1.png" />
+<p>This page lists the active and finished executions, and in this case your first execution has just started and 0 out of 137214
+executions have finished. If you refresh the page a couple of minutes later you should see:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The number of executions that have finished.</li>
+<li>The best result found so far.</li>
+<li>The set of paremeters that yielded that result.</li>
+</ul>
+</div></blockquote>
+<p>20 minutes later or so, the strategy finishes executing and you should see that the best result found was 2260.7 with parameters
+[204L, 5L, 2L, 91L, 19L].</p>
+<p><strong>Google App Engine</strong> gives you a certain amount of free resources to use each day, and this strategy execution used 50% of those.
+So, if you execute this one more time you&#8217;ll consume all of your free daily quota and you&#8217;ll have to wait 24hs to use the
+web application again. Another option would be to enable billing to go beyond the free quota.</p>
+<p>As a reference, it took me 3hs using the <strong>pyalgotrade.optimizer.local</strong> module get to the same results in my dual core 2Ghz notebook.</p>
+<p>Adding new strategies is really easy. All you have to do is follow 3 simple steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Add the .py file with the strategy into googleappengine/app/strategies.</li>
+<li>Export your strategy by updating googleappengine/app/strategies/__init__.py.</li>
+<li>Update your application using the updateapp.py as described above.</li>
+</ol>
+</div></blockquote>
+<p>Before uploading your strategy I&#8217;d recommend that you run it locally first to avoid having it fail inside the <strong>Google App Engine</strong>
+thus wasting resources unnecessarily.</p>
+<p>Known bugs/limitations:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <strong>pyalgotrade.technical.trend.Slope</strong> technical indicator is currently not available when running inside the <strong>Google App Engine</strong>.
+This is because it depends on external libraries (NumPy and SciPy) that are not available in that environment.</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="code.html"
+                        title="next chapter">Documentation for the code</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/googleappengine.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="code.html" title="Documentation for the code"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

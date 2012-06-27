@@ -1,0 +1,434 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>technical – Technical indicators &mdash; PyAlgoTrade 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.6 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="strategy – Basic strategy classes" href="strategy.html" />
+    <link rel="prev" title="barfeed – Bar providers" href="barfeed.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="barfeed.html" title="barfeed – Bar providers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.6 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.technical">
+<span id="technical-technical-indicators"></span><h1>technical &#8211; Technical indicators<a class="headerlink" href="#module-pyalgotrade.technical" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.technical.DataSeriesFilter">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.</tt><tt class="descname">DataSeriesFilter</tt><big>(</big><em>dataSeries</em>, <em>windowSize</em>, <em>cacheSize=512</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>A DataSeriesFilter is a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance that decorates another <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance
+to make some calculations with the values from the DataSeries being decorated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>windowSize</strong> (<em>int.</em>) &#8211; The amount of values to use from the filtered DataSeries to calculate our own values. Must be &gt; 0.</li>
+<li><strong>cacheSize</strong> (<em>int.</em>) &#8211; The values that this filter calculates will be cached so they don&#8217;t have to be calculated twice. This parameter controls how many results will be kept in the cache.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.technical.DataSeriesFilter.calculateValue">
+<tt class="descname">calculateValue</tt><big>(</big><em>firstPos</em>, <em>lastPos</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter.calculateValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method has to be overriden to add the filtering logic and return a new value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>firstPos</strong> (<em>int.</em>) &#8211; Absolute position for the first value to use from the DataSeries being filtered.</li>
+<li><strong>lastPos</strong> (<em>int.</em>) &#8211; Absolute position for the last value to use from the DataSeries being filtered.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.technical.DataSeriesFilter.getDataSeries">
+<tt class="descname">getDataSeries</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter.getDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> being filtered.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.technical.DataSeriesFilter.getWindowSize">
+<tt class="descname">getWindowSize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.DataSeriesFilter.getWindowSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the window size.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Creating a custom filter is easy:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">dataseries</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">technical</span>
+
+<span class="k">class</span> <span class="nc">Accumulator</span><span class="p">(</span><span class="n">technical</span><span class="o">.</span><span class="n">DataSeriesFilter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataSeries</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">):</span>
+        <span class="n">technical</span><span class="o">.</span><span class="n">DataSeriesFilter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataSeries</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">calculateValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firstPos</span><span class="p">,</span> <span class="n">lastPos</span><span class="p">):</span>
+        <span class="n">accum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">firstPos</span><span class="p">,</span> <span class="n">lastPos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">()</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="c"># If any value from the wrapped DataSeries is None then we abort calculation and return None.</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span>
+            <span class="n">accum</span> <span class="o">+=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">accum</span>
+
+<span class="c"># Build a sequence based DataSeries.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">dataseries</span><span class="o">.</span><span class="n">SequenceDataSeries</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+
+<span class="c"># Wrap it with a 3 element Accumulator filter.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">Accumulator</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c"># Get some values.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c"># Not enough values yet.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c"># Not enough values yet.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># Ok, now we should have at least 3 values.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValueAbsolute</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c"># Get the last value, which should equals 49 + 48 + 47.</span>
+<span class="k">print</span> <span class="n">ds</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The output should be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">None</span>
+<span class="bp">None</span>
+<span class="mi">3</span>
+<span class="mi">6</span>
+<span class="mi">144</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-pyalgotrade.technical.ma">
+<span id="moving-averages"></span><h2>Moving Averages<a class="headerlink" href="#module-pyalgotrade.technical.ma" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.technical.ma.SMA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.ma.</tt><tt class="descname">SMA</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.ma.SMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple Moving Average filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The number of values to use to calculate the SMA.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.technical.ma.EMA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.ma.</tt><tt class="descname">EMA</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.ma.EMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential Moving Average filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The number of values to use to calculate the EMA.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.technical.ma.WMA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.ma.</tt><tt class="descname">WMA</tt><big>(</big><em>dataSeries</em>, <em>weights</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.ma.WMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted Moving Average filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>weights</strong> (<em>list.</em>) &#8211; A list of int/float with the weights.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.technical.rsi">
+<span id="momentum-indicators"></span><h2>Momentum Indicators<a class="headerlink" href="#module-pyalgotrade.technical.rsi" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.technical.rsi.RSI">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.rsi.</tt><tt class="descname">RSI</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.rsi.RSI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relative Strength Index filter as described in <a class="reference external" href="http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi">http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The period. Note that if period is <strong>n</strong>, then <strong>n+1</strong> values are used. Must be &gt; 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.technical.stoch"></span><dl class="class">
+<dt id="pyalgotrade.technical.stoch.StochasticOscillator">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.stoch.</tt><tt class="descname">StochasticOscillator</tt><big>(</big><em>barDataSeries</em>, <em>period</em>, <em>dSMAPeriod=3</em>, <em>useAdjustedValues=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.stoch.StochasticOscillator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stochastic Oscillator filter as described in <a class="reference external" href="http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillato">http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillato</a>.
+Note that the value returned by this filter is %K. To access %D use <a class="reference internal" href="#pyalgotrade.technical.stoch.StochasticOscillator.getD" title="pyalgotrade.technical.stoch.StochasticOscillator.getD"><tt class="xref py py-meth docutils literal"><span class="pre">getD()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>barDataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.BarDataSeries" title="pyalgotrade.dataseries.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.BarDataSeries</span></tt></a>.) &#8211; The BarDataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The period. Must be &gt; 1.</li>
+<li><strong>dSMAPeriod</strong> (<em>int.</em>) &#8211; The %D SMA period. Must be &gt; 1.</li>
+<li><strong>useAdjustedValues</strong> (<em>boolean.</em>) &#8211; True to use adjusted Low/High/Close values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.technical.stoch.StochasticOscillator.getD">
+<tt class="descname">getD</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.technical.stoch.StochasticOscillator.getD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> with the %D values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.technical.roc"></span><dl class="class">
+<dt id="pyalgotrade.technical.roc.RateOfChange">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.roc.</tt><tt class="descname">RateOfChange</tt><big>(</big><em>dataSeries</em>, <em>valuesAgo</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.roc.RateOfChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rate of change filter as described in <a class="reference external" href="http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change">http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>valuesAgo</strong> (<em>int.</em>) &#8211; The number of values back that a given value will compare to. Must be &gt; 0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.technical.trend">
+<span id="other-indicators"></span><h2>Other Indicators<a class="headerlink" href="#module-pyalgotrade.technical.trend" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.technical.trend.Slope">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.trend.</tt><tt class="descname">Slope</tt><big>(</big><em>dataSeries</em>, <em>period</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.trend.Slope" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Slope filter calculates the slope of the least-squares regression line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries instance being filtered.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; The number of values to use to calculate the slope.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.technical.cross"></span><dl class="class">
+<dt id="pyalgotrade.technical.cross.CrossAbove">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.cross.</tt><tt class="descname">CrossAbove</tt><big>(</big><em>ds1</em>, <em>ds2</em>, <em>period=2</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.cross.CrossAbove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for a cross above conditions over the specified period between two DataSeries objects.</p>
+<p>It returns the number of times ds1 crossed above ds2 during the given period.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ds1</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries that crosses.</li>
+<li><strong>ds2</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries being crossed.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; Max number of values to check for cross above conditions. Must be &gt; 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.technical.cross.CrossBelow">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.technical.cross.</tt><tt class="descname">CrossBelow</tt><big>(</big><em>ds1</em>, <em>ds2</em>, <em>period=2</em><big>)</big><a class="headerlink" href="#pyalgotrade.technical.cross.CrossBelow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for a cross below conditions over the specified period between two DataSeries objects.</p>
+<p>It returns the number of times ds1 crossed below ds2 during the given period.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ds1</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries that crosses.</li>
+<li><strong>ds2</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries being crossed.</li>
+<li><strong>period</strong> (<em>int.</em>) &#8211; Max number of values to check for cross below conditions. Must be &gt; 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">technical &#8211; Technical indicators</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.technical.ma">Moving Averages</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.technical.rsi">Momentum Indicators</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.technical.trend">Other Indicators</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="barfeed.html"
+                        title="previous chapter">barfeed &#8211; Bar providers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="strategy.html"
+                        title="next chapter">strategy &#8211; Basic strategy classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/technical.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="barfeed.html" title="barfeed – Bar providers"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.6 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

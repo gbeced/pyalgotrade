@@ -1,0 +1,245 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>plotter – Strategy plotter &mdash; PyAlgoTrade 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.6 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="broker – Order management classes" href="broker.html" />
+    <link rel="prev" title="strategy – Basic strategy classes" href="strategy.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="broker.html" title="broker – Order management classes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.6 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.plotter">
+<span id="plotter-strategy-plotter"></span><h1>plotter &#8211; Strategy plotter<a class="headerlink" href="#module-pyalgotrade.plotter" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.plotter.StrategyPlotter">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.plotter.</tt><tt class="descname">StrategyPlotter</tt><big>(</big><em>strat</em>, <em>plotAllClosingPrices=True</em>, <em>plotBuySell=True</em>, <em>plotPortfolio=True</em><big>)</big><a class="headerlink" href="#pyalgotrade.plotter.StrategyPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class responsible for plotting a strategy execution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>strat</strong> (<a class="reference internal" href="strategy.html#pyalgotrade.strategy.Strategy" title="pyalgotrade.strategy.Strategy"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.strategy.Strategy</span></tt></a>.) &#8211; The strategy to plot.</li>
+<li><strong>plotAllClosingPrices</strong> (<em>boolean.</em>) &#8211; Set to True to get the closing prices plotted.</li>
+<li><strong>plotBuySell</strong> (<em>boolean.</em>) &#8211; Set to True to get the buy/sell events plotted.</li>
+<li><strong>plotPortfolio</strong> (<em>boolean.</em>) &#8211; Set to True to get the portfolio value (shares + cash) plotted.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.plotter.StrategyPlotter.getMainSubplot">
+<tt class="descname">getMainSubplot</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.plotter.StrategyPlotter.getMainSubplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the main subplot, where closing prices and buy/sell events get plotted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyalgotrade.plotter.Subplot" title="pyalgotrade.plotter.Subplot"><tt class="xref py py-class docutils literal"><span class="pre">Subplot</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot">
+<tt class="descname">getOrCreateSubplot</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Subplot by name. If the subplot doesn&#8217;t exist, it gets created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string.</em>) &#8211; The name of the Subplot to get or create.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyalgotrade.plotter.Subplot" title="pyalgotrade.plotter.Subplot"><tt class="xref py py-class docutils literal"><span class="pre">Subplot</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.plotter.StrategyPlotter.getPortfolioSubplot">
+<tt class="descname">getPortfolioSubplot</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.plotter.StrategyPlotter.getPortfolioSubplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the subplot where the portfolio values get plotted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyalgotrade.plotter.Subplot" title="pyalgotrade.plotter.Subplot"><tt class="xref py py-class docutils literal"><span class="pre">Subplot</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.plotter.StrategyPlotter.plot">
+<tt class="descname">plot</tt><big>(</big><em>fromDateTime=None</em>, <em>toDateTime=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.plotter.StrategyPlotter.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the strategy execution. Must be called after running the strategy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fromDateTime</strong> (<em>datetime.datetime</em>) &#8211; An optional starting datetime.datetime. Everything before it won&#8217;t get plotted.</li>
+<li><strong>toDateTime</strong> (<em>datetime.datetime</em>) &#8211; An optional ending datetime.datetime. Everything after it won&#8217;t get plotted.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.plotter.Subplot">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.plotter.</tt><tt class="descname">Subplot</tt><a class="headerlink" href="#pyalgotrade.plotter.Subplot" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyalgotrade.plotter.Subplot.addDataSeries">
+<tt class="descname">addDataSeries</tt><big>(</big><em>label</em>, <em>dataSeries</em><big>)</big><a class="headerlink" href="#pyalgotrade.plotter.Subplot.addDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a DataSeries to the subplot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> (<em>string.</em>) &#8211; A name for the DataSeries values.</li>
+<li><strong>dataSeries</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a>.) &#8211; The DataSeries to add.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="strategy.html"
+                        title="previous chapter">strategy &#8211; Basic strategy classes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="broker.html"
+                        title="next chapter">broker &#8211; Order management classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/plotter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="broker.html" title="broker – Order management classes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.6 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
