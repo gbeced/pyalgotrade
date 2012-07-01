@@ -21,7 +21,7 @@
 import unittest
 
 from pyalgotrade import strategy
-from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 import common
@@ -145,7 +145,7 @@ class LimitOrderStrategy(SMACrossOverStrategy):
 
 class TestSMACrossOver(unittest.TestCase):
 	def __test(self, strategyClass, finalValue):
-		feed = csvfeed.YahooFeed()
+		feed = yahoofeed.Feed()
 		feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 		myStrategy = strategyClass(feed, 10, 25)
 		myStrategy.run()

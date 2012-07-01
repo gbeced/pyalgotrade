@@ -20,6 +20,7 @@
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
+from pyalgotrade import warninghelpers
 
 import csv
 import datetime
@@ -127,7 +128,6 @@ class BarFeed(barfeed.BarFeed):
 #
 # The csv Date column must have the following format: YYYY-MM-DD
 
-
 class YahooRowParser(RowParser):
 	# zone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as "Greenwich Mean Time") 
 	def __init__(self, zone = 0):
@@ -156,21 +156,12 @@ class YahooRowParser(RowParser):
 		return bar.Bar(date, open_, high, low, close, volume, adjClose)
 
 class YahooFeed(BarFeed):
-	"""A :class:`pyalgotrade.barfeed.BarFeed` that loads bars from a CSV file downloaded from Yahoo! Finance."""
-	def __init__(self):
+	def __init__(self, skipWarning=False):
+		if not skipWarning:
+			warninghelpers.deprecation_warning("pyalgotrade.barfeed.csvfeed.YahooFeed will be deprecated in the next version. Please use pyalgotrade.barfeed.yahoofeed.Feed instead.", stacklevel=2)
 		BarFeed.__init__(self)
 	
 	def addBarsFromCSV(self, instrument, path, timeZone = 0):
-		"""Loads bars for a given instrument from a CSV formatted file.
-		The instrument gets registered in the bar feed.
-		
-		:param instrument: Instrument identifier.
-		:type instrument: string.
-		:param path: The path to the file.
-		:type path: string.
-		:param timeZone: The timezone for bars. 0 if bar dates are in UTC.
-		:type timeZone: int.
-		"""
 		rowParser = YahooRowParser(timeZone)
 		BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 

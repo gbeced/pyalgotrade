@@ -23,6 +23,7 @@ import datetime
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import yahoofeed
 import common
 
 class StrategyTestCase(unittest.TestCase):
@@ -132,7 +133,7 @@ class StrategyTestCase(unittest.TestCase):
 			pass
 
 	def __createObjects(self):
-		barFeed = csvfeed.YahooFeed()
+		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		strat = StrategyTestCase.TestStrategy(barFeed, 1000)
 		return strat
@@ -283,7 +284,7 @@ class StrategyTestCase(unittest.TestCase):
 					# This should be filled.
 					self.exitPosition(self.__position)
 
-		barFeed = csvfeed.YahooFeed()
+		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		strat = TestStrategy(barFeed, 0)
 
