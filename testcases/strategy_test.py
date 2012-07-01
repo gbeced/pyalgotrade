@@ -24,6 +24,7 @@ import datetime
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import ninjatraderfeed
 import common
 
 class StrategyTestCase(unittest.TestCase):
@@ -31,10 +32,9 @@ class StrategyTestCase(unittest.TestCase):
 
 	def __loadIntradayBarFeed(self, fromMonth=1, toMonth=1, fromDay=3, toDay=3):
 		barFilter = csvfeed.USEquitiesRTH(datetime.date(2011, fromMonth, fromDay), datetime.date(2011, toMonth, toDay))
-		rowParser = csvfeed.NinjaTraderRowParser(csvfeed.NinjaTraderRowParser.Frequency.MINUTE)
-		barFeed = csvfeed.BarFeed()
+		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		barFeed.setBarFilter(barFilter)
-		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"), rowParser)
+		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
 		return barFeed
 
 	class TestStrategy(strategy.Strategy):

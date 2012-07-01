@@ -52,11 +52,6 @@ class FixedCommission(Commission):
 class Order:
 	"""Base class for orders. 
 
-	Valid order actions are:
-	 * Order.Action.BUY
-	 * Order.Action.SELL
-	 * Order.Action.SELL_SHORT
-
 	:param action: The order action.
 	:param instrument: Instrument identifier.
 	:type instrument: string.
@@ -66,6 +61,13 @@ class Order:
 	:type goodTillCanceled: boolean.
 
 	.. note::
+
+		Valid **action** parameter values are:
+
+		 * Order.Action.BUY
+		 * Order.Action.SELL
+		 * Order.Action.SELL_SHORT
+
 		This is a base class and should not be used directly.
 	"""
 

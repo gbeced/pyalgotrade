@@ -8,3 +8,6 @@ barfeed -- Bar providers
 .. automodule:: pyalgotrade.barfeed.yahoofeed
     :members: Feed
 
+.. automodule:: pyalgotrade.barfeed.ninjatraderfeed
+    :members: Feed
+
