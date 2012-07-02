@@ -184,18 +184,29 @@ def get_historical_data(symbol, endTime, duration, barSize,
         contract.m_exchange = exchange;
         contract.m_currency = currency;
 
+        # Request historical data
         connection.reqHistoricalData(__tickerId, contract, endTime, duration, barSize, whatToShow, useRTH, formatDate)
+
+        # Check for any errors
+        error = wrapper.getError()
+        if error and error[0] != -1:
+                print "ERROR: ", error
+                return
+
+        # Wait for the stream to finish, then disconnect
         wrapper.waitForFinish()
-        connection.cancelHistoricalData(__tickerId)
         connection.eDisconnect()
 
-        __tickerId += 1 # Increase __tickerId to have unique value in the next call
+        # Increase __tickerId to have unique value in the next call
+        __tickerId += 1
 
+        # Check for errors
         error = wrapper.getError()
         if error[0] != -1:
                 print "ERROR: ", error
                 return
 
+        # Get the loaded Ticks
         ticks = wrapper.getTicks()
 
         return ticks
@@ -279,10 +290,6 @@ if __name__ == '__main__':
 
         args = parser.parse_args()
 
-        #symbol='SPY'
-        #endTime='20120629 18:00 EST5EDT'
-        #duration='1 D'
-        #barSize='5 mins'
         ticks = get_historical_data(args.symbol, " ".join(args.endtime), " ".join(args.duration), " ".join(args.barsize))
         csv_rows = __ticks_to_csv(ticks)
 
