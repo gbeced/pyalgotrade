@@ -1,5 +1,5 @@
 from pyalgotrade import strategy
-from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 
 class MyStrategy(strategy.Strategy):
@@ -47,7 +47,7 @@ class MyStrategy(strategy.Strategy):
 
 def run_strategy(smaPeriod):
     # Load the yahoo feed from the CSV file
-    feed = csvfeed.YahooFeed()
+    feed = yahoofeed.Feed()
     feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
     # Evaluate the strategy with the feed's bars.

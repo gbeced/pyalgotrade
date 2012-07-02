@@ -20,6 +20,7 @@
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
+from pyalgotrade import warninghelpers
 
 import csv
 import datetime
@@ -127,7 +128,6 @@ class BarFeed(barfeed.BarFeed):
 #
 # The csv Date column must have the following format: YYYY-MM-DD
 
-
 class YahooRowParser(RowParser):
 	# zone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as "Greenwich Mean Time") 
 	def __init__(self, zone = 0):
@@ -156,125 +156,11 @@ class YahooRowParser(RowParser):
 		return bar.Bar(date, open_, high, low, close, volume, adjClose)
 
 class YahooFeed(BarFeed):
-	"""A :class:`pyalgotrade.barfeed.BarFeed` that loads bars from a CSV file downloaded from Yahoo! Finance."""
-	def __init__(self):
+	def __init__(self, skipWarning=False):
+		if not skipWarning:
+			warninghelpers.deprecation_warning("pyalgotrade.barfeed.csvfeed.YahooFeed will be deprecated in the next version. Please use pyalgotrade.barfeed.yahoofeed.Feed instead.", stacklevel=2)
 		BarFeed.__init__(self)
 	
 	def addBarsFromCSV(self, instrument, path, timeZone = 0):
-		"""Loads bars for a given instrument from a CSV formatted file.
-		The instrument gets registered in the bar feed.
-		
-		:param instrument: Instrument identifier.
-		:type instrument: string.
-		:param path: The path to the file.
-		:type path: string.
-		:param timeZone: The timezone for bars. 0 if bar dates are in UTC.
-		:type timeZone: int.
-		"""
 		rowParser = YahooRowParser(timeZone)
-		BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
-
-######################################################################
-## NinjaTrader CSV parser
-# Each bar must be on its own line and fields must be separated by semicolon (;).
-#
-# Minute Bars Format:
-# yyyyMMdd HHmmss;open price;high price;low price;close price;volume
-#
-# Daily Bars Format:
-# yyyyMMdd;open price;high price;low price;close price;volume
-
-class NinjaTraderRowParser(RowParser):
-	class Frequency:
-		MINUTE = 1
-		DAILY = 2
-
-	# zone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as "Greenwich Mean Time") 
-	def __init__(self, frequency, zone = 0):
-		self.__frequency = frequency
-		self.__zone = zone
-
-	def __parseDateTime(self, dateTime):
-		ret = None
-		if self.__frequency == NinjaTraderRowParser.Frequency.MINUTE:
-			ret = datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
-			ret += datetime.timedelta(hours= (-1 * self.__zone))
-		elif self.__frequency == NinjaTraderRowParser.Frequency.DAILY:
-			ret = datetime.datetime.strptime(dateTime, "%Y%m%d")
-		else:
-			assert(False)
-		return ret
-
-	def getFieldNames(self):
-		return ["Date Time", "Open", "High", "Low", "Close", "Volume"]
-
-	def getDelimiter(self):
-		return ";"
-
-	def parseBar(self, csvRowDict):
-		dateTime = self.__parseDateTime(csvRowDict["Date Time"])
-		close = float(csvRowDict["Close"])
-		open_ = float(csvRowDict["Open"])
-		high = float(csvRowDict["High"])
-		low = float(csvRowDict["Low"])
-		volume = float(csvRowDict["Volume"])
-		return bar.Bar(dateTime, open_, high, low, close, volume, None)
-
-######################################################################
-## Interactive Brokers CSV parser
-# Each bar must be on its own line and fields must be separated by comma (,).
-#
-# Bars Format:
-# Date,Open,High,Low,Close,Volume,Trade Count,WAP,Has Gaps
-#
-# The csv Date column must have the following format: YYYYMMDD  hh:mm:ss
-
-
-class IBRowParser(RowParser):
-	def __init__(self, zone = 0):
-		self.__zone = zone
-
-	def __parseDate(self, dateString):
-		ret = datetime.datetime.strptime(dateString, "%Y%m%d  %H:%M:%S")
-		ret += datetime.timedelta(hours= (-1 * self.__zone))
-		return ret
-
-	def getFieldNames(self):
-		# It is expected for the first row to have the field names.
-		return None
-
-	def getDelimiter(self):
-		return ","
-
-	def parseBar(self, csvRowDict):
-		date = self.__parseDate(csvRowDict["Date"])
-		close = float(csvRowDict["Close"])
-		open_ = float(csvRowDict["Open"])
-		high = float(csvRowDict["High"])
-		low = float(csvRowDict["Low"])
-		volume = int(csvRowDict["Volume"])
-                # TODO: Add these variables to Bar
-		# tradeCnt = int(csvRowDict["TradeCount"])
-		# WAP = float(csvRowDict["WAP"])
-		# hasGaps = bool(csvRowDict["HasGaps"] == "True")
-
-		return bar.Bar(date, open_, high, low, close, volume, None)
-
-class IBFeed(BarFeed):
-	"""A :class:`pyalgotrade.barfeed.BarFeed` that loads bars from a CSV file downloaded from IB TWS"""
-	def __init__(self):
-		BarFeed.__init__(self)
-	
-	def addBarsFromCSV(self, instrument, path, timeZone = 0):
-		"""Loads bars for a given instrument from a CSV formatted file.
-		The instrument gets registered in the bar feed.
-		
-		:param instrument: Instrument identifier.
-		:type instrument: string.
-		:param path: The path to the file.
-		:type path: string.
-		:param timeZone: The timezone for bars. 0 if bar dates are in UTC.
-		:type timeZone: int.
-		"""
-		rowParser = IBRowParser(timeZone)
 		BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
