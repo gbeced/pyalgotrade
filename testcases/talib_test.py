@@ -173,6 +173,12 @@ def compare(obtained, expected, decimals=2):
 class TestCase(unittest.TestCase):
 	TestInstrument = "orcl"
 
+	def __loadMedPriceDS(self):
+		ret = dataseries.SequenceDataSeries()
+		for i in xrange(len(OPEN_VALUES)):
+			ret.appendValue(LOW_VALUES[i] + (HIGH_VALUES[i] - LOW_VALUES[i]) / 2.0)
+		return ret
+
 	def __loadBarDS(self):
 		seconds = 0
 
@@ -279,9 +285,53 @@ class TestCase(unittest.TestCase):
 		self.assertTrue(compare(talibtechnical.CCI(barDs, 252, 11)[10], 87.927))
 		self.assertTrue(compare(talibtechnical.CCI(barDs, 252, 11)[11], 180.005, 3))
 
-	def testPing(self):
+	def testCMO(self):
 		barDs = self.__loadBarDS()
-		print talibtechnical.CDLXSIDEGAP3METHODS(barDs, 252)
+		self.assertTrue(compare(talibtechnical.CMO(barDs.getCloseDataSeries(), 252, 14)[14], -1.70, 1))
+
+	def testCORREL(self):
+		barDs = self.__loadBarDS()
+		self.assertTrue(compare(talibtechnical.CORREL(barDs.getHighDataSeries(), barDs.getLowDataSeries(), 252, 20)[19], 0.9401569))
+		self.assertTrue(compare(talibtechnical.CORREL(barDs.getHighDataSeries(), barDs.getLowDataSeries(), 252, 20)[20], 0.9471812))
+		self.assertTrue(compare(talibtechnical.CORREL(barDs.getHighDataSeries(), barDs.getLowDataSeries(), 252, 20)[-1], 0.8866901))
+
+	def testDX(self):
+		barDs = self.__loadBarDS()
+		self.assertTrue(compare(talibtechnical.DX(barDs, 252, 14)[14], 19.3689))
+		self.assertTrue(compare(talibtechnical.DX(barDs, 252, 14)[15], 9.7131))
+		self.assertTrue(compare(talibtechnical.DX(barDs, 252, 14)[16], 17.2905))
+		self.assertTrue(compare(talibtechnical.DX(barDs, 252, 14)[-2], 10.6731))
+		self.assertTrue(compare(talibtechnical.DX(barDs, 252, 14)[-1], 0.4722))
+
+	def testEMA(self):
+		barDs = self.__loadBarDS()
+		self.assertTrue(compare(talibtechnical.EMA(barDs.getCloseDataSeries(), 252, 2)[1], 93.16)) # Original value 93.15
+		self.assertTrue(compare(talibtechnical.EMA(barDs.getCloseDataSeries(), 252, 2)[2], 93.97)) # Original value 93.96
+		self.assertTrue(compare(talibtechnical.EMA(barDs.getCloseDataSeries(), 252, 2)[-1], 108.22)) # Original value 108.21
+		self.assertTrue(compare(talibtechnical.EMA(barDs.getCloseDataSeries(), 252, 10)[9], 93.23)) # Original value 93.22
+
+	def testHT_DCPERIOD(self):
+		ds = self.__loadMedPriceDS()
+		self.assertTrue(compare(talibtechnical.HT_DCPERIOD(ds, 252)[32], 15.5527, 4))
+		self.assertTrue(compare(talibtechnical.HT_DCPERIOD(ds, 252)[-1], 18.6140, 4))
+
+	def testHT_DCPHASE(self):
+		ds = self.__loadMedPriceDS()
+		self.assertTrue(compare(talibtechnical.HT_DCPHASE(ds, 252)[63], 22.1496, 4)) # Original value 22.1495
+		self.assertTrue(compare(talibtechnical.HT_DCPHASE(ds, 252)[-3], -31.182, 3))
+		self.assertTrue(compare(talibtechnical.HT_DCPHASE(ds, 252)[-2], 23.2691, 4))
+		self.assertTrue(compare(talibtechnical.HT_DCPHASE(ds, 252)[-1], 47.2765, 4))
+
+	def testHT_TRENDLINE(self):
+		ds = self.__loadMedPriceDS()
+		self.assertTrue(compare(talibtechnical.HT_TRENDLINE(ds, 252)[63], 88.257))
+		self.assertTrue(compare(talibtechnical.HT_TRENDLINE(ds, 252)[-3], 109.69))
+		self.assertTrue(compare(talibtechnical.HT_TRENDLINE(ds, 252)[-2], 110.18))
+		self.assertTrue(compare(talibtechnical.HT_TRENDLINE(ds, 252)[-1], 110.46))
+
+	def testHT_TRENDMODE(self):
+		ds = self.__loadMedPriceDS()
+		self.assertTrue(compare(talibtechnical.HT_TRENDMODE(ds, 252)[63], 1.0))
 
 def getTestCases():
 	ret = []
@@ -298,6 +348,13 @@ def getTestCases():
 	ret.append(TestCase("testBETA"))
 	ret.append(TestCase("testBOP"))
 	ret.append(TestCase("testCCI"))
-	ret.append(TestCase("testPing"))
+	ret.append(TestCase("testCMO"))
+	ret.append(TestCase("testCORREL"))
+	ret.append(TestCase("testDX"))
+	ret.append(TestCase("testEMA"))
+	ret.append(TestCase("testHT_DCPERIOD"))
+	ret.append(TestCase("testHT_DCPHASE"))
+	ret.append(TestCase("testHT_TRENDLINE"))
+	ret.append(TestCase("testHT_TRENDMODE"))
 	return ret
 

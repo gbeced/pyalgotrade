@@ -422,4 +422,54 @@ def CDLXSIDEGAP3METHODS(barDs, count):
 	"""Upside/Downside Gap Three Methods"""
 	return call_talib_with_ohlc(barDs, count, talib.CDLXSIDEGAP3METHODS)
 
+def CMO(ds, count, timeperiod=-2**31):
+	"""Chande Momentum Oscillator"""
+	return call_talib_with_ds(ds, count, talib.CMO, timeperiod)
+
+def CORREL(ds1, ds2, count, timeperiod=-2**31):
+	"""Pearson's Correlation Coefficient (r)"""
+	data1 = value_ds_to_numpy(ds1, count)
+	if data1 == None:
+		return None
+	data2 = value_ds_to_numpy(ds2, count)
+	if data2 == None:
+		return None
+	return talib.CORREL(data1, data2, timeperiod)
+
+def DEMA(ds, count, timeperiod=-2**31):
+	"""Double Exponential Moving Average"""
+	return call_talib_with_ds(ds, count, talib.DEMA, timeperiod)
+
+def DX(barDs, count, timeperiod=-2**31):
+	"""Directional Movement Index"""
+	return call_talib_with_hlc(barDs, count, talib.DX, timeperiod)
+
+def EMA(ds, count, timeperiod=-2**31):
+	"""Exponential Moving Average"""
+	return call_talib_with_ds(ds, count, talib.EMA, timeperiod)
+
+def HT_DCPERIOD(ds, count):
+	"""Hilbert Transform - Dominant Cycle Period"""
+	return call_talib_with_ds(ds, count, talib.HT_DCPERIOD)
+
+def HT_DCPHASE(ds, count):
+	"""Hilbert Transform - Dominant Cycle Phase"""
+	return call_talib_with_ds(ds, count, talib.HT_DCPHASE)
+
+def HT_PHASOR(ds, count):
+	"""Hilbert Transform - Phasor Components"""
+	return call_talib_with_ds(ds, count, talib.HT_PHASOR)
+
+def HT_SINE(ds, count):
+	"""Hilbert Transform - SineWave"""
+	return call_talib_with_ds(ds, count, talib.HT_SINE)
+
+def HT_TRENDLINE(ds, count):
+	"""Hilbert Transform - Instantaneous Trendline"""
+	return call_talib_with_ds(ds, count, talib.HT_TRENDLINE)
+
+def HT_TRENDMODE(ds, count):
+	"""Hilbert Transform - Trend vs Cycle Mode"""
+	return call_talib_with_ds(ds, count, talib.HT_TRENDMODE)
+
 
