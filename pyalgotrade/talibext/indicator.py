@@ -120,6 +120,9 @@ def call_talib_with_hl(barDs, count, talibFunc, *parameters):
 
 	return talibFunc(high, low, *parameters)
 
+######################################################################
+## talib wrappers
+
 def AD(barDs, count):
 	"""Chaikin A/D Line"""
 	return call_talib_with_hlcv(barDs, count, talib.AD)
@@ -472,4 +475,221 @@ def HT_TRENDMODE(ds, count):
 	"""Hilbert Transform - Trend vs Cycle Mode"""
 	return call_talib_with_ds(ds, count, talib.HT_TRENDMODE)
 
+def KAMA(ds, count, timeperiod=-2**31):
+	"""Kaufman Adaptive Moving Average"""
+	return call_talib_with_ds(ds, count, talib.KAMA, timeperiod)
+
+def LINEARREG(ds, count, timeperiod=-2**31):
+	"""Linear Regression"""
+	return call_talib_with_ds(ds, count, talib.LINEARREG, timeperiod)
+
+def LINEARREG_ANGLE(ds, count, timeperiod=-2**31):
+	"""Linear Regression Angle"""
+	return call_talib_with_ds(ds, count, talib.LINEARREG_ANGLE, timeperiod)
+
+def LINEARREG_INTERCEPT(ds, count, timeperiod=-2**31):
+	"""Linear Regression Intercept"""
+	return call_talib_with_ds(ds, count, talib.LINEARREG_INTERCEPT, timeperiod)
+
+def LINEARREG_SLOPE(ds, count, timeperiod=-2**31):
+	"""Linear Regression Slope"""
+	return call_talib_with_ds(ds, count, talib.LINEARREG_SLOPE, timeperiod)
+
+def MA(ds, count, timeperiod=-2**31, matype=0):
+	"""All Moving Average"""
+	return call_talib_with_ds(ds, count, talib.MA, timeperiod, matype)
+
+def MACD(ds, count, fastperiod=-2**31, slowperiod=-2**31, signalperiod=-2**31):
+	"""Moving Average Convergence/Divergence"""
+	return call_talib_with_ds(ds, count, talib.MACD, fastperiod, slowperiod, signalperiod)
+
+def MACDEXT(ds, count, fastperiod=-2**31, fastmatype=0, slowperiod=-2**31, slowmatype=0, signalperiod=-2**31, signalmatype=0):
+	"""MACD with controllable MA type"""
+	return call_talib_with_ds(ds, count, talib.MACDEXT, fastperiod, fastmatype, slowperiod, slowmatype, signalperiod, signalmatype)
+
+def MACDFIX(ds, count, signalperiod=-2**31):
+	"""Moving Average Convergence/Divergence Fix 12/26"""
+	return call_talib_with_ds(ds, count, talib.MACDFIX, signalperiod)
+
+def MAMA(ds, count, fastlimit=-4e37, slowlimit=-4e37):
+	"""MESA Adaptive Moving Average"""
+	return call_talib_with_ds(ds, count, talib.MAMA, fastlimit, slowlimit)
+
+def MAX(ds, count, timeperiod=-2**31):
+	"""Highest value over a specified period"""
+	return call_talib_with_ds(ds, count, talib.MAX, timeperiod)
+
+def MAXINDEX(ds, count, timeperiod=-2**31):
+	"""Index of highest value over a specified period"""
+	return call_talib_with_ds(ds, count, talib.MAXINDEX, timeperiod)
+
+def MEDPRICE(barDs, count):
+	"""Median Price"""
+	return call_talib_with_hl(barDs, count, talib.MEDPRICE)
+
+def MFI(barDs, count, timeperiod=-2**31):
+	"""Money Flow Index"""
+	return call_talib_with_hlcv(barDs, count, talib.MFI, timeperiod)
+
+def MIDPOINT(ds, count, timeperiod=-2**31):
+	"""MidPoint over period"""
+	return call_talib_with_ds(ds, count, talib.MIDPOINT, timeperiod)
+
+def MIDPRICE(barDs, count, timeperiod=-2**31):
+	"""Midpoint Price over period"""
+	return call_talib_with_hl(barDs, count, talib.MIDPRICE, timeperiod)
+
+def MIN(ds, count, timeperiod=-2**31):
+	"""Lowest value over a specified period"""
+	return call_talib_with_ds(ds, count, talib.MIN, timeperiod)
+
+def MININDEX(ds, count, timeperiod=-2**31):
+	"""Index of lowest value over a specified period"""
+	return call_talib_with_ds(ds, count, talib.MININDEX, timeperiod)
+
+def MINMAX(ds, count, timeperiod=-2**31):
+	"""Lowest and highest values over a specified period"""
+	return call_talib_with_ds(ds, count, talib.MINMAX, timeperiod)
+
+def MINMAXINDEX(ds, count, timeperiod=-2**31):
+	"""Indexes of lowest and highest values over a specified period"""
+	return call_talib_with_ds(ds, count, talib.MINMAXINDEX, timeperiod)
+
+def MINUS_DI(barDs, count, timeperiod=-2**31):
+	"""Minus Directional Indicator"""
+	return call_talib_with_hlc(barDs, count, talib.MINUS_DI, timeperiod)
+
+def MINUS_DM(barDs, count, timeperiod=-2**31):
+	"""Minus Directional Movement"""
+	return call_talib_with_hl(barDs, count, talib.MINUS_DM, timeperiod)
+
+def MOM(ds, count, timeperiod=-2**31):
+	"""Momentum"""
+	return call_talib_with_ds(ds, count, talib.MOM, timeperiod)
+
+def NATR(barDs, count, timeperiod=-2**31):
+	"""Normalized Average True Range"""
+	return call_talib_with_hlc(barDs, count, talib.NATR, timeperiod)
+
+def OBV(ds1, volumeDs, count):
+	"""On Balance Volume"""
+	data1 = value_ds_to_numpy(ds1, count)
+	if data1 == None:
+		return None
+	data2 = value_ds_to_numpy(volumeDs, count)
+	if data2 == None:
+		return None
+	return talib.OBV(data1, data2)
+
+def PLUS_DI(barDs, count, timeperiod=-2**31):
+	"""Plus Directional Indicator"""
+	return call_talib_with_hlc(barDs, count, talib.PLUS_DI, timeperiod)
+
+def PLUS_DM(barDs, count, timeperiod=-2**31):
+	"""Plus Directional Movement"""
+	return call_talib_with_hl(barDs, count, talib.PLUS_DM, timeperiod)
+
+def PPO(ds, count, fastperiod=-2**31, slowperiod=-2**31, matype=0):
+	"""Percentage Price Oscillator"""
+	return call_talib_with_ds(ds, count, talib.PPO, fastperiod, slowperiod, matype)
+
+def ROC(ds, count, timeperiod=-2**31):
+	"""Rate of change : ((price/prevPrice)-1)*100"""
+	return call_talib_with_ds(ds, count, talib.ROC, timeperiod)
+
+def ROCP(ds, count, timeperiod=-2**31):
+	"""Rate of change Percentage: (price-prevPrice)/prevPrice"""
+	return call_talib_with_ds(ds, count, talib.ROCP, timeperiod)
+
+def ROCR(ds, count, timeperiod=-2**31):
+	"""Rate of change ratio: (price/prevPrice)"""
+	return call_talib_with_ds(ds, count, talib.ROCR, timeperiod)
+
+def ROCR100(ds, count, timeperiod=-2**31):
+	"""Rate of change ratio 100 scale: (price/prevPrice)*100"""
+	return call_talib_with_ds(ds, count, talib.ROCR100, timeperiod)
+
+def RSI(ds, count, timeperiod=-2**31):
+	"""Relative Strength Index"""
+	return call_talib_with_ds(ds, count, talib.RSI, timeperiod)
+
+def SAR(barDs, count, acceleration=-4e37, maximum=-4e37):
+	"""Parabolic SAR"""
+	return call_talib_with_hl(barDs, count, talib.SAR, acceleration, maximum)
+
+def SAREXT(barDs, count, startvalue=-4e37, offsetonreverse=-4e37, accelerationinitlong=-4e37, accelerationlong=-4e37, accelerationmaxlong=-4e37, accelerationinitshort=-4e37, accelerationshort=-4e37, accelerationmaxshort=-4e37):
+	"""Parabolic SAR - Extended"""
+	return call_talib_with_hl(barDs, count, talib.SAREXT, startvalue, offsetonreverse, accelerationinitlong, accelerationlong, accelerationmaxlong, accelerationinitshort, accelerationshort, accelerationmaxshort)
+
+def SMA(ds, count, timeperiod=-2**31):
+	"""Simple Moving Average"""
+	return call_talib_with_ds(ds, count, talib.SMA, timeperiod)
+
+def STDDEV(ds, count, timeperiod=-2**31, nbdev=-4e37):
+	"""Standard Deviation"""
+	return call_talib_with_ds(ds, count, talib.STDDEV, timeperiod, nbdev)
+
+def STOCH(barDs, count, fastk_period=-2**31, slowk_period=-2**31, slowk_matype=0, slowd_period=-2**31, slowd_matype=0):
+	"""Stochastic"""
+	return call_talib_with_hlc(barDs, count, talib.STOCH, fastk_period, slowk_period, slowk_matype, slowd_period, slowd_matype)
+
+def STOCHF(barDs, count, fastk_period=-2**31, fastd_period=-2**31, fastd_matype=0):
+	"""Stochastic Fast"""
+	return call_talib_with_hlc(barDs, count, talib.STOCHF, fastk_period, fastd_period, fastd_matype)
+
+def STOCHRSI(ds, count, timeperiod=-2**31, fastk_period=-2**31, fastd_period=-2**31, fastd_matype=0):
+	"""Stochastic Relative Strength Index"""
+	return call_talib_with_ds(ds, count, talib.STOCHRSI, timeperiod, fastk_period, fastd_period, fastd_matype)
+
+def SUM(ds, count, timeperiod=-2**31):
+	"""Summation"""
+	return call_talib_with_ds(ds, count, talib.SUM, timeperiod)
+
+def T3(ds, count, timeperiod=-2**31, vfactor=-4e37):
+	"""Triple Exponential Moving Average (T3)"""
+	return call_talib_with_ds(ds, count, talib.T3, timeperiod, vfactor)
+
+def TEMA(ds, count, timeperiod=-2**31):
+	"""Triple Exponential Moving Average"""
+	return call_talib_with_ds(ds, count, talib.TEMA, timeperiod)
+
+def TRANGE(barDs, count):
+	"""True Range"""
+	return call_talib_with_hlc(barDs, count, talib.TRANGE)
+
+def TRIMA(ds, count, timeperiod=-2**31):
+	"""Triangular Moving Average"""
+	return call_talib_with_ds(ds, count, talib.TRIMA, timeperiod)
+
+def TRIX(ds, count, timeperiod=-2**31):
+	"""1-day Rate-Of-Change (ROC) of a Triple Smooth EMA"""
+	return call_talib_with_ds(ds, count, talib.TRIX, timeperiod)
+
+def TSF(ds, count, timeperiod=-2**31):
+	"""Time Series Forecast"""
+	return call_talib_with_ds(ds, count, talib.TSF, timeperiod)
+
+def TYPPRICE(barDs, count):
+	"""Typical Price"""
+	return call_talib_with_hlc(barDs, count, talib.TYPPRICE)
+
+def ULTOSC(barDs, count, timeperiod1=-2**31, timeperiod2=-2**31, timeperiod3=-2**31):
+	"""Ultimate Oscillator"""
+	return call_talib_with_hlc(barDs, count, talib.ULTOSC, timeperiod1, timeperiod2, timeperiod3)
+
+def VAR(ds, count, timeperiod=-2**31, nbdev=-4e37):
+	"""Variance"""
+	return call_talib_with_ds(ds, count, talib.VAR, timeperiod, nbdev)
+
+def WCLPRICE(barDs, count):
+	"""Weighted Close Price"""
+	return call_talib_with_hlc(barDs, count, talib.WCLPRICE)
+
+def WILLR(barDs, count, timeperiod=-2**31):
+	"""Williams' %R"""
+	return call_talib_with_hlc(barDs, count, talib.WILLR, timeperiod)
+
+def WMA(ds, count, timeperiod=-2**31):
+	"""Weighted Moving Average"""
+	return call_talib_with_ds(ds, count, talib.WMA, timeperiod)
 
