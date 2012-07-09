@@ -1,6 +1,5 @@
 from pyalgotrade.optimizer import worker
 from pyalgotrade import strategy
-from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 

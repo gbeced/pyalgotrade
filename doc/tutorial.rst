@@ -347,6 +347,14 @@ When you run this code you should see something like this: ::
     .
     .
 
+For the record, the best result found was $2314.40 with the following parameters:
+ 1. entrySMA: 154
+ 2. exitSMA: 5
+ 3. rsiPeriod: 2
+ 4. overBoughtThreshold: 91
+ 5. overSoldThreshold: 18
+
+
 If you don't have access to a cluster of computers, then you can take advante of :doc:`googleappengine`.
 
 Plotting

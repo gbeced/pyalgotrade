@@ -83,15 +83,86 @@ class YahooTestCase(unittest.TestCase):
 
 	def testFilteredRangeFrom(self):
 		# Only load bars from year 2001.
-		self.__testFilteredRangeImpl(datetime.date(2001, 1, 1), None, 2001)
+		self.__testFilteredRangeImpl(datetime.datetime(2001, 1, 1, 00, 00), None, 2001)
 
 	def testFilteredRangeTo(self):
 		# Only load bars up to year 2000.
-		self.__testFilteredRangeImpl(None, datetime.date(2000, 12, 31), 2000)
+		self.__testFilteredRangeImpl(None, datetime.datetime(2000, 12, 31, 23, 55), 2000)
 
 	def testFilteredRangeFromTo(self):
 		# Only load bars in year 2000.
-		self.__testFilteredRangeImpl(datetime.date(2000, 1, 1), datetime.date(2000, 12, 31), 2000)
+		self.__testFilteredRangeImpl(datetime.datetime(2000, 1, 1, 00, 00), datetime.datetime(2000, 12, 31, 23, 55), 2000)
+
+class IBTestCase(unittest.TestCase):
+	TestInstrument = "orcl"
+
+	def __parseDate(self, date):
+		parser = csvfeed.IBRowParser()
+		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "TradeCount":0 , "WAP":0 , "HasGap": "False"}
+		return parser.parseBar(row).getDateTime()
+
+	def testParseDate_1(self):
+		date = self.__parseDate("20120629  01:55:00")
+		self.assertTrue(date.day == 29)
+		self.assertTrue(date.month == 06)
+		self.assertTrue(date.year == 2012)
+
+		self.assertTrue(date.hour == 01)
+		self.assertTrue(date.minute == 55)
+		self.assertTrue(date.second == 00)
+
+	def testDateCompare(self):
+		self.assertTrue(self.__parseDate("20120629  00:55:00") != self.__parseDate("20120629  01:55:00"))
+		self.assertTrue(self.__parseDate("20110629  00:55:00") < self.__parseDate("20120629  01:55:00"))
+		self.assertTrue(self.__parseDate("20120629  00:55:00") < self.__parseDate("20120629  01:55:00"))
+
+	def testCSVFeedLoadOrder(self):
+		barFeed = csvfeed.IBFeed()
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
+
+		count = 0
+		prevDateTime = None
+		for bars in barFeed:
+			count += 1
+			dateTime = bars.getBar(IBTestCase.TestInstrument).getDateTime()
+			if prevDateTime != None:
+				# Check that bars are loaded in order
+				self.assertTrue(prevDateTime < dateTime)
+				# Check that the last value in the dataseries match the current datetime.
+				self.assertTrue(barFeed.getDataSeries().getValue().getDateTime() == dateTime)
+				self.assertTrue(barFeed.getDataSeries().getValue().getDateTime() == dateTime)
+			prevDateTime = dateTime
+		self.assertTrue(count > 0)
+
+	def __testFilteredRangeImpl(self, fromDate, toDate):
+		barFeed = csvfeed.IBFeed()
+		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
+		count = 0
+		for bars in barFeed:
+			count += 1
+                        if fromDate != None:
+                            self.assertTrue(bars.getBar(IBTestCase.TestInstrument).getDateTime() >= fromDate)
+                        if toDate != None:
+                            self.assertTrue(bars.getBar(IBTestCase.TestInstrument).getDateTime() <= toDate)
+
+		self.assertTrue(count > 0)
+
+	def testFilteredRangeFrom(self):
+		self.__testFilteredRangeImpl(datetime.datetime(2012, 06, 28, 00, 00), None)
+                pass
+
+	def testFilteredRangeTo(self):
+		self.__testFilteredRangeImpl(None, datetime.datetime(2012, 06, 29, 23, 55))
+                pass
+
+	def testFilteredRangeFromTo(self):
+		self.__testFilteredRangeImpl(datetime.datetime(2000, 1, 1, 00, 00), datetime.datetime(2020, 12, 31, 23, 55))
+                pass
 
 def getTestCases():
 	ret = []
@@ -102,6 +173,12 @@ def getTestCases():
 	ret.append(YahooTestCase("testFilteredRangeFrom"))
 	ret.append(YahooTestCase("testFilteredRangeTo"))
 	ret.append(YahooTestCase("testFilteredRangeFromTo"))
+	ret.append(IBTestCase("testParseDate_1"))
+	ret.append(IBTestCase("testDateCompare"))
+	ret.append(IBTestCase("testCSVFeedLoadOrder"))
+	ret.append(IBTestCase("testFilteredRangeFrom"))
+	ret.append(IBTestCase("testFilteredRangeTo"))
+	ret.append(IBTestCase("testFilteredRangeFromTo"))
 	return ret
 
 
