@@ -175,14 +175,20 @@ class Strategy:
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
 	:param cash: The amount of cash available.
 	:type cash: int/float.
+        :param broker_: Broker to use. If not specified the default broker (:class:`pyalgotrade.broker.Broker`) 
+                        will be created.
+        :type broker_: :class:`pyalgotrade.broker.Broker`.
 
 	.. note::
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, barFeed, cash = 0):
+	def __init__(self, barFeed, cash = 0, broker_ = None):
 		self.__feed = barFeed
-		self.__broker = broker.Broker(cash)
+                if broker_ == None:
+                    self.__broker = broker.Broker(cash)
+                else:
+                    self.__broker = broker_
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 		self.__activePositions = {}
 		self.__orderToPosition = {}
