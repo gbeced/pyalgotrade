@@ -46,8 +46,8 @@ class BasicBarFeed:
 		return self.__ds.keys()
 
 	def registerInstrument(self, instrument):
-		if self.__defaultInstrument != None and instrument != self.__defaultInstrument:
-			raise Exception("Multiple instruments not supported")
+		#if self.__defaultInstrument != None and instrument != self.__defaultInstrument:
+		#	raise Exception("Multiple instruments not supported")
 
 		self.__defaultInstrument = instrument
 		if instrument not in self.__ds:
@@ -60,8 +60,11 @@ class BasicBarFeed:
 		:type instrument: string.
 		:rtype: :class:`pyalgotrade.dataseries.BarDataSeries`.
 		"""
-		assert(instrument == None or instrument == self.__defaultInstrument)
-		return self.__ds[self.__defaultInstrument]
+		# assert(instrument == None or instrument == self.__defaultInstrument)
+                if instrument == None:
+                        instrument = self.__defaultInstrument
+                    
+                return self.__ds[instrument]
 
 class BarFeed(BasicBarFeed):
 	"""Base class for :class:`pyalgotrade.bar.Bar` providing feeds.
@@ -72,7 +75,7 @@ class BarFeed(BasicBarFeed):
 	def __init__(self):
 		BasicBarFeed.__init__(self)
 		self.__sessionCloseStrategy = session.DaySessionCloseStrategy()
-		self.__prevDateTime = None
+		self.__prevDateTime = {}
 		self.__barBuff = []
 
 	# Override to return a map from instrument names to bars or None if there is no more data. All bars datetime must be equal.
@@ -88,7 +91,7 @@ class BarFeed(BasicBarFeed):
 		return self
 
 	def next(self):
-		"""Returns the next :class:`pyalgotrade.bar.Bars` in the feed. If there are not more values StopIteration is raised."""
+		"""Returns the next :class:`pyalgotrade.bar.Bars` in the feed. If there are no more values StopIteration is raised."""
 		self.__loadBars()
 		if self.__barBuff[0] == None:
 			raise StopIteration()
@@ -96,9 +99,10 @@ class BarFeed(BasicBarFeed):
 		barDict = self.__barBuff.pop(0)
 		nextBarDict = self.__barBuff[0] # nextBarDict may be None
 
-		# Check that bars were retured for all the instruments registered.
-		if barDict.keys() != self.getRegisteredInstruments():
-			raise Exception("Some bars are missing")
+		# Check that bars were retured are for registered instruments 
+                for key in barDict.keys():
+                    if key not in self.getRegisteredInstruments():
+			raise Exception("Unregistered instrument: %s" % key)
 
 		currentDateTime = None
 		firstBarInstrument = None
@@ -123,10 +127,11 @@ class BarFeed(BasicBarFeed):
 			# Add the bar to the data source.
 			self.getDataSeries(instrument).appendValue(currentBar)
 
-		# Check that current bar datetimes are greater than the previous one.
-		if self.__prevDateTime != None and self.__prevDateTime >= currentDateTime:
-			raise Exception("Bar data times are not in order")
-		self.__prevDateTime = currentDateTime
+                        # Check that current bar datetimes are greater than the previous one.
+                        self.__prevDateTime.setdefault(instrument, None)
+                        if self.__prevDateTime[instrument] != None and self.__prevDateTime[instrument] >= currentDateTime:
+                                raise Exception("Bar data times are not in order for instrument: %s" % instrument)
+                        self.__prevDateTime[instrument] = currentDateTime
 
 		return bar.Bars(barDict, currentDateTime)
 
