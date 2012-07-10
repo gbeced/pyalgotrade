@@ -73,8 +73,8 @@ class Order:
 
 	class Action:
 		BUY			= 1
-		SELL		= 2
-		SELL_SHORT	= 3
+		SELL		        = 2
+		SELL_SHORT	        = 3
 
 	class State:
 		ACCEPTED		= 1
@@ -95,7 +95,7 @@ class Order:
 		Valid order states are:
 		 * Order.State.ACCEPTED (the initial state).
 		 * Order.State.CANCELED
-		 * Order.State.ACCEPTED
+		 * Order.State.FILLED
 		"""
 		return self.__state
 
@@ -199,6 +199,10 @@ class LimitOrder(Order):
 	def __init__(self, action, instrument, price, quantity, goodTillCanceled = False):
 		Order.__init__(self, action, instrument, quantity, goodTillCanceled)
 		self.__price = price
+
+        def getPrice(self):
+		"""Returns order price."""
+                return self.__price
 
 	def __getPrice(self, broker, bar_):
 		if broker.getUseAdjustedValues():
