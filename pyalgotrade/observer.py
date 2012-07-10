@@ -18,38 +18,26 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import threading
+import copy
+
 class Event:
 	def __init__(self):
 		self.__handlers = set()
-		self.__toSubscribe = []
-		self.__toUnsubscribe = []
-		self.__emitting = False
-
-	def __applyChanges(self):
-		for handler in self.__toSubscribe:
-			self.__handlers.add(handler)
-		for handler in self.__toUnsubscribe:
-			self.__handlers.remove(handler)
-
-		self.__toSubscribe = []
-		self.__toUnsubscribe = []
+		self.__lock = threading.Lock()
 
 	def subscribe(self, handler):
-		if self.__emitting:
-			self.__toSubscribe.append(handler)
-		else:
+		with self.__lock:
 			self.__handlers.add(handler)
 
 	def unsubscribe(self, handler):
-		if self.__emitting:
-			self.__toUnsubscribe.append(handler)
-		else:
+		with self.__lock:
 			self.__handlers.remove(handler)
 
 	def emit(self, *parameters):
-		self.__emitting = True
-		for handler in self.__handlers:
+		with self.__lock:
+			handlers = copy.copy(self.__handlers)
+
+		for handler in handlers:
 			handler(*parameters)
-		self.__emitting = False
-		self.__applyChanges()
 
