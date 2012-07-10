@@ -87,7 +87,7 @@ class IBCSVFeed(csvfeed.BarFeed):
 
 
 class IBLiveFeed(BarFeed):
-        def __init__(self, ibConnection, timezone=0, twsHost='localhost', twsPort=7496, twsClientId=27):
+        def __init__(self, ibConnection, timezone=0):
                 BarFeed.__init__(self)
 
                 # The zone specifies the offset from Coordinated Universal Time (UTC, 
