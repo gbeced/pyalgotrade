@@ -57,6 +57,44 @@ class DataSeries:
 			ret.append(value)
 		return ret
 
+	def __mapRelativeToAbsolute(self, valuesAgo):
+		if valuesAgo < 0:
+			return None
+
+		ret = self.getLength() - valuesAgo - 1
+		if ret < self.getFirstValidPos():
+			ret = None
+		return ret
+
+	def getValues(self, count, valuesAgo = 0, includeNone = False):
+		"""Returns a list of values at a given instant, relative to the last value.
+
+		:param count: The max number of values to return. Must be >= 0.
+		:type count: int
+		:param valuesAgo: The position of the value relative to the last one. Must be >= 0.
+		:type valuesAgo: int
+		:param includeNone: True if None values should be included. If False, and any of the values are None, None is returned.
+		:type includeNone: boolean
+
+		* getValues(2) returns the last 2 values.
+		* getValues(2, 1) returns the antepenultimate and penultimate values (assuming that the dataseries has at least 3 values).
+		"""
+
+		if count <= 0:
+			return None
+
+		absolutePos = self.__mapRelativeToAbsolute(valuesAgo + (count - 1))
+		if absolutePos == None:
+			return None
+
+		ret = []
+		for i in xrange(count):
+			value = self.getValueAbsolute(absolutePos + i)
+			if value is None and not includeNone:
+				return None
+			ret.append(value)
+		return ret
+
 	def getValue(self, valuesAgo = 0):
 		"""Returns the value at a given instant, relative to the last value, or None if the value doesn't exist.
 
@@ -67,12 +105,9 @@ class DataSeries:
 		* getValue(1) returns the previous value (assuming that the dataseries has at least 2 values).
 		"""
 
-		if valuesAgo < 0:
-			return None
-
 		ret = None
-		absolutePos = self.getLength() - valuesAgo - 1
-		if absolutePos >= self.getFirstValidPos():
+		absolutePos = self.__mapRelativeToAbsolute(valuesAgo)
+		if absolutePos != None:
 			ret = self.getValueAbsolute(absolutePos)
 		return ret
 

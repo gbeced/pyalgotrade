@@ -15,6 +15,7 @@ Contents:
     tutorial
     googleappengine
     code
+    talib
 
 Indices and tables
 ==================

@@ -24,6 +24,35 @@ import datetime
 from pyalgotrade import dataseries
 from pyalgotrade import bar
 
+class TestSequenceDataSeries(unittest.TestCase):
+	def testEmpty(self):
+		ds = dataseries.SequenceDataSeries([])
+		self.assertTrue(ds.getFirstValidPos() == 0)
+		self.assertTrue(ds.getLength() == 0)
+		self.assertTrue(ds.getValue() == None)
+		self.assertTrue(ds.getValue(1) == None)
+		self.assertTrue(ds.getValueAbsolute(0) == None)
+		self.assertTrue(ds.getValueAbsolute(1) == None)
+
+	def testNonEmpty(self):
+		ds = dataseries.SequenceDataSeries(range(10))
+		self.assertTrue(ds.getFirstValidPos() == 0)
+		self.assertTrue(ds.getLength() == 10)
+		self.assertTrue(ds.getValue() == 9)
+		self.assertTrue(ds.getValue(1) == 8)
+		self.assertTrue(ds.getValueAbsolute(0) == 0)
+		self.assertTrue(ds.getValueAbsolute(1) == 1)
+
+		self.assertTrue(ds.getValues(1) == [9])
+		self.assertTrue(ds.getValues(2) == [8, 9])
+		self.assertTrue(ds.getValues(1, 1) == [8])
+		self.assertTrue(ds.getValues(2, 1) == [7, 8])
+
+		self.assertTrue(ds.getValuesAbsolute(1, 3) == [1, 2, 3])
+		self.assertTrue(ds.getValuesAbsolute(9, 9) == [9])
+		self.assertTrue(ds.getValuesAbsolute(9, 10) == None)
+		self.assertTrue(ds.getValuesAbsolute(9, 10, True) == [9, None])
+
 class TestBarDataSeries(unittest.TestCase):
 	def testEmpty(self):
 		ds = dataseries.BarDataSeries()
@@ -73,6 +102,9 @@ class TestBarDataSeries(unittest.TestCase):
 
 def getTestCases():
 	ret = []
+	ret.append(TestSequenceDataSeries("testEmpty"))
+	ret.append(TestSequenceDataSeries("testNonEmpty"))
+
 	ret.append(TestBarDataSeries("testEmpty"))
 	ret.append(TestBarDataSeries("testAppendInvalidDatetime"))
 	ret.append(TestBarDataSeries("testNonEmpty"))

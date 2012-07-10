@@ -6,6 +6,7 @@ Release checklist
 [ ] Rebuild and review documentation.
 [ ] Run tutorial examples using the installed lib.
 [ ] Run testcases using the installed lib.
+[ ] Test GoogleApp Engine support.
 [ ] Build package and upload to the downloads section.
 [ ] Update the website using RapidWeaver (doc + package).
 [ ] Merge into master branch.
