@@ -145,7 +145,10 @@ def APO(ds, count, fastperiod=-2**31, slowperiod=-2**31, matype=0):
 
 def AROON(barDs, count, timeperiod=-2**31):
 	"""Aroon"""
-	return call_talib_with_hl(barDs, count, talib.AROON, timeperiod)
+	ret = call_talib_with_hl(barDs, count, talib.AROON, timeperiod)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def AROONOSC(barDs, count, timeperiod=-2**31):
 	"""Aroon Oscillator"""
@@ -161,7 +164,10 @@ def AVGPRICE(barDs, count):
 
 def BBANDS(ds, count, timeperiod=-2**31, nbdevup=-4e37, nbdevdn=-4e37, matype=0):
 	"""Bollinger Bands"""
-	return call_talib_with_ds(ds, count, talib.BBANDS, timeperiod, nbdevup, nbdevdn, matype)
+	ret = call_talib_with_ds(ds, count, talib.BBANDS, timeperiod, nbdevup, nbdevdn, matype)
+	if ret == None:
+		ret = (None, None, None)
+	return ret
 
 def BETA(ds1, ds2, count, timeperiod=-2**31):
 	"""Beta"""
@@ -461,11 +467,17 @@ def HT_DCPHASE(ds, count):
 
 def HT_PHASOR(ds, count):
 	"""Hilbert Transform - Phasor Components"""
-	return call_talib_with_ds(ds, count, talib.HT_PHASOR)
+	ret = call_talib_with_ds(ds, count, talib.HT_PHASOR)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def HT_SINE(ds, count):
 	"""Hilbert Transform - SineWave"""
-	return call_talib_with_ds(ds, count, talib.HT_SINE)
+	ret = call_talib_with_ds(ds, count, talib.HT_SINE)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def HT_TRENDLINE(ds, count):
 	"""Hilbert Transform - Instantaneous Trendline"""
@@ -501,19 +513,31 @@ def MA(ds, count, timeperiod=-2**31, matype=0):
 
 def MACD(ds, count, fastperiod=-2**31, slowperiod=-2**31, signalperiod=-2**31):
 	"""Moving Average Convergence/Divergence"""
-	return call_talib_with_ds(ds, count, talib.MACD, fastperiod, slowperiod, signalperiod)
+	ret = call_talib_with_ds(ds, count, talib.MACD, fastperiod, slowperiod, signalperiod)
+	if ret == None:
+		ret = (None, None, None)
+	return ret
 
 def MACDEXT(ds, count, fastperiod=-2**31, fastmatype=0, slowperiod=-2**31, slowmatype=0, signalperiod=-2**31, signalmatype=0):
 	"""MACD with controllable MA type"""
-	return call_talib_with_ds(ds, count, talib.MACDEXT, fastperiod, fastmatype, slowperiod, slowmatype, signalperiod, signalmatype)
+	ret = call_talib_with_ds(ds, count, talib.MACDEXT, fastperiod, fastmatype, slowperiod, slowmatype, signalperiod, signalmatype)
+	if ret == None:
+		ret = (None, None, None)
+	return ret
 
 def MACDFIX(ds, count, signalperiod=-2**31):
 	"""Moving Average Convergence/Divergence Fix 12/26"""
-	return call_talib_with_ds(ds, count, talib.MACDFIX, signalperiod)
+	ret = call_talib_with_ds(ds, count, talib.MACDFIX, signalperiod)
+	if ret == None:
+		ret = (None, None, None)
+	return ret
 
 def MAMA(ds, count, fastlimit=-4e37, slowlimit=-4e37):
 	"""MESA Adaptive Moving Average"""
-	return call_talib_with_ds(ds, count, talib.MAMA, fastlimit, slowlimit)
+	ret = call_talib_with_ds(ds, count, talib.MAMA, fastlimit, slowlimit)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def MAX(ds, count, timeperiod=-2**31):
 	"""Highest value over a specified period"""
@@ -549,11 +573,17 @@ def MININDEX(ds, count, timeperiod=-2**31):
 
 def MINMAX(ds, count, timeperiod=-2**31):
 	"""Lowest and highest values over a specified period"""
-	return call_talib_with_ds(ds, count, talib.MINMAX, timeperiod)
+	ret = call_talib_with_ds(ds, count, talib.MINMAX, timeperiod)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def MINMAXINDEX(ds, count, timeperiod=-2**31):
 	"""Indexes of lowest and highest values over a specified period"""
-	return call_talib_with_ds(ds, count, talib.MINMAXINDEX, timeperiod)
+	ret = call_talib_with_ds(ds, count, talib.MINMAXINDEX, timeperiod)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def MINUS_DI(barDs, count, timeperiod=-2**31):
 	"""Minus Directional Indicator"""
@@ -631,15 +661,24 @@ def STDDEV(ds, count, timeperiod=-2**31, nbdev=-4e37):
 
 def STOCH(barDs, count, fastk_period=-2**31, slowk_period=-2**31, slowk_matype=0, slowd_period=-2**31, slowd_matype=0):
 	"""Stochastic"""
-	return call_talib_with_hlc(barDs, count, talib.STOCH, fastk_period, slowk_period, slowk_matype, slowd_period, slowd_matype)
+	ret = call_talib_with_hlc(barDs, count, talib.STOCH, fastk_period, slowk_period, slowk_matype, slowd_period, slowd_matype)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def STOCHF(barDs, count, fastk_period=-2**31, fastd_period=-2**31, fastd_matype=0):
 	"""Stochastic Fast"""
-	return call_talib_with_hlc(barDs, count, talib.STOCHF, fastk_period, fastd_period, fastd_matype)
+	ret = call_talib_with_hlc(barDs, count, talib.STOCHF, fastk_period, fastd_period, fastd_matype)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def STOCHRSI(ds, count, timeperiod=-2**31, fastk_period=-2**31, fastd_period=-2**31, fastd_matype=0):
 	"""Stochastic Relative Strength Index"""
-	return call_talib_with_ds(ds, count, talib.STOCHRSI, timeperiod, fastk_period, fastd_period, fastd_matype)
+	ret = call_talib_with_ds(ds, count, talib.STOCHRSI, timeperiod, fastk_period, fastd_period, fastd_matype)
+	if ret == None:
+		ret = (None, None)
+	return ret
 
 def SUM(ds, count, timeperiod=-2**31):
 	"""Summation"""
