@@ -27,8 +27,8 @@ from pyalgotrade import bar
 
 class Bar(bar.Bar):
 	"""An instrument's prices at a given time.
-        :param instrument: Instrument's symbol
-        :type instrument: str
+	:param instrument: Instrument's symbol
+	:type instrument: str
 	:param dateTime: The date time.
 	:type dateTime: datetime.datetime
 	:param open_: The opening price.
@@ -47,28 +47,28 @@ class Bar(bar.Bar):
 	:type tradeCount: int
 	"""
 	def __init__(self, instrument, dateTime, open_, high, low, close, volume, vwap, tradeCount):
-                bar.Bar.__init__(self, dateTime, open_, high, low, close, volume, adjClose=None)
+		bar.Bar.__init__(self, dateTime, open_, high, low, close, volume, adjClose=None)
 
-                self.__instrument = instrument
-                self.__vwap = vwap
-                self.__tradeCount = tradeCount
+		self.__instrument = instrument
+		self.__vwap = vwap
+		self.__tradeCount = tradeCount
 
-        def getInstrument(self):
-                """Returns the instrument's symbol."""
-                return self.__instrument
+	def getInstrument(self):
+		"""Returns the instrument's symbol."""
+		return self.__instrument
 
-        def getVWAP(self):
-                """Returns the Volume Weighted Average Price."""
-                return self.__vwap
+	def getVWAP(self):
+		"""Returns the Volume Weighted Average Price."""
+		return self.__vwap
 
-        def getTradeCount(self):
-                """Returns the trade count."""
-                return self.__tradeCount
+	def getTradeCount(self):
+		"""Returns the trade count."""
+		return self.__tradeCount
 
 
-        def __repr__(self):
-                return str("%s - %s: open=%.2f, high=%.2f, low=%.2f, close=%.2f, volume=%d, vwap=%.2f, tradeCount=%d" %
-                            (self.getDateTime(), self.getInstrument(), self.getOpen(), self.getHigh(), self.getLow(), self.getClose(),
-                             self.getVolume(), self.getVWAP(), self.getTradeCount()))
+	def __repr__(self):
+		return str("%s - %s: open=%.2f, high=%.2f, low=%.2f, close=%.2f, volume=%d, vwap=%.2f, tradeCount=%d" %
+			    (self.getDateTime(), self.getInstrument(), self.getOpen(), self.getHigh(), self.getLow(), self.getClose(),
+			     self.getVolume(), self.getVWAP(), self.getTradeCount()))
     
 
