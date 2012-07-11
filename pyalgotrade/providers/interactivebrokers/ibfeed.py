@@ -41,7 +41,7 @@ class RowParser(csvfeed.RowParser):
 		self.__zone = zone
 
 	def __parseDate(self, dateString):
-		ret = datetime.datetime.strptime(dateString, "%Y%m%d  %H:%M:%S")
+		ret = datetime.datetime.strptime(dateString, "%Y-%m-%d %H:%M:%S")
 		ret += datetime.timedelta(hours= (-1 * self.__zone))
 		return ret
 
