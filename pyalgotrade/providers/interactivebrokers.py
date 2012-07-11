@@ -262,8 +262,8 @@ class IBConnection(EWrapper):
 
         :param accountCode: Interactive Brokers Account Code. Shown in the right corner in TWS. Format: DUXXXXX
         :type accountCode: str
-        :param timezone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as 
-                         "Greenwich Mean Time")
+        :param timezone: the zone specifies the offset from coordinated universal time (utc, formerly referred to as 
+                         "greenwich mean time")
         :type timezone: int
         :param twsHost: Hostname of the machine where the TWS is running. Default: localhost
         :type twsHost: str
@@ -352,6 +352,12 @@ class IBConnection(EWrapper):
                 orderID = copy.copy(self.__orderID)
                 self.__orderID += 1
                 return orderID
+
+        def getTimezone(self):
+                """Returns the timezone. The zone specifies the offset from Coordinated Universal Time 
+                (UTC, formerly referred to as "Greenwich Mean Time")
+                """
+                return self.__zone
         
         ########################################################################################
         # Requests for TWS
