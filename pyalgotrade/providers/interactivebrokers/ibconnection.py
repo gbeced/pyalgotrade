@@ -48,7 +48,7 @@ console.setFormatter(logging.Formatter(LOGFMT))
 log = logging.getLogger("pyalgotrade.providers.interactivebrokers")
 log.addHandler(console)
 
-class IBConnection(EWrapper):
+class Connection(EWrapper):
         '''Wrapper class for Interactive Brokers TWS Connection.
 
         This class exports the IB API's Order, Realtime- and Historical Market Data and Market Scanner features.
