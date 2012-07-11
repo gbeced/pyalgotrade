@@ -26,9 +26,9 @@
 import logging, os, threading, copy, datetime
 from time import localtime 
 
-from pyalgotrade.bar import Bar
-from pyalgotrade.broker import Broker, LimitOrder, MarketOrder, OrderExecutionInfo
 from pyalgotrade import observer
+
+from ibbar import Bar
 
 from ib.ext.EWrapper import EWrapper
 from ib.ext.EClientSocket import EClientSocket
@@ -47,209 +47,6 @@ console.setLevel(logging.DEBUG)
 console.setFormatter(logging.Formatter(LOGFMT))
 log = logging.getLogger("pyalgotrade.providers.interactivebrokers")
 log.addHandler(console)
-
-class IBBar(Bar):
-	"""An instrument's prices at a given time.
-        :param instrument: Instrument's symbol
-        :type instrument: str
-	:param dateTime: The date time.
-	:type dateTime: datetime.datetime
-	:param open_: The opening price.
-	:type open_: float
-	:param high: The highest price.
-	:type high: float
-	:param low: The lowest price.
-	:type low: float
-	:param close: The closing price.
-	:type close: float
-	:param volume: The volume.
-	:type volume: float
-	:param vwap: Volume weighted average price (IB specific)
-	:type vwap: float
-	:param tradeCount: Number of trades (IB specific)
-	:type tradeCount: int
-	"""
-	def __init__(self, instrument, dateTime, open_, high, low, close, volume, vwap, tradeCount):
-                Bar.__init__(self, dateTime, open_, high, low, close, volume, adjClose=None)
-
-                self.__instrument = instrument
-                self.__vwap = vwap
-                self.__tradeCount = tradeCount
-
-        def getInstrument(self):
-                """Returns the instrument's symbol."""
-                return self.__instrument
-
-        def getVWAP(self):
-                """Returns the Volume Weighted Average Price."""
-                return self.__vwap
-
-        def getTradeCount(self):
-                """Returns the trade count."""
-                return self.__tradeCount
-
-
-        def __repr__(self):
-                return str("%s - %s: open=%.2f, high=%.2f, low=%.2f, close=%.2f, volume=%d, vwap=%.2f, tradeCount=%d" %
-                            (self.getDateTime(), self.getInstrument(), self.getOpen(), self.getHigh(), self.getLow(), self.getClose(),
-                             self.getVolume(), self.getVWAP(), self.getTradeCount()))
-    
-
-class IBBroker(Broker):
-	"""Class responsible for forwarding orders to Interactive Brokers Gateway via TWS.
-
-	:param ibConnection: Object responsible to forward requests to TWS.
-	:type ibConnection: :class:`IBConnection`
-	"""
-	def __init__(self, ibConnection):
-            self.__ibConnection = ibConnection
-
-            # Query the server for available funds
-            self.__cash = self.__ibConnection.getCash()
-
-            # Subscribe for order updates from TWS
-            self.__ibConnection.subscribeOrderUpdates(self.__orderUpdate)
-
-            # Local buffer for Orders. Keys are the orderIDs
-            self.__orders = {}
-
-            # Call the base's constructor
-            Broker.__init__(self, self.__cash)
-
-
-        def __orderUpdate(self, orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice):
-                """Handles order updates from IBConnection. Processes its status and notifies the strategy's __onOrderUpdate()"""
-
-                log.debug('orderUpdate: orderID=%d, instrument=%s, status=%s, filled=%d, remaining=%d, avgFillPrice=%.2f, lastFillPrice=%.2f' % 
-                          (orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice))
-
-                # Try to look up order (:class:`broker.Order`) from the local buffer
-                # It is possible that the orderID is not present in the buffer: the
-                # order could been created from another client (e.g. TWS). 
-                # In such cases the order update will be ignored.
-                try:
-                    order = self.__orders[orderID]
-                except KeyError:
-                    log.warn("Order is not registered with orderID: %d, ignoring update" % orderID)
-                    return
-
-                # Check for order status and set our local order accordingly
-                if status == 'Cancelled':
-                        order.cancel()
-                elif status == 'PreSubmitted':
-                        # Skip, we do not have the corresponding state in :class:`broker.Order`
-                        return
-                elif status == 'Filled':
-                        # Wait until all the stocks are obtained
-                        if remaining == 0:
-                            log.info("Order complete: orderID: %d, instrument: %s, filled: %d, avgFillPrice=%.2f, lastFillPrice=%.2f" %
-                                     (orderID, instrument, status, filled, avgFillPrice, lastFillPrice))
-
-                            # Set commission to 0, avgFillPrice contains it anyhow
-                            orderExecutionInfo = OrderExecutionInfo(avgFillPrice, comission=0, dateTime=None)
-                            order.setExecuted(orderExecutionInfo)
-                        else:
-                            # And signal partial completions
-                            log.info("Partial order completion: orderID: %d, instrument: %s, filled: %d, remaining: %d, avgFillPrice=%.2f, lastFillPrice=%.2f" %
-                                     (orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice))
-
-                # Notify the listeners
-                self.getOrderUpdatedEvent().emit(self, order)
-
-
-        def getShares(self, instrument):
-		"""Returns the number of shares for an instrument."""
-		raise Exception("getShares() is not implemented")
-
-	def getCash(self):
-		"""Returns the amount of cash."""
-                return self.__ibConnection.getCash()
-	
-        def setCash(self, cash):
-                """Setting cash on real broker account. Quite impossible :)"""
-		raise Exception("Setting cash on a real broker account? Please visit your bank.")
-	
-        def getValue(self, bars):
-		"""Returns the portfolio value (cash + shares) for the given bars prices.
-
-		:param bars: The bars to use to calculate share values.
-		:type bars: :class:`pyalgotrade.bar.Bars`.
-		"""
-		raise Exception("getValue() is not implemented")
-
-	def commitOrderExecution(self, order, price, quantity, dateTime):
-                """Tries to commit an order execution. Right now with IB all the orders are passed to the real broker"""
-                return True
-	
-        def placeOrder(self, order):
-		"""Submits an order.
-
-		:param order: The order to submit.
-		:type order: :class:`Order`.
-		"""
-
-                instrument = order.getInstrument()
-
-                # action: Identifies the side. 
-                # Valid values are: BUY, SELL, SSHORT
-                act = order.getAction()
-                if act == order.Action.BUY:
-                    action = "BUY"
-                elif act == LimitOrder.Action.SELL:
-                    action = "SELL"
-                elif act == LimitOrder.Action.SELL_SHORT:
-                    # XXX: SSHORT is not valid for some reason,
-                    # and SELL seems to work well with short orders.
-                    #action = "SSHORT"
-                    action = "SELL"
-
-                auxPrice = 0 
-                lmtPrice = 0
-                
-                if isinstance(order, MarketOrder):
-                    orderType = "MKT"
-                elif isinstance(order, LimitOrder):
-                    orderType = "LMT"
-                    lmtPrice = order.getPrice() 
-                #elif isinstance(order, StopLimitOrder):
-                #    orderType = "STP LMT"
-                #    auxPrice = order.getAuxPrice()
-                    
-
-                # Setup quantities
-                totalQty = order.getQuantity()
-                minQty = 0
-
-                goodTillDate = ""
-
-                # The time in force. Valid values are: DAY, GTC, IOC, GTD.
-                tif = "DAY"
-                #if orderType == "MKT":
-                #    tif = "DAY"
-                #else:
-                #    if order.getGoodTillCancelled():
-                #        tif = "GTC"
-                #    else:
-                #        tif = "DAY"
-
-                trailingPct = 0
-                trailStopPrice = 0
-
-                transmit = True
-                whatif = False
-                 
-                orderID = self.__ibConnection.createOrder(instrument, action, auxPrice, lmtPrice, orderType, totalQty, minQty,
-                                                          goodTillDate, tif, trailingPct, trailStopPrice, transmit, whatif)
-
-                self.__orders[orderID] = order
-
-                return orderID
-	
-        def onBars(self, bars):
-                """Originally the broker logic were handled in this method.
-                
-                We are using a real broker, no need for any code here."""
-		pass
 
 class IBConnection(EWrapper):
         '''Wrapper class for Interactive Brokers TWS Connection.
@@ -673,9 +470,9 @@ class IBConnection(EWrapper):
 		dt += datetime.timedelta(hours= (-1 * self.__zone))
 
                 # Create the bar
-                bar = IBBar(instrument, dt,
-                            open_, high, low, close,
-                            volume, vwap, tradeCount)
+                bar = Bar(instrument, dt,
+                          open_, high, low, close,
+                          volume, vwap, tradeCount)
 
                 # Append it to the buffer
                 self.__historicalDataBuffer.append(bar)
@@ -721,9 +518,9 @@ class IBConnection(EWrapper):
                 log.debug("RT Bar: %s [%d] time=%s open=%.2f high=%.2f low=%.2f close=%.2f volume=%d wap=%.2f tradeCount=%d" % 
                           (instrument, tickerID, dt, open_, high, low, close, volume, vwap, tradeCount))
 
-                self.__realtimeBarEvents[instrument].emit(IBBar(instrument, dt,
-                                                                open_, high, low, close,
-                                                                volume, vwap, tradeCount))
+                self.__realtimeBarEvents[instrument].emit(Bar(instrument, dt,
+                                                              open_, high, low, close,
+                                                              volume, vwap, tradeCount))
 
         
         def scannerData(self, tickerID, rank, contractDetails, distance, benchmark, projection, legsStr):
