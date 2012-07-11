@@ -24,11 +24,16 @@ import csv
 from pyalgotrade.providers.interactivebrokers import ibconnection
 
 
-def __bars_to_csv(bars):
-	"""Convert list of bars to list of CSV file rows
-	Note: This function excludes the TWS Request ID from the data.
+def __bars_to_csv(bars, filename):
+	"""Saves the given list of Bar instances to a CSV File.
+
+	:param bars: Bar list
+	:type bars: list of Bar instances
+	:param filename: CSV filename
+	:type filename: str
 	"""
-	# Convert Bar instances to Dict instances
+
+	# Convert list of Bar instances to list of Dict instances
 	dicts = [{'Date':	bar.getDateTime(),
 		  'Open':	bar.getOpen(),
 		  'High':	bar.getHigh(),
@@ -39,20 +44,14 @@ def __bars_to_csv(bars):
 		  'VWAP':	bar.getVWAP(),
 		 } for bar in bars]
 
+	# Save the result to CSV file
+	with open(filename, "w") as csvFile:
+	    dw = csv.DictWriter(csvFile, 
+				['Date','Open','High','Low','Close','Volume','TradeCount','VWAP'], 
+				extrasaction='ignore')
+	    dw.writeheader()
+	    dw.writerows(dicts)
 
-	myCSV = []
-	class _CSVDumper:
-		@staticmethod
-		def write(str):
-			myCSV.append(str)
-
-	dw = csv.DictWriter(_CSVDumper, 
-			    ['Date','Open','High','Low','Close','Volume','TradeCount','VWAP'], 
-			    extrasaction='ignore')
-	dw.writeheader()
-	dw.writerows(dicts)
-
-	return myCSV
 
 def get_historical_data(instrument, endTime, duration, barSize, 
 			secType='STK', exchange='SMART', currency='USD', 
@@ -108,61 +107,6 @@ def get_historical_data(instrument, endTime, duration, barSize,
 	return bars
 
 
-def get_1min_csv(instrument, endTime, duration): 
-	"""Downloads historical data from IB using 1 minute bars
-
-	:param instrument: Ticker symbol
-	:type instrument: str
-	:param endTime: Use the format yyyymmdd hh:mm:ss tmz, where the time zone is allowed (optionally) after a space at the end.
-	:type endTime:	str
-	:param duration: This is the time span the request will cover, and is specified using the format: 
-			 <integer> <unit>, i.e., 1 D, where valid units are:
-			 S (seconds),  D (days),  W (weeks),  M (months),  Y (years)
-			 If no unit is specified, seconds are used.  Also, note "years" is currently limited to one.
-	:type duration: str
-
-	:rtype: List of the bars, where each list element is a CSV row.
-	"""
-	bars = get_historical_data(instrument, endTime, duration, barSize='1 min')
-	return __bars_to_csv(bars)
-
-def get_5min_csv(instrument, endTime, duration):
-	"""Downloads historical data from IB using 5 minute bars
-
-	:param instrument: Ticker symbol
-	:type instrument: str
-	:param endTime: Use the format yyyymmdd hh:mm:ss tmz, where the time zone is allowed (optionally) after a space at the end.
-	:type endTime:	str
-	:param duration: This is the time span the request will cover, and is specified using the format: 
-			 <integer> <unit>, i.e., 1 D, where valid units are:
-			 S (seconds),  D (days),  W (weeks),  M (months),  Y (years)
-			 If no unit is specified, seconds are used.  Also, note "years" is currently limited to one.
-	:type duration: str
-
-	:rtype: List of the bars, where each list element is a CSV row.
-	"""
-	bars = get_historical_data(instrument, endTime, duration, barSize='5 mins')
-	return __bars_to_csv(bars)
-
-def get_daily_csv(instrument, endTime, duration): 
-	"""Downloads historical data from IB using 1 day bars
-
-	:param instrument: Ticker symbol
-	:type instrument: str
-	:param endTime: Use the format yyyymmdd hh:mm:ss tmz, where the time zone is allowed (optionally) after a space at the end.
-	:type endTime:	str
-	:param duration: This is the time span the request will cover, and is specified using the format: 
-			 <integer> <unit>, i.e., 1 D, where valid units are:
-			 S (seconds),  D (days),  W (weeks),  M (months),  Y (years)
-			 If no unit is specified, seconds are used.  Also, note "years" is currently limited to one.
-	:type duration: str
-
-	:rtype: List of the bars, where each list element is a CSV row.
-	"""
-	bars = get_historical_data(instrument, endTime, duration, barSize='1 day')
-	return __bars_to_csv(bars)
-
-
 if __name__ == '__main__':
 	import argparse
 
@@ -183,13 +127,16 @@ if __name__ == '__main__':
 			    default=['5', 'mins'],
 			    nargs=2,
 			    )
+	parser.add_argument('--filename', help='Specifies the result csv file', required=True)	
 
 	args = parser.parse_args()
 
 	bars = get_historical_data(args.instrument, " ".join(args.endtime), " ".join(args.duration), " ".join(args.barsize))
-	csv_rows = __bars_to_csv(bars)
+	if bars != None:
+	    __bars_to_csv(bars, args.filename)
+	    print 'Historical data saved to %s.' % args.filename
+	else:
+	    print 'No data returned!'
 
-	for row in csv_rows:
-		print row, 
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4
