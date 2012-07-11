@@ -23,7 +23,7 @@ import datetime
 import os
 
 from pyalgotrade.barfeed import csvfeed
-from pyalgotrade.barfeed import ibfeed
+from pyalgotrade.providers.interactivebrokers import ibfeed
 import common
 
 class YahooTestCase(unittest.TestCase):
@@ -98,7 +98,7 @@ class IBTestCase(unittest.TestCase):
 	TestInstrument = "orcl"
 
 	def __parseDate(self, date):
-		parser = ibfeed.IBRowParser()
+		parser = ibfeed.RowParser()
 		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "TradeCount":0 , "WAP":0 , "HasGap": "False"}
 		return parser.parseBar(row).getDateTime()
 
@@ -118,7 +118,7 @@ class IBTestCase(unittest.TestCase):
 		self.assertTrue(self.__parseDate("20120629  00:55:00") < self.__parseDate("20120629  01:55:00"))
 
 	def testCSVFeedLoadOrder(self):
-		barFeed = ibfeed.IBCSVFeed()
+		barFeed = ibfeed.CSVFeed()
 		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
 		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
 		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
@@ -138,7 +138,7 @@ class IBTestCase(unittest.TestCase):
 		self.assertTrue(count > 0)
 
 	def __testFilteredRangeImpl(self, fromDate, toDate):
-		barFeed = ibfeed.IBCSVFeed()
+		barFeed = ibfeed.CSVFeed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
 		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
 		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
