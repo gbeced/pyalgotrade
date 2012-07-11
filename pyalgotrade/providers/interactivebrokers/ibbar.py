@@ -23,9 +23,9 @@
 .. moduleauthor:: Tibor Kiss <tibor.kiss@gmail.com>
 """
 
-from pyalgotrade.bar import Bar
+from pyalgotrade import bar
 
-class IBBar(Bar):
+class Bar(bar.Bar):
 	"""An instrument's prices at a given time.
         :param instrument: Instrument's symbol
         :type instrument: str
@@ -47,7 +47,7 @@ class IBBar(Bar):
 	:type tradeCount: int
 	"""
 	def __init__(self, instrument, dateTime, open_, high, low, close, volume, vwap, tradeCount):
-                Bar.__init__(self, dateTime, open_, high, low, close, volume, adjClose=None)
+                bar.Bar.__init__(self, dateTime, open_, high, low, close, volume, adjClose=None)
 
                 self.__instrument = instrument
                 self.__vwap = vwap

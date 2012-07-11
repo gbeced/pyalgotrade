@@ -25,7 +25,7 @@
 
 import logging, os
 
-from pyalgotrade.broker import Broker, LimitOrder, MarketOrder, OrderExecutionInfo
+from pyalgotrade import broker
 
 
 LOGFMT='%(asctime)s [%(levelname)s] %(message)s'
@@ -40,7 +40,7 @@ console.setFormatter(logging.Formatter(LOGFMT))
 log = logging.getLogger("pyalgotrade.providers.interactivebrokers")
 log.addHandler(console)
 
-class IBBroker(Broker):
+class Broker(broker.Broker):
 	"""Class responsible for forwarding orders to Interactive Brokers Gateway via TWS.
 
 	:param ibConnection: Object responsible to forward requests to TWS.
@@ -59,7 +59,7 @@ class IBBroker(Broker):
             self.__orders = {}
 
             # Call the base's constructor
-            Broker.__init__(self, self.__cash)
+            broker.Broker.__init__(self, self.__cash)
 
 
         def __orderUpdate(self, orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice):
@@ -91,7 +91,7 @@ class IBBroker(Broker):
                                      (orderID, instrument, status, filled, avgFillPrice, lastFillPrice))
 
                             # Set commission to 0, avgFillPrice contains it anyhow
-                            orderExecutionInfo = OrderExecutionInfo(avgFillPrice, comission=0, dateTime=None)
+                            orderExecutionInfo = broker.OrderExecutionInfo(avgFillPrice, comission=0, dateTime=None)
                             order.setExecuted(orderExecutionInfo)
                         else:
                             # And signal partial completions
@@ -140,9 +140,9 @@ class IBBroker(Broker):
                 act = order.getAction()
                 if act == order.Action.BUY:
                     action = "BUY"
-                elif act == LimitOrder.Action.SELL:
+                elif act == broker.LimitOrder.Action.SELL:
                     action = "SELL"
-                elif act == LimitOrder.Action.SELL_SHORT:
+                elif act == broker.LimitOrder.Action.SELL_SHORT:
                     # XXX: SSHORT is not valid for some reason,
                     # and SELL seems to work well with short orders.
                     #action = "SSHORT"
@@ -151,9 +151,9 @@ class IBBroker(Broker):
                 auxPrice = 0 
                 lmtPrice = 0
                 
-                if isinstance(order, MarketOrder):
+                if isinstance(order, broker.MarketOrder):
                     orderType = "MKT"
-                elif isinstance(order, LimitOrder):
+                elif isinstance(order, broker.LimitOrder):
                     orderType = "LMT"
                     lmtPrice = order.getPrice() 
                 #elif isinstance(order, StopLimitOrder):
