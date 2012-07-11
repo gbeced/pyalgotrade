@@ -336,7 +336,7 @@ class Connection(EWrapper):
 		def requestHistoricalData(self, instrument, endTime, duration, barSize,
 								  secType='STK', exchange='SMART', currency='USD',
 								  whatToShow='TRADES', useRTH=0, formatDate=1):
-				"""Requests historical data. The historical bars are returned as a list of IBBar instances.
+				"""Requests historical data. The historical bars are returned as a list of Bar instances.
 				
 				:param instrument: Instrument's symbol
 				:type instrument: str
@@ -466,12 +466,12 @@ class Connection(EWrapper):
 					return
 						
 				# Convert the time to local time
-		dt = datetime.datetime.strptime(date, "%Y%m%d  %H:%M:%S")
-		dt += datetime.timedelta(hours= (-1 * self.__zone))
+				dt = datetime.datetime.strptime(date, "%Y%m%d  %H:%M:%S")
+				dt += datetime.timedelta(hours= (-1 * self.__zone))
 
 				# Create the bar
 				bar = Bar(instrument, dt,
-						  open_, high, low, close,
+					  	  open_, high, low, close,
 						  volume, vwap, tradeCount)
 
 				# Append it to the buffer
@@ -508,7 +508,7 @@ class Connection(EWrapper):
 				# Convert the timezone to the destination timezone
 				lt = localtime(time_)
 				dt = datetime.datetime(lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min, lt.tm_sec)
-		dt += datetime.timedelta(hours= (-1 * self.__zone))
+				dt += datetime.timedelta(hours= (-1 * self.__zone))
 
 				# Look up the instrument's name based on its tickerID
 				for i in self.__realtimeBarIDs:
@@ -742,6 +742,12 @@ class Connection(EWrapper):
 
 				if tickerID != -1:
 						log.error( 'error: %s, %s, %s' %(tickerID, errorCode, errorString))
+
+		def getError(self):
+				"""Returns the error dictionary.
+				Keys: tickerID, errorCode, errorString
+				"""
+				return self.__error
 
 		def winError(self, errorMsg, errorCode): 
 				"""Error handler function for the TWS Client side errors."""
