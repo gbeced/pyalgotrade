@@ -23,7 +23,7 @@
 .. moduleauthor:: Tibor Kiss <tibor.kiss@gmail.com>
 """
 
-import logging, os, threading, copy, datetime
+import logging, threading, copy, datetime
 from time import localtime 
 
 from pyalgotrade import observer
@@ -36,17 +36,7 @@ from ib.ext.ScannerSubscription import ScannerSubscription
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 
-LOGFMT='%(asctime)s [%(levelname)s] %(message)s'
-logging.basicConfig(level=logging.DEBUG,
-					format=LOGFMT,
-					filename=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pyalgotrade.log'),
-					filemode='a+')
-
-console = logging.StreamHandler()
-console.setLevel(logging.DEBUG)
-console.setFormatter(logging.Formatter(LOGFMT))
-log = logging.getLogger("pyalgotrade.providers.interactivebrokers")
-log.addHandler(console)
+log = logging.getLogger(__name__)
 
 class Connection(EWrapper):
 		'''Wrapper class for Interactive Brokers TWS Connection.
