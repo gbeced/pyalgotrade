@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # 
-#   http://www.apache.org/licenses/LICENSE-2.0
+#	http://www.apache.org/licenses/LICENSE-2.0
 # 
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ import Queue
 # Bars Format:
 # Date,Open,High,Low,Close,Volume,Trade Count,WAP,Has Gaps
 #
-# The csv Date column must have the following format: YYYYMMDD  hh:mm:ss
+# The csv Date column must have the following format: YYYYMMDD	hh:mm:ss
 
 
 class RowParser(csvfeed.RowParser):
@@ -59,7 +59,7 @@ class RowParser(csvfeed.RowParser):
 		high = float(csvRowDict["High"])
 		low = float(csvRowDict["Low"])
 		volume = int(csvRowDict["Volume"])
-                # TODO: Add these variables to Bar
+				# TODO: Add these variables to Bar
 		# tradeCnt = int(csvRowDict["TradeCount"])
 		# WAP = float(csvRowDict["WAP"])
 		# hasGaps = bool(csvRowDict["HasGaps"] == "True")
@@ -87,49 +87,50 @@ class CSVFeed(csvfeed.BarFeed):
 
 
 class LiveFeed(BarFeed):
-        def __init__(self, ibConnection, timezone=0):
-                BarFeed.__init__(self)
+		def __init__(self, ibConnection, timezone=0):
+				BarFeed.__init__(self)
 
-                # The zone specifies the offset from Coordinated Universal Time (UTC, 
-                # formerly referred to as "Greenwich Mean Time") 
-                self.__zone = timezone
+				# The zone specifies the offset from Coordinated Universal Time (UTC, 
+				# formerly referred to as "Greenwich Mean Time") 
+				self.__zone = timezone
 
-                # Connection to the IB's TWS
-                self.__ibConnection = ibConnection
+				# Connection to the IB's TWS
+				self.__ibConnection = ibConnection
 
-                self.__currentDateTime = None
-                self.__currentBars = {}
-                self.__queue = Queue.Queue()
+				self.__currentDateTime = None
+				self.__currentBars = {}
+				self.__queue = Queue.Queue()
 
 
-        def subscribeRealtimeBars(self, instrument, useRTH_=0):
-                self.__ibConnection.subscribeRealtimeBars(instrument, self.onRealtimeBars, useRTH=useRTH_)
+		def subscribeRealtimeBars(self, instrument, useRTH_=0):
+				self.__ibConnection.subscribeRealtimeBars(instrument, self.onRealtimeBars, useRTH=useRTH_)
 
-                # Register the instrument
-                self.registerInstrument(instrument)
-        
-        def unsubscribeRealtimeBars(self, instrument):
-                self.__ibConnection.unsubscribeRealtimeBars(instrument)
+				# Register the instrument
+				self.registerInstrument(instrument)
+		
+		def unsubscribeRealtimeBars(self, instrument):
+				self.__ibConnection.unsubscribeRealtimeBars(instrument)
 
-                # TODO: Deregister instrument
+				# TODO: Deregister instrument
 
-        def onRealtimeBars(self, bar):
-                if len(self.__currentBars) == 0:
-                        self.__currentDatetime = bar.getDateTime()
-                        self.__currentBars[bar.getInstrument()] = bar
-                elif len(self.__currentBars) > 0:
-                        if self.__currentDatetime != bar.getDateTime():
-                                bars = copy.copy(self.__currentBars)
-                                self.__currentDatetime = bar.getDateTime()
-                                #self.__currentBars[bar.getInstrument()] = bar # First bar in the next set of bars.
-                                self.__currentBars = {bar.getInstrument() : bar} # First bar in the next set of bars.
-                                self.__queue.put(bars)
-                        else:
-                                self.__currentBars[bar.getInstrument()] = bar
+		def onRealtimeBars(self, bar):
+				if len(self.__currentBars) == 0:
+						self.__currentDatetime = bar.getDateTime()
+						self.__currentBars[bar.getInstrument()] = bar
+				elif len(self.__currentBars) > 0:
+						if self.__currentDatetime != bar.getDateTime():
+								bars = copy.copy(self.__currentBars)
+								self.__currentDatetime = bar.getDateTime()
+								#self.__currentBars[bar.getInstrument()] = bar # First bar in the next set of bars.
+								self.__currentBars = {bar.getInstrument() : bar} # First bar in the next set of bars.
+								self.__queue.put(bars)
+						else:
+								self.__currentBars[bar.getInstrument()] = bar
 
-        def fetchNextBars(self):
-                ret = self.__queue.get(True)
-                if len(ret) == 0:
-                        ret = None
-                return ret
-        
+		def fetchNextBars(self):
+				ret = self.__queue.get(True)
+				if len(ret) == 0:
+						ret = None
+				return ret
+		
+# vim: noet:ci:pi:sts=0:sw=4:ts=4
