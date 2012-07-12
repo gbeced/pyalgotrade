@@ -473,6 +473,8 @@ class Connection(EWrapper):
 				self.__marketScannerLock.wait()
 				self.__marketScannerLock.release()
 
+				self.__tws.cancelScannerSubscription(tickerID)
+
 				marketScannerData = copy.copy(self.__marketScannerBuffer)
 				self.__marketScannerBuffer = []
 
