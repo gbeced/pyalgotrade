@@ -72,12 +72,6 @@ class Connection(EWrapper):
 				# return error
 				self.__error = {'tickerID': None, 'errorCode': None, 'errorString': None}
 
-				# Create EClientSocket for TWS Connection
-				self.__tws = EClientSocket(self)
-				
-				# Connect to TWS
-				self.connect()
-
 				# Unique Ticker ID stream for each TWS Request
 				self.__tickerID = 0
 
@@ -125,6 +119,12 @@ class Connection(EWrapper):
 
 				# Observer for Order Updates
 				self.__orderUpdateHandler = observer.Event()
+
+				# Create EClientSocket for TWS Connection
+				self.__tws = EClientSocket(self)
+				
+				# Connect to TWS
+				self.connect()
 
 				# Subscribe for account updates
 				self.__tws.reqAccountUpdates(True, accountCode)
