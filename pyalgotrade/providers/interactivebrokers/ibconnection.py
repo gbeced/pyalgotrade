@@ -390,14 +390,21 @@ class Connection(EWrapper):
 				
 
 		def requestMarketScanner(self, numberOfRows=10, 
-								 scanCode='TOP_PERC_GAIN', abovePrice=0,
+								 scanCode='TOP_PERC_GAIN', abovePrice=0.0,
+								 aboveVolume=0,
 								 locationCode='STK.US.MAJOR', instrument='STK'):
+				"""
+				This function receives the market scanner data and returns it as a list of 
+				dicts with the following keys:
+				instrument, secType, rank, distance, benchmark, projection, legsStr
+				"""
 				tickerID = self.__getNextTickerID()
 
 				subscript = ScannerSubscription()
 				subscript.numberOfRows(numberOfRows)
 				subscript.locationCode(locationCode)
-				# subscript.abovePrice(abovePrice)
+				subscript.abovePrice(float(abovePrice))
+				subscript.aboveVolume(aboveVolume)
 				subscript.scanCode(scanCode)
 				subscript.instrument(instrument)
 
@@ -413,6 +420,7 @@ class Connection(EWrapper):
 				return marketScannerData
 
 		def requestAccountUpdate(self):
+				"""Subscribes for account updates"""
 				self.__tws.reqAccountUpdates(True, self.__accountCode)
 
 		def getCash(self, currency='USD'):
@@ -516,7 +524,8 @@ class Connection(EWrapper):
 		def scannerData(self, tickerID, rank, contractDetails, distance, benchmark, projection, legsStr):
 				"""
 				This function receives the requested market scanner data results and appends it to the
-				market scanner buffer.
+				market scanner buffer. A dict appended to the market scanner buffer with the following
+				keys: instrument, secType, rank, distance, benchmark, projection, legsStr
 
 				:param tickerID: The ticker ID of the request to which this row is responding.
 				:type tickerID: int
@@ -534,8 +543,10 @@ class Connection(EWrapper):
 				:type legsStr: str
 				"""
 
-				self.__marketScannerBuffer.append((tickerID, rank, contractDetails.m_summary.m_symbol, distance, benchmark, 
-												   projection, legsStr))
+				msd = { 'instrument': contractDetails.m_summary.m_symbol, 'secType': contractDetails.m_summary.m_secType,
+						'rank': rank, 'distance': distance, 'benchmark': benchmark, 'projection': projection, 
+						'legsStr': legsStr }
+				self.__marketScannerBuffer.append(msd)
 
 		def scannerDataEnd(self, tickerID):
 				"""This function is called when the snapshot is received and marks the end of one scan.
