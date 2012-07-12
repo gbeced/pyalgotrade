@@ -390,13 +390,56 @@ class Connection(EWrapper):
 				
 
 		def requestMarketScanner(self, numberOfRows=10, 
-								 scanCode='TOP_PERC_GAIN', abovePrice=0.0,
-								 aboveVolume=0,
+								 scanCode='TOP_PERC_GAIN', stockTypeFilter='STOCK',
+								 abovePrice=0.0, aboveVolume=0, 
 								 locationCode='STK.US.MAJOR', instrument='STK'):
 				"""
 				This function receives the market scanner data and returns it as a list of 
 				dicts with the following keys:
 				instrument, secType, rank, distance, benchmark, projection, legsStr
+
+				:param numberOfRows: Number of result rows to return
+				:type numberOFRows: int
+				:param scanCode: Market scanner code. Some of the available scanners:
+								  - TOP_PERC_GAIN : Contracts whose last trade price shows the highest percent increase 
+								  					from the previous night's closing price.
+								  - TOP_PERC_LOSE : Contracts whose last trade price shows the lowest percent increase 
+								  					from the previous night's closing price.
+								  - MOST_ACTIVE   : Contracts with the highest trading volume today, based on units used 
+								  					by TWS (lots for US stocks; contract for derivatives and non-US stocks).
+								  - HOT_BY_VOLUME : Contracts where:
+								  					 - today's Volume/avgDailyVolume is highest.
+								  					 - avgDailyVolume is a 30-day exponential moving average of the contract's 
+								  					   daily volume.
+								  - HOT_BY_PRICE : Contracts where:
+								  				 	 - (lastTradePrice-prevClose)/avgDailyChange is highest in absolute value 
+								  				 	 	(positive  or negative).
+								  					 - The avgDailyChange is defined as an exponential moving average of the 
+								  					 	contract's (dailyClose-dailyOpen)
+								  - TOP_PRICE_RANGE : The largest difference between today's high and low, or yesterday's close 
+								  					   if outside of today's range.
+								  - HOT_BY_PRICE_RANGE : The largest price range (from Top Price Range calculation) over the volatility.
+								  - HIGH_OPEN_GAP   : Shows contracts with the highest percent price INCREASE between the previous close 
+								  					  and today's opening prices.
+								  - LOW_OPEN_GAP    : Shows contracts with the highest percent price DECREASE between the previous close and 
+								  					  today's opening prices.
+				:type scanCode: str
+				:param stockTypeFilter: Stock type filter. Valid values: STOCK, ETF, ALL
+				:type stockTypeFilter: str
+				:param abovePrice: Filter out contracts with a price lower than this value. 
+				:type abovePrice: float
+				:param aboveVolume: Filter out contracts with a volume lower than this value.
+				:type aboveVolume: int
+				:param locationCode: The location code, valid values: 
+									 - STK.US       : US stocks
+									 - STK.US.MAJOR : US stocks (without pink sheet)
+									 - STK.US.MINOR : US stocks (only pink sheet)
+									 - STK.HK.SEHK  : Hong Kong stocks
+									 - STK.HK.ASX   : Australian Stocks
+									 - STK.EU       : European stocks
+				:type locationCode: str
+				:param instrument: Defines the instrument type for the scan.
+				:type instrument: str
 				"""
 				tickerID = self.__getNextTickerID()
 
@@ -407,6 +450,7 @@ class Connection(EWrapper):
 				subscript.aboveVolume(aboveVolume)
 				subscript.scanCode(scanCode)
 				subscript.instrument(instrument)
+				subscript.stockTypeFilter(stockTypeFilter)
 
 				self.__tws.reqScannerSubscription(tickerID, subscript)
 				
@@ -424,6 +468,7 @@ class Connection(EWrapper):
 				self.__tws.reqAccountUpdates(True, self.__accountCode)
 
 		def getCash(self, currency='USD'):
+				"""Returns the cash (TotalCashBalance) available for the currency."""
 				self.__accUpdateLock.acquire()
 				
 				# Try to load cash
@@ -468,9 +513,7 @@ class Connection(EWrapper):
 				dt += datetime.timedelta(hours= (-1 * self.__zone))
 
 				# Create the bar
-				bar = Bar(instrument, dt,
-					  	  open_, high, low, close,
-						  volume, vwap, tradeCount)
+				bar = Bar(instrument, dt, open_, high, low, close, volume, vwap, tradeCount)
 
 				# Append it to the buffer
 				self.__historicalDataBuffer.append(bar)
@@ -634,7 +677,8 @@ class Connection(EWrapper):
 				:type accountName: str
 
 				"""
-				log.debug("accountCode=%s, contract=%s, position=%d, marketPrice=%.2f, marketValue=%.2f, avgCost=%.2f, unrealizedPNL=%.2f, realizedPNL=%.2f" % (accountName, contract.m_symbol, position, marketPrice, marketValue, avgCost, unrealizedPNL, realizedPNL))
+				log.debug("accountCode=%s, contract=%s, position=%d, marketPrice=%.2f, marketValue=%.2f, avgCost=%.2f, unrealizedPNL=%.2f, realizedPNL=%.2f" % 
+						  (accountName, contract.m_symbol, position, marketPrice, marketValue, avgCost, unrealizedPNL, realizedPNL))
 				instrument = contract.m_symbol
 
 				self.__portfolioLock.acquire()
