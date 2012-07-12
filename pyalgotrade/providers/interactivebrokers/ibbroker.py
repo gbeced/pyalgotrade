@@ -29,6 +29,71 @@ from pyalgotrade import broker
 
 log = logging.getLogger(__name__)
 
+class FlatRateCommission(broker.Commission):
+	"""Flat Rate - US API Directed Orders
+	Value	         Flat Rate		Minimum Per Order	Maximum Per Order
+	< = 500 shares	$0.0131/share		USD 1.30		0.5% of trade value
+	> 500 shares	$0.0081/share		USD 1.30		0.5% of trade value
+	"""
+	def calculate(self, order, price, quantity):
+		minPerOrder=1.3
+		maxPerOrder=(price * quantity) * 0.005 
+		if quantity <= 500:
+			flatRate = 0.0131 * quantity
+		else:
+			flatRate = 0.0081 * quantity
+
+		commission = max(minPerOrder, flatRate)
+		commission = min(maxPerOrder, commission)
+
+		log.debug("Flat rate commission: price=%.2f, quantity=%d minPerOrder=%.2f, maxPerOrder=%.4f, flatRate=%.4f. => commission=%.2f" %
+				  (price, quantity, minPerOrder, maxPerOrder, flatRate, commission))
+
+		return commission
+
+class Order(broker.Order):
+	class OrderType:
+			LMT          = 1
+			MKT          = 2
+			STP          = 3
+			STP_LMT      = 4
+			TRAIL        = 5
+
+	def __init__(self, action, instrument, orderType, quantity, auxPrice, lmtPrice, stopPrice, tif, goodTillDate): 
+			broker.Order.__init__(self, action, instrument, quantity, goodTillCanceled=False)
+
+			self.__orderType = orderType
+			self.__auxPrice = auxPrice
+			self.__lmtPrice = lmtPrice
+			self.__stopPrice = stopPrice
+			self.__tif = tif
+			self.__goodTillDate = goodTillDate
+
+	def getOrderType(self):
+		return self.__orderType
+
+	def getAuxPrice(self):
+		return self.__auxPrice
+
+	def getLmtPrice(self):
+		return self.__lmtPrice
+	
+	def getStopPrice(self):
+		return self.__stopPrice
+	
+	def getTIF(self):
+		return self.__tif
+
+	def getGoodTillDate(self):
+		return self.__goodTillDate
+	
+	def cancel(self):
+		"""Cancels an accepted order. If the order is filled an Exception is raised."""
+		if self.isFilled():
+			raise Exception("Can't cancel order that has already been processed")
+		# TODO: Need to notify the broker here
+		self.__state = Order.State.CANCELED
+
 class Broker(broker.Broker):
 	"""Class responsible for forwarding orders to Interactive Brokers Gateway via TWS.
 
@@ -126,44 +191,42 @@ class Broker(broker.Broker):
 		# action: Identifies the side. 
 		# Valid values are: BUY, SELL, SSHORT
 		act = order.getAction()
-		if act == order.Action.BUY:
+		if act == Order.Action.BUY:
 			action = "BUY"
-		elif act == broker.LimitOrder.Action.SELL:
+		elif act == Order.Action.SELL:
 			action = "SELL"
-		elif act == broker.LimitOrder.Action.SELL_SHORT:
+		elif act == Order.Action.SELL_SHORT:
 			# XXX: SSHORT is not valid for some reason,
 			# and SELL seems to work well with short orders.
 			#action = "SSHORT"
 			action = "SELL"
 
-		auxPrice = 0 
-		lmtPrice = 0
+		auxPrice = order.getAuxPrice() 
+		lmtPrice = order.getLmtPrice() 
 		
-		if isinstance(order, broker.MarketOrder):
+		ot = order.getOrderType()
+
+		if ot == Order.OrderType.MKT:
 			orderType = "MKT"
-		elif isinstance(order, broker.LimitOrder):
+		elif ot == Order.OrderType.LMT:
 			orderType = "LMT"
-			lmtPrice = order.getPrice() 
-		#elif isinstance(order, StopLimitOrder):
-		#	 orderType = "STP LMT"
-		#	 auxPrice = order.getAuxPrice()
-			
+		elif ot == Order.OrderType.STP:
+			orderType = "STP"
+		elif ot == Order.OrderType.STP_LMT:
+			orderType = "STP LMT"
+		elif ot == Order.OrderType.TRAIL:
+			orderType = "TRAIL"
+		else:
+			raise Exception("Invalid orderType: %s!"% ot)
 
 		# Setup quantities
 		totalQty = order.getQuantity()
 		minQty = 0
 
-		goodTillDate = ""
+		goodTillDate = order.getGoodTillDate()
 
 		# The time in force. Valid values are: DAY, GTC, IOC, GTD.
-		tif = "DAY"
-		#if orderType == "MKT":
-		#	 tif = "DAY"
-		#else:
-		#	 if order.getGoodTillCancelled():
-		#	 tif = "GTC"
-		#	 else:
-		#	 tif = "DAY"
+		tif = order.getTIF()
 
 		trailingPct = 0
 		trailStopPrice = 0
