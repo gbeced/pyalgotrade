@@ -63,19 +63,20 @@ class Connection(EWrapper):
 		def __init__(self, accountCode, timezone=0, twsHost='localhost', twsPort=7496, twsClientId=27):
 				self.__accountCode = accountCode
 				self.__zone = timezone
+				self.__twsHost = twsHost
+				self.__twsPort = twsPort
+				self.__twsClientId = twsClientId
 
 				# Errors returned by TWS, set by error()
 				# Need to create this variable first as the client connection could
 				# return error
 				self.__error = {'tickerID': None, 'errorCode': None, 'errorString': None}
 
-				log.info("Initiating TWS Connection (%s:%d, clientId=%d) with accountCode=%s" % 
-						 (twsHost, twsPort, twsClientId, accountCode))
-
-				# Connect to TWS and set self as EWrapper 
+				# Create EClientSocket for TWS Connection
 				self.__tws = EClientSocket(self)
-				self.__tws.eConnect(twsHost, twsPort, twsClientId)
-
+				
+				# Connect to TWS
+				self.connect()
 
 				# Unique Ticker ID stream for each TWS Request
 				self.__tickerID = 0
@@ -146,6 +147,20 @@ class Connection(EWrapper):
 				"""
 				return self.__zone
 		
+		def connect(self):
+				"""Initiates TWS Connection"""
+				log.info("Initiating TWS Connection (%s:%d, clientId=%d) with accountCode=%s" % 
+						 (self.__twsHost, self.__twsPort, self.__twsClientId, self.__accountCode))
+
+				self.__tws.eConnect(self.__twsHost, self.__twsPort, self.__twsClientId)
+
+		def disconnect(self):
+				"""Disconnects from TWS"""
+				log.info("Disconnecting from TWS")
+				self.__tws.eDisconnect()
+
+
+
 		########################################################################################
 		# Requests for TWS
 		########################################################################################
