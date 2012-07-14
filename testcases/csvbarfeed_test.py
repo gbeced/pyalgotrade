@@ -103,7 +103,7 @@ class IBTestCase(unittest.TestCase):
 		return parser.parseBar(row).getDateTime()
 
 	def testParseDate_1(self):
-		date = self.__parseDate("20120629  01:55:00")
+		date = self.__parseDate("2012-06-29 01:55:00")
 		self.assertTrue(date.day == 29)
 		self.assertTrue(date.month == 06)
 		self.assertTrue(date.year == 2012)
@@ -113,9 +113,9 @@ class IBTestCase(unittest.TestCase):
 		self.assertTrue(date.second == 00)
 
 	def testDateCompare(self):
-		self.assertTrue(self.__parseDate("20120629  00:55:00") != self.__parseDate("20120629  01:55:00"))
-		self.assertTrue(self.__parseDate("20110629  00:55:00") < self.__parseDate("20120629  01:55:00"))
-		self.assertTrue(self.__parseDate("20120629  00:55:00") < self.__parseDate("20120629  01:55:00"))
+		self.assertTrue(self.__parseDate("2012-06-29 00:55:00") != self.__parseDate("2012-06-29 01:55:00"))
+		self.assertTrue(self.__parseDate("2011-06-29 00:55:00") < self.__parseDate("2012-06-29 01:55:00"))
+		self.assertTrue(self.__parseDate("2012-06-29 00:55:00") < self.__parseDate("2012-06-29 01:55:00"))
 
 	def testCSVFeedLoadOrder(self):
 		barFeed = ibfeed.CSVFeed()
