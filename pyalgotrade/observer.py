@@ -20,14 +20,15 @@
 
 class Event:
 	def __init__(self):
-		self.__handlers = set()
+		self.__handlers = []
 		self.__toSubscribe = []
 		self.__toUnsubscribe = []
 		self.__emitting = False
 
 	def __applyChanges(self):
 		for handler in self.__toSubscribe:
-			self.__handlers.add(handler)
+			if handler not in self.__handlers:
+				self.__handlers.append(handler)
 		for handler in self.__toUnsubscribe:
 			self.__handlers.remove(handler)
 
@@ -37,8 +38,8 @@ class Event:
 	def subscribe(self, handler):
 		if self.__emitting:
 			self.__toSubscribe.append(handler)
-		else:
-			self.__handlers.add(handler)
+		elif handler not in self.__handlers:
+			self.__handlers.append(handler)
 
 	def unsubscribe(self, handler):
 		if self.__emitting:
