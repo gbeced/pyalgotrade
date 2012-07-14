@@ -772,6 +772,31 @@ class Connection(EWrapper):
 				log.info("openOrder: orderID: %s, instrument: %s", orderID, contract.m_symbol)
 				self.__orderIDs[orderID] = contract.m_symbol
 
+		def execDetails(self, orderID, contract, execution, liquidation):
+				"""This event is fired when the reqExecutions() functions is invoked, or when an order is filled.
+				
+				:param orderID: The order ID that was specified previously in the call to placeOrder().
+				:type orderID: int
+				:param contract: This structure contains a full description of the contract that was executed.
+				:type contract: :class:`IbPy.ext.Contract`
+				:param execution: This structure contains addition order execution details.
+				:type execution: :class:`IbPy.ext.Execution`
+				:param liquidation: Not documented
+				:type liquidation: Not documented
+
+				"""
+				pass
+
+		def execDetailsEnd(self, reqId):
+				"""This function is called once all executions have been sent to a client in response to reqExecutions().
+
+				:param reqId: The Id of the data request.
+				:type reqId: int
+				"""
+				pass
+
+		
+
 		def managedAccounts(self, accountsList): 
 				"""Logs the managed account list by this TWS connection."""
 				log.info("Managed account list: %s", accountsList)
