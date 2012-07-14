@@ -59,13 +59,12 @@ class Order(broker.Order):
 			STP_LMT      = 4
 			TRAIL        = 5
 
-	def __init__(self, action, instrument, orderType, quantity, auxPrice, lmtPrice, stopPrice, tif, goodTillDate): 
+	def __init__(self, action, instrument, orderType, quantity, auxPrice, lmtPrice, tif, goodTillDate): 
 			broker.Order.__init__(self, action, instrument, quantity, goodTillCanceled=False)
 
 			self.__orderType = orderType
 			self.__auxPrice = auxPrice
 			self.__lmtPrice = lmtPrice
-			self.__stopPrice = stopPrice
 			self.__tif = tif
 			self.__goodTillDate = goodTillDate
 
@@ -77,9 +76,6 @@ class Order(broker.Order):
 
 	def getLmtPrice(self):
 		return self.__lmtPrice
-	
-	def getStopPrice(self):
-		return self.__stopPrice
 	
 	def getTIF(self):
 		return self.__tif
