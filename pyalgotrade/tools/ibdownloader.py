@@ -24,7 +24,7 @@ import csv
 from pyalgotrade.providers.interactivebrokers import ibconnection
 
 
-def __bars_to_csv(bars, filename):
+def bars_to_csv(bars, filename):
 	"""Saves the given list of Bar instances to a CSV File.
 
 	:param bars: Bar list
@@ -131,9 +131,13 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
+	LOGFMT='%(asctime)s [%(levelname)s] [%(name)s] [%(threadName)s] %(message)s'
+	import logging
+	logging.basicConfig(level=logging.DEBUG, format=LOGFMT)
+
 	bars = get_historical_data(args.instrument, " ".join(args.endtime), " ".join(args.duration), " ".join(args.barsize))
 	if bars != None:
-	    __bars_to_csv(bars, args.filename)
+	    bars_to_csv(bars, args.filename)
 	    print 'Historical data saved to %s.' % args.filename
 	else:
 	    print 'No data returned!'
