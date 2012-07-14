@@ -72,22 +72,39 @@ class Order:
 	"""
 
 	class Action:
-		BUY			= 1
-		SELL		        = 2
-		SELL_SHORT	        = 3
+		BUY					= 1
+		SELL				= 2
+		SELL_SHORT			= 3
 
 	class State:
-		ACCEPTED		= 1
-		CANCELED		= 2
-		FILLED			= 3
+		ACCEPTED			= 1
+		CANCELED			= 2
+		FILLED				= 3
 
-	def __init__(self, action, instrument, quantity, goodTillCanceled = False):
+	class Type:
+		MARKET				= 1
+		LIMIT				= 2
+		STOP				= 3
+		STOP_LIMIT			= 4
+		EXEC_IF_FILLED		= 5
+
+	def __init__(self, type, action, instrument, price, quantity, goodTillCanceled = False):
+		self.__type = type
 		self.__action = action
 		self.__instrument = instrument
+		self.__price = price
 		self.__quantity = quantity
 		self.__executionInfo = None
 		self.__goodTillCanceled = goodTillCanceled
 		self.__state = Order.State.ACCEPTED
+
+	def getType(self):
+		"""Returns the order type"""
+		return self.__type
+
+	def getAction(self):
+		"""Returns the order action."""
+		return self.__action
 
 	def getState(self):
 		"""Returns the order state.
@@ -98,10 +115,6 @@ class Order:
 		 * Order.State.FILLED
 		"""
 		return self.__state
-
-	def getAction(self):
-		"""Returns the order action."""
-		return self.__action
 
 	def isAccepted(self):
 		"""Returns True if the order state is Order.State.ACCEPTED."""
@@ -121,23 +134,27 @@ class Order:
 			raise Exception("Can't cancel order that has already been processed")
 		self.__state = Order.State.CANCELED
 
-	def getGoodTillCanceled(self):
-		"""Returns True if the order is good till canceled."""
-		return self.__goodTillCanceled
-
 	def getInstrument(self):
 		"""Returns the instrument identifier."""
 		return self.__instrument
+
+	def getPrice(self):
+		"""Returns order price."""
+		return self.__price
 
 	def getQuantity(self):
 		"""Returns the quantity."""
 		return self.__quantity
 
+	def getGoodTillCanceled(self):
+		"""Returns True if the order is good till canceled."""
+		return self.__goodTillCanceled
+
 	def setExecuted(self, orderExecutionInfo):
 		self.__executionInfo = orderExecutionInfo
 		self.__state = Order.State.FILLED
 
-	def __checkCanceled(self, bars):
+	def checkCanceled(self, bars):
 		# If its the last bar of the session and the order is not GTC, then cancel it.
 		if self.isAccepted() and self.getGoodTillCanceled() == False and bars.getBar(self.__instrument).getSessionClose():
 			self.__state = Order.State.CANCELED
@@ -149,15 +166,6 @@ class Order:
 		"""
 		return self.__executionInfo
 
-	def tryExecute(self, broker, bars):
-		if self.isAccepted():
-			self.tryExecuteImpl(broker, bars)
-			self.__checkCanceled(bars)
-
-	# Override to execute the order. Return True if succeeded.
-	def tryExecuteImpl(self, broker, bars):
-		raise Exception("Not implemented")
-
 class MarketOrder(Order):
 	"""
 	An :class:`Order` subclass that instructs the broker to buy or sell the stock immediately at the prevailing price, whatever that may be.
@@ -165,30 +173,12 @@ class MarketOrder(Order):
 	"""
 
 	def __init__(self, action, instrument, quantity, goodTillCanceled = False, useClosingPrice = False):
-		Order.__init__(self, action, instrument, quantity, goodTillCanceled)
+		price = 0
+		Order.__init__(self, Order.Type.MARKET, action, instrument, price, quantity, goodTillCanceled)
 		self.__useClosingPrice = useClosingPrice
 
-	def __getPrice(self, broker, bar_):
-		if self.__useClosingPrice:
-			if broker.getUseAdjustedValues():
-				ret = bar_.getAdjClose()
-			else:
-				ret = bar_.getClose()
-		else:
-			# Try to fill the order at the Open price.
-			if broker.getUseAdjustedValues():
-				ret = bar_.getAdjOpen()
-			else:
-				ret = bar_.getOpen()
-		return ret
-
-	def tryExecuteImpl(self, broker, bars):
-		try:
-			bar_ = bars.getBar(self.getInstrument())
-			price = self.__getPrice(broker, bar_)
-			broker.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
-		except KeyError:
-			pass
+	def getUseClosingPrice(self):
+		return self.__useClosingPrice
 
 class LimitOrder(Order):
 	"""
@@ -197,41 +187,59 @@ class LimitOrder(Order):
 	"""
 
 	def __init__(self, action, instrument, price, quantity, goodTillCanceled = False):
-		Order.__init__(self, action, instrument, quantity, goodTillCanceled)
-		self.__price = price
+		Order.__init__(self, Order.Type.LIMIT, action, instrument, price, quantity, goodTillCanceled)
 
-        def getPrice(self):
-		"""Returns order price."""
-                return self.__price
 
-	def __getPrice(self, broker, bar_):
-		if broker.getUseAdjustedValues():
-			high = bar_.getAdjHigh()
-			low = bar_.getAdjLow()
-		else:
-			high = bar_.getHigh()
-			low = bar_.getLow()
+class StopOrder(Order):
+	"""
+	An :class:`Order` subclass that gives your broker a price trigger that protects you from a big drop in a stock.
+		You enter a stop loss order at a point below the current market price. If the stock falls to this price point, 
+		the stop loss order becomes a market order and your broker sells the stock. If the stock stays level or rises, 
+		the stop loss order does nothing.
+	"""
 
-		if self.__price >= low and self.__price <= high:
-			ret = self.__price
-		else:
-			ret = None
-		return ret
+	def __init__(self, action, instrument, price, quantity, goodTillCanceled = False):
+		Order.__init__(self, Order.Type.STOP, action, instrument, price, quantity, goodTillCanceled)
 
-	def tryExecuteImpl(self, broker, bars):
-		try:
-			bar_ = bars.getBar(self.getInstrument())
-			price = self.__getPrice(broker, bar_)
-			if price:
-				broker.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
-		except KeyError:
-			pass
+class StopLimitOrder(Order):
+	"""
+	An :class:`Order` subclass that gives your broker a price trigger that protects you from a big drop in a stock.
+		You enter a stop loss order at a point below the current market price. If the stock falls to this price point, 
+		the stop loss order becomes a limit order with the defined limit price. If the stock stays level or rises, 
+		the stop loss order does nothing.
+	"""
+	def __init__(self, action, instrument, limitPrice, stopPrice, quantity, goodTillCanceled = False):
+		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, limitPrice, quantity, goodTillCanceled)
+		self.__stopPrice = stopPrice
+		self.__limitOrderActive = False # Set to true when the limit order is activated (stop price is hit)
+		
+	def getStop(self):
+		"""Returns orders limit price."""
+		return self.__stopPrice
+
+	def setLimitOrderActive(self, limitOrderActive):
+		"""Sets the Limit Order Active boolean variable:
+		Indicates if the Stop price is broken and the Limit Order is
+		active on the market."""
+		self.__limitOrderActive = limitOrderActive
+
+	def isLimitOrderActive(self):
+		"""Returns the Limit Order Active boolean variable"""
+		return self.__limitOrderActive
+
 
 # Special order wrapper that executes an order (dependent) only if another order (independent) was filled.
-class ExecuteIfFilled:
+class ExecuteIfFilled(Order):
 	def __init__(self, dependent, independent):
+		Order.__init__(self, Order.Type.EXEC_IF_FILLED, action='', instrument='', quantity=0, price=0, goodTillCanceled=True)
 		self.__dependent = dependent
 		self.__independent = independent
+
+	def getDependent(self):
+		return self.__dependent
+
+	def getIndependent(self):
+		return self.__independent
 
 	def tryExecute(self, broker, bars):
 		if self.__independent.isFilled():
@@ -264,29 +272,62 @@ class OrderExecutionInfo:
 ######################################################################
 ## Broker
 
-class Broker:
+class BasicBroker:
 	"""Class responsible for processing orders.
-
 	:param cash: The initial amount of cash.
 	:type cash: int or float.
 	:param commission: An object responsible for calculating order commissions.
 	:type commission: :class:`Commission`
 	"""
-
 	def __init__(self, cash, commission = None):
 		assert(cash >= 0)
 		self.__cash = cash
-		self.__shares = {}
 		if commission is None:
 			self.__commission = NoCommission()
 		else:
 			self.__commission = commission
-		self.__pendingOrders = []
-		self.__useAdjustedValues = False
 		self.__orderUpdatedEvent = observer.Event()
+	
+	def getCash(self):
+		"""Returns the amount of cash."""
+		return self.__cash
+
+	def setCash(self, cash):
+		self.__cash = cash
+
+	def setCommission(self, commission):
+		self.__commission = commission
+	
+	def getCommission(self):
+		return self.__commission
 
 	def getOrderUpdatedEvent(self):
 		return self.__orderUpdatedEvent
+
+	def placeOrder(self, order):
+		"""Submits an order.
+
+		:param order: The order to submit.
+		:type order: :class:`Order`.
+		"""
+		raise Exception("Not implemented")
+	
+	def onBars(self, bars):
+		raise Exception("Not implemented")
+
+class Broker(BasicBroker):
+	"""Class responsible for processing orders.
+	:param cash: The initial amount of cash.
+	:type cash: int or float.
+	:param commission: An object responsible for calculating order commissions.
+	:type commission: :class:`Commission`
+	"""
+	def __init__(self, cash, commission = None):
+		BasicBroker.__init__(self, cash, commission)
+
+		self.__pendingOrders = []
+		self.__useAdjustedValues = False
+		self.__shares = {}
 
 	def getUseAdjustedValues(self):
 		return self.__useAdjustedValues
@@ -297,28 +338,18 @@ class Broker:
 	def getPendingOrders(self):
 		return self.__pendingOrders
 
-	def setCommission(self, commission):
-		self.__commission = commission
-
 	def getShares(self, instrument):
 		"""Returns the number of shares for an instrument."""
 		self.__shares.setdefault(instrument, 0)
 		return self.__shares[instrument]
 
-	def getCash(self):
-		"""Returns the amount of cash."""
-		return self.__cash
-
-	def setCash(self, cash):
-		self.__cash = cash
-	
 	def getValue(self, bars):
 		"""Returns the portfolio value (cash + shares) for the given bars prices.
 
 		:param bars: The bars to use to calculate share values.
 		:type bars: :class:`pyalgotrade.bar.Bars`.
 		"""
-		ret = self.__cash
+		ret = self.getCash()
 		for instrument, shares in self.__shares.iteritems():
 			if self.getUseAdjustedValues():
 				instrumentPrice = bars.getBar(instrument).getAdjClose()
@@ -341,14 +372,14 @@ class Broker:
 			assert(False)
 
 		ret = False
-		commission = self.__commission.calculate(order, price, quantity)
+		commission = self.getCommission().calculate(order, price, quantity)
 		cost -= commission
-		resultingCash = self.__cash + cost
+		resultingCash = self.getCash() + cost
 
 		# Check that we're ok on cash after the commission.
 		if resultingCash >= 0:
 			# Commit the order execution.
-			self.__cash = resultingCash
+			self.setCash(resultingCash)
 			self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta
 			ret = True
 
@@ -370,17 +401,113 @@ class Broker:
 
 		self.__pendingOrders.append(order)
 
+
+	def __processOrder(self, order, bars):
+		orderType = order.getType()
+
+		if orderType != Order.Type.EXEC_IF_FILLED:
+			bar_ = bars.getBar(order.getInstrument())
+			quantity = order.getQuantity()
+			dateTime = bar_.getDateTime()
+		
+		if orderType == Order.Type.MARKET:
+			# Try to fill the order at the Open price.
+
+			if order.getUseClosingPrice():
+				if self.getUseAdjustedValues():
+					price = bar_.getAdjClose()
+				else:
+					price =  bar_.getClose()
+			else:
+				if self.getUseAdjustedValues():
+					price = bar_.getAdjOpen()
+				else:
+					price =  bar_.getOpen()
+
+			self.commitOrderExecution(order, price, quantity, dateTime)
+
+			order.checkCanceled(bars)
+		elif orderType == Order.Type.LIMIT:
+			# Check if we have reached the limit price:
+			high = bar_.getHigh()
+			low = bar_.getLow()
+
+			price = order.getPrice()
+
+			if low <= price <= high:
+				# Limit price reached, mark the order executed
+				self.commitOrderExecution(order, price, quantity, dateTime)
+				order.checkCanceled(bars)
+		elif orderType == Order.Type.STOP:
+			# Check if we have reached the stop price:
+			high = bar_.getHigh()
+			low = bar_.getLow()
+			close = bar_.getClose()
+
+			price = order.getPrice()
+
+			if low <= price <= high:
+				# Stop price reached, initiate a market order:
+				# Fill the order with the close price
+				self.commitOrderExecution(order, close, quantity, dateTime)
+				order.checkCanceled(bars)
+
+		elif orderType == Order.Type.STOP_LIMIT:
+			# Check if we have reached the stop price:
+			high = bar_.getHigh()
+			low = bar_.getLow()
+			close = bar_.getClose()
+			
+			limitPrice = order.getPrice()
+			stopPrice = order.getStopPrice()
+			
+			# Check if we have reached the stop price or if the Limit Order is active
+			if (low <= stopPrice <= high) or order.isLimitOrderActive():
+				# Stop price reached, initiate a limit order:
+				# Mark the request as Limit Order Active. This ensures that if the 
+				# Stop price is broken once the limit order will be active in the book.
+				order.setLimitOrderActive(True)
+
+				# Fill the order with the close price
+				if low <= limitPrice <= high:
+					self.commitOrderExecution(order, close, limitPrice, quantity, dateTime)
+					order.checkCanceled(bars)
+
+		elif orderType == Order.Type.EXEC_IF_FILLED:
+			dependent = order.getDependent()
+			independent = order.getIndependent()
+
+			if independent.isFilled():
+				self.__processOrder(dependent, bars)
+			elif independent.isCanceled(): 
+				dependent.cancel()
+
+		else:
+			raise Exception("Invalid Order Type at Broker.__processOrder()")
+			
+
 	def onBars(self, bars):
 		pendingOrders = self.__pendingOrders
 		self.__pendingOrders = []
 
 		for order in pendingOrders:
 			if order.isAccepted():
-				order.tryExecute(self, bars)
+				self.__processOrder(order, bars)
+								
 				if order.isAccepted():
 					self.__pendingOrders.append(order)
 				else:
-					self.__orderUpdatedEvent.emit(self, order)
+					self.getOrderUpdatedEvent().emit(self, order)
 			else:
-				self.__orderUpdatedEvent.emit(self, order)
+				self.getOrderUpdatedEvent().emit(self, order)
 
+	# TBD: Populate these functions
+	def createLongMarketOrder(self): pass
+	def createShortMarketOrder(self): pass
+	def createLongLimitOrder(self): pass
+	def createShortLimitOrder(self): pass
+	def createLongStopOrder(self): pass
+	def createShortStopOrder(self): pass
+	def createLongStopLimitOrder(self): pass
+	def createShortStopLimitOrder(self): pass
+# vim: noet:ci:pi:sts=0:sw=4:ts=4
