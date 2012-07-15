@@ -53,6 +53,7 @@ class Bar:
 		self.__volume = volume
 		self.__adjClose = adjClose
 		self.__sessionClose = False
+		self.__barsTillSessionClose = None
 
 	# datetime in UTC.
 	def getDateTime(self):
@@ -98,6 +99,16 @@ class Bar:
 
 	def setSessionClose(self, sessionClose):
 		self.__sessionClose = sessionClose
+		if sessionClose:
+			self.__barsTillSessionClose = 0
+
+	def getBarsTillSessionClose(self):
+		"""Returns the number of bars left till the session closes, or None if that information is not available."""
+		return self.__barsTillSessionClose
+
+	def setBarsTillSessionClose(self, barsTillSessionClose):
+		self.__barsTillSessionClose = barsTillSessionClose
+
 
 class Bars:
 	"""A group of :class:`Bar` objects.

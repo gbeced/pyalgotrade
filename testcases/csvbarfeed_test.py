@@ -23,6 +23,7 @@ import datetime
 import os
 
 from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import ninjatraderfeed
 import common
 
 class YahooTestCase(unittest.TestCase):
@@ -121,6 +122,47 @@ class YahooTestCase(unittest.TestCase):
 		# Only load bars in year 2000.
 		self.__testFilteredRangeImpl(datetime.date(2000, 1, 1), datetime.date(2000, 12, 31), 2000)
 
+class IntradayBarFeedTestCase(unittest.TestCase):
+	def __loadIntradayBarFeed(self):
+		ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+		ret.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+		# This is need to get session close attributes set. Strategy class is responsible for calling this.
+		ret.start()
+		# Process all events to get the dataseries fully loaded.
+		while not ret.stopDispatching():
+			ret.dispatch()
+		return ret
+
+	def testSessionClose(self):
+		barFeed = self.__loadIntradayBarFeed()
+		ds = barFeed.getDataSeries()
+
+		# Check that the first bar has session close set to False.
+		self.assertTrue(ds.getValueAbsolute(0).getSessionClose() == False)
+
+		# 670: 2011-01-03 23:57:00
+		# 671: 2011-01-03 23:58:00
+		# 672: 2011-01-04 00:01:00
+		self.assertTrue(ds.getValueAbsolute(670).getSessionClose() == False)
+		self.assertTrue(ds.getValueAbsolute(670).getBarsTillSessionClose() == 1)
+		self.assertTrue(ds.getValueAbsolute(671).getSessionClose() == True)
+		self.assertTrue(ds.getValueAbsolute(671).getBarsTillSessionClose() == 0)
+		self.assertTrue(ds.getValueAbsolute(672).getSessionClose() == False)
+		self.assertTrue(ds.getValueAbsolute(672).getBarsTillSessionClose() != 0)
+		self.assertTrue(ds.getValueAbsolute(672).getBarsTillSessionClose() != 1)
+
+		# Check that the last bar has session close set to True.
+		self.assertTrue(ds.getValue().getBarsTillSessionClose() == 0)
+		self.assertTrue(ds.getValue().getSessionClose() == True)
+
+		# Check all bars.
+		for i in xrange(ds.getLength()):
+			currentBar = ds.getValueAbsolute(i)
+			if currentBar.getSessionClose() == True:
+				previousBar = ds.getValueAbsolute(i-1)
+				self.assertTrue(previousBar.getSessionClose() == False)
+				self.assertTrue(previousBar.getBarsTillSessionClose() == 1)
+
 def getTestCases():
 	ret = []
 	ret.append(YahooTestCase("testParseDate_1"))
@@ -130,6 +172,7 @@ def getTestCases():
 	ret.append(YahooTestCase("testFilteredRangeFrom"))
 	ret.append(YahooTestCase("testFilteredRangeTo"))
 	ret.append(YahooTestCase("testFilteredRangeFromTo"))
+	ret.append(IntradayBarFeedTestCase("testSessionClose"))
 	return ret
 
 

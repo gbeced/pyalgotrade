@@ -119,25 +119,17 @@ class BarFeed(BasicBarFeed):
 		BasicBarFeed.__init__(self)
 		self.__sessionCloseStrategy = session.DaySessionCloseStrategy()
 		self.__prevDateTime = None
-		self.__barBuff = []
 
 	# Override to return a map from instrument names to bars or None if there is no more data. All bars datetime must be equal.
 	def fetchNextBars(self):
 		raise NotImplementedError()
 
-	def __loadBars(self):
-		while len(self.__barBuff) < 2:
-			barDict = self.fetchNextBars()
-			self.__barBuff.append(barDict)
-
 	def getNextBars(self):
-		"""Returns the next :class:`pyalgotrade.bar.Bars` in the feed. If there are not more values StopIteration is raised."""
-		self.__loadBars()
-		if self.__barBuff[0] == None:
-			return None
+		"""Returns the next :class:`pyalgotrade.bar.Bars` in the feed or None if there are no more bars."""
 
-		barDict = self.__barBuff.pop(0)
-		nextBarDict = self.__barBuff[0] # nextBarDict may be None
+		barDict = self.fetchNextBars()
+		if barDict == None:
+			return None
 
 		# Check that bars were retured for all the instruments registered.
 		if barDict.keys() != self.getRegisteredInstruments():
@@ -150,17 +142,6 @@ class BarFeed(BasicBarFeed):
 		if self.__prevDateTime != None and self.__prevDateTime >= ret.getDateTime():
 			raise Exception("Bar data times are not in order. Previous datetime was %s and current datetime is %s" % (self.__prevDateTime, ret.getDateTime()))
 		self.__prevDateTime = ret.getDateTime()
-
-		# Set session close
-		for instrument, currentBar in barDict.iteritems():
-			nextBar = None
-			if nextBarDict != None:
-				try:
-					nextBar = nextBarDict[instrument]
-				except KeyError:
-					pass
-			sessionClose = self.__sessionCloseStrategy.sessionClose(currentBar, nextBar)
-			currentBar.setSessionClose(sessionClose)
 
 		return ret
 
