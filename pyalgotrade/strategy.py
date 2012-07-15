@@ -73,7 +73,7 @@ class Position:
 	def checkExitOnSessionClose(self, bars, broker_):
 		ret = None
 		try:
-			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getSessionClose() == True:
+			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getBarsTillSessionClose() == 1:
 				assert(self.getEntryOrder() != None)
 				ret = self.buildExitOnSessionCloseOrder()
 				ret = broker.ExecuteIfFilled(ret, self.getEntryOrder())
@@ -418,17 +418,13 @@ class Strategy:
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
 
-		# 1: Place the necessary orders for positions marked to exit on session close.
-		self.__checkExitOnSessionClose(bars)
-
-		# 2: Let the broker process orders placed during previous call to onBars.
-		# IT IS IMPORTANT TO EXECUTE THE BROKER FIRST TO AVOID EXECUTING ORDERS PLACED IN THE CURRENT TICK.
-		# self.getBroker().onBars(bars)
-
-		# 3: Let the strategy process current bars and place orders.
+		# 1: Let the strategy process current bars and place orders.
 		self.onBars(bars)
 
-		# 4: Notify that the bars were processed.
+		# 2: Place the necessary orders for positions marked to exit on session close.
+		self.__checkExitOnSessionClose(bars)
+
+		# 3: Notify that the bars were processed.
 		self.__barsProcessedEvent.emit(self, bars)
 
 	def run(self):

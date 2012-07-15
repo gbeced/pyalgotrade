@@ -68,7 +68,6 @@ class BasicBarFeed:
 		return self.__stopDispatching
 
 	# Dispatch events.
-	# EVENTS SHOULD ONLY BE EMITED WHEN THIS METHOD IS CALLED.
 	def dispatch(self):
 		bars = self.getNextBars()
 		if bars != None:

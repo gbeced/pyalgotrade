@@ -258,9 +258,35 @@ class OrderExecutionInfo:
 		return self.__dateTime
 
 ######################################################################
+## BasicBroker
+class BasicBroker:
+	def __init__(self):
+		self.__orderUpdatedEvent = observer.Event()
+
+	def getOrderUpdatedEvent(self):
+		return self.__orderUpdatedEvent
+
+	def start(self):
+		raise NotImplementedError()
+
+	def stop(self):
+		raise NotImplementedError()
+
+	def join(self):
+		raise NotImplementedError()
+
+	# Return True if there are not more events to dispatch.
+	def stopDispatching(self):
+		raise NotImplementedError()
+
+	# Dispatch events.
+	def dispatch(self):
+		raise NotImplementedError()
+
+######################################################################
 ## Broker
 
-class Broker:
+class Broker(BasicBroker):
 	"""Class responsible for processing orders.
 
 	:param cash: The initial amount of cash.
@@ -272,6 +298,7 @@ class Broker:
 	"""
 
 	def __init__(self, cash, barFeed, commission = None):
+		BasicBroker.__init__(self)
 		assert(cash >= 0)
 		self.__cash = cash
 		self.__shares = {}
@@ -281,13 +308,10 @@ class Broker:
 			self.__commission = commission
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False
-		self.__orderUpdatedEvent = observer.Event()
 
 		# It is VERY important that the broker subscribes to barfeed events before the strategy.
 		barFeed.getNewBarsEvent().subscribe(self.onBars)
-
-	def getOrderUpdatedEvent(self):
-		return self.__orderUpdatedEvent
+		self.__barFeed = barFeed
 
 	def getUseAdjustedValues(self):
 		return self.__useAdjustedValues
@@ -381,9 +405,9 @@ class Broker:
 				if order.isAccepted():
 					self.__pendingOrders.append(order)
 				else:
-					self.__orderUpdatedEvent.emit(self, order)
+					self.getOrderUpdatedEvent().emit(self, order)
 			else:
-				self.__orderUpdatedEvent.emit(self, order)
+				self.getOrderUpdatedEvent().emit(self, order)
 
 	def start(self):
 		pass
@@ -394,12 +418,12 @@ class Broker:
 	def join(self):
 		pass
 
-	# Return True if there are not more events to dispatch.
 	def stopDispatching(self):
-		return True
+		# If there are no more events in the barfeed, then there is nothing left for us to do since all processing took
+		# place while processing barfeed events.
+		return self.__barFeed.stopDispatching()
 
-	# Dispatch events.
-	# EVENTS SHOULD ONLY BE EMITED WHEN THIS METHOD IS CALLED.
 	def dispatch(self):
+		# All events were already emitted while handling barfeed events.
 		pass
 
