@@ -115,12 +115,13 @@ class Position:
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
 	def __init__(self, broker_, instrument, price, quantity, goodTillCanceled):
+		self.__broker = broker_
 		if price != None:
-			entryOrder = broker.LimitOrder(broker.Order.Action.BUY, instrument, price, quantity, goodTillCanceled)
+			entryOrder = self.__broker.createLongLimitOrder(instrument, price, quantity, goodTillCanceled)
 		else:
-			entryOrder = broker.MarketOrder(broker.Order.Action.BUY, instrument, quantity, goodTillCanceled)
+			entryOrder = self.__broker.createLongMarketOrder(instrument, quantity, goodTillCanceled)
 		Position.__init__(self, entryOrder)
-		broker_.placeOrder(entryOrder)
+		self.__broker.placeOrder(entryOrder)
 
 	def getResultImpl(self):
 		return utils.get_change_percentage(self.getExitOrder().getExecutionInfo().getPrice(), self.getEntryOrder().getExecutionInfo().getPrice())
@@ -133,22 +134,23 @@ class LongPosition(Position):
 
 	def buildExitOrder(self, price):
 		if price:
-			return broker.LimitOrder(broker.Order.Action.SELL, self.getInstrument(), price, self.getQuantity())
+			return self.__broker.createShortLimitOrder(self.getInstrument(), price, self.getQuantity())
 		else:
-			return broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity())
+			return self.__broker.createShortMarketOrder(self.getInstrument(), self.getQuantity())
 
 	def buildExitOnSessionCloseOrder(self):
-		return broker.MarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), useClosingPrice=True)
+		return self.__broker.createShortMarketOrder(self.getInstrument(), self.getQuantity(), useClosingPrice=True)
 
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
 	def __init__(self, broker_, instrument, price, quantity, goodTillCanceled):
+		self.__broker = broker_
 		if price != None:
-			entryOrder = broker.LimitOrder(broker.Order.Action.SELL_SHORT, instrument, price, quantity, goodTillCanceled)
+			entryOrder = self.__broker.createShortLimitOrder(instrument, price, quantity, goodTillCanceled)
 		else:
-			entryOrder = broker.MarketOrder(broker.Order.Action.SELL_SHORT, instrument, quantity, goodTillCanceled)
+			entryOrder = self.__broker.createShortMarketOrder(instrument, quantity, goodTillCanceled)
 		Position.__init__(self, entryOrder)
-		broker_.placeOrder(entryOrder)
+		self.__broker.placeOrder(entryOrder)
 
 	def getResultImpl(self):
 		return utils.get_change_percentage(self.getEntryOrder().getExecutionInfo().getPrice(), self.getExitOrder().getExecutionInfo().getPrice())
@@ -161,12 +163,12 @@ class ShortPosition(Position):
 
 	def buildExitOrder(self, price):
 		if price:
-			return broker.LimitOrder(broker.Order.Action.BUY, self.getInstrument(), price, self.getQuantity())
+			return self.__broker.createLongLimitOrder(self.getInstrument(), price, self.getQuantity())
 		else:
-			return broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity())
+			return self.__broker.createLongMarketOrder(self.getInstrument(), self.getQuantity())
 
 	def buildExitOnSessionCloseOrder(self):
-		return broker.MarketOrder(broker.Order.Action.BUY, self.getInstrument(), self.getQuantity(), useClosingPrice=True)
+		return self.__broker.createLongMarketOrder(self.getInstrument(), self.getQuantity(), useClosingPrice=True)
 
 class Strategy:
 	"""Base class for strategies. 

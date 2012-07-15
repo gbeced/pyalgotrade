@@ -213,8 +213,8 @@ class StopLimitOrder(Order):
 		self.__stopPrice = stopPrice
 		self.__limitOrderActive = False # Set to true when the limit order is activated (stop price is hit)
 		
-	def getStop(self):
-		"""Returns orders limit price."""
+	def getStopPrice(self):
+		"""Returns orders stop price."""
 		return self.__stopPrice
 
 	def setLimitOrderActive(self, limitOrderActive):
@@ -229,23 +229,20 @@ class StopLimitOrder(Order):
 
 
 # Special order wrapper that executes an order (dependent) only if another order (independent) was filled.
-class ExecuteIfFilled(Order):
+class ExecuteIfFilled:
 	def __init__(self, dependent, independent):
-		Order.__init__(self, Order.Type.EXEC_IF_FILLED, action='', instrument='', quantity=0, price=0, goodTillCanceled=True)
+		self.__type = Order.Type.EXEC_IF_FILLED
 		self.__dependent = dependent
 		self.__independent = independent
+
+	def getType(self):
+		return self.__type
 
 	def getDependent(self):
 		return self.__dependent
 
 	def getIndependent(self):
 		return self.__independent
-
-	def tryExecute(self, broker, bars):
-		if self.__independent.isFilled():
-			self.__dependent.tryExecute(broker, bars)
-		elif self.__independent.isCanceled(): 
-			self.__dependent.cancel()
 
 	def __getattr__(self, name):
 		return getattr(self.__dependent, name) 
@@ -314,6 +311,31 @@ class BasicBroker:
 	
 	def onBars(self, bars):
 		raise Exception("Not implemented")
+	
+	def createLongMarketOrder(self, instrument, quantity, goodTillCanceled=False, useClosingPrice=False): 
+		return(MarketOrder(Order.Action.BUY, instrument, quantity, goodTillCanceled, useClosingPrice))
+
+	def createShortMarketOrder(self, instrument, quantity, goodTillCanceled=False, useClosingPrice=False): 
+		return(MarketOrder(Order.Action.SELL, instrument, quantity, goodTillCanceled, useClosingPrice))
+
+	def createLongLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		return(LimitOrder(Order.Action.BUY, instrument, price, quantity, goodTillCanceled))
+
+	def createShortLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		return(LimitOrder(Order.Action.SELL, instrument, price, quantity, goodTillCanceled))
+
+	def createLongStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		return(StopOrder(Order.Action.BUY, instrument, price, quantity, goodTillCanceled))
+
+	def createShortStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		return(StopOrder(Order.Action.SELL, instrument, price, quantity, goodTillCanceled))
+
+	def createLongStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
+		return(StopLimitOrder(Order.Action.BUY, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
+
+	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
+		return(StopLimitOrder(Order.Action.SELL, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
+
 
 class Broker(BasicBroker):
 	"""Class responsible for processing orders.
@@ -437,7 +459,8 @@ class Broker(BasicBroker):
 			if low <= price <= high:
 				# Limit price reached, mark the order executed
 				self.commitOrderExecution(order, price, quantity, dateTime)
-				order.checkCanceled(bars)
+
+			order.checkCanceled(bars)
 		elif orderType == Order.Type.STOP:
 			# Check if we have reached the stop price:
 			high = bar_.getHigh()
@@ -448,10 +471,17 @@ class Broker(BasicBroker):
 
 			if low <= price <= high:
 				# Stop price reached, initiate a market order:
-				# Fill the order with the close price
-				self.commitOrderExecution(order, close, quantity, dateTime)
-				order.checkCanceled(bars)
+				# Fill the order with the worst price: 
+				# High for Long, Low for Short orders
+				action = order.getAction() 
+				if action == Order.Action.BUY:
+					orderPrice = high
+				elif action in (Order.Action.SELL, Order.Action.SELL_SHORT):
+					orderPrice = low
 
+				self.commitOrderExecution(order, orderPrice, quantity, dateTime)
+
+			order.checkCanceled(bars)
 		elif orderType == Order.Type.STOP_LIMIT:
 			# Check if we have reached the stop price:
 			high = bar_.getHigh()
@@ -461,18 +491,17 @@ class Broker(BasicBroker):
 			limitPrice = order.getPrice()
 			stopPrice = order.getStopPrice()
 			
-			# Check if we have reached the stop price or if the Limit Order is active
+			# Check if we have ever reached the stop price
 			if (low <= stopPrice <= high) or order.isLimitOrderActive():
-				# Stop price reached, initiate a limit order:
 				# Mark the request as Limit Order Active. This ensures that if the 
 				# Stop price is broken once the limit order will be active in the book.
 				order.setLimitOrderActive(True)
 
 				# Fill the order with the close price
 				if low <= limitPrice <= high:
-					self.commitOrderExecution(order, close, limitPrice, quantity, dateTime)
-					order.checkCanceled(bars)
+					self.commitOrderExecution(order, limitPrice, quantity, dateTime)
 
+			order.checkCanceled(bars)
 		elif orderType == Order.Type.EXEC_IF_FILLED:
 			dependent = order.getDependent()
 			independent = order.getIndependent()
@@ -501,13 +530,4 @@ class Broker(BasicBroker):
 			else:
 				self.getOrderUpdatedEvent().emit(self, order)
 
-	# TBD: Populate these functions
-	def createLongMarketOrder(self): pass
-	def createShortMarketOrder(self): pass
-	def createLongLimitOrder(self): pass
-	def createShortLimitOrder(self): pass
-	def createLongStopOrder(self): pass
-	def createShortStopOrder(self): pass
-	def createLongStopLimitOrder(self): pass
-	def createShortStopLimitOrder(self): pass
 # vim: noet:ci:pi:sts=0:sw=4:ts=4
