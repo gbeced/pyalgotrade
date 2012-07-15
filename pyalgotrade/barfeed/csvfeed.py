@@ -87,6 +87,15 @@ class BarFeed(barfeed.BarFeed):
 		self.currentBar = 0
 		self.__barFilter = None
 
+	def start(self):
+		pass
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
+
 	def setBarFilter(self, barFilter):
 		self.__barFilter = barFilter
 

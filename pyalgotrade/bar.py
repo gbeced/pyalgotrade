@@ -100,24 +100,44 @@ class Bar:
 		self.__sessionClose = sessionClose
 
 class Bars:
-	"""A group of :class:`Bar` objects."""
-	def __init__(self, barsDict, dateTime):
-		self.__barsDict = barsDict
-		self.__dateTime = dateTime
+	"""A group of :class:`Bar` objects.
+
+	:param barDict: A map of instrument to :class:`Bar` objects.
+	:type barDict: map.
+
+	.. note::
+		All bars must have the same datetime.
+	"""
+	def __init__(self, barDict):
+		if len(barDict) == 0:
+			raise Exception("No bars supplied")
+
+		# Check that bar datetimes are in sync
+		firstDateTime = None
+		firstInstrument = None
+		for instrument, currentBar in barDict.iteritems():
+			if firstDateTime is None:
+				firstDateTime = currentBar.getDateTime()
+				firstInstrument = instrument
+			elif currentBar.getDateTime() != firstDateTime:
+				raise Exception("Bar data times are not in sync. %s %s != %s %s" % (instrument, currentBar.getDateTime(), firstInstrument, currentDateTime))
+
+		self.__barDict = barDict
+		self.__dateTime = firstDateTime
 
 	def getInstruments(self):
 		"""Returns the instrument symbols."""
-		return self.__barsDict.keys()
+		return self.__barDict.keys()
 
 	def getDateTime(self):
 		"""Returns the :class:`datetime.datetime` for this set of bars."""
 		return self.__dateTime
 
-	def getBar(self, symbol):
+	def getBar(self, instrument):
 		"""Returns a :class:`pyalgotrade.bar.Bar`."""
 		ret = None
 		try:
-			ret = self.__barsDict[symbol]
+			ret = self.__barDict[instrument]
 		except KeyError:
 			pass
 		return ret

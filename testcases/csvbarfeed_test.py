@@ -52,34 +52,62 @@ class YahooTestCase(unittest.TestCase):
 		self.assertTrue(self.__parseDate("2011-1-1") > self.__parseDate("2001-2-2"))
 
 	def testCSVFeedLoadOrder(self):
+		class BarFeedEventHandler:
+			def __init__(self, testcase, barFeed):
+				self.__testcase = testcase
+				self.__count = 0
+				self.__prevDateTime = None
+				self.__barFeed = barFeed
+
+			def onBars(self, bars):
+				self.__count += 1
+				dateTime = bars.getBar(YahooTestCase.TestInstrument).getDateTime()
+				if self.__prevDateTime != None:
+					# Check that bars are loaded in order
+					self.__testcase.assertTrue(self.__prevDateTime < dateTime)
+					# Check that the last value in the dataseries match the current datetime.
+					self.__testcase.assertTrue(self.__barFeed.getDataSeries().getValue().getDateTime() == dateTime)
+				self.__prevDateTime = dateTime
+
+			def getEventCount(self):
+				return self.__count
+
 		barFeed = csvfeed.YahooFeed()
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
-		count = 0
-		prevDateTime = None
-		for bars in barFeed:
-			count += 1
-			dateTime = bars.getBar(YahooTestCase.TestInstrument).getDateTime()
-			if prevDateTime != None:
-				# Check that bars are loaded in order
-				self.assertTrue(prevDateTime < dateTime)
-				# Check that the last value in the dataseries match the current datetime.
-				self.assertTrue(barFeed.getDataSeries().getValue().getDateTime() == dateTime)
-				self.assertTrue(barFeed.getDataSeries().getValue().getDateTime() == dateTime)
-			prevDateTime = dateTime
-		self.assertTrue(count > 0)
+		# Dispatch and handle events.
+		handler = BarFeedEventHandler(self, barFeed)
+		barFeed.getNewBarsEvent().subscribe(handler.onBars)
+		while not barFeed.stopDispatching():
+			barFeed.dispatch()
+		self.assertTrue(handler.getEventCount() > 0)
 
 	def __testFilteredRangeImpl(self, fromDate, toDate, year):
+		class BarFeedEventHandler:
+			def __init__(self, testcase, year):
+				self.__testcase = testcase
+				self.__count = 0
+				self.__year = year
+
+			def onBars(self, bars):
+				self.__count += 1
+				self.__testcase.assertTrue(bars.getBar(YahooTestCase.TestInstrument).getDateTime().year == self.__year)
+
+			def getEventCount(self):
+				return self.__count
+
 		barFeed = csvfeed.YahooFeed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		count = 0
-		for bars in barFeed:
-			count += 1
-			self.assertTrue(bars.getBar(YahooTestCase.TestInstrument).getDateTime().year == year)
-		self.assertTrue(count > 0)
+
+		# Dispatch and handle events.
+		handler = BarFeedEventHandler(self, year)
+		barFeed.getNewBarsEvent().subscribe(handler.onBars)
+		while not barFeed.stopDispatching():
+			barFeed.dispatch()
+		self.assertTrue(handler.getEventCount() > 0)
 
 	def testFilteredRangeFrom(self):
 		# Only load bars from year 2001.

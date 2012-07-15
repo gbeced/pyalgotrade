@@ -265,11 +265,13 @@ class Broker:
 
 	:param cash: The initial amount of cash.
 	:type cash: int or float.
+	:param barFeed: The bar feed that will provide the bars.
+	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
 	:param commission: An object responsible for calculating order commissions.
 	:type commission: :class:`Commission`
 	"""
 
-	def __init__(self, cash, commission = None):
+	def __init__(self, cash, barFeed, commission = None):
 		assert(cash >= 0)
 		self.__cash = cash
 		self.__shares = {}
@@ -280,6 +282,9 @@ class Broker:
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False
 		self.__orderUpdatedEvent = observer.Event()
+
+		# It is VERY important that the broker subscribes to barfeed events before the strategy.
+		barFeed.getNewBarsEvent().subscribe(self.onBars)
 
 	def getOrderUpdatedEvent(self):
 		return self.__orderUpdatedEvent
@@ -379,4 +384,22 @@ class Broker:
 					self.__orderUpdatedEvent.emit(self, order)
 			else:
 				self.__orderUpdatedEvent.emit(self, order)
+
+	def start(self):
+		pass
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
+
+	# Return True if there are not more events to dispatch.
+	def stopDispatching(self):
+		return True
+
+	# Dispatch events.
+	# EVENTS SHOULD ONLY BE EMITED WHEN THIS METHOD IS CALLED.
+	def dispatch(self):
+		pass
 

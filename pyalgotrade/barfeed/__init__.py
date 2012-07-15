@@ -23,11 +23,38 @@ from pyalgotrade import observer
 from pyalgotrade import bar
 import session
 
+# This class is responsible for:
+# - Managing and upating BarDataSeries instances.
+# - Event dispatching
+#
+# Subclasses should implement:
+# - getNextBars
+#
+# THIS IS A VERY BASIC CLASS AND IN WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
+
 class BasicBarFeed:
 	def __init__(self):
 		self.__ds = {}
 		self.__defaultInstrument = None
 		self.__newBarsEvent = observer.Event()
+		self.__stopDispatching = False
+		self.__lastBars = None
+
+	def getLastBars(self):
+		return self.__lastBars
+
+	def start(self):
+		raise NotImplementedError()
+
+	def stop(self):
+		raise NotImplementedError()
+
+	def join(self):
+		raise NotImplementedError()
+
+	# Subclasses should implement this and return a pyalgotrade.dataseries.BarDataSeries or None if there are no more bars.
+	def getNextBars(self):
+		raise NotImplementedError()
 
 	def getNewBarsEvent(self):
 		return self.__newBarsEvent
@@ -36,10 +63,23 @@ class BasicBarFeed:
 		"""Returns the default instrument."""
 		return self.__defaultInstrument
 
-	# Process every element in the feed and emit an event for each one.
-	def processAll(self):
-		for bars in self:
+	# Return True if there are not more events to dispatch.
+	def stopDispatching(self):
+		return self.__stopDispatching
+
+	# Dispatch events.
+	# EVENTS SHOULD ONLY BE EMITED WHEN THIS METHOD IS CALLED.
+	def dispatch(self):
+		bars = self.getNextBars()
+		if bars != None:
+			self.__lastBars = bars
+			# Update the dataseries.
+			for instrument in bars.getInstruments():
+				self.__ds[instrument].appendValue(bars.getBar(instrument))
+			# Emit event.
 			self.__newBarsEvent.emit(bars)
+		else:
+			self.__stopDispatching = True
 
 	def getRegisteredInstruments(self):
 		"""Returns a list of registered intstrument names."""
@@ -63,8 +103,14 @@ class BasicBarFeed:
 		assert(instrument == None or instrument == self.__defaultInstrument)
 		return self.__ds[self.__defaultInstrument]
 
+# This class is responsible for:
+# - Checking the pyalgotrade.bar.Bar objects returned by fetchNextBars and building pyalgotrade.bar.Bars objects.
+#
+# Subclasses should implement:
+# - fetchNextBars
+
 class BarFeed(BasicBarFeed):
-	"""Base class for :class:`pyalgotrade.bar.Bar` providing feeds.
+	"""Base class for :class:`pyalgotrade.bar.Bars` providing feeds.
 
 	.. note::
 		This is a base class and should not be used directly.
@@ -77,21 +123,18 @@ class BarFeed(BasicBarFeed):
 
 	# Override to return a map from instrument names to bars or None if there is no more data. All bars datetime must be equal.
 	def fetchNextBars(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def __loadBars(self):
 		while len(self.__barBuff) < 2:
 			barDict = self.fetchNextBars()
 			self.__barBuff.append(barDict)
 
-	def __iter__(self):
-		return self
-
-	def next(self):
+	def getNextBars(self):
 		"""Returns the next :class:`pyalgotrade.bar.Bars` in the feed. If there are not more values StopIteration is raised."""
 		self.__loadBars()
 		if self.__barBuff[0] == None:
-			raise StopIteration()
+			return None
 
 		barDict = self.__barBuff.pop(0)
 		nextBarDict = self.__barBuff[0] # nextBarDict may be None
@@ -100,17 +143,16 @@ class BarFeed(BasicBarFeed):
 		if barDict.keys() != self.getRegisteredInstruments():
 			raise Exception("Some bars are missing")
 
-		currentDateTime = None
-		firstBarInstrument = None
-		for instrument, currentBar in barDict.iteritems():
-			if currentDateTime is None:
-				firstBarInstrument = instrument
-				currentDateTime = currentBar.getDateTime()
-			# Check that current bar datetimes are in sync
-			elif currentBar.getDateTime() != currentDateTime:
-				raise Exception("Bar data times are not in sync. %s %s != %s %s" % (instrument, currentBar.getDateTime(), firstBarInstrument, currentDateTime))
+		# This will check for incosistent datetimes between bars.
+		ret = bar.Bars(barDict)
 
-			# Set session close
+		# Check that current bar datetimes are greater than the previous one.
+		if self.__prevDateTime != None and self.__prevDateTime >= ret.getDateTime():
+			raise Exception("Bar data times are not in order. Previous datetime was %s and current datetime is %s" % (self.__prevDateTime, ret.getDateTime()))
+		self.__prevDateTime = ret.getDateTime()
+
+		# Set session close
+		for instrument, currentBar in barDict.iteritems():
 			nextBar = None
 			if nextBarDict != None:
 				try:
@@ -120,15 +162,7 @@ class BarFeed(BasicBarFeed):
 			sessionClose = self.__sessionCloseStrategy.sessionClose(currentBar, nextBar)
 			currentBar.setSessionClose(sessionClose)
 
-			# Add the bar to the data source.
-			self.getDataSeries(instrument).appendValue(currentBar)
-
-		# Check that current bar datetimes are greater than the previous one.
-		if self.__prevDateTime != None and self.__prevDateTime >= currentDateTime:
-			raise Exception("Bar data times are not in order")
-		self.__prevDateTime = currentDateTime
-
-		return bar.Bars(barDict, currentDateTime)
+		return ret
 
 # This class is used by the optimizer module. The barfeed is already built on the server side, and the bars are sent back to workers.
 class OptimizerBarFeed(BasicBarFeed):
@@ -137,21 +171,19 @@ class OptimizerBarFeed(BasicBarFeed):
 		for instrument in instruments:
 			self.registerInstrument(instrument)
 		self.__bars = bars
-		self.__currentBar = 0
 
-	def __iter__(self):
-		return self
+	def start(self):
+		pass
 
-	def next(self):
-		if self.__currentBar >= len(self.__bars):
-			raise StopIteration()
+	def stop(self):
+		pass
 
-		bars = self.__bars[self.__currentBar]
-		self.__currentBar += 1
+	def join(self):
+		pass
 
-		# Fill in the dataseries.
-		for instrument in bars.getInstruments():
-			self.getDataSeries(instrument).appendValue(bars.getBar(instrument))
-
-		return bars
+	def getNextBars(self):
+		ret = None
+		if len(self.__bars):
+			ret = self.__bars.pop(0)
+		return ret
 
