@@ -21,7 +21,6 @@
 from pyalgotrade import dataseries
 from pyalgotrade import observer
 from pyalgotrade import bar
-import session
 
 # This class is responsible for:
 # - Managing and upating BarDataSeries instances.
@@ -116,7 +115,6 @@ class BarFeed(BasicBarFeed):
 	"""
 	def __init__(self):
 		BasicBarFeed.__init__(self)
-		self.__sessionCloseStrategy = session.DaySessionCloseStrategy()
 		self.__prevDateTime = None
 
 	# Override to return a map from instrument names to bars or None if there is no more data. All bars datetime must be equal.

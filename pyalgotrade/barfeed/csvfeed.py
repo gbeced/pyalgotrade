@@ -21,7 +21,7 @@
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import warninghelpers
-import session
+from pyalgotrade.barfeed import helpers
 
 import csv
 import datetime
@@ -88,27 +88,10 @@ class BarFeed(barfeed.BarFeed):
 		self.currentBar = 0
 		self.__barFilter = None
 
-	def __setSessionCloseAttributes(self, bars):
-		sessionCloseStrategy = session.DaySessionCloseStrategy()
-		for i in xrange(1, len(bars)):
-			if sessionCloseStrategy.sessionClose(bars[i-1], bars[i]):
-				bars[i-1].setSessionClose(True)
-				# Flag the penultimate bar if:
-				# - There is a penultimate bar
-				# - The penultimate and last bar belong to the same session.
-				if i-2 >= 0 and sessionCloseStrategy.sessionClose(bars[i-2], bars[i-1]) == False:
-					bars[i-2].setBarsTillSessionClose(1)
-
-		# Deal with the last bars in the feed.
-		if len(bars):
-			bars[-1].setSessionClose(True)
-			if len(bars) > 1:
-				bars[-2].setBarsTillSessionClose(1)
-
 	def start(self):
 		# Set session close attributes to bars.
 		for instrument, bars in self.__bars.iteritems():
-			self.__setSessionCloseAttributes(bars)
+			helpers.set_session_close_attributes(bars)
 
 	def stop(self):
 		pass
