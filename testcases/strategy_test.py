@@ -40,9 +40,11 @@ class ExternalBarFeed(barfeed.BarFeed):
 		# We're wrapping the barfeed so we need to register the same instruments.
 		for instrument in barFeed.getRegisteredInstruments():
 			self.registerInstrument(instrument)
+		# This is the thread that will run the regular barfeed.
 		self.__thread = threading.Thread(target=self.__threadMain)
 
 	def __threadMain(self):
+		# Just consume the bars and put them in a queue.
 		self.__decorated.start()
 		barDict = self.__decorated.fetchNextBars()
 		while barDict != None:
@@ -54,8 +56,8 @@ class ExternalBarFeed(barfeed.BarFeed):
 		self.__decorated.join()
 
 	def fetchNextBars(self):
-		ret =  self.__queue.get()
-		return ret
+		# Consume the bars from the queue.
+		return  self.__queue.get()
 
 	def start(self):
 		self.__thread.start()
