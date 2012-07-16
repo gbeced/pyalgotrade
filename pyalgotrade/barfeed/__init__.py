@@ -51,7 +51,7 @@ class BasicBarFeed:
 	def join(self):
 		raise NotImplementedError()
 
-	# Subclasses should implement this and return a pyalgotrade.dataseries.BarDataSeries or None if there are no more bars.
+	# Subclasses should implement this and return a pyalgotrade.bar.Bars or None if there are no more bars.
 	def getNextBars(self):
 		raise NotImplementedError()
 

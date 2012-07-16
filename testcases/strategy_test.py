@@ -22,10 +22,49 @@ import unittest
 import datetime
 
 from pyalgotrade import strategy
+from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
 import common
+
+import threading
+import Queue
+
+# This class decorates a barfeed.BarFeed and simulates an external barfeed that lives in a different thread.
+class ExternalBarFeed(barfeed.BarFeed):
+	def __init__(self, barFeed):
+		barfeed.BarFeed.__init__(self)
+		self.__decorated = barFeed
+		self.__queue = Queue.Queue(maxsize=5)
+		# We're wrapping the barfeed so we need to register the same instruments.
+		for instrument in barFeed.getRegisteredInstruments():
+			self.registerInstrument(instrument)
+		self.__thread = threading.Thread(target=self.__threadMain)
+
+	def __threadMain(self):
+		self.__decorated.start()
+		barDict = self.__decorated.fetchNextBars()
+		while barDict != None:
+			self.__queue.put(barDict)
+			barDict = self.__decorated.fetchNextBars()
+		# Flag end of barfeed
+		self.__queue.put(None)
+		self.__decorated.stop()
+		self.__decorated.join()
+
+	def fetchNextBars(self):
+		ret =  self.__queue.get()
+		return ret
+
+	def start(self):
+		self.__thread.start()
+
+	def stop(self):
+		pass
+
+	def join(self):
+		self.__thread.join()
 
 class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
@@ -132,14 +171,16 @@ class StrategyTestCase(unittest.TestCase):
 		def onFinish(self, bars):
 			pass
 
-	def __createObjects(self):
+	def __createObjects(self, simulateExternalBarFeed = False):
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		if simulateExternalBarFeed:
+			barFeed = ExternalBarFeed(barFeed)
 		strat = StrategyTestCase.TestStrategy(barFeed, 1000)
 		return strat
 
-	def testLongPosition(self):
-		strat = self.__createObjects()
+	def __testLongPositionImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-08,27.37,27.50,24.50,24.81,63040000,24.26 - Sell
@@ -156,8 +197,14 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getResult(), 3) == -0.108)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.37 - 30.69, 2))
 
-	def testShortPosition(self):
-		strat = self.__createObjects()
+	def testLongPosition(self):
+		self.__testLongPositionImpl(False)
+
+	def testLongPositionExternal(self):
+		self.__testLongPositionImpl(True)
+
+	def __testShortPositionImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-08,27.37,27.50,24.50,24.81,63040000,24.26
@@ -173,6 +220,12 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.69 - 27.37, 2))
 		self.assertTrue(round(strat.getResult(), 3) == 0.121)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.69 - 27.37, 2))
+
+	def testShortPosition(self):
+		self.__testShortPositionImpl(False)
+
+	def testShortPositionExternal(self):
+		self.__testShortPositionImpl(True)
 
 	def testLongPositionAdjClose(self):
 		strat = self.__createObjects()
@@ -427,7 +480,9 @@ class StrategyTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 	ret.append(StrategyTestCase("testLongPosition"))
+	ret.append(StrategyTestCase("testLongPositionExternal"))
 	ret.append(StrategyTestCase("testShortPosition"))
+	ret.append(StrategyTestCase("testShortPositionExternal"))
 	ret.append(StrategyTestCase("testLongPositionAdjClose"))
 	ret.append(StrategyTestCase("testShortPositionAdjClose"))
 	ret.append(StrategyTestCase("testShortPositionExitCanceled"))
