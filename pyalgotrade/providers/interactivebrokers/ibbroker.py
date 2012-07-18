@@ -23,10 +23,10 @@
 .. moduleauthor:: Tibor Kiss <tibor.kiss@gmail.com>
 """
 
-import logging
 
 from pyalgotrade import broker
 
+import logging
 log = logging.getLogger(__name__)
 
 class FlatRateCommission(broker.Commission):
@@ -90,7 +90,7 @@ class Order(broker.Order):
 		# TODO: Need to notify the broker here
 		self.__state = Order.State.CANCELED
 
-class Broker(broker.Broker):
+class Broker(broker.BasicBroker):
 	"""Class responsible for forwarding orders to Interactive Brokers Gateway via TWS.
 
 	:param ibConnection: Object responsible to forward requests to TWS.
@@ -109,7 +109,7 @@ class Broker(broker.Broker):
 		self.__orders = {}
 
 		# Call the base's constructor
-		broker.Broker.__init__(self, self.__cash)
+		broker.BasicBroker.__init__(self, self.__cash)
 
 	def __orderUpdate(self, orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice):
 		"""Handles order updates from IBConnection. Processes its status and notifies the strategy's __onOrderUpdate()"""
