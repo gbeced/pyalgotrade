@@ -19,7 +19,7 @@
 """
 
 from pyalgotrade.barfeed import csvfeed, BarFeed
-from pyalgotrade import bar
+from pyalgotrade.providers.interactivebrokers import ibbar
 
 import datetime
 import copy 
@@ -37,8 +37,9 @@ import Queue
 
 
 class RowParser(csvfeed.RowParser):
-	def __init__(self, zone = 0):
+	def __init__(self, instrument, zone = 0):
 		self.__zone = zone
+		self.__instrument = instrument
 
 	def __parseDate(self, dateString):
 		ret = datetime.datetime.strptime(dateString, "%Y-%m-%d %H:%M:%S")
@@ -59,12 +60,11 @@ class RowParser(csvfeed.RowParser):
 		high = float(csvRowDict["High"])
 		low = float(csvRowDict["Low"])
 		volume = int(csvRowDict["Volume"])
-				# TODO: Add these variables to Bar
-		# tradeCnt = int(csvRowDict["TradeCount"])
-		# WAP = float(csvRowDict["WAP"])
+		tradeCnt = int(csvRowDict["TradeCount"])
+		VWAP = float(csvRowDict["VWAP"])
 		# hasGaps = bool(csvRowDict["HasGaps"] == "True")
 
-		return bar.Bar(date, open_, high, low, close, volume, None)
+		return ibbar.Bar(self.__instrument, date, open_, high, low, close, volume, VWAP, tradeCnt)
 
 class CSVFeed(csvfeed.BarFeed):
 	"""A :class:`pyalgotrade.barfeed.BarFeed` that loads bars from a CSV file downloaded from IB TWS"""
@@ -82,7 +82,7 @@ class CSVFeed(csvfeed.BarFeed):
 		:param timeZone: The timezone for bars. 0 if bar dates are in UTC.
 		:type timeZone: int.
 		"""
-		rowParser = RowParser(timeZone)
+		rowParser = RowParser(instrument, timeZone)
 		csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 
 
