@@ -426,6 +426,7 @@ class Broker(BasicBroker):
 
 	def __processOrder(self, order, bars):
 		orderType = order.getType()
+		orderAction = order.getAction()
 
 		if orderType != Order.Type.EXEC_IF_FILLED:
 			bar_ = bars.getBar(order.getInstrument())
@@ -456,7 +457,10 @@ class Broker(BasicBroker):
 
 			price = order.getPrice()
 
-			if low <= price <= high:
+			if price <= low and orderAction == Order.Action.BUY:
+				# Limit price reached, mark the order executed
+				self.commitOrderExecution(order, price, quantity, dateTime)
+			elif price <= high and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
 				# Limit price reached, mark the order executed
 				self.commitOrderExecution(order, price, quantity, dateTime)
 
@@ -469,16 +473,14 @@ class Broker(BasicBroker):
 
 			price = order.getPrice()
 
-			if low <= price <= high:
-				# Stop price reached, initiate a market order:
-				# Fill the order with the worst price: 
-				# High for Long, Low for Short orders
-				action = order.getAction() 
-				if action == Order.Action.BUY:
-					orderPrice = high
-				elif action in (Order.Action.SELL, Order.Action.SELL_SHORT):
-					orderPrice = low
-
+			# Stop price reached, initiate a market order.
+			# Fill the market order with the worst price: 
+			#   High for Long, Low for Short orders
+			if price <= high and orderAction == Order.Action.BUY:
+				orderPrice = high
+				self.commitOrderExecution(order, orderPrice, quantity, dateTime)
+			elif price >= low and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
+				orderPrice = low
 				self.commitOrderExecution(order, orderPrice, quantity, dateTime)
 
 			order.checkCanceled(bars)
@@ -492,14 +494,16 @@ class Broker(BasicBroker):
 			stopPrice = order.getStopPrice()
 			
 			# Check if we have ever reached the stop price
-			if (low <= stopPrice <= high) or order.isLimitOrderActive():
-				# Mark the request as Limit Order Active. This ensures that if the 
-				# Stop price is broken once the limit order will be active in the book.
-				order.setLimitOrderActive(True)
-
-				# Fill the order with the close price
-				if low <= limitPrice <= high:
+			if order.isLimitOrderActive():
+				if limitPrice >= low and orderAction == Order.Action.BUY:
 					self.commitOrderExecution(order, limitPrice, quantity, dateTime)
+				elif limitPrice <= high and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
+					self.commitOrderExecution(order, limitPrice, quantity, dateTime)
+			else:
+				if stopPrice <= high and orderAction == Order.Action.BUY:
+					order.setLimitOrderActive(True)
+				elif stopPrice <= low and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
+					order.setLimitOrderActive(True)
 
 			order.checkCanceled(bars)
 		elif orderType == Order.Type.EXEC_IF_FILLED:
