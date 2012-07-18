@@ -71,25 +71,25 @@ class Connection(EWrapper):
 				# Errors returned by TWS, set by error()
 				# Need to create this variable first as the client connection could
 				# return error
-				self.__error = {'tickerID': None, 'errorCode': None, 'errorString': None}
+				self.__error = {'tickerId': None, 'errorCode': None, 'errorString': None}
 
 				# Unique Ticker ID stream for each TWS Request
-				self.__tickerID = 0
+				self.__tickerId = 0
 
 				# Unique Order ID for each TWS Order
 				# Initial value is set by nextValidId() callback
-				self.__orderID = 0
+				self.__orderId = 0
 
-				# Dictionary to map instruments to orderIDs
-				self.__orderIDs = {}
+				# Dictionary to map instruments to orderIds
+				self.__orderIds = {}
 
-				# Dictionary to map instruments to realtime bar tickerIDs
+				# Dictionary to map instruments to realtime bar tickerIds
 				self.__realtimeBarIDs = {}
 
 				# Dictionary to map instruments to realtime bar observer events
 				self.__realtimeBarEvents = {}
 				
-				# Dictionary to map instruments to historical data tickerIDs
+				# Dictionary to map instruments to historical data tickerIds
 				self.__historicalDataTickerIDs = {}
 
 				# List to buffer historical data which is produced by 
@@ -99,7 +99,7 @@ class Connection(EWrapper):
 				# Lock for the historicalDataBuffer
 				self.__historicalDataLock = threading.Condition()
 
-				# Dictionary to map instruments to tickerIDs for market scanner 
+				# Dictionary to map instruments to tickerIds for market scanner 
 				self.__marketScannerIDs = {}
 				
 				# Lock for the historicalDataBuffer
@@ -132,15 +132,15 @@ class Connection(EWrapper):
 
 		def __getNextTickerID(self):
 				"""Returns the next unique Ticker ID"""
-				tickerID = copy.copy(self.__tickerID)
-				self.__tickerID += 1
-				return tickerID
+				tickerId = copy.copy(self.__tickerId)
+				self.__tickerId += 1
+				return tickerId
 		
 		def __getNextOrderID(self):
 				"""Returns the next unique Order ID"""
-				orderID = copy.copy(self.__orderID)
-				self.__orderID += 1
-				return orderID
+				orderId = copy.copy(self.__orderId)
+				self.__orderId += 1
+				return orderId
 
 		def getTimezone(self):
 				"""Returns the timezone. The zone specifies the offset from Coordinated Universal Time 
@@ -222,9 +222,9 @@ class Connection(EWrapper):
 				:param currency: Specifies the currency for the trade.
 				:type currency: str
 				"""
-				orderID = self.__getNextOrderID()
+				orderId = self.__getNextOrderID()
 
-				self.__orderIDs[orderID] = instrument
+				self.__orderIds[orderId] = instrument
 				
 				contract = Contract()
 				contract.m_symbol = instrument
@@ -246,16 +246,16 @@ class Connection(EWrapper):
 				order.m_transmit = transmit
 				order.m_whatif = whatif
 
-				self.__tws.placeOrder(orderID, contract, order)
+				self.__tws.placeOrder(orderId, contract, order)
 
 
-		def cancelOrder(self, orderID):
+		def cancelOrder(self, orderId):
 				"""Cancels an order.
 				
-				:param orderID: Order ID.
-				:type orderID: str
+				:param orderId: Order ID.
+				:type orderId: str
 				"""
-				self.__tws.cancelOrder(orderID)
+				self.__tws.cancelOrder(orderId)
 
 		def subscribeOrderUpdates(self, handler):
 				"""Subscribes the handler for Order Updates from TWS.
@@ -295,9 +295,9 @@ class Connection(EWrapper):
 				:type useRTH: int
 				"""
 				if instrument not in self.__realtimeBarIDs:
-						# Register the tickerID with the instrument name
-						tickerID = self.__getNextTickerID()
-						self.__realtimeBarIDs[instrument] = tickerID
+						# Register the tickerId with the instrument name
+						tickerId = self.__getNextTickerID()
+						self.__realtimeBarIDs[instrument] = tickerId
 
 						# Prepare the contract 
 						contract = Contract()
@@ -307,7 +307,7 @@ class Connection(EWrapper):
 						contract.m_currency = currency
 						
 						# Request realtime data from TWS
-						self.__tws.reqRealTimeBars(tickerID, contract, barSize, whatToShow, useRTH)
+						self.__tws.reqRealTimeBars(tickerId, contract, barSize, whatToShow, useRTH)
 
 						# Register handler for the realtime bar event observer
 						self.__realtimeBarEvents[instrument] = observer.Event()
@@ -326,11 +326,11 @@ class Connection(EWrapper):
 				:type handler: Function
 				"""
 				if instrument in self.__realtimeBarIDs:
-						tickerID = self.__realtimeBarIDs[instrument]
+						tickerId = self.__realtimeBarIDs[instrument]
 
 						# TODO: Check for other observes and 
 						# deregister only if last is freed
-						self.__tws.cancelRealTimeBars(tickerID)
+						self.__tws.cancelRealTimeBars(tickerId)
 
 						del self.__realtimeBarIDs[instrument]
 						del self.__realtimeBarEvents[instrument]
@@ -377,8 +377,8 @@ class Connection(EWrapper):
 								   1: Dates applying to bars returned in the format: yyyymmdd{space}{space}hh:mm:dd .
 								   2: Dates are returned as a long integer specifying the number of seconds since 1/1/1970 GMT .
 				"""
-				# Get a unique tickerID for the request
-				tickerID = self.__getNextTickerID()
+				# Get a unique tickerId for the request
+				tickerId = self.__getNextTickerID()
 
 				# Prepare the Contract for the historical data order
 				contract = Contract()
@@ -387,11 +387,11 @@ class Connection(EWrapper):
 				contract.m_exchange = exchange;
 				contract.m_currency = currency;
 
-				# map the tickerID to instrument
-				self.__historicalDataTickerIDs[tickerID] = instrument
+				# map the tickerId to instrument
+				self.__historicalDataTickerIDs[tickerId] = instrument
 
 				# Request historical data
-				self.__tws.reqHistoricalData(tickerID, contract, endTime, duration, barSize, whatToShow, useRTH, formatDate)
+				self.__tws.reqHistoricalData(tickerId, contract, endTime, duration, barSize, whatToShow, useRTH, formatDate)
 
 				# Wait for the result to appear in the buffer
 				self.__historicalDataLock.acquire()
@@ -457,7 +457,7 @@ class Connection(EWrapper):
 				:param instrument: Defines the instrument type for the scan.
 				:type instrument: str
 				"""
-				tickerID = self.__getNextTickerID()
+				tickerId = self.__getNextTickerID()
 
 				subscript = ScannerSubscription()
 				subscript.numberOfRows(numberOfRows)
@@ -468,13 +468,13 @@ class Connection(EWrapper):
 				subscript.instrument(instrument)
 				subscript.stockTypeFilter(stockTypeFilter)
 
-				self.__tws.reqScannerSubscription(tickerID, subscript)
+				self.__tws.reqScannerSubscription(tickerId, subscript)
 				
 				self.__marketScannerLock.acquire()
 				self.__marketScannerLock.wait()
 				self.__marketScannerLock.release()
 
-				self.__tws.cancelScannerSubscription(tickerID)
+				self.__tws.cancelScannerSubscription(tickerId)
 
 				marketScannerData = copy.copy(self.__marketScannerBuffer)
 				self.__marketScannerBuffer = []
@@ -513,8 +513,8 @@ class Connection(EWrapper):
 		########################################################################################
 		# EWrapper callbacks
 		########################################################################################
-		def historicalData(self, tickerID, date, open_, high, low, close, volume, tradeCount, vwap, hasGaps):
-				instrument = self.__historicalDataTickerIDs[tickerID]
+		def historicalData(self, tickerId, date, open_, high, low, close, volume, tradeCount, vwap, hasGaps):
+				instrument = self.__historicalDataTickerIDs[tickerId]
 
 				# EOD is signaled in the date variable, eg.:
 				# date='finished-20120628  00:00:00-20120630  00:00:00'
@@ -536,13 +536,13 @@ class Connection(EWrapper):
 				# Append it to the buffer
 				self.__historicalDataBuffer.append(bar)
 
-		def realtimeBar(self, tickerID, time_, open_, high, low, close, volume, vwap, tradeCount):
+		def realtimeBar(self, tickerId, time_, open_, high, low, close, volume, vwap, tradeCount):
 				"""
 				This function receives the real-time bars data results and sends them to subscribers
 				of __realtimeBarEvents.
 
-				:param tickerID: The ticker Id of the request to which this bar is responding.
-				:type tickerID: int
+				:param tickerId: The ticker Id of the request to which this bar is responding.
+				:type tickerId: int
 				:param time_: The date-time stamp of the start of the bar. The format is 
 							  determined by the reqHistoricalData() formatDate parameter.
 				:type time_: str
@@ -569,27 +569,27 @@ class Connection(EWrapper):
 				dt = datetime.datetime(lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min, lt.tm_sec)
 				dt += datetime.timedelta(hours= (-1 * self.__zone))
 
-				# Look up the instrument's name based on its tickerID
+				# Look up the instrument's name based on its tickerId
 				for i in self.__realtimeBarIDs:
-					if self.__realtimeBarIDs[i] == tickerID:
+					if self.__realtimeBarIDs[i] == tickerId:
 						instrument = i
 
 				log.debug("RT Bar: %s [%d] time=%s open=%.2f high=%.2f low=%.2f close=%.2f volume=%d wap=%.2f tradeCount=%d" % 
-						  (instrument, tickerID, dt, open_, high, low, close, volume, vwap, tradeCount))
+						  (instrument, tickerId, dt, open_, high, low, close, volume, vwap, tradeCount))
 
 				self.__realtimeBarEvents[instrument].emit(Bar(instrument, dt,
 															  open_, high, low, close,
 															  volume, vwap, tradeCount))
 
 		
-		def scannerData(self, tickerID, rank, contractDetails, distance, benchmark, projection, legsStr):
+		def scannerData(self, tickerId, rank, contractDetails, distance, benchmark, projection, legsStr):
 				"""
 				This function receives the requested market scanner data results and appends it to the
 				market scanner buffer. A dict appended to the market scanner buffer with the following
 				keys: instrument, secType, rank, distance, benchmark, projection, legsStr
 
-				:param tickerID: The ticker ID of the request to which this row is responding.
-				:type tickerID: int
+				:param tickerId: The ticker ID of the request to which this row is responding.
+				:type tickerId: int
 				:param rank: The ranking within the response of this bar.
 				:type rank: int
 				:param contractDetails: This object contains a full description of the contract.
@@ -609,12 +609,12 @@ class Connection(EWrapper):
 						'legsStr': legsStr }
 				self.__marketScannerBuffer.append(msd)
 
-		def scannerDataEnd(self, tickerID):
+		def scannerDataEnd(self, tickerId):
 				"""This function is called when the snapshot is received and marks the end of one scan.
 				This function will notify the requestMarketScanner() function that data is available in the buffer.
 
-				:param tickerID: The ticker ID of the request to which this row is responding.
-				:type tickerID: int
+				:param tickerId: The ticker ID of the request to which this row is responding.
+				:type tickerId: int
 				"""
 				self.__marketScannerLock.acquire()
 				self.__marketScannerLock.notify()
@@ -724,15 +724,15 @@ class Connection(EWrapper):
 				"""
 				log.debug("Last account update time: %s", timestamp)
 
-		def orderStatus(self, orderID, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld):
+		def orderStatus(self, orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld):
 				"""This event is called whenever the status of an order changes. It is also fired after 
 				reconnecting to TWS if the client has any open orders.
 
 				Note:  It is possible that orderStatus() may return duplicate messages. It is essential 
 				that you filter the message accordingly.
 
-				:param orderID: The order ID that was specified previously in the call to placeOrder()
-				:type orderID: int
+				:param orderId: The order ID that was specified previously in the call to placeOrder()
+				:type orderId: int
 				:param status: The order status. Possible values include:
 							   PendingSubmit, PendingCancel, PreSubmitted, Submitted, Cancelled, Filled, Inactive
 				:type status: str
@@ -759,25 +759,25 @@ class Connection(EWrapper):
 								The value used to indicate this is 'locate'.
 				:type whyHeld: str
 				"""
-				log.debug("Order status: orderID: %s, status: %s, filled: %d, remaining: %d, avgFillPrice: %.2f, permId: %s, "
+				log.debug("Order status: orderId: %s, status: %s, filled: %d, remaining: %d, avgFillPrice: %.2f, permId: %s, "
 						 "parentId:%s, lastFillPrice: %.2f, clientId:%d, whyHeld: %s" % 
-						 (orderID, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId,	whyHeld))
+						 (orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId,	whyHeld))
 				try:
-					instrument = self.__orderIDs[orderID]
+					instrument = self.__orderIds[orderId]
 				except KeyError:
 					instrument = "UNKNOWN"
 
-				self.__orderUpdateHandler.emit(orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice)
+				self.__orderUpdateHandler.emit(orderId, instrument, status, filled, remaining, avgFillPrice, lastFillPrice)
 
-		def openOrder(self, orderID, contract, order, orderState):
-				log.debug("openOrder: orderID: %s, instrument: %s", orderID, contract.m_symbol)
-				self.__orderIDs[orderID] = contract.m_symbol
+		def openOrder(self, orderId, contract, order, orderState):
+				log.debug("openOrder: orderId: %s, instrument: %s", orderId, contract.m_symbol)
+				self.__orderIds[orderId] = contract.m_symbol
 
-		def execDetails(self, orderID, contract, execution, liquidation):
+		def execDetails(self, orderId, contract, execution, liquidation):
 				"""This event is fired when the reqExecutions() functions is invoked, or when an order is filled.
 				
-				:param orderID: The order ID that was specified previously in the call to placeOrder().
-				:type orderID: int
+				:param orderId: The order ID that was specified previously in the call to placeOrder().
+				:type orderId: int
 				:param contract: This structure contains a full description of the contract that was executed.
 				:type contract: :class:`IbPy.ext.Contract`
 				:param execution: This structure contains addition order execution details.
@@ -802,38 +802,38 @@ class Connection(EWrapper):
 				"""Logs the managed account list by this TWS connection."""
 				log.debug("Managed account list: %s", accountsList)
 		
-		def nextValidId(self, orderID): 
+		def nextValidId(self, orderId): 
 				"""This function is called after a successful connection to TWS.
 
 				The next available order ID received from TWS upon connection. 
 				Increment all successive orders by one based on this ID.
 				"""
-				self.__orderID = orderID
+				self.__orderId = orderId
 
-				log.debug("First valid orderID: %d", orderID)
+				log.debug("First valid orderId: %d", orderId)
 
-		def error(self, tickerID, errorCode=None, errorString=None):
+		def error(self, tickerId, errorCode=None, errorString=None):
 				"""Error handler function for the IB Connection."""
-				self.__error['tickerID'] = tickerID
+				self.__error['tickerId'] = tickerId
 				self.__error['errorCode'] = errorCode
 				self.__error['errorString'] = errorString
 
 				if 0 <= errorCode < 1000:
 						# Errors
-						log.error( '%s, %s, %s' %(tickerID, errorCode, errorString))
+						log.error( '%s, %s, %s' %(tickerId, errorCode, errorString))
 				elif 1000 <= errorCode < 2000:
 						# System messages
-						log.info( 'System message: %s, %s, %s' %(tickerID, errorCode, errorString))
+						log.info( 'System message: %s, %s, %s' %(tickerId, errorCode, errorString))
 				elif 2000 <= errorCode < 3000:
 						# Warning messages
-						log.warn( '%s, %s, %s' %(tickerID, errorCode, errorString))
+						log.warn( '%s, %s, %s' %(tickerId, errorCode, errorString))
 
-				if tickerID != -1:
-						log.error( 'error: %s, %s, %s' %(tickerID, errorCode, errorString))
+				if tickerId != -1:
+						log.error( 'error: %s, %s, %s' %(tickerId, errorCode, errorString))
 
 		def getError(self):
 				"""Returns the error dictionary.
-				Keys: tickerID, errorCode, errorString
+				Keys: tickerId, errorCode, errorString
 				"""
 				return self.__error
 

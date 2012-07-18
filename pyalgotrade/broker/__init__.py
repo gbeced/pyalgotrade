@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # 
-#   http://www.apache.org/licenses/LICENSE-2.0
+#	http://www.apache.org/licenses/LICENSE-2.0
 # 
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import observer
-
-######################################################################
-## Exceptions
-
-class NotEnoughCash(Exception):
-	def __init__(self):
-		Exception.__init__(self, "Not enough cash")
+from pyalgotrade import observer
 
 ######################################################################
 ## Commissions
@@ -52,8 +45,8 @@ class FixedCommission(Commission):
 class Order:
 	"""Base class for orders. 
 
-	:param type: The order type
-	:type type: :class:`Order.Type`
+	:param type_: The order type
+	:type type_: :class:`Order.Type`
 	:param action: The order action.
 	:type action: :class:`Order.Action`
 	:param instrument: Instrument identifier.
@@ -93,8 +86,8 @@ class Order:
 		STOP_LIMIT			= 4
 		EXEC_IF_FILLED		= 5
 
-	def __init__(self, type, action, instrument, price, quantity, goodTillCanceled = False):
-		self.__type = type
+	def __init__(self, type_, action, instrument, price, quantity, goodTillCanceled = False):
+		self.__type = type_
 		self.__action = action
 		self.__instrument = instrument
 		self.__price = price
@@ -177,10 +170,9 @@ class MarketOrder(Order):
 	If useClosingPrice is set to False then the opening price will be used to fill the order, otherwise the closing price will be used.
 	"""
 
-	def __init__(self, action, instrument, quantity, goodTillCanceled = False, useClosingPrice = False):
+	def __init__(self, action, instrument, quantity, goodTillCanceled = False):
 		price = 0
 		Order.__init__(self, Order.Type.MARKET, action, instrument, price, quantity, goodTillCanceled)
-		self.__useClosingPrice = useClosingPrice
 
 
 class LimitOrder(Order):
@@ -269,5 +261,86 @@ class OrderExecutionInfo:
 		"""Returns the :class:`datatime.datetime` when the order was executed."""
 		return self.__dateTime
 
+######################################################################
+## BasicBroker
+class BasicBroker:
+	def __init__(self, cash, commission=None):
+		assert(cash >= 0)
+		self.__cash = cash
+
+		if commission is None:
+			self.__commission = NoCommission()
+		else:
+			self.__commission = commission
+		
+		self.__orderUpdatedEvent = observer.Event()
+
+	def getOrderUpdatedEvent(self):
+		return self.__orderUpdatedEvent
+	
+	def getCash(self):
+		"""Returns the amount of cash."""
+		return self.__cash
+
+	def setCash(self, cash):
+		"""Sets the amount of cash."""
+		self.__cash = cash
+
+	def getCommission(self):
+		"""Returns the commission instance."""
+		return self.__commission
+
+	def setCommission(self, commission):
+		"""Sets the commission instance."""
+		self.__commission = commission
+
+	def start(self):
+		raise NotImplementedError()
+
+	def stop(self):
+		raise NotImplementedError()
+
+	def join(self):
+		raise NotImplementedError()
+
+	# Return True if there are not more events to dispatch.
+	def stopDispatching(self):
+		raise NotImplementedError()
+
+	# Dispatch events.
+	def dispatch(self):
+		raise NotImplementedError()
+	
+	def placeOrder(self, order):
+		"""Submits an order.
+
+		:param order: The order to submit.
+		:type order: :class:`Order`.
+		"""
+		raise NotImplementedError()
+	
+	def createLongMarketOrder(self, instrument, quantity, goodTillCanceled=False):
+		raise NotImplementedError()
+
+	def createShortMarketOrder(self, instrument, quantity, goodTillCanceled=False):
+		raise NotImplementedError()
+
+	def createLongLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		raise NotImplementedError()
+
+	def createShortLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		raise NotImplementedError()
+
+	def createLongStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		raise NotImplementedError()
+
+	def createShortStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
+		raise NotImplementedError()
+
+	def createLongStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
+		raise NotImplementedError()
+
+	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
+		raise NotImplementedError()
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4

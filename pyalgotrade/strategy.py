@@ -197,18 +197,16 @@ class Strategy:
 
 	def __init__(self, barFeed, cash = 0, broker_ = None):
 		self.__feed = barFeed
-                if broker_ == None:
-                    self.__broker = broker.Broker(cash)
-                else:
-                    self.__broker = broker_
-		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 		self.__activePositions = {}
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = observer.Event()
 
 		# When doing backtesting, the broker should subscribe to barFeed events before the strategy.
 		# This is to avoid executing orders placed in the current tick.
-		self.__broker = broker.Broker(cash, barFeed) 
+                if broker_ == None:
+                    self.__broker = broker.backtesting.Broker(cash, barFeed)
+                else:
+                    self.__broker = broker_
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
 	def getResult(self):

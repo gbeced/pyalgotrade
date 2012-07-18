@@ -102,6 +102,21 @@ class LiveFeed(BarFeed):
 				self.__queue = Queue.Queue()
 
 
+		def start(self):
+			pass
+
+		def stop(self):
+			pass
+
+		def join(self):
+			pass
+
+		def fetchNextBars(self):
+				ret = self.__queue.get(True)
+				if len(ret) == 0:
+						ret = None
+				return ret
+
 		def subscribeRealtimeBars(self, instrument, useRTH_=0):
 				self.__ibConnection.subscribeRealtimeBars(instrument, self.onRealtimeBars, useRTH=useRTH_)
 
@@ -127,10 +142,4 @@ class LiveFeed(BarFeed):
 						else:
 								self.__currentBars[bar.getInstrument()] = bar
 
-		def fetchNextBars(self):
-				ret = self.__queue.get(True)
-				if len(ret) == 0:
-						ret = None
-				return ret
-		
 # vim: noet:ci:pi:sts=0:sw=4:ts=4
