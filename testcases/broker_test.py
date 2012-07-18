@@ -23,6 +23,7 @@ import datetime
 import random
 
 from pyalgotrade import broker
+from pyalgotrade.broker import backtesting
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 
@@ -50,7 +51,7 @@ class BaseTestCase(unittest.TestCase):
 
 class MarketOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
-		brk = broker.Broker(11, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
@@ -81,7 +82,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testFailToBuy(self):
-		brk = broker.Broker(5, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongMarketOrder(BaseTestCase.TestInstrument, 1)
 
@@ -109,7 +110,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuyAndSell_GTC(self):
-		brk = broker.Broker(5, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongMarketOrder(BaseTestCase.TestInstrument, 1, True)
 
@@ -138,7 +139,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuyAndSellInTwoSteps(self):
-		brk = broker.Broker(20.4, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(20.4, barFeed=barfeed.BarFeed())
 
 		# Buy
 		order = brk.createLongMarketOrder(BaseTestCase.TestInstrument, 2)
@@ -174,7 +175,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 
 	def testPortfolioValue(self):
-		brk = broker.Broker(11, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed())
 
 		# Buy
 		order = brk.createLongMarketOrder(BaseTestCase.TestInstrument, 1)
@@ -189,7 +190,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getValue(self.buildBars(1, 1, 1, 1)) == 1 + 1)
 
 	def testBuyWithCommission(self):
-		brk = broker.Broker(1020, barFeed=barfeed.BarFeed(), commission=broker.FixedCommission(10))
+		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(), commission=broker.FixedCommission(10))
 
 		# Buy
 		order = brk.createLongMarketOrder(BaseTestCase.TestInstrument, 100)
@@ -202,7 +203,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 100)
 
 	def testSellShort_1(self):
-		brk = broker.Broker(1000, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed())
 
 		# Short sell
 		order = brk.createShortMarketOrder(BaseTestCase.TestInstrument, 1)
@@ -228,7 +229,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 
 	def testSellShort_2(self):
-		brk = broker.Broker(1000, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed())
 
 		# Short sell 1
 		order = brk.createShortMarketOrder(BaseTestCase.TestInstrument, 1)
@@ -264,7 +265,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getValue(self.buildBars(70, 70, 70, 70)) == 1000 + 50 + 50)
 
 	def testSellShort_3(self):
-		brk = broker.Broker(100, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(100, barFeed=barfeed.BarFeed())
 
 		# Buy 1
 		order = brk.createLongMarketOrder(BaseTestCase.TestInstrument, 1)
@@ -296,7 +297,7 @@ class MarketOrderTestCase(BaseTestCase):
 	def testSellShortWithCommission(self):
 		sharePrice = 100
 		commission = 10
-		brk = broker.Broker(1010, barFeed=barfeed.BarFeed(), commission=broker.FixedCommission(commission))
+		brk = backtesting.Broker(1010, barFeed=barfeed.BarFeed(), commission=broker.FixedCommission(commission))
 
 		# Sell 10 shares
 		order = brk.createShortMarketOrder(BaseTestCase.TestInstrument, 10)
@@ -317,7 +318,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getCash() == sharePrice - commission)
 
 	def testCancel(self):
-		brk = broker.Broker(100, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(100, barFeed=barfeed.BarFeed())
 		order = broker.MarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
 		brk.placeOrder(order)
 		order.cancel()
@@ -326,7 +327,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 class LimitOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
-		brk = broker.Broker(11, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
@@ -357,7 +358,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testFailToBuy(self):
-		brk = broker.Broker(5, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongLimitOrder(BaseTestCase.TestInstrument, 5, 1)
 
@@ -385,7 +386,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuyAndSell_GTC(self):
-		brk = broker.Broker(10, barFeed=barfeed.BarFeed())
+		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongLimitOrder(BaseTestCase.TestInstrument, 4, 2, True)
 
@@ -415,7 +416,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 class StopOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
-		brk = broker.Broker(15)
+		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
@@ -438,6 +439,7 @@ class StopOrderTestCase(BaseTestCase):
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isFilled())
+                print order.getExecutionInfo().getPrice()
 		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
@@ -446,7 +448,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testFailToBuy(self):
-		brk = broker.Broker(5)
+		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongStopOrder(BaseTestCase.TestInstrument, 5, 1)
 
@@ -474,7 +476,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuyAndSell_GTC(self):
-		brk = broker.Broker(10)
+		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongStopOrder(BaseTestCase.TestInstrument, 4, 2, True)
 
@@ -516,7 +518,7 @@ class StopOrderTestCase(BaseTestCase):
 
 class StopLimitOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
-		brk = broker.Broker(15)
+		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
@@ -524,6 +526,10 @@ class StopLimitOrderTestCase(BaseTestCase):
 		order = brk.createLongStopLimitOrder(BaseTestCase.TestInstrument, limitPrice=11, stopPrice=10, quantity=1)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
+		self.assertTrue(order.isLimitOrderActive())
+		brk.onBars(self.buildBars(15, 20, 15, 18))
+		self.assertFalse(order.isFilled())
+		brk.onBars(self.buildBars(11, 20, 10, 10))
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
@@ -538,6 +544,10 @@ class StopLimitOrderTestCase(BaseTestCase):
 		order = brk.createShortStopLimitOrder(BaseTestCase.TestInstrument, limitPrice=12, stopPrice=13, quantity=1)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
+		self.assertTrue(order.isLimitOrderActive())
+		brk.onBars(self.buildBars(10, 10, 7, 8))
+		self.assertFalse(order.isFilled())
+		brk.onBars(self.buildBars(11, 20, 10, 10))
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 12)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
@@ -547,7 +557,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testFailToBuy(self):
-		brk = broker.Broker(5)
+		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongStopLimitOrder(BaseTestCase.TestInstrument, limitPrice=5, stopPrice=9, quantity=1)
 
@@ -586,7 +596,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuyAndSell_GTC(self):
-		brk = broker.Broker(5)
+		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongStopLimitOrder(BaseTestCase.TestInstrument, limitPrice=4, stopPrice=3, quantity=2, 
                                                      goodTillCanceled=True)
