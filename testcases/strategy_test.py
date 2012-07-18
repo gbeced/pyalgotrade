@@ -22,10 +22,51 @@ import unittest
 import datetime
 
 from pyalgotrade import strategy
+from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
 import common
+
+import threading
+import Queue
+
+# This class decorates a barfeed.BarFeed and simulates an external barfeed that lives in a different thread.
+class ExternalBarFeed(barfeed.BarFeed):
+	def __init__(self, barFeed):
+		barfeed.BarFeed.__init__(self)
+		self.__decorated = barFeed
+		self.__queue = Queue.Queue(maxsize=5)
+		# We're wrapping the barfeed so we need to register the same instruments.
+		for instrument in barFeed.getRegisteredInstruments():
+			self.registerInstrument(instrument)
+		# This is the thread that will run the regular barfeed.
+		self.__thread = threading.Thread(target=self.__threadMain)
+
+	def __threadMain(self):
+		# Just consume the bars and put them in a queue.
+		self.__decorated.start()
+		barDict = self.__decorated.fetchNextBars()
+		while barDict != None:
+			self.__queue.put(barDict)
+			barDict = self.__decorated.fetchNextBars()
+		# Flag end of barfeed
+		self.__queue.put(None)
+		self.__decorated.stop()
+		self.__decorated.join()
+
+	def fetchNextBars(self):
+		# Consume the bars from the queue.
+		return  self.__queue.get()
+
+	def start(self):
+		self.__thread.start()
+
+	def stop(self):
+		pass
+
+	def join(self):
+		self.__thread.join()
 
 class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
@@ -132,14 +173,16 @@ class StrategyTestCase(unittest.TestCase):
 		def onFinish(self, bars):
 			pass
 
-	def __createObjects(self):
+	def __createObjects(self, simulateExternalBarFeed = False):
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		if simulateExternalBarFeed:
+			barFeed = ExternalBarFeed(barFeed)
 		strat = StrategyTestCase.TestStrategy(barFeed, 1000)
 		return strat
 
-	def testLongPosition(self):
-		strat = self.__createObjects()
+	def __testLongPositionImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-08,27.37,27.50,24.50,24.81,63040000,24.26 - Sell
@@ -156,8 +199,14 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getResult(), 3) == -0.108)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.37 - 30.69, 2))
 
-	def testShortPosition(self):
-		strat = self.__createObjects()
+	def testLongPosition(self):
+		self.__testLongPositionImpl(False)
+
+	def testLongPosition_ExternalBF(self):
+		self.__testLongPositionImpl(True)
+
+	def __testShortPositionImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-08,27.37,27.50,24.50,24.81,63040000,24.26
@@ -174,8 +223,14 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getResult(), 3) == 0.121)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.69 - 27.37, 2))
 
-	def testLongPositionAdjClose(self):
-		strat = self.__createObjects()
+	def testShortPosition(self):
+		self.__testShortPositionImpl(False)
+
+	def testShortPosition_ExternalBF(self):
+		self.__testShortPositionImpl(True)
+
+	def __testLongPositionAdjCloseImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 		strat.getBroker().setUseAdjustedValues(True)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -193,8 +248,14 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getResult(), 3) == 0.105)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.31 - 27.44, 2))
 
-	def testShortPositionAdjClose(self):
-		strat = self.__createObjects()
+	def testLongPositionAdjClose(self):
+		self.__testLongPositionAdjCloseImpl(False)
+
+	def testLongPositionAdjClose_ExternalBF(self):
+		self.__testLongPositionAdjCloseImpl(True)
+
+	def __testShortPositionAdjCloseImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 		strat.getBroker().setUseAdjustedValues(True)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -212,8 +273,14 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getResult(), 3) == -0.095)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.44 - 30.31, 2))
 
-	def testShortPositionExitCanceled(self):
-		strat = self.__createObjects()
+	def testShortPositionAdjClose(self):
+		self.__testShortPositionAdjCloseImpl(False)
+
+	def testShortPositionAdjClose_ExternalBF(self):
+		self.__testShortPositionAdjCloseImpl(True)
+
+	def __testShortPositionExitCanceledImpl(self, simulateExternalBarFeed):
+		strat = self.__createObjects(simulateExternalBarFeed)
 		strat.getBroker().setCash(0)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -231,6 +298,12 @@ class StrategyTestCase(unittest.TestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == 23.19)
 		self.assertTrue(strat.getNetProfit() == 0)
+
+	def testShortPositionExitCanceled(self):
+		self.__testShortPositionExitCanceledImpl(False)
+
+	def testShortPositionExitCanceled_ExternalBF(self):
+		self.__testShortPositionExitCanceledImpl(True)
 
 	def testShortPositionExitCanceledAndReSubmitted(self):
 		class TestStrategy(strategy.Strategy):
@@ -427,10 +500,15 @@ class StrategyTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 	ret.append(StrategyTestCase("testLongPosition"))
+	ret.append(StrategyTestCase("testLongPosition_ExternalBF"))
 	ret.append(StrategyTestCase("testShortPosition"))
+	ret.append(StrategyTestCase("testShortPosition_ExternalBF"))
 	ret.append(StrategyTestCase("testLongPositionAdjClose"))
+	ret.append(StrategyTestCase("testLongPositionAdjClose_ExternalBF"))
 	ret.append(StrategyTestCase("testShortPositionAdjClose"))
+	ret.append(StrategyTestCase("testShortPositionAdjClose_ExternalBF"))
 	ret.append(StrategyTestCase("testShortPositionExitCanceled"))
+	ret.append(StrategyTestCase("testShortPositionExitCanceled_ExternalBF"))
 	ret.append(StrategyTestCase("testShortPositionExitCanceledAndReSubmitted"))
 	ret.append(StrategyTestCase("testLongPositionGTC"))
 	ret.append(StrategyTestCase("testExitOnCanceledEntry"))

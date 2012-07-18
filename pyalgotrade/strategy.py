@@ -38,7 +38,7 @@ class Position:
 		self.__exitOnSessionClose = False
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
-		"""Set to True to automatically place the exit order in the last bar for the session."""
+		"""Set to True to automatically place the exit order in the last bar for the session. Only useful for intraday trading."""
 		self.__exitOnSessionClose = exitOnSessionClose
 
 	def getExitOnSessionClose(self):
@@ -73,7 +73,7 @@ class Position:
 	def checkExitOnSessionClose(self, bars, broker_):
 		ret = None
 		try:
-			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getSessionClose() == True:
+			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getBarsTillSessionClose() == 1:
 				assert(self.getEntryOrder() != None)
 				ret = self.buildExitOnSessionCloseOrder()
 				ret = broker.ExecuteIfFilled(ret, self.getEntryOrder())
@@ -204,13 +204,18 @@ class Strategy:
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 		self.__activePositions = {}
 		self.__orderToPosition = {}
-		self.__currentBars = None
 		self.__barsProcessedEvent = observer.Event()
+
+		# When doing backtesting, the broker should subscribe to barFeed events before the strategy.
+		# This is to avoid executing orders placed in the current tick.
+		self.__broker = broker.Broker(cash, barFeed) 
+		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
 	def getResult(self):
 		ret = 0
-		if self.__currentBars != None:
-			ret = self.getBroker().getValue(self.__currentBars)
+		bars = self.__feed.getLastBars()
+		if bars != None:
+			ret = self.getBroker().getValue(bars)
 		return ret
 
 	def getBarsProcessedEvent(self):
@@ -247,8 +252,9 @@ class Strategy:
 	def getCurrentDateTime(self):
 		"""Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bar`."""
 		ret = None
-		if self.__currentBars:
-			ret = self.__currentBars.getDateTime()
+		bars = self.__feed.getLastBars()
+		if bars:
+			ret = bars.getDateTime()
 		return ret
 
 	def getBroker(self):
@@ -507,32 +513,37 @@ class Strategy:
 
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
-		self.__currentBars = bars
 
-		# 1: Register exit-on-session-close orders if necessary.
-		self.__checkExitOnSessionClose(bars)
-
-		# 2: Let the broker process orders placed during previous call to onBars.
-		# IT IS IMPORTANT TO EXECUTE THE BROKER FIRST TO AVOID EXECUTING ORDERS PLACED IN THE CURRENT TICK.
-		self.getBroker().onBars(bars)
-
-		# 3: Let the strategy process current bars and place orders.
+		# 1: Let the strategy process current bars and place orders.
 		self.onBars(bars)
 
-		# 4: Notify that the bars were processed.
+		# 2: Place the necessary orders for positions marked to exit on session close.
+		self.__checkExitOnSessionClose(bars)
+
+		# 3: Notify that the bars were processed.
 		self.__barsProcessedEvent.emit(self, bars)
 
 	def run(self):
 		"""Call once (**and only once**) to backtest the strategy. """
-		assert(self.__currentBars == None) # run should be called only once.
 		try:
 			self.__feed.getNewBarsEvent().subscribe(self.__onBars)
+			self.__feed.start()
+			self.__broker.start()
 			self.onStart()
-			self.__feed.processAll()
-			if self.__currentBars != None:
-				self.onFinish(self.__currentBars)
+
+			# Dispatch events as long as the feed or the broker have something to dispatch.
+			while not self.__feed.stopDispatching() or not self.__broker.stopDispatching():
+				self.__broker.dispatch()
+				self.__feed.dispatch()
+
+			if self.__feed.getLastBars() != None:
+				self.onFinish(self.__feed.getLastBars())
 			else:
 				raise Exception("Feed was empty")
 		finally:
 			self.__feed.getNewBarsEvent().unsubscribe(self.__onBars)
+			self.__broker.stop()
+			self.__feed.stop()
+			self.__broker.join()
+			self.__feed.join()
 

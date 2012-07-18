@@ -21,6 +21,7 @@
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import warninghelpers
+from pyalgotrade.barfeed import helpers
 
 import csv
 import datetime
@@ -86,6 +87,17 @@ class BarFeed(barfeed.BarFeed):
 		self.__bars = {}
 		self.currentBar = 0
 		self.__barFilter = None
+
+	def start(self):
+		# Set session close attributes to bars.
+		for instrument, bars in self.__bars.iteritems():
+			helpers.set_session_close_attributes(bars)
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
 
 	def setBarFilter(self, barFilter):
 		self.__barFilter = barFilter

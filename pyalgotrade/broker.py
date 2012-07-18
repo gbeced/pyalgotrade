@@ -72,14 +72,14 @@ class Order:
 	"""
 
 	class Action:
-		BUY					= 1
-		SELL				= 2
-		SELL_SHORT			= 3
+		BUY			= 1
+		SELL		= 2
+		SELL_SHORT	= 3
 
 	class State:
-		ACCEPTED			= 1
-		CANCELED			= 2
-		FILLED				= 3
+		ACCEPTED		= 1
+		CANCELED		= 2
+		FILLED			= 3
 
 	class Type:
 		MARKET				= 1
@@ -267,89 +267,60 @@ class OrderExecutionInfo:
 		return self.__dateTime
 
 ######################################################################
-## Broker
-
+## BasicBroker
 class BasicBroker:
-	"""Class responsible for processing orders.
-	:param cash: The initial amount of cash.
-	:type cash: int or float.
-	:param commission: An object responsible for calculating order commissions.
-	:type commission: :class:`Commission`
-	"""
-	def __init__(self, cash, commission = None):
-		assert(cash >= 0)
-		self.__cash = cash
-		if commission is None:
-			self.__commission = NoCommission()
-		else:
-			self.__commission = commission
+	def __init__(self):
 		self.__orderUpdatedEvent = observer.Event()
-	
-	def getCash(self):
-		"""Returns the amount of cash."""
-		return self.__cash
-
-	def setCash(self, cash):
-		self.__cash = cash
-
-	def setCommission(self, commission):
-		self.__commission = commission
-	
-	def getCommission(self):
-		return self.__commission
 
 	def getOrderUpdatedEvent(self):
 		return self.__orderUpdatedEvent
 
-	def placeOrder(self, order):
-		"""Submits an order.
+	def start(self):
+		raise NotImplementedError()
 
-		:param order: The order to submit.
-		:type order: :class:`Order`.
-		"""
-		raise Exception("Not implemented")
-	
-	def onBars(self, bars):
-		raise Exception("Not implemented")
-	
-	def createLongMarketOrder(self, instrument, quantity, goodTillCanceled=False, useClosingPrice=False): 
-		return(MarketOrder(Order.Action.BUY, instrument, quantity, goodTillCanceled, useClosingPrice))
+	def stop(self):
+		raise NotImplementedError()
 
-	def createShortMarketOrder(self, instrument, quantity, goodTillCanceled=False, useClosingPrice=False): 
-		return(MarketOrder(Order.Action.SELL, instrument, quantity, goodTillCanceled, useClosingPrice))
+	def join(self):
+		raise NotImplementedError()
 
-	def createLongLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(LimitOrder(Order.Action.BUY, instrument, price, quantity, goodTillCanceled))
+	# Return True if there are not more events to dispatch.
+	def stopDispatching(self):
+		raise NotImplementedError()
 
-	def createShortLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(LimitOrder(Order.Action.SELL, instrument, price, quantity, goodTillCanceled))
+	# Dispatch events.
+	def dispatch(self):
+		raise NotImplementedError()
 
-	def createLongStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(StopOrder(Order.Action.BUY, instrument, price, quantity, goodTillCanceled))
-
-	def createShortStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(StopOrder(Order.Action.SELL, instrument, price, quantity, goodTillCanceled))
-
-	def createLongStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
-		return(StopLimitOrder(Order.Action.BUY, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
-
-	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
-		return(StopLimitOrder(Order.Action.SELL, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
-
+######################################################################
+## Broker
 
 class Broker(BasicBroker):
 	"""Class responsible for processing orders.
+
 	:param cash: The initial amount of cash.
 	:type cash: int or float.
+	:param barFeed: The bar feed that will provide the bars.
+	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
 	:param commission: An object responsible for calculating order commissions.
 	:type commission: :class:`Commission`
 	"""
-	def __init__(self, cash, commission = None):
-		BasicBroker.__init__(self, cash, commission)
 
+	def __init__(self, cash, barFeed, commission = None):
+		BasicBroker.__init__(self)
+		assert(cash >= 0)
+		self.__cash = cash
+		self.__shares = {}
+		if commission is None:
+			self.__commission = NoCommission()
+		else:
+			self.__commission = commission
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False
-		self.__shares = {}
+
+		# It is VERY important that the broker subscribes to barfeed events before the strategy.
+		barFeed.getNewBarsEvent().subscribe(self.onBars)
+		self.__barFeed = barFeed
 
 	def getUseAdjustedValues(self):
 		return self.__useAdjustedValues
@@ -360,18 +331,28 @@ class Broker(BasicBroker):
 	def getPendingOrders(self):
 		return self.__pendingOrders
 
+	def setCommission(self, commission):
+		self.__commission = commission
+
 	def getShares(self, instrument):
 		"""Returns the number of shares for an instrument."""
 		self.__shares.setdefault(instrument, 0)
 		return self.__shares[instrument]
 
+	def getCash(self):
+		"""Returns the amount of cash."""
+		return self.__cash
+
+	def setCash(self, cash):
+		self.__cash = cash
+	
 	def getValue(self, bars):
 		"""Returns the portfolio value (cash + shares) for the given bars prices.
 
 		:param bars: The bars to use to calculate share values.
 		:type bars: :class:`pyalgotrade.bar.Bars`.
 		"""
-		ret = self.getCash()
+		ret = self.__cash
 		for instrument, shares in self.__shares.iteritems():
 			if self.getUseAdjustedValues():
 				instrumentPrice = bars.getBar(instrument).getAdjClose()
@@ -394,14 +375,14 @@ class Broker(BasicBroker):
 			assert(False)
 
 		ret = False
-		commission = self.getCommission().calculate(order, price, quantity)
+		commission = self.__commission.calculate(order, price, quantity)
 		cost -= commission
-		resultingCash = self.getCash() + cost
+		resultingCash = self.__cash + cost
 
 		# Check that we're ok on cash after the commission.
 		if resultingCash >= 0:
 			# Commit the order execution.
-			self.setCash(resultingCash)
+			self.__cash = resultingCash
 			self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta
 			ret = True
 
@@ -423,110 +404,13 @@ class Broker(BasicBroker):
 
 		self.__pendingOrders.append(order)
 
-
-	def __processOrder(self, order, bars):
-		orderType = order.getType()
-		orderAction = order.getAction()
-
-		if orderType != Order.Type.EXEC_IF_FILLED:
-			bar_ = bars.getBar(order.getInstrument())
-			quantity = order.getQuantity()
-			dateTime = bar_.getDateTime()
-		
-		if orderType == Order.Type.MARKET:
-			# Try to fill the order at the Open price.
-
-			if order.getUseClosingPrice():
-				if self.getUseAdjustedValues():
-					price = bar_.getAdjClose()
-				else:
-					price =  bar_.getClose()
-			else:
-				if self.getUseAdjustedValues():
-					price = bar_.getAdjOpen()
-				else:
-					price =  bar_.getOpen()
-
-			self.commitOrderExecution(order, price, quantity, dateTime)
-
-			order.checkCanceled(bars)
-		elif orderType == Order.Type.LIMIT:
-			# Check if we have reached the limit price:
-			high = bar_.getHigh()
-			low = bar_.getLow()
-
-			price = order.getPrice()
-
-			if price <= low and orderAction == Order.Action.BUY:
-				# Limit price reached, mark the order executed
-				self.commitOrderExecution(order, price, quantity, dateTime)
-			elif price <= high and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
-				# Limit price reached, mark the order executed
-				self.commitOrderExecution(order, price, quantity, dateTime)
-
-			order.checkCanceled(bars)
-		elif orderType == Order.Type.STOP:
-			# Check if we have reached the stop price:
-			high = bar_.getHigh()
-			low = bar_.getLow()
-			close = bar_.getClose()
-
-			price = order.getPrice()
-
-			# Stop price reached, initiate a market order.
-			# Fill the market order with the worst price: 
-			#   High for Long, Low for Short orders
-			if price <= high and orderAction == Order.Action.BUY:
-				orderPrice = high
-				self.commitOrderExecution(order, orderPrice, quantity, dateTime)
-			elif price >= low and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
-				orderPrice = low
-				self.commitOrderExecution(order, orderPrice, quantity, dateTime)
-
-			order.checkCanceled(bars)
-		elif orderType == Order.Type.STOP_LIMIT:
-			# Check if we have reached the stop price:
-			high = bar_.getHigh()
-			low = bar_.getLow()
-			close = bar_.getClose()
-			
-			limitPrice = order.getPrice()
-			stopPrice = order.getStopPrice()
-			
-			# Check if we have ever reached the stop price
-			if order.isLimitOrderActive():
-				if limitPrice >= low and orderAction == Order.Action.BUY:
-					self.commitOrderExecution(order, limitPrice, quantity, dateTime)
-				elif limitPrice <= high and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
-					self.commitOrderExecution(order, limitPrice, quantity, dateTime)
-			else:
-				if stopPrice <= high and orderAction == Order.Action.BUY:
-					order.setLimitOrderActive(True)
-				elif stopPrice <= low and orderAction in (Order.Action.SELL, Order.Action.SELL_SHORT):
-					order.setLimitOrderActive(True)
-
-			order.checkCanceled(bars)
-		elif orderType == Order.Type.EXEC_IF_FILLED:
-			dependent = order.getDependent()
-			independent = order.getIndependent()
-
-			if independent.isFilled():
-				self.__processOrder(dependent, bars)
-			elif independent.isCanceled(): 
-				dependent.cancel()
-
-		else:
-			raise Exception("Invalid Order Type at Broker.__processOrder()")
-			
-
 	def onBars(self, bars):
 		pendingOrders = self.__pendingOrders
 		self.__pendingOrders = []
 
 		for order in pendingOrders:
 			if order.isAccepted():
-				self.__processOrder(order, bars)
-								
+				order.tryExecute(self, bars)
 				if order.isAccepted():
 					self.__pendingOrders.append(order)
 				else:
@@ -534,4 +418,21 @@ class Broker(BasicBroker):
 			else:
 				self.getOrderUpdatedEvent().emit(self, order)
 
-# vim: noet:ci:pi:sts=0:sw=4:ts=4
+	def start(self):
+		pass
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
+
+	def stopDispatching(self):
+		# If there are no more events in the barfeed, then there is nothing left for us to do since all processing took
+		# place while processing barfeed events.
+		return self.__barFeed.stopDispatching()
+
+	def dispatch(self):
+		# All events were already emitted while handling barfeed events.
+		pass
+

@@ -33,6 +33,7 @@ from testcases import broker_test
 from testcases import strategy_test
 from testcases import smacrossover_strategy_test
 from testcases import talib_test
+from testcases import observer_test
 
 def getTestCases():
 	ret = []
@@ -50,6 +51,7 @@ def getTestCases():
 	ret += strategy_test.getTestCases()
 	ret += smacrossover_strategy_test.getTestCases()
 	ret += talib_test.getTestCases()
+	ret += observer_test.getTestCases()
 	return ret
 
 def main():
