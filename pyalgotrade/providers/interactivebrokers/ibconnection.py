@@ -23,7 +23,7 @@
 .. moduleauthor:: Tibor Kiss <tibor.kiss@gmail.com>
 """
 
-import logging, threading, copy, datetime
+import threading, copy, datetime
 from time import localtime 
 
 from pyalgotrade import observer
@@ -36,6 +36,7 @@ from ib.ext.ScannerSubscription import ScannerSubscription
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 
+import logging
 log = logging.getLogger(__name__)
 
 class Connection(EWrapper):
@@ -127,7 +128,7 @@ class Connection(EWrapper):
 				self.connect()
 
 				# Subscribe for account updates
-				self.__tws.reqAccountUpdates(True, accountCode)
+				self.requestAccountUpdate()
 
 		def __getNextTickerID(self):
 				"""Returns the next unique Ticker ID"""
@@ -721,7 +722,7 @@ class Connection(EWrapper):
 				:param timestamp: This indicates the last update time of the account information
 				:type timestamp: str
 				"""
-				log.info("Last account update time: %s", timestamp)
+				log.debug("Last account update time: %s", timestamp)
 
 		def orderStatus(self, orderID, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld):
 				"""This event is called whenever the status of an order changes. It is also fired after 
@@ -758,7 +759,7 @@ class Connection(EWrapper):
 								The value used to indicate this is 'locate'.
 				:type whyHeld: str
 				"""
-				log.info("Order status: orderID: %s, status: %s, filled: %d, remaining: %d, avgFillPrice: %.2f, permId: %s, "
+				log.debug("Order status: orderID: %s, status: %s, filled: %d, remaining: %d, avgFillPrice: %.2f, permId: %s, "
 						 "parentId:%s, lastFillPrice: %.2f, clientId:%d, whyHeld: %s" % 
 						 (orderID, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId,	whyHeld))
 				try:
@@ -769,7 +770,7 @@ class Connection(EWrapper):
 				self.__orderUpdateHandler.emit(orderID, instrument, status, filled, remaining, avgFillPrice, lastFillPrice)
 
 		def openOrder(self, orderID, contract, order, orderState):
-				log.info("openOrder: orderID: %s, instrument: %s", orderID, contract.m_symbol)
+				log.debug("openOrder: orderID: %s, instrument: %s", orderID, contract.m_symbol)
 				self.__orderIDs[orderID] = contract.m_symbol
 
 		def execDetails(self, orderID, contract, execution, liquidation):
@@ -799,7 +800,7 @@ class Connection(EWrapper):
 
 		def managedAccounts(self, accountsList): 
 				"""Logs the managed account list by this TWS connection."""
-				log.info("Managed account list: %s", accountsList)
+				log.debug("Managed account list: %s", accountsList)
 		
 		def nextValidId(self, orderID): 
 				"""This function is called after a successful connection to TWS.
@@ -809,7 +810,7 @@ class Connection(EWrapper):
 				"""
 				self.__orderID = orderID
 
-				log.info("First valid orderID: %d", orderID)
+				log.debug("First valid orderID: %d", orderID)
 
 		def error(self, tickerID, errorCode=None, errorString=None):
 				"""Error handler function for the IB Connection."""
