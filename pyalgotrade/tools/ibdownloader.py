@@ -56,6 +56,7 @@ def bars_to_csv(bars, filename):
 def get_historical_data(instrument, endTime, duration, barSize, 
 			secType='STK', exchange='SMART', currency='USD', 
 			whatToShow='TRADES', useRTH=0, formatDate=1, 
+			twsConnection=None, 
 			twsHost='localhost', twsPort=7496, twsClientID=0): 
 	"""Downloads historical data from IB through TWS.
 	
@@ -92,14 +93,15 @@ def get_historical_data(instrument, endTime, duration, barSize,
 	:type twsClientID: int
 	"""
 
-	connection = ibconnection.Connection('', 0, twsHost, twsPort, twsClientID)
+	if twsConnection == None:
+		twsConnection = ibconnection.Connection('', 0, twsHost, twsPort, twsClientID)
 
-	bars = connection.requestHistoricalData(instrument, endTime, duration, barSize,
-						 secType, exchange, currency,
+	bars = twsConnection.requestHistoricalData(instrument, endTime, duration, barSize,
+			   			 secType, exchange, currency,
 						 whatToShow, useRTH, formatDate)
 
 	# Check for errors
-	error = connection.getError()
+	error = twsConnection.getError()
 	if error['tickerID'] != -1:
 		print "ERROR: ", error
 
