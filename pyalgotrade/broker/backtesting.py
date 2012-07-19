@@ -37,7 +37,7 @@ class MarketOrder(broker.MarketOrder):
 	"""
 	def __init__(self, action, instrument, quantity, goodTillCanceled = False, useClosingPrice = False):
 		price = 0
-		broker.MarketOrder.__init__(self, action, instrument, price, quantity, goodTillCanceled)
+		broker.MarketOrder.__init__(self, action, instrument, quantity, goodTillCanceled)
 		self.__useClosingPrice = useClosingPrice
 
 	def __getPrice(self, broker, bar_):
