@@ -102,7 +102,7 @@ def get_historical_data(instrument, endTime, duration, barSize,
 
 	# Check for errors
 	error = twsConnection.getError()
-	if error['tickerID'] != -1:
+	if error['tickerId'] != -1:
 		print "ERROR: ", error
 
 	# Return the loaded bars
