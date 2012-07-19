@@ -119,8 +119,9 @@ class Broker(broker.BasicBroker):
 	:param ibConnection: Object responsible to forward requests to TWS.
 	:type ibConnection: :class:`IBConnection`
 	"""
-	def __init__(self, ibConnection):
+	def __init__(self, barFeed, ibConnection):
 		self.__ibConnection = ibConnection
+		self.__barFeed      = barFeed
 
 		# Query the server for available funds
 		self.__cash = self.__ibConnection.getCash()

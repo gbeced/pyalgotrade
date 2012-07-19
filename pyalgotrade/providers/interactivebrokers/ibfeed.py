@@ -101,21 +101,31 @@ class LiveFeed(BarFeed):
 				self.__currentBars = {}
 				self.__queue = Queue.Queue()
 
+				self.__running = True
+
 
 		def start(self):
 			pass
 
 		def stop(self):
-			pass
+			self.__running = False
 
 		def join(self):
 			pass
 
 		def fetchNextBars(self):
-				ret = self.__queue.get(True)
-				if len(ret) == 0:
-						ret = None
-				return ret
+				timeout = 10 # Seconds
+
+				while self.__running:
+					try:
+						ret = self.__queue.get(True, timeout)
+						if len(ret) == 0:
+								ret = None
+						return ret
+					except Queue.Empty:
+						pass
+				else:
+					return None
 
 		def subscribeRealtimeBars(self, instrument, useRTH_=0):
 				self.__ibConnection.subscribeRealtimeBars(instrument, self.onRealtimeBars, useRTH=useRTH_)
