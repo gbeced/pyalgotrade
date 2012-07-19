@@ -169,6 +169,12 @@ class StopLimitOrder(broker.StopLimitOrder):
 		except KeyError:
 			pass
 
+class ExecuteIfFilled(broker.ExecuteIfFilled):
+	def tryExecute(self, broker, bars):
+		if self.getIndependent().isFilled():
+			self.getDependent().tryExecute(broker, bars)
+		elif self.getIndependent().isCanceled(): 
+			self.getDependent().cancel()
 
 
 ######################################################################
@@ -322,5 +328,8 @@ class Broker(broker.BasicBroker):
 
 	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
 		return(StopLimitOrder(broker.Order.Action.SELL, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
+	
+	def createExecuteIfFilled(self, dependent, independent):
+		return(ExecuteIfFilled(dependent, independent))
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4
