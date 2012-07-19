@@ -76,7 +76,7 @@ class Position:
 			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getBarsTillSessionClose() == 1:
 				assert(self.getEntryOrder() != None)
 				ret = self.buildExitOnSessionCloseOrder()
-				ret = broker.ExecuteIfFilled(ret, self.getEntryOrder())
+				ret = broker_.createExecuteIfFilled(ret, self.getEntryOrder())
 				broker_.placeOrder(ret)
 				self.setExitOrder(ret)
 		except KeyError:
