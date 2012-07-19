@@ -342,5 +342,8 @@ class BasicBroker:
 
 	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
 		raise NotImplementedError()
+	
+	def createExecuteIfFilled(self, dependent, independent):
+		raise NotImplementedError()
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4
