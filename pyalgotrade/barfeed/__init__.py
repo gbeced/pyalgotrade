@@ -132,7 +132,13 @@ class BarFeed(BasicBarFeed):
 			return None
 
 		# Check that bars were retured for all the instruments registered.
-		if barDict.keys() != self.getRegisteredInstruments():
+                barInstruments = barDict.keys()
+                barInstruments.sort()
+                registeredInstruments = self.getRegisteredInstruments()
+                registeredInstruments.sort()
+
+		if barInstruments != registeredInstruments:
+                        print barInstruments, registeredInstruments
 			raise Exception("Some bars are missing")
 
 		# This will check for incosistent datetimes between bars.
