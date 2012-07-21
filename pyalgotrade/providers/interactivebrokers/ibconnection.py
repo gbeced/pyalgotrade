@@ -90,7 +90,7 @@ class Connection(EWrapper):
 				self.__realtimeBarEvents = {}
 				
 				# Dictionary to map instruments to historical data tickerIds
-				self.__historicalDataTickerIDs = {}
+				self.__historicalDataTickerIds = {}
 
 				# List to buffer historical data which is produced by 
 				# historicalData(), consumed by requestHistoricalData()
@@ -130,13 +130,13 @@ class Connection(EWrapper):
 				# Subscribe for account updates
 				self.requestAccountUpdate()
 
-		def __getNextTickerID(self):
+		def __getNextTickerId(self):
 				"""Returns the next unique Ticker ID"""
 				tickerId = copy.copy(self.__tickerId)
 				self.__tickerId += 1
 				return tickerId
 		
-		def __getNextOrderID(self):
+		def __getNextOrderId(self):
 				"""Returns the next unique Order ID"""
 				orderId = copy.copy(self.__orderId)
 				self.__orderId += 1
@@ -222,7 +222,7 @@ class Connection(EWrapper):
 				:param currency: Specifies the currency for the trade.
 				:type currency: str
 				"""
-				orderId = self.__getNextOrderID()
+				orderId = self.__getNextOrderId()
 
 				self.__orderIds[orderId] = instrument
 				
@@ -296,7 +296,7 @@ class Connection(EWrapper):
 				"""
 				if instrument not in self.__realtimeBarIDs:
 						# Register the tickerId with the instrument name
-						tickerId = self.__getNextTickerID()
+						tickerId = self.__getNextTickerId()
 						self.__realtimeBarIDs[instrument] = tickerId
 
 						# Prepare the contract 
@@ -378,7 +378,7 @@ class Connection(EWrapper):
 								   2: Dates are returned as a long integer specifying the number of seconds since 1/1/1970 GMT .
 				"""
 				# Get a unique tickerId for the request
-				tickerId = self.__getNextTickerID()
+				tickerId = self.__getNextTickerId()
 
 				# Prepare the Contract for the historical data order
 				contract = Contract()
@@ -388,7 +388,7 @@ class Connection(EWrapper):
 				contract.m_currency = currency;
 
 				# map the tickerId to instrument
-				self.__historicalDataTickerIDs[tickerId] = instrument
+				self.__historicalDataTickerIds[tickerId] = instrument
 
 				# Request historical data
 				self.__tws.reqHistoricalData(tickerId, contract, endTime, duration, barSize, whatToShow, useRTH, formatDate)
@@ -457,7 +457,7 @@ class Connection(EWrapper):
 				:param instrument: Defines the instrument type for the scan.
 				:type instrument: str
 				"""
-				tickerId = self.__getNextTickerID()
+				tickerId = self.__getNextTickerId()
 
 				subscript = ScannerSubscription()
 				subscript.numberOfRows(numberOfRows)
@@ -514,7 +514,7 @@ class Connection(EWrapper):
 		# EWrapper callbacks
 		########################################################################################
 		def historicalData(self, tickerId, date, open_, high, low, close, volume, tradeCount, vwap, hasGaps):
-				instrument = self.__historicalDataTickerIDs[tickerId]
+				instrument = self.__historicalDataTickerIds[tickerId]
 
 				# EOD is signaled in the date variable, eg.:
 				# date='finished-20120628  00:00:00-20120630  00:00:00'
