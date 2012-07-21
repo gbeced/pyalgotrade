@@ -131,7 +131,7 @@ class Bars:
 				firstDateTime = currentBar.getDateTime()
 				firstInstrument = instrument
 			elif currentBar.getDateTime() != firstDateTime:
-				raise Exception("Bar data times are not in sync. %s %s != %s %s" % (instrument, currentBar.getDateTime(), firstInstrument, currentDateTime))
+				raise Exception("Bar data times are not in sync. %s %s != %s %s" % (instrument, currentBar.getDateTime(), firstInstrument, firstDateTime))
 
 		self.__barDict = barDict
 		self.__dateTime = firstDateTime
