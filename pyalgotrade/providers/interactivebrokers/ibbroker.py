@@ -71,15 +71,15 @@ class Order(broker.Order):
 
 	def setCanceled(self):
 		# Just set the flag to canceled
-		broker.Order.cancel()
+		broker.Order.cancel(self)
 
 	def cancel(self):
 		# Ask the broker to cancel the position
 		if self.__orderId != None:
 			self.__ibConnection.cancelOrder(self.__orderId)
 		
-		# Update the flag
-		broker.Order.cancel()
+		# The canceled flag will be updated through the __orderUpdate()
+		# callback and setCanceled() call
 
 class MarketOrder(Order):
 	def __init__(self, action, instrument, quantity, ibConnection, goodTillCanceled=False):
