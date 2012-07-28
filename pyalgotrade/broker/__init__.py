@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # 
-#	http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 # 
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,7 @@ from pyalgotrade import observer
 
 class Commission:
 	def calculate(self, order, price, quantity):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 class NoCommission(Commission):
 	def calculate(self, order, price, quantity):
@@ -167,23 +167,20 @@ class Order:
 class MarketOrder(Order):
 	"""
 	An :class:`Order` subclass that instructs the broker to buy or sell the stock immediately at the prevailing price, whatever that may be.
-	If useClosingPrice is set to False then the opening price will be used to fill the order, otherwise the closing price will be used.
 	"""
 
 	def __init__(self, action, instrument, quantity, goodTillCanceled = False):
 		price = 0
 		Order.__init__(self, Order.Type.MARKET, action, instrument, price, quantity, goodTillCanceled)
 
-
 class LimitOrder(Order):
 	"""
-	An :class:`Order` subclass that instructs the broker to buy or sell the stock stock at a particular price.
+	An :class:`Order` subclass that instructs the broker to buy or sell the stock at a particular price.
 	The purchase or sale will not happen unless you get your price.
 	"""
 
 	def __init__(self, action, instrument, price, quantity, goodTillCanceled = False):
 		Order.__init__(self, Order.Type.LIMIT, action, instrument, price, quantity, goodTillCanceled)
-	
 
 class StopOrder(Order):
 	"""
@@ -221,7 +218,6 @@ class StopLimitOrder(Order):
 	def isLimitOrderActive(self):
 		"""Returns the Limit Order Active boolean variable"""
 		return self.__limitOrderActive
-
 
 # Special order wrapper that executes an order (dependent) only if another order (independent) was filled.
 class ExecuteIfFilled:

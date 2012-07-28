@@ -439,7 +439,7 @@ class StopOrderTestCase(BaseTestCase):
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isFilled())
-                print order.getExecutionInfo().getPrice()
+		# print order.getExecutionInfo().getPrice()
 		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
@@ -494,7 +494,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 0)
 
 		# Fail to Buy: We hit the price, but the market prices is higher
-                # than the cash available
+		# than the cash available
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(2, 15, 1, 12))
@@ -599,7 +599,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createLongStopLimitOrder(BaseTestCase.TestInstrument, limitPrice=4, stopPrice=3, quantity=2, 
-                                                     goodTillCanceled=True)
+													goodTillCanceled=True)
 
 		# Fail to buy (couldn't get specific price).
 		cb = Callback()
@@ -615,7 +615,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 0)
 
 		# Fail to Buy: We hit the stop price, but the limit price is higher
-                # than the cash available
+		# than the cash available
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(2, 15, 1, 12))
@@ -627,7 +627,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 0)
 
 		# Increase tha available cash and buy
-                brk.setCash(10)
+		brk.setCash(10)
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(2, 15, 1, 4))
@@ -661,7 +661,7 @@ def getTestCases():
 	ret.append(StopOrderTestCase("testFailToBuy"))
 	ret.append(StopOrderTestCase("testBuyAndSell_GTC"))
 	
-        ret.append(StopLimitOrderTestCase("testBuyAndSell"))
+	ret.append(StopLimitOrderTestCase("testBuyAndSell"))
 	ret.append(StopLimitOrderTestCase("testFailToBuy"))
 	ret.append(StopLimitOrderTestCase("testBuyAndSell_GTC"))
 	return ret

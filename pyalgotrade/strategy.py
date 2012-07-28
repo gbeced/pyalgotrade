@@ -118,11 +118,11 @@ class LongPosition(Position):
 		self.__broker = broker_
 		if price == None and stopPrice == None:
 			entryOrder = self.__broker.createLongMarketOrder(instrument, quantity, goodTillCanceled)
-                elif price != None and stopPrice == None:
+		elif price != None and stopPrice == None:
 			entryOrder = self.__broker.createLongLimitOrder(instrument, price, quantity, goodTillCanceled)
-                elif price == None and stopPrice != None:
+		elif price == None and stopPrice != None:
 			entryOrder = self.__broker.createLongStopOrder(instrument, stopPrice, quantity, goodTillCanceled)
-                elif price != None and stopPrice != None:
+		elif price != None and stopPrice != None:
 			entryOrder = self.__broker.createLongStopLimitOrder(instrument, price, stopPrice, quantity, goodTillCanceled)
 
 		Position.__init__(self, entryOrder)
@@ -152,11 +152,11 @@ class ShortPosition(Position):
 		self.__broker = broker_
 		if price == None and stopPrice == None:
 			entryOrder = self.__broker.createShortMarketOrder(instrument, quantity, goodTillCanceled)
-                elif price != None and stopPrice == None:
+		elif price != None and stopPrice == None:
 			entryOrder = self.__broker.createShortLimitOrder(instrument, price, quantity, goodTillCanceled)
-                elif price == None and stopPrice != None:
+		elif price == None and stopPrice != None:
 			entryOrder = self.__broker.createShortStopOrder(instrument, stopPrice, quantity, goodTillCanceled)
-                elif price != None and stopPrice != None:
+		elif price != None and stopPrice != None:
 			entryOrder = self.__broker.createShortStopLimitOrder(instrument, price, stopPrice, quantity, goodTillCanceled)
 
 		Position.__init__(self, entryOrder)
@@ -187,9 +187,9 @@ class Strategy:
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
 	:param cash: The amount of cash available.
 	:type cash: int/float.
-        :param broker_: Broker to use. If not specified the default broker (:class:`pyalgotrade.broker.Broker`) 
-                        will be created.
-        :type broker_: :class:`pyalgotrade.broker.Broker`.
+	:param broker_: Broker to use. If not specified the default broker (:class:`pyalgotrade.broker.backtesting.Broker`) 
+					will be created.
+	:type broker_: :class:`pyalgotrade.broker.Broker`.
 
 	.. note::
 		This is a base class and should not be used directly.
@@ -201,12 +201,12 @@ class Strategy:
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = observer.Event()
 
-		# When doing backtesting, the broker should subscribe to barFeed events before the strategy.
-		# This is to avoid executing orders placed in the current tick.
-                if broker_ == None:
-                    self.__broker = broker.backtesting.Broker(cash, barFeed)
-                else:
-                    self.__broker = broker_
+		if broker_ == None:
+			# When doing backtesting (broker_ == None), the broker should subscribe to barFeed events before the strategy.
+			# This is to avoid executing orders placed in the current tick.
+			self.__broker = broker.backtesting.Broker(cash, barFeed)
+		else:
+			self.__broker = broker_
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
 	def getResult(self):
@@ -327,7 +327,7 @@ class Strategy:
 		self.__registerActivePosition(ret)
 		return ret
 	
-        def enterLongStop(self, instrument, price, quantity, goodTillCanceled = False):
+	def enterLongStop(self, instrument, price, quantity, goodTillCanceled = False):
 		"""Generates a buy stop order to enter a market position if the price is reached.
 
 		:param instrument: Instrument identifier.
@@ -363,15 +363,15 @@ class Strategy:
 		self.__registerActivePosition(ret)
 		return ret
 
-        def enterLongStopLimit(self, instrument, price, stopPrice, quantity, goodTillCanceled = False):
+	def enterLongStopLimit(self, instrument, price, stopPrice, quantity, goodTillCanceled = False):
 		"""Generates a buy stop order to enter a limit position if the stop price is reached.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
 		:param price: Limit price. Used when the stop price is hit.
 		:type price: float.
-                :param stopPrice: The Stop price. If it is hit, the Limit price is used to issue the order.
-                :type stopPrice: float.
+		:param stopPrice: The Stop price. If it is hit, the Limit price is used to issue the order.
+		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
 		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
@@ -390,8 +390,8 @@ class Strategy:
 		:type instrument: string.
 		:param price: Limit price. Used when the stop price is hit.
 		:type price: float.
-                :param stopPrice: The Stop price. If it is hit, the Limit price is used to issue the order.
-                :type stopPrice: float.
+		:param stopPrice: The Stop price. If it is hit, the Limit price is used to issue the order.
+		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
 		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
