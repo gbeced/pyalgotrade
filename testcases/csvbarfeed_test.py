@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # 
-#   http://www.apache.org/licenses/LICENSE-2.0
+#	http://www.apache.org/licenses/LICENSE-2.0
 # 
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,48 @@ import os
 
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import ninjatraderfeed
+# from pyalgotrade.providers.interactivebrokers import ibfeed
 import common
+
+class BarFeedEventHandler_TestLoadOrder:
+		def __init__(self, testcase, barFeed, instrument):
+				self.__testcase = testcase
+				self.__count = 0
+				self.__prevDateTime = None
+				self.__barFeed = barFeed
+				self.__instrument = instrument
+
+		def onBars(self, bars):
+				self.__count += 1
+				dateTime = bars.getBar(self.__instrument).getDateTime()
+				if self.__prevDateTime != None:
+						# Check that bars are loaded in order
+						self.__testcase.assertTrue(self.__prevDateTime < dateTime)
+						# Check that the last value in the dataseries match the current datetime.
+						self.__testcase.assertTrue(self.__barFeed.getDataSeries().getValue().getDateTime() == dateTime)
+				self.__prevDateTime = dateTime
+
+		def getEventCount(self):
+				return self.__count
+		
+class BarFeedEventHandler_TestFilterRange:
+		def __init__(self, testcase, instrument, fromDate, toDate):
+				self.__testcase = testcase
+				self.__count = 0
+				self.__instrument = instrument
+				self.__fromDate = fromDate
+				self.__toDate = toDate
+
+		def onBars(self, bars):
+				self.__count += 1
+
+				if self.__fromDate != None:
+					self.__testcase.assertTrue(bars.getBar(self.__instrument).getDateTime() >= self.__fromDate)
+				if self.__toDate != None:
+					self.__testcase.assertTrue(bars.getBar(self.__instrument).getDateTime() <= self.__toDate)
+
+		def getEventCount(self):
+				return self.__count
 
 class YahooTestCase(unittest.TestCase):
 	TestInstrument = "orcl"
@@ -53,58 +94,25 @@ class YahooTestCase(unittest.TestCase):
 		self.assertTrue(self.__parseDate("2011-1-1") > self.__parseDate("2001-2-2"))
 
 	def testCSVFeedLoadOrder(self):
-		class BarFeedEventHandler:
-			def __init__(self, testcase, barFeed):
-				self.__testcase = testcase
-				self.__count = 0
-				self.__prevDateTime = None
-				self.__barFeed = barFeed
-
-			def onBars(self, bars):
-				self.__count += 1
-				dateTime = bars.getBar(YahooTestCase.TestInstrument).getDateTime()
-				if self.__prevDateTime != None:
-					# Check that bars are loaded in order
-					self.__testcase.assertTrue(self.__prevDateTime < dateTime)
-					# Check that the last value in the dataseries match the current datetime.
-					self.__testcase.assertTrue(self.__barFeed.getDataSeries().getValue().getDateTime() == dateTime)
-				self.__prevDateTime = dateTime
-
-			def getEventCount(self):
-				return self.__count
-
 		barFeed = csvfeed.YahooFeed()
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
 		# Dispatch and handle events.
-		handler = BarFeedEventHandler(self, barFeed)
+		handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, YahooTestCase.TestInstrument)
 		barFeed.getNewBarsEvent().subscribe(handler.onBars)
 		while not barFeed.stopDispatching():
 			barFeed.dispatch()
 		self.assertTrue(handler.getEventCount() > 0)
 
-	def __testFilteredRangeImpl(self, fromDate, toDate, year):
-		class BarFeedEventHandler:
-			def __init__(self, testcase, year):
-				self.__testcase = testcase
-				self.__count = 0
-				self.__year = year
-
-			def onBars(self, bars):
-				self.__count += 1
-				self.__testcase.assertTrue(bars.getBar(YahooTestCase.TestInstrument).getDateTime().year == self.__year)
-
-			def getEventCount(self):
-				return self.__count
-
+	def __testFilteredRangeImpl(self, fromDate, toDate):
 		barFeed = csvfeed.YahooFeed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
 		# Dispatch and handle events.
-		handler = BarFeedEventHandler(self, year)
+		handler = BarFeedEventHandler_TestFilterRange(self, YahooTestCase.TestInstrument, fromDate, toDate)
 		barFeed.getNewBarsEvent().subscribe(handler.onBars)
 		while not barFeed.stopDispatching():
 			barFeed.dispatch()
@@ -112,15 +120,15 @@ class YahooTestCase(unittest.TestCase):
 
 	def testFilteredRangeFrom(self):
 		# Only load bars from year 2001.
-		self.__testFilteredRangeImpl(datetime.date(2001, 1, 1), None, 2001)
+		self.__testFilteredRangeImpl(datetime.datetime(2001, 1, 1, 00, 00), None)
 
 	def testFilteredRangeTo(self):
 		# Only load bars up to year 2000.
-		self.__testFilteredRangeImpl(None, datetime.date(2000, 12, 31), 2000)
+		self.__testFilteredRangeImpl(None, datetime.datetime(2000, 12, 31, 23, 55))
 
 	def testFilteredRangeFromTo(self):
 		# Only load bars in year 2000.
-		self.__testFilteredRangeImpl(datetime.date(2000, 1, 1), datetime.date(2000, 12, 31), 2000)
+		self.__testFilteredRangeImpl(datetime.datetime(2000, 1, 1, 00, 00), datetime.datetime(2000, 12, 31, 23, 55))
 
 class IntradayBarFeedTestCase(unittest.TestCase):
 	def __loadIntradayBarFeed(self):
@@ -163,6 +171,64 @@ class IntradayBarFeedTestCase(unittest.TestCase):
 				self.assertTrue(previousBar.getSessionClose() == False)
 				self.assertTrue(previousBar.getBarsTillSessionClose() == 1)
 
+class IBTestCase(unittest.TestCase):
+	TestInstrument = "orcl"
+
+	def __parseDate(self, date):
+		parser = ibfeed.RowParser("test")
+		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "TradeCount":0 , "VWAP":0 , "HasGap": "False"}
+		return parser.parseBar(row).getDateTime()
+
+	def testParseDate_1(self):
+		date = self.__parseDate("2012-06-29 01:55:00")
+		self.assertTrue(date.day == 29)
+		self.assertTrue(date.month == 06)
+		self.assertTrue(date.year == 2012)
+
+		self.assertTrue(date.hour == 01)
+		self.assertTrue(date.minute == 55)
+		self.assertTrue(date.second == 00)
+
+	def testDateCompare(self):
+		self.assertTrue(self.__parseDate("2012-06-29 00:55:00") != self.__parseDate("2012-06-29 01:55:00"))
+		self.assertTrue(self.__parseDate("2011-06-29 00:55:00") < self.__parseDate("2012-06-29 01:55:00"))
+		self.assertTrue(self.__parseDate("2012-06-29 00:55:00") < self.__parseDate("2012-06-29 01:55:00"))
+
+	def testCSVFeedLoadOrder(self):
+		barFeed = ibfeed.CSVFeed()
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
+
+		handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, IBTestCase.TestInstrument)
+		barFeed.getNewBarsEvent().subscribe(handler.onBars)
+		while not barFeed.stopDispatching():
+			barFeed.dispatch()
+		self.assertTrue(handler.getEventCount() > 0)
+
+	def __testFilteredRangeImpl(self, fromDate, toDate):
+		barFeed = ibfeed.CSVFeed()
+		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
+		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
+		
+		# Dispatch and handle events.
+		handler = BarFeedEventHandler_TestFilterRange(self, IBTestCase.TestInstrument, fromDate, toDate)
+		barFeed.getNewBarsEvent().subscribe(handler.onBars)
+		while not barFeed.stopDispatching():
+			barFeed.dispatch()
+		self.assertTrue(handler.getEventCount() > 0)
+
+	def testFilteredRangeFrom(self):
+		self.__testFilteredRangeImpl(datetime.datetime(2012, 06, 28, 00, 00), None)
+
+	def testFilteredRangeTo(self):
+		self.__testFilteredRangeImpl(None, datetime.datetime(2012, 06, 29, 23, 55))
+
+	def testFilteredRangeFromTo(self):
+		self.__testFilteredRangeImpl(datetime.datetime(2000, 1, 1, 00, 00), datetime.datetime(2020, 12, 31, 23, 55))
+
 def getTestCases():
 	ret = []
 	ret.append(YahooTestCase("testParseDate_1"))
@@ -173,6 +239,13 @@ def getTestCases():
 	ret.append(YahooTestCase("testFilteredRangeTo"))
 	ret.append(YahooTestCase("testFilteredRangeFromTo"))
 	ret.append(IntradayBarFeedTestCase("testSessionClose"))
+	# ret.append(IBTestCase("testParseDate_1"))
+	# ret.append(IBTestCase("testDateCompare"))
+	# ret.append(IBTestCase("testCSVFeedLoadOrder"))
+	# ret.append(IBTestCase("testFilteredRangeFrom"))
+	# ret.append(IBTestCase("testFilteredRangeTo"))
+	# ret.append(IBTestCase("testFilteredRangeFromTo"))
 	return ret
 
 
+# vim: noet:ci:pi:sts=0:sw=4:ts=4

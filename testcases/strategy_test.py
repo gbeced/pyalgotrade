@@ -72,7 +72,7 @@ class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
 
 	def __loadIntradayBarFeed(self, fromMonth=1, toMonth=1, fromDay=3, toDay=3):
-		barFilter = csvfeed.USEquitiesRTH(datetime.date(2011, fromMonth, fromDay), datetime.date(2011, toMonth, toDay))
+		barFilter = csvfeed.USEquitiesRTH(datetime.datetime(2011, fromMonth, fromDay, 00, 00), datetime.datetime(2011, toMonth, toDay, 23, 55))
 		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		barFeed.setBarFilter(barFilter)
 		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))

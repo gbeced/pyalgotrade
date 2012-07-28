@@ -84,8 +84,8 @@ class BasicBarFeed:
 		return self.__ds.keys()
 
 	def registerInstrument(self, instrument):
-		if self.__defaultInstrument != None and instrument != self.__defaultInstrument:
-			raise Exception("Multiple instruments not supported")
+		#if self.__defaultInstrument != None and instrument != self.__defaultInstrument:
+		#	raise Exception("Multiple instruments not supported")
 
 		self.__defaultInstrument = instrument
 		if instrument not in self.__ds:
@@ -98,8 +98,11 @@ class BasicBarFeed:
 		:type instrument: string.
 		:rtype: :class:`pyalgotrade.dataseries.BarDataSeries`.
 		"""
-		assert(instrument == None or instrument == self.__defaultInstrument)
-		return self.__ds[self.__defaultInstrument]
+		# assert(instrument == None or instrument == self.__defaultInstrument)
+                if instrument == None:
+                        instrument = self.__defaultInstrument
+                    
+                return self.__ds[instrument]
 
 # This class is responsible for:
 # - Checking the pyalgotrade.bar.Bar objects returned by fetchNextBars and building pyalgotrade.bar.Bars objects.
@@ -129,7 +132,13 @@ class BarFeed(BasicBarFeed):
 			return None
 
 		# Check that bars were retured for all the instruments registered.
-		if barDict.keys() != self.getRegisteredInstruments():
+                barInstruments = barDict.keys()
+                barInstruments.sort()
+                registeredInstruments = self.getRegisteredInstruments()
+                registeredInstruments.sort()
+
+		if barInstruments != registeredInstruments:
+                        print barInstruments, registeredInstruments
 			raise Exception("Some bars are missing")
 
 		# This will check for incosistent datetimes between bars.

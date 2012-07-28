@@ -48,9 +48,9 @@ class DateRangeFilter(BarFilter):
 		self.__toDate = toDate
 
 	def includeBar(self, bar_):
-		if self.__toDate and bar_.getDateTime().date() > self.__toDate:
+		if self.__toDate and bar_.getDateTime() > self.__toDate:
 			return False
-		if self.__fromDate and bar_.getDateTime().date() < self.__fromDate:
+		if self.__fromDate and bar_.getDateTime() < self.__fromDate:
 			return False
 		return True
 
@@ -176,4 +176,3 @@ class YahooFeed(BarFeed):
 	def addBarsFromCSV(self, instrument, path, timeZone = 0):
 		rowParser = YahooRowParser(timeZone)
 		BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
-
