@@ -530,9 +530,15 @@ class Strategy:
 			self.onStart()
 
 			# Dispatch events as long as the feed or the broker have something to dispatch.
-			while not self.__feed.stopDispatching() or not self.__broker.stopDispatching():
-				self.__broker.dispatch()
-				self.__feed.dispatch()
+			stopDispBroker = self.__broker.stopDispatching()
+			stopDispFeed = self.__feed.stopDispatching()
+			while not stopDispFeed or not stopDispBroker:
+				if not stopDispBroker:
+					self.__broker.dispatch()
+				if not stopDispFeed:
+					self.__feed.dispatch()
+				stopDispBroker = self.__broker.stopDispatching()
+				stopDispFeed = self.__feed.stopDispatching()
 
 			if self.__feed.getLastBars() != None:
 				self.onFinish(self.__feed.getLastBars())
