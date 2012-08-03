@@ -1,7 +1,10 @@
 Version 0.7
-. [NEW] Official support for NinjaTrader generated CSV files (pyalgotrade.barfeed.ninjatraderfeed.Feed). csvfeed.NinjaTraderRowParser was removed
-. [NEW] pyalgotrade.barfeed.csvfeed.YahooFeed was moved to pyalgotrade.barfeed.yahoofeed.Feed. pyalgotrade.barfeed.csvfeed.YahooFeed still works but it will be removed soon.
+. [NEW] Added support Stop orders. Thanks Tibor Kiss for adding this.
+. [NEW] Added support StopLimit orders. Thanks Tibor Kiss for adding this.
 . [NEW] TA-Lib integration (pyalgotrade.talibext.indicator).
+. [NEW] Official support for NinjaTrader generated CSV files (pyalgotrade.barfeed.ninjatraderfeed.Feed). csvfeed.NinjaTraderRowParser was removed
+. [CHANGE] pyalgotrade.barfeed.csvfeed.YahooFeed was moved to pyalgotrade.barfeed.yahoofeed.Feed. pyalgotrade.barfeed.csvfeed.YahooFeed still works but it will be removed soon.
+. [CHANGE] Major changes to the broker interface to support other broker types. Thanks Tibor Kiss for adding this.
 . [FIX] Was not honoring the good till canceled attribute when submiting exit orders from inside the position classes.
 
 Version 0.6
