@@ -39,9 +39,10 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 	def __init__(self, decoratedBarFeed):
 		barfeed.BasicBarFeed.__init__(self)
 		self.__decorated = decoratedBarFeed
+		self.__stopped = False
 
 		# The barfeed runs in its own thread and will put bars in a queue that will be consumed by the strategy when fetchNextBars is called.
-		self.__queue = Queue.Queue(maxsize=5)
+		self.__queue = Queue.Queue()
 
 		# We're wrapping the barfeed so we need to register the same instruments.
 		for instrument in decoratedBarFeed.getRegisteredInstruments():
@@ -55,25 +56,30 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 
 		# Just consume the bars and put them in a queue.
 		bars = self.__decorated.getNextBars()
-		while bars != None:
+		while bars != None and not self.__stopped:
 			self.__queue.put(bars)
 			bars = self.__decorated.getNextBars()
 
 		# Flag end of barfeed
 		self.__queue.put(None)
-
 		self.__decorated.stop()
 		self.__decorated.join()
 
 	def getNextBars(self):
 		# Consume the bars from the queue.
-		return self.__queue.get()
+		ret = None
+		try:
+			# If there is nothing there after 5 seconds, then treat this as the end.
+			ret = self.__queue.get(True, 5)
+		except Queue.Empty:
+			ret = None
+		return ret
 
 	def start(self):
 		self.__thread.start()
 
 	def stop(self):
-		pass
+		self.__stopped = True
 
 	def join(self):
 		self.__thread.join()
@@ -82,16 +88,15 @@ class ExternalBroker(broker.BasicBroker):
 	def __init__(self, cash, barFeed, commission=None):
 		broker.BasicBroker.__init__(self, cash, commission)
 
+		self.__ordersQueue = Queue.Queue()
+		self.__stop = False
+
 		# We're using a backtesting broker which only processes orders when bars are recevied.
 		self.__decorated = backtesting.Broker(cash, barFeed, commission)
 		# We'll queue events from the backtesting broker and forward those ONLY when dispatch is called.
 		self.__decorated.getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
 
-		self.__barsQueue = Queue.Queue(maxsize=5)
-		self.__ordersQueue = Queue.Queue(maxsize=5)
-
 		self.__thread = threading.Thread(target=self.__threadMain)
-		self.__stop = False
 
 	def __onOrderUpdated(self, broker_, order):
 		self.__ordersQueue.put(order)
@@ -134,7 +139,7 @@ class ExternalBroker(broker.BasicBroker):
 		# Get orders from the queue and emit events.
 		try:
 			while True:
-				order = self.__ordersQueue.get(False, 1)
+				order = self.__ordersQueue.get(False)
 				self.getOrderUpdatedEvent().emit(self, order)
 		except Queue.Empty:
 			pass
@@ -142,30 +147,18 @@ class ExternalBroker(broker.BasicBroker):
 	def placeOrder(self, order):
 		return self.__decorated.placeOrder(order)
 	
-	def createLongMarketOrder(self, instrument, quantity, goodTillCanceled=False):
-		return self.__decorated.createLongMarketOrder(instrument, quantity, goodTillCanceled)
+	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
+		return self.__decorated.createMarketOrder(action, instrument, quantity, onClose, goodTillCanceled)
 
-	def createShortMarketOrder(self, instrument, quantity, goodTillCanceled=False):
-		return self.__decorated.createShortMarketOrder(instrument, quantity, goodTillCanceled)
+	def createLimitOrder(self, action, instrument, price, quantity, goodTillCanceled):
+		return self.__decorated.createLimitOrder(action, instrument, price, quantity, goodTillCanceled)
 
-	def createLongLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return self.__decorated.createLongLimitOrder(instrument, price, quantity, goodTillCanceled)
+	def createStopOrder(self, action, instrument, triggerPrice, quantity, goodTillCanceled):
+		return self.__decorated.createStopOrder(action, instrument, triggerPrice, quantity, goodTillCanceled)
 
-	def createShortLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return self.__decorated.createShortLimitOrder(instrument, price, quantity, goodTillCanceled)
+	def createStopLimitOrder(self, action, instrument, triggerPrice, price, quantity, goodTillCanceled):
+		return self.__decorated.createStopLimitOrder(action, instrument, triggerPrice, price, quantity, goodTillCanceled)
 
-	def createLongStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return self.__decorated.createLongStopOrder(instrument, price, quantity)
-
-	def createShortStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return self.__decorated.createShortStopOrder(instrument, price, quantity, goodTillCanceled)
-
-	def createLongStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
-		return self.__decorated.createLongStopLimitOrder(instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
-
-	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
-		return self.__decorated.createShortStopLimitOrder(instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
-	
 	def createExecuteIfFilled(self, dependent, independent):
 		return self.__decorated.createExecuteIfFilled(dependent, independent)
 
@@ -602,7 +595,6 @@ class StrategyTestCase(unittest.TestCase):
 
 		# 3/Jan/2011 20:59:00 - Enter long
 		# 3/Jan/2011 21:00:00 - Buy at open price: 127.07 - Sell at close price: 127.05
-		# The exit date should not be triggered
 		strat.addLongDatetimes(datetime.datetime(2011, 1, 3, 20, 59), datetime.datetime(2011, 1, 4, 18, 20))
 		strat.run()
 

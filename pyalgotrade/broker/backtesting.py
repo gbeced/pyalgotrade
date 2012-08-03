@@ -31,17 +31,12 @@ class NotEnoughCash(Exception):
 ######################################################################
 ## Orders
 class MarketOrder(broker.MarketOrder):
-	"""
-	An :class:`Order` subclass that instructs the broker to buy or sell the stock immediately at the prevailing price, whatever that may be.
-	If useClosingPrice is set to False then the opening price will be used to fill the order, otherwise the closing price will be used.
-	"""
-	def __init__(self, action, instrument, quantity, goodTillCanceled = False, useClosingPrice = False):
-		price = 0
+	def __init__(self, action, instrument, quantity, onClose, goodTillCanceled):
 		broker.MarketOrder.__init__(self, action, instrument, quantity, goodTillCanceled)
-		self.__useClosingPrice = useClosingPrice
+		self.__onClose = onClose
 
 	def __getPrice(self, broker, bar_):
-		if self.__useClosingPrice:
+		if self.__onClose:
 			if broker.getUseAdjustedValues():
 				ret = bar_.getAdjClose()
 			else:
@@ -98,7 +93,6 @@ class LimitOrder(broker.LimitOrder):
 		except KeyError:
 			pass
 
-
 class StopOrder(broker.StopOrder):
 	"""
 	An :class:`Order` subclass that gives your broker a price trigger that protects you from a big drop in a stock.
@@ -131,7 +125,6 @@ class StopOrder(broker.StopOrder):
 				self.checkCanceled(bars)
 		except KeyError:
 			pass
-
 
 class StopLimitOrder(broker.StopLimitOrder):
 	"""
@@ -175,7 +168,6 @@ class ExecuteIfFilled(broker.ExecuteIfFilled):
 			self.getDependent().tryExecute(broker, bars)
 		elif self.getIndependent().isCanceled(): 
 			self.getDependent().cancel()
-
 
 ######################################################################
 ## Broker
@@ -232,7 +224,7 @@ class Broker(broker.BasicBroker):
 
 	# Tries to commit an order execution. Returns True if the order was commited, or False is there is not enough cash.
 	def commitOrderExecution(self, order, price, quantity, dateTime):
-		if order.getAction() == broker.Order.Action.BUY:
+		if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
 			cost = price * quantity * -1
 			assert(cost < 0)
 			sharesDelta = quantity
@@ -305,30 +297,18 @@ class Broker(broker.BasicBroker):
 		# All events were already emitted while handling barfeed events.
 		pass
 	
-	def createLongMarketOrder(self, instrument, quantity, goodTillCanceled=False, useClosingPrice=False): 
-		return(MarketOrder(broker.Order.Action.BUY, instrument, quantity, goodTillCanceled, useClosingPrice))
+	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
+		return MarketOrder(action, instrument, quantity, onClose, goodTillCanceled)
 
-	def createShortMarketOrder(self, instrument, quantity, goodTillCanceled=False, useClosingPrice=False): 
-		return(MarketOrder(broker.Order.Action.SELL, instrument, quantity, goodTillCanceled, useClosingPrice))
+	def createLimitOrder(self, action, instrument, price, quantity, goodTillCanceled):
+		return LimitOrder(action, instrument, price, quantity, goodTillCanceled)
 
-	def createLongLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(LimitOrder(broker.Order.Action.BUY, instrument, price, quantity, goodTillCanceled))
+	def createStopOrder(self, action, instrument, triggerPrice, quantity, goodTillCanceled):
+		return StopOrder(action, instrument, triggerPrice, quantity, goodTillCanceled)
 
-	def createShortLimitOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(LimitOrder(broker.Order.Action.SELL, instrument, price, quantity, goodTillCanceled))
+	def createStopLimitOrder(self, action, instrument, triggerPrice, price, quantity, goodTillCanceled):
+		return StopLimitOrder(action, instrument, price, triggerPrice, quantity, goodTillCanceled)
 
-	def createLongStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(StopOrder(broker.Order.Action.BUY, instrument, price, quantity, goodTillCanceled))
-
-	def createShortStopOrder(self, instrument, price, quantity, goodTillCanceled=False): 
-		return(StopOrder(broker.Order.Action.SELL, instrument, price, quantity, goodTillCanceled))
-
-	def createLongStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
-		return(StopLimitOrder(broker.Order.Action.BUY, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
-
-	def createShortStopLimitOrder(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False): 
-		return(StopLimitOrder(broker.Order.Action.SELL, instrument, limitPrice, stopPrice, quantity, goodTillCanceled))
-	
 	def createExecuteIfFilled(self, dependent, independent):
 		return(ExecuteIfFilled(dependent, independent))
 
