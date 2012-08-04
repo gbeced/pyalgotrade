@@ -98,7 +98,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 0)
 
-		# Fail to buy. Canceled.
+		# Fail to buy. No money. Canceled due to session close.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(11, 15, 8, 12, True))
@@ -109,7 +109,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
-	def testBuyAndSell_GTC(self):
+	def testBuy_GTC(self):
 		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1, False, True)
@@ -374,7 +374,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 0)
 
-		# Fail to buy. Canceled due to session close.
+		# Fail to buy (couldn't get specific price). Canceled due to session close.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(11, 15, 8, 12, True))
@@ -385,7 +385,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
-	def testBuyAndSell_GTC(self):
+	def testBuy_GTC(self):
 		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed())
 
 		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 4, 2, True)
@@ -425,10 +425,10 @@ class StopOrderTestCase(BaseTestCase):
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 15)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 0)
+		self.assertTrue(brk.getCash() == 4)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
 		self.assertTrue(cb.eventCount == 1)
 
@@ -439,11 +439,10 @@ class StopOrderTestCase(BaseTestCase):
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isFilled())
-		# print order.getExecutionInfo().getPrice()
-		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 12)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 8)
+		self.assertTrue(brk.getCash() == 16)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
@@ -464,7 +463,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 0)
 
-		# Fail to buy. Canceled due to session close.
+		# Fail to buy (couldn't get specific price).  Canceled due to session close.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(11, 15, 8, 12, True))
@@ -475,7 +474,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
-	def testBuyAndSell_GTC(self):
+	def testBuy_GTC(self):
 		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed())
 
 		order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 4, 2, True)
@@ -493,11 +492,10 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 0)
 
-		# Fail to Buy: We hit the price, but the market prices is higher
-		# than the cash available
+		# Fail to buy (couldn't get specific price).
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.onBars(self.buildBars(2, 15, 1, 12))
+		brk.onBars(self.buildBars(10, 15, 5, 12))
 		self.assertTrue(order.isAccepted())
 		self.assertTrue(order.getExecutionInfo() == None)
 		self.assertTrue(len(brk.getPendingOrders()) == 1)
@@ -508,11 +506,11 @@ class StopOrderTestCase(BaseTestCase):
 		# Buy
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.onBars(self.buildBars(2, 5, 1, 4))
+		brk.onBars(self.buildBars(10, 15, 4, 12, True))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 5)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 4)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 0)
+		self.assertTrue(brk.getCash() == 2)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 2)
 		self.assertTrue(cb.eventCount == 1)
 
@@ -595,7 +593,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
-	def testBuyAndSell_GTC(self):
+	def testBuy_GTC(self):
 		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, triggerPrice=3, price=4, quantity=2, goodTillCanceled=True)
@@ -642,7 +640,7 @@ def getTestCases():
 
 	ret.append(MarketOrderTestCase("testBuyAndSell"))
 	ret.append(MarketOrderTestCase("testFailToBuy"))
-	ret.append(MarketOrderTestCase("testBuyAndSell_GTC"))
+	ret.append(MarketOrderTestCase("testBuy_GTC"))
 	ret.append(MarketOrderTestCase("testBuyAndSellInTwoSteps"))
 	ret.append(MarketOrderTestCase("testPortfolioValue"))
 	ret.append(MarketOrderTestCase("testBuyWithCommission"))
@@ -654,14 +652,14 @@ def getTestCases():
 
 	ret.append(LimitOrderTestCase("testBuyAndSell"))
 	ret.append(LimitOrderTestCase("testFailToBuy"))
-	ret.append(LimitOrderTestCase("testBuyAndSell_GTC"))
+	ret.append(LimitOrderTestCase("testBuy_GTC"))
 
 	ret.append(StopOrderTestCase("testBuyAndSell"))
 	ret.append(StopOrderTestCase("testFailToBuy"))
-	ret.append(StopOrderTestCase("testBuyAndSell_GTC"))
+	ret.append(StopOrderTestCase("testBuy_GTC"))
 	
 	ret.append(StopLimitOrderTestCase("testBuyAndSell"))
 	ret.append(StopLimitOrderTestCase("testFailToBuy"))
-	ret.append(StopLimitOrderTestCase("testBuyAndSell_GTC"))
+	ret.append(StopLimitOrderTestCase("testBuy_GTC"))
 	return ret
 
