@@ -521,43 +521,58 @@ class StopLimitOrderTestCase(BaseTestCase):
 		# Buy
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, triggerPrice=10, price=11, quantity=1, goodTillCanceled=False)
+		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=9, quantity=1, goodTillCanceled=False)
 		brk.placeOrder(order)
+
+		# stop price not reached. limit price not reached.
+		brk.onBars(self.buildBars(12, 15, 12, 12))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+		# stop price reached. limit price not reached.
+		brk.onBars(self.buildBars(10, 15, 10, 12))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+		# stop price reached. limit price reached.
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isLimitOrderActive())
-		brk.onBars(self.buildBars(15, 20, 15, 18))
-		self.assertFalse(order.isFilled())
-		brk.onBars(self.buildBars(11, 20, 10, 10))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
+
+		self.assertTrue(order.getExecutionInfo().getPrice() == 9)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 4)
+		self.assertTrue(brk.getCash() == 6)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
 		self.assertTrue(cb.eventCount == 1)
 
 		# Sell
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, triggerPrice=13, price=12, quantity=1, goodTillCanceled=False)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=13, limitPrice=15, quantity=1, goodTillCanceled=False)
 		brk.placeOrder(order)
-		brk.onBars(self.buildBars(10, 15, 8, 12))
+		# stop price not reached. limit price not reached.
+		brk.onBars(self.buildBars(11, 12, 10, 11))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+		# stop price reached. limit price not reached.
+		brk.onBars(self.buildBars(11, 14, 10, 13))
 		self.assertTrue(order.isLimitOrderActive())
-		brk.onBars(self.buildBars(10, 10, 7, 8))
-		self.assertFalse(order.isFilled())
-		brk.onBars(self.buildBars(11, 20, 10, 10))
+		self.assertTrue(order.isAccepted())
+		# stop price reached. limit price reached.
+		brk.onBars(self.buildBars(13, 16, 10, 13))
+		self.assertTrue(order.isLimitOrderActive())
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 12)
+
+		self.assertTrue(order.getExecutionInfo().getPrice() == 15)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 16)
+		self.assertTrue(brk.getCash() == 21)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
 	def testFailToBuy(self):
 		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
-		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, triggerPrice=9, price=5, quantity=1, goodTillCanceled=False)
+		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=9, limitPrice=5, quantity=1, goodTillCanceled=False)
 
 		# Fail to buy: stop price not reached, limit order not activated
 		cb = Callback()
@@ -596,7 +611,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 	def testBuy_GTC(self):
 		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
 
-		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, triggerPrice=3, price=4, quantity=2, goodTillCanceled=True)
+		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=3, limitPrice=4, quantity=2, goodTillCanceled=True)
 
 		# Fail to buy (couldn't get specific price).
 		cb = Callback()

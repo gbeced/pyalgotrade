@@ -101,7 +101,7 @@ class StopOrder(broker.StopOrder):
 			high = bar_.getHigh()
 			low = bar_.getLow()
 
-		# If the stop price is reached, fill the order at the trigger price (as in NinjaTrader).
+		# If the stop price is reached, fill the order at that price (as in NinjaTrader).
 		stopPrice = self.getPrice()
 		if stopPrice >= low and stopPrice <= high:
 			ret = stopPrice
@@ -124,6 +124,31 @@ class StopOrder(broker.StopOrder):
 			pass
 
 class StopLimitOrder(broker.StopLimitOrder):
+	def __priceInRange(self, broker_, bar_, price):
+		if broker_.getUseAdjustedValues():
+			high = bar_.getAdjHigh()
+			low = bar_.getAdjLow()
+		else:
+			high = bar_.getHigh()
+			low = bar_.getLow()
+
+		if price >= low and price <= high:
+			ret = True
+		else:
+			ret = False
+		return ret
+
+	def __getPrice(self, broker_, bar_):
+		assert(self.isLimitOrderActive())
+
+		# Fill the order at the limit price (as in NinjaTrader).
+		limitPrice = self.getPrice()
+		if self.__priceInRange(broker_, bar_, limitPrice):
+			ret = limitPrice
+		else:
+			ret = None
+		return ret
+
 	def tryExecute(self, broker, bars):
 		if self.isAccepted():
 			self.__tryExecuteImpl(broker, bars)
@@ -133,25 +158,15 @@ class StopLimitOrder(broker.StopLimitOrder):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
 
-			# Check if we have reached the stop price:
-			high = bar_.getHigh()
-			low = bar_.getLow()
-			
-			limitPrice = self.getPrice()
-			stopPrice = self.getStopPrice()
-			action = self.getAction()
-			
-			# Check if we have ever reached the stop price
+			# Check if we have to activate the limit order first.
+			if not self.isLimitOrderActive() and self.__priceInRange(broker_, bar_, self.getStopPrice()):
+				self.setLimitOrderActive(True)
+
 			if self.isLimitOrderActive():
-				if limitPrice >= low and action == broker.Order.Action.BUY:
-					broker_.commitOrderExecution(self, limitPrice, self.getQuantity(), bar_.getDateTime())
-				elif limitPrice <= high and action in (broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT):
-					broker_.commitOrderExecution(self, limitPrice, self.getQuantity(), bar_.getDateTime())
-			else:
-				if stopPrice <= high and action == broker.Order.Action.BUY:
-					self.setLimitOrderActive(True)
-				elif stopPrice >= low and action in (broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT):
-					self.setLimitOrderActive(True)
+				# Check if we have ever reached the limit price
+				price = self.__getPrice(broker_, bar_)
+				if price != None:
+					broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 		except KeyError:
 			pass
 
@@ -293,16 +308,16 @@ class Broker(broker.BasicBroker):
 	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
 		return MarketOrder(action, instrument, quantity, onClose, goodTillCanceled)
 
-	def createLimitOrder(self, action, instrument, price, quantity, goodTillCanceled):
-		return LimitOrder(action, instrument, price, quantity, goodTillCanceled)
+	def createLimitOrder(self, action, instrument, limitPrice, quantity, goodTillCanceled):
+		return LimitOrder(action, instrument, limitPrice, quantity, goodTillCanceled)
 
-	def createStopOrder(self, action, instrument, triggerPrice, quantity, goodTillCanceled):
-		return StopOrder(action, instrument, triggerPrice, quantity, goodTillCanceled)
+	def createStopOrder(self, action, instrument, stopPrice, quantity, goodTillCanceled):
+		return StopOrder(action, instrument, stopPrice, quantity, goodTillCanceled)
 
-	def createStopLimitOrder(self, action, instrument, triggerPrice, price, quantity, goodTillCanceled):
-		return StopLimitOrder(action, instrument, price, triggerPrice, quantity, goodTillCanceled)
+	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity, goodTillCanceled):
+		return StopLimitOrder(action, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
 
 	def createExecuteIfFilled(self, dependent, independent):
-		return(ExecuteIfFilled(dependent, independent))
+		return ExecuteIfFilled(dependent, independent)
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4
