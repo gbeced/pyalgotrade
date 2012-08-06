@@ -313,8 +313,8 @@ class BasicBroker:
 		raise NotImplementedError()
 
 	def createLimitOrder(self, action, instrument, limitPrice, quantity, goodTillCanceled): 
-		"""Creates an Order that instructs the broker to buy or sell the stock at a particular price.
-		The purchase or sale will not happen unless you get your price.
+		"""Creates a limit order. A limit order is an order to buy or sell a stock at a specific price or better.
+		A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed at the limit price or higher.	
 
 		:param action: The order action.
 		:type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.

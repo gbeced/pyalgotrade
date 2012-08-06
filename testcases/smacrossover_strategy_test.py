@@ -79,10 +79,14 @@ class SMACrossOverStrategy(strategy.Strategy):
 			assert(False)
 
 	def onExitCanceled(self, position):
+		self.printDebug("exitCanceled: ", self.getCurrentDateTime(), position, ". Resubmitting as a Market order.")
 		# If the exit was canceled, re-submit it.
 		self.exitPosition(position)
 
 	def onBars(self, bars):
+		bar = bars.getBar("orcl")
+		self.printDebug(self, "%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
+
 		# Wait for enough bars to be available.
 		if self.__crossAbove.getValue() is None or self.__crossBelow.getValue() is None:
 			return
@@ -157,10 +161,8 @@ class TestSMACrossOver(unittest.TestCase):
 		self.__test(MarketOrderStrategy, 1000 - 22.7)
 
 	def testWithLimitOrder(self):
-		# The result is very similar to what we get using NinjaTrader. The difference is because in NinjaTrader the
-		# last exitLong (submitted on 2001-12-26) is not processed on 2001-12-28 but at the end of the data series
-		# (2001-12-31) triggered by an ExitOnClose.
-		self.__test(LimitOrderStrategy, 1000 + 6.9)
+		# The result is different than the one we get using NinjaTrader. NinjaTrader processes Limit orders in a different way.
+		self.__test(LimitOrderStrategy, 1000 + 32.7)
 
 def getTestCases():
 	ret = []

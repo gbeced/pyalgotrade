@@ -326,20 +326,20 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isCanceled())
 
 class LimitOrderTestCase(BaseTestCase):
-	def testBuyAndSell(self):
-		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed())
+	def testBuyAndSell_HitTargetPrice(self):
+		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 11, 1, False)
+		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 1, False)
 		brk.placeOrder(order)
-		brk.onBars(self.buildBars(10, 15, 8, 12))
+		brk.onBars(self.buildBars(12, 15, 8, 12))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 0)
+		self.assertTrue(brk.getCash() == 10)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
 		self.assertTrue(cb.eventCount == 1)
 
@@ -348,12 +348,74 @@ class LimitOrderTestCase(BaseTestCase):
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 15, 1, False)
 		brk.placeOrder(order)
-		brk.onBars(self.buildBars(10, 15, 8, 12))
+		brk.onBars(self.buildBars(10, 17, 8, 10))
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 15)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 15)
+		self.assertTrue(brk.getCash() == 25)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
+		self.assertTrue(cb.eventCount == 1)
+
+	def testBuyAndSell_GetBetterPrice(self):
+		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed())
+
+		# Buy
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 14, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(12, 15, 8, 12))
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 12)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 8)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
+		self.assertTrue(cb.eventCount == 1)
+
+		# Sell
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 15, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(16, 17, 8, 10))
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 16)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 24)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
+		self.assertTrue(cb.eventCount == 1)
+
+	def testBuyAndSell_BetterBars(self):
+		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed())
+
+		# Buy. Bar is below the target price.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 20, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(10, 15, 8, 10))
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 10)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
+		self.assertTrue(cb.eventCount == 1)
+
+		# Sell. Bar is above the target price.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 30, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(35, 40, 32, 35))
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 35)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 45)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
@@ -408,9 +470,9 @@ class LimitOrderTestCase(BaseTestCase):
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		brk.onBars(self.buildBars(2, 15, 1, 12))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 4)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 2)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 2)
+		self.assertTrue(brk.getCash() == 6)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 2)
 		self.assertTrue(cb.eventCount == 1)
 
@@ -665,7 +727,9 @@ def getTestCases():
 	ret.append(MarketOrderTestCase("testSellShortWithCommission"))
 	ret.append(MarketOrderTestCase("testCancel"))
 
-	ret.append(LimitOrderTestCase("testBuyAndSell"))
+	ret.append(LimitOrderTestCase("testBuyAndSell_HitTargetPrice"))
+	ret.append(LimitOrderTestCase("testBuyAndSell_GetBetterPrice"))
+	ret.append(LimitOrderTestCase("testBuyAndSell_BetterBars"))
 	ret.append(LimitOrderTestCase("testFailToBuy"))
 	ret.append(LimitOrderTestCase("testBuy_GTC"))
 
