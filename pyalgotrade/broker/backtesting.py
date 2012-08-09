@@ -30,31 +30,32 @@ class NotEnoughCash(Exception):
 
 ######################################################################
 ## Orders
-class MarketOrder(broker.MarketOrder):
+
+class BacktestingOrder:
+	def checkCanceled(self, bars):
+		# If its the last bar of the session and the order is not GTC, then cancel it.
+		if self.isAccepted() and self.getGoodTillCanceled() == False and bars.getBar(self.getInstrument()).getSessionClose():
+			self.cancel()
+
+	def tryExecute(self, broker, bars):
+		if self.isAccepted():
+			self.tryExecuteImpl(broker, bars)
+			self.checkCanceled(bars)
+
+class MarketOrder(broker.MarketOrder, BacktestingOrder):
 	def __init__(self, action, instrument, quantity, onClose, goodTillCanceled):
 		broker.MarketOrder.__init__(self, action, instrument, quantity, goodTillCanceled)
 		self.__onClose = onClose
 
-	def __getPrice(self, broker, bar_):
+	def __getPrice(self, broker_, bar_):
 		# Fill the order at the open or close price (as in NinjaTrader).
 		if self.__onClose:
-			if broker.getUseAdjustedValues():
-				ret = bar_.getAdjClose()
-			else:
-				ret = bar_.getClose()
+			ret = broker_.getBarClose(bar_)
 		else:
-			if broker.getUseAdjustedValues():
-				ret = bar_.getAdjOpen()
-			else:
-				ret = bar_.getOpen()
+			ret = broker_.getBarOpen(bar_)
 		return ret
 
-	def tryExecute(self, broker, bars):
-		if self.isAccepted():
-			self.__tryExecuteImpl(broker, bars)
-			self.checkCanceled(bars)
-
-	def __tryExecuteImpl(self, broker_, bars):
+	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
 			price = self.__getPrice(broker_, bar_)
@@ -62,11 +63,7 @@ class MarketOrder(broker.MarketOrder):
 		except KeyError:
 			pass
 
-class LimitOrder(broker.LimitOrder):
-	# According to http://www.sec.gov/answers/limit.htm:
-	# A limit order is an order to buy or sell a stock at a specific price or better.
-	# A buy limit order can only be executed at the limit price or lower,
-	# and a sell limit order can only be executed at the limit price or higher.
+class LimitOrder(broker.LimitOrder, BacktestingOrder):
 	def __getPrice(self, broker_, bar_):
 		ret = None
 		open_ = broker_.getBarOpen(bar_)
@@ -78,7 +75,7 @@ class LimitOrder(broker.LimitOrder):
 		# If the bar is below the limit price, use the open price.
 		if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
 			if limitPrice >= low and limitPrice <= high:
-				if open_ <= limitPrice:
+				if open_ <= limitPrice: # The limit price was penetrated on open.
 					ret = open_
 				else:
 					ret = limitPrice
@@ -88,21 +85,15 @@ class LimitOrder(broker.LimitOrder):
 		# If the bar is above the limit price, use the open price.
 		elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
 			if limitPrice >= low and limitPrice <= high:
-				if open_ >= limitPrice:
+				if open_ >= limitPrice: # The limit price was penetrated on open.
 					ret = open_
 				else:
 					ret = limitPrice
 			elif low > limitPrice:
 				ret = open_
-
 		return ret
 
-	def tryExecute(self, broker, bars):
-		if self.isAccepted():
-			self.__tryExecuteImpl(broker, bars)
-			self.checkCanceled(bars)
-
-	def __tryExecuteImpl(self, broker_, bars):
+	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
 			price = self.__getPrice(broker_, bar_)
@@ -111,7 +102,7 @@ class LimitOrder(broker.LimitOrder):
 		except KeyError:
 			pass
 
-class StopOrder(broker.StopOrder):
+class StopOrder(broker.StopOrder, BacktestingOrder):
 	def __getPrice(self, broker_, bar_):
 		if broker_.getUseAdjustedValues():
 			high = bar_.getAdjHigh()
@@ -128,12 +119,7 @@ class StopOrder(broker.StopOrder):
 			ret = None
 		return ret
 
-	def tryExecute(self, broker, bars):
-		if self.isAccepted():
-			self.__tryExecuteImpl(broker, bars)
-			self.checkCanceled(bars)
-
-	def __tryExecuteImpl(self, broker_, bars):
+	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
 			price = self.__getPrice(broker_, bar_)
@@ -142,7 +128,7 @@ class StopOrder(broker.StopOrder):
 		except KeyError:
 			pass
 
-class StopLimitOrder(broker.StopLimitOrder):
+class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 	def __priceInRange(self, broker_, bar_, price):
 		if broker_.getUseAdjustedValues():
 			high = bar_.getAdjHigh()
@@ -168,12 +154,7 @@ class StopLimitOrder(broker.StopLimitOrder):
 			ret = None
 		return ret
 
-	def tryExecute(self, broker, bars):
-		if self.isAccepted():
-			self.__tryExecuteImpl(broker, bars)
-			self.checkCanceled(bars)
-
-	def __tryExecuteImpl(self, broker_, bars):
+	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
 
@@ -241,7 +222,12 @@ class Broker(broker.BasicBroker):
 			ret = bar_.getLow()
 		return ret
 
-
+	def getBarClose(self, bar_):
+		if self.getUseAdjustedValues():
+			ret = bar_.getAdjClose()
+		else:
+			ret = bar_.getClose()
+		return ret
 
 	def getUseAdjustedValues(self):
 		return self.__useAdjustedValues

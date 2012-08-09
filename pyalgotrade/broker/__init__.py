@@ -154,11 +154,6 @@ class Order:
 		self.__executionInfo = orderExecutionInfo
 		self.__state = Order.State.FILLED
 
-	def checkCanceled(self, bars):
-		# If its the last bar of the session and the order is not GTC, then cancel it.
-		if self.isAccepted() and self.getGoodTillCanceled() == False and bars.getBar(self.__instrument).getSessionClose():
-			self.__state = Order.State.CANCELED
-
 	def getExecutionInfo(self):
 		"""Returns the order execution info if the order was filled, or None otherwise.
 
@@ -296,8 +291,10 @@ class BasicBroker:
 		raise NotImplementedError()
 	
 	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
-		"""
-		Creates an order that instructs the broker to buy or sell the stock immediately at the prevailing price, whatever that may be.
+		"""Creates a Market order.
+		A market order is an order to buy or sell a stock at the best available price.
+		Generally, this type of order will be executed immediately. However, the price at which a market order will be executed
+		is not guaranteed.
 
 		:param action: The order action.
 		:type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
@@ -313,8 +310,10 @@ class BasicBroker:
 		raise NotImplementedError()
 
 	def createLimitOrder(self, action, instrument, limitPrice, quantity, goodTillCanceled): 
-		"""Creates a limit order. A limit order is an order to buy or sell a stock at a specific price or better.
-		A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed at the limit price or higher.	
+		"""Creates a Limit order.
+		A limit order is an order to buy or sell a stock at a specific price or better.
+		A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed at the
+		limit price or higher.		
 
 		:param action: The order action.
 		:type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
@@ -330,9 +329,14 @@ class BasicBroker:
 		raise NotImplementedError()
 
 	def createStopOrder(self, action, instrument, stopPrice, quantity, goodTillCanceled): 
-		"""Creates an Order that gives your broker a price trigger that protects you from a big change in stock price.
-		A Stop order becomes a market order to buy or sell stock once the specified stop price is attained or penetrated.
-		A Stop order is not guaranteed a specific execution price.
+		"""Creates a Stop order.
+		A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the stock
+		reaches a specified price, known as the stop price.
+		When the stop price is reached, a stop order becomes a market order.
+		A buy stop order is entered at a stop price above the current market price. Investors generally use a buy stop order
+		to limit a loss or to protect a profit on a stock that they have sold short.
+		A sell stop order is entered at a stop price below the current market price. Investors generally use a sell stop order
+		to limit a loss or to protect a profit on a stock that they own.
 
 		:param action: The order action.
 		:type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
@@ -348,10 +352,10 @@ class BasicBroker:
 		raise NotImplementedError()
 
 	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity, goodTillCanceled): 
-		"""Creates an Order that gives your broker a price trigger that protects you from a big change in stock price.
-		A Stop Limit order is similar to a stop order in that a stop price will activate the order.
-		However, unlike the stop order, which is submitted as a market order when elected, the stop limit order is submitted
-		as a limit order.
+		"""Creates a Stop-Limit order.
+		A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit order.
+		Once the stop price is reached, a stop-limit order becomes a limit order that will be executed at a specified price
+		(or better). The benefit of a stop-limit order is that the investor can control the price at which the order can be executed.
 
 		:param action: The order action.
 		:type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
