@@ -388,7 +388,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
-	def testBuyAndSell_BetterBars(self):
+	def testBuyAndSell_GappingBars(self):
 		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed())
 
 		# Buy. Bar is below the target price.
@@ -477,103 +477,148 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 class StopOrderTestCase(BaseTestCase):
-	def testBuyAndSell(self):
+	def testLongPosStopLoss(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 11, 1, False)
+		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1, False, False)
 		brk.placeOrder(order)
 		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 4)
+		self.assertTrue(brk.getCash() == 5)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
 		self.assertTrue(cb.eventCount == 1)
 
-		# Sell
+		# Create stop loss order.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 12, 1, False)
+		order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 9, 1, False)
 		brk.placeOrder(order)
-		brk.onBars(self.buildBars(10, 15, 8, 12))
+		brk.onBars(self.buildBars(10, 15, 10, 12)) # Stop loss not hit.
+		self.assertFalse(order.isFilled())
+		self.assertTrue(len(brk.getPendingOrders()) == 1)
+		self.assertTrue(brk.getCash() == 5)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
+		self.assertTrue(cb.eventCount == 0)
+		brk.onBars(self.buildBars(10, 15, 8, 12)) # Stop loss hit.
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 12)
-		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 9)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 16)
+		self.assertTrue(brk.getCash() == 5+9)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
-	def testFailToBuy(self):
-		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed())
-
-		order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 5, 1, False)
-
-		# Fail to buy (couldn't get specific price).
-		cb = Callback()
-		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.placeOrder(order)
-		brk.onBars(self.buildBars(10, 15, 8, 12))
-		self.assertTrue(order.isAccepted())
-		self.assertTrue(order.getExecutionInfo() == None)
-		self.assertTrue(len(brk.getPendingOrders()) == 1)
-		self.assertTrue(brk.getCash() == 5)
-		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
-		self.assertTrue(cb.eventCount == 0)
-
-		# Fail to buy (couldn't get specific price).  Canceled due to session close.
-		cb = Callback()
-		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.onBars(self.buildBars(11, 15, 8, 12, True))
-		self.assertTrue(order.isCanceled())
-		self.assertTrue(order.getExecutionInfo() == None)
-		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 5)
-		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
-		self.assertTrue(cb.eventCount == 1)
-
-	def testBuy_GTC(self):
-		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed())
-
-		order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 4, 2, True)
-
-		# Fail to buy (couldn't get specific price).
-		cb = Callback()
-		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.placeOrder(order)
-		# Set sessionClose to true test that the order doesn't get canceled.
-		brk.onBars(self.buildBars(10, 15, 8, 12, True))
-		self.assertTrue(order.isAccepted())
-		self.assertTrue(order.getExecutionInfo() == None)
-		self.assertTrue(len(brk.getPendingOrders()) == 1)
-		self.assertTrue(brk.getCash() == 10)
-		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
-		self.assertTrue(cb.eventCount == 0)
-
-		# Fail to buy (couldn't get specific price).
-		cb = Callback()
-		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.onBars(self.buildBars(10, 15, 5, 12))
-		self.assertTrue(order.isAccepted())
-		self.assertTrue(order.getExecutionInfo() == None)
-		self.assertTrue(len(brk.getPendingOrders()) == 1)
-		self.assertTrue(brk.getCash() == 10)
-		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
-		self.assertTrue(cb.eventCount == 0)
+	def testLongPosStopLoss_GappingBars(self):
+		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
 		# Buy
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-		brk.onBars(self.buildBars(10, 15, 4, 12, True))
+		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1, False, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(10, 15, 8, 12))
 		self.assertTrue(order.isFilled())
-		self.assertTrue(order.getExecutionInfo().getPrice() == 4)
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
-		self.assertTrue(brk.getCash() == 2)
-		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 2)
+		self.assertTrue(brk.getCash() == 5)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
+		self.assertTrue(cb.eventCount == 1)
+
+		# Create stop loss order.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 9, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(10, 15, 10, 12)) # Stop loss not hit.
+		self.assertFalse(order.isFilled())
+		self.assertTrue(len(brk.getPendingOrders()) == 1)
+		self.assertTrue(brk.getCash() == 5)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
+		self.assertTrue(cb.eventCount == 0)
+		brk.onBars(self.buildBars(5, 8, 4, 7)) # Stop loss hit.
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 5)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 5+5) # Fill the stop loss order at open price.
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
+		self.assertTrue(cb.eventCount == 1)
+
+	def testShortPosStopLoss(self):
+		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
+
+		# Sell short
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 1, False, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(10, 15, 8, 12))
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 15+10)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == -1)
+		self.assertTrue(cb.eventCount == 1)
+
+		# Create stop loss order.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopOrder(broker.Order.Action.BUY_TO_COVER, BaseTestCase.TestInstrument, 11, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(8, 10, 7, 9)) # Stop loss not hit.
+		self.assertFalse(order.isFilled())
+		self.assertTrue(len(brk.getPendingOrders()) == 1)
+		self.assertTrue(brk.getCash() == 15+10)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == -1)
+		self.assertTrue(cb.eventCount == 0)
+		brk.onBars(self.buildBars(10, 15, 8, 12)) # Stop loss hit.
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 15-1)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
+		self.assertTrue(cb.eventCount == 1)
+
+	def testShortPosStopLoss_GappingBars(self):
+		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
+
+		# Sell short
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 1, False, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(10, 15, 8, 12))
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 15+10)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == -1)
+		self.assertTrue(cb.eventCount == 1)
+
+		# Create stop loss order.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopOrder(broker.Order.Action.BUY_TO_COVER, BaseTestCase.TestInstrument, 11, 1, False)
+		brk.placeOrder(order)
+		brk.onBars(self.buildBars(8, 10, 7, 9)) # Stop loss not hit.
+		self.assertFalse(order.isFilled())
+		self.assertTrue(len(brk.getPendingOrders()) == 1)
+		self.assertTrue(brk.getCash() == 15+10)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == -1)
+		self.assertTrue(cb.eventCount == 0)
+		brk.onBars(self.buildBars(15, 20, 13, 14)) # Stop loss hit.
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 15)
+		self.assertTrue(len(brk.getPendingOrders()) == 0)
+		self.assertTrue(brk.getCash() == 15-5)
+		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 		self.assertTrue(cb.eventCount == 1)
 
 class StopLimitOrderTestCase(BaseTestCase):
@@ -729,13 +774,14 @@ def getTestCases():
 
 	ret.append(LimitOrderTestCase("testBuyAndSell_HitTargetPrice"))
 	ret.append(LimitOrderTestCase("testBuyAndSell_GetBetterPrice"))
-	ret.append(LimitOrderTestCase("testBuyAndSell_BetterBars"))
+	ret.append(LimitOrderTestCase("testBuyAndSell_GappingBars"))
 	ret.append(LimitOrderTestCase("testFailToBuy"))
 	ret.append(LimitOrderTestCase("testBuy_GTC"))
 
-	ret.append(StopOrderTestCase("testBuyAndSell"))
-	ret.append(StopOrderTestCase("testFailToBuy"))
-	ret.append(StopOrderTestCase("testBuy_GTC"))
+	ret.append(StopOrderTestCase("testLongPosStopLoss"))
+	ret.append(StopOrderTestCase("testLongPosStopLoss_GappingBars"))
+	ret.append(StopOrderTestCase("testShortPosStopLoss"))
+	ret.append(StopOrderTestCase("testShortPosStopLoss_GappingBars"))
 	
 	ret.append(StopLimitOrderTestCase("testBuyAndSell"))
 	ret.append(StopLimitOrderTestCase("testFailToBuy"))

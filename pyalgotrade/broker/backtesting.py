@@ -71,26 +71,26 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
 		low = broker_.getBarLow(bar_)
 		limitPrice = self.getPrice()
 
-		# If the bar includes the limit price, use the open price or the limit price.
 		# If the bar is below the limit price, use the open price.
+		# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
 		if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-			if limitPrice >= low and limitPrice <= high:
-				if open_ <= limitPrice: # The limit price was penetrated on open.
+			if high < limitPrice:
+				ret = open_
+			elif limitPrice >= low:
+				if open_ < limitPrice: # The limit price was penetrated on open.
 					ret = open_
 				else:
 					ret = limitPrice
-			elif high < limitPrice:
-				ret = open_
-		# If the bar includes the limit price, use the open price or the limit price.
 		# If the bar is above the limit price, use the open price.
+		# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
 		elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-			if limitPrice >= low and limitPrice <= high:
-				if open_ >= limitPrice: # The limit price was penetrated on open.
+			if low > limitPrice:
+				ret = open_
+			elif limitPrice <= high:
+				if open_ > limitPrice: # The limit price was penetrated on open.
 					ret = open_
 				else:
 					ret = limitPrice
-			elif low > limitPrice:
-				ret = open_
 		return ret
 
 	def tryExecuteImpl(self, broker_, bars):
@@ -104,19 +104,32 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
 	def __getPrice(self, broker_, bar_):
-		if broker_.getUseAdjustedValues():
-			high = bar_.getAdjHigh()
-			low = bar_.getAdjLow()
-		else:
-			high = bar_.getHigh()
-			low = bar_.getLow()
-
-		# If the stop price is reached, fill the order at that price (as in NinjaTrader).
+		ret = None
+		open_ = broker_.getBarOpen(bar_)
+		high = broker_.getBarHigh(bar_)
+		low = broker_.getBarLow(bar_)
 		stopPrice = self.getPrice()
-		if stopPrice >= low and stopPrice <= high:
-			ret = stopPrice
-		else:
-			ret = None
+
+		# If the bar is above the stop price, use the open price.
+		# If the bar includes the stop price, use the open price or the stop price. Whichever is better.
+		if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+			if low > stopPrice:
+				ret = open_
+			elif stopPrice <= high:
+				if open_ > stopPrice: # The stop price was penetrated on open.
+					ret = open_
+				else:
+					ret = stopPrice
+		# If the bar is below the stop price, use the open price.
+		# If the bar includes the stop price, use the open price or the stop price. Whichever is better.
+		elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+			if high < stopPrice:
+				ret = open_
+			if stopPrice >= low:
+				if open_ < stopPrice: # The stop price was penetrated on open.
+					ret = open_
+				else:
+					ret = stopPrice
 		return ret
 
 	def tryExecuteImpl(self, broker_, bars):
