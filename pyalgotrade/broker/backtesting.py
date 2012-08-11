@@ -47,7 +47,7 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 		broker.MarketOrder.__init__(self, action, instrument, quantity, goodTillCanceled)
 		self.__onClose = onClose
 
-	def __getPrice(self, broker_, bar_):
+	def __getFillPrice(self, broker_, bar_):
 		# Fill the order at the open or close price (as in NinjaTrader).
 		if self.__onClose:
 			ret = broker_.getBarClose(bar_)
@@ -58,52 +58,57 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
-			price = self.__getPrice(broker_, bar_)
+			price = self.__getFillPrice(broker_, bar_)
 			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 		except KeyError:
 			pass
 
-class LimitOrder(broker.LimitOrder, BacktestingOrder):
-	def __getPrice(self, broker_, bar_):
-		ret = None
-		open_ = broker_.getBarOpen(bar_)
-		high = broker_.getBarHigh(bar_)
-		low = broker_.getBarLow(bar_)
-		limitPrice = self.getPrice()
+# Returns the fill price for a limit order or None. 
+def get_limit_order_fill_price(broker_, bar_, action, limitPrice):
+	ret = None
+	open_ = broker_.getBarOpen(bar_)
+	high = broker_.getBarHigh(bar_)
+	low = broker_.getBarLow(bar_)
 
-		# If the bar is below the limit price, use the open price.
-		# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
-		if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-			if high < limitPrice:
+	# If the bar is below the limit price, use the open price.
+	# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
+	if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+		if high < limitPrice:
+			ret = open_
+		elif limitPrice >= low:
+			if open_ < limitPrice: # The limit price was penetrated on open.
 				ret = open_
-			elif limitPrice >= low:
-				if open_ < limitPrice: # The limit price was penetrated on open.
-					ret = open_
-				else:
-					ret = limitPrice
-		# If the bar is above the limit price, use the open price.
-		# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
-		elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-			if low > limitPrice:
+			else:
+				ret = limitPrice
+	# If the bar is above the limit price, use the open price.
+	# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
+	elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+		if low > limitPrice:
+			ret = open_
+		elif limitPrice <= high:
+			if open_ > limitPrice: # The limit price was penetrated on open.
 				ret = open_
-			elif limitPrice <= high:
-				if open_ > limitPrice: # The limit price was penetrated on open.
-					ret = open_
-				else:
-					ret = limitPrice
-		return ret
+			else:
+				ret = limitPrice
+	else: # Unknown action
+		assert(False)
+	return ret
+
+class LimitOrder(broker.LimitOrder, BacktestingOrder):
+	def __getFillPrice(self, broker_, bar_):
+		return get_limit_order_fill_price(broker_, bar_, self.getAction(), self.getPrice())
 
 	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
-			price = self.__getPrice(broker_, bar_)
+			price = self.__getFillPrice(broker_, bar_)
 			if price != None:
 				broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 		except KeyError:
 			pass
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
-	def __getPrice(self, broker_, bar_):
+	def __getFillPrice(self, broker_, bar_):
 		ret = None
 		open_ = broker_.getBarOpen(bar_)
 		high = broker_.getBarHigh(bar_)
@@ -130,54 +135,67 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 					ret = open_
 				else:
 					ret = stopPrice
+		else: # Unknown action
+			assert(False)
 		return ret
 
 	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
-			price = self.__getPrice(broker_, bar_)
+			price = self.__getFillPrice(broker_, bar_)
 			if price != None:
 				broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 		except KeyError:
 			pass
 
+# http://www.sec.gov/answers/stoplim.htm
+# http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
-	def __priceInRange(self, broker_, bar_, price):
-		if broker_.getUseAdjustedValues():
-			high = bar_.getAdjHigh()
-			low = bar_.getAdjLow()
-		else:
-			high = bar_.getHigh()
-			low = bar_.getLow()
+	def __stopHit(self, broker_, bar_):
+		ret = False
+		high = broker_.getBarHigh(bar_)
+		low = broker_.getBarLow(bar_)
+		stopPrice = self.getStopPrice()
 
-		if price >= low and price <= high:
-			ret = True
-		else:
-			ret = False
+		# If the bar is above the stop price, or the bar includes the stop price, the stop was hit.
+		if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+			if low >= stopPrice or stopPrice <= high:
+				ret = True
+		# If the bar is below the stop price, or the bar includes the stop price, the stop was hit.
+		elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+			if high <= stopPrice or stopPrice >= low:
+				ret = True
+		else: # Unknown action
+			assert(False)
 		return ret
 
-	def __getPrice(self, broker_, bar_):
-		assert(self.isLimitOrderActive())
-
-		# Fill the order at the limit price (as in NinjaTrader).
-		limitPrice = self.getPrice()
-		if self.__priceInRange(broker_, bar_, limitPrice):
-			ret = limitPrice
-		else:
-			ret = None
+	def __getFillPrice(self, broker_, bar_, justHitStopPrice):
+		ret = get_limit_order_fill_price(broker_, bar_, self.getAction(), self.getPrice())
+		# If we just hit the stop price, we need to make additional checks.
+		if ret != None and justHitStopPrice:
+			if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+				# If the stop price is lower than the limit price, then use that one. Else use the limit price.
+				ret = min(self.getStopPrice(), self.getPrice())
+			elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+				# If the stop price is greater than the limit price, then use that one. Else use the limit price.
+				ret = max(self.getStopPrice(), self.getPrice())
+			else: # Unknown action
+				assert(False)
 		return ret
 
 	def tryExecuteImpl(self, broker_, bars):
 		try:
 			bar_ = bars.getBar(self.getInstrument())
+			justHitStopPrice = False
 
 			# Check if we have to activate the limit order first.
-			if not self.isLimitOrderActive() and self.__priceInRange(broker_, bar_, self.getStopPrice()):
+			if not self.isLimitOrderActive() and self.__stopHit(broker_, bar_):
 				self.setLimitOrderActive(True)
+				justHitStopPrice = True
 
+			# Check if we have ever reached the limit price
 			if self.isLimitOrderActive():
-				# Check if we have ever reached the limit price
-				price = self.__getPrice(broker_, bar_)
+				price = self.__getFillPrice(broker_, bar_, justHitStopPrice)
 				if price != None:
 					broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 		except KeyError:
@@ -281,7 +299,7 @@ class Broker(broker.BasicBroker):
 			cost = price * quantity
 			assert(cost > 0)
 			sharesDelta = quantity * -1
-		else:
+		else: # Unknown action
 			assert(False)
 
 		ret = False
