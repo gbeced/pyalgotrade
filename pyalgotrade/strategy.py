@@ -19,6 +19,7 @@
 """
 
 import broker
+from broker import backtesting
 import utils
 import observer
 
