@@ -622,10 +622,10 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 class StopLimitOrderTestCase(BaseTestCase):
-	def testBuy_FillOpen(self):
+	def testFillOpen(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1, goodTillCanceled=False)
@@ -641,16 +641,38 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isLimitOrderActive())
 		self.assertTrue(order.isAccepted())
 
-		# Limit price hit. Fill at open price.
+		# Limit price hit (bars include the price). Fill at open price.
 		brk.onBars(self.buildBars(11, 15, 10, 14))
 		self.assertTrue(order.isLimitOrderActive())
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 11)
 
-	def testBuy_FillOpen_GappingBars(self):
+		# Sell. Stop <= 8. Sell >= 6.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price not hit. Limit price not hit.
+		brk.onBars(self.buildBars(9, 10, 9, 10))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Stop price hit. Limit price not hit.
+		brk.onBars(self.buildBars(4, 5, 3, 4))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Limit price hit (bars include the price). Fill at open price.
+		brk.onBars(self.buildBars(7, 8, 6, 7))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 7)
+
+	def testFillOpen_GappingBars(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1, goodTillCanceled=False)
@@ -666,16 +688,38 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isLimitOrderActive())
 		self.assertTrue(order.isAccepted())
 
-		# Limit price hit. Fill at open price.
+		# Limit price hit (bars don't include the price). Fill at open price.
 		brk.onBars(self.buildBars(7, 9, 6, 8))
 		self.assertTrue(order.isLimitOrderActive())
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 7)
 
-	def testBuy_FillLimit(self):
+		# Sell. Stop <= 8. Sell >= 6.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price not hit. Limit price not hit.
+		brk.onBars(self.buildBars(9, 10, 9, 10))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Stop price hit. Limit price not hit.
+		brk.onBars(self.buildBars(4, 5, 3, 4))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Limit price hit (bars don't include the price). Fill at open price.
+		brk.onBars(self.buildBars(10, 12, 8, 10))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+
+	def testFillLimit(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1, goodTillCanceled=False)
@@ -697,10 +741,32 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 12)
 
-	def testBuy_HitStopAndLimit(self):
+		# Sell. Stop <= 8. Sell >= 6.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price not hit. Limit price not hit.
+		brk.onBars(self.buildBars(9, 10, 9, 10))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Stop price hit. Limit price not hit.
+		brk.onBars(self.buildBars(4, 5, 3, 4))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Limit price hit. Fill at limit price.
+		brk.onBars(self.buildBars(5, 7, 5, 6))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 6)
+
+	def testHitStopAndLimit(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1, goodTillCanceled=False)
@@ -712,10 +778,22 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
 
-	def testBuy_InvertedPrices_FillOpen(self):
+		# Sell. Stop <= 8. Sell >= 6.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price hit. Limit price hit. Fill at stop price.
+		brk.onBars(self.buildBars(9, 10, 5, 8))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
+
+	def testInvertedPrices_FillOpen(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1, goodTillCanceled=False)
@@ -737,10 +815,32 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 9)
 
-	def testBuy_InvertedPrices_FillOpen_GappingBars(self):
+		# Sell. Stop <= 6. Sell >= 8.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price not hit. Limit price not hit.
+		brk.onBars(self.buildBars(9, 10, 9, 10))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Stop price hit. Limit price not hit.
+		brk.onBars(self.buildBars(7, 7, 6, 7))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Limit price hit. Fill at open price.
+		brk.onBars(self.buildBars(9, 10, 8, 9))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 9)
+
+	def testInvertedPrices_FillOpen_GappingBars(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1, goodTillCanceled=False)
@@ -762,10 +862,32 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 7)
 
-	def testBuy_InvertedPrices_FillLimit(self):
+		# Sell. Stop <= 6. Sell >= 8.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price not hit. Limit price not hit.
+		brk.onBars(self.buildBars(9, 10, 9, 10))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Stop price hit. Limit price not hit.
+		brk.onBars(self.buildBars(7, 7, 6, 7))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Limit price hit. Fill at open price.
+		brk.onBars(self.buildBars(10, 10, 9, 9))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+
+	def testInvertedPrices_FillLimit(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1, goodTillCanceled=False)
@@ -787,10 +909,32 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
 
-	def testBuy_InvertedPrices_HitStopAndLimit(self):
+		# Sell. Stop <= 6. Sell >= 8.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price not hit. Limit price not hit.
+		brk.onBars(self.buildBars(9, 10, 9, 10))
+		self.assertFalse(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Stop price hit. Limit price not hit.
+		brk.onBars(self.buildBars(7, 7, 6, 7))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isAccepted())
+
+		# Limit price hit. Fill at limit price.
+		brk.onBars(self.buildBars(7, 10, 6, 9))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
+
+	def testInvertedPrices_HitStopAndLimit(self):
 		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed())
 
-		# Buy
+		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
 		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1, goodTillCanceled=False)
@@ -801,6 +945,18 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isLimitOrderActive())
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
+
+		# Sell. Stop <= 6. Sell >= 8.
+		cb = Callback()
+		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+		order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1, goodTillCanceled=False)
+		brk.placeOrder(order)
+
+		# Stop price hit. Limit price hit. Fill at limit price.
+		brk.onBars(self.buildBars(6, 10, 5, 7))
+		self.assertTrue(order.isLimitOrderActive())
+		self.assertTrue(order.isFilled())
+		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
 
 def getTestCases():
 	ret = []
@@ -828,14 +984,14 @@ def getTestCases():
 	ret.append(StopOrderTestCase("testShortPosStopLoss"))
 	ret.append(StopOrderTestCase("testShortPosStopLoss_GappingBars"))
 	
-	ret.append(StopLimitOrderTestCase("testBuy_FillOpen"))
-	ret.append(StopLimitOrderTestCase("testBuy_FillOpen_GappingBars"))
-	ret.append(StopLimitOrderTestCase("testBuy_FillLimit"))
-	ret.append(StopLimitOrderTestCase("testBuy_HitStopAndLimit"))
-	ret.append(StopLimitOrderTestCase("testBuy_InvertedPrices_FillOpen"))
-	ret.append(StopLimitOrderTestCase("testBuy_InvertedPrices_FillOpen_GappingBars"))
-	ret.append(StopLimitOrderTestCase("testBuy_InvertedPrices_FillLimit"))
-	ret.append(StopLimitOrderTestCase("testBuy_InvertedPrices_HitStopAndLimit"))
+	ret.append(StopLimitOrderTestCase("testFillOpen"))
+	ret.append(StopLimitOrderTestCase("testFillOpen_GappingBars"))
+	ret.append(StopLimitOrderTestCase("testFillLimit"))
+	ret.append(StopLimitOrderTestCase("testHitStopAndLimit"))
+	ret.append(StopLimitOrderTestCase("testInvertedPrices_FillOpen"))
+	ret.append(StopLimitOrderTestCase("testInvertedPrices_FillOpen_GappingBars"))
+	ret.append(StopLimitOrderTestCase("testInvertedPrices_FillLimit"))
+	ret.append(StopLimitOrderTestCase("testInvertedPrices_HitStopAndLimit"))
 
 	return ret
 
