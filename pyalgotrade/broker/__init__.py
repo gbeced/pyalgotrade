@@ -41,6 +41,7 @@ class FixedCommission(Commission):
 ######################################################################
 ## Orders
 ## http://stocks.about.com/od/tradingbasics/a/markords.htm
+## http://www.interactivebrokers.com/en/software/tws/usersguidebook/ordertypes/basic_order_types.htm
 
 class Order:
 	"""Base class for orders. 
@@ -55,8 +56,6 @@ class Order:
 	:type price: float
 	:param quantity: Order quantity.
 	:type quantity: int.
-	:param goodTillCanceled: True if the order is good till canceled. Orders that are not filled by the time the session closes will be will be automatically canceled if they were not set as good till canceled.
-	:type goodTillCanceled: boolean.
 
 	.. note::
 
@@ -88,14 +87,15 @@ class Order:
 		STOP_LIMIT			= 4
 		EXEC_IF_FILLED		= 5
 
-	def __init__(self, type_, action, instrument, price, quantity, goodTillCanceled = False):
+	def __init__(self, type_, action, instrument, price, quantity):
 		self.__type = type_
 		self.__action = action
 		self.__instrument = instrument
 		self.__price = price
 		self.__quantity = quantity
 		self.__executionInfo = None
-		self.__goodTillCanceled = goodTillCanceled
+		self.__goodTillCanceled = False
+		self.__allOrNone = True
 		self.__state = Order.State.ACCEPTED
 
 	def getType(self):
@@ -150,6 +150,28 @@ class Order:
 		"""Returns True if the order is good till canceled."""
 		return self.__goodTillCanceled
 
+	def setGoodTillCanceled(self, goodTillCanceled):
+		"""Sets if the order should be good till canceled.
+		Orders that are not filled by the time the session closes will be will be automatically canceled
+		if they were not set as good till canceled
+
+		:param goodTillCanceled: True if the order should be good till canceled.
+		:type goodTillCanceled: boolean.
+		"""
+		self.__goodTillCanceled = goodTillCanceled
+
+	def getAllOrNone(self):
+		"""Returns True if the order should be completely filled or else canceled."""
+		return self.__allOrNone
+
+	def setAllOrNone(self, allOrNone):
+		"""Sets the All-Or-None property for this order.
+
+		:param allOrNone: True if the order should be completely filled or else canceled.
+		:type allOrNone: boolean.
+		"""
+		self.__allOrNone = allOrNone
+
 	def setExecuted(self, orderExecutionInfo):
 		self.__executionInfo = orderExecutionInfo
 		self.__state = Order.State.FILLED
@@ -162,21 +184,21 @@ class Order:
 		return self.__executionInfo
 	
 class MarketOrder(Order):
-	def __init__(self, action, instrument, quantity, goodTillCanceled = False):
+	def __init__(self, action, instrument, quantity):
 		price = 0
-		Order.__init__(self, Order.Type.MARKET, action, instrument, price, quantity, goodTillCanceled)
+		Order.__init__(self, Order.Type.MARKET, action, instrument, price, quantity)
 
 class LimitOrder(Order):
-	def __init__(self, action, instrument, limitPrice, quantity, goodTillCanceled = False):
-		Order.__init__(self, Order.Type.LIMIT, action, instrument, limitPrice, quantity, goodTillCanceled)
+	def __init__(self, action, instrument, limitPrice, quantity):
+		Order.__init__(self, Order.Type.LIMIT, action, instrument, limitPrice, quantity)
 
 class StopOrder(Order):
-	def __init__(self, action, instrument, stopPrice, quantity, goodTillCanceled = False):
-		Order.__init__(self, Order.Type.STOP, action, instrument, stopPrice, quantity, goodTillCanceled)
+	def __init__(self, action, instrument, stopPrice, quantity):
+		Order.__init__(self, Order.Type.STOP, action, instrument, stopPrice, quantity)
 
 class StopLimitOrder(Order):
-	def __init__(self, action, instrument, limitPrice, stopPrice, quantity, goodTillCanceled = False):
-		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, limitPrice, quantity, goodTillCanceled)
+	def __init__(self, action, instrument, limitPrice, stopPrice, quantity):
+		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, limitPrice, quantity)
 		self.__stopPrice = stopPrice
 		self.__limitOrderActive = False # Set to true when the limit order is activated (stop price is hit)
 		
@@ -290,7 +312,7 @@ class BasicBroker:
 		"""
 		raise NotImplementedError()
 	
-	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
+	def createMarketOrder(self, action, instrument, quantity, onClose = False):
 		"""Creates a Market order.
 		A market order is an order to buy or sell a stock at the best available price.
 		Generally, this type of order will be executed immediately. However, the price at which a market order will be executed
@@ -302,14 +324,12 @@ class BasicBroker:
 		:type instrument: string.
 		:param quantity: Order quantity.
 		:type quantity: int.
-		:param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close order).
+		:param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close order). Default is False.
 		:type onClose: boolean.
-		:param goodTillCanceled: True if the order is good till canceled. Orders that are not filled by the time the session closes will be will be automatically canceled if they were not set as good till canceled.
-		:type goodTillCanceled: boolean.
 		"""
 		raise NotImplementedError()
 
-	def createLimitOrder(self, action, instrument, limitPrice, quantity, goodTillCanceled): 
+	def createLimitOrder(self, action, instrument, limitPrice, quantity): 
 		"""Creates a Limit order.
 		A limit order is an order to buy or sell a stock at a specific price or better.
 		A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed at the
@@ -323,12 +343,10 @@ class BasicBroker:
 		:type limitPrice: float
 		:param quantity: Order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the order is good till canceled. Orders that are not filled by the time the session closes will be will be automatically canceled if they were not set as good till canceled.
-		:type goodTillCanceled: boolean.
 		"""
 		raise NotImplementedError()
 
-	def createStopOrder(self, action, instrument, stopPrice, quantity, goodTillCanceled): 
+	def createStopOrder(self, action, instrument, stopPrice, quantity): 
 		"""Creates a Stop order.
 		A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the stock
 		reaches a specified price, known as the stop price.
@@ -346,12 +364,10 @@ class BasicBroker:
 		:type stopPrice: float
 		:param quantity: Order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the order is good till canceled. Orders that are not filled by the time the session closes will be will be automatically canceled if they were not set as good till canceled.
-		:type goodTillCanceled: boolean.
 		"""
 		raise NotImplementedError()
 
-	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity, goodTillCanceled): 
+	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity): 
 		"""Creates a Stop-Limit order.
 		A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit order.
 		Once the stop price is reached, a stop-limit order becomes a limit order that will be executed at a specified price
@@ -367,12 +383,7 @@ class BasicBroker:
 		:type limitPrice: float
 		:param quantity: Order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the order is good till canceled. Orders that are not filled by the time the session closes will be will be automatically canceled if they were not set as good till canceled.
-		:type goodTillCanceled: boolean.
 		"""
-		raise NotImplementedError()
-
-	def createExecuteIfFilled(self, dependent, independent):
 		raise NotImplementedError()
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4

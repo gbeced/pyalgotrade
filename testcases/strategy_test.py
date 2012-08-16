@@ -147,17 +147,17 @@ class ExternalBroker(broker.BasicBroker):
 	def placeOrder(self, order):
 		return self.__decorated.placeOrder(order)
 	
-	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
-		return self.__decorated.createMarketOrder(action, instrument, quantity, onClose, goodTillCanceled)
+	def createMarketOrder(self, action, instrument, quantity, onClose = False):
+		return self.__decorated.createMarketOrder(action, instrument, quantity, onClose)
 
-	def createLimitOrder(self, action, instrument, limitPrice, quantity, goodTillCanceled):
-		return self.__decorated.createLimitOrder(action, instrument, limitPrice, quantity, goodTillCanceled)
+	def createLimitOrder(self, action, instrument, limitPrice, quantity):
+		return self.__decorated.createLimitOrder(action, instrument, limitPrice, quantity)
 
-	def createStopOrder(self, action, instrument, stopPrice, quantity, goodTillCanceled):
-		return self.__decorated.createStopOrder(action, instrument, stopPrice, quantity, goodTillCanceled)
+	def createStopOrder(self, action, instrument, stopPrice, quantity):
+		return self.__decorated.createStopOrder(action, instrument, stopPrice, quantity)
 
-	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity, goodTillCanceled):
-		return self.__decorated.createStopLimitOrder(action, instrument, stopPrice, limitPrice, quantity, goodTillCanceled)
+	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
+		return self.__decorated.createStopLimitOrder(action, instrument, stopPrice, limitPrice, quantity)
 
 	def createExecuteIfFilled(self, dependent, independent):
 		return self.__decorated.createExecuteIfFilled(dependent, independent)

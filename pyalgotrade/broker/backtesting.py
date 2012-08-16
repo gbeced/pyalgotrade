@@ -43,8 +43,8 @@ class BacktestingOrder:
 			self.checkCanceled(bars)
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
-	def __init__(self, action, instrument, quantity, onClose, goodTillCanceled):
-		broker.MarketOrder.__init__(self, action, instrument, quantity, goodTillCanceled)
+	def __init__(self, action, instrument, quantity, onClose):
+		broker.MarketOrder.__init__(self, action, instrument, quantity)
 		self.__onClose = onClose
 
 	def __getFillPrice(self, broker_, bar_):
@@ -364,17 +364,17 @@ class Broker(broker.BasicBroker):
 		# All events were already emitted while handling barfeed events.
 		pass
 	
-	def createMarketOrder(self, action, instrument, quantity, onClose, goodTillCanceled):
-		return MarketOrder(action, instrument, quantity, onClose, goodTillCanceled)
+	def createMarketOrder(self, action, instrument, quantity, onClose = False):
+		return MarketOrder(action, instrument, quantity, onClose)
 
-	def createLimitOrder(self, action, instrument, limitPrice, quantity, goodTillCanceled):
-		return LimitOrder(action, instrument, limitPrice, quantity, goodTillCanceled)
+	def createLimitOrder(self, action, instrument, limitPrice, quantity):
+		return LimitOrder(action, instrument, limitPrice, quantity)
 
-	def createStopOrder(self, action, instrument, stopPrice, quantity, goodTillCanceled):
-		return StopOrder(action, instrument, stopPrice, quantity, goodTillCanceled)
+	def createStopOrder(self, action, instrument, stopPrice, quantity):
+		return StopOrder(action, instrument, stopPrice, quantity)
 
-	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity, goodTillCanceled):
-		return StopLimitOrder(action, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
+	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
+		return StopLimitOrder(action, instrument, limitPrice, stopPrice, quantity)
 
 	def createExecuteIfFilled(self, dependent, independent):
 		return ExecuteIfFilled(dependent, independent)
