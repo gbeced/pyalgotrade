@@ -72,9 +72,9 @@ class Position:
 		"""Returns the number of shares used to enter this position."""
 		return self.__entryOrder.getQuantity()
 
-	def close(self, price, broker_):
+	def close(self, limitPrice, stopPrice, broker_):
 		assert(self.getExitOrder() == None or self.getExitOrder().isCanceled())
-		closeOrder = self.buildExitOrder(price)
+		closeOrder = self.buildExitOrder(limitPrice, stopPrice)
 		broker_.placeOrder(closeOrder)
 		self.setExitOrder(closeOrder)
 
@@ -114,7 +114,7 @@ class Position:
 	def getNetProfitImpl(self):
 		raise Exception("Not implemented")
 
-	def buildExitOrder(self, price):
+	def buildExitOrder(self, limitPrice, stopPrice):
 		raise Exception("Not implemented")
 
 	def buildExitOnSessionCloseOrder(self):
@@ -122,16 +122,16 @@ class Position:
 
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
-	def __init__(self, broker_, instrument, price, stopPrice, quantity, goodTillCanceled):
+	def __init__(self, broker_, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
 		self.__broker = broker_
-		if price == None and stopPrice == None:
+		if limitPrice == None and stopPrice == None:
 			entryOrder = self.__broker.createMarketOrder(broker.Order.Action.BUY, instrument, quantity, False)
-		elif price != None and stopPrice == None:
-			entryOrder = self.__broker.createLimitOrder(broker.Order.Action.BUY, instrument, price, quantity)
-		elif price == None and stopPrice != None:
+		elif limitPrice != None and stopPrice == None:
+			entryOrder = self.__broker.createLimitOrder(broker.Order.Action.BUY, instrument, limitPrice, quantity)
+		elif limitPrice == None and stopPrice != None:
 			entryOrder = self.__broker.createStopOrder(broker.Order.Action.BUY, instrument, stopPrice, quantity)
-		elif price != None and stopPrice != None:
-			entryOrder = self.__broker.createStopLimitOrder(broker.Order.Action.BUY, instrument, stopPrice, price, quantity)
+		elif limitPrice != None and stopPrice != None:
+			entryOrder = self.__broker.createStopLimitOrder(broker.Order.Action.BUY, instrument, stopPrice, limitPrice, quantity)
 		else:
 			assert(False)
 
@@ -147,11 +147,18 @@ class LongPosition(Position):
 		ret -= self.getExitOrder().getExecutionInfo().getCommission()
 		return ret
 
-	def buildExitOrder(self, price):
-		if price:
-			ret = self.__broker.createLimitOrder(broker.Order.Action.SELL, self.getInstrument(), price, self.getQuantity())
-		else:
+	def buildExitOrder(self, limitPrice, stopPrice):
+		if limitPrice == None and stopPrice == None:
 			ret = self.__broker.createMarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), False)
+		elif limitPrice != None and stopPrice == None:
+			ret = self.__broker.createLimitOrder(broker.Order.Action.SELL, self.getInstrument(), limitPrice, self.getQuantity())
+		elif limitPrice == None and stopPrice != None:
+			ret = self.__broker.createStopOrder(broker.Order.Action.SELL, self.getInstrument(), stopPrice, self.getQuantity())
+		elif limitPrice != None and stopPrice != None:
+			ret = self.__broker.createStopLimitOrder(broker.Order.Action.SELL, self.getInstrument(), stopPrice, limitPrice, self.getQuantity())
+		else:
+			assert(False)
+
 		ret.setGoodTillCanceled(self.getGoodTillCanceled())
 		return ret
 
@@ -162,16 +169,16 @@ class LongPosition(Position):
 
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
-	def __init__(self, broker_, instrument, price, stopPrice, quantity, goodTillCanceled):
+	def __init__(self, broker_, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
 		self.__broker = broker_
-		if price == None and stopPrice == None:
+		if limitPrice == None and stopPrice == None:
 			entryOrder = self.__broker.createMarketOrder(broker.Order.Action.SELL_SHORT, instrument, quantity, False)
-		elif price != None and stopPrice == None:
-			entryOrder = self.__broker.createLimitOrder(broker.Order.Action.SELL_SHORT, instrument, price, quantity)
-		elif price == None and stopPrice != None:
+		elif limitPrice != None and stopPrice == None:
+			entryOrder = self.__broker.createLimitOrder(broker.Order.Action.SELL_SHORT, instrument, limitPrice, quantity)
+		elif limitPrice == None and stopPrice != None:
 			entryOrder = self.__broker.createStopOrder(broker.Order.Action.SELL_SHORT, instrument, stopPrice, quantity)
-		elif price != None and stopPrice != None:
-			entryOrder = self.__broker.createStopLimitOrder(broker.Order.Action.SELL_SHORT, instrument, stopPrice, price, quantity)
+		elif limitPrice != None and stopPrice != None:
+			entryOrder = self.__broker.createStopLimitOrder(broker.Order.Action.SELL_SHORT, instrument, stopPrice, limitPrice, quantity)
 		else:
 			assert(False)
 
@@ -187,11 +194,18 @@ class ShortPosition(Position):
 		ret -= self.getExitOrder().getExecutionInfo().getCommission()
 		return ret
 
-	def buildExitOrder(self, price):
-		if price:
-			ret = self.__broker.createLimitOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), price, self.getQuantity())
-		else:
+	def buildExitOrder(self, limitPrice, stopPrice):
+		if limitPrice == None and stopPrice == None:
 			ret = self.__broker.createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), self.getQuantity(), False)
+		elif limitPrice != None and stopPrice == None:
+			ret = self.__broker.createLimitOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), limitPrice, self.getQuantity())
+		elif limitPrice == None and stopPrice != None:
+			ret = self.__broker.createStopOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, self.getQuantity())
+		elif limitPrice != None and stopPrice != None:
+			ret = self.__broker.createStopLimitOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, limitPrice, self.getQuantity())
+		else:
+			assert(False)
+
 		ret.setGoodTillCanceled(self.getGoodTillCanceled())
 		return ret
 
@@ -280,7 +294,7 @@ class Strategy:
 		return self.__broker
 
 	def enterLong(self, instrument, quantity, goodTillCanceled = False):
-		"""Generates a buy market order to enter a long position.
+		"""Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
@@ -296,7 +310,7 @@ class Strategy:
 		return ret
 
 	def enterShort(self, instrument, quantity, goodTillCanceled = False):
-		"""Generates a sell short market order to enter a short position.
+		"""Generates a sell short :class:`pyalgotrade.broker.MarketOrder` to enter a short position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
@@ -311,13 +325,13 @@ class Strategy:
 		self.__registerActivePosition(ret)
 		return ret
 
-	def enterLongLimit(self, instrument, price, quantity, goodTillCanceled = False):
-		"""Generates a buy limit order to enter a long position.
+	def enterLongLimit(self, instrument, limitPrice, quantity, goodTillCanceled = False):
+		"""Generates a buy :class:`pyalgotrade.broker.LimitOrder` to enter a long position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
-		:param price: Entry price.
-		:type price: float.
+		:param limitPrice: Limit price.
+		:type limitPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
 		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
@@ -325,17 +339,17 @@ class Strategy:
 		:rtype: The :class:`Position` entered.
 		"""
 
-		ret = LongPosition(self.__broker, instrument, price, None, quantity, goodTillCanceled)
+		ret = LongPosition(self.__broker, instrument, limitPrice, None, quantity, goodTillCanceled)
 		self.__registerActivePosition(ret)
 		return ret
 
-	def enterShortLimit(self, instrument, price, quantity, goodTillCanceled = False):
-		"""Generates a sell short limit order to enter a short position.
+	def enterShortLimit(self, instrument, limitPrice, quantity, goodTillCanceled = False):
+		"""Generates a sell short :class:`pyalgotrade.broker.LimitOrder` to enter a short position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
-		:param price: Entry price.
-		:type price: float.
+		:param limitPrice: Limit price.
+		:type limitPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
 		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
@@ -343,54 +357,16 @@ class Strategy:
 		:rtype: The :class:`Position` entered.
 		"""
 
-		ret = ShortPosition(self.__broker, instrument, price, None, quantity, goodTillCanceled)
+		ret = ShortPosition(self.__broker, instrument, limitPrice, None, quantity, goodTillCanceled)
 		self.__registerActivePosition(ret)
 		return ret
 	
-	def enterLongStop(self, instrument, price, quantity, goodTillCanceled = False):
-		"""Generates a buy stop order to enter a market position if the price is reached.
+	def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled = False):
+		"""Generates a buy :class:`pyalgotrade.broker.StopOrder` to enter a long position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
-		:param price: Stop price. If it is reached a Market order will be created.
-		:type price: float.
-		:param quantity: Entry order quantity.
-		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
-		:type goodTillCanceled: boolean.
-		:rtype: The :class:`Position` entered.
-		"""
-
-		ret = LongPosition(self.__broker, instrument, None, price, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
-		return ret
-
-	def enterShortStop(self, instrument, price, quantity, goodTillCanceled = False):
-		"""Generates a short stop order to enter a market position if the price is reached.
-
-		:param instrument: Instrument identifier.
-		:type instrument: string.
-		:param price: Stop price. If it is reached a Market order will be created.
-		:type price: float.
-		:param quantity: Entry order quantity.
-		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
-		:type goodTillCanceled: boolean.
-		:rtype: The :class:`Position` entered.
-		"""
-
-		ret = ShortPosition(self.__broker, instrument, None, price, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
-		return ret
-
-	def enterLongStopLimit(self, instrument, price, stopPrice, quantity, goodTillCanceled = False):
-		"""Generates a buy stop order to enter a limit position if the stop price is reached.
-
-		:param instrument: Instrument identifier.
-		:type instrument: string.
-		:param price: Limit price. Used when the stop price is hit.
-		:type price: float.
-		:param stopPrice: The Stop price. If it is hit, the Limit price is used to issue the order.
+		:param stopPrice: Stop price.
 		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
@@ -399,18 +375,16 @@ class Strategy:
 		:rtype: The :class:`Position` entered.
 		"""
 
-		ret = LongPosition(self.__broker, instrument, price, stopPrice, quantity, goodTillCanceled)
+		ret = LongPosition(self.__broker, instrument, None, stopPrice, quantity, goodTillCanceled)
 		self.__registerActivePosition(ret)
 		return ret
 
-	def enterShortStopLimit(self, instrument, price, stopPrice, quantity, goodTillCanceled = False):
-		"""Generates a short stop order to enter a limit position if the stop price is reached.
+	def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled = False):
+		"""Generates a sell short :class:`pyalgotrade.broker.StopOrder` to enter a short position.
 
 		:param instrument: Instrument identifier.
 		:type instrument: string.
-		:param price: Limit price. Used when the stop price is hit.
-		:type price: float.
-		:param stopPrice: The Stop price. If it is hit, the Limit price is used to issue the order.
+		:param stopPrice: Stop price.
 		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
@@ -419,17 +393,65 @@ class Strategy:
 		:rtype: The :class:`Position` entered.
 		"""
 
-		ret = ShortPosition(self.__broker, instrument, price, stopPrice, quantity, goodTillCanceled)
+		ret = ShortPosition(self.__broker, instrument, None, stopPrice, quantity, goodTillCanceled)
 		self.__registerActivePosition(ret)
 		return ret
 
-	def exitPosition(self, position, price = None):
+	def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled = False):
+		"""Generates a buy :class:`pyalgotrade.broker.StopLimitOrder` order to enter a long position.
+
+		:param instrument: Instrument identifier.
+		:type instrument: string.
+		:param limitPrice: Limit price.
+		:type limitPrice: float.
+		:param stopPrice: Stop price.
+		:type stopPrice: float.
+		:param quantity: Entry order quantity.
+		:type quantity: int.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:type goodTillCanceled: boolean.
+		:rtype: The :class:`Position` entered.
+		"""
+
+		ret = LongPosition(self.__broker, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
+		self.__registerActivePosition(ret)
+		return ret
+
+	def enterShortStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled = False):
+		"""Generates a sell short :class:`pyalgotrade.broker.StopLimitOrder` order to enter a short position.
+
+		:param instrument: Instrument identifier.
+		:type instrument: string.
+		:param limitPrice: Limit price.
+		:type limitPrice: float.
+		:param stopPrice: The Stop price.
+		:type stopPrice: float.
+		:param quantity: Entry order quantity.
+		:type quantity: int.
+		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:type goodTillCanceled: boolean.
+		:rtype: The :class:`Position` entered.
+		"""
+
+		ret = ShortPosition(self.__broker, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
+		self.__registerActivePosition(ret)
+		return ret
+
+	def exitPosition(self, position, limitPrice = None, stopPrice = None):
 		"""Generates the exit order for the position.
 
-		:param position: A position returned by :meth:`enterLong`, :meth:`enterShort`, :meth:`enterLongLimit` or :meth:`enterShortLimit` methods.
+		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
 		:type position: :class:`Position`.
-		:param price: Exit price. If set then a limit order is used instead of a market order.
-		:type price: float.
+		:param limitPrice: The limit price.
+		:type limitPrice: float.
+		:param stopPrice: The stop price.
+		:type stopPrice: float.
+
+		.. note::
+			* If limitPrice is not set and stopPrice is not set, then a :class:`pyalgotrade.broker.MarketOrder` is used to exit the position.
+			* If limitPrice is set and stopPrice is not set, then a :class:`pyalgotrade.broker.LimitOrder` is used to exit the position.
+			* If limitPrice is not set and stopPrice is set, then a :class:`pyalgotrade.broker.StopOrder` is used to exit the position.
+			* If limitPrice is set and stopPrice is set, then a :class:`pyalgotrade.broker.StopLimitOrder` is used to exit the position.
 		"""
 
 		if	position.getExitOrder() != None and \
@@ -439,7 +461,7 @@ class Strategy:
 
 		# Before exiting a position, the entry order must have been filled.
 		if position.getEntryOrder().isFilled():
-			position.close(price, self.__broker)
+			position.close(limitPrice, stopPrice, self.__broker)
 			self.__registerActivePosition(position)
 		else: # If the entry was not filled, cancel it.
 			position.getEntryOrder().cancel()
@@ -447,7 +469,7 @@ class Strategy:
 	def onEnterOk(self, position):
 		"""Override (optional) to get notified when the order submitted to enter a position was filled. The default implementation is empty.
 
-		:param position: A position returned by :meth:`enterLong` or :meth:`enterShort`.
+		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
 		:type position: :class:`Position`.
 		"""
 		pass
@@ -455,7 +477,7 @@ class Strategy:
 	def onEnterCanceled(self, position):
 		"""Override (optional) to get notified when the order submitted to enter a position was canceled. The default implementation is empty.
 
-		:param position: A position returned by :meth:`enterLong` or :meth:`enterShort`.
+		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
 		:type position: :class:`Position`.
 		"""
 		pass
@@ -464,7 +486,7 @@ class Strategy:
 	def onExitOk(self, position):
 		"""Override (optional) to get notified when the order submitted to exit a position was filled. The default implementation is empty.
 
-		:param position: A position returned by :meth:`enterLong` or :meth:`enterShort`.
+		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
 		:type position: :class:`Position`.
 		"""
 		pass
@@ -473,7 +495,7 @@ class Strategy:
 	def onExitCanceled(self, position):
 		"""Override (optional) to get notified when the order submitted to exit a position was canceled. The default implementation is empty.
 
-		:param position: A position returned by :meth:`enterLong` or :meth:`enterShort`.
+		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
 		:type position: :class:`Position`.
 		"""
 		pass

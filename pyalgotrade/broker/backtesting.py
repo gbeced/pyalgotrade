@@ -211,7 +211,7 @@ class ExecuteIfFilled(broker.ExecuteIfFilled):
 ######################################################################
 ## Broker
 
-class Broker(broker.BasicBroker):
+class Broker(broker.Broker):
 	"""Class responsible for processing orders.
 
 	:param cash: The initial amount of cash.
@@ -223,7 +223,7 @@ class Broker(broker.BasicBroker):
 	"""
 
 	def __init__(self, cash, barFeed, commission = None):
-		broker.BasicBroker.__init__(self, cash, commission)
+		broker.Broker.__init__(self, cash, commission)
 		self.__shares = {}
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False

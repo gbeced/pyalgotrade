@@ -84,9 +84,9 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 	def join(self):
 		self.__thread.join()
 
-class ExternalBroker(broker.BasicBroker):
+class ExternalBroker(broker.Broker):
 	def __init__(self, cash, barFeed, commission=None):
-		broker.BasicBroker.__init__(self, cash, commission)
+		broker.Broker.__init__(self, cash, commission)
 
 		self.__ordersQueue = Queue.Queue()
 		self.__stop = False

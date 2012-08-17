@@ -10,8 +10,8 @@ Contents:
     dataseries
     barfeed
     technical
+    broker
     strategy
     plotter
-    broker
     optimizer
 

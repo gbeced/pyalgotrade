@@ -179,10 +179,24 @@ class Order:
 		return self.__executionInfo
 	
 class MarketOrder(Order):
+	"""Base class for market orders.
+
+	.. note::
+
+		This is a base class and should not be used directly.
+	"""
+
 	def __init__(self, action, instrument, quantity):
 		Order.__init__(self, Order.Type.MARKET, action, instrument, quantity)
 
 class LimitOrder(Order):
+	"""Base class for limit orders.
+
+	.. note::
+
+		This is a base class and should not be used directly.
+	"""
+
 	def __init__(self, action, instrument, limitPrice, quantity):
 		Order.__init__(self, Order.Type.LIMIT, action, instrument, quantity)
 		self.__limitPrice = limitPrice
@@ -192,6 +206,13 @@ class LimitOrder(Order):
 		return self.__limitPrice
 
 class StopOrder(Order):
+	"""Base class for stop orders.
+
+	.. note::
+
+		This is a base class and should not be used directly.
+	"""
+
 	def __init__(self, action, instrument, stopPrice, quantity):
 		Order.__init__(self, Order.Type.STOP, action, instrument, quantity)
 		self.__stopPrice = stopPrice
@@ -201,6 +222,13 @@ class StopOrder(Order):
 		return self.__stopPrice
 
 class StopLimitOrder(Order):
+	"""Base class for stop limit orders.
+
+	.. note::
+
+		This is a base class and should not be used directly.
+	"""
+
 	def __init__(self, action, instrument, limitPrice, stopPrice, quantity):
 		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, quantity)
 		self.__limitPrice = limitPrice
@@ -252,11 +280,11 @@ class OrderExecutionInfo:
 		self.__dateTime = dateTime
 
 	def getPrice(self):
-		"""Returns execution price."""
+		"""Returns the fill price."""
 		return self.__price
 
 	def getCommission(self):
-		"""Returns commission applied."""
+		"""Returns the commission applied."""
 		return self.__commission
 
 	def getDateTime(self):
@@ -264,8 +292,15 @@ class OrderExecutionInfo:
 		return self.__dateTime
 
 ######################################################################
-## BasicBroker
-class BasicBroker:
+## Base broker class
+class Broker:
+	"""Base class for brokers.
+
+	.. note::
+
+		This is a base class and should not be used directly.
+	"""
+
 	def __init__(self, cash, commission=None):
 		assert(cash >= 0)
 		self.__cash = cash
@@ -281,11 +316,11 @@ class BasicBroker:
 		return self.__orderUpdatedEvent
 	
 	def getCash(self):
-		"""Returns the amount of cash."""
+		"""Returns the available cash."""
 		return self.__cash
 
 	def setCash(self, cash):
-		"""Sets the amount of cash."""
+		"""Sets the available cash."""
 		self.__cash = cash
 
 	def getCommission(self):

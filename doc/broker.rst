@@ -2,5 +2,5 @@ broker -- Order management classes
 ==================================
 
 .. automodule:: pyalgotrade.broker
-    :members: Broker, Order, MarketOrder, LimitOrder, OrderExecutionInfo
+    :members: Order, MarketOrder, LimitOrder, StopOrder, StopLimitOrder, OrderExecutionInfo, Broker
 
