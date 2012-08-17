@@ -87,11 +87,10 @@ class Order:
 		STOP_LIMIT			= 4
 		EXEC_IF_FILLED		= 5
 
-	def __init__(self, type_, action, instrument, price, quantity):
+	def __init__(self, type_, action, instrument, quantity):
 		self.__type = type_
 		self.__action = action
 		self.__instrument = instrument
-		self.__price = price
 		self.__quantity = quantity
 		self.__executionInfo = None
 		self.__goodTillCanceled = False
@@ -138,10 +137,6 @@ class Order:
 		"""Returns the instrument identifier."""
 		return self.__instrument
 
-	def getPrice(self):
-		"""Returns order price."""
-		return self.__price
-
 	def getQuantity(self):
 		"""Returns the quantity."""
 		return self.__quantity
@@ -185,25 +180,39 @@ class Order:
 	
 class MarketOrder(Order):
 	def __init__(self, action, instrument, quantity):
-		price = 0
-		Order.__init__(self, Order.Type.MARKET, action, instrument, price, quantity)
+		Order.__init__(self, Order.Type.MARKET, action, instrument, quantity)
 
 class LimitOrder(Order):
 	def __init__(self, action, instrument, limitPrice, quantity):
-		Order.__init__(self, Order.Type.LIMIT, action, instrument, limitPrice, quantity)
+		Order.__init__(self, Order.Type.LIMIT, action, instrument, quantity)
+		self.__limitPrice = limitPrice
+
+	def getLimitPrice(self):
+		"""Returns the limit price."""
+		return self.__limitPrice
 
 class StopOrder(Order):
 	def __init__(self, action, instrument, stopPrice, quantity):
-		Order.__init__(self, Order.Type.STOP, action, instrument, stopPrice, quantity)
+		Order.__init__(self, Order.Type.STOP, action, instrument, quantity)
+		self.__stopPrice = stopPrice
+
+	def getStopPrice(self):
+		"""Returns the stop price."""
+		return self.__stopPrice
 
 class StopLimitOrder(Order):
 	def __init__(self, action, instrument, limitPrice, stopPrice, quantity):
-		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, limitPrice, quantity)
+		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, quantity)
+		self.__limitPrice = limitPrice
 		self.__stopPrice = stopPrice
 		self.__limitOrderActive = False # Set to true when the limit order is activated (stop price is hit)
 		
+	def getLimitPrice(self):
+		"""Returns the limit price."""
+		return self.__limitPrice
+
 	def getStopPrice(self):
-		"""Returns orders stop price."""
+		"""Returns the stop price."""
 		return self.__stopPrice
 
 	def setLimitOrderActive(self, limitOrderActive):
