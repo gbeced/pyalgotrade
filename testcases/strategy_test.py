@@ -295,7 +295,6 @@ class LongPosTestCase(StrategyTestCase):
 
 		strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
 		strat.addPosExit(datetime.datetime(2000, 11, 7), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -322,9 +321,9 @@ class LongPosTestCase(StrategyTestCase):
 		# 2000-10-12,63.81,64.87,61.75,63.00,50892400,30.80
 		# 2000-01-19,56.13,58.25,54.00,57.13,49208800,27.93
 		# 2000-01-18,107.87,114.50,105.62,111.25,66791200,27.19
+
 		strat.addPosEntry(datetime.datetime(2000, 1, 18), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
 		strat.addPosExit(datetime.datetime(2000, 10, 12), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -355,9 +354,9 @@ class LongPosTestCase(StrategyTestCase):
 		# 2000-01-31,47.94,50.13,47.06,49.95,68152400,24.42 - buy succeeds
 		# 2000-01-28,51.50,51.94,46.63,47.38,86400600,23.16 - buy fails
 		# 2000-01-27,55.81,56.69,50.00,51.81,61061800,25.33 - enterLong
+
 		strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
 		strat.addPosExit(datetime.datetime(2000, 2, 3), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -372,8 +371,8 @@ class LongPosTestCase(StrategyTestCase):
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-01-28,51.50,51.94,46.63,47.38,86400600,23.16 - buy fails
 		# 2000-01-27,55.81,56.69,50.00,51.81,61061800,25.33 - enterLong
-		strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
 
+		strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 0)
@@ -390,7 +389,6 @@ class LongPosTestCase(StrategyTestCase):
 		strat.setExitOnSessionClose(True)
 
 		strat.addPosEntry(datetime.datetime(2011, 1, 3, 14, 30), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 0)
@@ -419,9 +417,9 @@ class LongPosTestCase(StrategyTestCase):
 
 		# 3/Jan/2011 20:59:00 - Enter long
 		# 3/Jan/2011 21:00:00 - Buy at open price: 127.07 - Sell at close price: 127.05
+
 		strat.addPosEntry(datetime.datetime(2011, 1, 3, 20, 59), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
 		strat.addPosExit(datetime.datetime(2011, 1, 4, 18, 20), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -440,9 +438,9 @@ class ShortPosTestCase(StrategyTestCase):
 		# 2000-11-07,28.37,28.44,26.50,26.56,58950800,25.97
 		# 2000-11-06,30.69,30.69,27.50,27.94,75552300,27.32
 		# 2000-11-03,31.50,31.75,29.50,30.31,65020900,29.64
+
 		strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
 		strat.addPosExit(datetime.datetime(2000, 11, 7), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -469,9 +467,9 @@ class ShortPosTestCase(StrategyTestCase):
 		# 2000-10-12,63.81,64.87,61.75,63.00,50892400,30.80
 		# 2000-01-19,56.13,58.25,54.00,57.13,49208800,27.93
 		# 2000-01-18,107.87,114.50,105.62,111.25,66791200,27.19
+
 		strat.addPosEntry(datetime.datetime(2000, 1, 18), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
 		strat.addPosExit(datetime.datetime(2000, 10, 12), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -502,7 +500,6 @@ class ShortPosTestCase(StrategyTestCase):
 
 		strat.addPosEntry(datetime.datetime(2000, 11, 28), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
 		strat.addPosExit(datetime.datetime(2000, 12, 7), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -520,60 +517,8 @@ class ShortPosTestCase(StrategyTestCase):
 		self.__testShortPositionExitCanceledImpl(True, True)
 
 	def testShortPositionExitCanceledAndReSubmitted(self):
-		class InternalTestStrategy(strategy.Strategy):
-			def __init__(self, barFeed, cash):
-				strategy.Strategy.__init__(self, barFeed, cash)
-				self.__position = None
-				self.__enterOkEvents = 0
-				self.__enterCanceledEvents = 0
-				self.__exitOkEvents = 0
-				self.__exitCanceledEvents = 0
-
-			def onStart(self):
-				pass
-
-			def onEnterOk(self, position):
-				self.__enterOkEvents += 1
-
-			def onEnterCanceled(self, position):
-				self.__enterCanceledEvents += 1
-
-			def onExitOk(self, position):
-				self.__exitOkEvents += 1
-
-			def onExitCanceled(self, position):
-				self.__exitCanceledEvents += 1
-
-			def getEnterOkEvents(self):
-				return self.__enterOkEvents
-
-			def getExitOkEvents(self):
-				return self.__exitOkEvents
-
-			def getEnterCanceledEvents(self):
-				return self.__enterCanceledEvents
-
-			def getExitCanceledEvents(self):
-				return self.__exitCanceledEvents
-
-			def onBars(self, bars):
-				bar_ = bars.getBar(StrategyTestCase.TestInstrument)
-				dateTime = bar_.getDateTime()
-				if dateTime == datetime.datetime(2000, 11, 10):
-					assert(self.__position == None)
-					self.__position = self.enterShort(StrategyTestCase.TestInstrument, 1)
-				elif dateTime == datetime.datetime(2000, 11, 14):
-					assert(self.__position != None)
-					# This should be canceled.
-					self.exitPosition(self.__position)
-				elif dateTime == datetime.datetime(2000, 11, 22):
-					assert(self.__position != None)
-					# This should be filled.
-					self.exitPosition(self.__position)
-
-		barFeed = yahoofeed.Feed()
-		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-		strat = InternalTestStrategy(barFeed, 0)
+		strat = self.createStrategy(False, False)
+		strat.getBroker().setCash(0)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-24,23.31,24.25,23.12,24.12,22446100,23.58
@@ -587,7 +532,11 @@ class ShortPosTestCase(StrategyTestCase):
 		# 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
 		# 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterShort
 
+		strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterShort, StrategyTestCase.TestInstrument, 1)
+		strat.addPosExit(datetime.datetime(2000, 11, 14), strat.exitPosition)
+		strat.addPosExit(datetime.datetime(2000, 11, 22), strat.exitPosition)
 		strat.run()
+
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitCanceledEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
@@ -603,9 +552,9 @@ class ShortPosTestCase(StrategyTestCase):
 		# .
 		# 3/Jan/2011 21:00:00 - Exit on close - Buy at close price: 127.05
 		# The exit date should not be triggered
+
 		strat.addPosEntry(datetime.datetime(2011, 1, 3, 18, 20), strat.enterShort, StrategyTestCase.TestInstrument, 1, True)
 		strat.addPosExit(datetime.datetime(2011, 1, 4, 18, 20), strat.exitPosition)
-
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -614,7 +563,6 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.4 - 127.05), 2))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(127.4 - 127.05, 2))
-
 
 def getTestCases():
 	ret = []
