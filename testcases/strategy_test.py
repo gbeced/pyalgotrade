@@ -650,6 +650,53 @@ class StopPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 23.31), 2))
 
+class StopLimitPosTestCase(StrategyTestCase):
+	def testLong(self):
+		strat = self.createStrategy(False, False)
+
+		# Date,Open,High,Low,Close,Volume,Adj Close
+		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
+		# 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - exitPosition
+		# 2000-11-15,28.81,29.44,27.70,28.87,50655200,28.23
+		# 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74
+		# 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
+		# 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStopLimit
+
+		strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, StrategyTestCase.TestInstrument, 24, 25.5, 1)
+		strat.addPosExit(datetime.datetime(2000, 11, 16), strat.exitPosition, 28, 27)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (28 - 24), 2))
+
+	def testShort(self):
+		strat = self.createStrategy(False, False)
+
+		# Date,Open,High,Low,Close,Volume,Adj Close
+		# 2000-11-24,23.31,24.25,23.12,24.12,22446100,23.58 - exit filled
+		# 2000-11-22,23.62,24.06,22.06,22.31,53317000,21.81 - exitPosition
+		# 2000-11-21,24.81,25.62,23.50,23.87,58651900,23.34
+		# 2000-11-20,24.31,25.87,24.00,24.75,89783100,24.20
+		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - entry filled
+		# 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - enterShortStopLimit
+		# 2000-11-15,28.81,29.44,27.70,28.87,50655200,28.23
+		# 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74
+		# 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
+		# 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87
+
+		strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStopLimit, StrategyTestCase.TestInstrument, 29, 27, 1)
+		strat.addPosExit(datetime.datetime(2000, 11, 22), strat.exitPosition, 25, 24)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 24), 2))
+
 def getTestCases():
 	ret = []
 
@@ -682,6 +729,9 @@ def getTestCases():
 
 	ret.append(StopPosTestCase("testLong"))
 	ret.append(StopPosTestCase("testShort"))
+
+	ret.append(StopLimitPosTestCase("testLong"))
+	ret.append(StopLimitPosTestCase("testShort"))
 
 	return ret
 
