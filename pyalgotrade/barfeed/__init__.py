@@ -169,3 +169,15 @@ class OptimizerBarFeed(BasicBarFeed):
 			ret = self.__bars.pop(0)
 		return ret
 
+class IterableBarFeed:
+	def __init__(self, barFeed):
+		self.__barFeed = barFeed
+
+	def __iter__(self):
+		return self
+
+	def next(self):
+		ret = self.__barFeed.getNextBars()
+		if ret == None:
+			raise StopIteration()
+		return ret

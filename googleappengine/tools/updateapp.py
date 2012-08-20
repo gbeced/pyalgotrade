@@ -74,6 +74,8 @@ def update_pyalgotrade(appPath):
 	if os.path.exists(dstPath) == False:
 		print "Preparing pyalgotrade package"
 		shutil.copytree(srcPath, dstPath)
+	else:
+		print "Warning: %s allready exists and will be used as is." % (dstPath)
 
 def main():
 	try:

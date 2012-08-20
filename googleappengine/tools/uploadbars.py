@@ -25,6 +25,7 @@ import subprocess
 uploadBarsPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(uploadBarsPath, "..", ".."))
 
+from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
 
 def get_md5(value):
@@ -73,7 +74,7 @@ def write_intermediate_csv(instrument, csvFiles, csvToUpload):
 		feed.addBarsFromCSV(instrument, csvFile)
 
 	print "Writing intermediate csv into %s" % csvToUpload.name
-	for bars in feed:
+	for bars in barfeed.IterableBarFeed(feed):
 		bar = bars.getBar(instrument)
 		csvToUpload.write("%s,%s,%d,%s,%s,%s,%s,%s,%s,%s\n" % (
 			gen_bar_key(instrument, barType, bar),
