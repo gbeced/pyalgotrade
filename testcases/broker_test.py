@@ -322,7 +322,7 @@ class MarketOrderTestCase(BaseTestCase):
 		brk = backtesting.Broker(100, barFeed=barfeed.BarFeed())
 		order = broker.MarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
 		brk.placeOrder(order)
-		order.cancel()
+		brk.cancelOrder(order)
 		brk.onBars(self.buildBars(10, 10, 10, 10))
 		self.assertTrue(order.isCanceled())
 

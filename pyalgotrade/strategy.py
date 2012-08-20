@@ -46,11 +46,11 @@ class Position:
 		return self.__goodTillCanceled
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
-		"""Set to True to automatically place the exit order in the last bar for the session. Only useful for intraday trading."""
+		"""Set to True to automatically place the exit order when the session is about to close. Only useful for intraday trading."""
 		self.__exitOnSessionClose = exitOnSessionClose
 
 	def getExitOnSessionClose(self):
-		"""Returns True if an order to exit the position should be automatically placed."""
+		"""Returns True if an order to exit the position should be automatically submitted when the session is about to close."""
 		return self.__exitOnSessionClose
 
 	def getEntryOrder(self):
@@ -93,7 +93,7 @@ class Position:
 		return ret
 
 	def getResult(self):
-		"""Returns the ratio between the order prices. **It doesn't include commisions**."""
+		"""Returns the ratio between the order prices. It **doesn't** include commisions."""
 		if not self.getEntryOrder().isFilled():
 			raise Exception("Position not opened yet")
 		if self.getExitOrder() == None or not self.getExitOrder().isFilled():
@@ -101,10 +101,10 @@ class Position:
 		return self.getResultImpl()
 
 	def getResultImpl(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def getNetProfit(self):
-		"""Returns the difference between the order prices. **It does include commisions**."""
+		"""Returns the difference between the order prices. It **does** include commisions."""
 		if not self.getEntryOrder().isFilled():
 			raise Exception("Position not opened yet")
 		if self.getExitOrder() == None or not self.getExitOrder().isFilled():
@@ -112,13 +112,13 @@ class Position:
 		return self.getNetProfitImpl()
 
 	def getNetProfitImpl(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def buildExitOrder(self, limitPrice, stopPrice):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def buildExitOnSessionCloseOrder(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
@@ -221,8 +221,8 @@ class Strategy:
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
 	:param cash: The amount of cash available.
 	:type cash: int/float.
-	:param broker_: Broker to use. If not specified the default broker (:class:`pyalgotrade.broker.backtesting.Broker`) 
-					will be created.
+	:param broker_: Broker to use. If not specified the default backtesting broker (:class:`pyalgotrade.broker.backtesting.Broker`) 
+					will be used.
 	:type broker_: :class:`pyalgotrade.broker.Broker`.
 
 	.. note::
@@ -508,20 +508,20 @@ class Strategy:
 	def onFinish(self, bars):
 		"""Override (optional) to get notified when the strategy finished executing. The default implementation is empty.
 
-		:param bars: The latest bars processed.
+		:param bars: The last bars processed.
 		:type bars: :class:`pyalgotrade.bar.Bars`.
 		"""
 		pass
 
 	def onBars(self, bars):
-		"""Override (mandatory) to get notified when new bars are available. The default implementation raises an Exception.
+		"""Override (**mandatory**) to get notified when new bars are available. The default implementation raises an Exception.
 
 		**This is the method to override to enter your trading logic and enter/exit positions**.
 
 		:param bars: The current bars.
 		:type bars: :class:`pyalgotrade.bar.Bars`.
 		"""
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def __onOrderUpdate(self, broker_, order):
 		position = self.__orderToPosition[order]

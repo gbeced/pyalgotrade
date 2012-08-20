@@ -162,6 +162,9 @@ class ExternalBroker(broker.Broker):
 	def createExecuteIfFilled(self, dependent, independent):
 		return self.__decorated.createExecuteIfFilled(dependent, independent)
 
+	def cancelOrder(self, order):
+		return self.__decorated.cancelOrder(order)
+
 class TestStrategy(strategy.Strategy):
 	def __init__(self, barFeed, cash, broker_ = None):
 		strategy.Strategy.__init__(self, barFeed, cash, broker_)

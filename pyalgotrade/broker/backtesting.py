@@ -32,15 +32,15 @@ class NotEnoughCash(Exception):
 ## Orders
 
 class BacktestingOrder:
-	def checkCanceled(self, bars):
+	def checkCanceled(self, broker, bars):
 		# If its the last bar of the session and the order is not GTC, then cancel it.
 		if self.isAccepted() and self.getGoodTillCanceled() == False and bars.getBar(self.getInstrument()).getSessionClose():
-			self.cancel()
+			broker.cancelOrder(self)
 
 	def tryExecute(self, broker, bars):
 		if self.isAccepted():
 			self.tryExecuteImpl(broker, bars)
-			self.checkCanceled(bars)
+			self.checkCanceled(broker, bars)
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
 	def __init__(self, action, instrument, quantity, onClose):
@@ -206,7 +206,7 @@ class ExecuteIfFilled(broker.ExecuteIfFilled):
 		if self.getIndependent().isFilled():
 			self.getDependent().tryExecute(broker, bars)
 		elif self.getIndependent().isCanceled(): 
-			self.getDependent().cancel()
+			broker.cancelOrder(self.getDependent())
 
 ######################################################################
 ## Broker
@@ -378,5 +378,10 @@ class Broker(broker.Broker):
 
 	def createExecuteIfFilled(self, dependent, independent):
 		return ExecuteIfFilled(dependent, independent)
+
+	def cancelOrder(self, order):
+		if order.isFilled():
+			raise Exception("Can't cancel order that has already been filled")
+		order.setState(broker.Order.State.CANCELED)
 
 # vim: noet:ci:pi:sts=0:sw=4:ts=4

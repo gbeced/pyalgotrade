@@ -52,8 +52,6 @@ class Order:
 	:type action: :class:`Order.Action`
 	:param instrument: Instrument identifier.
 	:type instrument: string.
-	:param price: The price associated with the order. The meaning of this variable depends on the order type.
-	:type price: float
 	:param quantity: Order quantity.
 	:type quantity: int.
 
@@ -127,12 +125,6 @@ class Order:
 		"""Returns True if the order state is Order.State.FILLED."""
 		return self.__state == Order.State.FILLED
 
-	def cancel(self):
-		"""Cancels an accepted order. If the order is filled an Exception is raised."""
-		if self.isFilled():
-			raise Exception("Can't cancel order that has already been processed")
-		self.__state = Order.State.CANCELED
-
 	def getInstrument(self):
 		"""Returns the instrument identifier."""
 		return self.__instrument
@@ -170,6 +162,9 @@ class Order:
 	def setExecuted(self, orderExecutionInfo):
 		self.__executionInfo = orderExecutionInfo
 		self.__state = Order.State.FILLED
+
+	def setState(self, state):
+		self.__state = state
 
 	def getExecutionInfo(self):
 		"""Returns the order execution info if the order was filled, or None otherwise.
@@ -244,13 +239,10 @@ class StopLimitOrder(Order):
 		return self.__stopPrice
 
 	def setLimitOrderActive(self, limitOrderActive):
-		"""Sets the Limit Order Active boolean variable:
-		Indicates if the Stop price is broken and the Limit Order is
-		active on the market."""
 		self.__limitOrderActive = limitOrderActive
 
 	def isLimitOrderActive(self):
-		"""Returns the Limit Order Active boolean variable"""
+		"""Returns True if the limit order is active."""
 		return self.__limitOrderActive
 
 # Special order wrapper that executes an order (dependent) only if another order (independent) was filled.
@@ -370,6 +362,7 @@ class Broker:
 		:type quantity: int.
 		:param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close order). Default is False.
 		:type onClose: boolean.
+		:rtype: A :class:`MarketOrder` subclass.
 		"""
 		raise NotImplementedError()
 
@@ -387,6 +380,7 @@ class Broker:
 		:type limitPrice: float
 		:param quantity: Order quantity.
 		:type quantity: int.
+		:rtype: A :class:`LimitOrder` subclass.
 		"""
 		raise NotImplementedError()
 
@@ -408,6 +402,7 @@ class Broker:
 		:type stopPrice: float
 		:param quantity: Order quantity.
 		:type quantity: int.
+		:rtype: A :class:`StopOrder` subclass.
 		"""
 		raise NotImplementedError()
 
@@ -427,6 +422,15 @@ class Broker:
 		:type limitPrice: float
 		:param quantity: Order quantity.
 		:type quantity: int.
+		:rtype: A :class:`StopLimitOrder` subclass.
+		"""
+		raise NotImplementedError()
+
+	def cancelOrder(self, order):
+		"""Requests an order to be canceled. If the order is filled an Exception is raised.
+
+		:param order: The order to cancel.
+		:type order: :class:`Order`.
 		"""
 		raise NotImplementedError()
 
