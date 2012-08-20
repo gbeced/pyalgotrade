@@ -74,7 +74,7 @@ def write_intermediate_csv(instrument, csvFiles, csvToUpload):
 		feed.addBarsFromCSV(instrument, csvFile)
 
 	print "Writing intermediate csv into %s" % csvToUpload.name
-	for bars in barfeed.IterableBarFeed(feed):
+	for bars in feed:
 		bar = bars.getBar(instrument)
 		csvToUpload.write("%s,%s,%d,%s,%s,%s,%s,%s,%s,%s\n" % (
 			gen_bar_key(instrument, barType, bar),

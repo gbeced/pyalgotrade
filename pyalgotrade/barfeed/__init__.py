@@ -115,6 +115,15 @@ class BarFeed(BasicBarFeed):
 		BasicBarFeed.__init__(self)
 		self.__prevDateTime = None
 
+	def __iter__(self):
+		return self
+
+	def next(self):
+		ret = self.getNextBars()
+		if ret == None:
+			raise StopIteration()
+		return ret
+
 	# Override to return a map from instrument names to bars or None if there is no more data. All bars datetime must be equal.
 	def fetchNextBars(self):
 		raise NotImplementedError()
@@ -169,15 +178,3 @@ class OptimizerBarFeed(BasicBarFeed):
 			ret = self.__bars.pop(0)
 		return ret
 
-class IterableBarFeed:
-	def __init__(self, barFeed):
-		self.__barFeed = barFeed
-
-	def __iter__(self):
-		return self
-
-	def next(self):
-		ret = self.__barFeed.getNextBars()
-		if ret == None:
-			raise StopIteration()
-		return ret
