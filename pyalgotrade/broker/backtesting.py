@@ -24,6 +24,8 @@ from pyalgotrade import broker
 ## Filling strategies
 
 class FillStrategy:
+	"""Base class for order filling strategies."""
+
 	# Return the fill price for a MarketOrder or None.
 	def fillMarketOrder(self, order, broker_, bar):
 		raise NotImplementedError()
@@ -41,6 +43,7 @@ class FillStrategy:
 		raise NotImplementedError()
 
 class OptimisticFillStrategy(FillStrategy):
+	"""A :class:`FillStrategy` that fills orders at the best possible price. This is the default."""
 	def __getLimitOrderFillPrice(self, broker_, bar_, action, limitPrice):
 		ret = None
 		open_ = broker_.getBarOpen(bar_)
@@ -226,7 +229,7 @@ class ExecuteIfFilled(broker.ExecuteIfFilled):
 ## Broker
 
 class Broker(broker.Broker):
-	"""Class responsible for processing orders.
+	"""Backtesting broker.
 
 	:param cash: The initial amount of cash.
 	:type cash: int or float.
@@ -247,7 +250,12 @@ class Broker(broker.Broker):
 		barFeed.getNewBarsEvent().subscribe(self.onBars)
 		self.__barFeed = barFeed
 
+	def setFillStrategy(self, strategy):
+		"""Sets the :class:`FillStrategy` to use."""
+		self.__fillStrategy = strategy 
+
 	def getFillStrategy(self):
+		"""Returns the :class:`FillStrategy` currently set."""
 		return self.__fillStrategy
 
 	def getBarOpen(self, bar_):
@@ -339,12 +347,6 @@ class Broker(broker.Broker):
 		return ret
 
 	def placeOrder(self, order):
-		"""Submits an order.
-
-		:param order: The order to submit.
-		:type order: :class:`Order`.
-		"""
-
 		if not order.isAccepted() or order in self.__pendingOrders:
 			raise Exception("Can't place the same order twice")
 
