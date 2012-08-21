@@ -181,8 +181,13 @@ class MarketOrder(Order):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, action, instrument, quantity):
+	def __init__(self, action, instrument, quantity, onClose):
 		Order.__init__(self, Order.Type.MARKET, action, instrument, quantity)
+		self.__onClose = onClose
+
+	def getFillOnClose(self):
+		"""Returns True if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
+		return self.__onClose
 
 class LimitOrder(Order):
 	"""Base class for limit orders.
