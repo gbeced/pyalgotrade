@@ -100,7 +100,7 @@ class DefaultStrategy(FillStrategy):
 	* A :class:`pyalgotrade.broker.StopLimitOrder` will be filled like this:
 		* If the stop price was penetrated with the open price, or if the bar includes the stop price, then the limit order becomes active.
 		* If the limit order is active:
-			* If the limit order was activated in this same bar and the limit price is penetrated as well, the best between the stop price and the limit fill price (as described earlier) is used.
+			* If the limit order was activated in this same bar and the limit price is penetrated as well, then the best between the stop price and the limit fill price (as described earlier) is used.
 			* If the limit order was activated at a previous bar then the limit fill price (as described earlier) is used.
 
 	.. note::
