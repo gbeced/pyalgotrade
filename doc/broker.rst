@@ -11,5 +11,5 @@ Backtesting module and classes
 ------------------------------
 
 .. automodule:: pyalgotrade.broker.backtesting
-    :members: Broker, FillStrategy, OptimisticFillStrategy
+    :members: Broker, FillStrategy, DefaultStrategy
 

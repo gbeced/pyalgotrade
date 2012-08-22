@@ -159,9 +159,6 @@ class ExternalBroker(broker.Broker):
 	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
 		return self.__decorated.createStopLimitOrder(action, instrument, stopPrice, limitPrice, quantity)
 
-	def createExecuteIfFilled(self, dependent, independent):
-		return self.__decorated.createExecuteIfFilled(dependent, independent)
-
 	def cancelOrder(self, order):
 		return self.__decorated.cancelOrder(order)
 

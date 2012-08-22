@@ -28,22 +28,84 @@ class FillStrategy:
 
 	# Return the fill price for a MarketOrder or None.
 	def fillMarketOrder(self, order, broker_, bar):
+		"""Override to return the fill price for a market order or None if the order can't be filled at the given time.
+
+		:param order: The order.
+		:type order: :class:`pyalgotrade.broker.MarketOrder`.
+		:param broker_: The broker.
+		:type broker_: :class:`Broker`.
+		:param bar: The current bar.
+		:type bar: :class:`pyalgotrade.bar.Bar`.
+		:rtype: An int/float with the fill price or None if the order should not be filled.
+		"""
 		raise NotImplementedError()
 
 	# Return the fill price for a LimitOrder or None.
 	def fillLimitOrder(self, order, broker_, bar):
+		"""Override to return the fill price for a limit order or None if the order can't be filled at the given time.
+
+		:param order: The order.
+		:type order: :class:`pyalgotrade.broker.LimitOrder`.
+		:param broker_: The broker.
+		:type broker_: :class:`Broker`.
+		:param bar: The current bar.
+		:type bar: :class:`pyalgotrade.bar.Bar`.
+		:rtype: An int/float with the fill price or None if the order should not be filled.
+		"""
 		raise NotImplementedError()
 
 	# Return the fill price for a StopOrder or None.
 	def fillStopOrder(self, order, broker_, bar):
+		"""Override to return the fill price for a stop order or None if the order can't be filled at the given time.
+
+		:param order: The order.
+		:type order: :class:`pyalgotrade.broker.StopOrder`.
+		:param broker_: The broker.
+		:type broker_: :class:`Broker`.
+		:param bar: The current bar.
+		:type bar: :class:`pyalgotrade.bar.Bar`.
+		:rtype: An int/float with the fill price or None if the order should not be filled.
+		"""
 		raise NotImplementedError()
 
 	# Return the fill price for a StopLimitOrder or None.
 	def fillStopLimitOrder(self, order, broker_, bar, justHitStopPrice):
+		"""Override to return the fill price for a stop limit order or None if the order can't be filled at the given time.
+
+		:param order: The order.
+		:type order: :class:`pyalgotrade.broker.StopLimitOrder`.
+		:param broker_: The broker.
+		:type broker_: :class:`Broker`.
+		:param bar: The current bar.
+		:type bar: :class:`pyalgotrade.bar.Bar`.
+		:param justHitStopPrice: True if the stop price has just been hit with the current bar.
+		:type justHitStopPrice: boolean.
+		:rtype: An int/float with the fill price or None if the order should not be filled.
+		"""
 		raise NotImplementedError()
 
-class OptimisticFillStrategy(FillStrategy):
-	"""A :class:`FillStrategy` that fills orders at the best possible price. This is the default."""
+class DefaultStrategy(FillStrategy):
+	"""
+	This strategy works as follows:
+
+	* A :class:`pyalgotrade.broker.MarketOrder` is always filled using the open/close price.
+	* A :class:`pyalgotrade.broker.LimitOrder` will be filled like this:
+		* If the limit price was penetrated with the open price, then the open price is used.
+		* If the bar includes the limit price, then the limit price is used.
+		* Note that when buying the price is penetrated if it gets <= the limit price, and when selling the price is penetrated if it gets >= the limit price
+	* A :class:`pyalgotrade.broker.StopOrder` will be filled like this:
+		* If the stop price was penetrated with the open price, then the open price is used.
+		* If the bar includes the stop price, then the stop price is used.
+		* Note that when buying the price is penetrated if it gets >= the stop price, and when selling the price is penetrated if it gets <= the stop price
+	* A :class:`pyalgotrade.broker.StopLimitOrder` will be filled like this:
+		* If the stop price was penetrated with the open price, or if the bar includes the stop price, then the limit order becomes active.
+		* If the limit order is active:
+			* If the limit order was activated in this same bar and the limit price is penetrated as well, the best between the stop price and the limit fill price (as described earlier) is used.
+			* If the limit order was activated at a previous bar then the limit fill price (as described earlier) is used.
+
+	.. note::
+		This is the default strategy used by the Broker.
+	"""
 	def __getLimitOrderFillPrice(self, broker_, bar_, action, limitPrice):
 		ret = None
 		open_ = broker_.getBarOpen(bar_)
@@ -51,7 +113,7 @@ class OptimisticFillStrategy(FillStrategy):
 		low = broker_.getBarLow(bar_)
 
 		# If the bar is below the limit price, use the open price.
-		# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
+		# If the bar includes the limit price, use the open price or the limit price.
 		if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
 			if high < limitPrice:
 				ret = open_
@@ -61,7 +123,7 @@ class OptimisticFillStrategy(FillStrategy):
 				else:
 					ret = limitPrice
 		# If the bar is above the limit price, use the open price.
-		# If the bar includes the limit price, use the open price or the limit price. Whichever is better.
+		# If the bar includes the limit price, use the open price or the limit price.
 		elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
 			if low > limitPrice:
 				ret = open_
@@ -108,7 +170,7 @@ class OptimisticFillStrategy(FillStrategy):
 		elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
 			if high < stopPrice:
 				ret = open_
-			if stopPrice >= low:
+			elif stopPrice >= low:
 				if open_ < stopPrice: # The stop price was penetrated on open.
 					ret = open_
 				else:
@@ -218,7 +280,20 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 		except KeyError:
 			pass
 
-class ExecuteIfFilled(broker.ExecuteIfFilled):
+class ExecuteIfFilled:
+	def __init__(self, dependent, independent):
+		self.__dependent = dependent
+		self.__independent = independent
+
+	def getDependent(self):
+		return self.__dependent
+
+	def getIndependent(self):
+		return self.__independent
+
+	def __getattr__(self, name):
+		return getattr(self.__dependent, name) 
+
 	def tryExecute(self, broker, bars):
 		if self.getIndependent().isFilled():
 			self.getDependent().tryExecute(broker, bars)
@@ -244,7 +319,7 @@ class Broker(broker.Broker):
 		self.__shares = {}
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False
-		self.__fillStrategy = OptimisticFillStrategy()
+		self.__fillStrategy = DefaultStrategy()
 
 		# It is VERY important that the broker subscribes to barfeed events before the strategy.
 		barFeed.getNewBarsEvent().subscribe(self.onBars)

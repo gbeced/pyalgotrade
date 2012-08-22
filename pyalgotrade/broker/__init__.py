@@ -83,7 +83,6 @@ class Order:
 		LIMIT				= 2
 		STOP				= 3
 		STOP_LIMIT			= 4
-		EXEC_IF_FILLED		= 5
 
 	def __init__(self, type_, action, instrument, quantity):
 		self.__type = type_
@@ -249,25 +248,6 @@ class StopLimitOrder(Order):
 	def isLimitOrderActive(self):
 		"""Returns True if the limit order is active."""
 		return self.__limitOrderActive
-
-# Special order wrapper that executes an order (dependent) only if another order (independent) was filled.
-class ExecuteIfFilled:
-	def __init__(self, dependent, independent):
-		self.__type = Order.Type.EXEC_IF_FILLED
-		self.__dependent = dependent
-		self.__independent = independent
-
-	def getType(self):
-		return self.__type
-
-	def getDependent(self):
-		return self.__dependent
-
-	def getIndependent(self):
-		return self.__independent
-
-	def __getattr__(self, name):
-		return getattr(self.__dependent, name) 
 
 class OrderExecutionInfo:
 	"""Execution information for a filled order."""
