@@ -394,7 +394,7 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getEnterOkEvents() == 0)
 		self.assertTrue(strat.getExitOkEvents() == 0)
 		self.assertTrue(strat.getEnterCanceledEvents() == 1)
-		self.assertTrue(strat.getExitCanceledEvents() == 1) # This has to be changed once ExecuteIfFilled is removed.
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
 
 	def testIntradayExitOnClose_AllInOneDay(self):
 		barFeed = self.loadIntradayBarFeed()
@@ -416,18 +416,33 @@ class LongPosTestCase(StrategyTestCase):
 		strat.setExitOnSessionClose(True)
 
 		# 3/Jan/2011 20:59:00 - Enter long
-		# 3/Jan/2011 21:00:00 - Buy at open price: 127.07 - Sell at close price: 127.05
+		# 3/Jan/2011 21:00:00 - Entry gets canceled.
 
 		strat.addPosEntry(datetime.datetime(2011, 1, 3, 20, 59), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
-		strat.addPosExit(datetime.datetime(2011, 1, 4, 18, 20), strat.exitPosition)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 0)
+		self.assertTrue(strat.getExitOkEvents() == 0)
+		self.assertTrue(strat.getEnterCanceledEvents() == 1)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
+
+	def testIntradayExitOnClose_BuyOnPenultimateBar(self):
+		barFeed = self.loadIntradayBarFeed()
+		strat = TestStrategy(barFeed, 1000)
+		strat.setExitOnSessionClose(True)
+
+		# 3/Jan/2011 20:58:00 - Enter long
+		# 3/Jan/2011 20:59:00 - entry gets filled
+		# 3/Jan/2011 21:00:00 - exit gets filled.
+
+		strat.addPosEntry(datetime.datetime(2011, 1, 3, 20, 58), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
 		strat.run()
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(strat.getEnterCanceledEvents() == 0)
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.05 - 127.07), 2))
-		self.assertTrue(round(strat.getNetProfit(), 2) == round(127.05 - 127.07, 2))
 
 class ShortPosTestCase(StrategyTestCase):
 	def __testShortPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
@@ -711,6 +726,7 @@ def getTestCases():
 	ret.append(LongPosTestCase("testIntradayExitOnClose_AllInOneDay"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_EntryNotFilled"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnLastBar"))
+	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnPenultimateBar"))
 
 	ret.append(ShortPosTestCase("testShortPosition"))
 	ret.append(ShortPosTestCase("testShortPosition_ExternalBF"))

@@ -280,26 +280,6 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 		except KeyError:
 			pass
 
-class ExecuteIfFilled:
-	def __init__(self, dependent, independent):
-		self.__dependent = dependent
-		self.__independent = independent
-
-	def getDependent(self):
-		return self.__dependent
-
-	def getIndependent(self):
-		return self.__independent
-
-	def __getattr__(self, name):
-		return getattr(self.__dependent, name) 
-
-	def tryExecute(self, broker, bars):
-		if self.getIndependent().isFilled():
-			self.getDependent().tryExecute(broker, bars)
-		elif self.getIndependent().isCanceled(): 
-			broker.cancelOrder(self.getDependent())
-
 ######################################################################
 ## Broker
 
@@ -470,9 +450,6 @@ class Broker(broker.Broker):
 
 	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
 		return StopLimitOrder(action, instrument, limitPrice, stopPrice, quantity)
-
-	def createExecuteIfFilled(self, dependent, independent):
-		return ExecuteIfFilled(dependent, independent)
 
 	def cancelOrder(self, order):
 		if order.isFilled():

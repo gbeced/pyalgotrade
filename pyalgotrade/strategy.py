@@ -42,11 +42,23 @@ class Position:
 		self.__goodTillCanceled = goodTillCanceled
 		entryOrder.setGoodTillCanceled(goodTillCanceled)
 
+	def entryFilled(self):
+		"""Returns True if the entry order was filled."""
+		return self.__entryOrder != None and self.__entryOrder.isFilled()
+
+	def exitFilled(self):
+		"""Returns True if the exit order was filled."""
+		return self.__exitOrder != None and self.__exitOrder.isFilled()
+
 	def getGoodTillCanceled(self):
 		return self.__goodTillCanceled
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
-		"""Set to True to automatically place the exit order when the session is about to close. Only useful for intraday trading."""
+		"""Set to True to automatically place an exit order when the session is about to close. Only useful for intraday trading.
+
+		.. note::
+			If the entry order was not filled by the time the session is about to close, it will get canceled.
+		"""
 		self.__exitOnSessionClose = exitOnSessionClose
 
 	def getExitOnSessionClose(self):
@@ -81,12 +93,16 @@ class Position:
 	def checkExitOnSessionClose(self, bars, broker_):
 		ret = None
 		try:
+			# If the position was set to exit on session close, and this is the penultimate bar then:
+			# * Create the exit order if the entry was filled.
+			# * Cancel the entry order if it was not filled so far.
 			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getBarsTillSessionClose() == 1:
-				assert(self.getEntryOrder() != None)
-				ret = self.buildExitOnSessionCloseOrder()
-				ret = broker_.createExecuteIfFilled(ret, self.getEntryOrder())
-				broker_.placeOrder(ret)
-				self.setExitOrder(ret)
+				if self.entryFilled():
+					ret = self.buildExitOnSessionCloseOrder()
+					broker_.placeOrder(ret)
+					self.setExitOrder(ret)
+				else:
+					broker_.cancelOrder(self.getEntryOrder())
 		except KeyError:
 			pass
 
