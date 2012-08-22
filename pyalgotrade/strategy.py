@@ -85,7 +85,10 @@ class Position:
 		return self.__entryOrder.getQuantity()
 
 	def close(self, limitPrice, stopPrice, broker_):
-		assert(self.getExitOrder() == None or self.getExitOrder().isCanceled())
+		# If a previous exit order was pending, cancel it.
+		if self.getExitOrder() != None:
+			broker_.cancelOrder(self.getExitOrder())
+
 		closeOrder = self.buildExitOrder(limitPrice, stopPrice)
 		broker_.placeOrder(closeOrder)
 		self.setExitOrder(closeOrder)
@@ -464,15 +467,16 @@ class Strategy:
 		:type stopPrice: float.
 
 		.. note::
+			* If the entry order was not filled yet, it will be canceled.
+			* If a previous exit order for this position was filled, this won't have any effect.
+			* If a previous exit order for this position is pending, it will get canceled and the new exit order submitted.
 			* If limitPrice is not set and stopPrice is not set, then a :class:`pyalgotrade.broker.MarketOrder` is used to exit the position.
 			* If limitPrice is set and stopPrice is not set, then a :class:`pyalgotrade.broker.LimitOrder` is used to exit the position.
 			* If limitPrice is not set and stopPrice is set, then a :class:`pyalgotrade.broker.StopOrder` is used to exit the position.
 			* If limitPrice is set and stopPrice is set, then a :class:`pyalgotrade.broker.StopLimitOrder` is used to exit the position.
 		"""
 
-		if	position.getExitOrder() != None and \
-			(position.getExitOrder().isFilled() or position.getExitOrder().isAccepted()):
-			# The position is already closed or the exit order execution is still pending.
+		if position.exitFilled():
 			return
 
 		# Before exiting a position, the entry order must have been filled.
@@ -480,7 +484,7 @@ class Strategy:
 			position.close(limitPrice, stopPrice, self.__broker)
 			self.__registerActivePosition(position)
 		else: # If the entry was not filled, cancel it.
-			position.getEntryOrder().cancel()
+			self.getBroker().cancelOrder(position.getEntryOrder())
 
 	def onEnterOk(self, position):
 		"""Override (optional) to get notified when the order submitted to enter a position was filled. The default implementation is empty.
