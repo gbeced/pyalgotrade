@@ -1,5 +1,5 @@
 Version 0.7
-. [NEW] Backtesting broker allows for customizing of order filling strategies.
+. [NEW] Backtesting broker allows customizing of order filling strategies.
 . [NEW] Added support Stop orders. Thanks Tibor Kiss for adding this.
 . [NEW] Added support StopLimit orders. Thanks Tibor Kiss for adding this.
 . [NEW] TA-Lib integration (pyalgotrade.talibext.indicator).
