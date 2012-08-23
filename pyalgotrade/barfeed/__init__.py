@@ -162,6 +162,7 @@ class OptimizerBarFeed(BasicBarFeed):
 		for instrument in instruments:
 			self.registerInstrument(instrument)
 		self.__bars = bars
+		self.__nextBar = 0
 
 	def start(self):
 		pass
@@ -174,7 +175,8 @@ class OptimizerBarFeed(BasicBarFeed):
 
 	def getNextBars(self):
 		ret = None
-		if len(self.__bars):
-			ret = self.__bars.pop(0)
+		if self.__nextBar < len(self.__bars):
+			ret = self.__bars[self.__nextBar]
+			self.__nextBar += 1
 		return ret
 
