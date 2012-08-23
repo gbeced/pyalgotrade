@@ -2,6 +2,7 @@ Release checklist
 
 [ ] Update CHANGELOG.
 [ ] Update version in setup.py.
+[ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
 [ ] Rebuild and review documentation.
 [ ] Run tutorial examples using the installed lib.
