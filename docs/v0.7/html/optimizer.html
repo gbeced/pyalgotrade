@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>optimizer – Parallel optimizers &mdash; PyAlgoTrade 0.7 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.7',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.7 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="TA-Lib integration" href="talib.html" />
+    <link rel="prev" title="plotter – Strategy plotter" href="plotter.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.7 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.optimizer.server">
+<span id="optimizer-parallel-optimizers"></span><h1>optimizer &#8211; Parallel optimizers<a class="headerlink" href="#module-pyalgotrade.optimizer.server" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.optimizer.server.Results">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.optimizer.server.</tt><tt class="descname">Results</tt><big>(</big><em>parameters</em>, <em>result</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.server.Results" title="Permalink to this definition">¶</a></dt>
+<dd><p>The results of the strategy executions.</p>
+<dl class="method">
+<dt id="pyalgotrade.optimizer.server.Results.getParameters">
+<tt class="descname">getParameters</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.server.Results.getParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sequence of parameter values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.optimizer.server.Results.getResult">
+<tt class="descname">getResult</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.server.Results.getResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the result for a given set of parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.optimizer.server.serve">
+<tt class="descclassname">pyalgotrade.optimizer.server.</tt><tt class="descname">serve</tt><big>(</big><em>barFeed</em>, <em>strategyParameters</em>, <em>address</em>, <em>port</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.server.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a server that will provide bars and strategy parameters for workers to use.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>barFeed</strong> (<a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a>.) &#8211; The bar feed that each worker will use to backtest the strategy.</li>
+<li><strong>strategyParameters</strong> &#8211; The set of parameters to use for backtesting. An iterable object where <strong>each element is a tuple that holds parameter values</strong>.</li>
+<li><strong>address</strong> (<em>string.</em>) &#8211; The address to listen for incoming worker connections.</li>
+<li><strong>port</strong> (<em>int.</em>) &#8211; The port to listen for incoming worker connections.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#pyalgotrade.optimizer.server.Results" title="pyalgotrade.optimizer.server.Results"><tt class="xref py py-class docutils literal"><span class="pre">Results</span></tt></a> instance with the best results found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.optimizer.worker"></span><dl class="function">
+<dt id="pyalgotrade.optimizer.worker.run">
+<tt class="descclassname">pyalgotrade.optimizer.worker.</tt><tt class="descname">run</tt><big>(</big><em>strategyClass</em>, <em>address</em>, <em>port</em>, <em>workerCount=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.worker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes one or more worker processes that will run a strategy with the bars and parameters supplied by the server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>strategyClass</strong> &#8211; The strategy class.</li>
+<li><strong>address</strong> (<em>string.</em>) &#8211; The address of the server.</li>
+<li><strong>port</strong> (<em>int.</em>) &#8211; The port where the server is listening for incoming connections.</li>
+<li><strong>workerCount</strong> (<em>int.</em>) &#8211; The number of worker processes to run. If None then as many workers as CPUs are used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.optimizer.local"></span><dl class="function">
+<dt id="pyalgotrade.optimizer.local.run">
+<tt class="descclassname">pyalgotrade.optimizer.local.</tt><tt class="descname">run</tt><big>(</big><em>strategyClass</em>, <em>barFeed</em>, <em>strategyParameters</em>, <em>workerCount=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.optimizer.local.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes many instances of a strategy in parallel and finds the parameters that yield the best results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>strategyClass</strong> &#8211; The strategy class.</li>
+<li><strong>barFeed</strong> (<a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a>.) &#8211; The bar feed to use to backtest the strategy.</li>
+<li><strong>strategyParameters</strong> &#8211; The set of parameters to use for backtesting. An iterable object where <strong>each element is a tuple that holds parameter values</strong>.</li>
+<li><strong>workerCount</strong> (<em>int.</em>) &#8211; The number of strategies to run in parallel. If None then as many workers as CPUs are used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="plotter.html"
+                        title="previous chapter">plotter &#8211; Strategy plotter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="talib.html"
+                        title="next chapter">TA-Lib integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/optimizer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.7 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
