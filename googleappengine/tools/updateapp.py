@@ -71,11 +71,13 @@ def update_app_yaml(appPath, appId):
 def update_pyalgotrade(appPath):
 	srcPath = os.path.join(appPath, "..", "..", "pyalgotrade")
 	dstPath = os.path.join(appPath, "pyalgotrade")
-	if os.path.exists(dstPath) == False:
-		print "Preparing pyalgotrade package"
-		shutil.copytree(srcPath, dstPath)
-	else:
-		print "Warning: %s allready exists and will be used as is." % (dstPath)
+
+	if os.path.exists(dstPath) == True:
+		print "WARNING: %s allready exists. Cleaning it up." % (dstPath)
+		shutil.rmtree(dstPath)
+
+	print "Preparing pyalgotrade package"
+	shutil.copytree(srcPath, dstPath)
 
 def main():
 	try:
