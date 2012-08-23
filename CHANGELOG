@@ -1,4 +1,4 @@
-Version 0.7
+Version 0.7 (22/Aug/2012)
 . [NEW] Backtesting broker allows customizing of order filling strategies.
 . [NEW] Added support Stop orders. Thanks Tibor Kiss for adding this.
 . [NEW] Added support StopLimit orders. Thanks Tibor Kiss for adding this.
@@ -9,30 +9,31 @@ Version 0.7
 . [FIX] Was not honoring the good till canceled attribute when submiting exit orders from inside the position classes.
 . [FIX] Was not getting better prices (when available) for Limit orders. Thanks Tibor Kiss for reporting this.
 
-Version 0.6
+Version 0.6 (26/Jun/2012)
 . [NEW] Initial support for NinjaTrader export format (csvfeed.NinjaTraderRowParser).
 . [NEW] pyalgotrade.optimizer.server.serve now returns the best results found.
 . [FIX] Fixes to the optimizer.local module when running on Windows.
 . [FIX] The marker style used by plotter.py was not supported in some matplotlib versions. Thanks Tibor Kiss for fixing this.
 . [FIX] Socket used to find a random port to listen on was not being closed (optimizer.local.find_port). Thanks Tibor Kiss for fixing this.
 
-Version 0.5
+Version 0.5 (21/Jun/2012)
 . [NEW] StrategyPlotter supports plotting a range.
 . [NEW] Stochastic oscillator supports using adjusted values.
 . [NEW] Added support for optimizing strategies inside Google App Engine.
 . [NEW] Improved optimizer module to distribute strategy executions in chunks.
 
-Version 0.4
+Version 0.4 (8/May/2012)
 . [NEW] Rate of change technical indicator.
 . [NEW] Stochastic oscillator technical indicator.
 . [FIX] Added error checking to yahoofinance.get_daily_csv.
 . [FIX] Normalized some method names in StrategyPlotter.
 
-Version 0.3
+Version 0.3 (22/Apr/2012)
 . [NEW] Support for plotting strategies (StrategyPlotter).
 
-Version 0.2
+Version 0.2 (14/Apr/2012)
 . [NEW] CrossAbove and CrossBelow technical indicators.
 . [NEW] Limit order support.
 . [FIX] Fixed a bug when a position was set to exit on session close but the entry was not filled.
 
+Version 0.1 (27/Mar/2012)
