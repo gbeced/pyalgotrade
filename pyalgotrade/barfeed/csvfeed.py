@@ -85,7 +85,7 @@ class BarFeed(barfeed.BarFeed):
 	def __init__(self):
 		barfeed.BarFeed.__init__(self)
 		self.__bars = {}
-		self.currentBar = 0
+		self.__nextBarIdx = {}
 		self.__barFilter = None
 
 	def start(self):
@@ -103,9 +103,8 @@ class BarFeed(barfeed.BarFeed):
 		self.__barFilter = barFilter
 
 	def addBarsFromCSV(self, instrument, path, rowParser):
-		assert(self.currentBar == 0)
-
 		self.__bars.setdefault(instrument, [])
+		self.__nextBarIdx.setdefault(instrument, 0)
 
 		# Load the csv file
 		loadedBars = []
@@ -123,12 +122,26 @@ class BarFeed(barfeed.BarFeed):
 		self.registerInstrument(instrument)
 
 	def fetchNextBars(self):
+		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
+		smallestDateTime = None
+
+		# Make a first pass to get the smallest datetime.
+		for instrument, bars in self.__bars.iteritems():
+			nextIdx = self.__nextBarIdx[instrument]
+			if nextIdx < len(bars):
+				if smallestDateTime == None or bars[nextIdx].getDateTime() < smallestDateTime:
+					smallestDateTime = bars[nextIdx].getDateTime()
+
+		if smallestDateTime == None:
+			return None
+
+		# Make a second pass to get all the bars that had the smallest datetime.
 		ret = {}
 		for instrument, bars in self.__bars.iteritems():
-			if self.currentBar >= len(bars):
-				return None
-			ret[instrument] = bars[self.currentBar]
-		self.currentBar += 1
+			nextIdx = self.__nextBarIdx[instrument]
+			if nextIdx < len(bars) and bars[nextIdx].getDateTime() == smallestDateTime:
+				ret[instrument] = bars[nextIdx]
+				self.__nextBarIdx[instrument] += 1
 		return ret
 
 ######################################################################
