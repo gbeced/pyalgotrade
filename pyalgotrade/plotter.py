@@ -165,6 +165,7 @@ class Subplot:
 		self.customizeSubplot(mplSubplot)
 
 class BarSubplot(Subplot):
+	"""A Subplot responsible for plotting instruments."""
 	def __init__(self, instrument, plotBuySell):
 		Subplot.__init__(self)
 		self.__instrument = instrument
