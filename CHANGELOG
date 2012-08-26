@@ -1,3 +1,6 @@
+Version 0.8 (TBD)
+. [NEW] StrategyPlotter now plots each instrument in a separate subplot. getMainSubplot was replaced by getBarSubplot.
+
 Version 0.7 (22/Aug/2012)
 . [NEW] Backtesting broker allows customizing of order filling strategies.
 . [NEW] Added support Stop orders. Thanks Tibor Kiss for adding this.

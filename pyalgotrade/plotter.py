@@ -120,6 +120,9 @@ class Subplot:
 			self.__nextColor += 1
 		return ret
 
+	def isEmpty(self):
+		return len(self.__series) == 0
+
 	def addDataSeries(self, label, dataSeries):
 		"""Adds a DataSeries to the subplot.
 
@@ -161,89 +164,95 @@ class Subplot:
 		mplSubplot.legend(self.__series.keys(), shadow=True, loc="best")
 		self.customizeSubplot(mplSubplot)
 
+class BarSubplot(Subplot):
+	def __init__(self, instrument, plotBuySell):
+		Subplot.__init__(self)
+		self.__instrument = instrument
+		self.__plotBuySell = plotBuySell
+		self.__plotAdjClose = False
+
+	def onBars(self, bars):
+		bar = bars.getBar(self.__instrument)
+		dateTime = bar.getDateTime()
+		if self.__plotAdjClose:
+			price = bar.getAdjClose()
+		else:
+			price = bar.getClose()
+		self.getSeries(self.__instrument).addValue(dateTime, price)
+
+	def onOrderUpdated(self, broker_, order):
+		if self.__plotBuySell and order.isFilled() and order.getInstrument() == self.__instrument:
+			action = order.getAction()
+			execInfo = order.getExecutionInfo()
+			if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+				self.getSeries("Buy", BuyMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
+			elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+				self.getSeries("Sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
+
 class StrategyPlotter:
 	"""Class responsible for plotting a strategy execution.
 
 	:param strat: The strategy to plot.
 	:type strat: :class:`pyalgotrade.strategy.Strategy`.
-	:param plotAllClosingPrices: Set to True to get the closing prices plotted.
-	:type plotAllClosingPrices: boolean.
-	:param plotBuySell: Set to True to get the buy/sell events plotted.
+	:param plotAllInstruments: Set to True to get a subplot for each instrument available.
+	:type plotAllInstruments: boolean.
+	:param plotBuySell: Set to True to get the buy/sell events plotted for each instrument available.
 	:type plotBuySell: boolean.
 	:param plotPortfolio: Set to True to get the portfolio value (shares + cash) plotted.
 	:type plotPortfolio: boolean.
 	"""
 
-	def __init__(self, strat, plotAllClosingPrices=True, plotBuySell=True, plotPortfolio=True):
+	def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True):
 		self.__dateTimes = set()
-		self.__subplots = []
+
+		self.__plotAllInstruments = plotAllInstruments
+		self.__plotBuySell = plotBuySell
+		self.__barSubplots = {}
 		self.__namedSubplots = {}
-		self.__plotAllClosingPrices = plotAllClosingPrices
-		self.__plotAdjClose = False
-
-		self.__mainSubplot = Subplot()
-		self.__subplots.append(self.__mainSubplot)
-
 		self.__portfolioSubplot = None
 		if plotPortfolio:
 			self.__portfolioSubplot = Subplot()
-			self.__subplots.append(self.__portfolioSubplot)
 
-		# This is to feed:
-		# - Record datetimes
-		# - Feed the main subplot with bar values.
-		# - Feed the portfolio evolution subplot.
 		strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
+		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
 
-		# This is to feed buy/sell markes in the main subplot.
-		if plotBuySell:
-			strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
+	def __checkCreateBarSubplot(self, instrument):
+		if instrument not in self.__barSubplots:
+			self.getBarSubplot(instrument)
 
 	def __onBarsProcessed(self, strat, bars):
 		dateTime = bars.getDateTime()
 		self.__dateTimes.add(dateTime)
 
-		for subplot in self.__subplots:
-			subplot.addValuesFromDataSeries(dateTime)
-
-		# Feed the main subplot with bar values.
-		if self.__plotAllClosingPrices:
+		if self.__plotAllInstruments:
 			for instrument in bars.getInstruments():
-				if self.__plotAdjClose:
-					price = bars.getBar(instrument).getAdjClose()
-				else:
-					price = bars.getBar(instrument).getClose()
-				self.__mainSubplot.getSeries(instrument).addValue(dateTime, price)
+				self.__checkCreateBarSubplot(instrument)
+
+		# Notify BarSubplots
+		for subplot in self.__barSubplots.values():
+			subplot.onBars(bars)
+			subplot.addValuesFromDataSeries(dateTime)
 
 		# Feed the portfolio evolution subplot.
 		if self.__portfolioSubplot:
 			self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getValue(bars))
 
 	def __onOrderUpdated(self, broker_, order):
-		if order.isFilled():
-			action = order.getAction()
-			execInfo = order.getExecutionInfo()
-			if action == broker.Order.Action.BUY:
-				self.__mainSubplot.getSeries("Buy", BuyMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
-			elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-				self.__mainSubplot.getSeries("Sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
+		# Notify BarSubplots
+		for subplot in self.__barSubplots.values():
+			subplot.onOrderUpdated(broker_, order)
 
-	def setPlotAdjClose(self, plotAdjClose):
-		self.__plotAdjClose = plotAdjClose
+	def getBarSubplot(self, instrument):
+		"""Returns the BarSubplot for a given instrument
 
-	def getMainSubplot(self):
-		"""Returns the main subplot, where closing prices and buy/sell events get plotted.
-
-		:rtype: :class:`Subplot`.
+		:rtype: :class:`BarSubplot`.
 		"""
-		return self.__mainSubplot
-
-	def getPortfolioSubplot(self):
-		"""Returns the subplot where the portfolio values get plotted.
-
-		:rtype: :class:`Subplot`.
-		"""
-		return self.__portfolioSubplot
+		try:
+			ret = self.__barSubplots[instrument]
+		except KeyError:
+			ret = BarSubplot(instrument, self.__plotBuySell)
+			self.__barSubplots[instrument] = ret
+		return ret
 
 	def getOrCreateSubplot(self, name):
 		"""Returns a Subplot by name. If the subplot doesn't exist, it gets created.
@@ -257,8 +266,14 @@ class StrategyPlotter:
 		except KeyError:
 			ret = Subplot()
 			self.__namedSubplots[name] = ret
-			self.__subplots.append(ret)
 		return ret
+
+	def getPortfolioSubplot(self):
+		"""Returns the subplot where the portfolio values get plotted.
+
+		:rtype: :class:`Subplot`.
+		"""
+		return self.__portfolioSubplot
 
 	def plot(self, fromDateTime = None, toDateTime = None):
 		"""Plots the strategy execution. Must be called after running the strategy.
@@ -273,14 +288,23 @@ class StrategyPlotter:
 		dateTimes = _filter_datetimes(self.__dateTimes, fromDateTime, toDateTime)
 		dateTimes.sort()
 
+		subplots = []
+		subplots.extend(self.__barSubplots.values())
+		subplots.extend(self.__namedSubplots.values())
+		if self.__portfolioSubplot != None:
+			subplots.append(self.__portfolioSubplot)
+
 		# Build each subplot.
 		fig = plt.figure()
 		mplSubplots = []
-		for i in range(len(self.__subplots)):
-			mplSubplot = fig.add_subplot(len(self.__subplots), 1, i+1)
-			mplSubplots.append(mplSubplot)
-			self.__subplots[i].plot(mplSubplot, dateTimes)
-			mplSubplot.grid(True)
+		subplotIndex = 0
+		for subplot in subplots:
+			if not subplot.isEmpty():
+				mplSubplot = fig.add_subplot(len(subplots), 1, subplotIndex + 1)
+				mplSubplots.append(mplSubplot)
+				subplot.plot(mplSubplot, dateTimes)
+				mplSubplot.grid(True)
+				subplotIndex += 1
 
 		_adjustXAxis(mplSubplots)
 

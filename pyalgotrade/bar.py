@@ -145,7 +145,7 @@ class Bars:
 		return self.__dateTime
 
 	def getBar(self, instrument):
-		"""Returns the :class:`pyalgotrade.bar.Bar` for the given instrument."""
+		"""Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if the instrument is not found."""
 		ret = None
 		try:
 			ret = self.__barDict[instrument]
