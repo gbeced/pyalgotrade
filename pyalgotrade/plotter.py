@@ -174,12 +174,13 @@ class BarSubplot(Subplot):
 
 	def onBars(self, bars):
 		bar = bars.getBar(self.__instrument)
-		dateTime = bar.getDateTime()
-		if self.__plotAdjClose:
-			price = bar.getAdjClose()
-		else:
-			price = bar.getClose()
-		self.getSeries(self.__instrument).addValue(dateTime, price)
+		if bar:
+			dateTime = bars.getDateTime()
+			if self.__plotAdjClose:
+				price = bar.getAdjClose()
+			else:
+				price = bar.getClose()
+			self.getSeries(self.__instrument).addValue(dateTime, price)
 
 	def onOrderUpdated(self, broker_, order):
 		if self.__plotBuySell and order.isFilled() and order.getInstrument() == self.__instrument:
@@ -229,7 +230,11 @@ class StrategyPlotter:
 			for instrument in bars.getInstruments():
 				self.__checkCreateBarSubplot(instrument)
 
-		# Notify BarSubplots
+		# Notify named subplots.
+		for subplot in self.__namedSubplots.values():
+			subplot.addValuesFromDataSeries(dateTime)
+
+		# Notify bar subplots.
 		for subplot in self.__barSubplots.values():
 			subplot.onBars(bars)
 			subplot.addValuesFromDataSeries(dateTime)
