@@ -53,7 +53,7 @@ def run_strategy(smaPeriod):
 	# Attach the strategy to the plotter.
 	plt = plotter.StrategyPlotter(myStrategy)
 	# Include the SMA in the instrument's subplot to get it displayed along with the closing prices.
-	plt.getBarSubplot("orcl").addDataSeries("SMA", myStrategy.getSMA())
+	plt.getInstrumentSubplot("orcl").addDataSeries("SMA", myStrategy.getSMA())
 	# Run the strategy.
 	myStrategy.run()
 	# Plot the strategy.
