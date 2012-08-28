@@ -129,9 +129,9 @@ class Position:
 
 	def getNetProfit(self):
 		"""Returns the difference between the order prices. It **does** include commisions."""
-		if not self.getEntryOrder().isFilled():
+		if not self.entryFilled():
 			raise Exception("Position not opened yet")
-		if self.getExitOrder() == None or not self.getExitOrder().isFilled():
+		elif not self.exitFilled():
 			raise Exception("Position not closed yet")
 		return self.getNetProfitImpl()
 
@@ -256,6 +256,7 @@ class Strategy:
 		self.__activePositions = {}
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = observer.Event()
+		self.__analyzers = []
 
 		if broker_ == None:
 			# When doing backtesting (broker_ == None), the broker should subscribe to barFeed events before the strategy.
@@ -298,6 +299,14 @@ class Strategy:
 		for order in [position.getEntryOrder(), position.getExitOrder()]:
 			if order and order.isAccepted():
 				self.__registerOrder(position, order)
+
+	def __notifyAnalyzers(self, lambdaExpression):
+		for s in self.__analyzers:
+			lambdaExpression(s)
+
+	def attachAnalyzer(self, strategyAnalyzer):
+		"""Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
+		self.__analyzers.append(strategyAnalyzer)
 
 	def getFeed(self):
 		"""Returns the :class:`pyalgotrade.barfeed.BarFeed` that this strategy is using."""
@@ -553,18 +562,22 @@ class Strategy:
 		if position.getEntryOrder() == order:
 			if order.isFilled():
 				self.onEnterOk(position)
+				self.__notifyAnalyzers(lambda s: s.onPositionEnterOk(self, position))
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
 				self.onEnterCanceled(position)
+				self.__notifyAnalyzers(lambda s: s.onPositionEnterCanceled(self, position))
 			else:
 				assert(False)
 		elif position.getExitOrder() == order:
 			if order.isFilled():
 				self.__unregisterOrder(position, order)
 				self.onExitOk(position)
+				self.__notifyAnalyzers(lambda s: s.onPositionExitOk(self, position))
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
 				self.onExitCanceled(position)
+				self.__notifyAnalyzers(lambda s: s.onPositionExitCanceled(self, position))
 			else:
 				assert(False)
 		else:
