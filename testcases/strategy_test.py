@@ -665,6 +665,66 @@ class LimitPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 25), 2))
 
+	def testOverwriteExit(self):
+		strat = self.createStrategy(False, False)
+
+		# Date,Open,High,Low,Close,Volume,Adj Close
+		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
+		# 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - exitPosition using a market order (cancels the previous one).
+		# 2000-11-15,28.81,29.44,27.70,28.87,50655200,28.23 - exitPosition (cancels the previous one).
+		# 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74 - exitPosition
+		# 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
+		# 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
+		
+		strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1, True)
+		strat.addPosExit(datetime.datetime(2000, 11, 14), strat.exitPosition, 100)
+		strat.addPosExit(datetime.datetime(2000, 11, 15), strat.exitPosition, 100)
+		strat.addPosExit(datetime.datetime(2000, 11, 16), strat.exitPosition)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getExitCanceledEvents() == 0) # Exit cancelled events are not emitted for overwritten orders.
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 25), 2))
+
+	def testExitCancelsEntry(self):
+		strat = self.createStrategy(False, False)
+
+		# Date,Open,High,Low,Close,Volume,Adj Close
+		# 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74 - exitPosition (cancels the entry).
+		# 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - 
+		# 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
+		
+		strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 5, 1, True)
+		strat.addPosExit(datetime.datetime(2000, 11, 14), strat.exitPosition, 100)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 0)
+		self.assertTrue(strat.getEnterCanceledEvents() == 1)
+		self.assertTrue(strat.getExitOkEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
+
+	def testEntryGTCExitNotGTC(self):
+		strat = self.createStrategy(False, False)
+
+		# Date,Open,High,Low,Close,Volume,Adj Close
+		# 2000-11-15,28.81,29.44,27.70,28.87,50655200,28.23 - GTC exitPosition (never filled)
+		# 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74 - 
+		# 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
+		# 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
+		
+		strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1, True)
+		strat.addPosExit(datetime.datetime(2000, 11, 15), strat.exitPosition, 100, None, False)
+		strat.run()
+
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitOkEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 1)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 - 25, 2))
+
 class StopPosTestCase(StrategyTestCase):
 	def testLong(self):
 		strat = self.createStrategy(False, False)
@@ -787,6 +847,9 @@ def getTestCases():
 	ret.append(LimitPosTestCase("testShort"))
 	ret.append(LimitPosTestCase("testExitOnEntryNotFilled"))
 	ret.append(LimitPosTestCase("testExitTwice"))
+	ret.append(LimitPosTestCase("testOverwriteExit"))
+	ret.append(LimitPosTestCase("testExitCancelsEntry"))
+	ret.append(LimitPosTestCase("testEntryGTCExitNotGTC"))
 
 	ret.append(StopPosTestCase("testLong"))
 	ret.append(StopPosTestCase("testShort"))

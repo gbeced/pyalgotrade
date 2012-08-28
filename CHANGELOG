@@ -1,5 +1,8 @@
 Version 0.8 (TBD)
 . [NEW] StrategyPlotter now plots each instrument in a separate subplot. getMainSubplot was replaced by getIntrumentSubplot.
+. [NEW] Strategy.exitPosition allows setting the exit order as GTC or not, or matching the entry order (default).
+. [FIX] Was hitting an AssertionError in the strategy class when overwritting exit orders with new ones.
+. [FIX] Set exit-on-session-close orders as GTC.
 
 Version 0.7 (22/Aug/2012)
 . [NEW] Backtesting broker allows customizing of order filling strategies.
@@ -9,7 +12,7 @@ Version 0.7 (22/Aug/2012)
 . [NEW] Official support for NinjaTrader generated CSV files (pyalgotrade.barfeed.ninjatraderfeed.Feed). csvfeed.NinjaTraderRowParser was removed.
 . [CHANGE] pyalgotrade.barfeed.csvfeed.YahooFeed was moved to pyalgotrade.barfeed.yahoofeed.Feed. pyalgotrade.barfeed.csvfeed.YahooFeed still works but it will be removed soon.
 . [CHANGE] Major changes to the broker interface to support other broker types. These changes are not backwards compatible. Thanks Tibor Kiss for adding this.
-. [FIX] Was not honoring the good till canceled attribute when submiting exit orders from inside the position classes.
+. [FIX] Was not honoring the GTC attribute when submiting exit orders from inside the position classes.
 . [FIX] Was not getting better prices (when available) for Limit orders. Thanks Tibor Kiss for reporting this.
 
 Version 0.6 (26/Jun/2012)

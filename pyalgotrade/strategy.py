@@ -28,7 +28,7 @@ class Position:
 
 	:param entryOrder: The order used to enter the position.
 	:type entryOrder: :class:`pyalgotrade.broker.Order`
-	:param goodTillCanceled: True if orders should be set as good till canceled.
+	:param goodTillCanceled: True if the entry order should be set as good till canceled.
 	:type goodTillCanceled: boolean.
 
 	.. note::
@@ -39,7 +39,6 @@ class Position:
 		self.__entryOrder = entryOrder
 		self.__exitOrder = None
 		self.__exitOnSessionClose = False
-		self.__goodTillCanceled = goodTillCanceled
 		entryOrder.setGoodTillCanceled(goodTillCanceled)
 
 	def entryFilled(self):
@@ -51,7 +50,7 @@ class Position:
 		return self.__exitOrder != None and self.__exitOrder.isFilled()
 
 	def getGoodTillCanceled(self):
-		return self.__goodTillCanceled
+		return self.__entryOrder.getGoodTillCanceled()
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
 		"""Set to True to automatically place an exit order when the session is about to close. Only useful for intraday trading.
@@ -84,12 +83,18 @@ class Position:
 		"""Returns the number of shares used to enter this position."""
 		return self.__entryOrder.getQuantity()
 
-	def close(self, limitPrice, stopPrice, broker_):
+	def close(self, limitPrice, stopPrice, broker_, goodTillCanceled = None):
 		# If a previous exit order was pending, cancel it.
 		if self.getExitOrder() != None:
 			broker_.cancelOrder(self.getExitOrder())
 
 		closeOrder = self.buildExitOrder(limitPrice, stopPrice)
+
+		# If goodTillCanceled was not set, match the entry order.
+		if goodTillCanceled == None:
+			goodTillCanceled = self.__entryOrder.getGoodTillCanceled()
+		closeOrder.setGoodTillCanceled(goodTillCanceled)
+
 		broker_.placeOrder(closeOrder)
 		self.setExitOrder(closeOrder)
 
@@ -178,12 +183,11 @@ class LongPosition(Position):
 		else:
 			assert(False)
 
-		ret.setGoodTillCanceled(self.getGoodTillCanceled())
 		return ret
 
 	def buildExitOnSessionCloseOrder(self):
 		ret = self.__broker.createMarketOrder(broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), True)
-		ret.setGoodTillCanceled(self.getGoodTillCanceled())
+		ret.setGoodTillCanceled(True) # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
 		return ret
 
 # This class is reponsible for order management in short positions.
@@ -225,12 +229,11 @@ class ShortPosition(Position):
 		else:
 			assert(False)
 
-		ret.setGoodTillCanceled(self.getGoodTillCanceled())
 		return ret
 
 	def buildExitOnSessionCloseOrder(self):
 		ret = self.__broker.createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), self.getQuantity(), True)
-		ret.setGoodTillCanceled(self.getGoodTillCanceled())
+		ret.setGoodTillCanceled(True) # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
 		return ret
 
 class Strategy:
@@ -319,7 +322,7 @@ class Strategy:
 		:type instrument: string.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -335,7 +338,7 @@ class Strategy:
 		:type instrument: string.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -353,7 +356,7 @@ class Strategy:
 		:type limitPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -371,7 +374,7 @@ class Strategy:
 		:type limitPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -389,7 +392,7 @@ class Strategy:
 		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -407,7 +410,7 @@ class Strategy:
 		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -427,7 +430,7 @@ class Strategy:
 		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -447,7 +450,7 @@ class Strategy:
 		:type stopPrice: float.
 		:param quantity: Entry order quantity.
 		:type quantity: int.
-		:param goodTillCanceled: True if the entry/exit orders are good till canceled. If False then orders get automatically canceled when session closes.
+		:param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
 		:rtype: The :class:`Position` entered.
 		"""
@@ -456,7 +459,7 @@ class Strategy:
 		self.__registerActivePosition(ret)
 		return ret
 
-	def exitPosition(self, position, limitPrice = None, stopPrice = None):
+	def exitPosition(self, position, limitPrice = None, stopPrice = None, goodTillCanceled = None):
 		"""Generates the exit order for the position.
 
 		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
@@ -465,6 +468,8 @@ class Strategy:
 		:type limitPrice: float.
 		:param stopPrice: The stop price.
 		:type stopPrice: float.
+		:param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
+		:type goodTillCanceled: boolean.
 
 		.. note::
 			* If the entry order was not filled yet, it will be canceled.
@@ -481,7 +486,7 @@ class Strategy:
 
 		# Before exiting a position, the entry order must have been filled.
 		if position.getEntryOrder().isFilled():
-			position.close(limitPrice, stopPrice, self.__broker)
+			position.close(limitPrice, stopPrice, self.__broker, goodTillCanceled)
 			self.__registerActivePosition(position)
 		else: # If the entry was not filled, cancel it.
 			self.getBroker().cancelOrder(position.getEntryOrder())
@@ -563,7 +568,10 @@ class Strategy:
 			else:
 				assert(False)
 		else:
-			assert(False)
+			# if position != None, then the order used to belong to a position but it was ovewritten with a new one
+			# and the previous order should have been canceled.
+			# if position == None this is a standalone order submitted manually using the broker interface.
+			assert(position == None or order.isCanceled())
 
 	def __checkExitOnSessionClose(self, bars):
 		for position in self.__activePositions.keys():
