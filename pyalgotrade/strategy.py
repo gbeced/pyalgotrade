@@ -561,23 +561,23 @@ class Strategy:
 		position = self.__orderToPosition[order]
 		if position.getEntryOrder() == order:
 			if order.isFilled():
-				self.onEnterOk(position)
 				self.__notifyAnalyzers(lambda s: s.onPositionEnterOk(self, position))
+				self.onEnterOk(position)
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
-				self.onEnterCanceled(position)
 				self.__notifyAnalyzers(lambda s: s.onPositionEnterCanceled(self, position))
+				self.onEnterCanceled(position)
 			else:
 				assert(False)
 		elif position.getExitOrder() == order:
 			if order.isFilled():
 				self.__unregisterOrder(position, order)
-				self.onExitOk(position)
 				self.__notifyAnalyzers(lambda s: s.onPositionExitOk(self, position))
+				self.onExitOk(position)
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
-				self.onExitCanceled(position)
 				self.__notifyAnalyzers(lambda s: s.onPositionExitCanceled(self, position))
+				self.onExitCanceled(position)
 			else:
 				assert(False)
 		else:

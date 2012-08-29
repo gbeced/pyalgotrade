@@ -20,14 +20,14 @@
 
 class StrategyAnalyzer:
 	def onPositionEnterOk(self, strat, position):
-		raise NotImplementedError()
+		pass
 
 	def onPositionEnterCanceled(self, strat, position):
-		raise NotImplementedError()
+		pass
 
 	def onPositionExitOk(self, strat, position):
-		raise NotImplementedError()
+		pass
 
 	def onPositionExitCanceled(self, strat, position):
-		raise NotImplementedError()
+		pass
 
