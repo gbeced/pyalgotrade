@@ -1,6 +1,7 @@
 Release checklist
 
 [ ] Update CHANGELOG.
+[ ] Update version in __init__.py.
 [ ] Update version in setup.py.
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
