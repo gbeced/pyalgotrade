@@ -1,3 +1,6 @@
+Version 0.10 (TBD)
+. [NEW] Strategy analyzers (pyalgotrade.stratanalyzer.trades.WinningLosingTrades).
+
 Version 0.9 (1/Sep/2012)
 . [NEW] Added a method to the strategy class to get notified when an order gets updated (onOrderUpdated). This is only called if the order was placed using the broker interface directly.
 . [FIX] A KeyError exception was raised in the strategy class when placing orders using the broker interface directly. Thanks 'Femto Trader' for reporting this.

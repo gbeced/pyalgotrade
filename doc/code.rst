@@ -12,6 +12,7 @@ Contents:
     technical
     broker
     strategy
+    stratanalyzer
     plotter
     optimizer
 

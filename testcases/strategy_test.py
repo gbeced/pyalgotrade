@@ -239,8 +239,7 @@ class TestStrategy(strategy.Strategy):
 		self.__exitCanceledEvents += 1
 
 	def onBars(self, bars):
-		bar_ = bars.getBar(StrategyTestCase.TestInstrument)
-		dateTime = bar_.getDateTime()
+		dateTime = bars.getDateTime()
 
 		# Check position entry.
 		for meth, params in self.__posEntry.get(dateTime, []):
