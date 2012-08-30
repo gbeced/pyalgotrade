@@ -34,6 +34,7 @@ from testcases import strategy_test
 from testcases import smacrossover_strategy_test
 from testcases import talib_test
 from testcases import observer_test
+from testcases import stratanalyzer_test
 
 def getTestCases():
 	ret = []
@@ -52,6 +53,7 @@ def getTestCases():
 	ret += smacrossover_strategy_test.getTestCases()
 	ret += talib_test.getTestCases()
 	ret += observer_test.getTestCases()
+	ret += stratanalyzer_test.getTestCases()
 	return ret
 
 def main():

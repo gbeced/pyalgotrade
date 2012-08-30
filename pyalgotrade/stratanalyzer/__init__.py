@@ -19,6 +19,13 @@
 """
 
 class StrategyAnalyzer:
+	"""Base class for strategy analyzers.
+
+	.. note::
+
+		This is a base class and should not be used directly.
+	"""
+
 	def onPositionEnterOk(self, strat, position):
 		pass
 

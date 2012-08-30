@@ -563,12 +563,10 @@ class Strategy:
 			if order.isFilled():
 				self.__notifyAnalyzers(lambda s: s.onPositionEnterOk(self, position))
 				self.onEnterOk(position)
-				self.__notifyAnalyzers(lambda s: s.onPositionEnterOk(self, position))
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
 				self.__notifyAnalyzers(lambda s: s.onPositionEnterCanceled(self, position))
 				self.onEnterCanceled(position)
-				self.__notifyAnalyzers(lambda s: s.onPositionEnterCanceled(self, position))
 			else:
 				assert(False)
 		elif position.getExitOrder() == order:
@@ -576,12 +574,10 @@ class Strategy:
 				self.__unregisterOrder(position, order)
 				self.__notifyAnalyzers(lambda s: s.onPositionExitOk(self, position))
 				self.onExitOk(position)
-				self.__notifyAnalyzers(lambda s: s.onPositionExitOk(self, position))
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
 				self.__notifyAnalyzers(lambda s: s.onPositionExitCanceled(self, position))
 				self.onExitCanceled(position)
-				self.__notifyAnalyzers(lambda s: s.onPositionExitCanceled(self, position))
 			else:
 				assert(False)
 		else:
