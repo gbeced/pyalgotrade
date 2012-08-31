@@ -33,5 +33,6 @@ setup(name='PyAlgoTrade',
 		'pyalgotrade.optimizer',
 		'pyalgotrade.talibext',
 		'pyalgotrade.technical',
+		'pyalgotrade.utils',
 		'pyalgotrade.tools',],
 )
