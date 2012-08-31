@@ -557,7 +557,17 @@ class Strategy:
 		"""
 		raise NotImplementedError()
 
+	def onOrderUpdated(self, order):
+		"""Override (optional) to get notified when an order gets updated. This is useful if you're placing orders directly trhough the broker's inteface.
+
+		:param order: The order updated.
+		:type order: :class:`pyalgotrade.broker.Order`.
+		"""
+		pass
+
 	def __onOrderUpdate(self, broker_, order):
+		self.onOrderUpdated(order)
+
 		position = self.__orderToPosition[order]
 		if position.getEntryOrder() == order:
 			if order.isFilled():
