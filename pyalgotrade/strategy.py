@@ -591,10 +591,9 @@ class Strategy:
 			else:
 				assert(False)
 		else:
-			# if position != None, then the order used to belong to a position but it was ovewritten with a new one
+			# The order used to belong to a position but it was ovewritten with a new one
 			# and the previous order should have been canceled.
-			# if position == None this is a standalone order submitted manually using the broker interface.
-			assert(position == None or order.isCanceled())
+			assert(order.isCanceled())
 
 	def __checkExitOnSessionClose(self, bars):
 		for position in self.__activePositions.keys():
