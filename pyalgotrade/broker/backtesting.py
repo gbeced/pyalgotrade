@@ -348,6 +348,7 @@ class Broker(broker.Broker):
 		self.__useAdjustedValues = useAdjusted
 
 	def getPendingOrders(self):
+		"""Returns a sequence with the orders that are still pending."""
 		return self.__pendingOrders
 
 	def getShares(self, instrument):

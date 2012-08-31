@@ -19,7 +19,7 @@
 """
 
 from pyalgotrade import stratanalyzer
-import numpy
+from pyalgotrade.utils import stats
 
 class WinningLosingTrades(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that analyzes winning and losing trades during a strategy execution.
@@ -53,29 +53,17 @@ class WinningLosingTrades(stratanalyzer.StrategyAnalyzer):
 
 	def getWinningTradesMean(self):
 		"""Returns the average profit for the winning trades, or None if there are no winning trades."""
-		ret = None
-		if len(self.__winningPositions):
-			ret =  numpy.array(self.__winningPositions).mean()
-		return ret
+		return stats.mean(self.__winningPositions)
 
 	def getWinningTradesStdDev(self):
 		"""Returns the profit's standard deviantion for the winning trades, or None if there are no winning trades."""
-		ret = None
-		if len(self.__winningPositions):
-			ret =  numpy.array(self.__winningPositions).std()
-		return ret
+		return stats.stddev(self.__winningPositions)
 
 	def getLosingTradesMean(self):
 		"""Returns the average profit for the losing trades, or None if there are no losing trades."""
-		ret = None
-		if len(self.__losingPositions):
-			ret = numpy.array(self.__losingPositions).mean()
-		return ret
+		return stats.mean(self.__losingPositions)
 
 	def getLosingTradesStdDev(self):
 		"""Returns the profit's standard deviantion for the losing trades, or None if there are no losing trades."""
-		ret = None
-		if len(self.__losingPositions):
-			ret = numpy.array(self.__losingPositions).std()
-		return ret
+		return stats.stddev(self.__losingPositions)
 
