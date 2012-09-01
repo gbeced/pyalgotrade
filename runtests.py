@@ -38,6 +38,10 @@ from testcases import stratanalyzer_test
 
 def getTestCases():
 	ret = []
+
+	ret += stratanalyzer_test.getTestCases()
+	return ret
+
 	ret += technical_test.getTestCases()
 	ret += technical_ma_test.getTestCases()
 	ret += technical_ratio_test.getTestCases()
