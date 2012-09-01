@@ -19,8 +19,10 @@
 """
 
 from pyalgotrade.barfeed import ninjatraderfeed
-from pyalgotrade.stratanalyzer import trades
+from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.stratanalyzer import trades
+from pyalgotrade.stratanalyzer import sharpe
 
 import strategy_test
 import common
@@ -71,10 +73,26 @@ class StratAnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(round(stratAnalyzer.getLosingMean(), 2) == -0.04)
 		self.assertTrue(stratAnalyzer.getLosingStdDev() == 0)
 
+	def testSharpeRatio(self):
+		# This testcase is based on an example from Ernie Chan's book:
+		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(StratAnalyzerTestCase.TestInstrument, common.get_data_file_path("sharpe-ratio-test.csv"))
+		strat = strategy_test.TestStrategy(barFeed, 1000)
+		stratAnalyzer = sharpe.SharpeRatio()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		strat.enterLong(StratAnalyzerTestCase.TestInstrument, 1, True) # 91.01
+		strat.addPosExit(datetime.datetime(2007, 11, 13), strat.exitPosition) # 129.32
+		strat.run()
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1038.31)
+		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7893)
+
 def getTestCases():
 	ret = []
 
 	ret.append(StratAnalyzerTestCase("testBasicAnalyzer"))
+	ret.append(StratAnalyzerTestCase("testSharpeRatio"))
 
 	return ret
 

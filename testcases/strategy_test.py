@@ -214,6 +214,9 @@ class TestStrategy(strategy.Strategy):
 	def onEnterOk(self, position):
 		# print "Enter ok", position.getEntryOrder().getExecutionInfo().getDateTime()
 		self.__enterOkEvents += 1
+		if self.__activePosition == None:
+			self.__activePosition = position
+			self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
 
 	def onEnterCanceled(self, position):
 		# print "Enter canceled", position.getEntryOrder().getExecutionInfo().getDateTime()

@@ -26,9 +26,9 @@ def mean(values):
 		ret =  numpy.array(values).mean()
 	return ret
 
-def stddev(values):
+def stddev(values, ddof = 0):
 	ret = None
 	if len(values):
-		ret =  numpy.array(values).std()
+		ret =  numpy.array(values).std(ddof=ddof)
 	return ret
 

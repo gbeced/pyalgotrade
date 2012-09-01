@@ -7,3 +7,6 @@ stratanalyzer -- Strategy analyzers
 .. automodule:: pyalgotrade.stratanalyzer.trades
     :members: BasicAnalyzer
 
+.. automodule:: pyalgotrade.stratanalyzer.sharpe
+    :members: SharpeRatio
+

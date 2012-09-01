@@ -144,6 +144,12 @@ class Position:
 	def buildExitOnSessionCloseOrder(self):
 		raise NotImplementedError()
 
+	def isLong(self):
+		raise NotImplementedError()
+
+	def isShort(self):
+		return not self.isLong()
+
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
 	def __init__(self, broker_, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
@@ -190,6 +196,9 @@ class LongPosition(Position):
 		ret.setGoodTillCanceled(True) # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
 		return ret
 
+	def isLong(self):
+		return True
+
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
 	def __init__(self, broker_, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
@@ -235,6 +244,9 @@ class ShortPosition(Position):
 		ret = self.__broker.createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), self.getQuantity(), True)
 		ret.setGoodTillCanceled(True) # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
 		return ret
+
+	def isLong(self):
+		return False
 
 class Strategy:
 	"""Base class for strategies. 
@@ -604,6 +616,8 @@ class Strategy:
 
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
+
+		self.__notifyAnalyzers(lambda s: s.onBars(self, bars))
 
 		# 1: Let the strategy process current bars and place orders.
 		self.onBars(bars)
