@@ -1,5 +1,5 @@
 Version 0.9 (TBD)
-. [NEW] Strategy analyzers (pyalgotrade.stratanalyzer.trades.WinningLosingTrades).
+. [NEW] Strategy analyzers (pyalgotrade.stratanalyzer.trades.BasicAnalyzer and pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
 
 Version 0.8 (28/Aug/2012)
 . [NEW] StrategyPlotter now plots each instrument in a separate subplot. getMainSubplot was replaced by getIntrumentSubplot.
