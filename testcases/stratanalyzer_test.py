@@ -90,10 +90,7 @@ class StratAnalyzerTestCase(unittest.TestCase):
 
 def getTestCases():
 	ret = []
-
 	ret.append(StratAnalyzerTestCase("testBasicAnalyzer"))
 	ret.append(StratAnalyzerTestCase("testSharpeRatio"))
-
 	return ret
-
 
