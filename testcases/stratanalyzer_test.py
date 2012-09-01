@@ -38,9 +38,9 @@ class StratAnalyzerTestCase(unittest.TestCase):
 		barFeed.addBarsFromCSV(StratAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
 		return strategy_test.TestStrategy(barFeed, 1000)
 
-	def testWinningLosingTrades(self):
+	def testBasicAnalyzer(self):
 		strat = self.__createStrategy()
-		stratAnalyzer = trades.WinningLosingTrades()
+		stratAnalyzer = trades.BasicAnalyzer()
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Winning trade
@@ -56,20 +56,25 @@ class StratAnalyzerTestCase(unittest.TestCase):
 		strat.addPosEntry(datetime.datetime(2011, 1, 3, 15, 47), strat.enterLong, StratAnalyzerTestCase.TestInstrument, 1) # 127.34
 		strat.run()
 
-		self.assertTrue(stratAnalyzer.getTotalTrades() == 3)
-		self.assertTrue(stratAnalyzer.getWinningTrades() == 2)
-		self.assertTrue(stratAnalyzer.getLosingTrades() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.16 - 127.14) + (127.16 - 127.2) + (127.26 - 127.16) - 127.34, 2))
 
-		self.assertTrue(round(stratAnalyzer.getWinningTradesMean(), 2) == 0.06)
-		self.assertTrue(round(stratAnalyzer.getWinningTradesStdDev(), 2) == 0.04)
-		self.assertTrue(round(stratAnalyzer.getLosingTradesMean(), 2) == -0.04)
-		self.assertTrue(stratAnalyzer.getLosingTradesStdDev() == 0)
+		self.assertTrue(stratAnalyzer.getCount() == 3)
+		self.assertTrue(round(stratAnalyzer.getMean(), 2) == 0.03)
+		self.assertTrue(round(stratAnalyzer.getStdDev(), 2) == 0.06)
+		self.assertTrue(stratAnalyzer.getEvenCount() == 0)
+
+		self.assertTrue(stratAnalyzer.getWinningCount() == 2)
+		self.assertTrue(round(stratAnalyzer.getWinningMean(), 2) == 0.06)
+		self.assertTrue(round(stratAnalyzer.getWinningStdDev(), 2) == 0.04)
+
+		self.assertTrue(stratAnalyzer.getLosingCount() == 1)
+		self.assertTrue(round(stratAnalyzer.getLosingMean(), 2) == -0.04)
+		self.assertTrue(stratAnalyzer.getLosingStdDev() == 0)
 
 def getTestCases():
 	ret = []
 
-	ret.append(StratAnalyzerTestCase("testWinningLosingTrades"))
+	ret.append(StratAnalyzerTestCase("testBasicAnalyzer"))
 
 	return ret
 

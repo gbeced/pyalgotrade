@@ -21,49 +21,79 @@
 from pyalgotrade import stratanalyzer
 from pyalgotrade.utils import stats
 
-class WinningLosingTrades(stratanalyzer.StrategyAnalyzer):
-	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that analyzes winning and losing trades during a strategy execution.
-	A trade is a position whose entry/exit orders were filled.
+class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that performs some basic analysis like: 
+	 * Total number of trades
+	 * Total number of winning trades
+	 * Total number of losing trades
+	 * Total number of even trades
+	 * Average profit for all trades
+	 * Average profit for winning trades
+	 * Average profit for losing trades
+	 * Profit's standard deviation for all trades
+	 * Profit's standard deviation for winning trades
+	 * Profit's standard deviation for losing trades
+
+	.. note::
+
+		A trade is a position whose entry and exit orders were filled.
 	"""
 
 	def __init__(self):
-		self.__totalPositions = 0
+		self.__allPositions = []
 		self.__winningPositions = []
 		self.__losingPositions = []
+		self.__evenPositions = []
 
 	def onPositionExitOk(self, strat, position):
-		self.__totalPositions += 1
 		netProfit = position.getNetProfit()
+
+		self.__allPositions.append(netProfit)
+
 		if netProfit > 0:
 			self.__winningPositions.append(netProfit)
 		elif netProfit < 0:
 			self.__losingPositions.append(netProfit)
+		else:
+			self.__evenPositions.append(0)
 
-	def getTotalTrades(self):
+	def getEvenCount(self):
+		"""Returns the number of trades whose net profit was 0."""
+		return len(self.__evenPositions)
+
+	def getCount(self):
 		"""Returns the total number of trades."""
-		return self.__totalPositions
+		return len(self.__allPositions)
 
-	def getWinningTrades(self):
+	def getMean(self):
+		"""Returns the average profit for all the trades, or None if there are no trades."""
+		return stats.mean(self.__allPositions)
+
+	def getStdDev(self):
+		"""Returns the profit's standard deviation for all the trades, or None if there are no trades."""
+		return stats.stddev(self.__allPositions)
+
+	def getWinningCount(self):
 		"""Returns the number of trades whose net profit was > 0."""
 		return len(self.__winningPositions)
 
-	def getLosingTrades(self):
-		"""Returns the number of trades whose net profit was < 0."""
-		return len(self.__losingPositions)
-
-	def getWinningTradesMean(self):
+	def getWinningMean(self):
 		"""Returns the average profit for the winning trades, or None if there are no winning trades."""
 		return stats.mean(self.__winningPositions)
 
-	def getWinningTradesStdDev(self):
-		"""Returns the profit's standard deviantion for the winning trades, or None if there are no winning trades."""
+	def getWinningStdDev(self):
+		"""Returns the profit's standard deviation for the winning trades, or None if there are no winning trades."""
 		return stats.stddev(self.__winningPositions)
 
-	def getLosingTradesMean(self):
+	def getLosingCount(self):
+		"""Returns the number of trades whose net profit was < 0."""
+		return len(self.__losingPositions)
+
+	def getLosingMean(self):
 		"""Returns the average profit for the losing trades, or None if there are no losing trades."""
 		return stats.mean(self.__losingPositions)
 
-	def getLosingTradesStdDev(self):
-		"""Returns the profit's standard deviantion for the losing trades, or None if there are no losing trades."""
+	def getLosingStdDev(self):
+		"""Returns the profit's standard deviation for the losing trades, or None if there are no losing trades."""
 		return stats.stddev(self.__losingPositions)
 
