@@ -42,8 +42,8 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 				else:
 					currAdjClose = self.__prevAdjClose[position.getInstrument()]
 					prevAdjClose = bars.getBar(position.getInstrument()).getAdjClose()
-
 				self.__dailyRet.append((currAdjClose - prevAdjClose) / float(prevAdjClose))
+
 				# We remove active positions here instead of using onPositionExitOk to avoid missing the last bar.
 				if position.exitFilled():
 					positionsToRemove.append(position)
