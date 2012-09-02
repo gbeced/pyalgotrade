@@ -1,3 +1,7 @@
+Version 0.9 (1/Sep/2012)
+. [NEW] Added a method to the strategy class to get notified when an order gets updated (onOrderUpdated). This is only called if the order was placed using the broker interface directly.
+. [FIX] A KeyError exception was raised in the strategy class when placing orders using the broker interface directly. Thanks 'Femto Trader' for reporting this.
+
 Version 0.8 (28/Aug/2012)
 . [NEW] StrategyPlotter now plots each instrument in a separate subplot. getMainSubplot was replaced by getIntrumentSubplot.
 . [NEW] Strategy.exitPosition allows setting the exit order as GTC or not, or matching the entry order (default).

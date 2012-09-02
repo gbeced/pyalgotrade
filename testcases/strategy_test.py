@@ -173,6 +173,7 @@ class TestStrategy(strategy.Strategy):
 
 		self.__result = 0
 		self.__netProfit = 0
+		self.__orderUpdatedEvents = 0
 		self.__enterOkEvents = 0
 		self.__enterCanceledEvents = 0
 		self.__exitOkEvents = 0
@@ -189,6 +190,9 @@ class TestStrategy(strategy.Strategy):
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
 		self.__exitOnSessionClose = exitOnSessionClose
+
+	def getOrderUpdatedEvents(self):
+		return self.__orderUpdatedEvents
 
 	def getEnterOkEvents(self):
 		return self.__enterOkEvents
@@ -210,6 +214,9 @@ class TestStrategy(strategy.Strategy):
 
 	def onStart(self):
 		pass
+
+	def onOrderUpdated(self, order):
+		self.__orderUpdatedEvents += 1
 
 	def onEnterOk(self, position):
 		# print "Enter ok", position.getEntryOrder().getExecutionInfo().getDateTime()
@@ -283,6 +290,16 @@ class StrategyTestCase(unittest.TestCase):
 		strat = TestStrategy(barFeed, 1000, broker_)
 		return strat
 
+class BrokerOrdersTestCase(StrategyTestCase):
+	def testLimitOrder(self):
+		strat = self.createStrategy(False, False)
+
+		o = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, StrategyTestCase.TestInstrument, 1)
+		strat.getBroker().placeOrder(o)
+		strat.run()
+		self.assertTrue(o.isFilled())
+		self.assertTrue(strat.getOrderUpdatedEvents() == 1)
+	
 class LongPosTestCase(StrategyTestCase):
 	def __testLongPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
 		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
@@ -299,6 +316,7 @@ class LongPosTestCase(StrategyTestCase):
 
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 27.37 - 30.69, 2))
 		self.assertTrue(round(strat.getResult(), 3) == -0.108)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.37 - 30.69, 2))
@@ -856,6 +874,8 @@ def getTestCases():
 
 	ret.append(StopLimitPosTestCase("testLong"))
 	ret.append(StopLimitPosTestCase("testShort"))
+
+	ret.append(BrokerOrdersTestCase("testLimitOrder"))
 
 	return ret
 

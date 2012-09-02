@@ -103,7 +103,6 @@ class Bar:
 			self.__barsTillSessionClose = 0
 
 	def getBarsTillSessionClose(self):
-		"""Returns the number of bars left till the session closes, or None if that information is not available."""
 		return self.__barsTillSessionClose
 
 	def setBarsTillSessionClose(self, barsTillSessionClose):
