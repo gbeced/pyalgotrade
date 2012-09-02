@@ -69,9 +69,13 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		"""Returns the average profit for all the trades, or None if there are no trades."""
 		return stats.mean(self.__allPositions)
 
-	def getStdDev(self):
-		"""Returns the profit's standard deviation for all the trades, or None if there are no trades."""
-		return stats.stddev(self.__allPositions)
+	def getStdDev(self, ddof=1):
+		"""Returns the profit's standard deviation for all the trades, or None if there are no trades.
+
+		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
+		:type ddof: int.
+		"""
+		return stats.stddev(self.__allPositions, ddof)
 
 	def getWinningCount(self):
 		"""Returns the number of trades whose net profit was > 0."""
@@ -81,9 +85,13 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		"""Returns the average profit for the winning trades, or None if there are no winning trades."""
 		return stats.mean(self.__winningPositions)
 
-	def getWinningStdDev(self):
-		"""Returns the profit's standard deviation for the winning trades, or None if there are no winning trades."""
-		return stats.stddev(self.__winningPositions)
+	def getWinningStdDev(self, ddof=1):
+		"""Returns the profit's standard deviation for the winning trades, or None if there are no winning trades.
+
+		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
+		:type ddof: int.
+		"""
+		return stats.stddev(self.__winningPositions, ddof)
 
 	def getLosingCount(self):
 		"""Returns the number of trades whose net profit was < 0."""
@@ -93,7 +101,12 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		"""Returns the average profit for the losing trades, or None if there are no losing trades."""
 		return stats.mean(self.__losingPositions)
 
-	def getLosingStdDev(self):
-		"""Returns the profit's standard deviation for the losing trades, or None if there are no losing trades."""
-		return stats.stddev(self.__losingPositions)
+	def getLosingStdDev(self, ddof=1):
+		"""Returns the profit's standard deviation for the losing trades, or None if there are no losing trades.
+
+		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
+		:type ddof: int.
+		"""
+
+		return stats.stddev(self.__losingPositions, ddof)
 

@@ -29,6 +29,7 @@ import common
 
 import unittest
 import datetime
+import math
 
 class StratAnalyzerTestCase(unittest.TestCase):
 	TestInstrument = "spy"
@@ -62,16 +63,19 @@ class StratAnalyzerTestCase(unittest.TestCase):
 
 		self.assertTrue(stratAnalyzer.getCount() == 3)
 		self.assertTrue(round(stratAnalyzer.getMean(), 2) == 0.03)
-		self.assertTrue(round(stratAnalyzer.getStdDev(), 2) == 0.06)
+		self.assertTrue(round(stratAnalyzer.getStdDev(), 2) == 0.07)
+		self.assertTrue(round(stratAnalyzer.getStdDev(0), 2) == 0.06)
 		self.assertTrue(stratAnalyzer.getEvenCount() == 0)
 
 		self.assertTrue(stratAnalyzer.getWinningCount() == 2)
 		self.assertTrue(round(stratAnalyzer.getWinningMean(), 2) == 0.06)
-		self.assertTrue(round(stratAnalyzer.getWinningStdDev(), 2) == 0.04)
+		self.assertTrue(round(stratAnalyzer.getWinningStdDev(), 2) == 0.06)
+		self.assertTrue(round(stratAnalyzer.getWinningStdDev(0), 2) == 0.04)
 
 		self.assertTrue(stratAnalyzer.getLosingCount() == 1)
 		self.assertTrue(round(stratAnalyzer.getLosingMean(), 2) == -0.04)
-		self.assertTrue(stratAnalyzer.getLosingStdDev() == 0)
+		self.assertTrue(math.isnan(stratAnalyzer.getLosingStdDev()))
+		self.assertTrue(stratAnalyzer.getLosingStdDev(0) == 0)
 
 	def testSharpeRatio(self):
 		# This testcase is based on an example from Ernie Chan's book:
