@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>stratanalyzer – Strategy analyzers &mdash; PyAlgoTrade 0.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.8 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="plotter – Strategy plotter" href="plotter.html" />
+    <link rel="prev" title="strategy – Basic strategy classes" href="strategy.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.8 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.stratanalyzer">
+<span id="stratanalyzer-strategy-analyzers"></span><h1>stratanalyzer &#8211; Strategy analyzers<a class="headerlink" href="#module-pyalgotrade.stratanalyzer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.stratanalyzer.StrategyAnalyzer">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.</tt><tt class="descname">StrategyAnalyzer</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for strategy analyzers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.stratanalyzer.trades"></span><dl class="class">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.trades.</tt><tt class="descname">BasicAnalyzer</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>A <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a> that performs some basic analysis like: </dt>
+<dd><ul class="first last simple">
+<li>Total number of trades</li>
+<li>Total number of winning trades</li>
+<li>Total number of losing trades</li>
+<li>Total number of even trades</li>
+<li>Average profit for all trades</li>
+<li>Average profit for winning trades</li>
+<li>Average profit for losing trades</li>
+<li>Profit&#8217;s standard deviation for all trades</li>
+<li>Profit&#8217;s standard deviation for winning trades</li>
+<li>Profit&#8217;s standard deviation for losing trades</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A trade is a position whose entry and exit orders were filled.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getCount">
+<tt class="descname">getCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the total number of trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getEvenCount">
+<tt class="descname">getEvenCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getEvenCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of trades whose net profit was 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getLosingCount">
+<tt class="descname">getLosingCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getLosingCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of trades whose net profit was &lt; 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getLosingMean">
+<tt class="descname">getLosingMean</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getLosingMean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the average profit for the losing trades, or None if there are no losing trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getLosingStdDev">
+<tt class="descname">getLosingStdDev</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getLosingStdDev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the profit&#8217;s standard deviation for the losing trades, or None if there are no losing trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getMean">
+<tt class="descname">getMean</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getMean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the average profit for all the trades, or None if there are no trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getStdDev">
+<tt class="descname">getStdDev</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getStdDev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the profit&#8217;s standard deviation for all the trades, or None if there are no trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getWinningCount">
+<tt class="descname">getWinningCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getWinningCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of trades whose net profit was &gt; 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getWinningMean">
+<tt class="descname">getWinningMean</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getWinningMean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the average profit for the winning trades, or None if there are no winning trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getWinningStdDev">
+<tt class="descname">getWinningStdDev</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.BasicAnalyzer.getWinningStdDev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the profit&#8217;s standard deviation for the winning trades, or None if there are no winning trades.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pyalgotrade.stratanalyzer.sharpe"></span><dl class="class">
+<dt id="pyalgotrade.stratanalyzer.sharpe.SharpeRatio">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.sharpe.</tt><tt class="descname">SharpeRatio</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.sharpe.SharpeRatio" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="strategy.html"
+                        title="previous chapter">strategy &#8211; Basic strategy classes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plotter.html"
+                        title="next chapter">plotter &#8211; Strategy plotter</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/stratanalyzer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.8 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
