@@ -28,7 +28,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 
 	def __init__(self):
 		self.__prevAdjClose = {} # Prev. adj. close per instrument
-		self.__dailyRet = []
+		self.__returns = []
 		self.__activePositions = []
 
 	def onBars(self, strat, bars):
@@ -42,7 +42,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 				else:
 					currAdjClose = self.__prevAdjClose[position.getInstrument()]
 					prevAdjClose = bars.getBar(position.getInstrument()).getAdjClose()
-				self.__dailyRet.append((currAdjClose - prevAdjClose) / float(prevAdjClose))
+				self.__returns.append((currAdjClose - prevAdjClose) / float(prevAdjClose))
 
 				# We remove active positions here instead of using onPositionExitOk to avoid missing the last bar.
 				if position.exitFilled():
@@ -60,13 +60,24 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	def onPositionEnterOk(self, strat, position):
 		self.__activePositions.append(position)
 
-	def getSharpeRatio(self, riskFreeRate, riskPeriod):
+	def getSharpeRatio(self, riskFreeRate, tradingPeriods):
 		"""
-		For a daily strategy with 4 percent risk-free rate per annum use getSharpeRatio(0.04, 252)
+		Returns the Sharpe ratio for the strategy execution. If there are no trandes, None is returned.
+
+		:param riskFreeRate: The risk free rate per annum.
+		:type riskFreeRate: int/float.
+		:param tradingPeriods: The number of trading periods per annum.
+		:type tradingPeriods: int.
+
+		.. note::
+			* If using daily bars, tradingPeriods should be set to 252.
+			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 1638 (252 * 6.5).
 		"""
 		ret = None
-		if len(self.__dailyRet) != 0:
-			excessDailyRet = [dailyRet-(riskFreeRate/float(riskPeriod)) for dailyRet in self.__dailyRet]
-			ret = math.sqrt(riskPeriod) * stats.mean(excessDailyRet) / stats.stddev(excessDailyRet, 1)
+		if len(self.__returns) != 0:
+			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__returns]
+			avgExcessReturns = stats.mean(excessReturns)
+			stdDevExcessReturns = stats.stddev(excessReturns, 1)
+			ret = math.sqrt(tradingPeriods) * avgExcessReturns / stdDevExcessReturns
 		return ret
 
