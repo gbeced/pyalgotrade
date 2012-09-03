@@ -356,6 +356,9 @@ class Broker(broker.Broker):
 		self.__shares.setdefault(instrument, 0)
 		return self.__shares[instrument]
 
+	def getActiveInstruments(self):
+		return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
+
 	def getValue(self, bars):
 		"""Returns the portfolio value (cash + shares) for the given bars prices.
 

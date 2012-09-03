@@ -24,45 +24,51 @@ from pyalgotrade.utils import stats
 import math
 
 class SharpeRatio(stratanalyzer.StrategyAnalyzer):
-	""" """
+	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
+
+	.. note::
+		Calculations are performed using adjusted close values.	
+	"""
 
 	def __init__(self):
 		self.__prevAdjClose = {} # Prev. adj. close per instrument
+		self.__shares = {} # Shares at the end of the period (bar).
 		self.__returns = []
-		self.__activePositions = []
 
 	def onBars(self, strat, bars):
-		positionsToRemove = []
+		brk = strat.getBroker()
 
-		for position in self.__activePositions:
+		# For each of the shares that were available at the end of the previous bar, calculate the return.
+		for instrument, shares in self.__shares.iteritems():
 			try:
-				if position.isLong():
-					prevAdjClose = self.__prevAdjClose[position.getInstrument()]
-					currAdjClose = bars.getBar(position.getInstrument()).getAdjClose()
-				else:
-					currAdjClose = self.__prevAdjClose[position.getInstrument()]
-					prevAdjClose = bars.getBar(position.getInstrument()).getAdjClose()
-				self.__returns.append((currAdjClose - prevAdjClose) / float(prevAdjClose))
+				bar = bars.getBar(instrument)
+				if bar == None or shares == 0:
+					continue
 
-				# We remove active positions here instead of using onPositionExitOk to avoid missing the last bar.
-				if position.exitFilled():
-					positionsToRemove.append(position)
+				if shares > 0:
+					prevAdjClose = self.__prevAdjClose[instrument]
+					currAdjClose = bar.getAdjClose()
+				elif shares < 0:
+					prevAdjClose = bar.getAdjClose()
+					currAdjClose = self.__prevAdjClose[instrument]
+				else:
+					assert(False)
+				self.__returns.append((currAdjClose - prevAdjClose) / float(prevAdjClose))
 			except KeyError:
 				pass
-	
-		for position in positionsToRemove:
-			self.__activePositions.remove(position)
+
+		# Update the shares held at the end of the bar.
+		self.__shares = {}
+		for instrument in brk.getActiveInstruments():
+			self.__shares[instrument] = brk.getShares(instrument)
 
 		# Update previous adjusted close values.
 		for instrument in bars.getInstruments():
 			self.__prevAdjClose[instrument] = bars.getBar(instrument).getAdjClose()
 
-	def onPositionEnterOk(self, strat, position):
-		self.__activePositions.append(position)
-
 	def getSharpeRatio(self, riskFreeRate, tradingPeriods):
 		"""
-		Returns the Sharpe ratio for the strategy execution. If there are no trandes, None is returned.
+		Returns the Sharpe ratio for the strategy execution. If there are no trades, None is returned.
 
 		:param riskFreeRate: The risk free rate per annum.
 		:type riskFreeRate: int/float.

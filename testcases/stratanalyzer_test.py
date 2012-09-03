@@ -23,6 +23,7 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.stratanalyzer import trades
 from pyalgotrade.stratanalyzer import sharpe
+from pyalgotrade import broker
 
 import strategy_test
 import common
@@ -77,24 +78,48 @@ class StratAnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(math.isnan(stratAnalyzer.getLosingStdDev()))
 		self.assertTrue(stratAnalyzer.getLosingStdDev(0) == 0)
 
-	def testSharpeRatio(self):
+	def testSharpeRatioIGE(self):
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
-		barFeed.addBarsFromCSV(StratAnalyzerTestCase.TestInstrument, common.get_data_file_path("sharpe-ratio-test.csv"))
+		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
 		strat = strategy_test.TestStrategy(barFeed, 1000)
 		stratAnalyzer = sharpe.SharpeRatio()
 		strat.attachAnalyzer(stratAnalyzer)
 
-		strat.enterLong(StratAnalyzerTestCase.TestInstrument, 1, True) # 91.01
+		# Manually open the postion to enter on the first bar.
+		strat.enterLong("ige", 1, True) # 91.01
 		strat.addPosExit(datetime.datetime(2007, 11, 13), strat.exitPosition) # 129.32
 		strat.run()
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1038.31)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (129.32 - 91.01))
+		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7893)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 0)
+
+	def testSharpeRatioIGE_Broker(self):
+		# This testcase is based on an example from Ernie Chan's book:
+		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+		strat = strategy_test.TestStrategy(barFeed, 1000)
+		stratAnalyzer = sharpe.SharpeRatio()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		# Manually place the order to get it filled on the first bar.
+		strat.getBroker().setUseAdjustedValues(True)
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
+		order.setGoodTillCanceled(True)
+		strat.getBroker().placeOrder(order)
+		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
+		strat.setBrokerOrdersGTC(True)
+		strat.run()
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09))
+		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7893)
 
 def getTestCases():
 	ret = []
 	ret.append(StratAnalyzerTestCase("testBasicAnalyzer"))
-	ret.append(StratAnalyzerTestCase("testSharpeRatio"))
+	ret.append(StratAnalyzerTestCase("testSharpeRatioIGE"))
+	ret.append(StratAnalyzerTestCase("testSharpeRatioIGE_Broker"))
 	return ret
 

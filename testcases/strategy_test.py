@@ -170,6 +170,8 @@ class TestStrategy(strategy.Strategy):
 		# Maps dates to a tuple of (method, params)
 		self.__posEntry = {}
 		self.__posExit = {}
+		# Maps dates to a tuple of (method, params)
+		self.__orderEntry = {}
 
 		self.__result = 0
 		self.__netProfit = 0
@@ -179,6 +181,11 @@ class TestStrategy(strategy.Strategy):
 		self.__exitOkEvents = 0
 		self.__exitCanceledEvents = 0
 		self.__exitOnSessionClose = False
+		self.__brokerOrdersGTC = False
+
+	def addOrder(self, dateTime, method, *methodParams):
+		self.__orderEntry.setdefault(dateTime, [])
+		self.__orderEntry[dateTime].append((method, methodParams))
 
 	def addPosEntry(self, dateTime, enterMethod, *methodParams):
 		self.__posEntry.setdefault(dateTime, [])
@@ -190,6 +197,9 @@ class TestStrategy(strategy.Strategy):
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
 		self.__exitOnSessionClose = exitOnSessionClose
+
+	def setBrokerOrdersGTC(self, gtc):
+		self.__brokerOrdersGTC = gtc
 
 	def getOrderUpdatedEvents(self):
 		return self.__orderUpdatedEvents
@@ -256,6 +266,12 @@ class TestStrategy(strategy.Strategy):
 			if self.__activePosition == None:
 				raise Exception("A position was not entered")
 			meth(self.__activePosition, *params)
+
+		# Check order entry.
+		for meth, params in self.__orderEntry.get(dateTime, []):
+			order = meth(*params)
+			order.setGoodTillCanceled(self.__brokerOrdersGTC)
+			self.getBroker().placeOrder(order)
 
 class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
