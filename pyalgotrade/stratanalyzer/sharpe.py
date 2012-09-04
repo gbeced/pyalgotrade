@@ -38,6 +38,9 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	def onBars(self, strat, bars):
 		brk = strat.getBroker()
 
+		count = 0
+		returns = 0
+
 		# For each of the shares that were available at the end of the previous bar, calculate the return.
 		for instrument, shares in self.__shares.iteritems():
 			try:
@@ -45,17 +48,22 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 				if bar == None or shares == 0:
 					continue
 
+				currAdjClose = bar.getAdjClose()
+				prevAdjClose = self.__prevAdjClose[instrument]
 				if shares > 0:
-					prevAdjClose = self.__prevAdjClose[instrument]
-					currAdjClose = bar.getAdjClose()
+					partialReturn = (currAdjClose - prevAdjClose) / float(prevAdjClose)
 				elif shares < 0:
-					prevAdjClose = bar.getAdjClose()
-					currAdjClose = self.__prevAdjClose[instrument]
+					partialReturn = (currAdjClose - prevAdjClose) / float(prevAdjClose) * -1
 				else:
 					assert(False)
-				self.__returns.append((currAdjClose - prevAdjClose) / float(prevAdjClose))
+
+				returns += partialReturn
+				count += 1
 			except KeyError:
 				pass
+
+		if count > 0:
+			self.__returns.append(returns / float(count))
 
 		# Update the shares held at the end of the bar.
 		self.__shares = {}
@@ -73,7 +81,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 		:param riskFreeRate: The risk free rate per annum.
 		:type riskFreeRate: int/float.
 		:param tradingPeriods: The number of trading periods per annum.
-		:type tradingPeriods: int.
+		:type tradingPeriods: int/float.
 
 		.. note::
 			* If using daily bars, tradingPeriods should be set to 252.
