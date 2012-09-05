@@ -68,38 +68,3 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 	def getReturns(self):
 		return self.__returns
 
-class SharpeRatio(stratanalyzer.StrategyAnalyzer):
-	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
-
-	.. note::
-		Calculations are performed using adjusted close values.	
-	"""
-
-	def __init__(self):
-		self.__returnsAnalyzer = ReturnsAnalyzer()
-
-	def onBars(self, strat, bars):
-		self.__returnsAnalyzer.onBars(strat, bars)
-
-	def getSharpeRatio(self, riskFreeRate, tradingPeriods):
-		"""
-		Returns the Sharpe ratio for the strategy execution. If there are no trades, None is returned.
-
-		:param riskFreeRate: The risk free rate per annum.
-		:type riskFreeRate: int/float.
-		:param tradingPeriods: The number of trading periods per annum.
-		:type tradingPeriods: int/float.
-
-		.. note::
-			* If using daily bars, tradingPeriods should be set to 252.
-			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 1638 (252 * 6.5).
-		"""
-		ret = None
-		returns = self.__returnsAnalyzer.getReturns()
-		if len(returns) != 0:
-			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in returns]
-			avgExcessReturns = stats.mean(excessReturns)
-			stdDevExcessReturns = stats.stddev(excessReturns, 1)
-			ret = math.sqrt(tradingPeriods) * avgExcessReturns / stdDevExcessReturns
-		return ret
-
