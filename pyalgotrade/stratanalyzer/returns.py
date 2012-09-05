@@ -19,10 +19,54 @@
 """
 
 from pyalgotrade import stratanalyzer
-from pyalgotrade.stratanalyzer import returns
-from pyalgotrade.utils import stats
 
-import math
+class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
+	def __init__(self):
+		self.__prevAdjClose = {} # Prev. adj. close per instrument
+		self.__shares = {} # Shares at the end of the period (bar).
+		self.__returns = []
+
+	def onBars(self, strat, bars):
+		brk = strat.getBroker()
+
+		count = 0
+		returns = 0
+
+		# For each of the shares that were available at the end of the previous bar, calculate the return.
+		for instrument, shares in self.__shares.iteritems():
+			try:
+				bar = bars.getBar(instrument)
+				if bar == None or shares == 0:
+					continue
+
+				currAdjClose = bar.getAdjClose()
+				prevAdjClose = self.__prevAdjClose[instrument]
+				if shares > 0:
+					partialReturn = (currAdjClose - prevAdjClose) / float(prevAdjClose)
+				elif shares < 0:
+					partialReturn = (currAdjClose - prevAdjClose) / float(prevAdjClose) * -1
+				else:
+					assert(False)
+
+				returns += partialReturn
+				count += 1
+			except KeyError:
+				pass
+
+		if count > 0:
+			self.__returns.append(returns / float(count))
+
+		# Update the shares held at the end of the bar.
+		self.__shares = {}
+		for instrument in brk.getActiveInstruments():
+			self.__shares[instrument] = brk.getShares(instrument)
+
+		# Update previous adjusted close values.
+		for instrument in bars.getInstruments():
+			self.__prevAdjClose[instrument] = bars.getBar(instrument).getAdjClose()
+
+	def getReturns(self):
+		return self.__returns
 
 class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
@@ -32,7 +76,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	"""
 
 	def __init__(self):
-		self.__returnsAnalyzer = returns.ReturnsAnalyzer()
+		self.__returnsAnalyzer = ReturnsAnalyzer()
 
 	def onBars(self, strat, bars):
 		self.__returnsAnalyzer.onBars(strat, bars)
