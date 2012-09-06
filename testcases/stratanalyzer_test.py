@@ -23,6 +23,7 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.stratanalyzer import trades
 from pyalgotrade.stratanalyzer import sharpe
+from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade import broker
 
 import strategy_test
@@ -138,12 +139,12 @@ class SharpeRatioTestCase(unittest.TestCase):
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
 		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)
 		stratAnalyzer = sharpe.SharpeRatio()
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Manually place the order to get it filled on the first bar.
-		strat.getBroker().setUseAdjustedValues(True)
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
@@ -160,19 +161,18 @@ class SharpeRatioTestCase(unittest.TestCase):
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
 		barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
 		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)
 		stratAnalyzer = sharpe.SharpeRatio()
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Manually place IGE order to get it filled on the first bar.
-		strat.getBroker().setUseAdjustedValues(True)
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
 
 		# Manually place SPY order to get it filled on the first bar.
-		strat.getBroker().setUseAdjustedValues(True)
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL_SHORT, "spy", 1, True) # Adj. Close: 105.52
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
@@ -183,8 +183,56 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0, 252), 5) == 0.78368)
 
+class DrawDownTestCase(unittest.TestCase):
+	def testNoTrades(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+		barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
+		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat.setBrokerOrdersGTC(True)
+		strat.getBroker().setUseAdjustedValues(True)
+		stratAnalyzer = drawdown.DrawDown()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		strat.run()
+		self.assertTrue(strat.getBroker().getCash() == 1000)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 0)
+		self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
+		self.assertTrue(stratAnalyzer.getMaxDrawDownDuration()== 0)
+
+	def testDrawDownIGE_Broker(self):
+		# This testcase is based on an example from Ernie Chan's book:
+		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+		barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
+		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat.getBroker().setUseAdjustedValues(True)
+		strat.setBrokerOrdersGTC(True)
+		stratAnalyzer = drawdown.DrawDown()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		# Manually place IGE order to get it filled on the first bar.
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
+		order.setGoodTillCanceled(True)
+		strat.getBroker().placeOrder(order)
+		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
+
+		# Manually place SPY order to get it filled on the first bar.
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL_SHORT, "spy", 1, True) # Adj. Close: 105.52
+		order.setGoodTillCanceled(True)
+		strat.getBroker().placeOrder(order)
+		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.BUY_TO_COVER, "spy", 1, True) # Adj. Close: 147.67
+
+		strat.run()
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.64 - 42.09) + (105.52 - 147.67), 2))
+		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
+		self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.09529)
+		self.assertTrue(stratAnalyzer.getMaxDrawDownDuration()== 497)
+
 def getTestCases():
 	ret = []
+
 	ret.append(TradesAnalyzerTestCase("testNoTrades"))
 	ret.append(TradesAnalyzerTestCase("testSomeTrades"))
 
@@ -192,5 +240,9 @@ def getTestCases():
 	ret.append(SharpeRatioTestCase("testSharpeRatioIGE"))
 	ret.append(SharpeRatioTestCase("testSharpeRatioIGE_Broker"))
 	ret.append(SharpeRatioTestCase("testSharpeRatioIGE_SPY_Broker"))
+
+	ret.append(DrawDownTestCase("testNoTrades"))
+	ret.append(DrawDownTestCase("testDrawDownIGE_Broker"))
+
 	return ret
 

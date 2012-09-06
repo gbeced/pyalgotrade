@@ -18,13 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import stratanalyzer
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.utils import stats
 
 import math
 
-class SharpeRatio(stratanalyzer.StrategyAnalyzer):
+class SharpeRatio(returns.ReturnsAnalyzer):
 	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
 
 	.. note::
@@ -32,10 +31,12 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	"""
 
 	def __init__(self):
-		self.__returnsAnalyzer = returns.ReturnsAnalyzer()
+		returns.ReturnsAnalyzer.__init__(self)
+		self.__netReturns = []
 
-	def onBars(self, strat, bars):
-		self.__returnsAnalyzer.onBars(strat, bars)
+	def onReturn(self, bars, netReturn, cumulativeReturn):
+		if netReturn != None:
+			self.__netReturns.append(netReturn)
 
 	def getSharpeRatio(self, riskFreeRate, tradingPeriods):
 		"""
@@ -51,9 +52,8 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 1638 (252 * 6.5).
 		"""
 		ret = None
-		returns = self.__returnsAnalyzer.getReturns()
-		if len(returns) != 0:
-			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in returns]
+		if len(self.__netReturns) != 0:
+			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]
 			avgExcessReturns = stats.mean(excessReturns)
 			stdDevExcessReturns = stats.stddev(excessReturns, 1)
 			ret = math.sqrt(tradingPeriods) * avgExcessReturns / stdDevExcessReturns

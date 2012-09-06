@@ -24,7 +24,10 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):
 		self.__prevAdjClose = {} # Prev. adj. close per instrument
 		self.__shares = {} # Shares at the end of the period (bar).
-		self.__returns = []
+		self.__prevCumRet = None
+
+	def onReturn(self, bars, netReturn, cumulativeReturn):
+		raise NotImplementedError()
 
 	def onBars(self, strat, bars):
 		brk = strat.getBroker()
@@ -54,7 +57,20 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 				pass
 
 		if count > 0:
-			self.__returns.append(returns / float(count))
+			# Calculate net return.
+			netReturn = returns / float(count)
+
+			# Calculate cummulative return.
+			if self.__prevCumRet != None:
+				cumRet = (1 + self.__prevCumRet) * (1 + netReturn) - 1
+			else:
+				cumRet = netReturn
+
+			self.onReturn(bars, netReturn, cumRet)
+			self.__prevCumRet = cumRet
+		else:
+			self.onReturn(bars, None, None)
+			self.__prevCumRet = None
 
 		# Update the shares held at the end of the bar.
 		self.__shares = {}
@@ -64,7 +80,4 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 		# Update previous adjusted close values.
 		for instrument in bars.getInstruments():
 			self.__prevAdjClose[instrument] = bars.getBar(instrument).getAdjClose()
-
-	def getReturns(self):
-		return self.__returns
 

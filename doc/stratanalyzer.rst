@@ -10,3 +10,6 @@ stratanalyzer -- Strategy analyzers
 .. automodule:: pyalgotrade.stratanalyzer.sharpe
     :members: SharpeRatio
 
+.. automodule:: pyalgotrade.stratanalyzer.drawdown
+    :members: DrawDown
+
