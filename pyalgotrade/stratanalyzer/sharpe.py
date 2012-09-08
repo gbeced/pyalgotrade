@@ -34,13 +34,13 @@ class SharpeRatio(returns.ReturnsAnalyzer):
 		returns.ReturnsAnalyzer.__init__(self)
 		self.__netReturns = []
 
-	def onReturn(self, bars, netReturn, cumulativeReturn):
-		if netReturn != None:
-			self.__netReturns.append(netReturn)
+	def onReturns(self, bars, netReturn, cumulativeReturn):
+		self.__netReturns.append(netReturn)
 
 	def getSharpeRatio(self, riskFreeRate, tradingPeriods):
 		"""
-		Returns the Sharpe ratio for the strategy execution. If there are no trades, None is returned.
+		Returns the Sharpe ratio for the strategy execution.
+		If the standard deviation of the excess returns is 0, None is returned.
 
 		:param riskFreeRate: The risk free rate per annum.
 		:type riskFreeRate: int/float.
@@ -52,10 +52,10 @@ class SharpeRatio(returns.ReturnsAnalyzer):
 			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 1638 (252 * 6.5).
 		"""
 		ret = None
-		if len(self.__netReturns) != 0:
-			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]
-			avgExcessReturns = stats.mean(excessReturns)
-			stdDevExcessReturns = stats.stddev(excessReturns, 1)
+		excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]
+		avgExcessReturns = stats.mean(excessReturns)
+		stdDevExcessReturns = stats.stddev(excessReturns, 1)
+		if stdDevExcessReturns != 0:
 			ret = math.sqrt(tradingPeriods) * avgExcessReturns / stdDevExcessReturns
 		return ret
 

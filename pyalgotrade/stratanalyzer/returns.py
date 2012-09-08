@@ -24,18 +24,17 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):
 		self.__prevAdjClose = {} # Prev. adj. close per instrument
 		self.__shares = {} # Shares at the end of the period (bar).
-		self.__prevCumRet = None
+		self.__cumRet = 0
+		self.__firstBarProcessed = False
 
-	def onReturn(self, bars, netReturn, cumulativeReturn):
+	def onReturns(self, bars, netReturn, cumulativeReturn):
 		raise NotImplementedError()
 
-	def onBars(self, strat, bars):
-		brk = strat.getBroker()
-
+	def __calculateReturns(self, bars):
 		count = 0
 		returns = 0
 
-		# For each of the shares that were available at the end of the previous bar, calculate the return.
+		# Calculate net return for each of the shares that were available at the end of the previous bar.
 		for instrument, shares in self.__shares.iteritems():
 			try:
 				bar = bars.getBar(instrument)
@@ -57,20 +56,24 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 				pass
 
 		if count > 0:
-			# Calculate net return.
 			netReturn = returns / float(count)
-
-			# Calculate cummulative return.
-			if self.__prevCumRet != None:
-				cumRet = (1 + self.__prevCumRet) * (1 + netReturn) - 1
-			else:
-				cumRet = netReturn
-
-			self.onReturn(bars, netReturn, cumRet)
-			self.__prevCumRet = cumRet
 		else:
-			self.onReturn(bars, None, None)
-			self.__prevCumRet = None
+			netReturn = 0
+
+		# Calculate cumulative return.
+		self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
+
+		# Notify the returns
+		self.onReturns(bars, netReturn, self.__cumRet)
+
+	def onBars(self, strat, bars):
+		brk = strat.getBroker()
+
+		# Skip returns calculation on first bar.
+		if self.__firstBarProcessed:
+			self.__calculateReturns(bars)
+		else:
+			self.__firstBarProcessed = True
 
 		# Update the shares held at the end of the bar.
 		self.__shares = {}

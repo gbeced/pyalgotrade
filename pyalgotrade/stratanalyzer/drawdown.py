@@ -34,24 +34,19 @@ class DrawDown(returns.ReturnsAnalyzer):
 		self.__lastDrawDuration = 0
 		self.__maxDrawDuration = 0
 
-	def onReturn(self, bars, netReturn, cumulativeReturn):
-		if netReturn != None:
-			self.__highWatermark = max(self.__highWatermark, cumulativeReturn)
-			drawDown = (1 + cumulativeReturn) / float(1 + self.__highWatermark) - 1
+	def onReturns(self, bars, netReturn, cumulativeReturn):
+		self.__highWatermark = max(self.__highWatermark, cumulativeReturn)
+		drawDown = (1 + cumulativeReturn) / float(1 + self.__highWatermark) - 1
 
-			# Calculate max drawdown duration
-			if drawDown == 0:
-				self.__lastDrawDuration = 0
-			else:
-				self.__lastDrawDuration += 1
-			self.__maxDrawDuration = max(self.__maxDrawDuration, self.__lastDrawDuration)
-
-			# Calculate max drawdown.
-			self.__maxDrawDown = min(self.__maxDrawDown, drawDown) 
-		else:
-			# Reset the watermarks to start counting again.
-			self.__highWatermark = None
+		# Calculate max drawdown duration
+		if drawDown == 0:
 			self.__lastDrawDuration = 0
+		else:
+			self.__lastDrawDuration += 1
+		self.__maxDrawDuration = max(self.__maxDrawDuration, self.__lastDrawDuration)
+
+		# Calculate max drawdown.
+		self.__maxDrawDown = min(self.__maxDrawDown, drawDown) 
 
 	def getMaxDrawDown(self):
 		"""Returns the max. drawdown."""

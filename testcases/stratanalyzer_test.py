@@ -114,7 +114,8 @@ class SharpeRatioTestCase(unittest.TestCase):
 
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000)
-		self.assertTrue(stratAnalyzer.getSharpeRatio(0.04, 252) == None)
+		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252) / 10**14, 4) == -7.204)
+		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252) == None)
 	
 	def testSharpeRatioIGE(self):
 		# This testcase is based on an example from Ernie Chan's book:
