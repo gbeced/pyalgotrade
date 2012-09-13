@@ -51,6 +51,7 @@ class BarFeed(barfeed.BarFeed):
 		self.__instrument = instrument
 		self.registerInstrument(instrument)
 		self.__barIter = iter(barSequence)
+		self.__stopDispatching = False
 
 	def start(self):
 		pass
@@ -66,8 +67,11 @@ class BarFeed(barfeed.BarFeed):
 		try:
 			ret = {self.__instrument : self.__barIter.next()}
 		except StopIteration:
-			pass
+			self.__stopDispatching = True
 		return ret
+
+	def stopDispatching(self):
+		return self.__stopDispatching
 
 class BarsCache:
 	def __init__(self, logger):

@@ -40,6 +40,7 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 		barfeed.BasicBarFeed.__init__(self)
 		self.__decorated = decoratedBarFeed
 		self.__stopped = False
+		self.__stopDispatching = False
 
 		# The barfeed runs in its own thread and will put bars in a queue that will be consumed by the strategy when fetchNextBars is called.
 		self.__queue = Queue.Queue()
@@ -72,6 +73,7 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 			# If there is nothing there after 5 seconds, then treat this as the end.
 			ret = self.__queue.get(True, 5)
 		except Queue.Empty:
+			self.__stopDispatching = True
 			ret = None
 		return ret
 
@@ -83,6 +85,9 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 
 	def join(self):
 		self.__thread.join()
+
+	def stopDispatching(self):
+		return self.__stopDispatching
 
 class ExternalBroker(broker.Broker):
 	def __init__(self, cash, barFeed, commission=None):

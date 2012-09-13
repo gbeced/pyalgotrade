@@ -87,6 +87,7 @@ class BarFeed(barfeed.BarFeed):
 		self.__bars = {}
 		self.__nextBarIdx = {}
 		self.__barFilter = None
+		self.__stopDispatching = False
 
 	def start(self):
 		# Set session close attributes to bars.
@@ -121,6 +122,9 @@ class BarFeed(barfeed.BarFeed):
 
 		self.registerInstrument(instrument)
 
+	def stopDispatching(self):
+		return self.__stopDispatching
+
 	def fetchNextBars(self):
 		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
 		smallestDateTime = None
@@ -133,6 +137,7 @@ class BarFeed(barfeed.BarFeed):
 					smallestDateTime = bars[nextIdx].getDateTime()
 
 		if smallestDateTime == None:
+			self.__stopDispatching = True
 			return None
 
 		# Make a second pass to get all the bars that had the smallest datetime.
