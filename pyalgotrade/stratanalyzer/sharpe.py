@@ -23,7 +23,7 @@ from pyalgotrade.utils import stats
 
 import math
 
-class SharpeRatio(returns.ReturnsAnalyzer):
+class SharpeRatio(returns.ReturnsAnalyzerBase):
 	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
 
 	.. note::
@@ -31,7 +31,7 @@ class SharpeRatio(returns.ReturnsAnalyzer):
 	"""
 
 	def __init__(self):
-		returns.ReturnsAnalyzer.__init__(self)
+		returns.ReturnsAnalyzerBase.__init__(self)
 		self.__netReturns = []
 
 	def onReturns(self, bars, netReturn, cumulativeReturn):

@@ -20,7 +20,7 @@
 
 from pyalgotrade import stratanalyzer
 
-class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
+class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):
 		self.__prevAdjClose = {} # Prev. adj. close per instrument
 		self.__shares = {} # Shares at the end of the period (bar).
@@ -83,4 +83,16 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 		# Update previous adjusted close values.
 		for instrument in bars.getInstruments():
 			self.__prevAdjClose[instrument] = bars.getBar(instrument).getAdjClose()
+
+class ReturnsAnalyzer(ReturnsAnalyzerBase):
+	def __init__(self):
+		ReturnsAnalyzerBase.__init__(self)
+		self.__netReturns = []
+
+	def onReturns(self, bars, netReturn, cumulativeReturn):
+		dateTime = bars.getDateTime()
+		self.__netReturns.append((dateTime, netReturn))
+
+	def getNetReturns(self):
+		return self.__netReturns
 
