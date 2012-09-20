@@ -36,7 +36,9 @@ class ReturnsCalculator:
 		self.__sellTotal += quantity*price
 
 	def getReturns(self, price):
-		ret = None
+		if self.__buyQty == 0 and self.__sellQty == 0:
+			return 0
+
 		if self.__buyQty == self.__sellQty:
 			buyTotal = self.__buyTotal
 			sellTotal = self.__sellTotal
@@ -47,6 +49,20 @@ class ReturnsCalculator:
 			buyTotal = self.__buyTotal + (self.__sellQty - self.__buyQty) * price
 			sellTotal = self.__sellTotal
 		return (sellTotal - buyTotal) / float(buyTotal)
+
+	def update(self, price):
+		if self.__buyQty == self.__sellQty:
+			self.__buyQty = 0
+			self.__sellQty = 0
+		elif self.__buyQty > self.__sellQty:
+			self.__buyQty -= self.__sellQty
+			self.__sellQty = 0
+		else:
+			self.__sellQty -= self.__buyQty
+			self.__buyQty = 0
+
+		self.__buyTotal = self.__buyQty * price
+		self.__sellTotal = self.__sellQty * price
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):

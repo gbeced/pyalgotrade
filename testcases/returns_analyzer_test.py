@@ -34,46 +34,66 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 10)
-		assert(retCalc.getReturns(500) == 0)
+		self.assertTrue(retCalc.getReturns(500) == 0)
 
 	def testBuyAndSellWin(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 11)
-		assert(retCalc.getReturns(500) == 0.1)
+		self.assertTrue(retCalc.getReturns(500) == 0.1)
 
 	def testBuyAndSellMultipleEvals(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(2, 10)
-		assert(retCalc.getReturns(10) == 0)
-		assert(retCalc.getReturns(11) == 0.1)
-		assert(retCalc.getReturns(20) == 1)
+		self.assertTrue(retCalc.getReturns(10) == 0)
+		self.assertTrue(retCalc.getReturns(11) == 0.1)
+		self.assertTrue(retCalc.getReturns(20) == 1)
 		retCalc.sell(1, 11)
-		assert(retCalc.getReturns(11) == 0.1)
+		self.assertTrue(retCalc.getReturns(11) == 0.1)
 		retCalc.sell(1, 10)
-		assert(retCalc.getReturns(11) == 0.05)
+		self.assertTrue(retCalc.getReturns(11) == 0.05)
 
 	def testSellAndBuyWin(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.sell(1, 11)
 		retCalc.buy(1, 10)
-		assert(retCalc.getReturns(500) == 0.1)
+		self.assertTrue(retCalc.getReturns(500) == 0.1)
 
 	def testSellAndBuyMultipleEvals(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.sell(2, 11)
-		assert(retCalc.getReturns(11) == 0)
+		self.assertTrue(retCalc.getReturns(11) == 0)
 		retCalc.buy(1, 10)
-		assert(round(retCalc.getReturns(11), 4) == 0.0476)
+		self.assertTrue(round(retCalc.getReturns(11), 4) == 0.0476)
 		retCalc.buy(1, 10)
-		assert(retCalc.getReturns(500) == 0.1)
+		self.assertTrue(retCalc.getReturns(500) == 0.1)
 
 	def testBuySellBuy(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(2, 13)
 		retCalc.buy(1, 10)
-		assert(retCalc.getReturns(500) == 0.3)
+		self.assertTrue(retCalc.getReturns(500) == 0.3)
+
+	def testBuyAndUpdate(self):
+		retCalc = returns.ReturnsCalculator()
+		retCalc.buy(1, 10)
+		self.assertTrue(retCalc.getReturns(20) == 1)
+		retCalc.update(15)
+		self.assertTrue(retCalc.getReturns(15) == 0)
+		self.assertTrue(round(retCalc.getReturns(20), 2) == 0.33)
+
+	def testBuyUpdateAndSell(self):
+		retCalc = returns.ReturnsCalculator()
+		retCalc.buy(1, 10)
+		self.assertTrue(retCalc.getReturns(15) == 0.5)
+
+		retCalc.update(15)
+		retCalc.sell(1, 20)
+		self.assertTrue(round(retCalc.getReturns(500), 2) == 0.33)
+
+		retCalc.update(20)
+		self.assertTrue(retCalc.getReturns(500) == 0)
 
 class ReturnsTestCase(unittest.TestCase):
 	TestInstrument = "any"
@@ -203,8 +223,8 @@ def getTestCases():
 	ret.append(ReturnsCalculatorTestCase("testSellAndBuyWin"))
 	ret.append(ReturnsCalculatorTestCase("testSellAndBuyMultipleEvals"))
 	ret.append(ReturnsCalculatorTestCase("testBuySellBuy"))
-	# ret.append(ReturnsCalculatorTestCase(""))
-	# ret.append(ReturnsCalculatorTestCase(""))
+	ret.append(ReturnsCalculatorTestCase("testBuyAndUpdate"))
+	ret.append(ReturnsCalculatorTestCase("testBuyUpdateAndSell"))
 
 	# ret.append(ReturnsTestCase("testOneBarReturn"))
 	# ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))
