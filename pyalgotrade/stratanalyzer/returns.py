@@ -20,6 +20,34 @@
 
 from pyalgotrade import stratanalyzer
 
+class ReturnsCalculator:
+	def __init__(self):
+		self.__buyQty = 0
+		self.__buyTotal = 0
+		self.__sellQty = 0
+		self.__sellTotal = 0
+
+	def buy(self, quantity, price):
+		self.__buyQty += quantity
+		self.__buyTotal += quantity*price
+
+	def sell(self, quantity, price):
+		self.__sellQty += quantity
+		self.__sellTotal += quantity*price
+
+	def getReturns(self, price):
+		ret = None
+		if self.__buyQty == self.__sellQty:
+			buyTotal = self.__buyTotal
+			sellTotal = self.__sellTotal
+		elif self.__buyQty > self.__sellQty:
+			buyTotal = self.__buyTotal
+			sellTotal = self.__sellTotal + (self.__buyQty - self.__sellQty) * price
+		else:
+			buyTotal = self.__buyTotal + (self.__sellQty - self.__buyQty) * price
+			sellTotal = self.__sellTotal
+		return (sellTotal - buyTotal) / float(buyTotal)
+
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):
 		self.__prevAdjClose = {} # Prev. adj. close per instrument
