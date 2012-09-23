@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import stratanalyzer
+from pyalgotrade import broker
 
 class ReturnsCalculator:
 	def __init__(self):
@@ -35,10 +36,7 @@ class ReturnsCalculator:
 		self.__sellQty += quantity
 		self.__sellTotal += quantity*price
 
-	def getReturns(self, price):
-		if self.__buyQty == 0 and self.__sellQty == 0:
-			return 0
-
+	def getBuySellAmounts(self, price):
 		if self.__buyQty == self.__sellQty:
 			buyTotal = self.__buyTotal
 			sellTotal = self.__sellTotal
@@ -48,7 +46,14 @@ class ReturnsCalculator:
 		else:
 			buyTotal = self.__buyTotal + (self.__sellQty - self.__buyQty) * price
 			sellTotal = self.__sellTotal
-		return (sellTotal - buyTotal) / float(buyTotal)
+		return (buyTotal, sellTotal)
+
+	def calculateReturn(self, price):
+		buy, sell = self.getBuySellAmounts(price)
+		if buy == 0:
+			return 0
+		else:
+			return (sell - buy) / float(buy)
 
 	def update(self, price):
 		if self.__buyQty == self.__sellQty:
@@ -66,43 +71,67 @@ class ReturnsCalculator:
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):
-		self.__prevAdjClose = {} # Prev. adj. close per instrument
-		self.__shares = {} # Shares at the end of the period (bar).
 		self.__cumRet = 0
-		self.__firstBarProcessed = False
+		self.__lastBars = {} # Last Bar per instrment.
+		self.__returnCalculators = {}
+		self.__useAdjClose = False
+
+	def attached(self, strat):
+		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
+		self.__useAdjClose = strat.getBroker().getUseAdjustedValues()
+
+	def __onOrderUpdate(self, broker_, order):
+		# Only interested in filled orders.
+		if not order.isFilled():
+			return
+
+		# Get or create the returns calculator for this instrument.
+		try:
+			retCalculator = self.__returnCalculators[order.getInstrument()]
+		except KeyError:
+			retCalculator = ReturnsCalculator()
+			self.__returnCalculators[order.getInstrument()] = retCalculator
+
+		# Update the returns calculator for this order.
+		if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+			retCalculator.buy(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice())
+		elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+			retCalculator.sell(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice())
+		else: # Unknown action
+			assert(False)
 
 	def onReturns(self, bars, netReturn, cumulativeReturn):
 		raise NotImplementedError()
 
-	def __calculateReturns(self, bars):
-		count = 0
-		returns = 0
+	def __getPrice(self, instrument, bars):
+		ret = None
+		bar = bars.getBar(instrument)
+		if bar == None:
+			bar = self.__lastBars.get(instrument, None)
+		if bar != None:
+			if self.__useAdjClose:
+				ret = bar.getAdjClose()
+			else:
+				ret = bar.getClose()
+		return ret
 
-		# Calculate net return for each of the shares that were available at the end of the previous bar.
-		for instrument, shares in self.__shares.iteritems():
-			try:
-				bar = bars.getBar(instrument)
-				if bar == None or shares == 0:
-					continue
+	def beforeOnBars(self, strat, bars):
+		totalBought = 0
+		totalSold = 0
 
-				currAdjClose = bar.getAdjClose()
-				prevAdjClose = self.__prevAdjClose[instrument]
-				if shares > 0:
-					partialReturn = (currAdjClose - prevAdjClose) / float(prevAdjClose)
-				elif shares < 0:
-					partialReturn = (currAdjClose - prevAdjClose) / float(prevAdjClose) * -1
-				else:
-					assert(False)
+		# Calculate net return.
+		for instrument, retCalculator in self.__returnCalculators.iteritems():
+			price = self.__getPrice(instrument, bars)
+			if price != None:
+				bought, sold = retCalculator.getBuySellAmounts(price)
+				totalBought += bought
+				totalSold += sold
+				retCalculator.update(price) 
 
-				returns += partialReturn
-				count += 1
-			except KeyError:
-				pass
-
-		if count > 0:
-			netReturn = returns / float(count)
-		else:
+		if totalBought == 0:
 			netReturn = 0
+		else:
+			netReturn = (totalSold - totalBought) / float(totalBought)
 
 		# Calculate cumulative return.
 		self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
@@ -110,23 +139,9 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		# Notify the returns
 		self.onReturns(bars, netReturn, self.__cumRet)
 
-	def onBars(self, strat, bars):
-		brk = strat.getBroker()
-
-		# Skip returns calculation on first bar.
-		if self.__firstBarProcessed:
-			self.__calculateReturns(bars)
-		else:
-			self.__firstBarProcessed = True
-
-		# Update the shares held at the end of the bar.
-		self.__shares = {}
-		for instrument in brk.getActiveInstruments():
-			self.__shares[instrument] = brk.getShares(instrument)
-
-		# Update previous adjusted close values.
+		# Keep track of the last bar for each instrument.
 		for instrument in bars.getInstruments():
-			self.__prevAdjClose[instrument] = bars.getBar(instrument).getAdjClose()
+			self.__lastBars[instrument] = bars.getBar(instrument)
 
 class ReturnsAnalyzer(ReturnsAnalyzerBase):
 	def __init__(self):

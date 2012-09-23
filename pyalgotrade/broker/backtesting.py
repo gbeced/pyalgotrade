@@ -400,7 +400,7 @@ class Broker(broker.Broker):
 			ret = True
 
 			# Update the order.
-			orderExecutionInfo = broker.OrderExecutionInfo(price, commission, dateTime)
+			orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
 			order.setExecuted(orderExecutionInfo)
 
 		return ret

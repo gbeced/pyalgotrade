@@ -318,7 +318,9 @@ class Strategy:
 
 	def attachAnalyzer(self, strategyAnalyzer):
 		"""Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
-		self.__analyzers.append(strategyAnalyzer)
+		if strategyAnalyzer not in self.__analyzers:
+			self.__analyzers.append(strategyAnalyzer)
+			strategyAnalyzer.attached(self)
 
 	def getFeed(self):
 		"""Returns the :class:`pyalgotrade.barfeed.BarFeed` that this strategy is using."""
@@ -616,7 +618,7 @@ class Strategy:
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
 
-		self.__notifyAnalyzers(lambda s: s.onBars(self, bars))
+		self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
 		# 1: Let the strategy process current bars and place orders.
 		self.onBars(bars)

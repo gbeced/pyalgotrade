@@ -34,66 +34,66 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 10)
-		self.assertTrue(retCalc.getReturns(500) == 0)
+		self.assertTrue(retCalc.calculateReturn(500) == 0)
 
 	def testBuyAndSellWin(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 11)
-		self.assertTrue(retCalc.getReturns(500) == 0.1)
+		self.assertTrue(retCalc.calculateReturn(500) == 0.1)
 
 	def testBuyAndSellMultipleEvals(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(2, 10)
-		self.assertTrue(retCalc.getReturns(10) == 0)
-		self.assertTrue(retCalc.getReturns(11) == 0.1)
-		self.assertTrue(retCalc.getReturns(20) == 1)
+		self.assertTrue(retCalc.calculateReturn(10) == 0)
+		self.assertTrue(retCalc.calculateReturn(11) == 0.1)
+		self.assertTrue(retCalc.calculateReturn(20) == 1)
 		retCalc.sell(1, 11)
-		self.assertTrue(retCalc.getReturns(11) == 0.1)
+		self.assertTrue(retCalc.calculateReturn(11) == 0.1)
 		retCalc.sell(1, 10)
-		self.assertTrue(retCalc.getReturns(11) == 0.05)
+		self.assertTrue(retCalc.calculateReturn(11) == 0.05)
 
 	def testSellAndBuyWin(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.sell(1, 11)
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.getReturns(500) == 0.1)
+		self.assertTrue(retCalc.calculateReturn(500) == 0.1)
 
 	def testSellAndBuyMultipleEvals(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.sell(2, 11)
-		self.assertTrue(retCalc.getReturns(11) == 0)
+		self.assertTrue(retCalc.calculateReturn(11) == 0)
 		retCalc.buy(1, 10)
-		self.assertTrue(round(retCalc.getReturns(11), 4) == 0.0476)
+		self.assertTrue(round(retCalc.calculateReturn(11), 4) == 0.0476)
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.getReturns(500) == 0.1)
+		self.assertTrue(retCalc.calculateReturn(500) == 0.1)
 
 	def testBuySellBuy(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(2, 13)
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.getReturns(500) == 0.3)
+		self.assertTrue(retCalc.calculateReturn(500) == 0.3)
 
 	def testBuyAndUpdate(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.getReturns(20) == 1)
+		self.assertTrue(retCalc.calculateReturn(20) == 1)
 		retCalc.update(15)
-		self.assertTrue(retCalc.getReturns(15) == 0)
-		self.assertTrue(round(retCalc.getReturns(20), 2) == 0.33)
+		self.assertTrue(retCalc.calculateReturn(15) == 0)
+		self.assertTrue(round(retCalc.calculateReturn(20), 2) == 0.33)
 
 	def testBuyUpdateAndSell(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.getReturns(15) == 0.5)
+		self.assertTrue(retCalc.calculateReturn(15) == 0.5)
 
 		retCalc.update(15)
 		retCalc.sell(1, 20)
-		self.assertTrue(round(retCalc.getReturns(500), 2) == 0.33)
+		self.assertTrue(round(retCalc.calculateReturn(500), 2) == 0.33)
 
 		retCalc.update(20)
-		self.assertTrue(retCalc.getReturns(500) == 0)
+		self.assertTrue(retCalc.calculateReturn(500) == 0)
 
 class ReturnsTestCase(unittest.TestCase):
 	TestInstrument = "any"
@@ -108,7 +108,7 @@ class ReturnsTestCase(unittest.TestCase):
 		# Manually place the orders to get them filled on the first (and only) bar.
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, False) # Open: 15.74
 		strat.getBroker().placeOrder(order)
-		order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Open: 15.91
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Close: 15.91
 		strat.getBroker().placeOrder(order)
 
 		stratAnalyzer = returns.ReturnsAnalyzer()
@@ -226,11 +226,11 @@ def getTestCases():
 	ret.append(ReturnsCalculatorTestCase("testBuyAndUpdate"))
 	ret.append(ReturnsCalculatorTestCase("testBuyUpdateAndSell"))
 
-	# ret.append(ReturnsTestCase("testOneBarReturn"))
-	# ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))
-	# ret.append(ReturnsTestCase("testTwoBarReturns_OpenClose"))
-	# ret.append(ReturnsTestCase("testTwoBarReturns_CloseOpen"))
-	# ret.append(ReturnsTestCase("testTwoBarReturns_CloseClose"))
+	ret.append(ReturnsTestCase("testOneBarReturn"))
+	ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))
+	ret.append(ReturnsTestCase("testTwoBarReturns_OpenClose"))
+	ret.append(ReturnsTestCase("testTwoBarReturns_CloseOpen"))
+	ret.append(ReturnsTestCase("testTwoBarReturns_CloseClose"))
 
 	return ret
 
