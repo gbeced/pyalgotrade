@@ -95,6 +95,13 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		retCalc.update(20)
 		self.assertTrue(retCalc.calculateReturn(500) == 0)
 
+	def testBuyAndSellBreakEvenWithCommision(self):
+		retCalc = returns.ReturnsCalculator()
+		retCalc.buy(1, 10, 0.5)
+		retCalc.sell(1, 11, 0.5)
+		self.assertTrue(retCalc.calculateReturn(500, False) == 0.1)
+		self.assertTrue(retCalc.calculateReturn(500, True) == 0)
+
 class ReturnsTestCase(unittest.TestCase):
 	TestInstrument = "any"
 	
@@ -225,6 +232,7 @@ def getTestCases():
 	ret.append(ReturnsCalculatorTestCase("testBuySellBuy"))
 	ret.append(ReturnsCalculatorTestCase("testBuyAndUpdate"))
 	ret.append(ReturnsCalculatorTestCase("testBuyUpdateAndSell"))
+	ret.append(ReturnsCalculatorTestCase("testBuyAndSellBreakEvenWithCommision"))
 
 	ret.append(ReturnsTestCase("testOneBarReturn"))
 	ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))
