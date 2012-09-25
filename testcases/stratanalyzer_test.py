@@ -24,6 +24,7 @@ from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.stratanalyzer import trades
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.stratanalyzer import drawdown
+from pyalgotrade.broker import backtesting
 from pyalgotrade import broker
 
 import strategy_test
@@ -116,7 +117,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(strat.getBroker().getCash() == 1000)
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252) / 10**14, 4) == -7.1486)
 		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252) == None)
-	
+
 	def testIGE_Broker(self):
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
@@ -138,6 +139,30 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		# The results are slightly different different only because I'm taking into account the first bar as well.
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7889)
+
+	def testIGE_BrokerWithCommission(self):
+		# This testcase is based on an example from Ernie Chan's book:
+		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+		brk = backtesting.Broker(1000, barFeed, broker.FixedCommission(0.5))
+		strat = strategy_test.TestStrategy(barFeed, 1000, brk)
+		strat.getBroker().setUseAdjustedValues(True)
+		strat.setBrokerOrdersGTC(True)
+		stratAnalyzer = sharpe.SharpeRatio()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		# Manually place the order to get it filled on the first bar.
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
+		order.setGoodTillCanceled(True)
+		strat.getBroker().placeOrder(order)
+		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
+		strat.run()
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09 - 0.5*2))
+		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
+		# The results are slightly different different only because I'm taking into account the first bar as well,
+		# and I'm also adding commissions.
+		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7763)
 
 	def testSharpeRatioIGE_SPY_Broker(self):
 		# This testcase is based on an example from Ernie Chan's book:
@@ -247,10 +272,13 @@ def getTestCases():
 
 	ret.append(SharpeRatioTestCase("testNoTrades"))
 	ret.append(SharpeRatioTestCase("testIGE_Broker"))
+	ret.append(SharpeRatioTestCase("testIGE_BrokerWithCommission"))
+	# This testcase is not enabled since I think that the results from the book are not correct.
 	# ret.append(SharpeRatioTestCase("testSharpeRatioIGE_SPY_Broker"))
 
 	ret.append(DrawDownTestCase("testNoTrades"))
 	ret.append(DrawDownTestCase("testIGE_Broker"))
+	# This testcase is not enabled since I think that the results from the book are not correct.
 	# ret.append(DrawDownTestCase("testDrawDownIGE_SPY_Broker"))
 
 	return ret
