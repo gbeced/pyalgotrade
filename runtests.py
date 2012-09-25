@@ -36,6 +36,7 @@ from testcases import talib_test
 from testcases import observer_test
 from testcases import returns_analyzer_test
 from testcases import stratanalyzer_test
+from testcases import utils_test
 
 def getTestCases():
 	ret = []
@@ -56,6 +57,7 @@ def getTestCases():
 	ret += observer_test.getTestCases()
 	ret += returns_analyzer_test.getTestCases()
 	ret += stratanalyzer_test.getTestCases()
+	ret += utils_test.getTestCases()
 	return ret
 
 def main():
