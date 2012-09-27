@@ -93,6 +93,13 @@ class Order:
 		self.__goodTillCanceled = False
 		self.__allOrNone = True
 		self.__state = Order.State.ACCEPTED
+		self.__dirty = False
+
+	def isDirty(self):
+		return self.__dirty
+
+	def setDirty(self, dirty):
+		self.__dirty = dirty
 
 	def getType(self):
 		"""Returns the order type"""
@@ -132,6 +139,11 @@ class Order:
 		"""Returns the quantity."""
 		return self.__quantity
 
+	def setQuantity(self, quantity):
+		"""Updates the quantity."""
+		self.__quantity = quantity
+		self.setDirty(True)
+
 	def getGoodTillCanceled(self):
 		"""Returns True if the order is good till canceled."""
 		return self.__goodTillCanceled
@@ -145,6 +157,7 @@ class Order:
 		:type goodTillCanceled: boolean.
 		"""
 		self.__goodTillCanceled = goodTillCanceled
+		self.setDirty(True)
 
 	def getAllOrNone(self):
 		"""Returns True if the order should be completely filled or else canceled."""
@@ -157,6 +170,7 @@ class Order:
 		:type allOrNone: boolean.
 		"""
 		self.__allOrNone = allOrNone
+		self.setDirty(True)
 
 	def setExecuted(self, orderExecutionInfo):
 		self.__executionInfo = orderExecutionInfo
@@ -188,6 +202,11 @@ class MarketOrder(Order):
 		"""Returns True if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
 		return self.__onClose
 
+	def setFillOnClose(self, onClose):
+		"""Sets if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
+		self.__onClose = onClose
+		self.setDirty(True)
+
 class LimitOrder(Order):
 	"""Base class for limit orders.
 
@@ -204,6 +223,11 @@ class LimitOrder(Order):
 		"""Returns the limit price."""
 		return self.__limitPrice
 
+	def setLimitPrice(self, limitPrice):
+		"""Updates the limit price."""
+		self.__limitPrice = limitPrice
+		self.setDirty(True)
+
 class StopOrder(Order):
 	"""Base class for stop orders.
 
@@ -219,6 +243,11 @@ class StopOrder(Order):
 	def getStopPrice(self):
 		"""Returns the stop price."""
 		return self.__stopPrice
+
+	def setStopPrice(self, stopPrice):
+		"""Updates the stop price."""
+		self.__stopPrice = stopPrice
+		self.setDirty(True)
 
 class StopLimitOrder(Order):
 	"""Base class for stop limit orders.
@@ -238,9 +267,19 @@ class StopLimitOrder(Order):
 		"""Returns the limit price."""
 		return self.__limitPrice
 
+	def setLimitPrice(self, limitPrice):
+		"""Updates the limit price."""
+		self.__limitPrice = limitPrice
+		self.setDirty(True)
+
 	def getStopPrice(self):
 		"""Returns the stop price."""
 		return self.__stopPrice
+
+	def setStopPrice(self, stopPrice):
+		"""Updates the stop price."""
+		self.__stopPrice = stopPrice
+		self.setDirty(True)
 
 	def setLimitOrderActive(self, limitOrderActive):
 		self.__limitOrderActive = limitOrderActive
@@ -330,6 +369,9 @@ class Broker:
 
 		:param order: The order to submit.
 		:type order: :class:`Order`.
+
+		.. note::
+			If the order is filled or canceled, an exception will be raised.
 		"""
 		raise NotImplementedError()
 	

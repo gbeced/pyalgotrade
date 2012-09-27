@@ -402,10 +402,12 @@ class Broker(broker.Broker):
 		return ret
 
 	def placeOrder(self, order):
-		if not order.isAccepted() or order in self.__pendingOrders:
-			raise Exception("Can't place the same order twice")
-
-		self.__pendingOrders.append(order)
+		if order.isAccepted():
+			if order not in self.__pendingOrders:
+				self.__pendingOrders.append(order)
+			order.setDirty(False)
+		else:
+			raise Exception("The order was already processed")
 
 	def onBars(self, bars):
 		pendingOrders = self.__pendingOrders
