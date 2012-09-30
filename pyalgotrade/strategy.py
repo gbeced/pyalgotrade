@@ -117,7 +117,7 @@ class Position:
 
 		return ret
 
-	def getReturn(self, includeCommissions):
+	def getReturn(self, includeCommissions=True):
 		"""Returns the position's returns."""
 		if not self.entryFilled():
 			raise Exception("Position not opened yet")
@@ -133,20 +133,15 @@ class Position:
 	def getReturnImpl(self, includeCommissions):
 		raise NotImplementedError()
 
-	def getProfitLoss(self, includeCommissions):
-		"""Returns the position's profit/loss."""
+	def getNetProfit(self, includeCommissions=True):
+		"""Returns the position's net profit."""
 		if not self.entryFilled():
 			raise Exception("Position not opened yet")
 		elif not self.exitFilled():
 			raise Exception("Position not closed yet")
-		return self.getProfitLossImpl(includeCommissions)
+		return self.getNetProfitImpl(includeCommissions)
 
-	def getNetProfit(self):
-		"""Returns the difference between the order prices. It **does** include commisions."""
-		warninghelpers.deprecation_warning("getNetProfit will be deprecated in the next version. Please use getProfitLoss instead.", stacklevel=2)
-		return self.getProfitLoss(True)
-
-	def getProfitLossImpl(self, includeCommissions):
+	def getNetProfitImpl(self, includeCommissions):
 		raise NotImplementedError()
 
 	def buildExitOrder(self, limitPrice, stopPrice):
@@ -190,8 +185,8 @@ class LongPosition(Position):
 	def getReturnImpl(self, includeCommissions):
 		return self.__getRetCalc().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
-	def getProfitLossImpl(self, includeCommissions):
-		return self.__getRetCalc().getProfitLoss(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+	def getNetProfitImpl(self, includeCommissions):
+		return self.__getRetCalc().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:
@@ -244,8 +239,8 @@ class ShortPosition(Position):
 	def getReturnImpl(self, includeCommissions):
 		return self.__getRetCalc().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
-	def getProfitLossImpl(self, includeCommissions):
-		return self.__getRetCalc().getProfitLoss(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+	def getNetProfitImpl(self, includeCommissions):
+		return self.__getRetCalc().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:

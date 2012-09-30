@@ -46,7 +46,7 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		self.__evenPositions = []
 
 	def onPositionExitOk(self, strat, position):
-		netProfit = position.getProfitLoss(True)
+		netProfit = position.getNetProfit(True)
 
 		self.__allPositions.append(netProfit)
 

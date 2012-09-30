@@ -85,13 +85,13 @@ class ReturnsCalculator:
 
 	def getReturn(self, price, includeCommissions = True):
 		ret = 0
-		pl = self.getProfitLoss(price, includeCommissions)
+		pl = self.getNetProfit(price, includeCommissions)
 		cost = self.getCost()
 		if cost != 0:
 			ret = pl / float(cost)
 		return ret
 
-	def getProfitLoss(self, price, includeCommissions = True):
+	def getNetProfit(self, price, includeCommissions = True):
 		buy, sell = self.__getBuySellAmounts(price)
 		ret = 0
 		if buy != 0:
@@ -176,7 +176,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		for instrument, retCalculator in self.__returnCalculators.iteritems():
 			price = self.__getPrice(instrument, bars)
 			if price != None:
-				totalPL += retCalculator.getProfitLoss(price, self.__includeCommissions)
+				totalPL += retCalculator.getNetProfit(price, self.__includeCommissions)
 				totalCost += retCalculator.getCost()
 				retCalculator.updatePrice(price) 
 
