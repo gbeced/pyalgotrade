@@ -21,6 +21,7 @@
 from pyalgotrade import stratanalyzer
 from pyalgotrade import broker
 
+# Helper class to calculate returns and profit/loss.
 class ReturnsCalculator:
 	def __init__(self):
 		self.__buyQty = 0

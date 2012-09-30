@@ -22,6 +22,7 @@ import broker
 from broker import backtesting
 import observer
 from stratanalyzer import returns
+import warninghelpers
 
 class Position:
 	"""Base class for positions. 
@@ -116,26 +117,36 @@ class Position:
 
 		return ret
 
-	def getResult(self):
-		"""Returns the ratio between the order prices. It **doesn't** include commisions."""
+	def getReturn(self, includeCommissions):
+		"""Returns the position's returns."""
 		if not self.entryFilled():
 			raise Exception("Position not opened yet")
 		elif not self.exitFilled():
 			raise Exception("Position not closed yet")
-		return self.getReturnsImpl(False)
+		return self.getReturnImpl(includeCommissions)
 
-	def getReturnsImpl(self, includeCommissions):
+	def getResult(self):
+		"""Returns the ratio between the order prices. It **doesn't** include commisions."""
+		warninghelpers.deprecation_warning("getResult will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
+		return self.getReturn(False)
+
+	def getReturnImpl(self, includeCommissions):
 		raise NotImplementedError()
+
+	def getProfitLoss(self, includeCommissions):
+		"""Returns the position's profit/loss."""
+		if not self.entryFilled():
+			raise Exception("Position not opened yet")
+		elif not self.exitFilled():
+			raise Exception("Position not closed yet")
+		return self.getProfitLossImpl(includeCommissions)
 
 	def getNetProfit(self):
 		"""Returns the difference between the order prices. It **does** include commisions."""
-		if not self.entryFilled():
-			raise Exception("Position not opened yet")
-		elif not self.exitFilled():
-			raise Exception("Position not closed yet")
-		return self.getNetProfitImpl(True)
+		warninghelpers.deprecation_warning("getNetProfit will be deprecated in the next version. Please use getProfitLoss instead.", stacklevel=2)
+		return self.getProfitLoss(True)
 
-	def getNetProfitImpl(self, includeCommissions):
+	def getProfitLossImpl(self, includeCommissions):
 		raise NotImplementedError()
 
 	def buildExitOrder(self, limitPrice, stopPrice):
@@ -176,10 +187,10 @@ class LongPosition(Position):
 		ret.sell(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
 		return ret
 
-	def getReturnsImpl(self, includeCommissions):
+	def getReturnImpl(self, includeCommissions):
 		return self.__getRetCalc().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
-	def getNetProfitImpl(self, includeCommissions):
+	def getProfitLossImpl(self, includeCommissions):
 		return self.__getRetCalc().getProfitLoss(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
@@ -230,10 +241,10 @@ class ShortPosition(Position):
 		ret.buy(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
 		return ret
 
-	def getReturnsImpl(self, includeCommissions):
+	def getReturnImpl(self, includeCommissions):
 		return self.__getRetCalc().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
-	def getNetProfitImpl(self, includeCommissions):
+	def getProfitLossImpl(self, includeCommissions):
 		return self.__getRetCalc().getProfitLoss(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
