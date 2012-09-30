@@ -30,77 +30,149 @@ import unittest
 import datetime
 
 class ReturnsCalculatorTestCase(unittest.TestCase):
+	invalid_price = 5000
+
 	def testBuyAndSellBreakEven(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 10)
-		self.assertTrue(retCalc.calculateReturn(500) == 0)
+		self.assertTrue(retCalc.getCost() == 10)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 0)
+		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0)
 
 	def testBuyAndSellWin(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 11)
-		self.assertTrue(retCalc.calculateReturn(500) == 0.1)
+		self.assertTrue(retCalc.getCost() == 10)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 1)
+		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0.1)
 
 	def testBuyAndSellMultipleEvals(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(2, 10)
-		self.assertTrue(retCalc.calculateReturn(10) == 0)
-		self.assertTrue(retCalc.calculateReturn(11) == 0.1)
-		self.assertTrue(retCalc.calculateReturn(20) == 1)
+		self.assertTrue(retCalc.getCost() == 20)
+		self.assertTrue(retCalc.getProfitLoss(10) == 0)
+		self.assertTrue(retCalc.getReturn(10) == 0)
+
+		self.assertTrue(retCalc.getProfitLoss(11) == 2)
+		self.assertTrue(retCalc.getReturn(11) == 0.1)
+
+		self.assertTrue(retCalc.getProfitLoss(20) == 20)
+		self.assertTrue(retCalc.getReturn(20) == 1)
+
 		retCalc.sell(1, 11)
-		self.assertTrue(retCalc.calculateReturn(11) == 0.1)
+		self.assertTrue(retCalc.getCost() == 20)
+		self.assertTrue(retCalc.getProfitLoss(11) == 2)
+		self.assertTrue(retCalc.getReturn(11) == 0.1)
+
 		retCalc.sell(1, 10)
-		self.assertTrue(retCalc.calculateReturn(11) == 0.05)
+		self.assertTrue(retCalc.getCost() == 20)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 1)
+		self.assertTrue(retCalc.getReturn(11) == 0.05)
 
 	def testSellAndBuyWin(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.sell(1, 11)
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.calculateReturn(500) == 0.1)
+		self.assertTrue(retCalc.getCost() == 11)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 1)
+		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.090909091, 4))
 
 	def testSellAndBuyMultipleEvals(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.sell(2, 11)
-		self.assertTrue(retCalc.calculateReturn(11) == 0)
+		self.assertTrue(retCalc.getCost() == 22)
+		self.assertTrue(retCalc.getProfitLoss(11) == 0)
+		self.assertTrue(retCalc.getReturn(11) == 0)
+
 		retCalc.buy(1, 10)
-		self.assertTrue(round(retCalc.calculateReturn(11), 4) == 0.0476)
+		self.assertTrue(retCalc.getCost() == 22)
+		self.assertTrue(retCalc.getProfitLoss(11) == 1)
+		self.assertTrue(round(retCalc.getReturn(11), 4) == round(0.045454545, 4))
+
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.calculateReturn(500) == 0.1)
+		self.assertTrue(retCalc.getCost() == 22)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 2)
+		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.090909091, 4))
 
 	def testBuySellBuy(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
-		retCalc.sell(2, 13)
+		self.assertTrue(retCalc.getCost() == 10)
+
+		retCalc.sell(2, 13) # Short selling 1 @ $13
+		self.assertTrue(retCalc.getCost() == 10 + 13)
+
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.calculateReturn(500) == 0.3)
+		self.assertTrue(retCalc.getCost() == 10 + 13)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 6)
+		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.260869565, 4))
 
 	def testBuyAndUpdate(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.calculateReturn(20) == 1)
-		retCalc.update(15)
-		self.assertTrue(retCalc.calculateReturn(15) == 0)
-		self.assertTrue(round(retCalc.calculateReturn(20), 2) == 0.33)
+		self.assertTrue(retCalc.getCost() == 10)
+		self.assertTrue(retCalc.getProfitLoss(20) == 10)
+		self.assertTrue(retCalc.getReturn(20) == 1)
+
+		retCalc.updatePrice(15)
+		self.assertTrue(retCalc.getCost() == 15)
+		self.assertTrue(retCalc.getProfitLoss(15) == 0)
+		self.assertTrue(retCalc.getReturn(15) == 0)
+
+		self.assertTrue(retCalc.getProfitLoss(20) == 5)
+		self.assertTrue(round(retCalc.getReturn(20), 2) == 0.33)
 
 	def testBuyUpdateAndSell(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10)
-		self.assertTrue(retCalc.calculateReturn(15) == 0.5)
+		self.assertTrue(retCalc.getCost() == 10)
+		self.assertTrue(retCalc.getProfitLoss(15) == 5)
+		self.assertTrue(retCalc.getReturn(15) == 0.5)
 
-		retCalc.update(15)
+		retCalc.updatePrice(15)
+		self.assertTrue(retCalc.getCost() == 15)
 		retCalc.sell(1, 20)
-		self.assertTrue(round(retCalc.calculateReturn(500), 2) == 0.33)
+		self.assertTrue(retCalc.getCost() == 15)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 5)
+		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 2) == 0.33)
 
-		retCalc.update(20)
-		self.assertTrue(retCalc.calculateReturn(500) == 0)
+		retCalc.updatePrice(100)
+		self.assertTrue(retCalc.getCost() == 0)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 0)
+		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0)
 
 	def testBuyAndSellBreakEvenWithCommision(self):
 		retCalc = returns.ReturnsCalculator()
 		retCalc.buy(1, 10, 0.5)
 		retCalc.sell(1, 11, 0.5)
-		self.assertTrue(retCalc.calculateReturn(500, False) == 0.1)
-		self.assertTrue(retCalc.calculateReturn(500, True) == 0)
+		self.assertTrue(retCalc.getCost() == 10)
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price, False) == 1)
+		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price, False) == 0.1)
+
+		self.assertTrue(retCalc.getProfitLoss(ReturnsCalculatorTestCase.invalid_price, True) == 0)
+		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price, True) == 0)
+
+	def testLongShortEqualAmount(self):
+		retCalcXYZ = returns.ReturnsCalculator()
+		retCalcXYZ.buy(11, 10)
+		retCalcXYZ.sell(11, 30)
+		self.assertTrue(retCalcXYZ.getCost() == 11*10)
+		self.assertTrue(retCalcXYZ.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) == 20*11)
+		self.assertTrue(retCalcXYZ.getReturn(ReturnsCalculatorTestCase.invalid_price) == 2)
+
+		retCalcABC = returns.ReturnsCalculator()
+		retCalcABC.sell(100, 1.1)
+		retCalcABC.buy(100, 1)
+		self.assertTrue(retCalcABC.getCost() == 100*1.1)
+		self.assertTrue(round(retCalcABC.getProfitLoss(ReturnsCalculatorTestCase.invalid_price), 2) == 100*0.1)
+		self.assertEqual(round(retCalcABC.getReturn(ReturnsCalculatorTestCase.invalid_price), 2), 0.09)
+
+		combinedCost = retCalcXYZ.getCost() + retCalcABC.getCost()
+		combinedPL = retCalcXYZ.getProfitLoss(ReturnsCalculatorTestCase.invalid_price) + retCalcABC.getProfitLoss(ReturnsCalculatorTestCase.invalid_price)
+		combinedReturn = combinedPL / float(combinedCost)
+		self.assertTrue(round(combinedReturn, 9) == 1.045454545)
 
 class ReturnsTestCase(unittest.TestCase):
 	TestInstrument = "any"
@@ -233,6 +305,7 @@ def getTestCases():
 	ret.append(ReturnsCalculatorTestCase("testBuyAndUpdate"))
 	ret.append(ReturnsCalculatorTestCase("testBuyUpdateAndSell"))
 	ret.append(ReturnsCalculatorTestCase("testBuyAndSellBreakEvenWithCommision"))
+	ret.append(ReturnsCalculatorTestCase("testLongShortEqualAmount"))
 
 	ret.append(ReturnsTestCase("testOneBarReturn"))
 	ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))

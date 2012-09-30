@@ -2,6 +2,7 @@ Version 0.10 (TBD)
 . [NEW] Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
 . [NEW] Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown).
 . [NEW] Winning/Losing trades analysis (pyalgotrade.stratanalyzer.trades.BasicAnalyzer).
+. [FIX] Fixed returns calculations for short positions.
 
 Version 0.9 (1/Sep/2012)
 . [NEW] Added a method to the strategy class to get notified when an order gets updated (onOrderUpdated). This is only called if the order was placed using the broker interface directly.

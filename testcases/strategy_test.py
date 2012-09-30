@@ -497,7 +497,7 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.69 - 27.37, 2))
-		self.assertTrue(round(strat.getResult(), 3) == 0.121)
+		self.assertTrue(round(strat.getResult(), 3) == round(0.10817856, 3))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.69 - 27.37, 2))
 
 	def testShortPosition(self):
@@ -526,7 +526,7 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 27.44 - 30.31, 2))
-		self.assertTrue(round(strat.getResult(), 3) == -0.095)
+		self.assertTrue(round(strat.getResult(), 3) == round(-0.104591837, 3))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.44 - 30.31, 2))
 
 	def testShortPositionAdjClose(self):

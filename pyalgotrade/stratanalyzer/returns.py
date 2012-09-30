@@ -27,22 +27,50 @@ class ReturnsCalculator:
 		self.__buyTotal = 0
 		self.__sellQty = 0
 		self.__sellTotal = 0
-		self.__commisions = 0
+		self.__cost = 0
+		self.__commissions = 0
 
-	def buy(self, quantity, price, commision = 0):
+	def __updateCost(self, quantity, price):
+		currentPos = self.__buyQty - self.__sellQty
+		cost = 0
+
+		if currentPos > 0: # Current position is long
+			if quantity > 0: # Increase long position
+				cost = quantity * price
+			else:
+				diff = currentPos + quantity
+				if diff < 0: # Entering a short position
+					cost = abs(diff) * price
+		elif currentPos < 0: # Current position is short
+			if quantity < 0: # Increase short position
+				cost = abs(quantity) * price
+			else:
+				diff = currentPos + quantity
+				if diff > 0: # Entering a long position
+					cost = diff * price
+		else:
+			cost = abs(quantity) * price
+		self.__cost += cost
+
+	def getCost(self):
+		return self.__cost
+
+	def buy(self, quantity, price, commission = 0):
+		self.__updateCost(quantity, price)
 		self.__buyQty += quantity
 		self.__buyTotal += quantity*price
-		self.__commisions += commision
+		self.__commissions += commission
 
-	def sell(self, quantity, price, commision = 0):
+	def sell(self, quantity, price, commission = 0):
+		self.__updateCost(quantity*-1, price)
 		self.__sellQty += quantity
 		self.__sellTotal += quantity*price
-		self.__commisions += commision
+		self.__commissions += commission
 
-	def getCommisions(self):
-		return self.__commisions
+	def getCommissions(self):
+		return self.__commissions
 
-	def getBuySellAmounts(self, price):
+	def __getBuySellAmounts(self, price):
 		if self.__buyQty == self.__sellQty:
 			buyTotal = self.__buyTotal
 			sellTotal = self.__sellTotal
@@ -54,18 +82,26 @@ class ReturnsCalculator:
 			sellTotal = self.__sellTotal
 		return (buyTotal, sellTotal)
 
-	def calculateReturn(self, price, includeCommisions = True):
-		buy, sell = self.getBuySellAmounts(price)
-		if buy == 0:
-			return 0
-		else:
-			if includeCommisions:
-				commision = self.__commisions
-			else:
-				commision = 0
-			return (sell - buy - commision) / float(buy)
+	def getReturn(self, price, includeCommissions = True):
+		ret = 0
+		pl = self.getProfitLoss(price, includeCommissions)
+		cost = self.getCost()
+		if cost != 0:
+			ret = pl / float(cost)
+		return ret
 
-	def update(self, price):
+	def getProfitLoss(self, price, includeCommissions = True):
+		buy, sell = self.__getBuySellAmounts(price)
+		ret = 0
+		if buy != 0:
+			if includeCommissions:
+				commission = self.__commissions
+			else:
+				commission = 0
+			ret = sell - buy - commission
+		return ret
+
+	def updatePrice(self, price):
 		if self.__buyQty == self.__sellQty:
 			self.__buyQty = 0
 			self.__sellQty = 0
@@ -78,15 +114,16 @@ class ReturnsCalculator:
 
 		self.__buyTotal = self.__buyQty * price
 		self.__sellTotal = self.__sellQty * price
-		self.__commisions = 0
+		self.__commissions = 0
+		self.__cost = abs(self.__buyQty - self.__sellQty) * price
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
-	def __init__(self, includeCommisions = True):
+	def __init__(self, includeCommissions = True):
 		self.__cumRet = 0
-		self.__lastBars = {} # Last Bar per instrment.
+		self.__lastBars = {} # Last Bar per instrument.
 		self.__returnCalculators = {}
 		self.__useAdjClose = False
-		self.__includeCommisions = includeCommisions
+		self.__includeCommissions = includeCommissions
 
 	def attached(self, strat):
 		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
@@ -106,11 +143,11 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 		# Update the returns calculator for this order.
 		if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-			commision = order.getExecutionInfo().getCommission()
-			retCalculator.buy(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commision)
+			commission = order.getExecutionInfo().getCommission()
+			retCalculator.buy(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
 		elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-			commision = order.getExecutionInfo().getCommission()
-			retCalculator.sell(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commision)
+			commission = order.getExecutionInfo().getCommission()
+			retCalculator.sell(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
 		else: # Unknown action
 			assert(False)
 
@@ -130,25 +167,22 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		return ret
 
 	def beforeOnBars(self, strat, bars):
-		totalBought = 0
-		totalSold = 0
-		totalCommisions = 0
+		totalPL = 0
+		totalCost = 0
+		totalCommissions = 0
 
 		# Calculate net return.
 		for instrument, retCalculator in self.__returnCalculators.iteritems():
 			price = self.__getPrice(instrument, bars)
 			if price != None:
-				bought, sold = retCalculator.getBuySellAmounts(price)
-				if self.__includeCommisions:
-					totalCommisions += retCalculator.getCommisions()
-				totalBought += bought
-				totalSold += sold
-				retCalculator.update(price) 
+				totalPL += retCalculator.getProfitLoss(price, self.__includeCommissions)
+				totalCost += retCalculator.getCost()
+				retCalculator.updatePrice(price) 
 
-		if totalBought == 0:
+		if totalCost == 0:
 			netReturn = 0
 		else:
-			netReturn = (totalSold - totalBought - totalCommisions) / float(totalBought)
+			netReturn = totalPL / float(totalCost)
 
 		# Calculate cumulative return.
 		self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
