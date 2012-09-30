@@ -118,7 +118,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252) / 10**14, 4) == -7.1486)
 		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252) == None)
 
-	def testIGE_Broker(self):
+	def __testIGE_BrokerImpl(self, quantity):
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
@@ -130,15 +130,21 @@ class SharpeRatioTestCase(unittest.TestCase):
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Manually place the order to get it filled on the first bar.
-		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
-		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
+		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True) # Adj. Close: 127.64
 		strat.run()
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09))
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09) * quantity)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		# The results are slightly different different only because I'm taking into account the first bar as well.
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7889)
+
+	def testIGE_Broker(self):
+		self.__testIGE_BrokerImpl(1)
+
+	def testIGE_Broker2(self):
+		self.__testIGE_BrokerImpl(2)
 
 	def testIGE_BrokerWithCommission(self):
 		# This testcase is based on an example from Ernie Chan's book:
@@ -211,7 +217,7 @@ class DrawDownTestCase(unittest.TestCase):
 		self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
 		self.assertTrue(stratAnalyzer.getMaxDrawDownDuration()== 0)
 
-	def testIGE_Broker(self):
+	def __testIGE_BrokerImpl(self, quantity):
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
@@ -223,16 +229,22 @@ class DrawDownTestCase(unittest.TestCase):
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Manually place the order to get it filled on the first bar.
-		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
-		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
+		strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True) # Adj. Close: 127.64
 		strat.run()
 
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09))
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09) * quantity)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
 		self.assertTrue(stratAnalyzer.getMaxDrawDownDuration()== 432)
+
+	def testIGE_Broker(self):
+		self.__testIGE_BrokerImpl(1)
+
+	def testIGE_Broker2(self):
+		self.__testIGE_BrokerImpl(2)
 
 	def testDrawDownIGE_SPY_Broker(self):
 		# This testcase is based on an example from Ernie Chan's book:
@@ -272,12 +284,14 @@ def getTestCases():
 
 	ret.append(SharpeRatioTestCase("testNoTrades"))
 	ret.append(SharpeRatioTestCase("testIGE_Broker"))
+	ret.append(SharpeRatioTestCase("testIGE_Broker2"))
 	ret.append(SharpeRatioTestCase("testIGE_BrokerWithCommission"))
 	# This testcase is not enabled since I think that the results from the book are not correct.
 	# ret.append(SharpeRatioTestCase("testSharpeRatioIGE_SPY_Broker"))
 
 	ret.append(DrawDownTestCase("testNoTrades"))
 	ret.append(DrawDownTestCase("testIGE_Broker"))
+	ret.append(DrawDownTestCase("testIGE_Broker2"))
 	# This testcase is not enabled since I think that the results from the book are not correct.
 	# ret.append(DrawDownTestCase("testDrawDownIGE_SPY_Broker"))
 
