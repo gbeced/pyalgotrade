@@ -198,12 +198,17 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 class ReturnsAnalyzer(ReturnsAnalyzerBase):
 	def __init__(self):
 		ReturnsAnalyzerBase.__init__(self)
-		self.__netReturns = []
+		self.__netReturns = {}
+		self.__cumReturns = {}
 
 	def onReturns(self, bars, netReturn, cumulativeReturn):
 		dateTime = bars.getDateTime()
-		self.__netReturns.append((dateTime, netReturn))
+		self.__netReturns[dateTime] = netReturn
+		self.__cumReturns[dateTime] = cumulativeReturn
 
 	def getNetReturns(self):
 		return self.__netReturns
+
+	def getCumulativeReturns(self):
+		return self.__cumReturns
 
