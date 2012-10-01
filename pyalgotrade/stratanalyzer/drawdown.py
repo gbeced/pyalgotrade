@@ -21,11 +21,7 @@
 from pyalgotrade.stratanalyzer import returns
 
 class DrawDown(returns.ReturnsAnalyzerBase):
-	"""A max. drawdown and max. drawdown duration :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
-
-	.. note::
-		Calculations are performed using cumulative returns based on adjusted close values.	
-	"""
+	"""A max. drawdown and max. drawdown duration :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
 
 	def __init__(self):
 		returns.ReturnsAnalyzerBase.__init__(self)

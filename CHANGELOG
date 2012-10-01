@@ -1,6 +1,7 @@
 Version 0.10 (TBD)
 . [NEW] Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
 . [NEW] Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown).
+. [NEW] Returns analysis (pyalgotrade.stratanalyzer.returns.ReturnsAnalyzer).
 . [NEW] Winning/Losing trades analysis (pyalgotrade.stratanalyzer.trades.BasicAnalyzer).
 . [FIX] Fixed returns calculations for short positions. Thanks John Fawcett for explaining this.
 

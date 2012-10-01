@@ -24,11 +24,7 @@ from pyalgotrade.utils import stats
 import math
 
 class SharpeRatio(returns.ReturnsAnalyzerBase):
-	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`.
-
-	.. note::
-		Calculations are performed using adjusted close values.	
-	"""
+	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
 
 	def __init__(self):
 		returns.ReturnsAnalyzerBase.__init__(self)
@@ -49,7 +45,7 @@ class SharpeRatio(returns.ReturnsAnalyzerBase):
 
 		.. note::
 			* If using daily bars, tradingPeriods should be set to 252.
-			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 1638 (252 * 6.5).
+			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 252 * 6.5 = 1638.
 		"""
 		ret = None
 		excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]

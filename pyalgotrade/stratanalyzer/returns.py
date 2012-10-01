@@ -196,6 +196,8 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 			self.__lastBars[instrument] = bars.getBar(instrument)
 
 class ReturnsAnalyzer(ReturnsAnalyzerBase):
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns. """
+
 	def __init__(self):
 		ReturnsAnalyzerBase.__init__(self)
 		self.__netReturns = {}
@@ -207,8 +209,10 @@ class ReturnsAnalyzer(ReturnsAnalyzerBase):
 		self.__cumReturns[dateTime] = cumulativeReturn
 
 	def getNetReturns(self):
+		"""Returns a dictionary with the net returns for each bar."""
 		return self.__netReturns
 
 	def getCumulativeReturns(self):
+		"""Returns a dictionary with the cumulative returns for each bar."""
 		return self.__cumReturns
 
