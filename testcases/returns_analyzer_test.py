@@ -33,7 +33,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 	invalid_price = 5000
 
 	def testBuyAndSellBreakEven(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 10)
 		self.assertTrue(retCalc.getCost() == 10)
@@ -41,7 +41,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0)
 
 	def testBuyAndSellWin(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(1, 10)
 		retCalc.sell(1, 11)
 		self.assertTrue(retCalc.getCost() == 10)
@@ -49,7 +49,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0.1)
 
 	def testBuyAndSellMultipleEvals(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(2, 10)
 		self.assertTrue(retCalc.getCost() == 20)
 		self.assertTrue(retCalc.getNetProfit(10) == 0)
@@ -72,7 +72,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(retCalc.getReturn(11) == 0.05)
 
 	def testSellAndBuyWin(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.sell(1, 11)
 		retCalc.buy(1, 10)
 		self.assertTrue(retCalc.getCost() == 11)
@@ -80,7 +80,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.090909091, 4))
 
 	def testSellAndBuyMultipleEvals(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.sell(2, 11)
 		self.assertTrue(retCalc.getCost() == 22)
 		self.assertTrue(retCalc.getNetProfit(11) == 0)
@@ -97,7 +97,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.090909091, 4))
 
 	def testBuySellBuy(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(1, 10)
 		self.assertTrue(retCalc.getCost() == 10)
 
@@ -110,7 +110,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(round(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.260869565, 4))
 
 	def testBuyAndUpdate(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(1, 10)
 		self.assertTrue(retCalc.getCost() == 10)
 		self.assertTrue(retCalc.getNetProfit(20) == 10)
@@ -125,7 +125,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(round(retCalc.getReturn(20), 2) == 0.33)
 
 	def testBuyUpdateAndSell(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(1, 10)
 		self.assertTrue(retCalc.getCost() == 10)
 		self.assertTrue(retCalc.getNetProfit(15) == 5)
@@ -144,7 +144,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0)
 
 	def testBuyAndSellBreakEvenWithCommision(self):
-		retCalc = returns.ReturnsCalculator()
+		retCalc = returns.ReturnCalculator()
 		retCalc.buy(1, 10, 0.5)
 		retCalc.sell(1, 11, 0.5)
 		self.assertTrue(retCalc.getCost() == 10)
@@ -155,14 +155,14 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(retCalc.getReturn(ReturnsCalculatorTestCase.invalid_price, True) == 0)
 
 	def testLongShortEqualAmount(self):
-		retCalcXYZ = returns.ReturnsCalculator()
+		retCalcXYZ = returns.ReturnCalculator()
 		retCalcXYZ.buy(11, 10)
 		retCalcXYZ.sell(11, 30)
 		self.assertTrue(retCalcXYZ.getCost() == 11*10)
 		self.assertTrue(retCalcXYZ.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 20*11)
 		self.assertTrue(retCalcXYZ.getReturn(ReturnsCalculatorTestCase.invalid_price) == 2)
 
-		retCalcABC = returns.ReturnsCalculator()
+		retCalcABC = returns.ReturnCalculator()
 		retCalcABC.sell(100, 1.1)
 		retCalcABC.buy(100, 1)
 		self.assertTrue(retCalcABC.getCost() == 100*1.1)

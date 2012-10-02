@@ -22,31 +22,28 @@ from pyalgotrade import stratanalyzer
 from pyalgotrade import broker
 
 # Helper class to calculate returns and profit/loss.
-class ReturnsCalculator:
+class ReturnCalculator:
 	def __init__(self):
-		self.__buyQty = 0
-		self.__buyTotal = 0
-		self.__sellQty = 0
-		self.__sellTotal = 0
-		self.__cost = 0
+		self.__shares = 0
+		self.__cash = 0
 		self.__commissions = 0
+		self.__cost = 0 # Transaction costs
 
 	def __updateCost(self, quantity, price):
-		currentPos = self.__buyQty - self.__sellQty
 		cost = 0
 
-		if currentPos > 0: # Current position is long
+		if self.__shares > 0: # Current position is long
 			if quantity > 0: # Increase long position
 				cost = quantity * price
 			else:
-				diff = currentPos + quantity
+				diff = self.__shares + quantity
 				if diff < 0: # Entering a short position
 					cost = abs(diff) * price
-		elif currentPos < 0: # Current position is short
+		elif self.__shares < 0: # Current position is short
 			if quantity < 0: # Increase short position
 				cost = abs(quantity) * price
 			else:
-				diff = currentPos + quantity
+				diff = self.__shares + quantity
 				if diff > 0: # Entering a long position
 					cost = diff * price
 		else:
@@ -56,67 +53,39 @@ class ReturnsCalculator:
 	def getCost(self):
 		return self.__cost
 
-	def buy(self, quantity, price, commission = 0):
-		self.__updateCost(quantity, price)
-		self.__buyQty += quantity
-		self.__buyTotal += quantity*price
-		self.__commissions += commission
-
-	def sell(self, quantity, price, commission = 0):
-		self.__updateCost(quantity*-1, price)
-		self.__sellQty += quantity
-		self.__sellTotal += quantity*price
-		self.__commissions += commission
-
 	def getCommissions(self):
 		return self.__commissions
 
-	def __getBuySellAmounts(self, price):
-		if self.__buyQty == self.__sellQty:
-			buyTotal = self.__buyTotal
-			sellTotal = self.__sellTotal
-		elif self.__buyQty > self.__sellQty:
-			buyTotal = self.__buyTotal
-			sellTotal = self.__sellTotal + (self.__buyQty - self.__sellQty) * price
-		else:
-			buyTotal = self.__buyTotal + (self.__sellQty - self.__buyQty) * price
-			sellTotal = self.__sellTotal
-		return (buyTotal, sellTotal)
+	def buy(self, quantity, price, commission = 0):
+		self.__updateCost(quantity, price)
+		self.__cash += quantity * -1 * price
+		self.__shares += quantity
+		self.__commissions += commission
+
+	def sell(self, quantity, price, commission = 0):
+		self.__updateCost(quantity * -1, price)
+		self.__cash += quantity * price
+		self.__shares -= quantity
+		self.__commissions += commission
+
+	def getNetProfit(self, price, includeCommissions = True):
+		ret = self.__cash + self.__shares * price
+		if includeCommissions:
+			ret -= self.__commissions
+		return ret
 
 	def getReturn(self, price, includeCommissions = True):
 		ret = 0
-		pl = self.getNetProfit(price, includeCommissions)
+		netProfit = self.getNetProfit(price, includeCommissions)
 		cost = self.getCost()
 		if cost != 0:
-			ret = pl / float(cost)
-		return ret
-
-	def getNetProfit(self, price, includeCommissions = True):
-		buy, sell = self.__getBuySellAmounts(price)
-		ret = 0
-		if buy != 0:
-			if includeCommissions:
-				commission = self.__commissions
-			else:
-				commission = 0
-			ret = sell - buy - commission
+			ret = netProfit / float(cost)
 		return ret
 
 	def updatePrice(self, price):
-		if self.__buyQty == self.__sellQty:
-			self.__buyQty = 0
-			self.__sellQty = 0
-		elif self.__buyQty > self.__sellQty:
-			self.__buyQty -= self.__sellQty
-			self.__sellQty = 0
-		else:
-			self.__sellQty -= self.__buyQty
-			self.__buyQty = 0
-
-		self.__buyTotal = self.__buyQty * price
-		self.__sellTotal = self.__sellQty * price
 		self.__commissions = 0
-		self.__cost = abs(self.__buyQty - self.__sellQty) * price
+		self.__cash = self.__shares * -1 * price
+		self.__cost = abs(self.__shares) * price
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self, includeCommissions = True):
@@ -139,7 +108,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		try:
 			retCalculator = self.__returnCalculators[order.getInstrument()]
 		except KeyError:
-			retCalculator = ReturnsCalculator()
+			retCalculator = ReturnCalculator()
 			self.__returnCalculators[order.getInstrument()] = retCalculator
 
 		# Update the returns calculator for this order.

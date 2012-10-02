@@ -175,7 +175,7 @@ class LongPosition(Position):
 		self.__broker.placeOrder(entryOrder)
 
 	def __getRetCalc(self):
-		ret = returns.ReturnsCalculator()
+		ret = returns.ReturnCalculator()
 		entryExecInfo = self.getEntryOrder().getExecutionInfo()
 		exitExecInfo = self.getExitOrder().getExecutionInfo()
 		ret.buy(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
@@ -229,7 +229,7 @@ class ShortPosition(Position):
 		self.__broker.placeOrder(entryOrder)
 
 	def __getRetCalc(self):
-		ret = returns.ReturnsCalculator()
+		ret = returns.ReturnCalculator()
 		entryExecInfo = self.getEntryOrder().getExecutionInfo()
 		exitExecInfo = self.getExitOrder().getExecutionInfo()
 		ret.sell(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
