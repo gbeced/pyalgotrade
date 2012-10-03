@@ -174,8 +174,8 @@ class LongPosition(Position):
 		Position.__init__(self, entryOrder, goodTillCanceled)
 		self.__broker.placeOrder(entryOrder)
 
-	def __getRetCalc(self):
-		ret = returns.ReturnCalculator()
+	def __getPosTracker(self):
+		ret = returns.PositionTracker()
 		entryExecInfo = self.getEntryOrder().getExecutionInfo()
 		exitExecInfo = self.getExitOrder().getExecutionInfo()
 		ret.buy(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
@@ -183,10 +183,10 @@ class LongPosition(Position):
 		return ret
 
 	def getReturnImpl(self, includeCommissions):
-		return self.__getRetCalc().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+		return self.__getPosTracker().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def getNetProfitImpl(self, includeCommissions):
-		return self.__getRetCalc().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+		return self.__getPosTracker().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:
@@ -228,8 +228,8 @@ class ShortPosition(Position):
 		Position.__init__(self, entryOrder, goodTillCanceled)
 		self.__broker.placeOrder(entryOrder)
 
-	def __getRetCalc(self):
-		ret = returns.ReturnCalculator()
+	def __getPosTracker(self):
+		ret = returns.PositionTracker()
 		entryExecInfo = self.getEntryOrder().getExecutionInfo()
 		exitExecInfo = self.getExitOrder().getExecutionInfo()
 		ret.sell(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
@@ -237,10 +237,10 @@ class ShortPosition(Position):
 		return ret
 
 	def getReturnImpl(self, includeCommissions):
-		return self.__getRetCalc().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+		return self.__getPosTracker().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def getNetProfitImpl(self, includeCommissions):
-		return self.__getRetCalc().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+		return self.__getPosTracker().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:

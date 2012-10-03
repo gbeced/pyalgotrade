@@ -21,13 +21,13 @@
 from pyalgotrade import stratanalyzer
 from pyalgotrade import broker
 
-# Helper class to calculate returns and profit/loss.
-class ReturnCalculator:
+# Helper class to calculate returns and net profit.
+class PositionTracker:
 	def __init__(self):
 		self.__shares = 0
 		self.__cash = 0
 		self.__commissions = 0
-		self.__cost = 0 # Transaction costs
+		self.__cost = 0
 
 	def __updateCost(self, quantity, price):
 		cost = 0
@@ -56,18 +56,6 @@ class ReturnCalculator:
 	def getCommissions(self):
 		return self.__commissions
 
-	def buy(self, quantity, price, commission = 0):
-		self.__updateCost(quantity, price)
-		self.__cash += quantity * -1 * price
-		self.__shares += quantity
-		self.__commissions += commission
-
-	def sell(self, quantity, price, commission = 0):
-		self.__updateCost(quantity * -1, price)
-		self.__cash += quantity * price
-		self.__shares -= quantity
-		self.__commissions += commission
-
 	def getNetProfit(self, price, includeCommissions = True):
 		ret = self.__cash + self.__shares * price
 		if includeCommissions:
@@ -82,7 +70,19 @@ class ReturnCalculator:
 			ret = netProfit / float(cost)
 		return ret
 
-	def updatePrice(self, price):
+	def buy(self, quantity, price, commission = 0):
+		self.__updateCost(quantity, price)
+		self.__cash += quantity * -1 * price
+		self.__shares += quantity
+		self.__commissions += commission
+
+	def sell(self, quantity, price, commission = 0):
+		self.__updateCost(quantity * -1, price)
+		self.__cash += quantity * price
+		self.__shares -= quantity
+		self.__commissions += commission
+
+	def update(self, price):
 		self.__commissions = 0
 		self.__cash = self.__shares * -1 * price
 		self.__cost = abs(self.__shares) * price
@@ -91,7 +91,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self, includeCommissions = True):
 		self.__cumRet = 0
 		self.__lastBars = {} # Last Bar per instrument.
-		self.__returnCalculators = {}
+		self.__posTrackers = {}
 		self.__useAdjClose = False
 		self.__includeCommissions = includeCommissions
 
@@ -106,18 +106,18 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 		# Get or create the returns calculator for this instrument.
 		try:
-			retCalculator = self.__returnCalculators[order.getInstrument()]
+			posTracker = self.__posTrackers[order.getInstrument()]
 		except KeyError:
-			retCalculator = ReturnCalculator()
-			self.__returnCalculators[order.getInstrument()] = retCalculator
+			posTracker = PositionTracker()
+			self.__posTrackers[order.getInstrument()] = posTracker
 
 		# Update the returns calculator for this order.
 		if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
 			commission = order.getExecutionInfo().getCommission()
-			retCalculator.buy(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
+			posTracker.buy(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
 		elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
 			commission = order.getExecutionInfo().getCommission()
-			retCalculator.sell(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
+			posTracker.sell(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
 		else: # Unknown action
 			assert(False)
 
@@ -142,12 +142,12 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		totalCommissions = 0
 
 		# Calculate net return.
-		for instrument, retCalculator in self.__returnCalculators.iteritems():
+		for instrument, posTracker in self.__posTrackers.iteritems():
 			price = self.__getPrice(instrument, bars)
 			if price != None:
-				totalPL += retCalculator.getNetProfit(price, self.__includeCommissions)
-				totalCost += retCalculator.getCost()
-				retCalculator.updatePrice(price) 
+				totalPL += posTracker.getNetProfit(price, self.__includeCommissions)
+				totalCost += posTracker.getCost()
+				posTracker.update(price) 
 
 		if totalCost == 0:
 			netReturn = 0
