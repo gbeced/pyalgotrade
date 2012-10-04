@@ -194,7 +194,7 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.attachAnalyzer(stratAnalyzer)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.74))
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 07)] == (15.91 - 15.74) / 15.74)
+		self.assertTrue(stratAnalyzer.getNetReturn() == (15.91 - 15.74) / 15.74)
 
 	def testTwoBarReturns_OpenOpen(self):
 		barFeed = yahoofeed.Feed()
@@ -211,12 +211,13 @@ class ReturnsTestCase(unittest.TestCase):
 
 		stratAnalyzer = returns.ReturnsAnalyzer()
 		strat.attachAnalyzer(stratAnalyzer)
+		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.61))
 		# First day returns: Open vs Close
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 06)] == (15.90 - 15.61) / 15.61)
+		self.assertTrue(returnsDS.getValueAbsolute(0) == (15.90 - 15.61) / 15.61)
 		# Second day returns: Open vs Prev. day's close
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 07)] == (15.74 - 15.90) / 15.90)
+		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.74 - 15.90) / 15.90)
 
 	def testTwoBarReturns_OpenClose(self):
 		barFeed = yahoofeed.Feed()
@@ -233,12 +234,13 @@ class ReturnsTestCase(unittest.TestCase):
 
 		stratAnalyzer = returns.ReturnsAnalyzer()
 		strat.attachAnalyzer(stratAnalyzer)
+		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.61))
 		# First day returns: Open vs Close
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 06)] == (15.90 - 15.61) / 15.61)
+		self.assertTrue(returnsDS.getValueAbsolute(0) == (15.90 - 15.61) / 15.61)
 		# Second day returns: Close vs Prev. day's close
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 07)] == (15.91 - 15.90) / 15.90)
+		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.91 - 15.90) / 15.90)
 
 	def testTwoBarReturns_CloseOpen(self):
 		barFeed = yahoofeed.Feed()
@@ -255,12 +257,13 @@ class ReturnsTestCase(unittest.TestCase):
 
 		stratAnalyzer = returns.ReturnsAnalyzer()
 		strat.attachAnalyzer(stratAnalyzer)
+		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.90))
 		# First day returns: 0
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 06)] == 0)
+		self.assertTrue(returnsDS.getValueAbsolute(0) == 0)
 		# Second day returns: Open vs Prev. day's close
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 07)] == (15.74 - 15.90) / 15.90)
+		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.74 - 15.90) / 15.90)
 
 	def testTwoBarReturns_CloseClose(self):
 		barFeed = yahoofeed.Feed()
@@ -277,12 +280,13 @@ class ReturnsTestCase(unittest.TestCase):
 
 		stratAnalyzer = returns.ReturnsAnalyzer()
 		strat.attachAnalyzer(stratAnalyzer)
+		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.90))
 		# First day returns: 0
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 06)] == 0)
+		self.assertTrue(returnsDS.getValueAbsolute(0) == 0)
 		# Second day returns: Open vs Prev. day's close
-		self.assertTrue(stratAnalyzer.getNetReturns()[datetime.datetime(2001, 12, 07)] == (15.91 - 15.90) / 15.90)
+		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.91 - 15.90) / 15.90)
 
 def getTestCases():
 	ret = []

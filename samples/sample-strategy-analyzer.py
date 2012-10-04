@@ -1,9 +1,10 @@
 from pyalgotrade import strategy
-from pyalgotrade import plotter
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 from pyalgotrade.stratanalyzer import returns
+from pyalgotrade.stratanalyzer import sharpe
+from pyalgotrade.stratanalyzer import drawdown
 
 class MyStrategy(strategy.Strategy):
 	def __init__(self, feed, smaPeriod):
@@ -41,29 +42,27 @@ class MyStrategy(strategy.Strategy):
 		elif self.__crossBelow.getValue() > 0:
 			 self.exitPosition(self.__position)
 
-	def onFinish(self, bars):
-		print "Final portfolio value: $%.2f" % self.getResult()
+# Load the yahoo feed from the CSV file
+feed = yahoofeed.Feed()
+feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
-def run_strategy(smaPeriod):
-	# Load the yahoo feed from the CSV file
-	feed = yahoofeed.Feed()
-	feed.addBarsFromCSV("orcl", "orcl-2000.csv")
+# Evaluate the strategy with the feed's bars.
+myStrategy = MyStrategy(feed, 20)
 
-	# Evaluate the strategy with the feed's bars.
-	myStrategy = MyStrategy(feed, smaPeriod)
+# Attach different analyzers to a strategy before executing it.
+retAnalyzer = returns.ReturnsAnalyzer()
+myStrategy.attachAnalyzer(retAnalyzer)
+sharpeRatioAnalyzer = sharpe.SharpeRatio()
+myStrategy.attachAnalyzer(sharpeRatioAnalyzer)
+drawDownAnalyzer = drawdown.DrawDown()
+myStrategy.attachAnalyzer(drawDownAnalyzer)
 
-	# Attach the plotter to the strategy.
-	plt = plotter.StrategyPlotter(myStrategy)
-	# Include the SMA in the instrument's subplot to get it displayed along with the closing prices.
-	plt.getInstrumentSubplot("orcl").addDataSeries("SMA", myStrategy.getSMA())
-	# Plot the strategy returns at each bar.
-	plt.getOrCreateSubplot("returns").addDataSeries("Net return", returns.ReturnsDataSeries(myStrategy))
-	plt.getOrCreateSubplot("returns").addDataSeries("Cum. return", returns.CumulativeReturnsDataSeries(myStrategy))
+# Run the strategy.
+myStrategy.run()
 
-	# Run the strategy.
-	myStrategy.run()
-	# Plot the strategy.
-	plt.plot()
-
-run_strategy(20)
+print "Final portfolio value: $%.2f" % myStrategy.getResult()
+print "Cumulative returns: %.2f %%" % (retAnalyzer.getCumulativeReturn() * 100)
+print "Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0.05, 252))
+print "Max. drawdown: %.2f %%" % (drawDownAnalyzer.getMaxDrawDown() * 100)
+print "Max. drawdown duration: %d days" % (drawDownAnalyzer.getMaxDrawDownDuration())
 

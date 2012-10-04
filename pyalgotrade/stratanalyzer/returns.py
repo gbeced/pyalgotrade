@@ -21,6 +21,7 @@
 from pyalgotrade import stratanalyzer
 from pyalgotrade import broker
 from pyalgotrade import observer
+from pyalgotrade import dataseries
 
 # Helper class to calculate returns and net profit.
 class PositionTracker:
@@ -187,11 +188,10 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
+
 	def __init__(self):
-		self.__netReturns = {}
-		self.__cumReturns = {}
-		self.__lastNetRet = 0
-		self.__lastCumRet = 0 
+		self.__netRet = 0
+		self.__cumRet = 0
 
 	def beforeAttach(self, strat):
 		# Get or create a shared ReturnsAnalyzerBase
@@ -199,25 +199,46 @@ class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
 		analyzer.getEvent().subscribe(self.__onReturns)
 
 	def __onReturns(self, returnsAnalyzerBase, bars):
-		dateTime = bars.getDateTime()
-		self.__netReturns[dateTime] = returnsAnalyzerBase.getNetReturn()
-		self.__cumReturns[dateTime] = returnsAnalyzerBase.getCumulativeReturn()
-		self.__lastNetRet = returnsAnalyzerBase.getNetReturn()
-		self.__lastCumRet = returnsAnalyzerBase.getCumulativeReturn()
+		self.__netRet = returnsAnalyzerBase.getNetReturn()
+		self.__cumRet = returnsAnalyzerBase.getCumulativeReturn()
 
-	def getNetReturns(self):
-		"""Returns a dictionary with the net returns for each bar."""
-		return self.__netReturns
-
-	def getCumulativeReturns(self):
-		"""Returns a dictionary with the cumulative returns for each bar."""
-		return self.__cumReturns
-
-	def getLastNetReturn(self):
+	def getNetReturn(self):
 		"""Returns the net return for the last bar."""
-		return self.__lastNetRet
+		return self.__netRet
 
-	def getLastCumulativeReturn(self):
+	def getCumulativeReturn(self):
 		"""Returns the cumulative return up to the last bar."""
-		return self.__lastCumRet
+		return self.__cumRet
+
+class ReturnsDataSeries(dataseries.SequenceDataSeries):
+	"""A :class:`pyalgotrade.dataseries.DataSeries` that holds net returns for each bar.
+
+	:param strat: The strategy to calculate returns on.
+	:type strat: :class:`pyalgotrade.strategy.Strategy`
+	"""
+
+	def __init__(self, strat):
+		dataseries.SequenceDataSeries.__init__(self)
+		# Get or create a shared ReturnsAnalyzerBase
+		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
+		analyzer.getEvent().subscribe(self.__onReturns)
+
+	def __onReturns(self, returnsAnalyzerBase, bars):
+		self.appendValue(returnsAnalyzerBase.getNetReturn())
+
+class CumulativeReturnsDataSeries(dataseries.SequenceDataSeries):
+	"""A :class:`pyalgotrade.dataseries.DataSeries` that holds cumulative returns for each bar.
+
+	:param strat: The strategy to calculate cumulative returns on.
+	:type strat: :class:`pyalgotrade.strategy.Strategy`
+	"""
+
+	def __init__(self, strat):
+		dataseries.SequenceDataSeries.__init__(self)
+		# Get or create a shared ReturnsAnalyzerBase
+		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
+		analyzer.getEvent().subscribe(self.__onReturns)
+
+	def __onReturns(self, returnsAnalyzerBase, bars):
+		self.appendValue(returnsAnalyzerBase.getCumulativeReturn())
 
