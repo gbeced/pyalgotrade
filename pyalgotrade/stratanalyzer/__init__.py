@@ -26,10 +26,16 @@ class StrategyAnalyzer:
 		This is a base class and should not be used directly.
 	"""
 
+	def beforeAttach(self, strat):
+		pass
+
 	def attached(self, strat):
 		pass
 
 	def beforeOnBars(self, strat, bars):
+		pass
+
+	def onFinish(self, strat, bars):
 		pass
 
 	def onPositionEnterOk(self, strat, position):

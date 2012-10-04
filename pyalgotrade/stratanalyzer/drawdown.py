@@ -18,19 +18,25 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import stratanalyzer
 from pyalgotrade.stratanalyzer import returns
 
-class DrawDown(returns.ReturnsAnalyzerBase):
+class DrawDown(stratanalyzer.StrategyAnalyzer):
 	"""A max. drawdown and max. drawdown duration :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
 
 	def __init__(self):
-		returns.ReturnsAnalyzerBase.__init__(self)
 		self.__highWatermark = None
 		self.__maxDrawDown = 0
 		self.__lastDrawDuration = 0
 		self.__maxDrawDuration = 0
 
-	def onReturns(self, bars, netReturn, cumulativeReturn):
+	def beforeAttach(self, strat):
+		# Get or create a shared ReturnsAnalyzerBase
+		analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(strat)
+		analyzer.getEvent().subscribe(self.__onReturns)
+
+	def __onReturns(self, returnsAnalyzerBase, bars):
+		cumulativeReturn = returnsAnalyzerBase.getCumulativeReturn()
 		self.__highWatermark = max(self.__highWatermark, cumulativeReturn)
 		drawDown = (1 + cumulativeReturn) / float(1 + self.__highWatermark) - 1
 

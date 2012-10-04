@@ -285,6 +285,7 @@ class Strategy:
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = observer.Event()
 		self.__analyzers = []
+		self.__namedAnalyzers = {}
 
 		if broker_ == None:
 			# When doing backtesting (broker_ == None), the broker should subscribe to barFeed events before the strategy.
@@ -332,11 +333,23 @@ class Strategy:
 		for s in self.__analyzers:
 			lambdaExpression(s)
 
-	def attachAnalyzer(self, strategyAnalyzer):
-		"""Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
+	def attachAnalyzerEx(self, strategyAnalyzer, name = None):
 		if strategyAnalyzer not in self.__analyzers:
+			if name != None:
+				if name in self.__namedAnalyzers:
+					raise Exception("A different analyzer named '%s' was already attached" % name)
+				self.__namedAnalyzers[name] = strategyAnalyzer
+
+			strategyAnalyzer.beforeAttach(self)
 			self.__analyzers.append(strategyAnalyzer)
 			strategyAnalyzer.attached(self)
+
+	def attachAnalyzer(self, strategyAnalyzer):
+		"""Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
+		self.attachAnalyzerEx(strategyAnalyzer)
+
+	def getNamedAnalyzer(self, name):
+		return self.__namedAnalyzers.get(name, None)
 
 	def getFeed(self):
 		"""Returns the :class:`pyalgotrade.barfeed.BarFeed` that this strategy is using."""
@@ -665,6 +678,7 @@ class Strategy:
 				stopDispFeed = self.__feed.stopDispatching()
 
 			if self.__feed.getLastBars() != None:
+				self.__notifyAnalyzers(lambda s: s.onFinish(self, self.__feed.getLastBars()))
 				self.onFinish(self.__feed.getLastBars())
 			else:
 				raise Exception("Feed was empty")

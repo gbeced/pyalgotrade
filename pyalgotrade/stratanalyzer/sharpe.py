@@ -18,17 +18,25 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import stratanalyzer
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.utils import stats
 
 import math
 
-class SharpeRatio(returns.ReturnsAnalyzerBase):
+class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
 
 	def __init__(self):
-		returns.ReturnsAnalyzerBase.__init__(self)
 		self.__netReturns = []
+
+	def beforeAttach(self, strat):
+		# Get or create a shared ReturnsAnalyzerBase
+		analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(strat)
+		analyzer.getEvent().subscribe(self.__onReturns)
+
+	def __onReturns(self, returnsAnalyzerBase, bars):
+		self.__netReturns.append(returnsAnalyzerBase.getNetReturn())
 
 	def onReturns(self, bars, netReturn, cumulativeReturn):
 		self.__netReturns.append(netReturn)

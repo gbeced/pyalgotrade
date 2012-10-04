@@ -20,6 +20,7 @@
 
 from pyalgotrade import stratanalyzer
 from pyalgotrade import broker
+from pyalgotrade import observer
 
 # Helper class to calculate returns and net profit.
 class PositionTracker:
@@ -88,16 +89,39 @@ class PositionTracker:
 		self.__cost = abs(self.__shares) * price
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
-	def __init__(self, includeCommissions = True):
+	def __init__(self):
+		self.__netRet = 0
 		self.__cumRet = 0
 		self.__lastBars = {} # Last Bar per instrument.
 		self.__posTrackers = {}
 		self.__useAdjClose = False
-		self.__includeCommissions = includeCommissions
+		self.__event = observer.Event()
+
+	@classmethod
+	def getOrCreateShared(cls, strat):
+		name = cls.__name__
+		# Get or create the shared ReturnsAnalyzerBase.
+		ret = strat.getNamedAnalyzer(name)
+		if ret == None:
+			ret = ReturnsAnalyzerBase()
+			strat.attachAnalyzerEx(ret, name)
+		return ret
 
 	def attached(self, strat):
 		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 		self.__useAdjClose = strat.getBroker().getUseAdjustedValues()
+
+	# An event will be notified when return are calculated at each bar. The hander should receive 2 parameters:
+	# 1: This analyzer's instance
+	# 2: The bars
+	def getEvent(self):
+		return self.__event
+
+	def getNetReturn(self):
+		return self.__netRet
+
+	def getCumulativeReturn(self):
+		return self.__cumRet
 
 	def __onOrderUpdate(self, broker_, order):
 		# Only interested in filled orders.
@@ -121,9 +145,6 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		else: # Unknown action
 			assert(False)
 
-	def onReturns(self, bars, netReturn, cumulativeReturn):
-		raise NotImplementedError()
-
 	def __getPrice(self, instrument, bars):
 		ret = None
 		bar = bars.getBar(instrument)
@@ -139,13 +160,12 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def beforeOnBars(self, strat, bars):
 		totalPL = 0
 		totalCost = 0
-		totalCommissions = 0
 
 		# Calculate net return.
 		for instrument, posTracker in self.__posTrackers.iteritems():
 			price = self.__getPrice(instrument, bars)
 			if price != None:
-				totalPL += posTracker.getNetProfit(price, self.__includeCommissions)
+				totalPL += posTracker.getNetProfit(price, True)
 				totalCost += posTracker.getCost()
 				posTracker.update(price) 
 
@@ -153,29 +173,37 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 			netReturn = 0
 		else:
 			netReturn = totalPL / float(totalCost)
+		self.__netRet = netReturn
 
 		# Calculate cumulative return.
 		self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
 
-		# Notify the returns
-		self.onReturns(bars, netReturn, self.__cumRet)
+		# Notify that new returns are available.
+		self.__event.emit(self, bars)
 
 		# Keep track of the last bar for each instrument.
 		for instrument in bars.getInstruments():
 			self.__lastBars[instrument] = bars.getBar(instrument)
 
-class ReturnsAnalyzer(ReturnsAnalyzerBase):
-	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns. """
-
+class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
 	def __init__(self):
-		ReturnsAnalyzerBase.__init__(self)
 		self.__netReturns = {}
 		self.__cumReturns = {}
+		self.__lastNetRet = 0
+		self.__lastCumRet = 0 
 
-	def onReturns(self, bars, netReturn, cumulativeReturn):
+	def beforeAttach(self, strat):
+		# Get or create a shared ReturnsAnalyzerBase
+		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
+		analyzer.getEvent().subscribe(self.__onReturns)
+
+	def __onReturns(self, returnsAnalyzerBase, bars):
 		dateTime = bars.getDateTime()
-		self.__netReturns[dateTime] = netReturn
-		self.__cumReturns[dateTime] = cumulativeReturn
+		self.__netReturns[dateTime] = returnsAnalyzerBase.getNetReturn()
+		self.__cumReturns[dateTime] = returnsAnalyzerBase.getCumulativeReturn()
+		self.__lastNetRet = returnsAnalyzerBase.getNetReturn()
+		self.__lastCumRet = returnsAnalyzerBase.getCumulativeReturn()
 
 	def getNetReturns(self):
 		"""Returns a dictionary with the net returns for each bar."""
@@ -184,4 +212,12 @@ class ReturnsAnalyzer(ReturnsAnalyzerBase):
 	def getCumulativeReturns(self):
 		"""Returns a dictionary with the cumulative returns for each bar."""
 		return self.__cumReturns
+
+	def getLastNetReturn(self):
+		"""Returns the net return for the last bar."""
+		return self.__lastNetRet
+
+	def getLastCumulativeReturn(self):
+		"""Returns the cumulative return up to the last bar."""
+		return self.__lastCumRet
 
