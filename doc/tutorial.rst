@@ -361,15 +361,19 @@ Plotting
 --------
 
 PyAlgoTrade makes it very easy to plot a strategy execution.
+Save this SMA crossover strategy as smacross_strategy.py:
+
+.. literalinclude:: ../samples/smacross_strategy.py
+
+and save this code to a different file:
 
 .. literalinclude:: ../samples/tutorial-5.py
 
-The code is doing 4 things:
+The code is doing 3 things:
 
- 1. Declaring the strategy. In this case a simple SMA crossover.
- 2. Loading the feed from a CSV file.
- 3. Running the strategy with the bars supplied by the feed and a StrategyPlotter attached.
- 4. Plotting the strategy.
+ 1. Loading the feed from a CSV file.
+ 2. Running the strategy with the bars supplied by the feed and a StrategyPlotter attached.
+ 3. Plotting the strategy.
 
 This is what the plot looks like:
 

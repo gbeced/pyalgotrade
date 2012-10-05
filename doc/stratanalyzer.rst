@@ -23,6 +23,8 @@ DrawDown
 
 Example
 -------
+This example depends on smacross_strategy.py from the tutorial section.
+
 .. literalinclude:: ../samples/sample-strategy-analyzer.py
 
 The output should look like this: ::
