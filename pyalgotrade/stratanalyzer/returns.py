@@ -52,6 +52,9 @@ class PositionTracker:
 			cost = abs(quantity) * price
 		self.__cost += cost
 
+	def getShares(self):
+		return self.__shares
+
 	def getCost(self):
 		return self.__cost
 
@@ -73,12 +76,14 @@ class PositionTracker:
 		return ret
 
 	def buy(self, quantity, price, commission = 0):
+		assert(quantity > 0)
 		self.__updateCost(quantity, price)
 		self.__cash += quantity * -1 * price
 		self.__shares += quantity
 		self.__commissions += commission
 
 	def sell(self, quantity, price, commission = 0):
+		assert(quantity > 0)
 		self.__updateCost(quantity * -1, price)
 		self.__cash += quantity * price
 		self.__shares -= quantity
@@ -129,20 +134,22 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		if not order.isFilled():
 			return
 
-		# Get or create the returns calculator for this instrument.
+		# Get or create the tracker for this instrument.
 		try:
 			posTracker = self.__posTrackers[order.getInstrument()]
 		except KeyError:
 			posTracker = PositionTracker()
 			self.__posTrackers[order.getInstrument()] = posTracker
 
-		# Update the returns calculator for this order.
-		if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-			commission = order.getExecutionInfo().getCommission()
-			posTracker.buy(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
-		elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-			commission = order.getExecutionInfo().getCommission()
-			posTracker.sell(order.getExecutionInfo().getQuantity(), order.getExecutionInfo().getPrice(), commission)
+		# Update the tracker for this order.
+		quantity = order.getExecutionInfo().getQuantity()
+		price = order.getExecutionInfo().getPrice()
+		commission = order.getExecutionInfo().getCommission()
+		action = order.getAction()
+		if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+			posTracker.buy(quantity, price, commission)
+		elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+			posTracker.sell(quantity, price, commission)
 		else: # Unknown action
 			assert(False)
 

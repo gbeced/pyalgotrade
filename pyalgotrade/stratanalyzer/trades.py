@@ -19,6 +19,8 @@
 """
 
 from pyalgotrade import stratanalyzer
+from pyalgotrade import broker
+from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.utils import stats
 
 class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
@@ -33,41 +35,105 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 	 * Profit's standard deviation for all trades
 	 * Profit's standard deviation for winning trades
 	 * Profit's standard deviation for losing trades
-
-	.. note::
-
-		A trade is a position whose entry and exit orders were filled.
 	"""
 
 	def __init__(self):
-		self.__allPositions = []
-		self.__winningPositions = []
-		self.__losingPositions = []
-		self.__evenPositions = []
+		self.__allTrades = []
+		self.__winningTrades = []
+		self.__losingTrades = []
+		self.__evenTrades = 0
+		self.__posTrackers = {}
 
-	def onPositionExitOk(self, strat, position):
-		netProfit = position.getNetProfit(True)
-
-		self.__allPositions.append(netProfit)
+	def __updateTrades(self, posTracker):
+		price = 0 # The price doesn't matter since the position should be closed.
+		assert(posTracker.getShares() == 0)
+		netProfit =  posTracker.getNetProfit(price)
 
 		if netProfit > 0:
-			self.__winningPositions.append(netProfit)
+			self.__winningTrades.append(netProfit)
 		elif netProfit < 0:
-			self.__losingPositions.append(netProfit)
+			self.__losingTrades.append(netProfit)
 		else:
-			self.__evenPositions.append(0)
+			self.__evenTrades += 1
+		self.__allTrades.append(netProfit)
+
+		posTracker.update(price)
+
+	def __updatePosTracker(self, posTracker, price, commission, quantity):
+		currentShares = posTracker.getShares()
+
+		if currentShares > 0: # Current position is long
+			if quantity > 0: # Increase long position
+				posTracker.buy(quantity, price, commission)
+			else:
+				newShares = currentShares + quantity
+				if newShares == 0: # Exit long.
+					posTracker.sell(currentShares, price, commission)
+					self.__updateTrades(posTracker)
+				elif newShares > 0: # Sell some shares.
+					posTracker.sell(quantity*-1, price, commission)
+				else: # Exit long and enter short. Use proportional commissions.
+					posTracker.sell(currentShares, price, commission / float(currentShares))
+					self.__updateTrades(posTracker)
+					posTracker.sell(newShares*-1, price, commission / float(newShares*-1))
+		elif currentShares < 0: # Current position is short
+			if quantity < 0: # Increase short position
+				posTracker.sell(quantity*-1, price, commission)
+			else:
+				newShares = currentShares + quantity
+				if newShares == 0: # Exit short.
+					posTracker.buy(currentShares, price, commission)
+					self.__updateTrades(posTracker)
+				elif newShares < 0: # Re-buy some shares.
+					posTracker.buy(quantity, price, commission)
+				else: # Exit short and enter long. Use proportional commissions.
+					posTracker.buy(currentShares, price, commission / float(currentShares))
+					self.__updateTrades(posTracker)
+					posTracker.buy(newShares, price, commission / float(newShares))
+		elif quantity > 0:
+			posTracker.buy(quantity, price, commission)
+		else:
+			posTracker.sell(quantity*-1, price, commission)
+
+	def __onOrderUpdate(self, broker_, order):
+		# Only interested in filled orders.
+		if not order.isFilled():
+			return
+
+		# Get or create the tracker for this instrument.
+		try:
+			posTracker = self.__posTrackers[order.getInstrument()]
+		except KeyError:
+			posTracker = returns.PositionTracker()
+			self.__posTrackers[order.getInstrument()] = posTracker
+
+		# Update the tracker for this order.
+		price = order.getExecutionInfo().getPrice()
+		commission = order.getExecutionInfo().getCommission()
+		action = order.getAction()
+		if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+			quantity = order.getExecutionInfo().getQuantity()
+		elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+			quantity = order.getExecutionInfo().getQuantity() * -1
+		else: # Unknown action
+			assert(False)
+
+		self.__updatePosTracker(posTracker, price, commission, quantity)
+
+	def attached(self, strat):
+		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
 	def getEvenCount(self):
 		"""Returns the number of trades whose net profit was 0."""
-		return len(self.__evenPositions)
+		return self.__evenTrades
 
 	def getCount(self):
 		"""Returns the total number of trades."""
-		return len(self.__allPositions)
+		return len(self.__allTrades)
 
 	def getMean(self):
 		"""Returns the average profit for all the trades, or None if there are no trades."""
-		return stats.mean(self.__allPositions)
+		return stats.mean(self.__allTrades)
 
 	def getStdDev(self, ddof=1):
 		"""Returns the profit's standard deviation for all the trades, or None if there are no trades.
@@ -75,15 +141,15 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
 		:type ddof: int.
 		"""
-		return stats.stddev(self.__allPositions, ddof)
+		return stats.stddev(self.__allTrades, ddof)
 
 	def getWinningCount(self):
 		"""Returns the number of trades whose net profit was > 0."""
-		return len(self.__winningPositions)
+		return len(self.__winningTrades)
 
 	def getWinningMean(self):
 		"""Returns the average profit for the winning trades, or None if there are no winning trades."""
-		return stats.mean(self.__winningPositions)
+		return stats.mean(self.__winningTrades)
 
 	def getWinningStdDev(self, ddof=1):
 		"""Returns the profit's standard deviation for the winning trades, or None if there are no winning trades.
@@ -91,15 +157,15 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
 		:type ddof: int.
 		"""
-		return stats.stddev(self.__winningPositions, ddof)
+		return stats.stddev(self.__winningTrades, ddof)
 
 	def getLosingCount(self):
 		"""Returns the number of trades whose net profit was < 0."""
-		return len(self.__losingPositions)
+		return len(self.__losingTrades)
 
 	def getLosingMean(self):
 		"""Returns the average profit for the losing trades, or None if there are no losing trades."""
-		return stats.mean(self.__losingPositions)
+		return stats.mean(self.__losingTrades)
 
 	def getLosingStdDev(self, ddof=1):
 		"""Returns the profit's standard deviation for the losing trades, or None if there are no losing trades.
@@ -107,6 +173,5 @@ class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
 		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
 		:type ddof: int.
 		"""
-
-		return stats.stddev(self.__losingPositions, ddof)
+		return stats.stddev(self.__losingTrades, ddof)
 

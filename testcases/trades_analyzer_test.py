@@ -142,7 +142,7 @@ def getTestCases():
 
 	ret.append(TradesAnalyzerTestCase("testNoTrades"))
 	ret.append(TradesAnalyzerTestCase("testSomeTrades"))
-	# ret.append(TradesAnalyzerTestCase("testSomeTrades_Broker"))
+	ret.append(TradesAnalyzerTestCase("testSomeTrades_Broker"))
 
 	return ret
 
