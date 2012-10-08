@@ -42,7 +42,7 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 
 	def testNoTrades(self):
 		strat = self.__createStrategy()
-		stratAnalyzer = trades.BasicAnalyzer()
+		stratAnalyzer = trades.Trades()
 		strat.attachAnalyzer(stratAnalyzer)
 
 		strat.run()
@@ -67,7 +67,7 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 
 	def testSomeTrades(self):
 		strat = self.__createStrategy()
-		stratAnalyzer = trades.BasicAnalyzer()
+		stratAnalyzer = trades.Trades()
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Winning trade
@@ -103,7 +103,7 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 
 	def testSomeTrades_Broker(self):
 		strat = self.__createStrategy()
-		stratAnalyzer = trades.BasicAnalyzer()
+		stratAnalyzer = trades.Trades()
 		strat.attachAnalyzer(stratAnalyzer)
 
 		# Winning trade

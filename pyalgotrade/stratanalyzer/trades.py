@@ -23,8 +23,9 @@ from pyalgotrade import broker
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.utils import stats
 
-class BasicAnalyzer(stratanalyzer.StrategyAnalyzer):
-	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that performs some basic analysis like: 
+class Trades(stratanalyzer.StrategyAnalyzer):
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that performs some basic analysis on trades: 
+
 	 * Total number of trades
 	 * Total number of winning trades
 	 * Total number of losing trades

@@ -190,7 +190,7 @@ class ReturnsTestCase(unittest.TestCase):
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Close: 15.91
 		strat.getBroker().placeOrder(order)
 
-		stratAnalyzer = returns.ReturnsAnalyzer()
+		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.74))
@@ -209,7 +209,7 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, False) # Open: 15.74
 
-		stratAnalyzer = returns.ReturnsAnalyzer()
+		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
@@ -232,7 +232,7 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Close: 15.91
 
-		stratAnalyzer = returns.ReturnsAnalyzer()
+		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
@@ -255,7 +255,7 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, False) # Open: 15.74
 
-		stratAnalyzer = returns.ReturnsAnalyzer()
+		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
@@ -278,7 +278,7 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Close: 15.91
 
-		stratAnalyzer = returns.ReturnsAnalyzer()
+		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()

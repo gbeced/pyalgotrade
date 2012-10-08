@@ -9,7 +9,7 @@ Strategy analyzers provide an extensible way to attach different calculations to
 Returns
 -------
 .. automodule:: pyalgotrade.stratanalyzer.returns
-    :members: ReturnsAnalyzer, ReturnsDataSeries, CumulativeReturnsDataSeries
+    :members: Returns, ReturnsDataSeries, CumulativeReturnsDataSeries
 
 Sharpe Ratio
 ------------
@@ -20,6 +20,11 @@ DrawDown
 --------
 .. automodule:: pyalgotrade.stratanalyzer.drawdown
     :members: DrawDown
+
+Trades
+------
+.. automodule:: pyalgotrade.stratanalyzer.trades
+    :members: Trades
 
 Example
 -------
@@ -34,4 +39,8 @@ The output should look like this: ::
     Sharpe ratio: 0.66
     Max. drawdown: 24.77 %
     Max. drawdown duration: 193 days
+    Winning trades: 3
+    Winning avg: $101
+    Losing trades: 8
+    Losing avg: $-26
 

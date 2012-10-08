@@ -193,7 +193,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		for instrument in bars.getInstruments():
 			self.__lastBars[instrument] = bars.getBar(instrument)
 
-class ReturnsAnalyzer(stratanalyzer.StrategyAnalyzer):
+class Returns(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
 
 	def __init__(self):
