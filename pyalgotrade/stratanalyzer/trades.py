@@ -83,12 +83,12 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 			else:
 				newShares = currentShares + quantity
 				if newShares == 0: # Exit short.
-					posTracker.buy(currentShares, price, commission)
+					posTracker.buy(currentShares*-1, price, commission)
 					self.__updateTrades(posTracker)
 				elif newShares < 0: # Re-buy some shares.
 					posTracker.buy(quantity, price, commission)
 				else: # Exit short and enter long. Use proportional commissions.
-					posTracker.buy(currentShares, price, commission / float(currentShares))
+					posTracker.buy(currentShares*-1, price, commission / float(currentShares*-1))
 					self.__updateTrades(posTracker)
 					posTracker.buy(newShares, price, commission / float(newShares))
 		elif quantity > 0:

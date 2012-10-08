@@ -29,7 +29,7 @@ import common
 import unittest
 import datetime
 
-class ReturnsCalculatorTestCase(unittest.TestCase):
+class PosTrackerTestCase(unittest.TestCase):
 	invalid_price = 5000
 
 	def testBuyAndSellBreakEven(self):
@@ -37,16 +37,16 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		posTracker.buy(1, 10)
 		posTracker.sell(1, 10)
 		self.assertTrue(posTracker.getCost() == 10)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 0)
-		self.assertTrue(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 0)
+		self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0)
 
 	def testBuyAndSellWin(self):
 		posTracker = returns.PositionTracker()
 		posTracker.buy(1, 10)
 		posTracker.sell(1, 11)
 		self.assertTrue(posTracker.getCost() == 10)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 1)
-		self.assertTrue(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0.1)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
+		self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0.1)
 
 	def testBuyAndSellMultipleEvals(self):
 		posTracker = returns.PositionTracker()
@@ -68,7 +68,7 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 
 		posTracker.sell(1, 10)
 		self.assertTrue(posTracker.getCost() == 20)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 1)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
 		self.assertTrue(posTracker.getReturn(11) == 0.05)
 
 	def testSellAndBuyWin(self):
@@ -76,8 +76,8 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		posTracker.sell(1, 11)
 		posTracker.buy(1, 10)
 		self.assertTrue(posTracker.getCost() == 11)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 1)
-		self.assertTrue(round(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.090909091, 4))
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
+		self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.090909091, 4))
 
 	def testSellAndBuyMultipleEvals(self):
 		posTracker = returns.PositionTracker()
@@ -93,8 +93,8 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 
 		posTracker.buy(1, 10)
 		self.assertTrue(posTracker.getCost() == 22)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 2)
-		self.assertTrue(round(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.090909091, 4))
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 2)
+		self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.090909091, 4))
 
 	def testBuySellBuy(self):
 		posTracker = returns.PositionTracker()
@@ -106,8 +106,8 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 
 		posTracker.buy(1, 10)
 		self.assertTrue(posTracker.getCost() == 10 + 13)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 6)
-		self.assertTrue(round(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price), 4) == round(0.260869565, 4))
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 6)
+		self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.260869565, 4))
 
 	def testBuyAndUpdate(self):
 		posTracker = returns.PositionTracker()
@@ -135,42 +135,42 @@ class ReturnsCalculatorTestCase(unittest.TestCase):
 		self.assertTrue(posTracker.getCost() == 15)
 		posTracker.sell(1, 20)
 		self.assertTrue(posTracker.getCost() == 15)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 5)
-		self.assertTrue(round(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price), 2) == 0.33)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 5)
+		self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 2) == 0.33)
 
 		posTracker.update(100)
 		self.assertTrue(posTracker.getCost() == 0)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 0)
-		self.assertTrue(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price) == 0)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 0)
+		self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0)
 
 	def testBuyAndSellBreakEvenWithCommision(self):
 		posTracker = returns.PositionTracker()
 		posTracker.buy(1, 10, 0.5)
 		posTracker.sell(1, 11, 0.5)
 		self.assertTrue(posTracker.getCost() == 10)
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price, False) == 1)
-		self.assertTrue(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price, False) == 0.1)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price, False) == 1)
+		self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price, False) == 0.1)
 
-		self.assertTrue(posTracker.getNetProfit(ReturnsCalculatorTestCase.invalid_price, True) == 0)
-		self.assertTrue(posTracker.getReturn(ReturnsCalculatorTestCase.invalid_price, True) == 0)
+		self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price, True) == 0)
+		self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price, True) == 0)
 
 	def testLongShortEqualAmount(self):
 		posTrackerXYZ = returns.PositionTracker()
 		posTrackerXYZ.buy(11, 10)
 		posTrackerXYZ.sell(11, 30)
 		self.assertTrue(posTrackerXYZ.getCost() == 11*10)
-		self.assertTrue(posTrackerXYZ.getNetProfit(ReturnsCalculatorTestCase.invalid_price) == 20*11)
-		self.assertTrue(posTrackerXYZ.getReturn(ReturnsCalculatorTestCase.invalid_price) == 2)
+		self.assertTrue(posTrackerXYZ.getNetProfit(PosTrackerTestCase.invalid_price) == 20*11)
+		self.assertTrue(posTrackerXYZ.getReturn(PosTrackerTestCase.invalid_price) == 2)
 
 		posTrackerABC = returns.PositionTracker()
 		posTrackerABC.sell(100, 1.1)
 		posTrackerABC.buy(100, 1)
 		self.assertTrue(posTrackerABC.getCost() == 100*1.1)
-		self.assertTrue(round(posTrackerABC.getNetProfit(ReturnsCalculatorTestCase.invalid_price), 2) == 100*0.1)
-		self.assertEqual(round(posTrackerABC.getReturn(ReturnsCalculatorTestCase.invalid_price), 2), 0.09)
+		self.assertTrue(round(posTrackerABC.getNetProfit(PosTrackerTestCase.invalid_price), 2) == 100*0.1)
+		self.assertEqual(round(posTrackerABC.getReturn(PosTrackerTestCase.invalid_price), 2), 0.09)
 
 		combinedCost = posTrackerXYZ.getCost() + posTrackerABC.getCost()
-		combinedPL = posTrackerXYZ.getNetProfit(ReturnsCalculatorTestCase.invalid_price) + posTrackerABC.getNetProfit(ReturnsCalculatorTestCase.invalid_price)
+		combinedPL = posTrackerXYZ.getNetProfit(PosTrackerTestCase.invalid_price) + posTrackerABC.getNetProfit(PosTrackerTestCase.invalid_price)
 		combinedReturn = combinedPL / float(combinedCost)
 		self.assertTrue(round(combinedReturn, 9) == 1.045454545)
 
@@ -291,16 +291,16 @@ class ReturnsTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 
-	ret.append(ReturnsCalculatorTestCase("testBuyAndSellBreakEven"))
-	ret.append(ReturnsCalculatorTestCase("testBuyAndSellWin"))
-	ret.append(ReturnsCalculatorTestCase("testBuyAndSellMultipleEvals"))
-	ret.append(ReturnsCalculatorTestCase("testSellAndBuyWin"))
-	ret.append(ReturnsCalculatorTestCase("testSellAndBuyMultipleEvals"))
-	ret.append(ReturnsCalculatorTestCase("testBuySellBuy"))
-	ret.append(ReturnsCalculatorTestCase("testBuyAndUpdate"))
-	ret.append(ReturnsCalculatorTestCase("testBuyUpdateAndSell"))
-	ret.append(ReturnsCalculatorTestCase("testBuyAndSellBreakEvenWithCommision"))
-	ret.append(ReturnsCalculatorTestCase("testLongShortEqualAmount"))
+	ret.append(PosTrackerTestCase("testBuyAndSellBreakEven"))
+	ret.append(PosTrackerTestCase("testBuyAndSellWin"))
+	ret.append(PosTrackerTestCase("testBuyAndSellMultipleEvals"))
+	ret.append(PosTrackerTestCase("testSellAndBuyWin"))
+	ret.append(PosTrackerTestCase("testSellAndBuyMultipleEvals"))
+	ret.append(PosTrackerTestCase("testBuySellBuy"))
+	ret.append(PosTrackerTestCase("testBuyAndUpdate"))
+	ret.append(PosTrackerTestCase("testBuyUpdateAndSell"))
+	ret.append(PosTrackerTestCase("testBuyAndSellBreakEvenWithCommision"))
+	ret.append(PosTrackerTestCase("testLongShortEqualAmount"))
 
 	ret.append(ReturnsTestCase("testOneBarReturn"))
 	ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))
