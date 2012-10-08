@@ -135,6 +135,7 @@ class InstrumentMarker(Series):
 	def __init__(self):
 		Series.__init__(self)
 		self.__useCandleSticks = False
+		self.__useAdjClose = False
 
 	def needColor(self):
 		return self.__useCandleSticks == False
@@ -142,11 +143,17 @@ class InstrumentMarker(Series):
 	def getMarker(self):
 		return " "
 
+	def setUseAdjClose(self, useAdjClose):
+		self.__useAdjClose = useAdjClose
+
 	def getValue(self, dateTime):
 		# If not using candlesticks, the return the closing price.
 		ret = Series.getValue(self, dateTime)
 		if self.__useCandleSticks == False and ret != None:
-			ret = ret.getClose()
+			if self.__useAdjClose:
+				ret = ret.getAdjClose()
+			else:
+				ret = ret.getClose()
 		return ret
 
 	def plot(self, mplSubplot, dateTimes, color):
@@ -225,6 +232,9 @@ class InstrumentSubplot(Subplot):
 		self.__instrument = instrument
 		self.__plotBuySell = plotBuySell
 		self.__instrumentSeries = self.getSeries(instrument, InstrumentMarker)
+
+	def setUseAdjClose(self, useAdjClose):
+		self.__instrumentSeries.setUseAdjClose(useAdjClose)
 
 	def onBars(self, bars):
 		bar = bars.getBar(self.__instrument)

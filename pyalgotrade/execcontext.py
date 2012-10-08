@@ -1,6 +1,6 @@
 # PyAlgoTrade
 # 
-# Copyright 2011 Gabriel Martin Becedillas Ruiz
+# Copyright 2012 Gabriel Martin Becedillas Ruiz
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +18,4 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-def get_change_percentage(actual, prev):
-	if actual is None or prev is None or prev == 0:
-		raise Exception("Invalid values")
-
-	diff = actual-prev
-	ret = diff/float(abs(prev))
-	return ret
-
+running_in_google_app_engine = False

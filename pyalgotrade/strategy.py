@@ -20,8 +20,9 @@
 
 import broker
 from broker import backtesting
-import utils
 import observer
+from stratanalyzer import returns
+import warninghelpers
 
 class Position:
 	"""Base class for positions. 
@@ -116,26 +117,31 @@ class Position:
 
 		return ret
 
+	def getReturn(self, includeCommissions=True):
+		"""Returns the position's returns."""
+		if not self.entryFilled():
+			raise Exception("Position not opened yet")
+		elif not self.exitFilled():
+			raise Exception("Position not closed yet")
+		return self.getReturnImpl(includeCommissions)
+
 	def getResult(self):
 		"""Returns the ratio between the order prices. It **doesn't** include commisions."""
-		if not self.getEntryOrder().isFilled():
-			raise Exception("Position not opened yet")
-		if self.getExitOrder() == None or not self.getExitOrder().isFilled():
-			raise Exception("Position not closed yet")
-		return self.getResultImpl()
+		warninghelpers.deprecation_warning("getResult will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
+		return self.getReturn(False)
 
-	def getResultImpl(self):
+	def getReturnImpl(self, includeCommissions):
 		raise NotImplementedError()
 
-	def getNetProfit(self):
-		"""Returns the difference between the order prices. It **does** include commisions."""
-		if not self.getEntryOrder().isFilled():
+	def getNetProfit(self, includeCommissions=True):
+		"""Returns the position's net profit."""
+		if not self.entryFilled():
 			raise Exception("Position not opened yet")
-		if self.getExitOrder() == None or not self.getExitOrder().isFilled():
+		elif not self.exitFilled():
 			raise Exception("Position not closed yet")
-		return self.getNetProfitImpl()
+		return self.getNetProfitImpl(includeCommissions)
 
-	def getNetProfitImpl(self):
+	def getNetProfitImpl(self, includeCommissions):
 		raise NotImplementedError()
 
 	def buildExitOrder(self, limitPrice, stopPrice):
@@ -143,6 +149,12 @@ class Position:
 
 	def buildExitOnSessionCloseOrder(self):
 		raise NotImplementedError()
+
+	def isLong(self):
+		raise NotImplementedError()
+
+	def isShort(self):
+		return not self.isLong()
 
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
@@ -162,14 +174,19 @@ class LongPosition(Position):
 		Position.__init__(self, entryOrder, goodTillCanceled)
 		self.__broker.placeOrder(entryOrder)
 
-	def getResultImpl(self):
-		return utils.get_change_percentage(self.getExitOrder().getExecutionInfo().getPrice(), self.getEntryOrder().getExecutionInfo().getPrice())
-
-	def getNetProfitImpl(self):
-		ret = self.getExitOrder().getExecutionInfo().getPrice() - self.getEntryOrder().getExecutionInfo().getPrice()
-		ret -= self.getEntryOrder().getExecutionInfo().getCommission()
-		ret -= self.getExitOrder().getExecutionInfo().getCommission()
+	def __getPosTracker(self):
+		ret = returns.PositionTracker()
+		entryExecInfo = self.getEntryOrder().getExecutionInfo()
+		exitExecInfo = self.getExitOrder().getExecutionInfo()
+		ret.buy(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
+		ret.sell(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
 		return ret
+
+	def getReturnImpl(self, includeCommissions):
+		return self.__getPosTracker().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+
+	def getNetProfitImpl(self, includeCommissions):
+		return self.__getPosTracker().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:
@@ -190,6 +207,9 @@ class LongPosition(Position):
 		ret.setGoodTillCanceled(True) # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
 		return ret
 
+	def isLong(self):
+		return True
+
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
 	def __init__(self, broker_, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
@@ -208,14 +228,19 @@ class ShortPosition(Position):
 		Position.__init__(self, entryOrder, goodTillCanceled)
 		self.__broker.placeOrder(entryOrder)
 
-	def getResultImpl(self):
-		return utils.get_change_percentage(self.getEntryOrder().getExecutionInfo().getPrice(), self.getExitOrder().getExecutionInfo().getPrice())
-
-	def getNetProfitImpl(self):
-		ret = self.getEntryOrder().getExecutionInfo().getPrice() - self.getExitOrder().getExecutionInfo().getPrice()
-		ret -= self.getEntryOrder().getExecutionInfo().getCommission()
-		ret -= self.getExitOrder().getExecutionInfo().getCommission()
+	def __getPosTracker(self):
+		ret = returns.PositionTracker()
+		entryExecInfo = self.getEntryOrder().getExecutionInfo()
+		exitExecInfo = self.getExitOrder().getExecutionInfo()
+		ret.sell(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
+		ret.buy(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
 		return ret
+
+	def getReturnImpl(self, includeCommissions):
+		return self.__getPosTracker().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+
+	def getNetProfitImpl(self, includeCommissions):
+		return self.__getPosTracker().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:
@@ -235,6 +260,9 @@ class ShortPosition(Position):
 		ret = self.__broker.createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), self.getQuantity(), True)
 		ret.setGoodTillCanceled(True) # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
 		return ret
+
+	def isLong(self):
+		return False
 
 class Strategy:
 	"""Base class for strategies. 
@@ -256,6 +284,8 @@ class Strategy:
 		self.__activePositions = {}
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = observer.Event()
+		self.__analyzers = []
+		self.__namedAnalyzers = {}
 
 		if broker_ == None:
 			# When doing backtesting (broker_ == None), the broker should subscribe to barFeed events before the strategy.
@@ -298,6 +328,28 @@ class Strategy:
 		for order in [position.getEntryOrder(), position.getExitOrder()]:
 			if order and order.isAccepted():
 				self.__registerOrder(position, order)
+
+	def __notifyAnalyzers(self, lambdaExpression):
+		for s in self.__analyzers:
+			lambdaExpression(s)
+
+	def attachAnalyzerEx(self, strategyAnalyzer, name = None):
+		if strategyAnalyzer not in self.__analyzers:
+			if name != None:
+				if name in self.__namedAnalyzers:
+					raise Exception("A different analyzer named '%s' was already attached" % name)
+				self.__namedAnalyzers[name] = strategyAnalyzer
+
+			strategyAnalyzer.beforeAttach(self)
+			self.__analyzers.append(strategyAnalyzer)
+			strategyAnalyzer.attached(self)
+
+	def attachAnalyzer(self, strategyAnalyzer):
+		"""Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
+		self.attachAnalyzerEx(strategyAnalyzer)
+
+	def getNamedAnalyzer(self, name):
+		return self.__namedAnalyzers.get(name, None)
 
 	def getFeed(self):
 		"""Returns the :class:`pyalgotrade.barfeed.BarFeed` that this strategy is using."""
@@ -578,10 +630,9 @@ class Strategy:
 			else:
 				assert(False)
 		else:
-			# if position != None, then the order used to belong to a position but it was ovewritten with a new one
+			# The order used to belong to a position but it was ovewritten with a new one
 			# and the previous order should have been canceled.
-			# if position == None this is a standalone order submitted manually using the broker interface.
-			assert(position == None or order.isCanceled())
+			assert(order.isCanceled())
 
 	def __checkExitOnSessionClose(self, bars):
 		for position in self.__activePositions.keys():
@@ -591,6 +642,8 @@ class Strategy:
 
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
+
+		self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
 		# 1: Let the strategy process current bars and place orders.
 		self.onBars(bars)

@@ -175,6 +175,8 @@ class TestStrategy(strategy.Strategy):
 		# Maps dates to a tuple of (method, params)
 		self.__posEntry = {}
 		self.__posExit = {}
+		# Maps dates to a tuple of (method, params)
+		self.__orderEntry = {}
 
 		self.__result = 0
 		self.__netProfit = 0
@@ -184,6 +186,11 @@ class TestStrategy(strategy.Strategy):
 		self.__exitOkEvents = 0
 		self.__exitCanceledEvents = 0
 		self.__exitOnSessionClose = False
+		self.__brokerOrdersGTC = False
+
+	def addOrder(self, dateTime, method, *methodParams):
+		self.__orderEntry.setdefault(dateTime, [])
+		self.__orderEntry[dateTime].append((method, methodParams))
 
 	def addPosEntry(self, dateTime, enterMethod, *methodParams):
 		self.__posEntry.setdefault(dateTime, [])
@@ -195,6 +202,9 @@ class TestStrategy(strategy.Strategy):
 
 	def setExitOnSessionClose(self, exitOnSessionClose):
 		self.__exitOnSessionClose = exitOnSessionClose
+
+	def setBrokerOrdersGTC(self, gtc):
+		self.__brokerOrdersGTC = gtc
 
 	def getOrderUpdatedEvents(self):
 		return self.__orderUpdatedEvents
@@ -226,6 +236,9 @@ class TestStrategy(strategy.Strategy):
 	def onEnterOk(self, position):
 		# print "Enter ok", position.getEntryOrder().getExecutionInfo().getDateTime()
 		self.__enterOkEvents += 1
+		if self.__activePosition == None:
+			self.__activePosition = position
+			self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
 
 	def onEnterCanceled(self, position):
 		# print "Enter canceled", position.getEntryOrder().getExecutionInfo().getDateTime()
@@ -244,8 +257,7 @@ class TestStrategy(strategy.Strategy):
 		self.__exitCanceledEvents += 1
 
 	def onBars(self, bars):
-		bar_ = bars.getBar(StrategyTestCase.TestInstrument)
-		dateTime = bar_.getDateTime()
+		dateTime = bars.getDateTime()
 
 		# Check position entry.
 		for meth, params in self.__posEntry.get(dateTime, []):
@@ -259,6 +271,12 @@ class TestStrategy(strategy.Strategy):
 			if self.__activePosition == None:
 				raise Exception("A position was not entered")
 			meth(self.__activePosition, *params)
+
+		# Check order entry.
+		for meth, params in self.__orderEntry.get(dateTime, []):
+			order = meth(*params)
+			order.setGoodTillCanceled(self.__brokerOrdersGTC)
+			self.getBroker().placeOrder(order)
 
 class StrategyTestCase(unittest.TestCase):
 	TestInstrument = "doesntmatter"
@@ -484,7 +502,7 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.69 - 27.37, 2))
-		self.assertTrue(round(strat.getResult(), 3) == 0.121)
+		self.assertTrue(round(strat.getResult(), 3) == round(0.10817856, 3))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.69 - 27.37, 2))
 
 	def testShortPosition(self):
@@ -513,7 +531,7 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getEnterOkEvents() == 1)
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 27.44 - 30.31, 2))
-		self.assertTrue(round(strat.getResult(), 3) == -0.095)
+		self.assertTrue(round(strat.getResult(), 3) == round(-0.104591837, 3))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.44 - 30.31, 2))
 
 	def testShortPositionAdjClose(self):

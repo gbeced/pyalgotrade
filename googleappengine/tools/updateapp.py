@@ -58,15 +58,23 @@ class AppCfg:
 		popenObj = subprocess.Popen(args=cmd)
 		popenObj.communicate()
 
-def update_app_yaml(appPath, appId):
-	appYamlPath = os.path.join(appPath, "app.yaml")
-	print "Updating app.yaml"
-	for line in fileinput.input(appYamlPath, inplace=1):
+def update_file(path, linePrefix, lineReplacement, expectedMatches):
+	matches = 0
+	print "Updating %s" % (path)
+	for line in fileinput.input(path, inplace=1):
 		line = line.strip("\r\n")
-		if line.find("application:") == 0:
-			print "application: %s" % appId
+		if line.find(linePrefix) == 0:
+			matches += 1
+			print lineReplacement
 		else:
 			print line
+	if matches != expectedMatches:
+		raise Exception("Failed to update '%s' file. '%s' found %d times" % (path, linePrefix, matches))
+
+def update_app_yaml(appPath, appId):
+	appYamlPath = os.path.join(appPath, "app.yaml")
+	linePrefix = "application:"
+	update_file(appYamlPath, linePrefix, "application: %s" % appId, 1)
 
 def update_pyalgotrade(appPath):
 	srcPath = os.path.join(appPath, "..", "..", "pyalgotrade")
@@ -78,6 +86,8 @@ def update_pyalgotrade(appPath):
 
 	print "Preparing pyalgotrade package"
 	shutil.copytree(srcPath, dstPath)
+
+	linesReplaced = update_file(os.path.join(dstPath, "execcontext.py"), "running_in_google_app_engine = ", "running_in_google_app_engine = True", 1)
 
 def main():
 	try:

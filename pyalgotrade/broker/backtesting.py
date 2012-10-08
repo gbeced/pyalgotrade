@@ -348,12 +348,16 @@ class Broker(broker.Broker):
 		self.__useAdjustedValues = useAdjusted
 
 	def getPendingOrders(self):
+		"""Returns a sequence with the orders that are still pending."""
 		return self.__pendingOrders
 
 	def getShares(self, instrument):
 		"""Returns the number of shares for an instrument."""
 		self.__shares.setdefault(instrument, 0)
 		return self.__shares[instrument]
+
+	def getActiveInstruments(self):
+		return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
 
 	def getValue(self, bars):
 		"""Returns the portfolio value (cash + shares) for the given bars prices.
@@ -396,7 +400,7 @@ class Broker(broker.Broker):
 			ret = True
 
 			# Update the order.
-			orderExecutionInfo = broker.OrderExecutionInfo(price, commission, dateTime)
+			orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
 			order.setExecuted(orderExecutionInfo)
 
 		return ret
