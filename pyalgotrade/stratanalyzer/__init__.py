@@ -35,18 +35,3 @@ class StrategyAnalyzer:
 	def beforeOnBars(self, strat, bars):
 		pass
 
-	def onFinish(self, strat, bars):
-		pass
-
-	def onPositionEnterOk(self, strat, position):
-		pass
-
-	def onPositionEnterCanceled(self, strat, position):
-		pass
-
-	def onPositionExitOk(self, strat, position):
-		pass
-
-	def onPositionExitCanceled(self, strat, position):
-		pass
-

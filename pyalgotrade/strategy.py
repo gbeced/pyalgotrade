@@ -614,22 +614,18 @@ class Strategy:
 			self.onOrderUpdated(order)
 		elif position.getEntryOrder() == order:
 			if order.isFilled():
-				self.__notifyAnalyzers(lambda s: s.onPositionEnterOk(self, position))
 				self.onEnterOk(position)
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
-				self.__notifyAnalyzers(lambda s: s.onPositionEnterCanceled(self, position))
 				self.onEnterCanceled(position)
 			else:
 				assert(False)
 		elif position.getExitOrder() == order:
 			if order.isFilled():
 				self.__unregisterOrder(position, order)
-				self.__notifyAnalyzers(lambda s: s.onPositionExitOk(self, position))
 				self.onExitOk(position)
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
-				self.__notifyAnalyzers(lambda s: s.onPositionExitCanceled(self, position))
 				self.onExitCanceled(position)
 			else:
 				assert(False)
@@ -678,7 +674,6 @@ class Strategy:
 				stopDispFeed = self.__feed.stopDispatching()
 
 			if self.__feed.getLastBars() != None:
-				self.__notifyAnalyzers(lambda s: s.onFinish(self, self.__feed.getLastBars()))
 				self.onFinish(self.__feed.getLastBars())
 			else:
 				raise Exception("Feed was empty")
