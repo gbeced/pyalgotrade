@@ -856,15 +856,17 @@ class StopLimitPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 24), 2))
 
-def getTestCases():
+def getTestCases(includeExternal = True):
 	ret = []
 
 	ret.append(LongPosTestCase("testLongPosition"))
-	ret.append(LongPosTestCase("testLongPosition_ExternalBF"))
-	ret.append(LongPosTestCase("testLongPosition_ExternalBFAndBroker"))
+	if includeExternal:
+		ret.append(LongPosTestCase("testLongPosition_ExternalBF"))
+		ret.append(LongPosTestCase("testLongPosition_ExternalBFAndBroker"))
 	ret.append(LongPosTestCase("testLongPositionAdjClose"))
-	ret.append(LongPosTestCase("testLongPositionAdjClose_ExternalBF"))
-	ret.append(LongPosTestCase("testLongPositionAdjClose_ExternalBFAndBroker"))
+	if includeExternal:
+		ret.append(LongPosTestCase("testLongPositionAdjClose_ExternalBF"))
+		ret.append(LongPosTestCase("testLongPositionAdjClose_ExternalBFAndBroker"))
 	ret.append(LongPosTestCase("testLongPositionGTC"))
 	ret.append(LongPosTestCase("testEntryCanceled"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_AllInOneDay"))
@@ -873,14 +875,17 @@ def getTestCases():
 	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnPenultimateBar"))
 
 	ret.append(ShortPosTestCase("testShortPosition"))
-	ret.append(ShortPosTestCase("testShortPosition_ExternalBF"))
-	ret.append(ShortPosTestCase("testShortPosition_ExternalBFAndBroker"))
+	if includeExternal:
+		ret.append(ShortPosTestCase("testShortPosition_ExternalBF"))
+		ret.append(ShortPosTestCase("testShortPosition_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionAdjClose"))
-	ret.append(ShortPosTestCase("testShortPositionAdjClose_ExternalBF"))
-	ret.append(ShortPosTestCase("testShortPositionAdjClose_ExternalBFAndBroker"))
+	if includeExternal:
+		ret.append(ShortPosTestCase("testShortPositionAdjClose_ExternalBF"))
+		ret.append(ShortPosTestCase("testShortPositionAdjClose_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionExitCanceled"))
-	ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBF"))
-	ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBFAndBroker"))
+	if includeExternal:
+		ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBF"))
+		ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionExitCanceledAndReSubmitted"))
 	ret.append(ShortPosTestCase("testIntradayExitOnClose"))
 
