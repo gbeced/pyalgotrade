@@ -39,8 +39,9 @@ class SharpeRatioTestCase(unittest.TestCase):
 
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000)
-		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252) / 10**14, 4) == -7.1486)
-		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252) == None)
+		self.assertTrue(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True) == 0)
+		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252) == 0)
+		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252, annualized=True) == 0)
 
 	def __testIGE_BrokerImpl(self, quantity):
 		# This testcase is based on an example from Ernie Chan's book:
@@ -62,7 +63,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09) * quantity)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		# The results are slightly different different only because I'm taking into account the first bar as well.
-		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7889)
+		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 4) == 0.7889)
 
 	def testIGE_Broker(self):
 		self.__testIGE_BrokerImpl(1)
@@ -92,7 +93,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		# The results are slightly different different only because I'm taking into account the first bar as well,
 		# and I'm also adding commissions.
-		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252), 4) == 0.7763)
+		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 4) == 0.7763)
 
 	def testSharpeRatioIGE_SPY_Broker(self):
 		# This testcase is based on an example from Ernie Chan's book:

@@ -44,7 +44,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	def getSharpeRatio(self, riskFreeRate, tradingPeriods, annualized = True):
 		"""
 		Returns the Sharpe ratio for the strategy execution.
-		If the standard deviation of the excess returns is 0, None is returned.
+		If the volatility is 0, 0 is returned.
 
 		:param riskFreeRate: The risk free rate per annum.
 		:type riskFreeRate: int/float.
@@ -57,12 +57,17 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 			* If using daily bars, tradingPeriods should be set to 252.
 			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 252 * 6.5 = 1638.
 		"""
-		ret = None
-		excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]
-		avgExcessReturns = stats.mean(excessReturns)
-		stdDevExcessReturns = stats.stddev(excessReturns, 1)
-		if stdDevExcessReturns != 0:
-			ret = avgExcessReturns / stdDevExcessReturns
+		ret = 0
+
+		# From http://en.wikipedia.org/wiki/Sharpe_ratio: if Rf is a constant risk-free return throughout the period,
+		# then stddev(R - Rf) = stddev(R).
+		# if erVolatility:
+		volatility = stats.stddev(self.__netReturns, 1)
+
+		if volatility != 0:
+			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]
+			avgExcessReturns = stats.mean(excessReturns)
+			ret = avgExcessReturns / volatility
 			if annualized:
 				ret = ret * math.sqrt(tradingPeriods)
 		return ret
