@@ -57,11 +57,10 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 			* If using daily bars, tradingPeriods should be set to 252.
 			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 252 * 6.5 = 1638.
 		"""
-		ret = 0
+		ret = 0.0
 
 		# From http://en.wikipedia.org/wiki/Sharpe_ratio: if Rf is a constant risk-free return throughout the period,
 		# then stddev(R - Rf) = stddev(R).
-		# if erVolatility:
 		volatility = stats.stddev(self.__netReturns, 1)
 
 		if volatility != 0:
