@@ -209,8 +209,6 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, False) # Open: 15.74
 
-		stratAnalyzer = returns.Returns()
-		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.61))
@@ -232,8 +230,6 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Close: 15.91
 
-		stratAnalyzer = returns.Returns()
-		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.61))
@@ -255,8 +251,6 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, False) # Open: 15.74
 
-		stratAnalyzer = returns.Returns()
-		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.90))
@@ -278,8 +272,6 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True) # Close: 15.91
 
-		stratAnalyzer = returns.Returns()
-		strat.attachAnalyzer(stratAnalyzer)
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.90))
@@ -287,6 +279,20 @@ class ReturnsTestCase(unittest.TestCase):
 		self.assertTrue(returnsDS.getValueAbsolute(0) == 0)
 		# Second day returns: Open vs Prev. day's close
 		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.91 - 15.90) / 15.90)
+
+	def testCumulativeReturn(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+		strat = strategy_test.TestStrategy(barFeed, 1000)
+
+		strat.addPosEntry(datetime.datetime(2001, 1, 12), strat.enterLong, ReturnsTestCase.TestInstrument, 1) # 33.06
+		strat.addPosExit(datetime.datetime(2001, 11, 27), strat.exitPosition) # 14.32
+	
+		stratAnalyzer = returns.Returns()
+		strat.attachAnalyzer(stratAnalyzer)
+		strat.run()
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (14.32 - 33.06), 2))
+		self.assertTrue(round(33.06 * (1 + stratAnalyzer.getCumulativeReturn()), 2) == 14.32)
 
 def getTestCases():
 	ret = []
@@ -307,6 +313,7 @@ def getTestCases():
 	ret.append(ReturnsTestCase("testTwoBarReturns_OpenClose"))
 	ret.append(ReturnsTestCase("testTwoBarReturns_CloseOpen"))
 	ret.append(ReturnsTestCase("testTwoBarReturns_CloseClose"))
+	ret.append(ReturnsTestCase("testCumulativeReturn"))
 
 	return ret
 
