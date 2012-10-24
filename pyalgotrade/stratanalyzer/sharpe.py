@@ -24,6 +24,21 @@ from pyalgotrade.utils import stats
 
 import math
 
+def sharpe_ratio(returns, riskFreeRate, tradingPeriods, annualized = True):
+	ret = 0.0
+
+	# From http://en.wikipedia.org/wiki/Sharpe_ratio: if Rf is a constant risk-free return throughout the period,
+	# then stddev(R - Rf) = stddev(R).
+	volatility = stats.stddev(returns, 1)
+
+	if volatility != 0:
+		excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in returns]
+		avgExcessReturns = stats.mean(excessReturns)
+		ret = avgExcessReturns / volatility
+		if annualized:
+			ret = ret * math.sqrt(tradingPeriods)
+	return ret
+
 class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
 
@@ -57,17 +72,5 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 			* If using daily bars, tradingPeriods should be set to 252.
 			* If using hourly bars (with 6.5 trading hours a day) then tradingPeriods should be set to 252 * 6.5 = 1638.
 		"""
-		ret = 0.0
-
-		# From http://en.wikipedia.org/wiki/Sharpe_ratio: if Rf is a constant risk-free return throughout the period,
-		# then stddev(R - Rf) = stddev(R).
-		volatility = stats.stddev(self.__netReturns, 1)
-
-		if volatility != 0:
-			excessReturns = [dailyRet-(riskFreeRate/float(tradingPeriods)) for dailyRet in self.__netReturns]
-			avgExcessReturns = stats.mean(excessReturns)
-			ret = avgExcessReturns / volatility
-			if annualized:
-				ret = ret * math.sqrt(tradingPeriods)
-		return ret
+		return sharpe_ratio(self.__netReturns, riskFreeRate, tradingPeriods, annualized)
 
