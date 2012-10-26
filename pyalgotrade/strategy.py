@@ -101,19 +101,18 @@ class Position:
 
 	def checkExitOnSessionClose(self, bars, broker_):
 		ret = None
-		try:
-			# If the position was set to exit on session close, and this is the penultimate bar then:
-			# * Create the exit order if the entry was filled.
-			# * Cancel the entry order if it was not filled so far.
-			if self.__exitOnSessionClose and self.__exitOrder == None and bars.getBar(self.getInstrument()).getBarsTillSessionClose() == 1:
-				if self.entryFilled():
-					ret = self.buildExitOnSessionCloseOrder()
-					broker_.placeOrder(ret)
-					self.setExitOrder(ret)
-				else:
-					broker_.cancelOrder(self.getEntryOrder())
-		except KeyError:
-			pass
+		bar_ = bars.getBar(self.getInstrument())
+
+		# If the position was set to exit on session close, and this is the penultimate bar then:
+		# * Create the exit order if the entry was filled.
+		# * Cancel the entry order if it was not filled so far.
+		if bar_ != None and self.__exitOnSessionClose and self.__exitOrder == None and bar_.getBarsTillSessionClose() == 1:
+			if self.entryFilled():
+				ret = self.buildExitOnSessionCloseOrder()
+				broker_.placeOrder(ret)
+				self.setExitOrder(ret)
+			else:
+				broker_.cancelOrder(self.getEntryOrder())
 
 		return ret
 

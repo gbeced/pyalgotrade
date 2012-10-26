@@ -145,10 +145,5 @@ class Bars:
 
 	def getBar(self, instrument):
 		"""Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if the instrument is not found."""
-		ret = None
-		try:
-			ret = self.__barDict[instrument]
-		except KeyError:
-			pass
-		return ret
+		return self.__barDict.get(instrument, None)
 

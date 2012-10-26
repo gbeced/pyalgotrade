@@ -200,46 +200,37 @@ class DefaultStrategy(FillStrategy):
 class BacktestingOrder:
 	def checkCanceled(self, broker, bars):
 		# If its the last bar of the session and the order is not GTC, then cancel it.
-		if self.isAccepted() and self.getGoodTillCanceled() == False and bars.getBar(self.getInstrument()).getSessionClose():
+		bar_ = bars.getBar(self.getInstrument())
+		if bar_ != None and self.isAccepted() and self.getGoodTillCanceled() == False and bar_.getSessionClose():
 			broker.cancelOrder(self)
 
 	def tryExecute(self, broker, bars):
 		if self.isAccepted():
-			self.tryExecuteImpl(broker, bars)
+			bar_ = bars.getBar(self.getInstrument())
+			if bar_ != None:
+				self.tryExecuteImpl(broker, bar_)
 			self.checkCanceled(broker, bars)
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
 	def __init__(self, action, instrument, quantity, onClose):
 		broker.MarketOrder.__init__(self, action, instrument, quantity, onClose)
 
-	def tryExecuteImpl(self, broker_, bars):
-		try:
-			bar_ = bars.getBar(self.getInstrument())
-			price = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar_)
-			if price != None:
-				broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
-		except KeyError:
-			pass
+	def tryExecuteImpl(self, broker_, bar_):
+		price = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar_)
+		if price != None:
+			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
-	def tryExecuteImpl(self, broker_, bars):
-		try:
-			bar_ = bars.getBar(self.getInstrument())
-			price = broker_.getFillStrategy().fillLimitOrder(self, broker_, bar_)
-			if price != None:
-				broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
-		except KeyError:
-			pass
+	def tryExecuteImpl(self, broker_, bar_):
+		price = broker_.getFillStrategy().fillLimitOrder(self, broker_, bar_)
+		if price != None:
+			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
-	def tryExecuteImpl(self, broker_, bars):
-		try:
-			bar_ = bars.getBar(self.getInstrument())
-			price = broker_.getFillStrategy().fillStopOrder(self, broker_, bar_)
-			if price != None:
-				broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
-		except KeyError:
-			pass
+	def tryExecuteImpl(self, broker_, bar_):
+		price = broker_.getFillStrategy().fillStopOrder(self, broker_, bar_)
+		if price != None:
+			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
@@ -262,23 +253,19 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 			assert(False)
 		return ret
 
-	def tryExecuteImpl(self, broker_, bars):
-		try:
-			bar_ = bars.getBar(self.getInstrument())
-			justHitStopPrice = False
+	def tryExecuteImpl(self, broker_, bar_):
+		justHitStopPrice = False
 
-			# Check if we have to activate the limit order first.
-			if not self.isLimitOrderActive() and self.__stopHit(broker_, bar_):
-				self.setLimitOrderActive(True)
-				justHitStopPrice = True
+		# Check if we have to activate the limit order first.
+		if not self.isLimitOrderActive() and self.__stopHit(broker_, bar_):
+			self.setLimitOrderActive(True)
+			justHitStopPrice = True
 
-			# Check if we have ever reached the limit price
-			if self.isLimitOrderActive():
-				price = broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar_, justHitStopPrice)
-				if price != None:
-					broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
-		except KeyError:
-			pass
+		# Check if we have ever reached the limit price
+		if self.isLimitOrderActive():
+			price = broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar_, justHitStopPrice)
+			if price != None:
+				broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 ######################################################################
 ## Broker
@@ -304,6 +291,13 @@ class Broker(broker.Broker):
 		# It is VERY important that the broker subscribes to barfeed events before the strategy.
 		barFeed.getNewBarsEvent().subscribe(self.onBars)
 		self.__barFeed = barFeed
+		self.__lastBars = {} # Last Bar per instrument.
+
+	def __getBar(self, bars, instrument):
+		ret = bars.getBar(instrument)
+		if ret == None:
+			ret = self.__lastBars[instrument]
+		return ret
 
 	def setFillStrategy(self, strategy):
 		"""Sets the :class:`FillStrategy` to use."""
@@ -367,10 +361,7 @@ class Broker(broker.Broker):
 		"""
 		ret = self.getCash()
 		for instrument, shares in self.__shares.iteritems():
-			if self.getUseAdjustedValues():
-				instrumentPrice = bars.getBar(instrument).getAdjClose()
-			else:
-				instrumentPrice = bars.getBar(instrument).getClose()
+			instrumentPrice = self.getBarClose(self.__getBar(bars, instrument))
 			ret += instrumentPrice * shares
 		return ret
 
@@ -426,6 +417,10 @@ class Broker(broker.Broker):
 					self.getOrderUpdatedEvent().emit(self, order)
 			else:
 				self.getOrderUpdatedEvent().emit(self, order)
+
+		# Keep track of the last bar for each instrument.
+		for instrument in bars.getInstruments():
+			self.__lastBars[instrument] = bars.getBar(instrument)
 
 	def start(self):
 		pass
