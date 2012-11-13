@@ -21,7 +21,6 @@
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import warninghelpers
-from pyalgotrade.barfeed import helpers
 from pyalgotrade.utils import dt
 
 import csv
@@ -85,7 +84,7 @@ class USEquitiesRTH(DateRangeFilter):
 				return False
 		return ret
 
-class BarFeed(barfeed.BarFeed):
+class BarFeed(barfeed.InMemoryBarFeed):
 	"""A CSV file based :class:`pyalgotrade.barfeed.BarFeed`.
 
 	.. note::
@@ -93,22 +92,9 @@ class BarFeed(barfeed.BarFeed):
 	"""
 
 	def __init__(self, frequency):
-		barfeed.BarFeed.__init__(self, frequency)
-		self.__bars = {}
-		self.__nextBarIdx = {}
+		barfeed.InMemoryBarFeed.__init__(self, frequency)
 		self.__barFilter = None
 		self.__dailyTime = datetime.time(23, 59, 59)
-
-	def start(self):
-		# Set session close attributes to bars.
-		for instrument, bars in self.__bars.iteritems():
-			helpers.set_session_close_attributes(bars)
-
-	def stop(self):
-		pass
-
-	def join(self):
-		pass
 
 	def getDailyBarTime(self):
 		"""Returns the time to set to daily bars when that information is not present in CSV files. Defaults to 23:59:59.
@@ -131,9 +117,6 @@ class BarFeed(barfeed.BarFeed):
 		self.__barFilter = barFilter
 
 	def addBarsFromCSV(self, instrument, path, rowParser):
-		self.__bars.setdefault(instrument, [])
-		self.__nextBarIdx.setdefault(instrument, 0)
-
 		# Load the csv file
 		loadedBars = []
 		reader = csv.DictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
@@ -142,45 +125,7 @@ class BarFeed(barfeed.BarFeed):
 			if bar_ != None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):
 				loadedBars.append(bar_)
 
-		# Add and sort the bars
-		self.__bars[instrument].extend(loadedBars)
-		barCmp = lambda x, y: cmp(x.getDateTime(), y.getDateTime())
-		self.__bars[instrument].sort(barCmp)
-
-		self.registerInstrument(instrument)
-
-	def stopDispatching(self):
-		ret = True
-		# Check if there is at least one more bar to return.
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars):
-				ret = False
-				break
-		return ret
-
-	def fetchNextBars(self):
-		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
-		smallestDateTime = None
-
-		# Make a first pass to get the smallest datetime.
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars):
-				if smallestDateTime == None or bars[nextIdx].getDateTime() < smallestDateTime:
-					smallestDateTime = bars[nextIdx].getDateTime()
-
-		if smallestDateTime == None:
-			return None
-
-		# Make a second pass to get all the bars that had the smallest datetime.
-		ret = {}
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars) and bars[nextIdx].getDateTime() == smallestDateTime:
-				ret[instrument] = bars[nextIdx]
-				self.__nextBarIdx[instrument] += 1
-		return ret
+		self.addBarsFromSequence(instrument, loadedBars)
 
 ######################################################################
 ## Yahoo CSV parser
