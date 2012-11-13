@@ -81,32 +81,15 @@ class USEquitiesRTH(DateRangeFilter):
 				return False
 		return ret
 
-class BarFeed(barfeed.BarFeed):
+class BarFeed(barfeed.InMemoryBarFeed):
 	def __init__(self):
-		barfeed.BarFeed.__init__(self)
-		self.__bars = {}
-		self.__nextBarIdx = {}
+		barfeed.InMemoryBarFeed.__init__(self)
 		self.__barFilter = None
-		self.__stopDispatching = False
-
-	def start(self):
-		# Set session close attributes to bars.
-		for instrument, bars in self.__bars.iteritems():
-			helpers.set_session_close_attributes(bars)
-
-	def stop(self):
-		pass
-
-	def join(self):
-		pass
 
 	def setBarFilter(self, barFilter):
 		self.__barFilter = barFilter
 
 	def addBarsFromCSV(self, instrument, path, rowParser):
-		self.__bars.setdefault(instrument, [])
-		self.__nextBarIdx.setdefault(instrument, 0)
-
 		# Load the csv file
 		loadedBars = []
 		reader = csv.DictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
@@ -115,39 +98,7 @@ class BarFeed(barfeed.BarFeed):
 			if self.__barFilter is None or self.__barFilter.includeBar(bar_):
 				loadedBars.append(bar_)
 
-		# Add and sort the bars
-		self.__bars[instrument].extend(loadedBars)
-		barCmp = lambda x, y: cmp(x.getDateTime(), y.getDateTime())
-		self.__bars[instrument].sort(barCmp)
-
-		self.registerInstrument(instrument)
-
-	def stopDispatching(self):
-		return self.__stopDispatching
-
-	def fetchNextBars(self):
-		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
-		smallestDateTime = None
-
-		# Make a first pass to get the smallest datetime.
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars):
-				if smallestDateTime == None or bars[nextIdx].getDateTime() < smallestDateTime:
-					smallestDateTime = bars[nextIdx].getDateTime()
-
-		if smallestDateTime == None:
-			self.__stopDispatching = True
-			return None
-
-		# Make a second pass to get all the bars that had the smallest datetime.
-		ret = {}
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars) and bars[nextIdx].getDateTime() == smallestDateTime:
-				ret[instrument] = bars[nextIdx]
-				self.__nextBarIdx[instrument] += 1
-		return ret
+		self.addBarsFromSequence(instrument, loadedBars)
 
 ######################################################################
 ## Yahoo CSV parser
