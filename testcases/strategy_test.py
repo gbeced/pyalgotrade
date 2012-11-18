@@ -450,6 +450,7 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(strat.getEnterCanceledEvents() == 0)
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 127.05 - 126.71, 2))
 
 	def testIntradayExitOnClose_BuyOnLastBar(self):
 		barFeed = self.loadIntradayBarFeed()
@@ -484,6 +485,7 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitOkEvents() == 1)
 		self.assertTrue(strat.getEnterCanceledEvents() == 0)
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 127.05 - 127.07, 2))
 
 class ShortPosTestCase(StrategyTestCase):
 	def __testShortPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
