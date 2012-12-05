@@ -19,6 +19,9 @@
 """
 
 from pyalgotrade import broker
+import pyalgotrade.logger
+
+logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
 ######################################################################
 ## Filling strategies
@@ -198,22 +201,32 @@ class DefaultStrategy(FillStrategy):
 ## Orders
 
 class BacktestingOrder:
+	def __init__(self):
+		pass
+
 	def checkCanceled(self, broker, bars):
-		# If its the last bar of the session and the order is not GTC, then cancel it.
+		# This check is only for accepted orders that are not GTC.
+		if self.getGoodTillCanceled() or not self.isAccepted():
+			return
+
+		# If its the last bar of the session and the order was not filled then cancel it.
 		bar_ = bars.getBar(self.getInstrument())
-		if bar_ != None and self.isAccepted() and self.getGoodTillCanceled() == False and bar_.getSessionClose():
+		if bar_ != None and bar_.getSessionClose():
 			broker.cancelOrder(self)
 
 	def tryExecute(self, broker, bars):
 		if self.isAccepted():
+			# Process the order if there is data available.
 			bar_ = bars.getBar(self.getInstrument())
 			if bar_ != None:
 				self.tryExecuteImpl(broker, bar_)
+			# Check if the order has to be canceled.
 			self.checkCanceled(broker, bars)
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
 	def __init__(self, action, instrument, quantity, onClose):
 		broker.MarketOrder.__init__(self, action, instrument, quantity, onClose)
+		BacktestingOrder.__init__(self)
 
 	def tryExecuteImpl(self, broker_, bar_):
 		price = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar_)
@@ -221,12 +234,20 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
+	def __init__(self, action, instrument, limitPrice, quantity):
+		broker.LimitOrder.__init__(self, action, instrument, limitPrice, quantity)
+		BacktestingOrder.__init__(self)
+
 	def tryExecuteImpl(self, broker_, bar_):
 		price = broker_.getFillStrategy().fillLimitOrder(self, broker_, bar_)
 		if price != None:
 			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
+	def __init__(self, action, instrument, stopPrice, quantity):
+		broker.StopOrder.__init__(self, action, instrument, stopPrice, quantity)
+		BacktestingOrder.__init__(self)
+
 	def tryExecuteImpl(self, broker_, bar_):
 		price = broker_.getFillStrategy().fillStopOrder(self, broker_, bar_)
 		if price != None:
@@ -235,6 +256,10 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
+	def __init__(self, action, instrument, limitPrice, stopPrice, quantity):
+		broker.StopLimitOrder.__init__(self, action, instrument, limitPrice, stopPrice, quantity)
+		BacktestingOrder.__init__(self)
+
 	def __stopHit(self, broker_, bar_):
 		ret = False
 		high = broker_.getBarHigh(bar_)
@@ -393,6 +418,8 @@ class Broker(broker.Broker):
 			# Update the order.
 			orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
 			order.setExecuted(orderExecutionInfo)
+		else:
+			logger.debug("Not enough money to fill order %s" % (order))
 
 		return ret
 

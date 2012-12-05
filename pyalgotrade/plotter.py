@@ -132,6 +132,8 @@ class LineMarker(Series):
 		return " "
 
 class InstrumentMarker(Series):
+	marker = " "
+
 	def __init__(self):
 		Series.__init__(self)
 		self.__useCandleSticks = False
@@ -141,7 +143,7 @@ class InstrumentMarker(Series):
 		return self.__useCandleSticks == False
 
 	def getMarker(self):
-		return " "
+		return InstrumentMarker.marker
 
 	def setUseAdjClose(self, useAdjClose):
 		self.__useAdjClose = useAdjClose
@@ -161,7 +163,8 @@ class InstrumentMarker(Series):
 			values = []
 			for dateTime in dateTimes:
 				bar = self.getValue(dateTime)
-				values.append( (dates.date2num(dateTime), bar.getOpen(), bar.getClose(), bar.getHigh(), bar.getLow()) )
+				if bar:
+					values.append( (dates.date2num(dateTime), bar.getOpen(), bar.getClose(), bar.getHigh(), bar.getLow()) )
 			finance.candlestick(mplSubplot, values, width=0.5, colorup='g', colordown='r',)
 		else:
 			Series.plot(self, mplSubplot, dateTimes, color)

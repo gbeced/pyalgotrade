@@ -15,4 +15,5 @@ Contents:
     stratanalyzer
     plotter
     optimizer
+    marketsession
 

@@ -32,6 +32,7 @@ from testcases import csvbarfeed_test
 from testcases import broker_test
 from testcases import strategy_test
 from testcases import smacrossover_strategy_test
+from testcases import multi_instrument_strategy_test
 from testcases import talib_test
 from testcases import observer_test
 from testcases import returns_analyzer_test
@@ -42,6 +43,7 @@ from testcases import utils_test
 
 def getTestCases():
 	ret = []
+
 	ret += technical_test.getTestCases()
 	ret += technical_ma_test.getTestCases()
 	ret += technical_ratio_test.getTestCases()
@@ -55,6 +57,7 @@ def getTestCases():
 	ret += broker_test.getTestCases()
 	ret += strategy_test.getTestCases()
 	ret += smacrossover_strategy_test.getTestCases()
+	ret += multi_instrument_strategy_test.getTestCases()
 	ret += talib_test.getTestCases()
 	ret += observer_test.getTestCases()
 	ret += returns_analyzer_test.getTestCases()
@@ -62,6 +65,7 @@ def getTestCases():
 	ret += sharpe_analyzer_test.getTestCases()
 	ret += drawdown_analyzer_test.getTestCases()
 	ret += utils_test.getTestCases()
+
 	return ret
 
 def main():

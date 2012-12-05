@@ -55,7 +55,6 @@ class Bar:
 		self.__sessionClose = False
 		self.__barsTillSessionClose = None
 
-	# datetime in UTC.
 	def getDateTime(self):
 		"""Returns the :class:`datetime.datetime`."""
 		return self.__dateTime
@@ -94,7 +93,7 @@ class Bar:
 		return self.__adjClose
 
 	def getSessionClose(self):
-		"""Returns True if this is the last bar for the session, or False otherwise."""
+		# Returns True if this is the last bar for the session, or False otherwise.
 		return self.__sessionClose
 
 	def setSessionClose(self, sessionClose):
@@ -107,7 +106,6 @@ class Bar:
 
 	def setBarsTillSessionClose(self, barsTillSessionClose):
 		self.__barsTillSessionClose = barsTillSessionClose
-
 
 class Bars:
 	"""A group of :class:`Bar` objects.

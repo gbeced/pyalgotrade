@@ -22,6 +22,8 @@ from pyalgotrade.utils import stats
 
 import unittest
 import math
+import numpy
+from distutils import version
 
 class StatsTestCase(unittest.TestCase):
 	def __assertEqFloat(self, v1, v2):
@@ -50,26 +52,34 @@ class StatsTestCase(unittest.TestCase):
 		self.__testMeanImpl([-1, 2, -4])
 		self.__testMeanImpl([1.04, 2.07, 4.41324])
 
+	# numpy greater or equal than 1.6.2
+	def testStdDev_NumpyGE162(self):
+		self.__testStdDevImpl([1], 1)
+		self.__testStdDevImpl([1, 2, 4], 3)
+		self.__testStdDevImpl([-1, 2, -4], 3)
+		self.__testStdDevImpl([-1.034, 2.012341, -4], 3)
+
 	def testStdDev(self):
 		# Test that the numpy and the builtin versions behave the same.
 		self.__testStdDevImpl([], 0)
 		self.__testStdDevImpl([], 1)
 		self.__testStdDevImpl([1], 0)
-		self.__testStdDevImpl([1], 1)
 		self.__testStdDevImpl([1, 2, 4], 0)
-		self.__testStdDevImpl([1, 2, 4], 3)
 		self.__testStdDevImpl([1, 2, 4], 4)
 		self.__testStdDevImpl([-1, 2, -4], 0)
-		self.__testStdDevImpl([-1, 2, -4], 3)
 		self.__testStdDevImpl([-1, 2, -4], 4)
 
 		self.__testStdDevImpl([-1.034, 2.012341, -4], 0)
-		self.__testStdDevImpl([-1.034, 2.012341, -4], 3)
 		self.__testStdDevImpl([-1.034, 2.012341, -4], 4)
 
 def getTestCases():
 	ret = []
 	ret.append(StatsTestCase("testMean"))
 	ret.append(StatsTestCase("testStdDev"))
+
+	# These testcases fail with versions of numpy < 1.6.2:
+	# - numpy.std([1], ddof=1) works different in 1.6.1 and 1.6.2.
+	if version.LooseVersion(numpy.__version__) >= version.LooseVersion("1.6.2"):
+		ret.append(StatsTestCase("testStdDev_NumpyGE162"))
 	return ret
 

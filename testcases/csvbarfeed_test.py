@@ -20,11 +20,12 @@
 
 import unittest
 import datetime
-import os
 
 from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
-# from pyalgotrade.providers.interactivebrokers import ibfeed
+from pyalgotrade.utils import dt
+from pyalgotrade import marketsession
 import common
 
 class BarFeedEventHandler_TestLoadOrder:
@@ -71,7 +72,7 @@ class YahooTestCase(unittest.TestCase):
 	TestInstrument = "orcl"
 
 	def __parseDate(self, date):
-		parser = csvfeed.YahooRowParser()
+		parser = csvfeed.YahooRowParser(datetime.time(23, 59))
 		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "Adj Close":0}
 		return parser.parseBar(row).getDateTime()
 
@@ -130,107 +131,119 @@ class YahooTestCase(unittest.TestCase):
 		# Only load bars in year 2000.
 		self.__testFilteredRangeImpl(datetime.datetime(2000, 1, 1, 00, 00), datetime.datetime(2000, 12, 31, 23, 55))
 
-class IntradayBarFeedTestCase(unittest.TestCase):
-	def __loadIntradayBarFeed(self):
-		ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+	def testWithoutTimezone(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+		barFeed.start()
+		for bars in barFeed:
+			bar = bars.getBar(YahooTestCase.TestInstrument)
+			self.assertTrue(dt.datetime_is_naive(bar.getDateTime()))
+		barFeed.stop()
+		barFeed.join()
+
+	def testWithDefaultTimezone(self):
+		barFeed = yahoofeed.Feed(marketsession.USEquities.getTimezone())
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+		barFeed.start()
+		for bars in barFeed:
+			bar = bars.getBar(YahooTestCase.TestInstrument)
+			self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
+		barFeed.stop()
+		barFeed.join()
+
+	def testWithPerFileTimezone(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+		barFeed.start()
+		for bars in barFeed:
+			bar = bars.getBar(YahooTestCase.TestInstrument)
+			self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
+		barFeed.stop()
+		barFeed.join()
+
+	def testWithIntegerTimezone(self):
+		try:
+			barFeed = yahoofeed.Feed(-5)
+			self.assertTrue(False, "Exception expected")
+		except Exception, e:
+			self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
+
+		try:
+			barFeed = yahoofeed.Feed()
+			barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), -3)
+			self.assertTrue(False, "Exception expected")
+		except Exception, e:
+			self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
+
+class NinjaTraderTestCase(unittest.TestCase):
+	def __loadIntradayBarFeed(self, timeZone = None):
+		ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
 		ret.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
 		# This is need to get session close attributes set. Strategy class is responsible for calling this.
 		ret.start()
 		# Process all events to get the dataseries fully loaded.
 		while not ret.stopDispatching():
 			ret.dispatch()
+		ret.stop()
+		ret.join()
 		return ret
 
-	def testSessionClose(self):
-		barFeed = self.__loadIntradayBarFeed()
+	def testWithTimezone(self):
+		timeZone = marketsession.USEquities.getTimezone()
+		barFeed = self.__loadIntradayBarFeed(timeZone)
 		ds = barFeed.getDataSeries()
 
-		# Check that the first bar has session close set to False.
-		self.assertTrue(ds.getValueAbsolute(0).getSessionClose() == False)
-
-		# 670: 2011-01-03 23:57:00
-		# 671: 2011-01-03 23:58:00
-		# 672: 2011-01-04 00:01:00
-		self.assertTrue(ds.getValueAbsolute(670).getSessionClose() == False)
-		self.assertTrue(ds.getValueAbsolute(670).getBarsTillSessionClose() == 1)
-		self.assertTrue(ds.getValueAbsolute(671).getSessionClose() == True)
-		self.assertTrue(ds.getValueAbsolute(671).getBarsTillSessionClose() == 0)
-		self.assertTrue(ds.getValueAbsolute(672).getSessionClose() == False)
-		self.assertTrue(ds.getValueAbsolute(672).getBarsTillSessionClose() != 0)
-		self.assertTrue(ds.getValueAbsolute(672).getBarsTillSessionClose() != 1)
-
-		# Check that the last bar has session close set to True.
-		self.assertTrue(ds.getValue().getBarsTillSessionClose() == 0)
-		self.assertTrue(ds.getValue().getSessionClose() == True)
-
-		# Check all bars.
 		for i in xrange(ds.getLength()):
 			currentBar = ds.getValueAbsolute(i)
-			if currentBar.getSessionClose() == True:
-				previousBar = ds.getValueAbsolute(i-1)
-				self.assertTrue(previousBar.getSessionClose() == False)
-				self.assertTrue(previousBar.getBarsTillSessionClose() == 1)
+			self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
 
-class IBTestCase(unittest.TestCase):
-	TestInstrument = "orcl"
+	def testWithoutTimezone(self):
+		barFeed = self.__loadIntradayBarFeed(None)
+		ds = barFeed.getDataSeries()
 
-	def __parseDate(self, date):
-		parser = ibfeed.RowParser("test")
-		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "TradeCount":0 , "VWAP":0 , "HasGap": "False"}
-		return parser.parseBar(row).getDateTime()
+		for i in xrange(ds.getLength()):
+			currentBar = ds.getValueAbsolute(i)
+			# Datetime must be set to UTC.
+			self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
 
-	def testParseDate_1(self):
-		date = self.__parseDate("2012-06-29 01:55:00")
-		self.assertTrue(date.day == 29)
-		self.assertTrue(date.month == 06)
-		self.assertTrue(date.year == 2012)
+	def testWithIntegerTimezone(self):
+		try:
+			barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, -3)
+			self.assertTrue(False, "Exception expected")
+		except Exception, e:
+			self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
-		self.assertTrue(date.hour == 01)
-		self.assertTrue(date.minute == 55)
-		self.assertTrue(date.second == 00)
+		try:
+			barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+			barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"), -5)
+			self.assertTrue(False, "Exception expected")
+		except Exception, e:
+			self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
-	def testDateCompare(self):
-		self.assertTrue(self.__parseDate("2012-06-29 00:55:00") != self.__parseDate("2012-06-29 01:55:00"))
-		self.assertTrue(self.__parseDate("2011-06-29 00:55:00") < self.__parseDate("2012-06-29 01:55:00"))
-		self.assertTrue(self.__parseDate("2012-06-29 00:55:00") < self.__parseDate("2012-06-29 01:55:00"))
-
-	def testCSVFeedLoadOrder(self):
-		barFeed = ibfeed.CSVFeed()
-		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
-		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
-		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
-
-		handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, IBTestCase.TestInstrument)
-		barFeed.getNewBarsEvent().subscribe(handler.onBars)
-		while not barFeed.stopDispatching():
-			barFeed.dispatch()
-		self.assertTrue(handler.getEventCount() > 0)
-
-	def __testFilteredRangeImpl(self, fromDate, toDate):
-		barFeed = ibfeed.CSVFeed()
-		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
-		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120627.csv"))
-		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120628.csv"))
-		barFeed.addBarsFromCSV(IBTestCase.TestInstrument, common.get_data_file_path("ib-spy-5min-20120629.csv"))
-		
-		# Dispatch and handle events.
-		handler = BarFeedEventHandler_TestFilterRange(self, IBTestCase.TestInstrument, fromDate, toDate)
-		barFeed.getNewBarsEvent().subscribe(handler.onBars)
-		while not barFeed.stopDispatching():
-			barFeed.dispatch()
-		self.assertTrue(handler.getEventCount() > 0)
-
-	def testFilteredRangeFrom(self):
-		self.__testFilteredRangeImpl(datetime.datetime(2012, 06, 28, 00, 00), None)
-
-	def testFilteredRangeTo(self):
-		self.__testFilteredRangeImpl(None, datetime.datetime(2012, 06, 29, 23, 55))
-
-	def testFilteredRangeFromTo(self):
-		self.__testFilteredRangeImpl(datetime.datetime(2000, 1, 1, 00, 00), datetime.datetime(2020, 12, 31, 23, 55))
+	def testLocalizeAndFilter(self):
+		timezone = marketsession.USEquities.getTimezone()
+		# The prices come from NinjaTrader interface when set to use 'US Equities RTH' session template.
+		prices = {
+			dt.localize(datetime.datetime(2011, 3, 9, 9, 31), timezone) : 132.35,
+			dt.localize(datetime.datetime(2011, 3, 9, 16), timezone) : 132.39,
+			dt.localize(datetime.datetime(2011, 3, 10, 9, 31), timezone) : 130.81,
+			dt.localize(datetime.datetime(2011, 3, 10, 16), timezone) : 129.92,
+			dt.localize(datetime.datetime(2011, 3, 11, 9, 31), timezone) : 129.72,
+			dt.localize(datetime.datetime(2011, 3, 11, 16), timezone) : 130.84,
+		}
+		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timezone)
+		barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
+		for bars in barFeed:
+			price = prices.get(bars.getDateTime(), None)
+			if price != None:
+				self.assertTrue(price == bars.getBar("spy").getClose())
 
 def getTestCases():
 	ret = []
+
 	ret.append(YahooTestCase("testParseDate_1"))
 	ret.append(YahooTestCase("testParseDate_2"))
 	ret.append(YahooTestCase("testDateCompare"))
@@ -238,13 +251,16 @@ def getTestCases():
 	ret.append(YahooTestCase("testFilteredRangeFrom"))
 	ret.append(YahooTestCase("testFilteredRangeTo"))
 	ret.append(YahooTestCase("testFilteredRangeFromTo"))
-	ret.append(IntradayBarFeedTestCase("testSessionClose"))
-	# ret.append(IBTestCase("testParseDate_1"))
-	# ret.append(IBTestCase("testDateCompare"))
-	# ret.append(IBTestCase("testCSVFeedLoadOrder"))
-	# ret.append(IBTestCase("testFilteredRangeFrom"))
-	# ret.append(IBTestCase("testFilteredRangeTo"))
-	# ret.append(IBTestCase("testFilteredRangeFromTo"))
+	ret.append(YahooTestCase("testWithoutTimezone"))
+	ret.append(YahooTestCase("testWithDefaultTimezone"))
+	ret.append(YahooTestCase("testWithPerFileTimezone"))
+	ret.append(YahooTestCase("testWithIntegerTimezone"))
+
+	ret.append(NinjaTraderTestCase("testWithTimezone"))
+	ret.append(NinjaTraderTestCase("testWithoutTimezone"))
+	ret.append(NinjaTraderTestCase("testWithIntegerTimezone"))
+	ret.append(NinjaTraderTestCase("testLocalizeAndFilter"))
+
 	return ret
 
 

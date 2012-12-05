@@ -22,6 +22,12 @@ from pyalgotrade import dataseries
 from pyalgotrade import observer
 from pyalgotrade import bar
 
+class Frequency:
+	# SECOND	= 1
+	MINUTE	= 2
+	# HOUR	= 3
+	DAY		= 4
+
 # This class is responsible for:
 # - Managing and upating BarDataSeries instances.
 # - Event dispatching
@@ -32,11 +38,15 @@ from pyalgotrade import bar
 # THIS IS A VERY BASIC CLASS AND IN WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
 
 class BasicBarFeed:
-	def __init__(self):
+	def __init__(self, frequency):
 		self.__ds = {}
 		self.__defaultInstrument = None
 		self.__newBarsEvent = observer.Event()
 		self.__lastBars = None
+		self.__frequency = frequency
+
+	def getFrequency(self):
+		return self.__frequency
 
 	def getLastBars(self):
 		return self.__lastBars
@@ -108,8 +118,8 @@ class BarFeed(BasicBarFeed):
 	.. note::
 		This is a base class and should not be used directly.
 	"""
-	def __init__(self):
-		BasicBarFeed.__init__(self)
+	def __init__(self, frequency):
+		BasicBarFeed.__init__(self, frequency)
 		self.__prevDateTime = None
 
 	def __iter__(self):
@@ -131,16 +141,6 @@ class BarFeed(BasicBarFeed):
 		if barDict == None:
 			return None
 
-		# TODO: Make this check optional. Default should be NOT to do it.
-		# Check that bars were retured for all the instruments registered.
-		# barInstruments = barDict.keys()
-		# barInstruments.sort()
-		# registeredInstruments = self.getRegisteredInstruments()
-		# registeredInstruments.sort()
-		# if barInstruments != registeredInstruments:
-		# 	missing = filter(lambda instrument: instrument not in barInstruments, registeredInstruments)
-		# 	raise Exception("Some bars are missing: %s" % missing)
-
 		# This will check for incosistent datetimes between bars.
 		ret = bar.Bars(barDict)
 
@@ -153,8 +153,8 @@ class BarFeed(BasicBarFeed):
 
 # This class is used by the optimizer module. The barfeed is already built on the server side, and the bars are sent back to workers.
 class OptimizerBarFeed(BasicBarFeed):
-	def __init__(self, instruments, bars):
-		BasicBarFeed.__init__(self)
+	def __init__(self, frequency, instruments, bars):
+		BasicBarFeed.__init__(self, frequency)
 		for instrument in instruments:
 			self.registerInstrument(instrument)
 		self.__bars = bars

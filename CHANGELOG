@@ -3,8 +3,9 @@ Version 0.10 (TBD)
 . [NEW] Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown).
 . [NEW] Returns analysis (pyalgotrade.stratanalyzer.returns.Returns).
 . [NEW] Trades analysis (pyalgotrade.stratanalyzer.trades.Trades).
+. [NEW] Added support for bar timezones (pyalgotrade.marketsession).
 . [FIX] Fixed returns calculations for short positions. Thanks John Fawcett for explaining this.
-. [FIX] Fixed a bug in the Strategy class and the backtesting broker when dealing with multiple instruments.  Was not handling absence of bars appropriately. Thanks Fabian Braennstroem for reporting this.
+. [FIX] Fixed a bug in the Strategy class and the backtesting broker when dealing with multiple instruments. Was not handling absence of bars appropriately. Thanks Fabian Braennstroem for reporting this.
 
 Version 0.9 (1/Sep/2012)
 . [NEW] Added a method to the strategy class to get notified when an order gets updated (onOrderUpdated). This is only called if the order was placed using the broker interface directly.

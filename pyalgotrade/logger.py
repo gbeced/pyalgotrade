@@ -19,6 +19,10 @@
 """
 
 import logging
+import threading
+
+factoryLock = threading.Lock()
+loggers = {}
 
 # Defaults
 log_format = "%(asctime)s [%(levelname)s] %(message)s"
@@ -28,9 +32,9 @@ console_log = True
 
 def __set_defaults(handler):
 	handler.setFormatter(logging.Formatter(log_format))
-	handler.setLevel(level)
+	# handler.setLevel(level)
 
-def getLogger(name):
+def __build_logger(name):
 	ret = logging.getLogger(name)
 	ret.setLevel(level)
 
@@ -44,5 +48,13 @@ def getLogger(name):
 		__set_defaults(consoleHandler)
 		ret.addHandler(consoleHandler)
 
+	return ret
+
+def getLogger(name):
+	with factoryLock:
+		ret = loggers.get(name)
+		if ret == None:
+			ret = __build_logger(name)
+			loggers[name] = ret
 	return ret
 

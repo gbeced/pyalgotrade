@@ -18,9 +18,14 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import pyalgotrade.barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import bar
+from pyalgotrade.utils import dt
 
+import pytz
+
+import types
 import datetime
 
 ######################################################################
@@ -32,26 +37,37 @@ import datetime
 #
 # Daily Bars Format:
 # yyyyMMdd;open price;high price;low price;close price;volume
+#
+# The exported data will be in the UTC time zone.
 
 class Frequency:
-	MINUTE = 1
-	DAILY = 2
+	MINUTE = pyalgotrade.barfeed.Frequency.MINUTE
+	DAILY = pyalgotrade.barfeed.Frequency.DAY
 
 class RowParser(csvfeed.RowParser):
-	# zone: The zone specifies the offset from Coordinated Universal Time (UTC, formerly referred to as "Greenwich Mean Time") 
-	def __init__(self, frequency, zone = 0):
+	def __init__(self, frequency, dailyBarTime, timezone = None):
 		self.__frequency = frequency
-		self.__zone = zone
+		self.__dailyBarTime = dailyBarTime
+		self.__timezone = timezone
 
 	def __parseDateTime(self, dateTime):
 		ret = None
-		if self.__frequency == Frequency.MINUTE:
+		if self.__frequency == pyalgotrade.barfeed.Frequency.MINUTE:
 			ret = datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
-			ret += datetime.timedelta(hours= (-1 * self.__zone))
-		elif self.__frequency == Frequency.DAILY:
+		elif self.__frequency == pyalgotrade.barfeed.Frequency.DAY:
 			ret = datetime.datetime.strptime(dateTime, "%Y%m%d")
+			# Time on CSV files is empty. If told to set one, do it.
+			if self.__dailyBarTime != None:
+				ret = datetime.datetime.combine(ret, self.__dailyBarTime)
 		else:
 			assert(False)
+
+		# According to NinjaTrader documentation the exported data will be in UTC.
+		ret = pytz.utc.localize(ret)
+
+		# Localize bars if a market session was set.
+		if self.__timezone:
+			ret = dt.localize(ret, self.__timezone)
 		return ret
 
 	def getFieldNames(self):
@@ -70,23 +86,28 @@ class RowParser(csvfeed.RowParser):
 		return bar.Bar(dateTime, open_, high, low, close, volume, None)
 
 class Feed(csvfeed.BarFeed):
-	"""A :class:`pyalgotrade.barfeed.BarFeed` that loads bars from a CSV file exported from NinjaTrader.
+	"""A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files exported from NinjaTrader.
 
 	:param frequency: The frequency of the bars.
+	:param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+	:type timezone: A pytz timezone.
 
 	.. note::
 
 		Valid **frequency** parameter values are:
 
-		 * ninjatraderfeed.Frequency.MINUTE 
-		 * ninjatraderfeed.Frequency.DAILY
+		 * pyalgotrade.barfeed.Frequency.MINUTE 
+		 * pyalgotrade.barfeed.Frequency.DAY
 	"""
 
-	def __init__(self, frequency):
-		csvfeed.BarFeed.__init__(self)
-		self.__frequency = frequency
+	def __init__(self, frequency, timezone = None):
+		if type(timezone) == types.IntType:
+			raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 
-	def addBarsFromCSV(self, instrument, path, timeZone = 0):
+		csvfeed.BarFeed.__init__(self, frequency)
+		self.__timezone = timezone
+
+	def addBarsFromCSV(self, instrument, path, timezone = None):
 		"""Loads bars for a given instrument from a CSV formatted file.
 		The instrument gets registered in the bar feed.
 		
@@ -94,10 +115,16 @@ class Feed(csvfeed.BarFeed):
 		:type instrument: string.
 		:param path: The path to the file.
 		:type path: string.
-		:param timeZone: The timezone for bars. 0 if bar dates are in UTC.
-		:type timeZone: int.
+		:param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+		:type timezone: A pytz timezone.
 		"""
 
-		rowParser = RowParser(self.__frequency, timeZone)
+		if type(timezone) == types.IntType:
+			raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
+
+		if timezone is None:
+			timezone = self.__timezone
+
+		rowParser = RowParser(self.getFrequency(), self.getDailyBarTime(), timezone)
 		csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 

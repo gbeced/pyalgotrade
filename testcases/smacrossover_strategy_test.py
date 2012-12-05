@@ -85,7 +85,7 @@ class SMACrossOverStrategy(strategy.Strategy):
 
 	def onBars(self, bars):
 		bar = bars.getBar("orcl")
-		self.printDebug(self, "%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
+		self.printDebug("%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
 
 		# Wait for enough bars to be available.
 		if self.__crossAbove.getValue() is None or self.__crossBelow.getValue() is None:

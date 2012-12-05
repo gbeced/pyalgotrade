@@ -9,6 +9,7 @@ It should also make it easy to optimize a strategy using multiple computers.
 PyAlgoTrade was developed with Python 2.7 and depends on:
  * NumPy and SciPy (http://numpy.scipy.org/)
  * matplotlib (http://matplotlib.sourceforge.net/)
+ * pytz (http://pytz.sourceforge.net/)
 
 so you need to have those installed in order to use this library.
 

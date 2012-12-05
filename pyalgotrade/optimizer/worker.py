@@ -63,6 +63,11 @@ class Worker:
 		ret = pickle.loads(ret)
 		return ret
 
+	def getBarsFrequency(self):
+		ret = call_and_retry_on_network_error(self.__server.getBarsFrequency, 10)
+		ret = int(ret)
+		return ret
+
 	def getNextJob(self):
 		ret = call_and_retry_on_network_error(self.__server.getNextJob, 10)
 		ret = pickle.loads(ret)
@@ -74,13 +79,13 @@ class Worker:
 		parameters = pickle.dumps(parameters)
 		call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters)
 
-	def __processJob(self, job, instruments, bars):
+	def __processJob(self, job, barsFreq, instruments, bars):
 		bestResult = 0
 		parameters = job.getNextParameters()
 		bestParams = parameters 
 		while parameters != None:
 			# Wrap the bars into a feed.
-			feed = barfeed.OptimizerBarFeed(instruments, bars)
+			feed = barfeed.OptimizerBarFeed(barsFreq, instruments, bars)
 			# Run the strategy.
 			self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
 			result = self.runStrategy(feed, *parameters)
@@ -101,11 +106,12 @@ class Worker:
 	def run(self):
 		# Get the instruments and bars.
 		instruments, bars = self.getInstrumentsAndBars()
+		barsFreq = self.getBarsFrequency()
 
 		# Process jobs
 		job = self.getNextJob()
 		while job != None:
-			self.__processJob(job, instruments, bars)
+			self.__processJob(job, barsFreq, instruments, bars)
 			job = self.getNextJob()
 
 def worker_process(strategyClass, address, port):
@@ -113,7 +119,6 @@ def worker_process(strategyClass, address, port):
 		def runStrategy(self, barFeed, *parameters):
 			strat = strategyClass(barFeed, *parameters)
 			strat.run()
-			return strat.getResult()
 
 	# Create a worker and run it.
 	w = MyWorker(address, port)

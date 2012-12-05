@@ -5,9 +5,17 @@ barfeed -- Bar providers
     :members: BarFeed
     :inherited-members:
 
+.. automodule:: pyalgotrade.barfeed.csvfeed
+    :members: BarFeed
+
+Yahoo! Finance
+--------------
 .. automodule:: pyalgotrade.barfeed.yahoofeed
     :members: Feed
 
+Ninja Trader
+------------
 .. automodule:: pyalgotrade.barfeed.ninjatraderfeed
     :members: Feed
+
 

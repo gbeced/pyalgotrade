@@ -18,20 +18,25 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import session
+# Calculates session close based on days.
+# When the current bar is the last bar for the day, or the last bar in the feed, the session is closed.
+def session_close(currentBar, nextBar):
+	ret = False
+	if nextBar == None:
+		ret = True
+	elif currentBar.getDateTime().date() != nextBar.getDateTime().date():
+		ret = True
+	return ret
 
 # Sets session close and bars till session close properties to bars in a sequence. 
 def set_session_close_attributes(barSeq, sessionCloseStrategy = None):
-	if sessionCloseStrategy == None:
-		sessionCloseStrategy = session.DaySessionCloseStrategy()
-
 	for i in xrange(1, len(barSeq)):
-		if sessionCloseStrategy.sessionClose(barSeq[i-1], barSeq[i]):
+		if session_close(barSeq[i-1], barSeq[i]):
 			barSeq[i-1].setSessionClose(True)
 			# Flag the penultimate bar if:
 			# - There is a penultimate bar
 			# - The penultimate and last bar belong to the same session.
-			if i-2 >= 0 and sessionCloseStrategy.sessionClose(barSeq[i-2], barSeq[i-1]) == False:
+			if i-2 >= 0 and session_close(barSeq[i-2], barSeq[i-1]) == False:
 				barSeq[i-2].setBarsTillSessionClose(1)
 
 	# Deal with the last bars in the feed.
@@ -39,5 +44,4 @@ def set_session_close_attributes(barSeq, sessionCloseStrategy = None):
 		barSeq[-1].setSessionClose(True)
 		if len(barSeq) > 1:
 			barSeq[-2].setBarsTillSessionClose(1)
-
 

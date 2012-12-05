@@ -22,7 +22,6 @@ import SimpleXMLRPCServer
 import threading
 import time
 import pickle
-import threading
 import random
 from pyalgotrade import optimizer
 
@@ -87,6 +86,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 		SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
 
 		self.__instrumentsAndBars = None # Pickle'd instruments and bars for faster retrieval.
+		self.__barsFreq = None
 		self.__activeJobs = {}
 		self.__activeJobsLock = threading.Lock()
 		self.__parametersLock = threading.Lock()
@@ -100,6 +100,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
 		self.register_introspection_functions()
 		self.register_function(self.getInstrumentsAndBars, 'getInstrumentsAndBars')
+		self.register_function(self.getBarsFrequency, 'getBarsFrequency')
 		self.register_function(self.getNextJob, 'getNextJob')
 		self.register_function(self.pushJobResults, 'pushJobResults')
 		self.__forcedStop = False
@@ -132,6 +133,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
 	def getInstrumentsAndBars(self):
 		return self.__instrumentsAndBars
+
+	def getBarsFrequency(self):
+		return str(self.__barsFreq)
 
 	def getBestJob(self):
 		return self.__bestJob
@@ -197,10 +201,14 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			# Initialize instruments, bars and parameters.
 			self.getLogger().info("Loading bars")
 			loadedBars = []
+			barFeed.start()
 			for bars in barFeed:
 				loadedBars.append(bars)
+			barFeed.stop()
+			barFeed.join()
 			instruments = barFeed.getRegisteredInstruments()
 			self.__instrumentsAndBars = pickle.dumps((instruments, loadedBars))
+			self.__barsFreq = barFeed.getFrequency()
 
 			self.__parametersIterator = iter(strategyParameters)
 

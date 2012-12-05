@@ -98,7 +98,11 @@
 &lt;br /&gt;
 &lt;!-- Twitter --&gt;
 &lt;a href="https://twitter.com/pyalgotrade" class="twitter-follow-button" data-show-count="false"&gt;Follow @pyalgotrade&lt;/a&gt;
-&lt;script&gt;!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");&lt;/script&gt;</string>
+&lt;script&gt;!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");&lt;/script&gt;
+&lt;br /&gt;
+&lt;!-- Ohloh --&gt;
+&lt;script type="text/javascript" src="http://www.ohloh.net/p/616491/widgets/project_thin_badge.js"&gt;&lt;/script&gt;
+</string>
 				<key>TextEncoding</key>
 				<string>utf-8</string>
 				<key>ThemeStyles</key>
