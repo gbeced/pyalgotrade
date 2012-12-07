@@ -29,6 +29,7 @@ from testcases import technical_roc_test
 from testcases import technical_stoch_test
 from testcases import dataseries_test
 from testcases import csvbarfeed_test
+from testcases import dbfeed_test
 from testcases import broker_test
 from testcases import strategy_test
 from testcases import smacrossover_strategy_test
@@ -54,6 +55,7 @@ def getTestCases():
 	ret += technical_stoch_test.getTestCases()
 	ret += dataseries_test.getTestCases()
 	ret += csvbarfeed_test.getTestCases()
+	ret += dbfeed_test.getTestCases()
 	ret += broker_test.getTestCases()
 	ret += strategy_test.getTestCases()
 	ret += smacrossover_strategy_test.getTestCases()

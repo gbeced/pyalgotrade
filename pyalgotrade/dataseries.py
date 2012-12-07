@@ -29,7 +29,6 @@ class DataSeries:
 
 	def __len__(self):
 		"""Returns the number of elements in the data series."""
-		print "__len__ called"
 		return self.getLength()
 
 	def __getitem__(self, key):
