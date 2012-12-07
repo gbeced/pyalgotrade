@@ -121,11 +121,14 @@ class Database(dbfeed.Database):
 		return ret
 
 class Feed(barfeed.InMemoryBarFeed):
-	def __init__(self, dbFilePath):
-		barfeed.InMemoryBarFeed.__init__(self)
+	def __init__(self, dbFilePath, frequency):
+		barfeed.InMemoryBarFeed.__init__(self, frequency)
 		self.__db = Database(dbFilePath)
 
-	def loadBars(self, instrument, frequency, fromDateTime = None, toDateTime = None):
-		bars = self.__db.getBars(instrument, frequency, fromDateTime, toDateTime)
+	def getDatabase(self):
+		return self.__db
+
+	def loadBars(self, instrument, fromDateTime = None, toDateTime = None):
+		bars = self.__db.getBars(instrument, self.getFrequency(), fromDateTime, toDateTime)
 		self.addBarsFromSequence(instrument, bars)
 
