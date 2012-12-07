@@ -18,12 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
-
 class Database:
-	class BarFrequency:
-		DAY = 1
-
 	def addBars(self, bars, frequency):
 		for instrument in bars.getInstruments():
 			bar = bars.getBar(instrument)
