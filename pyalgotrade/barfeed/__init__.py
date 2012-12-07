@@ -46,6 +46,23 @@ class BasicBarFeed:
 		self.__lastBars = None
 		self.__frequency = frequency
 
+	def __getNextBarsAndUpdateDS(self):
+		bars = self.getNextBars()
+		if bars != None:
+			self.__lastBars = bars
+			# Update the dataseries.
+			for instrument in bars.getInstruments():
+				self.__ds[instrument].appendValue(bars.getBar(instrument))
+		return bars
+
+	def __iter__(self):
+		return self
+
+	def next(self):
+		if self.stopDispatching():
+			raise StopIteration()
+		return self.__getNextBarsAndUpdateDS()
+
 	def getFrequency(self):
 		return self.__frequency
 
@@ -78,13 +95,8 @@ class BasicBarFeed:
 
 	# Dispatch events.
 	def dispatch(self):
-		bars = self.getNextBars()
+		bars = self.__getNextBarsAndUpdateDS()
 		if bars != None:
-			self.__lastBars = bars
-			# Update the dataseries.
-			for instrument in bars.getInstruments():
-				self.__ds[instrument].appendValue(bars.getBar(instrument))
-			# Emit event.
 			self.__newBarsEvent.emit(bars)
 
 	def getRegisteredInstruments(self):
@@ -122,14 +134,6 @@ class BarFeed(BasicBarFeed):
 	def __init__(self, frequency):
 		BasicBarFeed.__init__(self, frequency)
 		self.__prevDateTime = None
-
-	def __iter__(self):
-		return self
-
-	def next(self):
-		if self.stopDispatching():
-			raise StopIteration()
-		return self.getNextBars()
 
 	# Override to return a map from instrument names to bars or None if there is no data. All bars datetime must be equal.
 	def fetchNextBars(self):

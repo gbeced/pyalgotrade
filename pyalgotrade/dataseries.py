@@ -27,12 +27,23 @@ class DataSeries:
 			This is a base class and should not be used directly.
 	"""
 
+	def __len__(self):
+		"""Returns the number of elements in the data series."""
+		print "__len__ called"
+		return self.getLength()
+
+	def __getitem__(self, key):
+		"""Returns the value at a given position. It raises IndexError if the position is invalid."""
+		if key >= self.getLength():
+			raise IndexError("index out of range")
+		return self.getValueAbsolute(key)
+
 	def getFirstValidPos(self):
 		"""Returns the first valid position in the dataseries."""
 		raise Exception("Not implemented")
 
 	def getLength(self):
-		"""Returns the number of values in the data series."""
+		"""Returns the number of elements in the data series."""
 		raise Exception("Not implemented")
 
 	def getValueAbsolute(self, pos):
