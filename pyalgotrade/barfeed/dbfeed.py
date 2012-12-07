@@ -24,12 +24,12 @@ class Database:
 			bar = bars.getBar(instrument)
 			self.addBar(instrument, bar, frequency)
 
-	def addBarsFromFeed(self, feed, frequency):
+	def addBarsFromFeed(self, feed):
 		feed.start()
 		try:
 			for bars in feed:
 				if bars:
-					self.addBars(bars, frequency)
+					self.addBars(bars, feed.getFrequency())
 		finally:
 			feed.stop()
 			feed.join()
