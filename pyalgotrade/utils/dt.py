@@ -18,6 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+import calendar
+
 def datetime_is_naive(dateTime):
 	""" Returns True if dateTime is naive."""
 	return dateTime.tzinfo is None or dateTime.tzinfo.utcoffset(dateTime) is None
@@ -34,6 +37,14 @@ def localize(dateTime, timeZone):
 	else:
 		ret = dateTime.astimezone(timeZone)
 	return ret
+
+def datetime_to_timestamp(dateTime):
+	""" Converts a datetime.datetime to a UTC timestamp."""
+	return calendar.timegm(dateTime.utctimetuple())
+
+def timestamp_to_datetime(timeStamp):
+	""" Converts a UTC timestamp to a datetime.datetime."""
+	return datetime.datetime.utcfromtimestamp(timeStamp)
 
 
 

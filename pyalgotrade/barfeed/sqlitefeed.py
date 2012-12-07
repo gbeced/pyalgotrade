@@ -18,21 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-
 from pyalgotrade import barfeed
 from pyalgotrade.barfeed import dbfeed
 from pyalgotrade import bar
+from pyalgotrade.utils import dt
 
 import sqlite3
 import os
-import datetime
-import calendar
-
-def datetime_to_timestamp(dateTime):
-	return calendar.timegm(dateTime.utctimetuple())
-
-def timestamp_to_datetime(timeStamp):
-	return datetime.datetime.utcfromtimestamp(timeStamp)
 
 class Database(dbfeed.Database):
 	def __init__(self, dbFilePath):
@@ -94,7 +86,7 @@ class Database(dbfeed.Database):
 
 	def addBar(self, instrument, bar, frequency):
 		instrumentId = self.__getOrCreateInstrument(instrument)
-		timeStamp = datetime_to_timestamp(bar.getDateTime())
+		timeStamp = dt.datetime_to_timestamp(bar.getDateTime())
 
 		try:
 			sql = "insert into bar (instrument_id, frequency, timestamp, open, high, low, close, volume, adj_close) values (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -114,17 +106,17 @@ class Database(dbfeed.Database):
 
 		if fromDateTime != None:
 			sql += " and bar.timestamp >= ?"
-			args.append(datetime_to_timestamp(fromDateTime))
+			args.append(dt.datetime_to_timestamp(fromDateTime))
 		if toDateTime != None:
 			sql += " and bar.timestamp <= ?"
-			args.append(datetime_to_timestamp(toDateTime))
+			args.append(dt.datetime_to_timestamp(toDateTime))
 
 		sql += " order by bar.timestamp asc"
 		cursor = self.__connection.cursor()
 		cursor.execute(sql, args)
 		ret = []
 		for row in cursor:
-			ret.append(bar.Bar(timestamp_to_datetime(row[0]), row[1], row[2], row[3], row[4], row[5], row[6]))
+			ret.append(bar.Bar(dt.timestamp_to_datetime(row[0]), row[1], row[2], row[3], row[4], row[5], row[6]))
 		cursor.close()
 		return ret
 
@@ -133,7 +125,7 @@ class Feed(barfeed.InMemoryBarFeed):
 		barfeed.InMemoryBarFeed.__init__(self)
 		self.__db = Database(dbFilePath)
 
-	def addBars(self, instrument, frequency, fromDateTime = None, toDateTime = None):
+	def loadBars(self, instrument, frequency, fromDateTime = None, toDateTime = None):
 		bars = self.__db.getBars(instrument, frequency, fromDateTime, toDateTime)
 		self.addBarsFromSequence(instrument, bars)
 
