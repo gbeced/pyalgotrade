@@ -22,6 +22,7 @@ from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import warninghelpers
 from pyalgotrade.utils import dt
+from pyalgotrade.barfeed import membf
 
 import csv
 import datetime
@@ -84,7 +85,7 @@ class USEquitiesRTH(DateRangeFilter):
 				return False
 		return ret
 
-class BarFeed(barfeed.InMemoryBarFeed):
+class BarFeed(membf.Feed):
 	"""A CSV file based :class:`pyalgotrade.barfeed.BarFeed`.
 
 	.. note::
@@ -92,7 +93,7 @@ class BarFeed(barfeed.InMemoryBarFeed):
 	"""
 
 	def __init__(self, frequency):
-		barfeed.InMemoryBarFeed.__init__(self, frequency)
+		membf.Feed.__init__(self, frequency)
 		self.__barFilter = None
 		self.__dailyTime = datetime.time(23, 59, 59)
 

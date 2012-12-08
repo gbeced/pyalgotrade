@@ -21,7 +21,6 @@
 from pyalgotrade import dataseries
 from pyalgotrade import observer
 from pyalgotrade import bar
-from pyalgotrade.barfeed import helpers
 
 class Frequency:
 	# SECOND	= 1
@@ -128,6 +127,9 @@ class BasicBarFeed:
 class BarFeed(BasicBarFeed):
 	"""Base class for :class:`pyalgotrade.bar.Bars` providing feeds.
 
+	:param frequency: The bars frequency.
+	:type frequency: barfeed.Frequency.MINUTE or barfeed.Frequency.DAY.
+
 	.. note::
 		This is a base class and should not be used directly.
 	"""
@@ -154,74 +156,6 @@ class BarFeed(BasicBarFeed):
 			raise Exception("Bar data times are not in order. Previous datetime was %s and current datetime is %s" % (self.__prevDateTime, ret.getDateTime()))
 		self.__prevDateTime = ret.getDateTime()
 
-		return ret
-
-# This class is responsible for:
-# - Holding bars in memory.
-# - Aligning them with respect to time.
-#
-# Subclasses should:
-# - Forward the call to start() if they override it.
-
-class InMemoryBarFeed(BarFeed):
-	def __init__(self, frequency):
-		BarFeed.__init__(self, frequency)
-		self.__bars = {}
-		self.__nextBarIdx = {}
-
-	def start(self):
-		# Set session close attributes to bars.
-		for instrument, bars in self.__bars.iteritems():
-			helpers.set_session_close_attributes(bars)
-
-	def stop(self):
-		pass
-
-	def join(self):
-		pass
-
-	def addBarsFromSequence(self, instrument, bars):
-		self.__bars.setdefault(instrument, [])
-		self.__nextBarIdx.setdefault(instrument, 0)
-
-		# Add and sort the bars
-		self.__bars[instrument].extend(bars)
-		barCmp = lambda x, y: cmp(x.getDateTime(), y.getDateTime())
-		self.__bars[instrument].sort(barCmp)
-
-		self.registerInstrument(instrument)
-
-	def stopDispatching(self):
-		ret = True
-		# Check if there is at least one more bar to return.
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars):
-				ret = False
-				break
-		return ret
-
-	def fetchNextBars(self):
-		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
-		smallestDateTime = None
-
-		# Make a first pass to get the smallest datetime.
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars):
-				if smallestDateTime == None or bars[nextIdx].getDateTime() < smallestDateTime:
-					smallestDateTime = bars[nextIdx].getDateTime()
-
-		if smallestDateTime == None:
-			return None
-
-		# Make a second pass to get all the bars that had the smallest datetime.
-		ret = {}
-		for instrument, bars in self.__bars.iteritems():
-			nextIdx = self.__nextBarIdx[instrument]
-			if nextIdx < len(bars) and bars[nextIdx].getDateTime() == smallestDateTime:
-				ret[instrument] = bars[nextIdx]
-				self.__nextBarIdx[instrument] += 1
 		return ret
 
 # This class is used by the optimizer module. The barfeed is already built on the server side, and the bars are sent back to workers.

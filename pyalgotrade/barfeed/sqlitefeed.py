@@ -20,6 +20,7 @@
 
 from pyalgotrade import barfeed
 from pyalgotrade.barfeed import dbfeed
+from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
 from pyalgotrade.utils import dt
 
@@ -120,9 +121,9 @@ class Database(dbfeed.Database):
 		cursor.close()
 		return ret
 
-class Feed(barfeed.InMemoryBarFeed):
+class Feed(membf.Feed):
 	def __init__(self, dbFilePath, frequency):
-		barfeed.InMemoryBarFeed.__init__(self, frequency)
+		membf.Feed.__init__(self, frequency)
 		self.__db = Database(dbFilePath)
 
 	def getDatabase(self):
