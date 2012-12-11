@@ -42,7 +42,7 @@ class MyStrategy(strategy.Strategy):
 
     def onBars(self, bars):
         # Wait for enough bars to be available to calculate SMA and RSI.
-        if self.__exitSMA.getValue() is None or self.__entrySMA.getValue() is None or self.__rsi.getValue() is None:
+        if self.__exitSMA[-1] is None or self.__entrySMA[-1] is None or self.__rsi[-1] is None:
             return
 
         bar = bars.getBar("dia")
@@ -59,16 +59,16 @@ class MyStrategy(strategy.Strategy):
                 self.__shortPos = self.enterShort("dia", 10, True)
 
     def enterLongSignal(self, bar):
-        return bar.getClose() > self.__entrySMA.getValue() and self.__rsi.getValue() <= self.__overSoldThreshold
+        return bar.getClose() > self.__entrySMA[-1] and self.__rsi[-1] <= self.__overSoldThreshold
 
     def exitLongSignal(self, bar):
-        return bar.getClose() > self.__exitSMA.getValue()
+        return bar.getClose() > self.__exitSMA[-1]
 
     def enterShortSignal(self, bar):
-        return bar.getClose() < self.__entrySMA.getValue() and self.__rsi.getValue() >= self.__overBoughtThreshold
+        return bar.getClose() < self.__entrySMA[-1] and self.__rsi[-1] >= self.__overBoughtThreshold
 
     def exitShortSignal(self, bar):
-        return bar.getClose() < self.__exitSMA.getValue()
+        return bar.getClose() < self.__exitSMA[-1]
 
 def parameters_generator():
     entrySMA = range(150, 251)

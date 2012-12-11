@@ -29,17 +29,17 @@ class MyStrategy(strategy.Strategy):
 
     def onBars(self, bars):
         # Wait for enough bars to be available to calculate a SMA.
-        if self.__sma.getValue() is None:
+        if self.__sma[-1] is None:
             return
 
         bar = bars.getBar("orcl")
         # If a position was not opened, check if we should enter a long position.
         if self.__position == None:
-            if bar.getClose() > self.__sma.getValue():
+            if bar.getClose() > self.__sma[-1]:
                 # Enter a buy market order for 10 orcl shares. The order is good till canceled.
                 self.__position = self.enterLong("orcl", 10, True)
         # Check if we have to exit the position.
-        elif bar.getClose() < self.__sma.getValue():
+        elif bar.getClose() < self.__sma[-1]:
              self.exitPosition(self.__position)
 
     def onFinish(self, bars):
