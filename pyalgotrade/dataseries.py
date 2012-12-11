@@ -32,7 +32,8 @@ class DataSeries:
 		return self.getLength()
 
 	def __getitem__(self, key):
-		"""Returns the value at a given position/slice. It raises IndexError if the position is invalid."""
+		"""Returns the value at a given position/slice. It raises IndexError if the position is invalid,
+		or TypeError if the key type is invalid."""
 		if isinstance(key, slice):
 			return [self[i] for i in xrange(*key.indices(self.getLength()))]
 		elif isinstance(key, int) :
@@ -45,26 +46,17 @@ class DataSeries:
 			raise TypeError("Invalid argument type")
 
 	def getFirstValidPos(self):
-		"""Returns the first valid position in the dataseries."""
 		raise Exception("Not implemented")
 
 	def getLength(self):
-		"""Returns the number of elements in the data series."""
 		raise Exception("Not implemented")
 
 	def getValueAbsolute(self, pos):
-		"""Returns the value at a given instant, or None if the value doesn't exist.
-
-		:param pos: The absolute position of the value in the dataseries. Must be >= 0.
-		:type valuesAgo: int
-
-		* getValueAbsolute(0) returns the first value.
-		* getValueAbsolute(1) returns the second value.
-		"""
 		raise Exception("Not implemented")
 
 	# Returns a sequence of absolute values [firstPos, lastPos].
 	# if includeNone is False and at least one value is None, then None is returned.
+	# TODO: Deprecate this.
 	def getValuesAbsolute(self, firstPos, lastPos, includeNone = False):
 		ret = []
 		for i in xrange(firstPos, lastPos+1):
@@ -84,19 +76,6 @@ class DataSeries:
 		return ret
 
 	def getValues(self, count, valuesAgo = 0, includeNone = False):
-		"""Returns a list of values at a given instant, relative to the last value.
-
-		:param count: The max number of values to return. Must be >= 0.
-		:type count: int
-		:param valuesAgo: The position of the value relative to the last one. Must be >= 0.
-		:type valuesAgo: int
-		:param includeNone: True if None values should be included. If False, and any of the values are None, None is returned.
-		:type includeNone: boolean
-
-		* getValues(2) returns the last 2 values.
-		* getValues(2, 1) returns the antepenultimate and penultimate values (assuming that the dataseries has at least 3 values).
-		"""
-
 		if count <= 0:
 			return None
 
@@ -112,16 +91,8 @@ class DataSeries:
 			ret.append(value)
 		return ret
 
+	# TODO: Deprecate this.
 	def getValue(self, valuesAgo = 0):
-		"""Returns the value at a given instant, relative to the last value, or None if the value doesn't exist.
-
-		:param valuesAgo: The position of the value relative to the last one. Must be >= 0.
-		:type valuesAgo: int
-
-		* getValue() returns the last value.
-		* getValue(1) returns the previous value (assuming that the dataseries has at least 2 values).
-		"""
-
 		ret = None
 		absolutePos = self.__mapRelativeToAbsolute(valuesAgo)
 		if absolutePos != None:
