@@ -32,10 +32,17 @@ class DataSeries:
 		return self.getLength()
 
 	def __getitem__(self, key):
-		"""Returns the value at a given position. It raises IndexError if the position is invalid."""
-		if key >= self.getLength():
-			raise IndexError("index out of range")
-		return self.getValueAbsolute(key)
+		"""Returns the value at a given position/slice. It raises IndexError if the position is invalid."""
+		if isinstance(key, slice):
+			return [self[i] for i in xrange(*key.indices(self.getLength()))]
+		elif isinstance(key, int) :
+			if key < 0:
+				key += self.getLength()
+			if key >= self.getLength():
+				raise IndexError("Index out of range")
+			return self.getValueAbsolute(key)
+		else:
+			raise TypeError("Invalid argument type")
 
 	def getFirstValidPos(self):
 		"""Returns the first valid position in the dataseries."""
@@ -133,6 +140,12 @@ class SequenceDataSeries(DataSeries):
 			self.__values = values
 		else:
 			self.__values = []
+
+	def __len__(self):
+		return len(self.__values)
+
+	def __getitem__(self, key):
+		return self.__values[key]
 
 	def getFirstValidPos(self):
 		return 0

@@ -53,6 +53,28 @@ class TestSequenceDataSeries(unittest.TestCase):
 		self.assertTrue(ds.getValuesAbsolute(9, 10) == None)
 		self.assertTrue(ds.getValuesAbsolute(9, 10, True) == [9, None])
 
+	def testSeqLikeOps(self):
+		seq = range(10)
+		ds = dataseries.SequenceDataSeries(seq)
+
+		# Test length and every item.
+		self.assertEqual(len(ds), len(seq))
+		for i in xrange(len(seq)):
+			self.assertEqual(ds[i], seq[i])
+
+		# Test negative indices
+		self.assertEqual(ds[-1], seq[-1])
+		self.assertEqual(ds[-2], seq[-2])
+		self.assertEqual(ds[-9], seq[-9])
+
+		# Test slices
+		sl = slice(0,1,2)
+		self.assertEqual(ds[sl], seq[sl])
+		sl = slice(0,9,2)
+		self.assertEqual(ds[sl], seq[sl])
+		sl = slice(0,-1,1)
+		self.assertEqual(ds[sl], seq[sl])
+
 class TestBarDataSeries(unittest.TestCase):
 	def testEmpty(self):
 		ds = dataseries.BarDataSeries()
@@ -100,14 +122,27 @@ class TestBarDataSeries(unittest.TestCase):
 		self.__testGetValue(ds.getVolumeDataSeries(), 10, 10)
 		self.__testGetValue(ds.getAdjCloseDataSeries(), 10, 3)
 
+	def testSeqLikeOps(self):
+		ds = dataseries.BarDataSeries()
+		for i in range(10):
+			ds.appendValue( bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3) )
+
+		self.assertEqual(ds[-1], ds.getValue())
+		self.assertEqual(ds[-2], ds.getValue(1))
+		self.assertEqual(ds[0], ds.getValueAbsolute(0))
+		self.assertEqual(ds[1], ds.getValueAbsolute(1))
+		self.assertEqual(ds[-2:][-1], ds.getValue())
+
 def getTestCases():
 	ret = []
 	ret.append(TestSequenceDataSeries("testEmpty"))
 	ret.append(TestSequenceDataSeries("testNonEmpty"))
+	ret.append(TestSequenceDataSeries("testSeqLikeOps"))
 
 	ret.append(TestBarDataSeries("testEmpty"))
 	ret.append(TestBarDataSeries("testAppendInvalidDatetime"))
 	ret.append(TestBarDataSeries("testNonEmpty"))
 	ret.append(TestBarDataSeries("testNestedDataSeries"))
+	ret.append(TestBarDataSeries("testSeqLikeOps"))
 	return ret
 

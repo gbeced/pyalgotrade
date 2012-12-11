@@ -3,7 +3,8 @@ Version 0.10 (TBD)
 . [NEW] Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown).
 . [NEW] Returns analysis (pyalgotrade.stratanalyzer.returns.Returns).
 . [NEW] Trades analysis (pyalgotrade.stratanalyzer.trades.Trades).
-. [NEW] Added support for bar timezones (pyalgotrade.marketsession).
+. [NEW] Support for bar timezones (pyalgotrade.marketsession).
+. [NEW] Support for sequence like operations in dataseries.
 . [FIX] Fixed returns calculations for short positions. Thanks John Fawcett for explaining this.
 . [FIX] Fixed a bug in the Strategy class and the backtesting broker when dealing with multiple instruments. Was not handling absence of bars appropriately. Thanks Fabian Braennstroem for reporting this.
 
