@@ -28,19 +28,19 @@ class TestCase(unittest.TestCase):
 
 	def testTrend(self):
 		trend = self.__buildTrend([1, 2, 3, 2, 1], 3, 0, 0)
-		self.assertTrue(trend.getValueAbsolute(0) == None)
-		self.assertTrue(trend.getValueAbsolute(1) == None)
-		self.assertTrue(trend.getValueAbsolute(2) == True)
-		self.assertTrue(trend.getValueAbsolute(3) == None)
-		self.assertTrue(trend.getValueAbsolute(4) == False)
+		self.assertTrue(trend[0] == None)
+		self.assertTrue(trend[1] == None)
+		self.assertTrue(trend[2] == True)
+		self.assertTrue(trend[3] == None)
+		self.assertTrue(trend[4] == False)
 
 	def testTrendWithCustomThresholds(self):
 		trend = self.__buildTrend([1, 2, 3, 5, -10], 3, 1, -1)
-		self.assertTrue(trend.getValueAbsolute(0) == None)
-		self.assertTrue(trend.getValueAbsolute(1) == None)
-		self.assertTrue(trend.getValueAbsolute(2) == None)
-		self.assertTrue(trend.getValueAbsolute(3) == True)
-		self.assertTrue(trend.getValueAbsolute(4) == False)
+		self.assertTrue(trend[0] == None)
+		self.assertTrue(trend[1] == None)
+		self.assertTrue(trend[2] == None)
+		self.assertTrue(trend[3] == True)
+		self.assertTrue(trend[4] == False)
 
 def getTestCases():
 	ret = []

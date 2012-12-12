@@ -57,7 +57,7 @@ class DataSeriesFilterTest(unittest.TestCase):
 			technical.DataSeriesFilter.__init__(self, dataSeries, 1)
 
 		def calculateValue(self, firstPos, lastPos):
-			return self.getDataSeries().getValueAbsolute(lastPos)
+			return self.getDataSeries()[lastPos]
 
 	def testInvalidPosNotCached(self):
 		values = []
@@ -71,12 +71,13 @@ class DataSeriesFilterTest(unittest.TestCase):
 		self.assertTrue(testFilter.getValue(1) == 9)
 		self.assertTrue(testFilter.getValue(3) == 8) # We go 3 instead of 2 because we need to skip the interleaved None values.
 
-		self.assertTrue(testFilter.getValueAbsolute(18) == 9)
-		self.assertTrue(testFilter.getValueAbsolute(19) == None)
-		# Absolut pos 20 should have the next value once we insert it, but right now it should be None
-		self.assertTrue(testFilter.getValueAbsolute(20) == None)
+		self.assertTrue(testFilter[18] == 9)
+		self.assertTrue(testFilter[19] == None)
+		# Absolut pos 20 should have the next value once we insert it, but right now it should be invalid.
+		with self.assertRaises(IndexError):
+			testFilter[20]
 		values.append(10)
-		self.assertTrue(testFilter.getValueAbsolute(20) == 10)
+		self.assertTrue(testFilter[20] == 10)
 
 def getTestCases():
 	ret = []

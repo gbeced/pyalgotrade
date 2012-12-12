@@ -29,24 +29,26 @@ class TestCase(unittest.TestCase):
 	def testSimple(self):
 		ratio = self.__buildRatio([1, 2, 1])
 		self.assertTrue(ratio.getValueAbsolute(-1) == None)
-		self.assertTrue(ratio.getValueAbsolute(0) == None)
-		self.assertTrue(ratio.getValueAbsolute(1) == 1)
-		self.assertTrue(ratio.getValueAbsolute(2) == -0.5)
-		self.assertTrue(ratio.getValueAbsolute(3) == None)
+		self.assertTrue(ratio[0] == None)
+		self.assertTrue(ratio[1] == 1)
+		self.assertTrue(ratio[2] == -0.5)
+		with self.assertRaises(IndexError):
+			ratio[3]
 
-		self.assertTrue(ratio.getValue(1) == ratio.getValueAbsolute(1))
-		self.assertTrue(ratio.getValue() == ratio.getValueAbsolute(2))
+		self.assertTrue(ratio.getValue(1) == ratio[1])
+		self.assertTrue(ratio.getValue() == ratio[2])
 
 	def testNegativeValues(self):
 		ratio = self.__buildRatio([-1, -2, -1])
 		self.assertTrue(ratio.getValueAbsolute(-1) == None)
-		self.assertTrue(ratio.getValueAbsolute(0) == None)
-		self.assertTrue(ratio.getValueAbsolute(1) == -1)
-		self.assertTrue(ratio.getValueAbsolute(2) == 0.5)
-		self.assertTrue(ratio.getValueAbsolute(3) == None)
+		self.assertTrue(ratio[0] == None)
+		self.assertTrue(ratio[1] == -1)
+		self.assertTrue(ratio[2] == 0.5)
+		with self.assertRaises(IndexError):
+			ratio[3]
 
-		self.assertTrue(ratio.getValue(1) == ratio.getValueAbsolute(1))
-		self.assertTrue(ratio.getValue() == ratio.getValueAbsolute(2))
+		self.assertTrue(ratio.getValue(1) == ratio[1])
+		self.assertTrue(ratio.getValue() == ratio[2])
 
 def getTestCases():
 	ret = []

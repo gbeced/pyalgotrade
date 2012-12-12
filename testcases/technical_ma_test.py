@@ -30,9 +30,10 @@ class SMATestCase(unittest.TestCase):
 	def testPeriod1(self):
 		sma = self.__buildSMA(1, [10, 20])
 		self.assertTrue(sma.getValueAbsolute(-1) == None)
-		self.assertTrue(sma.getValueAbsolute(0) == 10)
-		self.assertTrue(sma.getValueAbsolute(1) == 20)
-		self.assertTrue(sma.getValueAbsolute(2) == None)
+		self.assertTrue(sma[0] == 10)
+		self.assertTrue(sma[1] == 20)
+		with self.assertRaises(IndexError):
+			sma[2]
 
 		self.assertTrue(sma.getValue(-1) == None)
 		self.assertTrue(sma.getValue() == 20)
@@ -41,14 +42,15 @@ class SMATestCase(unittest.TestCase):
 
 	def testPeriod2(self):
 		sma = self.__buildSMA(2, [0, 1, 2])
-		self.assertTrue(sma.getValueAbsolute(0) == None)
-		self.assertTrue(sma.getValueAbsolute(1) == (0+1) / float(2))
-		self.assertTrue(sma.getValueAbsolute(2) == (1+2) / float(2))
-		self.assertTrue(sma.getValueAbsolute(3) == None)
+		self.assertTrue(sma[0] == None)
+		self.assertTrue(sma[1] == (0+1) / float(2))
+		self.assertTrue(sma[2] == (1+2) / float(2))
+		with self.assertRaises(IndexError):
+			sma[3]
 
-		self.assertTrue(sma.getValueAbsolute(2) == sma.getValue())
-		self.assertTrue(sma.getValueAbsolute(1) == sma.getValue(1))
-		self.assertTrue(sma.getValueAbsolute(0) == sma.getValue(2))
+		self.assertTrue(sma[2] == sma.getValue())
+		self.assertTrue(sma[1] == sma.getValue(1))
+		self.assertTrue(sma[0] == sma.getValue(2))
 
 	def testMultipleValues(self):
 		period = 5
@@ -56,7 +58,7 @@ class SMATestCase(unittest.TestCase):
 		sma = self.__buildSMA(period, values)
 		for i in xrange(period-1, len(values)):
 			expected = sum(values[i-(period-1):i+1]) / float(period)
-			self.assertTrue(sma.getValueAbsolute(i) == expected)
+			self.assertTrue(sma[i] == expected)
 
 	def testMultipleValuesSkippingOne(self):
 		# Test SMA invalidating fast sma calculation.
@@ -65,7 +67,7 @@ class SMATestCase(unittest.TestCase):
 		sma = self.__buildSMA(period, values)
 		for i in xrange(period-1, len(values), 2):
 			expected = sum(values[i-(period-1):i+1]) / float(period)
-			self.assertTrue(sma.getValueAbsolute(i) == expected)
+			self.assertTrue(sma[i] == expected)
 
 	def testStockChartsSMA(self):
 		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
@@ -81,17 +83,17 @@ class WMATestCase(unittest.TestCase):
 
 	def testPeriod1(self):
 		sma = self.__buildWMA([2], [10, 20])
-		self.assertTrue(sma.getValueAbsolute(0) == 10)
-		self.assertTrue(sma.getValueAbsolute(1) == 20)
+		self.assertTrue(sma[0] == 10)
+		self.assertTrue(sma[1] == 20)
 
 	def testPeriod2(self):
 		weights = [3, 2, 1]
 		values = [1, 2, 3]
 
 		wma = self.__buildWMA(weights, values)
-		self.assertTrue(wma.getValueAbsolute(0) == None)
-		self.assertTrue(wma.getValueAbsolute(1) == None)
-		self.assertTrue(wma.getValueAbsolute(2) == (1*3 + 2*2 + 3*1) / float(3+2+1))
+		self.assertTrue(wma[0] == None)
+		self.assertTrue(wma[1] == None)
+		self.assertTrue(wma[2] == (1*3 + 2*2 + 3*1) / float(3+2+1))
 
 class EMATestCase(unittest.TestCase):
 	def testStockChartsEMA(self):

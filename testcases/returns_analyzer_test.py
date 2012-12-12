@@ -213,9 +213,9 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.61))
 		# First day returns: Open vs Close
-		self.assertTrue(returnsDS.getValueAbsolute(0) == (15.90 - 15.61) / 15.61)
+		self.assertTrue(returnsDS[0] == (15.90 - 15.61) / 15.61)
 		# Second day returns: Open vs Prev. day's close
-		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.74 - 15.90) / 15.90)
+		self.assertTrue(returnsDS[1] == (15.74 - 15.90) / 15.90)
 
 	def testTwoBarReturns_OpenClose(self):
 		barFeed = yahoofeed.Feed()
@@ -234,9 +234,9 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.61))
 		# First day returns: Open vs Close
-		self.assertTrue(returnsDS.getValueAbsolute(0) == (15.90 - 15.61) / 15.61)
+		self.assertTrue(returnsDS[0] == (15.90 - 15.61) / 15.61)
 		# Second day returns: Close vs Prev. day's close
-		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.91 - 15.90) / 15.90)
+		self.assertTrue(returnsDS[1] == (15.91 - 15.90) / 15.90)
 
 	def testTwoBarReturns_CloseOpen(self):
 		barFeed = yahoofeed.Feed()
@@ -255,9 +255,9 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.90))
 		# First day returns: 0
-		self.assertTrue(returnsDS.getValueAbsolute(0) == 0)
+		self.assertTrue(returnsDS[0] == 0)
 		# Second day returns: Open vs Prev. day's close
-		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.74 - 15.90) / 15.90)
+		self.assertTrue(returnsDS[1] == (15.74 - 15.90) / 15.90)
 
 	def testTwoBarReturns_CloseClose(self):
 		barFeed = yahoofeed.Feed()
@@ -276,9 +276,9 @@ class ReturnsTestCase(unittest.TestCase):
 		strat.run()
 		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.90))
 		# First day returns: 0
-		self.assertTrue(returnsDS.getValueAbsolute(0) == 0)
+		self.assertTrue(returnsDS[0] == 0)
 		# Second day returns: Open vs Prev. day's close
-		self.assertTrue(returnsDS.getValueAbsolute(1) == (15.91 - 15.90) / 15.90)
+		self.assertTrue(returnsDS[1] == (15.91 - 15.90) / 15.90)
 
 	def testCumulativeReturn(self):
 		barFeed = yahoofeed.Feed()

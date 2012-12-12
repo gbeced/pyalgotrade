@@ -31,8 +31,10 @@ class TestSequenceDataSeries(unittest.TestCase):
 		self.assertTrue(ds.getLength() == 0)
 		self.assertTrue(ds.getValue() == None)
 		self.assertTrue(ds.getValue(1) == None)
-		self.assertTrue(ds.getValueAbsolute(0) == None)
-		self.assertTrue(ds.getValueAbsolute(1) == None)
+		with self.assertRaises(IndexError):
+			ds[0]
+		with self.assertRaises(IndexError):
+			ds[1]
 
 	def testNonEmpty(self):
 		ds = dataseries.SequenceDataSeries(range(10))
@@ -40,8 +42,8 @@ class TestSequenceDataSeries(unittest.TestCase):
 		self.assertTrue(ds.getLength() == 10)
 		self.assertTrue(ds.getValue() == 9)
 		self.assertTrue(ds.getValue(1) == 8)
-		self.assertTrue(ds.getValueAbsolute(0) == 0)
-		self.assertTrue(ds.getValueAbsolute(1) == 1)
+		self.assertTrue(ds[0] == 0)
+		self.assertTrue(ds[1] == 1)
 
 		self.assertTrue(ds.getValues(1) == [9])
 		self.assertTrue(ds.getValues(2) == [8, 9])
@@ -84,9 +86,12 @@ class TestBarDataSeries(unittest.TestCase):
 		self.assertTrue(ds.getValue(1) == None)
 		self.assertTrue(ds.getValue(2) == None)
 
-		self.assertTrue(ds.getValueAbsolute(-1) == None)
-		self.assertTrue(ds.getValueAbsolute(0) == None)
-		self.assertTrue(ds.getValueAbsolute(1000) == None)
+		with self.assertRaises(IndexError):
+			ds[-1]
+		with self.assertRaises(IndexError):
+			ds[0]
+		with self.assertRaises(IndexError):
+			ds[1000]
 
 	def testAppendInvalidDatetime(self):
 		ds = dataseries.BarDataSeries()
@@ -129,8 +134,8 @@ class TestBarDataSeries(unittest.TestCase):
 
 		self.assertEqual(ds[-1], ds.getValue())
 		self.assertEqual(ds[-2], ds.getValue(1))
-		self.assertEqual(ds[0], ds.getValueAbsolute(0))
-		self.assertEqual(ds[1], ds.getValueAbsolute(1))
+		self.assertEqual(ds[0], ds[0])
+		self.assertEqual(ds[1], ds[1])
 		self.assertEqual(ds[-2:][-1], ds.getValue())
 
 def getTestCases():

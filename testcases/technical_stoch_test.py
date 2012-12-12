@@ -53,13 +53,13 @@ class TestCase(unittest.TestCase):
 		closePrices = [2, 2, 3]
 
 		stochFilter = stoch.StochasticOscillator(self.__buildBarDataSeries(closePrices, highPrices, lowPrices), 2, 2)
-		self.assertTrue( values_equal(stochFilter.getValueAbsolute(0), None) )
-		self.assertTrue( values_equal(stochFilter.getValueAbsolute(1), 50) )
-		self.assertTrue( values_equal(stochFilter.getValueAbsolute(2), 100) )
+		self.assertTrue( values_equal(stochFilter[0], None) )
+		self.assertTrue( values_equal(stochFilter[1], 50) )
+		self.assertTrue( values_equal(stochFilter[2], 100) )
 
-		self.assertTrue( values_equal(stochFilter.getD().getValueAbsolute(0), None) )
-		self.assertTrue( values_equal(stochFilter.getD().getValueAbsolute(1), None) )
-		self.assertTrue( values_equal(stochFilter.getD().getValueAbsolute(2), 75) )
+		self.assertTrue( values_equal(stochFilter.getD()[0], None) )
+		self.assertTrue( values_equal(stochFilter.getD()[1], None) )
+		self.assertTrue( values_equal(stochFilter.getD()[2], 75) )
 
 	def testStockChartsStoch(self):
 		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillato
@@ -72,8 +72,8 @@ class TestCase(unittest.TestCase):
 
 		stochFilter = stoch.StochasticOscillator(self.__buildBarDataSeries(closePrices, highPrices, lowPrices), 14)
 		for i in range(len(kValues)):
-			self.assertTrue( values_equal(stochFilter.getValueAbsolute(i), kValues[i]) )
-			self.assertTrue( values_equal(stochFilter.getD().getValueAbsolute(i), dValues[i]) )
+			self.assertTrue( values_equal(stochFilter[i], kValues[i]) )
+			self.assertTrue( values_equal(stochFilter.getD()[i], dValues[i]) )
 
 def getTestCases():
 	ret = []
