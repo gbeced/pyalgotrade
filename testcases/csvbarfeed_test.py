@@ -197,7 +197,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 		ds = barFeed.getDataSeries()
 
 		for i in xrange(ds.getLength()):
-			currentBar = ds.getValueAbsolute(i)
+			currentBar = ds[i]
 			self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
 
 	def testWithoutTimezone(self):
@@ -205,7 +205,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 		ds = barFeed.getDataSeries()
 
 		for i in xrange(ds.getLength()):
-			currentBar = ds.getValueAbsolute(i)
+			currentBar = ds[i]
 			# Datetime must be set to UTC.
 			self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
 

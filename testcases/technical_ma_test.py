@@ -29,9 +29,9 @@ class SMATestCase(unittest.TestCase):
 
 	def testPeriod1(self):
 		sma = self.__buildSMA(1, [10, 20])
-		self.assertTrue(sma.getValueAbsolute(-1) == None)
 		self.assertTrue(sma[0] == 10)
 		self.assertTrue(sma[1] == 20)
+		self.assertTrue(sma[-1] == 20)
 		with self.assertRaises(IndexError):
 			sma[2]
 

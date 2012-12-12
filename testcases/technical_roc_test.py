@@ -19,7 +19,6 @@
 """
 
 import unittest
-import common
 from pyalgotrade.technical import roc
 from pyalgotrade import dataseries
 
@@ -33,12 +32,12 @@ class ROCTestCase(unittest.TestCase):
 		roc_ = self.__buildROC(inputValues, 12)
 		outputValues = [-3.85, -4.85, -4.52, -6.34, -7.86, -6.21, -4.31, -3.24]
 		for i in range(len(outputValues)):
-			outputValue = roc_.getValueAbsolute(12 + i)
+			outputValue = roc_[12 + i]
 			self.assertTrue(round(outputValue, 2) == outputValues[i])
 
 	def testPeriod1(self):
 		def simple_roc(value1, value2):
-			return self.__buildROC([value1, value2], 1).getValueAbsolute(1)
+			return self.__buildROC([value1, value2], 1)[1]
 
 		self.assertTrue(simple_roc(1, 2) == 100)
 		self.assertTrue(simple_roc(1, 2) == simple_roc(50, 100))
