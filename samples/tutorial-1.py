@@ -6,7 +6,7 @@ class MyStrategy(strategy.Strategy):
         strategy.Strategy.__init__(self, feed)
 
     def onBars(self, bars):
-        bar = bars.getBar("orcl")
+        bar = bars["orcl"]
         print "%s: %s" % (bar.getDateTime(), bar.getClose())
 
 # Load the yahoo feed from the CSV file

@@ -178,6 +178,19 @@ class YahooTestCase(unittest.TestCase):
 		except Exception, e:
 			self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
+	def testMapTypeOperations(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+		barFeed.start()
+		for bars in barFeed:
+			self.assertTrue(YahooTestCase.TestInstrument in bars)
+			self.assertFalse(YahooTestCase.TestInstrument not in bars)
+			bars[YahooTestCase.TestInstrument]
+			with self.assertRaises(KeyError):
+				bars["pirulo"]
+		barFeed.stop()
+		barFeed.join()
+
 class NinjaTraderTestCase(unittest.TestCase):
 	def __loadIntradayBarFeed(self, timeZone = None):
 		ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
@@ -255,6 +268,7 @@ def getTestCases():
 	ret.append(YahooTestCase("testWithDefaultTimezone"))
 	ret.append(YahooTestCase("testWithPerFileTimezone"))
 	ret.append(YahooTestCase("testWithIntegerTimezone"))
+	ret.append(YahooTestCase("testMapTypeOperations"))
 
 	ret.append(NinjaTraderTestCase("testWithTimezone"))
 	ret.append(NinjaTraderTestCase("testWithoutTimezone"))

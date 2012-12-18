@@ -10,7 +10,7 @@ class MyStrategy(strategy.Strategy):
         self.__sma = ma.SMA(self.__rsi, 15)
 
     def onBars(self, bars):
-        bar = bars.getBar("orcl")
+        bar = bars["orcl"]
         print "%s: %s %s %s" % (bar.getDateTime(), bar.getClose(), self.__rsi[-1], self.__sma[-1])
 
 # Load the yahoo feed from the CSV file

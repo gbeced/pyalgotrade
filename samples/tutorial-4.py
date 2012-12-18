@@ -32,7 +32,7 @@ class MyStrategy(strategy.Strategy):
         if self.__sma[-1] is None:
             return
 
-        bar = bars.getBar("orcl")
+        bar = bars["orcl"]
         # If a position was not opened, check if we should enter a long position.
         if self.__position == None:
             if bar.getClose() > self.__sma[-1]:

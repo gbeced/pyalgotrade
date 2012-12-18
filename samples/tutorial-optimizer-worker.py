@@ -43,7 +43,7 @@ class MyStrategy(strategy.Strategy):
         if self.__exitSMA[-1] is None or self.__entrySMA[-1] is None or self.__rsi[-1] is None:
             return
 
-        bar = bars.getBar("dia")
+        bar = bars["dia"]
         if self.__longPos != None:
             if self.exitLongSignal(bar):
                 self.exitPosition(self.__longPos)

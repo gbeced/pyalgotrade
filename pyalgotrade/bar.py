@@ -133,6 +133,14 @@ class Bars:
 		self.__barDict = barDict
 		self.__dateTime = firstDateTime
 
+	def __getitem__(self, instrument):
+		"""Returns the :class:`pyalgotrade.bar.Bar` for the given instrument. If the instrument is not found an exception is raised."""
+		return self.__barDict[instrument]
+
+	def __contains__(self, instrument):
+		"""Returns True if a :class:`pyalgotrade.bar.Bar` for the given instrument is available."""
+		return instrument in self.__barDict
+
 	def getInstruments(self):
 		"""Returns the instrument symbols."""
 		return self.__barDict.keys()
