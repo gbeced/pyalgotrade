@@ -15,4 +15,5 @@ print ds[-2]
 print ds[0]
 print ds[-50]
 
-
+# Get the last 3 values.
+print ds[-3:]

@@ -18,4 +18,5 @@ The output should be: ::
     48
     0
     0
+    [47, 48, 49]
 
