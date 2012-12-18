@@ -35,8 +35,8 @@ class TestCase(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			ratio[3]
 
-		self.assertTrue(ratio.getValue(1) == ratio[1])
-		self.assertTrue(ratio.getValue() == ratio[2])
+		self.assertTrue(ratio[-2] == ratio[1])
+		self.assertTrue(ratio[-1] == ratio[2])
 
 	def testNegativeValues(self):
 		ratio = self.__buildRatio([-1, -2, -1])
@@ -47,8 +47,8 @@ class TestCase(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			ratio[3]
 
-		self.assertTrue(ratio.getValue(1) == ratio[1])
-		self.assertTrue(ratio.getValue() == ratio[2])
+		self.assertTrue(ratio[-2] == ratio[1])
+		self.assertTrue(ratio[-1] == ratio[2])
 
 def getTestCases():
 	ret = []

@@ -88,15 +88,15 @@ class SMACrossOverStrategy(strategy.Strategy):
 		self.printDebug("%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
 
 		# Wait for enough bars to be available.
-		if self.__crossAbove.getValue() is None or self.__crossBelow.getValue() is None:
+		if self.__crossAbove[-1] is None or self.__crossBelow[-1] is None:
 			return
 
-		if self.__crossAbove.getValue() == 1:
+		if self.__crossAbove[-1] == 1:
 			if self.__shortPos:
 				self.exitShortPosition(bars, self.__shortPos)
 			assert(self.__longPos == None)
 			self.__longPos = self.enterLongPosition(bars)
-		elif self.__crossBelow.getValue() == 1:
+		elif self.__crossBelow[-1] == 1:
 			if self.__longPos:
 				self.exitLongPosition(bars, self.__longPos)
 			assert(self.__shortPos == None)

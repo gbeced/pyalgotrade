@@ -50,17 +50,17 @@ class NikkeiSpyStrategy(strategy.Strategy):
 
 	def __calculatePosSize(self):
 		cash = self.getBroker().getCash()
-		lastPrice = self.getFeed().getDataSeries(self.__lag).getValue().getClose()
+		lastPrice = self.getFeed().getDataSeries(self.__lag)[-1].getClose()
 		ret =  cash / lastPrice
 		return int(ret)
 
 	def onBars(self, bars):
 		if bars.getBar(self.__lead):
-			if self.__crossAbove.getValue() == 1 and self.__pos == None:
+			if self.__crossAbove[-1] == 1 and self.__pos == None:
 				shares = self.__calculatePosSize()
 				if shares:
 					self.__pos = self.enterLong(self.__lag, shares)
-			elif self.__crossBelow.getValue() == 1 and self.__pos != None:
+			elif self.__crossBelow[-1] == 1 and self.__pos != None:
 				self.exitPosition(self.__pos)
 
 class TestCase(unittest.TestCase):

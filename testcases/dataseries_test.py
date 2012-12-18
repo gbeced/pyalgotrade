@@ -29,8 +29,10 @@ class TestSequenceDataSeries(unittest.TestCase):
 		ds = dataseries.SequenceDataSeries([])
 		self.assertTrue(ds.getFirstValidPos() == 0)
 		self.assertTrue(ds.getLength() == 0)
-		self.assertTrue(ds.getValue() == None)
-		self.assertTrue(ds.getValue(1) == None)
+		with self.assertRaises(IndexError):
+			ds[-1]
+		with self.assertRaises(IndexError):
+			ds[-2]
 		with self.assertRaises(IndexError):
 			ds[0]
 		with self.assertRaises(IndexError):
@@ -40,8 +42,8 @@ class TestSequenceDataSeries(unittest.TestCase):
 		ds = dataseries.SequenceDataSeries(range(10))
 		self.assertTrue(ds.getFirstValidPos() == 0)
 		self.assertTrue(ds.getLength() == 10)
-		self.assertTrue(ds.getValue() == 9)
-		self.assertTrue(ds.getValue(1) == 8)
+		self.assertTrue(ds[-1] == 9)
+		self.assertTrue(ds[-2] == 8)
 		self.assertTrue(ds[0] == 0)
 		self.assertTrue(ds[1] == 1)
 
@@ -76,6 +78,13 @@ class TestSequenceDataSeries(unittest.TestCase):
 		self.assertEqual(ds[sl], seq[sl])
 		sl = slice(0,-1,1)
 		self.assertEqual(ds[sl], seq[sl])
+
+		for i in xrange(-100, 100):
+			self.assertEqual(ds[i:], seq[i:])
+
+		for step in xrange(1, 10):
+			for i in xrange(-100, 100):
+				self.assertEqual(ds[i::step], seq[i::step])
 
 class TestBarDataSeries(unittest.TestCase):
 	def testEmpty(self):
@@ -140,6 +149,7 @@ class TestBarDataSeries(unittest.TestCase):
 
 def getTestCases():
 	ret = []
+
 	ret.append(TestSequenceDataSeries("testEmpty"))
 	ret.append(TestSequenceDataSeries("testNonEmpty"))
 	ret.append(TestSequenceDataSeries("testSeqLikeOps"))

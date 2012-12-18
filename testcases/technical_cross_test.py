@@ -54,7 +54,7 @@ class TestCase(unittest.TestCase):
 
 		# Check for all values.
 		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 100)
-		self.assertTrue(crs.getValue() == 1)
+		self.assertTrue(crs[-1] == 1)
 
 	def testCrossAboveMany(self):
 		count = 100
@@ -80,7 +80,7 @@ class TestCase(unittest.TestCase):
 
 		# Check for all values.
 		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 100)
-		self.assertTrue(crs.getValue() == count / 2)
+		self.assertTrue(crs[-1] == count / 2)
 
 	def testCrossBelowOnce(self):
 		values1 = [1, 1, 1, 10, 1, 1, 1]
@@ -105,7 +105,7 @@ class TestCase(unittest.TestCase):
 
 		# Check for all values.
 		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 100)
-		self.assertTrue(crs.getValue() == 1)
+		self.assertTrue(crs[-1] == 1)
 
 	def testCrossBelowMany(self):
 		count = 100
@@ -131,7 +131,7 @@ class TestCase(unittest.TestCase):
 
 		# Check for all values.
 		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 100)
-		self.assertTrue(crs.getValue() == count / 2 - 1)
+		self.assertTrue(crs[-1] == count / 2 - 1)
 
 	def testWithSMAs(self):
 		ds1 = dataseries.SequenceDataSeries()
@@ -141,11 +141,11 @@ class TestCase(unittest.TestCase):
 			ds1.appendValue(i)
 			ds2.appendValue(50)
 			if i < 24:
-				self.assertTrue(crs.getValue() == None)
+				self.assertTrue(crs[-1] == None)
 			elif i == 58:
-				self.assertTrue(crs.getValue() == 1)
+				self.assertTrue(crs[-1] == 1)
 			else:
-				self.assertTrue(crs.getValue() == 0)
+				self.assertTrue(crs[-1] == 0)
 
 def getTestCases():
 	ret = []

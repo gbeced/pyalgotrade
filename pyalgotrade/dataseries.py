@@ -20,7 +20,9 @@
 
 import bar
 
-class DataSeries:
+# It is important to inherit object to get __getitem__ to work properly.
+# Check http://code.activestate.com/lists/python-list/621258/
+class DataSeries(object):
 	"""Base class for data series. A data series is an abstraction used to manage historical data.
 
 		.. note::
@@ -39,7 +41,7 @@ class DataSeries:
 		elif isinstance(key, int) :
 			if key < 0:
 				key += self.getLength()
-			if key >= self.getLength():
+			if key >= self.getLength() or key < 0:
 				raise IndexError("Index out of range")
 			return self.getValueAbsolute(key)
 		else:

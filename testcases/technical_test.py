@@ -67,9 +67,9 @@ class DataSeriesFilterTest(unittest.TestCase):
 			values.append(None) # Interleave Nones.
 
 		testFilter = DataSeriesFilterTest.TestFilter(ds)
-		self.assertTrue(testFilter.getValue() == None)
-		self.assertTrue(testFilter.getValue(1) == 9)
-		self.assertTrue(testFilter.getValue(3) == 8) # We go 3 instead of 2 because we need to skip the interleaved None values.
+		self.assertTrue(testFilter[-1] == None)
+		self.assertTrue(testFilter[-2] == 9)
+		self.assertTrue(testFilter[-4] == 8) # We go 3 instead of 2 because we need to skip the interleaved None values.
 
 		self.assertTrue(testFilter[18] == 9)
 		self.assertTrue(testFilter[19] == None)
