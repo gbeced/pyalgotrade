@@ -29,7 +29,7 @@ import common
 class SMACrossOverStrategy(strategy.Strategy):
 	def __init__(self, feed, fastSMA, slowSMA):
 		strategy.Strategy.__init__(self, feed, 1000)
-		ds = feed.getDataSeries("orcl").getCloseDataSeries()
+		ds = feed["orcl"].getCloseDataSeries()
 		fastSMADS = ma.SMA(ds, fastSMA)
 		slowSMADS = ma.SMA(ds, slowSMA)
 		self.__crossAbove = cross.CrossAbove(fastSMADS, slowSMADS)

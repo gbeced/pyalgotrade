@@ -6,7 +6,7 @@ class MyStrategy(strategy.Strategy):
     def __init__(self, feed):
         strategy.Strategy.__init__(self, feed)
         # We want a 15 period SMA over the closing prices.
-        self.__sma = ma.SMA(feed.getDataSeries("orcl").getCloseDataSeries(), 15)
+        self.__sma = ma.SMA(feed["orcl"].getCloseDataSeries(), 15)
 
     def onBars(self, bars):
         bar = bars["orcl"]

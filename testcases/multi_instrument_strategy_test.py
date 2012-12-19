@@ -35,7 +35,7 @@ class NikkeiSpyStrategy(strategy.Strategy):
 		self.__lead = "nikkei"
 		self.__lag = "spy"
 		# Exit signal is more sensitive than entry.
-		adjClose = feed.getDataSeries(self.__lead).getAdjCloseDataSeries()
+		adjClose = feed[self.__lead].getAdjCloseDataSeries()
 		self.__crossAbove = cross.CrossAbove(adjClose, ma.SMA(adjClose, smaPeriod))
 		self.__crossBelow = cross.CrossAbove(adjClose, ma.SMA(adjClose, int(smaPeriod/2)))
 		self.__pos = None
@@ -50,7 +50,7 @@ class NikkeiSpyStrategy(strategy.Strategy):
 
 	def __calculatePosSize(self):
 		cash = self.getBroker().getCash()
-		lastPrice = self.getFeed().getDataSeries(self.__lag)[-1].getClose()
+		lastPrice = self.getFeed()[self.__lag][-1].getClose()
 		ret =  cash / lastPrice
 		return int(ret)
 
@@ -73,9 +73,12 @@ class TestCase(unittest.TestCase):
 			feed.addBarsFromCSV("nikkei", common.get_data_file_path("nikkei-%d-yahoofinance.csv" % year), marketsession.TSE.getTimezone())
 			feed.addBarsFromCSV("spy", common.get_data_file_path("spy-%d-yahoofinance.csv" % year), marketsession.USEquities.getTimezone())
 
+		self.assertTrue("nikkei" in feed)
+		self.assertTrue("spy" in feed)
+		self.assertTrue("cacho" not in feed)
 		strat = NikkeiSpyStrategy(feed, 34)
 		strat.run()
-		assert(round(strat.getResult(), 2) == 1125558.12)
+		self.assertEqual(round(strat.getResult(), 2), 1125558.12)
 
 def getTestCases():
 	ret = []

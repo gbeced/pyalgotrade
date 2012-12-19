@@ -4,6 +4,7 @@ barfeed -- Bar providers
 .. automodule:: pyalgotrade.barfeed
     :members: BarFeed
     :inherited-members:
+    :special-members:
 
 .. automodule:: pyalgotrade.barfeed.csvfeed
     :members: BarFeed

@@ -118,6 +118,15 @@ class BasicBarFeed:
 			instrument = self.__defaultInstrument
 		return self.__ds[instrument]
 
+	def __getitem__(self, instrument):
+		"""Returns the :class:`pyalgotrade.dataseries.BarDataSeries` for a given instrument.
+		If the instrument is not found an exception is raised."""
+		return self.__ds[instrument]
+
+	def __contains__(self, instrument):
+		"""Returns True if a :class:`pyalgotrade.dataseries.BarDataSeries` for the given instrument is available."""
+		return instrument in self.__ds
+
 # This class is responsible for:
 # - Checking the pyalgotrade.bar.Bar objects returned by fetchNextBars and building pyalgotrade.bar.Bars objects.
 #

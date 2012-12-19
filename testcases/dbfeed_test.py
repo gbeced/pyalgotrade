@@ -69,8 +69,8 @@ class SQLiteFeedTestCase(unittest.TestCase):
 			sqliteFeed.join()
 
 			# Check that both dataseries have the same bars.
-			yahooDS = yahooFeed.getDataSeries("orcl")
-			sqliteDS = sqliteFeed.getDataSeries("orcl")
+			yahooDS = yahooFeed["orcl"]
+			sqliteDS = sqliteFeed["orcl"]
 			self.assertEqual(len(yahooDS), len(sqliteDS))
 			for i in xrange(len(yahooDS)):
 				self.assertEqual(yahooDS[i].getDateTime(), sqliteDS[i].getDateTime())

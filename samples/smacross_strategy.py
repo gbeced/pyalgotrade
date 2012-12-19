@@ -5,7 +5,7 @@ from pyalgotrade.technical import cross
 class Strategy(strategy.Strategy):
 	def __init__(self, feed, smaPeriod):
 		strategy.Strategy.__init__(self, feed, 1000)
-		closeDS = feed.getDataSeries("orcl").getCloseDataSeries()
+		closeDS = feed["orcl"].getCloseDataSeries()
 		self.__sma = ma.SMA(closeDS, smaPeriod)
 		self.__crossAbove = cross.CrossAbove(closeDS, self.__sma)
 		self.__crossBelow = cross.CrossBelow(closeDS, self.__sma)

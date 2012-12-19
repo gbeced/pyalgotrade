@@ -8,7 +8,7 @@ from pyalgotrade.technical import rsi
 class MyStrategy(strategy.Strategy):
     def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
         strategy.Strategy.__init__(self, feed, 2000)
-        ds = feed.getDataSeries("dia").getCloseDataSeries()
+        ds = feed["dia"].getCloseDataSeries()
         self.__entrySMA = ma.SMA(ds, entrySMA)
         self.__exitSMA = ma.SMA(ds, exitSMA)
         self.__rsi = rsi.RSI(ds, rsiPeriod)

@@ -6,7 +6,7 @@ from pyalgotrade.technical import rsi
 class MyStrategy(strategy.Strategy):
     def __init__(self, feed):
         strategy.Strategy.__init__(self, feed)
-        self.__rsi = rsi.RSI(feed.getDataSeries("orcl").getCloseDataSeries(), 14)
+        self.__rsi = rsi.RSI(feed["orcl"].getCloseDataSeries(), 14)
         self.__sma = ma.SMA(self.__rsi, 15)
 
     def onBars(self, bars):

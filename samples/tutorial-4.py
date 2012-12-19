@@ -5,7 +5,7 @@ from pyalgotrade.technical import ma
 class MyStrategy(strategy.Strategy):
     def __init__(self, feed, smaPeriod):
         strategy.Strategy.__init__(self, feed, 1000)
-        self.__sma = ma.SMA(feed.getDataSeries("orcl").getCloseDataSeries(), smaPeriod)
+        self.__sma = ma.SMA(feed["orcl"].getCloseDataSeries(), smaPeriod)
         self.__position = None
 
     def onStart(self):
