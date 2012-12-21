@@ -59,6 +59,7 @@ def main():
 	fromYear = 2010
 	toYear = 2012
 	update_bars("yahoofinance.sqlite", "nasdaq-symbols.txt", marketsession.NASDAQ.timezone, fromYear, toYear)
+	update_bars("yahoofinance.sqlite", "nyse-symbols.txt", marketsession.NYSE.timezone, fromYear, toYear)
 
 main()
 

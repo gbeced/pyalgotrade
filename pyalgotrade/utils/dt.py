@@ -20,6 +20,7 @@
 
 import datetime
 import calendar
+import pytz
 
 def datetime_is_naive(dateTime):
 	""" Returns True if dateTime is naive."""
@@ -44,7 +45,8 @@ def datetime_to_timestamp(dateTime):
 
 def timestamp_to_datetime(timeStamp):
 	""" Converts a UTC timestamp to a datetime.datetime."""
-	return datetime.datetime.utcfromtimestamp(timeStamp)
+	ret = datetime.datetime.utcfromtimestamp(timeStamp)
+	return localize(ret, pytz.utc)
 
 
 

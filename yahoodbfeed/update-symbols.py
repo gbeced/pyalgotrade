@@ -72,6 +72,7 @@ def build_symbols_file(market):
 
 def main():
 	build_symbols_file("nasdaq")
+	build_symbols_file("nyse")
 
 main()
 

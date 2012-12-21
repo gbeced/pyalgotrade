@@ -37,7 +37,6 @@ class Database:
 	def addBar(self, instrument, bar, frequency):
 		raise NotImplementedError()
 
-	def getBars(self, instrument, frequency, fromDateTime = None, toDateTime = None):
+	def getBars(self, instrument, frequency, timezone = None, fromDateTime = None, toDateTime = None):
 		raise NotImplementedError()
-
 

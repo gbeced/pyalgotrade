@@ -20,7 +20,9 @@
 
 import unittest
 
+from pyalgotrade import barfeed
 from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import sqlitefeed
 from pyalgotrade import marketsession
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
@@ -32,7 +34,7 @@ class NikkeiSpyStrategy(strategy.Strategy):
 		strategy.Strategy.__init__(self, feed)
 
 		assert(smaPeriod > 3)
-		self.__lead = "nikkei"
+		self.__lead = "^n225"
 		self.__lag = "spy"
 		# Exit signal is more sensitive than entry.
 		adjClose = feed[self.__lead].getAdjCloseDataSeries()
@@ -64,25 +66,42 @@ class NikkeiSpyStrategy(strategy.Strategy):
 				self.exitPosition(self.__pos)
 
 class TestCase(unittest.TestCase):
-	def testDifferentTimezones(self):
-		# Market times in UTC:
-		# - TSE: 0hs ~ 6hs
-		# - US: 14:30hs ~ 21hs
-		feed = yahoofeed.Feed()
-		for year in [2010, 2011]:
-			feed.addBarsFromCSV("nikkei", common.get_data_file_path("nikkei-%d-yahoofinance.csv" % year), marketsession.TSE.getTimezone())
-			feed.addBarsFromCSV("spy", common.get_data_file_path("spy-%d-yahoofinance.csv" % year), marketsession.USEquities.getTimezone())
-
-		self.assertTrue("nikkei" in feed)
+	def __testDifferentTimezonesImpl(self, feed):
+		self.assertTrue("^n225" in feed)
 		self.assertTrue("spy" in feed)
 		self.assertTrue("cacho" not in feed)
 		strat = NikkeiSpyStrategy(feed, 34)
 		strat.run()
 		self.assertEqual(round(strat.getResult(), 2), 1125558.12)
 
+	def testDifferentTimezones(self):
+		# Market times in UTC:
+		# - TSE: 0hs ~ 6hs
+		# - US: 14:30hs ~ 21hs
+		feed = yahoofeed.Feed()
+		for year in [2010, 2011]:
+			feed.addBarsFromCSV("^n225", common.get_data_file_path("nikkei-%d-yahoofinance.csv" % year), marketsession.TSE.getTimezone())
+			feed.addBarsFromCSV("spy", common.get_data_file_path("spy-%d-yahoofinance.csv" % year), marketsession.USEquities.getTimezone())
+
+		self.__testDifferentTimezonesImpl(feed)
+
+	def testDifferentTimezones_DBFeed(self):
+		feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), barfeed.Frequency.DAY)
+		feed.loadBars("^n225")
+		feed.loadBars("spy")
+		self.__testDifferentTimezonesImpl(feed)
+
+	def testDifferentTimezones_DBFeed_LocalizedBars(self):
+		feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), barfeed.Frequency.DAY)
+		feed.loadBars("^n225", marketsession.TSE.getTimezone())
+		feed.loadBars("spy", marketsession.USEquities.getTimezone())
+		self.__testDifferentTimezonesImpl(feed)
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testDifferentTimezones"))
+	ret.append(TestCase("testDifferentTimezones_DBFeed"))
+	ret.append(TestCase("testDifferentTimezones_DBFeed_LocalizedBars"))
 	return ret
 
 

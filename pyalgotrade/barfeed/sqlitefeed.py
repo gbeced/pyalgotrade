@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
 from pyalgotrade.barfeed import dbfeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
@@ -27,6 +26,11 @@ from pyalgotrade.utils import dt
 import sqlite3
 import os
 
+def normalize_instrument(instrument):
+	return instrument.upper()
+
+# SQLite DB.
+# Timestamps are stored in UTC.
 class Database(dbfeed.Database):
 	def __init__(self, dbFilePath):
 		self.__instrumentIds = {}
@@ -86,6 +90,7 @@ class Database(dbfeed.Database):
 			+ ",primary key (instrument_id, frequency, timestamp))" )
 
 	def addBar(self, instrument, bar, frequency):
+		instrument = normalize_instrument(instrument)
 		instrumentId = self.__getOrCreateInstrument(instrument)
 		timeStamp = dt.datetime_to_timestamp(bar.getDateTime())
 
@@ -99,7 +104,8 @@ class Database(dbfeed.Database):
 			params = [bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), bar.getAdjClose(), instrumentId, frequency, timeStamp]
 			self.__connection.execute(sql, params)
 
-	def getBars(self, instrument, frequency, fromDateTime = None, toDateTime = None):
+	def getBars(self, instrument, frequency, timezone = None, fromDateTime = None, toDateTime = None):
+		instrument = normalize_instrument(instrument)
 		sql = "select bar.timestamp, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.adj_close" \
 				" from bar join instrument on (bar.instrument_id = instrument.instrument_id)" \
 				" where instrument.name = ? and bar.frequency = ?"
@@ -117,7 +123,10 @@ class Database(dbfeed.Database):
 		cursor.execute(sql, args)
 		ret = []
 		for row in cursor:
-			ret.append(bar.Bar(dt.timestamp_to_datetime(row[0]), row[1], row[2], row[3], row[4], row[5], row[6]))
+			dateTime = dt.timestamp_to_datetime(row[0])
+			if timezone:
+				dateTime = dt.localize(dateTime, timezone)
+			ret.append(bar.Bar(dateTime, row[1], row[2], row[3], row[4], row[5], row[6]))
 		cursor.close()
 		return ret
 
@@ -129,7 +138,7 @@ class Feed(membf.Feed):
 	def getDatabase(self):
 		return self.__db
 
-	def loadBars(self, instrument, fromDateTime = None, toDateTime = None):
-		bars = self.__db.getBars(instrument, self.getFrequency(), fromDateTime, toDateTime)
+	def loadBars(self, instrument, timezone = None, fromDateTime = None, toDateTime = None):
+		bars = self.__db.getBars(instrument, self.getFrequency(), timezone, fromDateTime, toDateTime)
 		self.addBarsFromSequence(instrument, bars)
 
