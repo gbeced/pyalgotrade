@@ -178,10 +178,11 @@ class ReturnsTestCase(unittest.TestCase):
 	TestInstrument = "any"
 	
 	def testOneBarReturn(self):
+		initialCash = 1000
 		barFeed = yahoofeed.Feed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(strategy_test.datetime_from_date(2001, 12, 07), strategy_test.datetime_from_date(2001, 12, 07)))
 		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		# 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
 		# Manually place the orders to get them filled on the first (and only) bar.
@@ -193,14 +194,18 @@ class ReturnsTestCase(unittest.TestCase):
 		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		strat.run()
-		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.74))
-		self.assertTrue(stratAnalyzer.getNetReturn() == (15.91 - 15.74) / 15.74)
+		self.assertTrue(strat.getBroker().getCash() == initialCash + (15.91 - 15.74))
+
+		finalValue = 1000 - 15.74 + 15.91
+		rets = (finalValue - initialCash) / float(initialCash)
+		self.assertEqual(stratAnalyzer.getNetReturn(), rets)
 
 	def testTwoBarReturns_OpenOpen(self):
+		initialCash = 15.61
 		barFeed = yahoofeed.Feed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(strategy_test.datetime_from_date(2001, 12, 06), strategy_test.datetime_from_date(2001, 12, 07)))
 		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		# 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
 		# 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
@@ -211,17 +216,18 @@ class ReturnsTestCase(unittest.TestCase):
 
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
-		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.61))
+		self.assertTrue(strat.getBroker().getCash() == initialCash + (15.74 - 15.61))
 		# First day returns: Open vs Close
 		self.assertTrue(returnsDS[0] == (15.90 - 15.61) / 15.61)
 		# Second day returns: Open vs Prev. day's close
 		self.assertTrue(returnsDS[1] == (15.74 - 15.90) / 15.90)
 
 	def testTwoBarReturns_OpenClose(self):
+		initialCash = 15.61
 		barFeed = yahoofeed.Feed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(strategy_test.datetime_from_date(2001, 12, 06), strategy_test.datetime_from_date(2001, 12, 07)))
 		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		# 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
 		# 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
@@ -232,17 +238,18 @@ class ReturnsTestCase(unittest.TestCase):
 
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
-		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.61))
+		self.assertTrue(strat.getBroker().getCash() == initialCash + (15.91 - 15.61))
 		# First day returns: Open vs Close
 		self.assertTrue(returnsDS[0] == (15.90 - 15.61) / 15.61)
 		# Second day returns: Close vs Prev. day's close
 		self.assertTrue(returnsDS[1] == (15.91 - 15.90) / 15.90)
 
 	def testTwoBarReturns_CloseOpen(self):
+		initialCash = 15.9
 		barFeed = yahoofeed.Feed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(strategy_test.datetime_from_date(2001, 12, 06), strategy_test.datetime_from_date(2001, 12, 07)))
 		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		# 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
 		# 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
@@ -253,17 +260,18 @@ class ReturnsTestCase(unittest.TestCase):
 
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
-		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.74 - 15.90))
+		self.assertTrue(strat.getBroker().getCash() == initialCash + (15.74 - 15.90))
 		# First day returns: 0
 		self.assertTrue(returnsDS[0] == 0)
 		# Second day returns: Open vs Prev. day's close
 		self.assertTrue(returnsDS[1] == (15.74 - 15.90) / 15.90)
 
 	def testTwoBarReturns_CloseClose(self):
+		initialCash = 15.90
 		barFeed = yahoofeed.Feed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(strategy_test.datetime_from_date(2001, 12, 06), strategy_test.datetime_from_date(2001, 12, 07)))
 		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		# 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
 		# 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
@@ -274,16 +282,17 @@ class ReturnsTestCase(unittest.TestCase):
 
 		returnsDS = returns.ReturnsDataSeries(strat)
 		strat.run()
-		self.assertTrue(strat.getBroker().getCash() == 1000 + (15.91 - 15.90))
+		self.assertTrue(strat.getBroker().getCash() == initialCash + (15.91 - 15.90))
 		# First day returns: 0
 		self.assertTrue(returnsDS[0] == 0)
 		# Second day returns: Open vs Prev. day's close
 		self.assertTrue(returnsDS[1] == (15.91 - 15.90) / 15.90)
 
 	def testCumulativeReturn(self):
+		initialCash = 33.06
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		strat.addPosEntry(strategy_test.datetime_from_date(2001, 1, 12), strat.enterLong, ReturnsTestCase.TestInstrument, 1) # 33.06
 		strat.addPosExit(strategy_test.datetime_from_date(2001, 11, 27), strat.exitPosition) # 14.32
@@ -291,8 +300,24 @@ class ReturnsTestCase(unittest.TestCase):
 		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		strat.run()
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (14.32 - 33.06), 2))
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(initialCash + (14.32 - 33.06), 2))
 		self.assertTrue(round(33.06 * (1 + stratAnalyzer.getCumulativeReturn()), 2) == 14.32)
+
+	def testGoogle2011(self):
+		initialValue = 1000000
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("goog-2011-yahoofinance.csv"))
+
+		strat = strategy_test.TestStrategy(barFeed, initialValue)
+		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1654, True) # 2011-01-03 close: 604.35
+		strat.getBroker().placeOrder(order)
+
+		stratAnalyzer = returns.Returns()
+		strat.attachAnalyzer(stratAnalyzer)
+		strat.run()
+		finalValue = strat.getBroker().getValue(strat.getFeed().getLastBars())
+
+		self.assertEqual(round(stratAnalyzer.getCumulativeReturn(), 4), round((finalValue - initialValue) / float(initialValue), 4))
 
 def getTestCases():
 	ret = []
@@ -314,6 +339,7 @@ def getTestCases():
 	ret.append(ReturnsTestCase("testTwoBarReturns_CloseOpen"))
 	ret.append(ReturnsTestCase("testTwoBarReturns_CloseClose"))
 	ret.append(ReturnsTestCase("testCumulativeReturn"))
+	ret.append(ReturnsTestCase("testGoogle2011"))
 
 	return ret
 

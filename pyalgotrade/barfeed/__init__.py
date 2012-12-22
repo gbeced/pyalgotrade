@@ -66,6 +66,7 @@ class BasicBarFeed:
 		return self.__frequency
 
 	def getLastBars(self):
+		"""Returns the last :class:`pyalgotrade.bar.Bars`."""
 		return self.__lastBars
 
 	def start(self):

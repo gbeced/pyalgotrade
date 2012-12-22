@@ -1,6 +1,7 @@
 Version 0.10 (TBD)
 . [NEW] Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
-. [NEW] Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown).
+. [NEW] Max. drawdown and max. drawdown duration analysis
+(pyalgotrade.stratanalyzer.drawdown.DrawDown). Thanks Sedov Anton for reporting a bug in the early implementation.
 . [NEW] Returns analysis (pyalgotrade.stratanalyzer.returns.Returns).
 . [NEW] Trades analysis (pyalgotrade.stratanalyzer.trades.Trades).
 . [NEW] Support for bar timezones (pyalgotrade.marketsession).

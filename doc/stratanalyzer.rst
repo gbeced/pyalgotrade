@@ -35,9 +35,9 @@ This example depends on smacross_strategy.py from the tutorial section.
 The output should look like this: ::
 
     Final portfolio value: $1124.90
-    Cumulative returns: 28.13 %
-    Sharpe ratio: 0.66
-    Max. drawdown: 24.77 %
+    Cumulative returns: 12.49 %
+    Sharpe ratio: 0.39
+    Max. drawdown: 17.85 %
     Max. drawdown duration: 193 days
     Winning trades: 3
     Winning avg: $101

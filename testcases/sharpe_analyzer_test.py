@@ -44,11 +44,12 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.assertTrue(stratAnalyzer.getSharpeRatio(0, 252, annualized=True) == 0)
 
 	def __testIGE_BrokerImpl(self, quantity):
+		initialCash = 42.09 * quantity
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)
 		stratAnalyzer = sharpe.SharpeRatio()
@@ -60,9 +61,9 @@ class SharpeRatioTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True) # Adj. Close: 127.64
 		strat.run()
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09) * quantity)
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
-		# The results are slightly different different only because I'm taking into account the first bar as well.
+		# The results are slightly different only because I'm taking into account the first bar as well.
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 4) == 0.7889)
 
 	def testIGE_Broker(self):
@@ -72,12 +73,14 @@ class SharpeRatioTestCase(unittest.TestCase):
 		self.__testIGE_BrokerImpl(2)
 
 	def testIGE_BrokerWithCommission(self):
+		commision = 0.5
+		initialCash = 42.09 + commision
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-		brk = backtesting.Broker(1000, barFeed, broker.FixedCommission(0.5))
-		strat = strategy_test.TestStrategy(barFeed, 1000, brk)
+		brk = backtesting.Broker(initialCash, barFeed, broker.FixedCommission(commision))
+		strat = strategy_test.TestStrategy(barFeed, initialCash, brk)
 		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)
 		stratAnalyzer = sharpe.SharpeRatio()
@@ -89,19 +92,20 @@ class SharpeRatioTestCase(unittest.TestCase):
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
 		strat.run()
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000 + (127.64 - 42.09 - 0.5*2))
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09 - commision*2))
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
-		# The results are slightly different different only because I'm taking into account the first bar as well,
+		# The results are slightly different only because I'm taking into account the first bar as well,
 		# and I'm also adding commissions.
-		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 4) == 0.7763)
+		self.assertEqual(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 6), 0.776443)
 
 	def testSharpeRatioIGE_SPY_Broker(self):
+		initialCash = 42.09
 		# This testcase is based on an example from Ernie Chan's book:
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
 		barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
-		strat = strategy_test.TestStrategy(barFeed, 1000)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
 		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)
 		stratAnalyzer = sharpe.SharpeRatio()
@@ -111,18 +115,19 @@ class SharpeRatioTestCase(unittest.TestCase):
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
-		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
 
 		# Manually place SPY order to get it filled on the first bar.
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL_SHORT, "spy", 1, True) # Adj. Close: 105.52
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
+
+		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.BUY_TO_COVER, "spy", 1, True) # Adj. Close: 147.67
 
 		strat.run()
-		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.64 - 42.09) + (105.52 - 147.67), 2))
 		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
-		# The results are slightly different different only because I'm taking into account the first bar as well.
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(initialCash + (127.64 - 42.09) + (105.52 - 147.67), 2))
+		# TODO: The results are different from the ones in the book. Analyze why.
 		# self.assertTrue(round(stratAnalyzer.getSharpeRatio(0, 252), 5) == 0.92742)
 
 def getTestCases():
@@ -132,8 +137,7 @@ def getTestCases():
 	ret.append(SharpeRatioTestCase("testIGE_Broker"))
 	ret.append(SharpeRatioTestCase("testIGE_Broker2"))
 	ret.append(SharpeRatioTestCase("testIGE_BrokerWithCommission"))
-	# This testcase is not enabled since I think that the results from the book are not correct.
-	# ret.append(SharpeRatioTestCase("testSharpeRatioIGE_SPY_Broker"))
+	ret.append(SharpeRatioTestCase("testSharpeRatioIGE_SPY_Broker"))
 
 	return ret
 

@@ -98,10 +98,8 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def __init__(self):
 		self.__netRet = 0
 		self.__cumRet = 0
-		self.__lastBars = {} # Last Bar per instrument.
-		self.__posTrackers = {}
-		self.__useAdjClose = False
 		self.__event = observer.Event()
+		self.__lastPortfolioValue = None
 
 	@classmethod
 	def getOrCreateShared(cls, strat):
@@ -113,9 +111,16 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 			strat.attachAnalyzerEx(ret, name)
 		return ret
 
+	def __portfolioValue(self, strat):
+		bars = strat.getFeed().getLastBars()
+		if bars != None:
+			ret = strat.getBroker().getValue(bars)
+		else:
+			ret = strat.getBroker().getCash()
+		return ret
+
 	def attached(self, strat):
-		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
-		self.__useAdjClose = strat.getBroker().getUseAdjustedValues()
+		self.__lastPortfolioValue = self.__portfolioValue(strat)
 
 	# An event will be notified when return are calculated at each bar. The hander should receive 2 parameters:
 	# 1: This analyzer's instance
@@ -129,58 +134,13 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def getCumulativeReturn(self):
 		return self.__cumRet
 
-	def __onOrderUpdate(self, broker_, order):
-		# Only interested in filled orders.
-		if not order.isFilled():
-			return
-
-		# Get or create the tracker for this instrument.
-		try:
-			posTracker = self.__posTrackers[order.getInstrument()]
-		except KeyError:
-			posTracker = PositionTracker()
-			self.__posTrackers[order.getInstrument()] = posTracker
-
-		# Update the tracker for this order.
-		quantity = order.getExecutionInfo().getQuantity()
-		price = order.getExecutionInfo().getPrice()
-		commission = order.getExecutionInfo().getCommission()
-		action = order.getAction()
-		if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-			posTracker.buy(quantity, price, commission)
-		elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-			posTracker.sell(quantity, price, commission)
-		else: # Unknown action
-			assert(False)
-
-	def __getPrice(self, instrument, bars):
-		ret = None
-		bar = bars.getBar(instrument)
-		if bar == None:
-			bar = self.__lastBars.get(instrument, None)
-		if bar != None:
-			if self.__useAdjClose:
-				ret = bar.getAdjClose()
-			else:
-				ret = bar.getClose()
-		return ret
-
 	def beforeOnBars(self, strat, bars):
-		totalPL = 0
-		totalCost = 0
+		# assert(strat.getFeed().getLastBars() == bars)
 
-		# Calculate net return.
-		for instrument, posTracker in self.__posTrackers.iteritems():
-			price = self.__getPrice(instrument, bars)
-			if price != None:
-				totalPL += posTracker.getNetProfit(price, True)
-				totalCost += posTracker.getCost()
-				posTracker.update(price) 
+		currentPortfolioValue = self.__portfolioValue(strat)
+		netReturn = (currentPortfolioValue - self.__lastPortfolioValue) / float(self.__lastPortfolioValue)
+		self.__lastPortfolioValue = currentPortfolioValue
 
-		if totalCost == 0:
-			netReturn = 0
-		else:
-			netReturn = totalPL / float(totalCost)
 		self.__netRet = netReturn
 
 		# Calculate cumulative return.
@@ -188,10 +148,6 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 		# Notify that new returns are available.
 		self.__event.emit(self, bars)
-
-		# Keep track of the last bar for each instrument.
-		for instrument in bars.getInstruments():
-			self.__lastBars[instrument] = bars.getBar(instrument)
 
 class Returns(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
