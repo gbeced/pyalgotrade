@@ -113,9 +113,8 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def attached(self, strat):
 		self.__lastPortfolioValue = strat.getBroker().getValue()
 
-	# An event will be notified when return are calculated at each bar. The hander should receive 2 parameters:
+	# An event will be notified when return are calculated at each bar. The hander should receive 1 parameter:
 	# 1: This analyzer's instance
-	# 2: The bars
 	def getEvent(self):
 		return self.__event
 
@@ -125,9 +124,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def getCumulativeReturn(self):
 		return self.__cumRet
 
-	def beforeOnBars(self, strat, bars):
-		# assert(strat.getFeed().getLastBars() == bars)
-
+	def beforeOnBars(self, strat):
 		currentPortfolioValue = strat.getBroker().getValue()
 		netReturn = (currentPortfolioValue - self.__lastPortfolioValue) / float(self.__lastPortfolioValue)
 		self.__lastPortfolioValue = currentPortfolioValue
@@ -138,7 +135,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
 
 		# Notify that new returns are available.
-		self.__event.emit(self, bars)
+		self.__event.emit(self)
 
 class Returns(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
@@ -152,7 +149,7 @@ class Returns(stratanalyzer.StrategyAnalyzer):
 		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
 		analyzer.getEvent().subscribe(self.__onReturns)
 
-	def __onReturns(self, returnsAnalyzerBase, bars):
+	def __onReturns(self, returnsAnalyzerBase):
 		self.__netReturns.append(returnsAnalyzerBase.getNetReturn())
 		self.__cumRet = returnsAnalyzerBase.getCumulativeReturn()
 
@@ -177,7 +174,7 @@ class ReturnsDataSeries(dataseries.SequenceDataSeries):
 		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
 		analyzer.getEvent().subscribe(self.__onReturns)
 
-	def __onReturns(self, returnsAnalyzerBase, bars):
+	def __onReturns(self, returnsAnalyzerBase):
 		self.appendValue(returnsAnalyzerBase.getNetReturn())
 
 class CumulativeReturnsDataSeries(dataseries.SequenceDataSeries):
@@ -193,6 +190,6 @@ class CumulativeReturnsDataSeries(dataseries.SequenceDataSeries):
 		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
 		analyzer.getEvent().subscribe(self.__onReturns)
 
-	def __onReturns(self, returnsAnalyzerBase, bars):
+	def __onReturns(self, returnsAnalyzerBase):
 		self.appendValue(returnsAnalyzerBase.getCumulativeReturn())
 

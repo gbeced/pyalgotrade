@@ -35,7 +35,7 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 		analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(strat)
 		analyzer.getEvent().subscribe(self.__onReturns)
 
-	def __onReturns(self, returnsAnalyzerBase, bars):
+	def __onReturns(self, returnsAnalyzerBase):
 		cumulativeReturn = returnsAnalyzerBase.getCumulativeReturn()
 		self.__highWatermark = max(self.__highWatermark, cumulativeReturn)
 		drawDown = (1 + cumulativeReturn) / float(1 + self.__highWatermark) - 1

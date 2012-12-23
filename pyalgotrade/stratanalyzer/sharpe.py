@@ -50,11 +50,8 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 		analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(strat)
 		analyzer.getEvent().subscribe(self.__onReturns)
 
-	def __onReturns(self, returnsAnalyzerBase, bars):
+	def __onReturns(self, returnsAnalyzerBase):
 		self.__netReturns.append(returnsAnalyzerBase.getNetReturn())
-
-	def onReturns(self, bars, netReturn, cumulativeReturn):
-		self.__netReturns.append(netReturn)
 
 	def getSharpeRatio(self, riskFreeRate, tradingPeriods, annualized = True):
 		"""

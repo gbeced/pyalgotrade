@@ -32,6 +32,6 @@ class StrategyAnalyzer:
 	def attached(self, strat):
 		pass
 
-	def beforeOnBars(self, strat, bars):
+	def beforeOnBars(self, strat):
 		pass
 
