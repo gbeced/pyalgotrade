@@ -198,7 +198,7 @@ class ReturnsTestCase(unittest.TestCase):
 
 		finalValue = 1000 - 15.74 + 15.91
 		rets = (finalValue - initialCash) / float(initialCash)
-		self.assertEqual(stratAnalyzer.getNetReturn(), rets)
+		self.assertEqual(stratAnalyzer.getReturns()[-1], rets)
 
 	def testTwoBarReturns_OpenOpen(self):
 		initialCash = 15.61

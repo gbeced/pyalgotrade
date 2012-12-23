@@ -16,6 +16,7 @@ Contents:
     googleappengine
     code
     talib
+    compinv1
 
 Indices and tables
 ==================

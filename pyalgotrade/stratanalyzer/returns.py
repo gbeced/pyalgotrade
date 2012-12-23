@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import stratanalyzer
-from pyalgotrade import broker
 from pyalgotrade import observer
 from pyalgotrade import dataseries
 
@@ -153,7 +152,7 @@ class Returns(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
 
 	def __init__(self):
-		self.__netRet = 0
+		self.__netReturns = []
 		self.__cumRet = 0
 
 	def beforeAttach(self, strat):
@@ -162,12 +161,12 @@ class Returns(stratanalyzer.StrategyAnalyzer):
 		analyzer.getEvent().subscribe(self.__onReturns)
 
 	def __onReturns(self, returnsAnalyzerBase, bars):
-		self.__netRet = returnsAnalyzerBase.getNetReturn()
+		self.__netReturns.append(returnsAnalyzerBase.getNetReturn())
 		self.__cumRet = returnsAnalyzerBase.getCumulativeReturn()
 
-	def getNetReturn(self):
-		"""Returns the net return for the last bar."""
-		return self.__netRet
+	def getReturns(self):
+		"""Returns a list with the returns for each bar."""
+		return self.__netReturns
 
 	def getCumulativeReturn(self):
 		"""Returns the cumulative return up to the last bar."""
