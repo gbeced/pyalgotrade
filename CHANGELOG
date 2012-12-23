@@ -8,6 +8,7 @@ Version 0.10 (TBD)
 . [NEW] Support for sequence like operations in dataseries (__getitem__ and __len__. getValue and getValueAbsolute will soon get deprecated).
 . [NEW] Support for mapping like operations in bar feeds (__getitem__ and __contains__).
 . [NEW] Support for mapping like operations in bar.Bars (__getitem__ and __contains__).
+. [CHANGE] broker.backtesting.Broker.getValue no longer needs the bars as a parameter. It will take those out of the feed.
 . [FIX] Fixed returns calculations for short positions. Thanks John Fawcett for explaining this.
 . [FIX] Fixed a bug in the Strategy class and the backtesting broker when dealing with multiple instruments. Was not handling absence of bars appropriately. Thanks Fabian Braennstroem for reporting this.
 

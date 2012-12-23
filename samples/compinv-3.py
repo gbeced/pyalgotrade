@@ -52,12 +52,12 @@ class MyStrategy(strategy.Strategy):
 	def __init__(self, feed, cash, ordersFile):
 		# Suscribe to the feed bars event before the broker just to place the orders properly.
 		feed.getNewBarsEvent().subscribe(self.__onBarsBeforeBroker)
-		# We duplicate the amount of cash to avoid running out of cash.
-		strategy.Strategy.__init__(self, feed, cash * 2)
-		self.__cash = cash
+		strategy.Strategy.__init__(self, feed, cash)
 		self.__ordersFile = ordersFile
-		# We wan't to use using adjuste close instead of close.
+		# We wan't to use adjusted close prices instead of close.
 		self.getBroker().setUseAdjustedValues(True)
+		# We will allow buying more shares than cash allows.
+		self.getBroker().setAllowNegativeCash(True)
 
 	def __onBarsBeforeBroker(self, bars):
 		for instrument, action, quantity in self.__ordersFile.getOrders(bars.getDateTime()):
@@ -76,8 +76,7 @@ class MyStrategy(strategy.Strategy):
 			raise Exception("Order canceled. Ran out of cash ?")
 
 	def onBars(self, bars):
-		# We adjust the portfolio value since we duplicated the amount of cash.
-		portfolioValue = self.getBroker().getValue(bars) - self.__cash
+		portfolioValue = self.getBroker().getValue()
 		print "%s: Portfolio value: $%.2f" % (bars.getDateTime(), portfolioValue)
 
 def main():
@@ -86,7 +85,6 @@ def main():
 	print "First date", ordersFile.getFirstDate()
 	print "Last date", ordersFile.getLastDate()
 	print "Symbols", ordersFile.getInstruments()
-
 
 	# Load the data from QSTK storage. QS environment variable has to be defined.
 	feed = yahoofeed.Feed()

@@ -19,7 +19,9 @@
 """
 
 from pyalgotrade import broker
+from pyalgotrade import warninghelpers
 import pyalgotrade.logger
+
 
 logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
@@ -317,12 +319,16 @@ class Broker(broker.Broker):
 		barFeed.getNewBarsEvent().subscribe(self.onBars)
 		self.__barFeed = barFeed
 		self.__lastBars = {} # Last Bar per instrument.
+		self.__allowNegativeCash = False
 
 	def __getBar(self, bars, instrument):
 		ret = bars.getBar(instrument)
 		if ret == None:
 			ret = self.__lastBars[instrument]
 		return ret
+
+	def setAllowNegativeCash(self, allowNegativeCash):
+		self.__allowNegativeCash = allowNegativeCash
 
 	def setFillStrategy(self, strategy):
 		"""Sets the :class:`FillStrategy` to use."""
@@ -378,17 +384,21 @@ class Broker(broker.Broker):
 	def getActiveInstruments(self):
 		return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
 
-	def getValue(self, bars):
-		"""Returns the portfolio value (cash + shares) for the given bars prices.
-
-		:param bars: The bars to use to calculate share values.
-		:type bars: :class:`pyalgotrade.bar.Bars`.
-		"""
+	def getValueWithBars(self, bars):
 		ret = self.getCash()
-		for instrument, shares in self.__shares.iteritems():
-			instrumentPrice = self.getBarClose(self.__getBar(bars, instrument))
-			ret += instrumentPrice * shares
+		if bars != None:
+			for instrument, shares in self.__shares.iteritems():
+				instrumentPrice = self.getBarClose(self.__getBar(bars, instrument))
+				ret += instrumentPrice * shares
 		return ret
+
+	def getValue(self, deprecated = None):
+		"""Returns the portfolio value (cash + shares)."""
+
+		if deprecated != None:
+			warninghelpers.deprecation_warning("The bars parameter is no longer used and will be removed in the next version.", stacklevel=2)
+
+		return self.getValueWithBars(self.__barFeed.getLastBars())
 
 	# Tries to commit an order execution. Returns True if the order was commited, or False is there is not enough cash.
 	def commitOrderExecution(self, order, price, quantity, dateTime):
@@ -409,7 +419,7 @@ class Broker(broker.Broker):
 		resultingCash = self.getCash() + cost
 
 		# Check that we're ok on cash after the commission.
-		if resultingCash >= 0:
+		if resultingCash >= 0 or self.__allowNegativeCash:
 			# Commit the order execution.
 			self.setCash(resultingCash)
 			self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta

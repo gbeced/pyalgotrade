@@ -20,7 +20,6 @@
 
 import unittest
 import datetime
-import random
 
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
@@ -195,8 +194,8 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getCash() == 1)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
 
-		self.assertTrue(brk.getValue(self.buildBars(11, 11, 11, 11)) == 11 + 1)
-		self.assertTrue(brk.getValue(self.buildBars(1, 1, 1, 1)) == 1 + 1)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(11, 11, 11, 11)) == 11 + 1)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(1, 1, 1, 1)) == 1 + 1)
 
 	def testBuyWithCommission(self):
 		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=broker.FixedCommission(10))
@@ -223,9 +222,9 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(len(brk.getPendingOrders()) == 0)
 		self.assertTrue(brk.getCash() == 1200)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == -1)
-		self.assertTrue(brk.getValue(self.buildBars(100, 100, 100, 100)) == 1000 + 100)
-		self.assertTrue(brk.getValue(self.buildBars(0, 0, 0, 0)) == 1000 + 200)
-		self.assertTrue(brk.getValue(self.buildBars(30, 30, 30, 30)) == 1000 + 170)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(100, 100, 100, 100)) == 1000 + 100)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(0, 0, 0, 0)) == 1000 + 200)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(30, 30, 30, 30)) == 1000 + 170)
 
 		# Buy at the same price.
 		order = brk.createMarketOrder(broker.Order.Action.BUY_TO_COVER, BaseTestCase.TestInstrument, 1)
@@ -248,10 +247,10 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(brk.getCash() == 1100)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == -1)
-		self.assertTrue(brk.getValue(self.buildBars(100, 100, 100, 100)) == 1000)
-		self.assertTrue(brk.getValue(self.buildBars(0, 0, 0, 0)) == 1000 + 100)
-		self.assertTrue(brk.getValue(self.buildBars(70, 70, 70, 70)) == 1000 + 30)
-		self.assertTrue(brk.getValue(self.buildBars(200, 200, 200, 200)) == 1000 - 100)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(100, 100, 100, 100)) == 1000)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(0, 0, 0, 0)) == 1000 + 100)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(70, 70, 70, 70)) == 1000 + 30)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(200, 200, 200, 200)) == 1000 - 100)
 
 		# Buy 2 and earn 50
 		order = brk.createMarketOrder(broker.Order.Action.BUY_TO_COVER, BaseTestCase.TestInstrument, 2)
@@ -261,8 +260,8 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 1)
 		self.assertTrue(brk.getCash() == 1000) # +50 from short sell operation, -50 from buy operation.
-		self.assertTrue(brk.getValue(self.buildBars(50, 50, 50, 50)) == 1000 + 50)
-		self.assertTrue(brk.getValue(self.buildBars(70, 70, 70, 70)) == 1000 + 50 + 20)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(50, 50, 50, 50)) == 1000 + 50)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(70, 70, 70, 70)) == 1000 + 50 + 20)
 
 		# Sell 1 and earn 50
 		order = brk.createMarketOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 1)
@@ -271,7 +270,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getCommission() == 0)
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
-		self.assertTrue(brk.getValue(self.buildBars(70, 70, 70, 70)) == 1000 + 50 + 50)
+		self.assertTrue(brk.getValueWithBars(self.buildBars(70, 70, 70, 70)) == 1000 + 50 + 50)
 
 	def testSellShort_3(self):
 		brk = backtesting.Broker(100, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))

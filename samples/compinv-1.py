@@ -9,7 +9,7 @@ class MyStrategy(strategy.Strategy):
 	def __init__(self, feed):
 		strategy.Strategy.__init__(self, feed, 1000000)
 
-		# We wan't to use using adjuste close instead of close.
+		# We wan't to use adjusted close prices instead of close.
 		self.getBroker().setUseAdjustedValues(True)
 
 		# Place the orders to get them processed on the first bar.

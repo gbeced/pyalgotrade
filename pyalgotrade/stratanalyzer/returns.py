@@ -110,16 +110,8 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 			strat.attachAnalyzerEx(ret, name)
 		return ret
 
-	def __portfolioValue(self, strat):
-		bars = strat.getFeed().getLastBars()
-		if bars != None:
-			ret = strat.getBroker().getValue(bars)
-		else:
-			ret = strat.getBroker().getCash()
-		return ret
-
 	def attached(self, strat):
-		self.__lastPortfolioValue = self.__portfolioValue(strat)
+		self.__lastPortfolioValue = strat.getBroker().getValue()
 
 	# An event will be notified when return are calculated at each bar. The hander should receive 2 parameters:
 	# 1: This analyzer's instance
@@ -136,7 +128,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def beforeOnBars(self, strat, bars):
 		# assert(strat.getFeed().getLastBars() == bars)
 
-		currentPortfolioValue = self.__portfolioValue(strat)
+		currentPortfolioValue = strat.getBroker().getValue()
 		netReturn = (currentPortfolioValue - self.__lastPortfolioValue) / float(self.__lastPortfolioValue)
 		self.__lastPortfolioValue = currentPortfolioValue
 
