@@ -22,11 +22,28 @@ from pyalgotrade import broker
 from pyalgotrade import warninghelpers
 import pyalgotrade.logger
 
-
 logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
 ######################################################################
-## Filling strategies
+## Commissions
+
+class Commission:
+	def calculate(self, order, price, quantity):
+		raise NotImplementedError()
+
+class NoCommission(Commission):
+	def calculate(self, order, price, quantity):
+		return 0
+
+class FixedCommission(Commission):
+	def __init__(self, cost):
+		self.__cost = cost
+
+	def calculate(self, order, price, quantity):
+		return self.__cost
+
+######################################################################
+## Order filling strategies
 
 class FillStrategy:
 	"""Base class for order filling strategies."""
@@ -309,7 +326,14 @@ class Broker(broker.Broker):
 	"""
 
 	def __init__(self, cash, barFeed, commission = None):
-		broker.Broker.__init__(self, cash, commission)
+		broker.Broker.__init__(self)
+
+		assert(cash >= 0)
+		self.__cash = cash
+		if commission is None:
+			self.__commission = NoCommission()
+		else:
+			self.__commission = commission
 		self.__shares = {}
 		self.__pendingOrders = []
 		self.__useAdjustedValues = False
@@ -329,6 +353,22 @@ class Broker(broker.Broker):
 
 	def setAllowNegativeCash(self, allowNegativeCash):
 		self.__allowNegativeCash = allowNegativeCash
+
+	def getCash(self):
+		"""Returns the available cash."""
+		return self.__cash
+
+	def setCash(self, cash):
+		"""Sets the available cash."""
+		self.__cash = cash
+
+	def getCommission(self):
+		"""Returns the commission instance."""
+		return self.__commission
+
+	def setCommission(self, commission):
+		"""Sets the commission instance."""
+		self.__commission = commission
 
 	def setFillStrategy(self, strategy):
 		"""Sets the :class:`FillStrategy` to use."""

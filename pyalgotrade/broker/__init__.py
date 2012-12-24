@@ -21,24 +21,6 @@
 from pyalgotrade import observer
 
 ######################################################################
-## Commissions
-
-class Commission:
-	def calculate(self, order, price, quantity):
-		raise NotImplementedError()
-
-class NoCommission(Commission):
-	def calculate(self, order, price, quantity):
-		return 0
-
-class FixedCommission(Commission):
-	def __init__(self, cost):
-		self.__cost = cost
-
-	def calculate(self, order, price, quantity):
-		return self.__cost
-
-######################################################################
 ## Orders
 ## http://stocks.about.com/od/tradingbasics/a/markords.htm
 ## http://www.interactivebrokers.com/en/software/tws/usersguidebook/ordertypes/basic_order_types.htm
@@ -322,36 +304,12 @@ class Broker:
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, cash, commission=None):
-		assert(cash >= 0)
-		self.__cash = cash
-
-		if commission is None:
-			self.__commission = NoCommission()
-		else:
-			self.__commission = commission
-		
+	def __init__(self):
 		self.__orderUpdatedEvent = observer.Event()
 
 	def getOrderUpdatedEvent(self):
 		return self.__orderUpdatedEvent
 	
-	def getCash(self):
-		"""Returns the available cash."""
-		return self.__cash
-
-	def setCash(self, cash):
-		"""Sets the available cash."""
-		self.__cash = cash
-
-	def getCommission(self):
-		"""Returns the commission instance."""
-		return self.__commission
-
-	def setCommission(self, commission):
-		"""Sets the commission instance."""
-		self.__commission = commission
-
 	def start(self):
 		raise NotImplementedError()
 
@@ -466,4 +424,3 @@ class Broker:
 		"""
 		raise NotImplementedError()
 
-# vim: noet:ci:pi:sts=0:sw=4:ts=4

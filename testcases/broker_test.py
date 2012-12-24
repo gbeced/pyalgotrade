@@ -198,7 +198,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getValueWithBars(self.buildBars(1, 1, 1, 1)) == 1 + 1)
 
 	def testBuyWithCommission(self):
-		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=broker.FixedCommission(10))
+		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedCommission(10))
 
 		# Buy
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 100)
@@ -305,7 +305,7 @@ class MarketOrderTestCase(BaseTestCase):
 	def testSellShortWithCommission(self):
 		sharePrice = 100
 		commission = 10
-		brk = backtesting.Broker(1010, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=broker.FixedCommission(commission))
+		brk = backtesting.Broker(1010, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedCommission(commission))
 
 		# Sell 10 shares
 		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 10)

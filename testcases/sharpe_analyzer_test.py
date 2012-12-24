@@ -27,7 +27,6 @@ import strategy_test
 import common
 
 import unittest
-import datetime
 
 class SharpeRatioTestCase(unittest.TestCase):
 	def testNoTrades(self):
@@ -79,7 +78,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-		brk = backtesting.Broker(initialCash, barFeed, broker.FixedCommission(commision))
+		brk = backtesting.Broker(initialCash, barFeed, backtesting.FixedCommission(commision))
 		strat = strategy_test.TestStrategy(barFeed, initialCash, brk)
 		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)

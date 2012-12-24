@@ -103,7 +103,7 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 
 class ExternalBroker(broker.Broker):
 	def __init__(self, cash, barFeed, commission=None):
-		broker.Broker.__init__(self, cash, commission)
+		broker.Broker.__init__(self)
 
 		self.__ordersQueue = Queue.Queue()
 		self.__stop = False
