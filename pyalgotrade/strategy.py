@@ -299,11 +299,7 @@ class Strategy:
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
 	def getResult(self):
-		ret = 0
-		bars = self.__feed.getLastBars()
-		if bars != None:
-			ret = self.getBroker().getValue(bars)
-		return ret
+		return self.getBroker().getValue()
 
 	def getBarsProcessedEvent(self):
 		return self.__barsProcessedEvent

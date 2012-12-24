@@ -6,6 +6,9 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import strategy
 from pyalgotrade import broker
+from pyalgotrade.utils import stats
+from pyalgotrade.stratanalyzer import returns
+from pyalgotrade.stratanalyzer import sharpe
 
 class OrdersFile:
 	def __init__(self, ordersFile):
@@ -49,13 +52,12 @@ class OrdersFile:
 		return self.__orders.get(dateTime, [])
 
 class MyStrategy(strategy.Strategy):
-	def __init__(self, feed, cash, ordersFile):
+	def __init__(self, feed, cash, ordersFile, useAdjustedClose):
 		# Suscribe to the feed bars event before the broker just to place the orders properly.
 		feed.getNewBarsEvent().subscribe(self.__onBarsBeforeBroker)
 		strategy.Strategy.__init__(self, feed, cash)
 		self.__ordersFile = ordersFile
-		# We wan't to use adjusted close prices instead of close.
-		self.getBroker().setUseAdjustedValues(True)
+		self.getBroker().setUseAdjustedValues(useAdjustedClose)
 		# We will allow buying more shares than cash allows.
 		self.getBroker().setAllowNegativeCash(True)
 
@@ -70,9 +72,7 @@ class MyStrategy(strategy.Strategy):
 
 	def onOrderUpdated(self, order):
 		execInfo = order.getExecutionInfo()
-		if execInfo:
-			pass
-		else:
+		if not execInfo:
 			raise Exception("Order canceled. Ran out of cash ?")
 
 	def onBars(self, bars):
@@ -81,7 +81,7 @@ class MyStrategy(strategy.Strategy):
 
 def main():
 	# Load the orders file.
-	ordersFile = OrdersFile("compinv-3-orders.csv")
+	ordersFile = OrdersFile("orders.csv")
 	print "First date", ordersFile.getFirstDate()
 	print "Last date", ordersFile.getLastDate()
 	print "Symbols", ordersFile.getInstruments()
@@ -95,8 +95,23 @@ def main():
 
 	# Run the strategy.
 	cash = 1000000
-	strat = MyStrategy(feed, cash, ordersFile)
-	strat.run()
+	useAdjustedClose = True
+	myStrategy = MyStrategy(feed, cash, ordersFile, useAdjustedClose)
+
+	# Attach returns and sharpe ratio analyzers.
+	retAnalyzer = returns.Returns()
+	myStrategy.attachAnalyzer(retAnalyzer)
+	sharpeRatioAnalyzer = sharpe.SharpeRatio()
+	myStrategy.attachAnalyzer(sharpeRatioAnalyzer)
+
+	myStrategy.run()
+
+	# Print the results.
+	print "Final portfolio value: $%.2f" % myStrategy.getResult()
+	print "Anual return: %.2f %%" % (retAnalyzer.getCumulativeReturn() * 100)
+	print "Average daily return: %.2f %%" % (stats.mean(retAnalyzer.getReturns()) * 100)
+	print "Std. dev. daily return: %.4f" % (stats.stddev(retAnalyzer.getReturns()))
+	print "Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0, 252))
 
 main()
 

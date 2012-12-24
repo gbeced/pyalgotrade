@@ -27,13 +27,13 @@ The results were: ::
     Std. dev. daily return: 0.0186
     Sharpe ratio: 3.78
 
-Homework 3
-----------
+Homework 3 and 4
+----------------
 
-For this assignment I had to build a market simulation tool that loads orders from a file, executes those,
+For these assignments I had to build a market simulation tool that loads orders from a file, executes those,
 and prints the results for each day.
 
-The orders file look like this: ::
+The orders file for homework 3 look like this: ::
 
     2011,1,10,AAPL,Buy,1500,
     2011,1,13,AAPL,Sell,1500,
@@ -54,7 +54,7 @@ This is the market simulation tool that I built:
 
 .. literalinclude:: ../samples/compinv-3.py
 
-The output looks like this: ::
+The output for homework 3 looks like this: ::
 
     First date 2011-01-10 00:00:00
     Last date 2011-12-20 00:00:00
@@ -70,4 +70,9 @@ The output looks like this: ::
     2011-12-16 00:00:00: Portfolio value: $1116016.00
     2011-12-19 00:00:00: Portfolio value: $1117444.00
     2011-12-20 00:00:00: Portfolio value: $1133860.00
+    Final portfolio value: $1133860.00
+    Anual return: 13.39 %
+    Average daily return: 0.05 %
+    Std. dev. daily return: 0.0072
+    Sharpe ratio: 1.21
 
