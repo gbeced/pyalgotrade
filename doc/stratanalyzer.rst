@@ -9,7 +9,7 @@ Strategy analyzers provide an extensible way to attach different calculations to
 Returns
 -------
 .. automodule:: pyalgotrade.stratanalyzer.returns
-    :members: Returns, ReturnsDataSeries, CumulativeReturnsDataSeries
+    :members: Returns
 
 Sharpe Ratio
 ------------

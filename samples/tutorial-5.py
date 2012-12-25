@@ -11,13 +11,17 @@ feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 # Evaluate the strategy with the feed's bars.
 myStrategy = smacross_strategy.Strategy(feed, 20)
 
+# Attach a returns analyzers to the strategy.
+returnsAnalyzer = returns.Returns()
+myStrategy.attachAnalyzer(returnsAnalyzer)
+
 # Attach the plotter to the strategy.
 plt = plotter.StrategyPlotter(myStrategy)
 # Include the SMA in the instrument's subplot to get it displayed along with the closing prices.
 plt.getInstrumentSubplot("orcl").addDataSeries("SMA", myStrategy.getSMA())
 # Plot the strategy returns at each bar.
-plt.getOrCreateSubplot("returns").addDataSeries("Net return", returns.ReturnsDataSeries(myStrategy))
-plt.getOrCreateSubplot("returns").addDataSeries("Cum. return", returns.CumulativeReturnsDataSeries(myStrategy))
+plt.getOrCreateSubplot("returns").addDataSeries("Net return", returnsAnalyzer.getReturns())
+plt.getOrCreateSubplot("returns").addDataSeries("Cum. return", returnsAnalyzer.getCumulativeReturns())
 
 # Run the strategy.
 myStrategy.run()
