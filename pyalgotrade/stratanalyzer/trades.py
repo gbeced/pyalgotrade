@@ -24,7 +24,8 @@ from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.utils import stats
 
 class Trades(stratanalyzer.StrategyAnalyzer):
-	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that performs some basic analysis on trades: 
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that performs some
+	basic analysis on trades: 
 
 	 * Total number of trades
 	 * Total number of winning trades
@@ -36,6 +37,13 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 	 * Profit's standard deviation for all trades
 	 * Profit's standard deviation for winning trades
 	 * Profit's standard deviation for losing trades
+
+	.. note::
+		This analyzer operates on individual completed trades.
+		For example, lets say you start with a $1000 cash, and then you buy 1 share of XYZ
+		for $10 and later sell it for $20.
+		The trade's return is 100%, even though your whole portfolio went from $1000 to $1020,
+		a 2% return.
 	"""
 
 	def __init__(self):

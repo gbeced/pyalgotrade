@@ -40,7 +40,8 @@ def sharpe_ratio(returns, riskFreeRate, tradingPeriods, annualized = True):
 	return ret
 
 class SharpeRatio(stratanalyzer.StrategyAnalyzer):
-	"""A Sharpe Ratio :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
+	Sharpe ratio for the whole portfolio."""
 
 	def __init__(self):
 		self.__netReturns = []

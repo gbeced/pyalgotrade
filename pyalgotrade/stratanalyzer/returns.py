@@ -138,7 +138,8 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		self.__event.emit(self)
 
 class Returns(stratanalyzer.StrategyAnalyzer):
-	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates returns and cumulative returns."""
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
+	returns and cumulative returns for the whole portfolio."""
 
 	def __init__(self):
 		self.__netReturns = dataseries.SequenceDataSeries()
