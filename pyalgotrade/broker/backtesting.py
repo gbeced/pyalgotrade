@@ -335,7 +335,7 @@ class Broker(broker.Broker):
 		else:
 			self.__commission = commission
 		self.__shares = {}
-		self.__pendingOrders = []
+		self.__activeOrders = []
 		self.__useAdjustedValues = False
 		self.__fillStrategy = DefaultStrategy()
 
@@ -412,9 +412,12 @@ class Broker(broker.Broker):
 	def setUseAdjustedValues(self, useAdjusted):
 		self.__useAdjustedValues = useAdjusted
 
+	def getActiveOrders(self):
+		return self.__activeOrders
+
 	def getPendingOrders(self):
-		"""Returns a sequence with the orders that are still pending."""
-		return self.__pendingOrders
+		warninghelpers.deprecation_warning("getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.", stacklevel=2)
+		return self.getActiveOrders()
 
 	def getShares(self, instrument):
 		"""Returns the number of shares for an instrument."""
@@ -475,21 +478,21 @@ class Broker(broker.Broker):
 
 	def placeOrder(self, order):
 		if order.isAccepted():
-			if order not in self.__pendingOrders:
-				self.__pendingOrders.append(order)
+			if order not in self.__activeOrders:
+				self.__activeOrders.append(order)
 			order.setDirty(False)
 		else:
 			raise Exception("The order was already processed")
 
 	def onBars(self, bars):
-		pendingOrders = self.__pendingOrders
-		self.__pendingOrders = []
+		pendingOrders = self.__activeOrders
+		self.__activeOrders = []
 
 		for order in pendingOrders:
 			if order.isAccepted():
 				order.tryExecute(self, bars)
 				if order.isAccepted():
-					self.__pendingOrders.append(order)
+					self.__activeOrders.append(order)
 				else:
 					self.getOrderUpdatedEvent().emit(self, order)
 			else:

@@ -319,6 +319,10 @@ class Broker:
 	def join(self):
 		raise NotImplementedError()
 
+	def getActiveOrders(self):
+		"""Returns a sequence with the orders that are still active."""
+		raise NotImplementedError()
+
 	# Return True if there are not more events to dispatch.
 	def stopDispatching(self):
 		raise NotImplementedError()
