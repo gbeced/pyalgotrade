@@ -21,6 +21,7 @@
 from pyalgotrade import broker
 from pyalgotrade import warninghelpers
 import pyalgotrade.logger
+import copy
 
 logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
@@ -485,17 +486,16 @@ class Broker(broker.Broker):
 			raise Exception("The order was already processed")
 
 	def onBars(self, bars):
-		pendingOrders = self.__activeOrders
-		self.__activeOrders = []
+		activeOrders = copy.copy(self.__activeOrders)
 
-		for order in pendingOrders:
+		for order in activeOrders:
 			if order.isAccepted():
 				order.tryExecute(self, bars)
-				if order.isAccepted():
-					self.__activeOrders.append(order)
-				else:
+				if not order.isAccepted():
+					self.__activeOrders.remove(order)
 					self.getOrderUpdatedEvent().emit(self, order)
 			else:
+				self.__activeOrders.remove(order)
 				self.getOrderUpdatedEvent().emit(self, order)
 
 		# Keep track of the last bar for each instrument.

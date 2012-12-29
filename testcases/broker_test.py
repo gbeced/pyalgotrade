@@ -56,6 +56,22 @@ class BaseTestCase(unittest.TestCase):
 		ret[BaseTestCase.TestInstrument] = bar_
 		return bar.Bars(ret)
 
+class BrokerTestCase(BaseTestCase):
+	def testRegressionGetActiveOrders(self):
+		activeOrders = []
+
+		def onOrderUpdated(broker, order):
+			activeOrders.append(len(broker.getActiveOrders()))
+
+		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+		brk.placeOrder(brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1))
+		brk.placeOrder(brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1))
+		brk.onBars(self.buildBars(10, 15, 8, 12))
+		self.assertEqual(brk.getCash(), 1000 - 10*2)
+		self.assertEqual(activeOrders[0], 1)
+		self.assertEqual(activeOrders[1], 0)
+
 class MarketOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
 		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
@@ -1107,6 +1123,8 @@ class StopLimitOrderTestCase(BaseTestCase):
 
 def getTestCases():
 	ret = []
+
+	ret.append(BrokerTestCase("testRegressionGetActiveOrders"))
 
 	ret.append(MarketOrderTestCase("testBuyAndSell"))
 	ret.append(MarketOrderTestCase("testFailToBuy"))
