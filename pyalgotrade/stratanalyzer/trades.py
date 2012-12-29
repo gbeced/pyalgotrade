@@ -21,35 +21,29 @@
 from pyalgotrade import stratanalyzer
 from pyalgotrade import broker
 from pyalgotrade.stratanalyzer import returns
-from pyalgotrade.utils import stats
+
+import numpy as np
 
 class Trades(stratanalyzer.StrategyAnalyzer):
-	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that performs some
-	basic analysis on trades: 
-
-	 * Total number of trades
-	 * Total number of winning trades
-	 * Total number of losing trades
-	 * Total number of even trades
-	 * Average profit for all trades
-	 * Average profit for winning trades
-	 * Average profit for losing trades
-	 * Profit's standard deviation for all trades
-	 * Profit's standard deviation for winning trades
-	 * Profit's standard deviation for losing trades
+	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that records the profit/loss
+	and returns of every completed trade.
 
 	.. note::
 		This analyzer operates on individual completed trades.
 		For example, lets say you start with a $1000 cash, and then you buy 1 share of XYZ
-		for $10 and later sell it for $20.
-		The trade's return is 100%, even though your whole portfolio went from $1000 to $1020,
-		a 2% return.
+		for $10 and later sell it for $20:
+
+			* The trade's profit was $10.
+			* The trade's return is 100%, even though your whole portfolio went from $1000 to $1020, a 2% return.
 	"""
 
 	def __init__(self):
-		self.__allTrades = []
-		self.__winningTrades = []
-		self.__losingTrades = []
+		self.__all = []
+		self.__profits = []
+		self.__losses = []
+		self.__allReturns = []
+		self.__positiveReturns = []
+		self.__negativeReturns = []
 		self.__evenTrades = 0
 		self.__posTrackers = {}
 
@@ -57,14 +51,19 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 		price = 0 # The price doesn't matter since the position should be closed.
 		assert(posTracker.getShares() == 0)
 		netProfit =  posTracker.getNetProfit(price)
+		netReturn =  posTracker.getReturn(price)
 
 		if netProfit > 0:
-			self.__winningTrades.append(netProfit)
+			self.__profits.append(netProfit)
+			self.__positiveReturns.append(netReturn )
 		elif netProfit < 0:
-			self.__losingTrades.append(netProfit)
+			self.__losses.append(netProfit)
+			self.__negativeReturns.append(netReturn )
 		else:
 			self.__evenTrades += 1
-		self.__allTrades.append(netProfit)
+
+		self.__all.append(netProfit)
+		self.__allReturns.append(netReturn)
 
 		posTracker.update(price)
 
@@ -132,55 +131,43 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 	def attached(self, strat):
 		strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
+	def getCount(self):
+		"""Returns the total number of trades."""
+		return len(self.__all)
+
+	def getProfitableCount(self):
+		"""Returns the number of profitable trades."""
+		return len(self.__profits)
+
+	def getUnprofitableCount(self):
+		"""Returns the number of unprofitable trades."""
+		return len(self.__losses)
+
 	def getEvenCount(self):
 		"""Returns the number of trades whose net profit was 0."""
 		return self.__evenTrades
 
-	def getCount(self):
-		"""Returns the total number of trades."""
-		return len(self.__allTrades)
+	def getAll(self):
+		"""Returns a numpy.array with the profits/losses for each trade."""
+		return np.array(self.__all)
 
-	def getMean(self):
-		"""Returns the average profit for all the trades, or None if there are no trades."""
-		return stats.mean(self.__allTrades)
+	def getProfits(self):
+		"""Returns a numpy.array with the profits for each profitable trade."""
+		return np.array(self.__profits)
 
-	def getStdDev(self, ddof=1):
-		"""Returns the profit's standard deviation for all the trades, or None if there are no trades.
+	def getLosses(self):
+		"""Returns a numpy.array with the losses for each unprofitable trade."""
+		return np.array(self.__losses)
 
-		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
-		:type ddof: int.
-		"""
-		return stats.stddev(self.__allTrades, ddof)
+	def getAllReturns(self):
+		"""Returns a numpy.array with the returns for each trade."""
+		return np.array(self.__allReturns)
 
-	def getWinningCount(self):
-		"""Returns the number of trades whose net profit was > 0."""
-		return len(self.__winningTrades)
+	def getPositiveReturns(self):
+		"""Returns a numpy.array with the positive returns for each trade."""
+		return np.array(self.__positiveReturns)
 
-	def getWinningMean(self):
-		"""Returns the average profit for the winning trades, or None if there are no winning trades."""
-		return stats.mean(self.__winningTrades)
-
-	def getWinningStdDev(self, ddof=1):
-		"""Returns the profit's standard deviation for the winning trades, or None if there are no winning trades.
-
-		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
-		:type ddof: int.
-		"""
-		return stats.stddev(self.__winningTrades, ddof)
-
-	def getLosingCount(self):
-		"""Returns the number of trades whose net profit was < 0."""
-		return len(self.__losingTrades)
-
-	def getLosingMean(self):
-		"""Returns the average profit for the losing trades, or None if there are no losing trades."""
-		return stats.mean(self.__losingTrades)
-
-	def getLosingStdDev(self, ddof=1):
-		"""Returns the profit's standard deviation for the losing trades, or None if there are no losing trades.
-
-		:param ddof: Delta Degrees of Freedom. The divisor used in calculations is N - ddof, where N represents the number of elements.
-		:type ddof: int.
-		"""
-		return stats.stddev(self.__losingTrades, ddof)
+	def getNegativeReturns(self):
+		"""Returns a numpy.array with the negative returns for each trade."""
+		return np.array(self.__negativeReturns)
 

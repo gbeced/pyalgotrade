@@ -33,7 +33,7 @@ def compute_diff(values1, values2):
 		ret.append(diff)
 	return ret
 
-def possitive(value):
+def positive(value):
 	return value > 0
 
 def negative(value):
@@ -84,7 +84,7 @@ class CrossAbove(Base):
 	"""
 
 	def __init__(self, ds1, ds2, period = 2):
-		Base.__init__(self, ds1, ds2, period, possitive)
+		Base.__init__(self, ds1, ds2, period, positive)
 
 class CrossBelow(Base):
 	"""Checks for a cross below conditions over the specified period between two DataSeries objects.
