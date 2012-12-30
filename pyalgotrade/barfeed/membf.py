@@ -34,12 +34,14 @@ class Feed(barfeed.BarFeed):
 		self.__bars = {}
 		self.__nextBarIdx = {}
 		self.__started = False
+		self.__barsLeft = 0
 
 	def start(self):
 		self.__started = True
 		# Set session close attributes to bars.
 		for instrument, bars in self.__bars.iteritems():
 			helpers.set_session_close_attributes(bars)
+			self.__barsLeft = max(self.__barsLeft, len(bars))
 
 	def stop(self):
 		pass
@@ -83,6 +85,7 @@ class Feed(barfeed.BarFeed):
 					smallestDateTime = bars[nextIdx].getDateTime()
 
 		if smallestDateTime == None:
+			assert(self.__barsLeft == 0)
 			return None
 
 		# Make a second pass to get all the bars that had the smallest datetime.
@@ -92,6 +95,11 @@ class Feed(barfeed.BarFeed):
 			if nextIdx < len(bars) and bars[nextIdx].getDateTime() == smallestDateTime:
 				ret[instrument] = bars[nextIdx]
 				self.__nextBarIdx[instrument] += 1
+
+		self.__barsLeft -= 1
 		return ret
 
+
+	def getBarsLeft(self):
+		return self.__barsLeft
 
