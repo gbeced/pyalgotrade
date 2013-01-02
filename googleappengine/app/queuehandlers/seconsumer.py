@@ -23,8 +23,8 @@ import pickle
 import zlib
 import traceback
 
-from pyalgotrade.barfeed import helpers
 from pyalgotrade import barfeed
+from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
 import persistence
 from queuehandlers import seresult
@@ -36,42 +36,23 @@ import common.logger
 def ds_bar_to_pyalgotrade_bar(dsBar):
 	return bar.Bar(dsBar.dateTime, dsBar.open_, dsBar.high, dsBar.low, dsBar.close_, dsBar.volume, dsBar.adjClose)
 
-# Loads pyalgotrade.bar.Bar objects from the db.
+# Loads pyalgotrade.bar.Bars objects from the db.
 def load_pyalgotrade_daily_bars(instrument, barType, fromDateTime, toDateTime):
-	ret = []
+	assert(barType == persistence.Bar.Type.DAILY)
+	# Load pyalgotrade.bar.Bar objects from the db.
 	dbBars = persistence.Bar.getBars(instrument, barType, fromDateTime, toDateTime)
-	for dbBar in dbBars:
-		ret.append(ds_bar_to_pyalgotrade_bar(dbBar))
-	helpers.set_session_close_attributes(ret)
+	bars = [ds_bar_to_pyalgotrade_bar(dbBar) for dbBar in dbBars]
+
+	# Use a feed to build pyalgotrade.bar.Bars objects.
+	feed = membf.Feed(barfeed.Frequency.DAY)
+	feed.addBarsFromSequence(instrument, bars)
+	ret = []
+	feed.start()
+	for bars in feed:
+		ret.append(bars)
+	feed.stop()
+	feed.join()
 	return ret
-
-class BarFeed(barfeed.BarFeed):
-	def __init__(self, instrument, barSequence):
-		barfeed.BarFeed.__init__(self)
-		self.__instrument = instrument
-		self.registerInstrument(instrument)
-		self.__barIter = iter(barSequence)
-		self.__stopDispatching = False
-
-	def start(self):
-		pass
-
-	def stop(self):
-		pass
-
-	def join(self):
-		pass
-
-	def fetchNextBars(self):
-		ret = None
-		try:
-			ret = {self.__instrument : self.__barIter.next()}
-		except StopIteration:
-			self.__stopDispatching = True
-		return ret
-
-	def stopDispatching(self):
-		return self.__stopDispatching
 
 class BarsCache:
 	def __init__(self, logger):
@@ -136,7 +117,8 @@ class StrategyExecutor:
 
 	def runStrategy(self, stratExecConfig, paramValues):
 		bars = self.__loadBars(stratExecConfig)
-		barFeed = BarFeed(stratExecConfig.instrument, bars)
+
+		barFeed = barfeed.OptimizerBarFeed(barfeed.Frequency.DAY, [stratExecConfig.instrument], bars)
 
 		# Evaluate the strategy with the feed bars.
 		params = [barFeed]
