@@ -23,7 +23,7 @@ from pyalgotrade.stratanalyzer import returns
 
 class DrawDown(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-	max. drawdown and max. drawdown duration for the whole portfolio."""
+	max. drawdown and max. drawdown duration for the portfolio returns."""
 
 	def __init__(self):
 		self.__highWatermark = None
