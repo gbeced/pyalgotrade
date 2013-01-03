@@ -57,7 +57,7 @@ def getTestCases():
 	ret += csvbarfeed_test.getTestCases()
 	ret += dbfeed_test.getTestCases()
 	ret += broker_test.getTestCases()
-	ret += strategy_test.getTestCases()
+	ret += strategy_test.getTestCases(includeExternal=False)
 	ret += smacrossover_strategy_test.getTestCases()
 	ret += multi_instrument_strategy_test.getTestCases()
 	ret += talib_test.getTestCases()
