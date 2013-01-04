@@ -40,10 +40,17 @@ def get_stratexecconfig_for_template(stratExecConfigs):
 		if stratExecConfig.bestResult:
 			props["best_result"] = stratExecConfig.bestResult
 			props["best_result_parameters"] = stratExecConfig.bestResultParameters
-		if stratExecConfig.status == persistence.StratExecConfig.Status.CANCELED_TOO_MANY_ERRORS:
+
+		if stratExecConfig.status in [persistence.StratExecConfig.Status.ACTIVE, persistence.StratExecConfig.Status.FINISHED]:
+			if stratExecConfig.errors > 0:
+				props["additional_info"] = "%d errors were found. Take a look at the application logs." % (stratExecConfig.errors)
+			if stratExecConfig.status == persistence.StratExecConfig.Status.FINISHED:
+				props["reexecute_url"] = StrategyExecutionPage.getReExecuteUrl(stratExecConfig.className, stratExecConfig.key())
+		elif stratExecConfig.status == persistence.StratExecConfig.Status.CANCELED_TOO_MANY_ERRORS:
 			props["additional_info"] = "The strategy execution was cancelled because it generated too many errors."
-		elif stratExecConfig.errors > 0:
-			props["additional_info"] = "%d errors were found. Take a look at the application logs." % (stratExecConfig.errors)
+		else:
+			assert(False) # Invalid state
+
 		ret.append(props)
 	return ret
 
@@ -108,6 +115,60 @@ class QueueStrategyExecutionForm(forms.Form):
 		if len(self.getInstrument()) == 0:
 			raise Exception("Instrument is not set")
 
+	def getTemplateValues(self):
+		formValues = self.getValuesForTemplate()
+		ret = {}
+
+		# Strategy parameter values.
+		ret["strategy"] = []
+		for strategyParam in self.__strategyParams:
+			beginParamName = self.getBeginParamName(strategyParam)
+			endParamName = self.getEndParamName(strategyParam)
+
+			paramInfo = {}
+			paramInfo["name"] = strategyParam
+			paramInfo["beginName"] = beginParamName
+			paramInfo["endName"] = endParamName
+			paramInfo["beginValue"] = formValues[beginParamName]
+			paramInfo["endValue"] = formValues[endParamName]
+			ret["strategy"].append(paramInfo)
+
+		# Other values.
+		ret[QueueStrategyExecutionForm.instrumentParam] = formValues[QueueStrategyExecutionForm.instrumentParam]
+
+		defDateValue = "YYYY/MM/DD"
+		# Begin date.
+		if formValues[QueueStrategyExecutionForm.beginDateParam] != "":
+			ret[QueueStrategyExecutionForm.beginDateParam] = formValues[QueueStrategyExecutionForm.beginDateParam]
+		else:
+			ret[QueueStrategyExecutionForm.beginDateParam] = defDateValue
+		# End date.
+		if formValues[QueueStrategyExecutionForm.endDateParam] != "":
+			ret[QueueStrategyExecutionForm.endDateParam] = formValues[QueueStrategyExecutionForm.endDateParam]
+		else:
+			ret[QueueStrategyExecutionForm.endDateParam] = defDateValue
+
+		return ret
+
+	def loadFromStratExecConfig(self, stratExecConfig):
+		# Strategy parameter values.
+		for strategyParam in self.__strategyParams:
+			try:
+				pos = stratExecConfig.parameterNames.index(strategyParam)
+				beginPos = pos * 2
+				endPos = beginPos + 1
+				self.setRawValue(self.getBeginParamName(strategyParam), str(stratExecConfig.parameterRanges[beginPos]))
+				self.setRawValue(self.getEndParamName(strategyParam), str(stratExecConfig.parameterRanges[endPos]))
+			except ValueError:
+				pass
+				# Parameter not found
+
+		# Other values.
+		dateFormat = "%Y/%m/%d"
+		self.setRawValue(QueueStrategyExecutionForm.instrumentParam, str(stratExecConfig.instrument))
+		self.setRawValue(QueueStrategyExecutionForm.beginDateParam, stratExecConfig.firstDate.strftime(dateFormat))
+		self.setRawValue(QueueStrategyExecutionForm.endDateParam, stratExecConfig.lastDate.strftime(dateFormat))
+
 class StrategyPage(webapp.RequestHandler):
 	url = "/strategy/"
 
@@ -152,40 +213,12 @@ class StrategyExecutionPage(webapp.RequestHandler):
 	def getUrl(strategyClassName):
 		return utils.build_url(StrategyExecutionPage.url, {"class":strategyClassName})
 
-	def __getFormValues(self, strategyParams, form):
-		formValues = form.getValuesForTemplate()
-		ret = {}
-
-		# Strategy form values.
-		ret["strategy"] = []
-		for strategyParam in strategyParams:
-			beginParamName = form.getBeginParamName(strategyParam)
-			endParamName = form.getEndParamName(strategyParam)
-
-			paramInfo = {}
-			paramInfo["name"] = strategyParam
-			paramInfo["beginName"] = beginParamName
-			paramInfo["endName"] = endParamName
-			paramInfo["beginValue"] = formValues[beginParamName]
-			paramInfo["endValue"] = formValues[endParamName]
-			ret["strategy"].append(paramInfo)
-
-		# Other form values.
-		ret[QueueStrategyExecutionForm.instrumentParam] = formValues[QueueStrategyExecutionForm.instrumentParam]
-
-		defDateValue = "YYYY/MM/DD"
-		# Begin date.
-		if formValues[QueueStrategyExecutionForm.beginDateParam] != "":
-			ret[QueueStrategyExecutionForm.beginDateParam] = formValues[QueueStrategyExecutionForm.beginDateParam]
-		else:
-			ret[QueueStrategyExecutionForm.beginDateParam] = defDateValue
-		# End date.
-		if formValues[QueueStrategyExecutionForm.endDateParam] != "":
-			ret[QueueStrategyExecutionForm.endDateParam] = formValues[QueueStrategyExecutionForm.endDateParam]
-		else:
-			ret[QueueStrategyExecutionForm.endDateParam] = defDateValue
-
-		return ret
+	@staticmethod
+	def getReExecuteUrl(strategyClassName, stratExecConfigKey):
+		return utils.build_url(StrategyExecutionPage.url, {
+			"class":strategyClassName,
+			"key": stratExecConfigKey
+			})
 
 	def __buildStratExecConfig(self, className, strategyParams, form):
 		totalExecutions = 1
@@ -215,6 +248,7 @@ class StrategyExecutionPage(webapp.RequestHandler):
 	def __handleRequest(self, isPost):
 		templateValues = {}
 		strategyClassName = cgi.escape(self.request.get("class"))
+		stratExecConfigKey = cgi.escape(self.request.get("key"))
 
 		# Try to load the class.
 		try:
@@ -239,7 +273,8 @@ class StrategyExecutionPage(webapp.RequestHandler):
 			return
 
 		form = QueueStrategyExecutionForm(self.request, strategyParams)
-		# If handling a POST request, try to store the new strategy execution.
+
+		# If handling a POST request, try to queue the new strategy execution.
 		if isPost:
 			try:
 				form.validateAllParams()
@@ -257,6 +292,16 @@ class StrategyExecutionPage(webapp.RequestHandler):
 				self.redirect(StrategyPage.getUrl(strategyClassName))
 			except Exception, e:
 				templateValues["submit_error"] = str(e)
+		# If this is a re-execution request, load form values from strat exec config.
+		elif stratExecConfigKey != "":
+			try:
+				stratExecConfig = persistence.StratExecConfig.getByKey(stratExecConfigKey)
+				form.loadFromStratExecConfig(stratExecConfig)
+			except Exception, e:
+				templateValues["error"] = "Failed to load previous execution: %s" % (e)
+				path = os.path.join(os.path.dirname(__file__), "..", "templates", 'error.html')
+				self.response.out.write(template.render(path, templateValues))
+				return
 
 		# Template values
 		strategyValues = {}
@@ -265,7 +310,7 @@ class StrategyExecutionPage(webapp.RequestHandler):
 		templateValues["logout_url"] = users.create_logout_url("/")
 		templateValues["user"] = users.get_current_user()
 		templateValues["strategy"] = strategyValues
-		templateValues["form"] = self.__getFormValues(strategyParams, form)
+		templateValues["form"] = form.getTemplateValues()
 
 		# Build the response using the template.
 		path = os.path.join(os.path.dirname(__file__), "..", "templates", 'queue_execution.html')

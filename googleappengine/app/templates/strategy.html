@@ -66,10 +66,13 @@
 {% if active_executions %}
 	<ul>
 	{% for active_execution in active_executions %}
-		<li>Started on {{ active_execution.created }}. {{ active_execution.executions_finished }}/{{ active_execution.total_executions }} executions finished.
-		{% if active_execution.best_result %}
-			<b>Best result found so far was {{ active_execution.best_result }} with parameters {{ active_execution.best_result_parameters }}</b>.
-		{% endif %}
+		<li>Started on {{ active_execution.created }}.
+		<ul>
+			<li>{{ active_execution.executions_finished }}/{{ active_execution.total_executions }} executions finished.</li>
+			{% if active_execution.best_result %}
+				<li>Best result found so far was <b>{{ active_execution.best_result }}</b> with parameters <b>{{ active_execution.best_result_parameters }}</b>.</li>
+			{% endif %}
+		</ul>
 		</li>
 	{% endfor %}
 	</ul>
@@ -82,12 +85,17 @@
 	<ul>
 	{% for finished_execution in finished_executions %}
 		<li>Started on {{ finished_execution.created }}.
-		{% if finished_execution.best_result %}
-			<b>Best result found was {{ finished_execution.best_result }} with parameters {{ finished_execution.best_result_parameters }}.</b>
-		{% endif %}
-		{% if finished_execution.additional_info %}
-			<b>{{ finished_execution.additional_info }}</b>
-		{% endif %}
+		<ul>
+			{% if finished_execution.best_result %}
+				<li>Best result found was <b>{{ finished_execution.best_result }}</b> with parameters <b>{{ finished_execution.best_result_parameters }}</b>.</li>
+			{% endif %}
+			{% if finished_execution.additional_info %}
+				<li><b>{{ finished_execution.additional_info }}</b></li>
+			{% endif %}
+			{% if finished_execution.reexecute_url %}
+				<li><a href="{{ finished_execution.reexecute_url }}"> Re-execute.</a></li>
+			{% endif %}
+		</ul>
 		</li>
 	{% endfor %}
 	</ul>

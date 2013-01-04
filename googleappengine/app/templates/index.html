@@ -70,7 +70,7 @@
 	{% if active_executions %}
 		<ul>
 		{% for active_execution in active_executions %}
-		<li>{{ active_execution.class }} started on {{ active_execution.created }}. {{ active_execution.executions_finished }}/{{ active_execution.total_executions }} executions finished.</li>
+		<li>{{ active_execution.class }} started on {{ active_execution.created }}. <b>{{ active_execution.executions_finished }}/{{ active_execution.total_executions }} executions finished</b>.</li>
 		{% endfor %}
 		</ul>
 	{% else %}
