@@ -119,6 +119,7 @@ def worker_process(strategyClass, address, port):
 		def runStrategy(self, barFeed, *parameters):
 			strat = strategyClass(barFeed, *parameters)
 			strat.run()
+			return strat.getResult()
 
 	# Create a worker and run it.
 	w = MyWorker(address, port)
