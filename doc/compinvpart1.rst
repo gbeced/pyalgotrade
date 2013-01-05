@@ -19,13 +19,9 @@ Although the deliverable was an Excel spreadsheet, I validated the results using
 
 .. literalinclude:: ../samples/compinv-1.py
 
-The results were: ::
+The results were:
 
-    Final portfolio value: $2917766.47
-    Anual return: 191.78 %
-    Average daily return: 0.44 %
-    Std. dev. daily return: 0.0186
-    Sharpe ratio: 3.78
+.. literalinclude:: ../samples/compinv-1.output
 
 Homework 3 and 4
 ----------------

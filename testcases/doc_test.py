@@ -21,6 +21,7 @@
 import unittest
 import subprocess
 import os
+import shutil
 
 def run_and_get_output(cmd):
 	return subprocess.check_output(cmd, universal_newlines=True)
@@ -84,13 +85,24 @@ class TutorialTestCase(unittest.TestCase):
 		lines = run_sample_script("tutorial-4.py").split("\n")
 		self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
 
+class CompInvTestCase(unittest.TestCase):
+	def testCompInv_1(self):
+		shutil.copy2(os.path.join("samples", "aeti-2011-yahoofinance.csv"), ".")
+		shutil.copy2(os.path.join("samples", "egan-2011-yahoofinance.csv"), ".")
+		shutil.copy2(os.path.join("samples", "simo-2011-yahoofinance.csv"), ".")
+		shutil.copy2(os.path.join("samples", "glng-2011-yahoofinance.csv"), ".")
+		lines = run_sample_script("compinv-1.py").split("\n")
+		self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
+
 def getTestCases():
 	ret = []
 
-	ret.append(TutorialTestCase("testTutorial1"))
-	ret.append(TutorialTestCase("testTutorial2"))
-	ret.append(TutorialTestCase("testTutorial3"))
-	ret.append(TutorialTestCase("testTutorial4"))
+	# ret.append(TutorialTestCase("testTutorial1"))
+	# ret.append(TutorialTestCase("testTutorial2"))
+	# ret.append(TutorialTestCase("testTutorial3"))
+	# ret.append(TutorialTestCase("testTutorial4"))
+
+	ret.append(CompInvTestCase("testCompInv_1"))
 
 	return ret
 
