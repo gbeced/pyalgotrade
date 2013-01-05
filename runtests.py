@@ -41,6 +41,7 @@ from testcases import trades_analyzer_test
 from testcases import sharpe_analyzer_test
 from testcases import drawdown_analyzer_test
 from testcases import utils_test
+from testcases import doc_test
 
 def getTestCases():
 	ret = []
@@ -67,6 +68,7 @@ def getTestCases():
 	ret += sharpe_analyzer_test.getTestCases()
 	ret += drawdown_analyzer_test.getTestCases()
 	ret += utils_test.getTestCases()
+	ret += doc_test.getTestCases()
 
 	return ret
 
