@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import collections
+
 import broker
 
 import matplotlib.pyplot as plt
@@ -273,7 +275,7 @@ class StrategyPlotter:
 		self.__plotAllInstruments = plotAllInstruments
 		self.__plotBuySell = plotBuySell
 		self.__barSubplots = {}
-		self.__namedSubplots = {}
+		self.__namedSubplots = collections.OrderedDict()
 		self.__portfolioSubplot = None
 		if plotPortfolio:
 			self.__portfolioSubplot = Subplot()
