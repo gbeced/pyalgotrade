@@ -9,6 +9,7 @@ Release checklist
 [ ] Run testcases using the installed lib.
 [ ] Run tutorial examples from the Optimizing section using the installed lib.
 [ ] Run tutorial examples from the Plotting section using the installed lib.
+[ ] Run compinv-3.py sample.
 [ ] Test GoogleApp Engine support. Look for errors in the logs.
 [ ] Build package and upload to the downloads section.
 [ ] Update the website using RapidWeaver (doc + package).
