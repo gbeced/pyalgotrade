@@ -12,13 +12,9 @@ Creating a custom filter is easy:
 
 .. literalinclude:: ../samples/technical-1.py
 
-The output should be: ::
+The output should be:
 
-    None
-    None
-    3
-    6
-    144
+.. literalinclude:: ../samples/technical-1.output
 
 Moving Averages
 ---------------

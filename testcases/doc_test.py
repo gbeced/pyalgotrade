@@ -104,6 +104,12 @@ class StratAnalyzerTestCase(unittest.TestCase):
 		lines = run_sample_script("sample-strategy-analyzer.py").split("\n")
 		self.assertTrue(compare_head("sample-strategy-analyzer.output", lines[:-1]))
 
+class TechnicalTestCase(unittest.TestCase):
+	def testTechnical_1(self):
+		lines = run_sample_script("technical-1.py").split("\n")
+		self.assertTrue(compare_head("technical-1.output", lines[:-1]))
+
+
 def getTestCases():
 	ret = []
 
@@ -117,6 +123,8 @@ def getTestCases():
 	ret.append(DataSeriesTestCase("testDataSeries_1"))
 
 	ret.append(StratAnalyzerTestCase("testSampleStrategyAnalyzer"))
+
+	ret.append(TechnicalTestCase("testTechnical_1"))
 
 	return ret
 
