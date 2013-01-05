@@ -62,14 +62,9 @@ The code is doing 3 main things:
  2. Loading the feed from a CSV file.
  3. Running the strategy with the bars supplied by the feed.
 
-If you run the script you should see the closing prices in order: ::
+If you run the script you should see the closing prices in order:
 
-    2000-01-03 23:59:59: 118.12
-    2000-01-04 23:59:59: 107.69
-    .
-    .
-    2000-12-28 23:59:59: 31.06
-    2000-12-29 23:59:59: 29.06
+.. literalinclude:: ../samples/tutorial-1.output
 
 Let's move on with a strategy that prints closing SMA prices, to illustrate how technicals are used:
 
