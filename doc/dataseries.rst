@@ -10,13 +10,6 @@ Example
 
 .. literalinclude:: ../samples/dataseries-1.py
 
-The output should be: ::
+The output should be:
 
-    49
-    49
-    48
-    48
-    0
-    0
-    [47, 48, 49]
-
+.. literalinclude:: ../samples/dataseries-1.output
