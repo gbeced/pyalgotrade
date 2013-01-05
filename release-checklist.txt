@@ -6,9 +6,9 @@ Release checklist
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
 [ ] Rebuild and review documentation.
-[ ] Run tutorial examples using the installed lib.
 [ ] Run testcases using the installed lib.
-[ ] Test GoogleApp Engine support.
+[ ] Run tutorial examples using the installed lib.
+[ ] Test GoogleApp Engine support. Look for errors in the logs.
 [ ] Build package and upload to the downloads section.
 [ ] Update the website using RapidWeaver (doc + package).
 [ ] Merge into master branch.
