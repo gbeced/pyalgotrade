@@ -46,16 +46,24 @@ def run_python_script(script, params=[]):
 def run_sample_script(script, params=[]):
 	return run_python_script(os.path.join("samples", script), params)
 
+def get_file_lines(fileName):
+	rawLines = open(fileName, "r").readlines()
+	return [rawLine.strip() for rawLine in rawLines]
+
 def compare_head(fileName, lines):
-	rawLines = open(os.path.join("samples", fileName), "r").readlines()
-	fileLines = [rawLine.strip() for rawLine in rawLines]
+	fileLines = get_file_lines(os.path.join("samples", fileName))
 	return fileLines[0:len(lines)] == lines 
+
+def compare_tail(fileName, lines):
+	fileLines = get_file_lines(os.path.join("samples", fileName))
+	return fileLines[len(lines)*-1:] == lines 
 
 class TutorialTestCase(unittest.TestCase):
 	def testTutorial1(self):
 		run_python_code("from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)", "orcl-2000.csv")
 		lines = run_sample_script("tutorial-1.py").split("\n")
 		self.assertTrue(compare_head("tutorial-1.output", lines[:3]))
+		self.assertTrue(compare_tail("tutorial-1.output", lines[-4:-1]))
 
 def getTestCases():
 	ret = []
