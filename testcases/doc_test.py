@@ -51,10 +51,12 @@ def get_file_lines(fileName):
 	return [rawLine.strip() for rawLine in rawLines]
 
 def compare_head(fileName, lines):
+	assert(len(lines) > 0)
 	fileLines = get_file_lines(os.path.join("samples", fileName))
 	return fileLines[0:len(lines)] == lines 
 
 def compare_tail(fileName, lines):
+	assert(len(lines) > 0)
 	fileLines = get_file_lines(os.path.join("samples", fileName))
 	return fileLines[len(lines)*-1:] == lines 
 
@@ -77,12 +79,18 @@ class TutorialTestCase(unittest.TestCase):
 		self.assertTrue(compare_head("tutorial-3.output", lines[:30]))
 		self.assertTrue(compare_tail("tutorial-3.output", lines[-4:-1]))
 
+	def testTutorial4(self):
+		# run_python_code("from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)", "orcl-2000.csv")
+		lines = run_sample_script("tutorial-4.py").split("\n")
+		self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
+
 def getTestCases():
 	ret = []
 
 	ret.append(TutorialTestCase("testTutorial1"))
 	ret.append(TutorialTestCase("testTutorial2"))
 	ret.append(TutorialTestCase("testTutorial3"))
+	ret.append(TutorialTestCase("testTutorial4"))
 
 	return ret
 
