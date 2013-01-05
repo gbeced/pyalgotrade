@@ -305,6 +305,8 @@ class StrategyPlotter:
 		# Feed the portfolio evolution subplot.
 		if self.__portfolioSubplot:
 			self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getValue())
+			# This is in case additional dataseries were added to the portfolio subplot.
+			self.__portfolioSubplot.addValuesFromDataSeries(dateTime)
 
 	def __onOrderUpdated(self, broker_, order):
 		# Notify BarSubplots
