@@ -76,28 +76,9 @@ This is very similar to the previous example, except that:
  2. We're printing the current SMA value along with the closing price.
 
 If you run the script you should see the closing prices and the corresponding SMA values, but in this case the first 14 SMA values are None.
-That is because we need at least 15 values to get something out of the SMA: ::
+That is because we need at least 15 values to get something out of the SMA:
 
-    2000-01-03 23:59:59: 118.12 None
-    2000-01-04 23:59:59: 107.69 None
-    2000-01-05 23:59:59: 102.0 None
-    2000-01-06 23:59:59: 96.0 None
-    2000-01-07 23:59:59: 103.37 None
-    2000-01-10 23:59:59: 115.75 None
-    2000-01-11 23:59:59: 112.37 None
-    2000-01-12 23:59:59: 105.62 None
-    2000-01-13 23:59:59: 105.06 None
-    2000-01-14 23:59:59: 106.81 None
-    2000-01-18 23:59:59: 111.25 None
-    2000-01-19 23:59:59: 57.13 None
-    2000-01-20 23:59:59: 59.25 None
-    2000-01-21 23:59:59: 59.69 None
-    2000-01-24 23:59:59: 54.19 94.2866666667
-    2000-01-25 23:59:59: 56.44 90.1746666667
-    .
-    .
-    2000-12-28 23:59:59: 31.06 30.0446666667
-    2000-12-29 23:59:59: 29.06 30.0946666667
+.. literalinclude:: ../samples/tutorial-2.output
 
 All the technicals will return None when the value can't be calculated at a given time.
 

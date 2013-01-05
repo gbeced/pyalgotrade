@@ -65,10 +65,17 @@ class TutorialTestCase(unittest.TestCase):
 		self.assertTrue(compare_head("tutorial-1.output", lines[:3]))
 		self.assertTrue(compare_tail("tutorial-1.output", lines[-4:-1]))
 
+	def testTutorial2(self):
+		# run_python_code("from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('orcl', 2000)", "orcl-2000.csv")
+		lines = run_sample_script("tutorial-2.py").split("\n")
+		self.assertTrue(compare_head("tutorial-2.output", lines[:15]))
+		self.assertTrue(compare_tail("tutorial-2.output", lines[-4:-1]))
+
 def getTestCases():
 	ret = []
 
 	ret.append(TutorialTestCase("testTutorial1"))
+	ret.append(TutorialTestCase("testTutorial2"))
 
 	return ret
 
