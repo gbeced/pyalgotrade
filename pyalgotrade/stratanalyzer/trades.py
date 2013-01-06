@@ -44,6 +44,10 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 		self.__allReturns = []
 		self.__positiveReturns = []
 		self.__negativeReturns = []
+		self.__allCommissions = []
+		self.__profitableCommissions = []
+		self.__unprofitableCommissions = []
+		self.__evenCommissions = []
 		self.__evenTrades = 0
 		self.__posTrackers = {}
 
@@ -56,14 +60,18 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 		if netProfit > 0:
 			self.__profits.append(netProfit)
 			self.__positiveReturns.append(netReturn )
+			self.__profitableCommissions.append(posTracker.getCommissions())
 		elif netProfit < 0:
 			self.__losses.append(netProfit)
 			self.__negativeReturns.append(netReturn )
+			self.__unprofitableCommissions.append(posTracker.getCommissions())
 		else:
 			self.__evenTrades += 1
+			self.__evenCommissions.append(posTracker.getCommissions())
 
 		self.__all.append(netProfit)
 		self.__allReturns.append(netReturn)
+		self.__allCommissions.append(posTracker.getCommissions())
 
 		posTracker.update(price)
 
@@ -170,4 +178,22 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 	def getNegativeReturns(self):
 		"""Returns a numpy.array with the negative returns for each trade."""
 		return np.array(self.__negativeReturns)
+
+	def getCommissionsForAllTrades(self):
+		"""Returns a numpy.array with the commissions for each trade."""
+		return np.array(self.__allCommissions)
+
+	def getCommissionsForProfitableTrades(self):
+		"""Returns a numpy.array with the commissions for each profitable trade."""
+		return np.array(self.__profitableCommissions)
+
+	def getCommissionsForUnprofitableTrades(self):
+		"""Returns a numpy.array with the commissions for each unprofitable trade."""
+		return np.array(self.__unprofitableCommissions)
+
+	def getCommissionsForEvenTrades(self):
+		"""Returns a numpy.array with the commissions for each trade whose net profit was 0."""
+		return np.array(self.__evenCommissions)
+
+
 

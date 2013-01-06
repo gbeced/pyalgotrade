@@ -22,6 +22,7 @@ from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.stratanalyzer import trades
 from pyalgotrade import broker
+from pyalgotrade.broker import backtesting
 
 import strategy_test
 import common
@@ -142,6 +143,28 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 		else:
 			self.assertTrue(stratAnalyzer.getLosses().std(ddof=1) == 0)
 		self.assertTrue(stratAnalyzer.getLosses().std(ddof=0) == 0)
+
+	def testSomeTradesWithCommissions(self):
+		strat = self.__createStrategy()
+		strat.getBroker().setCommission(backtesting.FixedCommission(0.01))
+		stratAnalyzer = trades.Trades()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		# Losing trade
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1) # 127.2
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 31), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1) # 127.16
+		# Winning trade
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 38), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1) # 127.16
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 42), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1) # 127.26
+		# Open trade.
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 47), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1) # 127.34
+		strat.run()
+
+		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.16 - 127.2) + (127.26 - 127.16) - 127.34 - 0.01*5, 2))
+		self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForAllTrades(), numpy.array([0.02, 0.02])))
+		self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForProfitableTrades(), numpy.array([0.02])))
+		self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForUnprofitableTrades(), numpy.array([0.02])))
+		self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForEvenTrades(), numpy.array([])))
 
 	def testLongShort(self):
 		strat = self.__createStrategy()
@@ -361,6 +384,7 @@ def getTestCases():
 	ret.append(TradesAnalyzerTestCase("testNoTrades"))
 	ret.append(TradesAnalyzerTestCase("testSomeTrades_Position"))
 	ret.append(TradesAnalyzerTestCase("testSomeTrades"))
+	ret.append(TradesAnalyzerTestCase("testSomeTradesWithCommissions"))
 	ret.append(TradesAnalyzerTestCase("testLong2"))
 	ret.append(TradesAnalyzerTestCase("testLong3"))
 	ret.append(TradesAnalyzerTestCase("testLongShort"))
