@@ -27,10 +27,23 @@ import strategy_test
 import common
 
 import unittest
-import datetime
 
 class PosTrackerTestCase(unittest.TestCase):
 	invalid_price = 5000
+
+	def testBuyAndSellBreakEvenWithCommission(self):
+		posTracker = returns.PositionTracker()
+		posTracker.buy(1, 10, 0.01)
+		posTracker.sell(1, 10.02, 0.01)
+		self.assertTrue(posTracker.getCost() == 10)
+		# We need to round here or else the testcase fails since the value returned is not exactly 0.<
+		# The same issue can be reproduced with this piece of code:
+		# a = 10.02 - 10
+		# b = 0.02
+		# print a - b
+		# print a - b == 0
+		self.assertTrue(round(posTracker.getNetProfit(PosTrackerTestCase.invalid_price), 2) == 0.0)
+		self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 2) == 0.0)
 
 	def testBuyAndSellBreakEven(self):
 		posTracker = returns.PositionTracker()
@@ -327,6 +340,7 @@ def getTestCases():
 	ret = []
 
 	ret.append(PosTrackerTestCase("testBuyAndSellBreakEven"))
+	ret.append(PosTrackerTestCase("testBuyAndSellBreakEvenWithCommission"))
 	ret.append(PosTrackerTestCase("testBuyAndSellWin"))
 	ret.append(PosTrackerTestCase("testBuyAndSellMultipleEvals"))
 	ret.append(PosTrackerTestCase("testSellAndBuyWin"))
