@@ -29,7 +29,7 @@ print "Final portfolio value: $%.2f" % myStrategy.getResult()
 print "Cumulative returns: %.2f %%" % (retAnalyzer.getCumulativeReturns()[-1] * 100)
 print "Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0.05, 252))
 print "Max. drawdown: %.2f %%" % (drawDownAnalyzer.getMaxDrawDown() * 100)
-print "Max. drawdown duration: %d days" % (drawDownAnalyzer.getMaxDrawDownDuration())
+print "Longest drawdown duration: %d days" % (drawDownAnalyzer.getLongestDrawDownDuration())
 
 print
 print "Total trades: %d" % (tradesAnalyzer.getCount())

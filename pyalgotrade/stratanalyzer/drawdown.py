@@ -49,11 +49,11 @@ class DrawDownHelper:
 
 class DrawDown(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-	max. drawdown and max. drawdown duration for the portfolio."""
+	max. drawdown and longest drawdown duration for the portfolio."""
 
 	def __init__(self):
 		self.__maxDD = 0
-		self.__maxDDDuration = 0
+		self.__longestDDDuration = 0
 		self.__currDrawDown = None
 
 	def attached(self, strat):
@@ -75,19 +75,18 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 	def beforeOnBars(self, strat):
 		equity = self.calculateEquity(strat)
 		self.__currDrawDown.update(equity)
-		if self.__currDrawDown.getMaxDrawDown() <= self.__maxDD:
-			self.__maxDD = self.__currDrawDown.getMaxDrawDown()
-			self.__maxDDDuration = self.__currDrawDown.getDuration()
+		self.__longestDDDuration = max(self.__longestDDDuration, self.__currDrawDown.getDuration())
+		self.__maxDD = min(self.__maxDD, self.__currDrawDown.getMaxDrawDown())
 
 	def getMaxDrawDown(self):
-		"""Returns the max. drawdown."""
+		"""Returns the max. (deepest) drawdown."""
 		return abs(self.__maxDD)
 
-	def getMaxDrawDownDuration(self):
-		"""Returns the duration of the max drawdown.
+	def getLongestDrawDownDuration(self):
+		"""Returns the duration of the longest drawdown.
 
 		.. note::
-			Note that this is the duration of the deepest drawdown, not necessarily the longest one.
+			Note that this is the duration of the longest drawdown, not necessarily the deepest one.
 		"""	
-		return self.__maxDDDuration
+		return self.__longestDDDuration
 

@@ -146,7 +146,7 @@ class AnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(strat.getBroker().getCash() == 1000)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 0)
 		self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
-		self.assertTrue(stratAnalyzer.getMaxDrawDownDuration()== 0)
+		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration()== 0)
 
 	def __testIGE_BrokerImpl(self, quantity):
 		initialCash = 42.09*quantity
@@ -170,7 +170,7 @@ class AnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 		self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
-		self.assertTrue(stratAnalyzer.getMaxDrawDownDuration()== 432)
+		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration()== 432)
 
 	def testIGE_Broker(self):
 		self.__testIGE_BrokerImpl(1)
@@ -199,17 +199,17 @@ class AnalyzerTestCase(unittest.TestCase):
 		# No drawdown
 		stratAnalyzer = self.__testManualImpl([10, 10, 10], 10)
 		self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0)
-		self.assertEqual(stratAnalyzer.getMaxDrawDownDuration(), 0)
+		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), 0)
 
 	def testManual_1DD(self):
 		stratAnalyzer = self.__testManualImpl([10, 9, 8], 10)
 		self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0.2)
-		self.assertEqual(stratAnalyzer.getMaxDrawDownDuration(), 2)
+		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), 2)
 
 	def testManual_2DD(self):
 		stratAnalyzer = self.__testManualImpl([10, 9.5, 9, 8, 11, 8], 10)
 		self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0.27)
-		self.assertEqual(stratAnalyzer.getMaxDrawDownDuration(), 1)
+		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), 3)
 
 def getTestCases():
 	ret = []
