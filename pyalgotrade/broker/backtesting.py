@@ -343,13 +343,12 @@ class Broker(broker.Broker):
 		# It is VERY important that the broker subscribes to barfeed events before the strategy.
 		barFeed.getNewBarsEvent().subscribe(self.onBars)
 		self.__barFeed = barFeed
-		self.__lastBars = {} # Last Bar per instrument.
 		self.__allowNegativeCash = False
 
 	def __getBar(self, bars, instrument):
 		ret = bars.getBar(instrument)
 		if ret == None:
-			ret = self.__lastBars[instrument]
+			ret = self.__barFeed.getLastBar(instrument)
 		return ret
 
 	def setAllowNegativeCash(self, allowNegativeCash):
@@ -421,14 +420,16 @@ class Broker(broker.Broker):
 		return self.getActiveOrders()
 
 	def getShares(self, instrument):
-		"""Returns the number of shares for an instrument."""
 		self.__shares.setdefault(instrument, 0)
 		return self.__shares[instrument]
+
+	def getPositions(self):
+		return self.__shares
 
 	def getActiveInstruments(self):
 		return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
 
-	def getValueWithBars(self, bars):
+	def getEquityWithBars(self, bars):
 		ret = self.getCash()
 		if bars != None:
 			for instrument, shares in self.__shares.iteritems():
@@ -437,12 +438,14 @@ class Broker(broker.Broker):
 		return ret
 
 	def getValue(self, deprecated = None):
-		"""Returns the portfolio value (cash + shares)."""
-
 		if deprecated != None:
 			warninghelpers.deprecation_warning("The bars parameter is no longer used and will be removed in the next version.", stacklevel=2)
 
-		return self.getValueWithBars(self.__barFeed.getLastBars())
+		return self.getEquityWithBars(self.__barFeed.getCurrentBars())
+
+	def getEquity(self):
+		"""Returns the portfolio value (cash + shares)."""
+		return self.getEquityWithBars(self.__barFeed.getCurrentBars())
 
 	# Tries to commit an order execution. Returns True if the order was commited, or False is there is not enough cash.
 	def commitOrderExecution(self, order, price, quantity, dateTime):
@@ -497,10 +500,6 @@ class Broker(broker.Broker):
 			else:
 				self.__activeOrders.remove(order)
 				self.getOrderUpdatedEvent().emit(self, order)
-
-		# Keep track of the last bar for each instrument.
-		for instrument in bars.getInstruments():
-			self.__lastBars[instrument] = bars.getBar(instrument)
 
 	def start(self):
 		pass

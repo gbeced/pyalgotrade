@@ -306,7 +306,7 @@ class StrategyPlotter:
 
 		# Feed the portfolio evolution subplot.
 		if self.__portfolioSubplot:
-			self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getValue())
+			self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getEquity())
 			# This is in case additional dataseries were added to the portfolio subplot.
 			self.__portfolioSubplot.addValuesFromDataSeries(dateTime)
 

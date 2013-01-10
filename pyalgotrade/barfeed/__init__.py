@@ -21,6 +21,7 @@
 from pyalgotrade import dataseries
 from pyalgotrade import observer
 from pyalgotrade import bar
+from pyalgotrade import warninghelpers
 
 class Frequency:
 	# SECOND	= 1
@@ -42,16 +43,19 @@ class BasicBarFeed:
 		self.__ds = {}
 		self.__defaultInstrument = None
 		self.__newBarsEvent = observer.Event()
-		self.__lastBars = None
+		self.__currentBars = None
+		self.__lastBars = {}
 		self.__frequency = frequency
 
 	def __getNextBarsAndUpdateDS(self):
 		bars = self.getNextBars()
 		if bars != None:
-			self.__lastBars = bars
-			# Update the dataseries.
+			self.__currentBars = bars
+			# Update self.__lastBars and the dataseries.
 			for instrument in bars.getInstruments():
-				self.__ds[instrument].appendValue(bars.getBar(instrument))
+				bar_ = bars.getBar(instrument)
+				self.__lastBars[instrument] = bar_ 
+				self.__ds[instrument].appendValue(bar_)
 		return bars
 
 	def __iter__(self):
@@ -65,9 +69,17 @@ class BasicBarFeed:
 	def getFrequency(self):
 		return self.__frequency
 
+	def getCurrentBars(self):
+		"""Returns the current :class:`pyalgotrade.bar.Bars`."""
+		return self.__currentBars
+
 	def getLastBars(self):
-		"""Returns the last :class:`pyalgotrade.bar.Bars`."""
-		return self.__lastBars
+		warninghelpers.deprecation_warning("getLastBars will be deprecated in the next version. Please use getCurrentBars instead.", stacklevel=2)
+		return self.getCurrentBars()
+
+	def getLastBar(self, instrument):
+		"""Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or None."""
+		return self.__lastBars.get(instrument, None)
 
 	def start(self):
 		raise NotImplementedError()

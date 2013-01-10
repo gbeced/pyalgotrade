@@ -43,7 +43,7 @@ class MyStrategy(strategy.Strategy):
              self.exitPosition(self.__position)
 
     def onFinish(self, bars):
-        print "Final portfolio value: $%.2f" % self.getBroker().getValue()
+        print "Final portfolio value: $%.2f" % self.getBroker().getEquity()
 
 def run_strategy(smaPeriod):
     # Load the yahoo feed from the CSV file

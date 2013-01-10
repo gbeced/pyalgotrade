@@ -299,7 +299,7 @@ class Strategy:
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
 
 	def getResult(self):
-		return self.getBroker().getValue()
+		return self.getBroker().getEquity()
 
 	def getBarsProcessedEvent(self):
 		return self.__barsProcessedEvent
@@ -357,7 +357,7 @@ class Strategy:
 	def getCurrentDateTime(self):
 		"""Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bar`."""
 		ret = None
-		bars = self.__feed.getLastBars()
+		bars = self.__feed.getCurrentBars()
 		if bars:
 			ret = bars.getDateTime()
 		return ret
@@ -672,8 +672,8 @@ class Strategy:
 				stopDispBroker = self.__broker.stopDispatching()
 				stopDispFeed = self.__feed.stopDispatching()
 
-			if self.__feed.getLastBars() != None:
-				self.onFinish(self.__feed.getLastBars())
+			if self.__feed.getCurrentBars() != None:
+				self.onFinish(self.__feed.getCurrentBars())
 			else:
 				raise Exception("Feed was empty")
 		finally:

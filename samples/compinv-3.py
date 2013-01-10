@@ -76,7 +76,7 @@ class MyStrategy(strategy.Strategy):
 			raise Exception("Order canceled. Ran out of cash ?")
 
 	def onBars(self, bars):
-		portfolioValue = self.getBroker().getValue()
+		portfolioValue = self.getBroker().getEquity()
 		print "%s: Portfolio value: $%.2f" % (bars.getDateTime(), portfolioValue)
 
 def main():

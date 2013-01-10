@@ -19,43 +19,75 @@
 """
 
 from pyalgotrade import stratanalyzer
-from pyalgotrade.stratanalyzer import returns
+
+class DrawDownHelper:
+	def __init__(self, initialValue):
+		self.__highWatermark = initialValue
+		self.__lowWatermark = initialValue
+		self.__lastValue = initialValue
+		self.__duration = 0
+
+	# The drawdown duration, not necessarily the max drawdown duration.
+	def getDuration(self):
+		return self.__duration
+
+	def getMaxDrawDown(self):
+		return (self.__lowWatermark - self.__highWatermark) / float(self.__highWatermark)
+
+	def getCurrentDrawDown(self):
+		return (self.__lastValue - self.__highWatermark) / float(self.__highWatermark)
+
+	def update(self, value):
+		self.__lastValue = value
+		if value < self.__highWatermark:
+			self.__duration += 1
+			self.__lowWatermark = min(self.__lowWatermark, value)
+		else:
+			self.__highWatermark = value
+			self.__lowWatermark = value
+			self.__duration = 0
 
 class DrawDown(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-	max. drawdown and max. drawdown duration for the portfolio returns."""
+	max. drawdown and max. drawdown duration for the portfolio."""
 
 	def __init__(self):
-		self.__highWatermark = None
-		self.__maxDrawDown = 0
-		self.__lastDrawDuration = 0
-		self.__maxDrawDuration = 0
+		self.__maxDD = 0
+		self.__maxDDDuration = 0
+		self.__currDrawDown = None
 
-	def beforeAttach(self, strat):
-		# Get or create a shared ReturnsAnalyzerBase
-		analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(strat)
-		analyzer.getEvent().subscribe(self.__onReturns)
+	def attached(self, strat):
+		self.__currDrawDown = DrawDownHelper(self.calculateEquity(strat))
 
-	def __onReturns(self, returnsAnalyzerBase):
-		cumulativeReturn = returnsAnalyzerBase.getCumulativeReturn()
-		self.__highWatermark = max(self.__highWatermark, cumulativeReturn)
-		drawDown = (1 + cumulativeReturn) / float(1 + self.__highWatermark) - 1
+	def calculateEquity(self, strat):
+		return strat.getBroker().getEquity()
 
-		# Calculate max drawdown duration
-		if drawDown == 0:
-			self.__lastDrawDuration = 0
-		else:
-			self.__lastDrawDuration += 1
-		self.__maxDrawDuration = max(self.__maxDrawDuration, self.__lastDrawDuration)
+		ret = strat.getBroker().getCash()
 
-		# Calculate max drawdown.
-		self.__maxDrawDown = min(self.__maxDrawDown, drawDown) 
+		for instrument, shares in strat.getBroker().getPositions().iteritems():
+			_bar = strat.getFeed().getLastBar(instrument)
+			if shares > 0:
+				ret += strat.getBroker().getBarClose(_bar) * shares
+			elif shares < 0:
+				ret += strat.getBroker().getBarClose(_bar) * shares
+		return ret
+
+	def beforeOnBars(self, strat):
+		equity = self.calculateEquity(strat)
+		self.__currDrawDown.update(equity)
+		if self.__currDrawDown.getMaxDrawDown() <= self.__maxDD:
+			self.__maxDD = self.__currDrawDown.getMaxDrawDown()
+			self.__maxDDDuration = self.__currDrawDown.getDuration()
 
 	def getMaxDrawDown(self):
 		"""Returns the max. drawdown."""
-		return abs(self.__maxDrawDown)
+		return abs(self.__maxDD)
 
 	def getMaxDrawDownDuration(self):
-		"""Returns the max. drawdown duration."""
-		return self.__maxDrawDuration
+		"""Returns the duration of the max drawdown.
+
+		.. note::
+			Note that this is the duration of the deepest drawdown, not necessarily the longest one.
+		"""	
+		return self.__maxDDDuration
 

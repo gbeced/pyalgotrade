@@ -319,6 +319,14 @@ class Broker:
 	def join(self):
 		raise NotImplementedError()
 
+	def getShares(self, instrument):
+		"""Returns the number of shares for an instrument."""
+		raise NotImplementedError()
+
+	def getPositions(self):
+		"""Returns a dictionary that maps instruments to shares."""
+		raise NotImplementedError()
+
 	def getActiveOrders(self):
 		"""Returns a sequence with the orders that are still active."""
 		raise NotImplementedError()
