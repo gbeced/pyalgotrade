@@ -24,7 +24,7 @@ class DrawDownHelper:
 	def __init__(self, initialValue):
 		self.__highWatermark = initialValue
 		self.__lowWatermark = initialValue
-		self.__lastValue = initialValue
+		self.__lastLow = initialValue
 		self.__duration = 0
 
 	# The drawdown duration, not necessarily the max drawdown duration.
@@ -35,17 +35,21 @@ class DrawDownHelper:
 		return (self.__lowWatermark - self.__highWatermark) / float(self.__highWatermark)
 
 	def getCurrentDrawDown(self):
-		return (self.__lastValue - self.__highWatermark) / float(self.__highWatermark)
+		return (self.__lastLow - self.__highWatermark) / float(self.__highWatermark)
 
-	def update(self, value):
-		self.__lastValue = value
-		if value < self.__highWatermark:
+	def update(self, low, high):
+		assert(low <= high)
+		self.__lastLow = low
+		if high < self.__highWatermark:
 			self.__duration += 1
-			self.__lowWatermark = min(self.__lowWatermark, value)
+			self.__lowWatermark = min(self.__lowWatermark, low)
 		else:
-			self.__highWatermark = value
-			self.__lowWatermark = value
-			self.__duration = 0
+			self.__highWatermark = high
+			self.__lowWatermark = low
+			if low == high:
+				self.__duration = 0
+			else:
+				self.__duration = 1
 
 class DrawDown(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
@@ -61,20 +65,18 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 
 	def calculateEquity(self, strat):
 		return strat.getBroker().getEquity()
-
-		ret = strat.getBroker().getCash()
-
-		for instrument, shares in strat.getBroker().getPositions().iteritems():
-			_bar = strat.getFeed().getLastBar(instrument)
-			if shares > 0:
-				ret += strat.getBroker().getBarClose(_bar) * shares
-			elif shares < 0:
-				ret += strat.getBroker().getBarClose(_bar) * shares
-		return ret
+		# ret = strat.getBroker().getCash()
+		# for instrument, shares in strat.getBroker().getPositions().iteritems():
+		# 	_bar = strat.getFeed().getLastBar(instrument)
+		# 	if shares > 0:
+		# 		ret += strat.getBroker().getBarLow(_bar) * shares
+		# 	elif shares < 0:
+		# 		ret += strat.getBroker().getBarHigh(_bar) * shares
+		# return ret
 
 	def beforeOnBars(self, strat):
 		equity = self.calculateEquity(strat)
-		self.__currDrawDown.update(equity)
+		self.__currDrawDown.update(equity, equity)
 		self.__longestDDDuration = max(self.__longestDDDuration, self.__currDrawDown.getDuration())
 		self.__maxDD = min(self.__maxDD, self.__currDrawDown.getMaxDrawDown())
 
