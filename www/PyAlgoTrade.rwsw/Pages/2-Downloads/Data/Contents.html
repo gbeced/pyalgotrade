@@ -1,10 +1,29 @@
-<h2>Current version: 0.9 (1/Sep/2012)</h2>
+<h2>Current version: 0.10 (11/Jan/2013)</h2>
+Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.10/PyAlgoTrade-0.10.tar.gz/download">PyAlgoTrade-0.10.tar.gz</a>
+<ul>
+  <li>Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).</li>
+  <li>Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown). Thanks Sedov Anton for reporting a bug in the early implementation.</li>
+  <li>Returns analysis (pyalgotrade.stratanalyzer.returns.Returns).</li>
+  <li>Trades analysis (pyalgotrade.stratanalyzer.trades.Trades).</li>
+  <li>Support for bar timezones (pyalgotrade.marketsession).</li>
+  <li>Support for sequence like operations in dataseries (__getitem__ and __len__. getValue and getValueAbsolute will soon get deprecated).</li>
+  <li>Support for mapping like operations in bar feeds (__getitem__ and __contains__).</li>
+  <li>Support for mapping like operations in bar.Bars (__getitem__ and __contains__).</li>
+  <li>Google App Engine: Added support for re-executing strategies.</li>
+  <li>broker.backtesting.Broker.getValue no longer needs the bars as a parameter. It will take those out of the feed.</li>
+  <li>Bug fix: broker.backtesting.getActiveOrders was not returning all orders during event dispatching.</li>
+  <li>Bug fix: Fixed returns calculations for short positions. Thanks John Fawcett for explaining this.</li>
+  <li>Bug fix: Fixed a bug in the Strategy class and the backtesting broker when dealing with multiple instruments. Was not handling absence of bars appropriately. Thanks Fabian Braennstroem for reporting this.</li>
+  <li>Bug fix: Additional dataseries added to the portfolio subplot were not showing. Thanks Sedov Anton for reporting this.</li>
+  <li>Bug fix: Additional subplots (those created using getOrCreateSubplot) are now ordered as created. Thanks Sedov Anton for reporting this and suggesting the fix.</li>
+</ul>
+
+<h2>Version: 0.9 (1/Sep/2012)</h2>
 Download here: <a href="https://github.com/downloads/gbeced/pyalgotrade/PyAlgoTrade-0.9.tar.gz">PyAlgoTrade-0.9.tar.gz</a>
 <ul>
   <li>Added a method to the strategy class to get notified when an order gets updated (onOrderUpdated). This is only called if the order was placed using the broker interface directly.</li>
   <li>Bug fix: A KeyError exception was raised in the strategy class when placing orders using the broker interface directly. Thanks 'Femto Trader' for reporting this.</li>
 </ul>
-
 
 <h2>Version 0.8 (28/Aug/2012)</h2>
 Download here: <a href="https://github.com/downloads/gbeced/pyalgotrade/PyAlgoTrade-0.8.tar.gz">PyAlgoTrade-0.8.tar.gz</a>
