@@ -158,7 +158,7 @@ class QueueStrategyExecutionForm(forms.Form):
 				beginPos = pos * 2
 				endPos = beginPos + 1
 				self.setRawValue(self.getBeginParamName(strategyParam), str(stratExecConfig.parameterRanges[beginPos]))
-				self.setRawValue(self.getEndParamName(strategyParam), str(stratExecConfig.parameterRanges[endPos]))
+				self.setRawValue(self.getEndParamName(strategyParam), str(stratExecConfig.parameterRanges[endPos]-1))
 			except ValueError:
 				pass
 				# Parameter not found
