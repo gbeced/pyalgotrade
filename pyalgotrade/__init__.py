@@ -18,4 +18,4 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-__version__ = "0.9"
+__version__ = "0.10"
