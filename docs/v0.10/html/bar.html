@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bar – Instrument prices &mdash; PyAlgoTrade 0.10 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.10 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="dataseries – Basic dataseries classes" href="dataseries.html" />
+    <link rel="prev" title="Documentation for the code" href="code.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dataseries.html" title="dataseries – Basic dataseries classes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="code.html" title="Documentation for the code"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.10 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.bar">
+<span id="bar-instrument-prices"></span><h1>bar &#8211; Instrument prices<a class="headerlink" href="#module-pyalgotrade.bar" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.bar.Bar">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.bar.</tt><tt class="descname">Bar</tt><big>(</big><em>dateTime</em>, <em>open_</em>, <em>high</em>, <em>low</em>, <em>close</em>, <em>volume</em>, <em>adjClose</em><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>An instrument&#8217;s prices at a given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dateTime</strong> (<em>datetime.datetime</em>) &#8211; The date time.</li>
+<li><strong>open</strong> (<em>float</em>) &#8211; The opening price.</li>
+<li><strong>high</strong> (<em>float</em>) &#8211; The highest price.</li>
+<li><strong>low</strong> (<em>float</em>) &#8211; The lowest price.</li>
+<li><strong>close</strong> (<em>float</em>) &#8211; The closing price.</li>
+<li><strong>volume</strong> (<em>float</em>) &#8211; The volume.</li>
+<li><strong>close</strong> &#8211; The adjusted closing price.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getDateTime">
+<tt class="descname">getDateTime</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">datetime.datetime</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getOpen">
+<tt class="descname">getOpen</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getOpen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the opening price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getHigh">
+<tt class="descname">getHigh</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getHigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the highest price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getLow">
+<tt class="descname">getLow</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getLow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the lowest price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getClose">
+<tt class="descname">getClose</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the closing price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getVolume">
+<tt class="descname">getVolume</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the volume.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bar.getAdjClose">
+<tt class="descname">getAdjClose</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bar.getAdjClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the adjusted closing price.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.bar.Bars">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.bar.</tt><tt class="descname">Bars</tt><big>(</big><em>barDict</em><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bars" title="Permalink to this definition">¶</a></dt>
+<dd><p>A group of <a class="reference internal" href="#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">Bar</span></tt></a> objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>barDict</strong> (<em>map.</em>) &#8211; A map of instrument to <a class="reference internal" href="#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">Bar</span></tt></a> objects.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All bars must have the same datetime.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.bar.Bars.__getitem__">
+<tt class="descname">__getitem__</tt><big>(</big><em>instrument</em><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bars.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> for the given instrument. If the instrument is not found an exception is raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bars.__contains__">
+<tt class="descname">__contains__</tt><big>(</big><em>instrument</em><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bars.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if a <a class="reference internal" href="#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> for the given instrument is available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bars.getInstruments">
+<tt class="descname">getInstruments</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bars.getInstruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the instrument symbols.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bars.getDateTime">
+<tt class="descname">getDateTime</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bars.getDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">datetime.datetime</span></tt> for this set of bars.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.bar.Bars.getBar">
+<tt class="descname">getBar</tt><big>(</big><em>instrument</em><big>)</big><a class="headerlink" href="#pyalgotrade.bar.Bars.getBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> for the given instrument or None if the instrument is not found.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="code.html"
+                        title="previous chapter">Documentation for the code</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dataseries.html"
+                        title="next chapter">dataseries &#8211; Basic dataseries classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/bar.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dataseries.html" title="dataseries – Basic dataseries classes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="code.html" title="Documentation for the code"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.10 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
