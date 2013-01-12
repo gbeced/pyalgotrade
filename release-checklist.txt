@@ -12,7 +12,6 @@ Release checklist
 [ ] Run compinv-3.py sample using the installed lib..
 [ ] Test GoogleApp Engine support. Look for errors in the logs.
 [ ] Build package and upload to sourceforge.
-[ ] Upload PKG-INFO to http://pypi.python.org/.
 [ ] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
 [ ] Run testcases using the installed lib.
 [ ] Update the website using RapidWeaver (doc + package).
