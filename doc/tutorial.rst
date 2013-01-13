@@ -6,7 +6,7 @@ As described in the introduction, the goal of PyAlgoTrade is to help you backtes
 Let's say you have an idea for a trading strategy and you'd like to evaluate it with historical data and see how it behaves,
 then PyAlgoTrade should allow you to do so with minimal effort.
 
-Before I move on I would like to thank Pablo Jorge who helped reviewing the design and documentation.
+Before I move on I would like to thank Pablo Jorge who helped reviewing the initial design and documentation.
 
 **This tutorial was developed on a UNIX environment, but the steps to adapt it to a Windows environment should be straightforward.**
 
