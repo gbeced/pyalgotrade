@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade.utils import stats
+from pyalgotrade.utils import collections
 
 import unittest
 import math
@@ -72,6 +73,66 @@ class StatsTestCase(unittest.TestCase):
 		self.__testStdDevImpl([-1.034, 2.012341, -4], 0)
 		self.__testStdDevImpl([-1.034, 2.012341, -4], 4)
 
+class CollectionsTestCase(unittest.TestCase):
+	def testEmptyIntersection(self):
+		values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
+		self.assertEqual(len(values), 0)
+		self.assertEqual(len(ix1), 0)
+		self.assertEqual(len(ix2), 0)
+
+		values, ix1, ix2 = collections.intersect([], [])
+		self.assertEqual(len(values), 0)
+		self.assertEqual(len(ix1), 0)
+		self.assertEqual(len(ix2), 0)
+
+	def testFullIntersection(self):
+		values, ix1, ix2 = collections.intersect([1, 2, 3], [1, 2, 3])
+		self.assertEqual(len(values), 3)
+		self.assertEqual(len(ix1), 3)
+		self.assertEqual(len(ix2), 3)
+		self.assertEqual(ix1, ix2)
+
+	def testPartialIntersection1(self):
+		values, ix1, ix2 = collections.intersect([0, 2, 4], [1, 2, 3])
+		self.assertEqual(len(values), 1)
+		self.assertEqual(values[0], 2)
+		self.assertEqual(ix1[0], 1)
+		self.assertEqual(ix2[0], 1)
+
+	def testPartialIntersection2(self):
+		values, ix1, ix2 = collections.intersect([1, 2, 4], [1, 2, 3])
+		self.assertEqual(len(values), 2)
+		self.assertEqual(values[0], 1)
+		self.assertEqual(values[1], 2)
+		self.assertEqual(ix1[0], 0)
+		self.assertEqual(ix1[1], 1)
+		self.assertEqual(ix2[0], 0)
+		self.assertEqual(ix2[1], 1)
+
+	def testPartialIntersection3(self):
+		values, ix1, ix2 = collections.intersect([1, 2, 5], [1, 3, 5])
+		self.assertEqual(len(values), 2)
+		self.assertEqual(values[0], 1)
+		self.assertEqual(values[1], 5)
+		self.assertEqual(ix1[0], 0)
+		self.assertEqual(ix1[1], 2)
+		self.assertEqual(ix2[0], 0)
+		self.assertEqual(ix2[1], 2)
+
+	def testPartialIntersection4(self):
+		values, ix1, ix2 = collections.intersect([1, 2, 3], [2, 4, 6])
+		self.assertEqual(len(values), 1)
+		self.assertEqual(values[0], 2)
+		self.assertEqual(ix1[0], 1)
+		self.assertEqual(ix2[0], 0)
+
+	def testPartialIntersection5(self):
+		values, ix1, ix2 = collections.intersect([1, 2, 3], [3, 6])
+		self.assertEqual(len(values), 1)
+		self.assertEqual(values[0], 3)
+		self.assertEqual(ix1[0], 2)
+		self.assertEqual(ix2[0], 0)
+
 def getTestCases():
 	ret = []
 	ret.append(StatsTestCase("testMean"))
@@ -81,5 +142,14 @@ def getTestCases():
 	# - numpy.std([1], ddof=1) works different in 1.6.1 and 1.6.2.
 	if version.LooseVersion(numpy.__version__) >= version.LooseVersion("1.6.2"):
 		ret.append(StatsTestCase("testStdDev_NumpyGE162"))
+
+	ret.append(CollectionsTestCase("testEmptyIntersection"))
+	ret.append(CollectionsTestCase("testFullIntersection"))
+	ret.append(CollectionsTestCase("testPartialIntersection1"))
+	ret.append(CollectionsTestCase("testPartialIntersection2"))
+	ret.append(CollectionsTestCase("testPartialIntersection3"))
+	ret.append(CollectionsTestCase("testPartialIntersection4"))
+	ret.append(CollectionsTestCase("testPartialIntersection5"))
+
 	return ret
 
