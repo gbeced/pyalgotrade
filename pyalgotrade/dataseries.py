@@ -19,14 +19,15 @@
 """
 
 import bar
+from pyalgotrade.utils import collections
 
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
 class DataSeries(object):
 	"""Base class for data series. A data series is an abstraction used to manage historical data.
 
-		.. note::
-			This is a base class and should not be used directly.
+	.. note::
+		This is a base class and should not be used directly.
 	"""
 
 	def __len__(self):
@@ -48,13 +49,17 @@ class DataSeries(object):
 			raise TypeError("Invalid argument type")
 
 	def getFirstValidPos(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def getLength(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def getValueAbsolute(self, pos):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
+
+	def getDateTimes(self):
+		"""Returns a list of :class:`datetime.datetime` associated with each value."""
+		raise NotImplementedError()
 
 	# Returns a sequence of absolute values [firstPos, lastPos].
 	# if includeNone is False and at least one value is None, then None is returned.
@@ -104,15 +109,26 @@ class DataSeries(object):
 class SequenceDataSeries(DataSeries):
 	"""A sequence based :class:`DataSeries`.
 
-	:param values: The values that this DataSeries will hold. If its None, an empty list is used. **Note that the list is not cloned and it takes ownership of it**.
+	:param values: The values that this DataSeries will hold. If its None, an empty list is used.
 	:type values: list.
+	:param dateTimes: A list of the :class:`datetime.datetime` associated with each value. If this is not None,
+		 it has be the same length as *values*.
+	:type dateTimes: list.
+
+	.. note::
+		Neither *values* nor *dateTimes* get cloned, and this class takes ownership of them.
 	"""
 
-	def __init__(self, values = None):
+	def __init__(self, values = None, dateTimes = None):
 		if values != None:
 			self.__values = values
+			if dateTimes == None:
+				self.__dateTimes = [None for v in self.__values]
+			elif len(dateTimes) != len(values):
+				raise Exception("The number of datetimes don't match the number of values")
 		else:
 			self.__values = []
+			self.__dateTimes = []
 
 	def __len__(self):
 		return len(self.__values)
@@ -134,7 +150,23 @@ class SequenceDataSeries(DataSeries):
 
 	def appendValue(self, value):
 		"""Appends a value."""
+		self.appendValueWithDatetime(None, value)
+
+	def appendValueWithDatetime(self, dateTime, value):
+		"""
+		Appends a value with an associated datetime.
+
+		.. note::
+			If dateTime is not None, it must be greater than the last one.
+		"""
+		if dateTime != None and len(self.__dateTimes) != 0 and self.__dateTimes[-1] >= dateTime:
+			raise Exception("Invalid datetime. It must be bigger than that last one")
+		self.__dateTimes.append(dateTime)
 		self.__values.append(value)
+		assert(len(self.__values) == len(self.__dateTimes))
+
+	def getDateTimes(self):
+		return self.__dateTimes
 
 class BarValueDataSeries(DataSeries):
 	def __init__(self, barDataSeries, barMethod):
@@ -153,20 +185,19 @@ class BarValueDataSeries(DataSeries):
 			ret = self.__barMethod(ret)
 		return ret
 
+	def getDateTimes(self):
+		return self.__barDataSeries.getDateTimes()
+
 class BarDataSeries(SequenceDataSeries):
 	"""A :class:`DataSeries` of :class:`pyalgotrade.bar.Bar` instances."""
 
 	def __init__(self):
 		SequenceDataSeries.__init__(self)
-		self.__lastDatetime = None
 
 	def appendValue(self, value):
 		# Check that bars are appended in order.
 		assert(value != None)
-		if self.__lastDatetime != None and value.getDateTime() <= self.__lastDatetime:
-			raise Exception("Invalid bar datetime. It must be bigger than that last one")
-		self.__lastDatetime = value.getDateTime()
-		SequenceDataSeries.appendValue(self, value)
+		SequenceDataSeries.appendValueWithDatetime(self, value.getDateTime(), value)
 
 	def getOpenDataSeries(self):
 		"""Returns a :class:`DataSeries` with the open prices."""
@@ -191,4 +222,86 @@ class BarDataSeries(SequenceDataSeries):
 	def getAdjCloseDataSeries(self):
 		"""Returns a :class:`DataSeries` with the adjusted close prices."""
 		return BarValueDataSeries(self, bar.Bar.getAdjClose)
+
+def datetime_aligned(ds1, ds2):
+	"""
+	Returns two dataseries that only exhibit those values whose datetimes are in both dataseries.
+
+	:param ds1: A DataSeries instance.
+	:type ds1: :class:`DataSeries`
+	:param ds2: A DataSeries instance.
+	:type ds2: :class:`DataSeries`
+	"""
+	aligned1 = AlignedDataSeries(ds1)
+	aligned2 = AlignedDataSeries(ds2)
+	shared = AlignedDataSeriesSharedState(aligned1, aligned2)
+	aligned1.setShared(shared)
+	aligned2.setShared(shared)
+	return (aligned1, aligned2)
+
+class AlignedDataSeriesSharedState:
+	def __init__(self, ds1, ds2):
+		self.__ds1 = ds1
+		self.__ds2 = ds2
+		self.__ds1Len = None
+		self.__ds2Len = None
+
+	def __isDirty(self):
+		if self.__ds1.getDecorated().getLength() != self.__ds1Len:
+			return True
+		if self.__ds2.getDecorated().getLength() != self.__ds2Len:
+			return True
+		return False
+
+	def __resetDirty(self):
+		# Reset the dirty flag.
+		self.__ds1Len = self.__ds2.getDecorated().getLength()
+		self.__ds2Len = self.__ds2.getDecorated().getLength()
+
+	def update(self):
+		# TODO: Optimize this to make it incremental.
+		if self.__isDirty():
+			ds1DateTimes = self.__ds1.getDecorated().getDateTimes()
+			ds2DateTimes = self.__ds2.getDecorated().getDateTimes()
+			dateTimes, ix1, ix2 = collections.intersect(ds1DateTimes, ds2DateTimes)
+			self.__ds1.update(dateTimes, ix1)
+			self.__ds2.update(dateTimes, ix2)
+			self.__resetDirty()
+
+class AlignedDataSeries(DataSeries):
+	def __init__(self, ds):
+		self.__shared = None
+		self.__ds = ds
+		self.__dateTimes = []
+		self.__positions = []
+
+	def getDecorated(self):
+		return self.__ds
+
+	def setShared(self, shared):
+		self.__shared = shared
+
+	def update(self, dateTimes, positions):
+		assert(len(dateTimes) == len(positions))
+		self.__dateTimes = dateTimes
+		self.__positions = positions
+
+	def getFirstValidPos(self):
+		self.__shared.update()
+		return 0
+
+	def getLength(self):
+		self.__shared.update()
+		return len(self.__positions)
+
+	def getValueAbsolute(self, pos):
+		self.__shared.update()
+		ret = None
+		if pos >= 0 and pos < self.getLength():
+			ret = self.__ds.getValueAbsolute(self.__positions[pos])
+		return ret
+
+	def getDateTimes(self):
+		self.__shared.update()
+		return self.__dateTimes
 

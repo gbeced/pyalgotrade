@@ -34,6 +34,10 @@ class TestCase(unittest.TestCase):
 		self.assertTrue(trend[3] == None)
 		self.assertTrue(trend[4] == False)
 
+		self.assertEqual(len(trend.getDateTimes()), 5)
+		for i in range(len(trend)):
+			self.assertEqual(trend.getDateTimes()[i], None)
+
 	def testTrendWithCustomThresholds(self):
 		trend = self.__buildTrend([1, 2, 3, 5, -10], 3, 1, -1)
 		self.assertTrue(trend[0] == None)
@@ -41,6 +45,10 @@ class TestCase(unittest.TestCase):
 		self.assertTrue(trend[2] == None)
 		self.assertTrue(trend[3] == True)
 		self.assertTrue(trend[4] == False)
+
+		self.assertEqual(len(trend.getDateTimes()), 5)
+		for i in range(len(trend)):
+			self.assertEqual(trend.getDateTimes()[i], None)
 
 def getTestCases():
 	ret = []

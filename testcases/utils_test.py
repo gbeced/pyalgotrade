@@ -25,6 +25,7 @@ import unittest
 import math
 import numpy
 from distutils import version
+import datetime
 
 class StatsTestCase(unittest.TestCase):
 	def __assertEqFloat(self, v1, v2):
@@ -133,6 +134,65 @@ class CollectionsTestCase(unittest.TestCase):
 		self.assertEqual(ix1[0], 2)
 		self.assertEqual(ix2[0], 0)
 
+	def testPartialIntersection6(self):
+		v1 = [1, 1, 2, 2, 3, 3]
+		v2 = [1, 2, 3]
+
+		values, ix1, ix2 = collections.intersect(v1, v2)
+		self.assertEqual(values, [1, 2, 3])
+		self.assertEqual(ix1, [0, 2, 4])
+		self.assertEqual(ix2, [0, 1, 2])
+
+		values, ix2, ix1 = collections.intersect(v2, v1)
+		self.assertEqual(values, [1, 2, 3])
+		self.assertEqual(ix1, [0, 2, 4])
+		self.assertEqual(ix2, [0, 1, 2])
+
+	def testPartialIntersectionIncludeNones(self):
+		v1 = [None, 1, None, None, 2, None, 3, None, 4]
+		v2 = [1, None, 2, None, 3, 4]
+
+		values, ix1, ix2 = collections.intersect(v1, v2)
+		self.assertEqual(values, [1, None, 2, None, 3, 4])
+		self.assertEqual(ix1, [1, 2, 4, 5, 6, 8])
+		self.assertEqual(ix2, [0, 1, 2, 3, 4, 5])
+
+		values, ix2, ix1 = collections.intersect(v2, v1)
+		self.assertEqual(values, [1, None, 2, None, 3, 4])
+		self.assertEqual(ix1, [1, 2, 4, 5, 6, 8])
+		self.assertEqual(ix2, [0, 1, 2, 3, 4, 5])
+
+	def testPartialIntersectionSkipNones(self):
+		v1 = [None, 1, None, None, 2, None, 3, None, 4]
+		v2 = [1, None, 2, None, 3, 4]
+
+		values, ix1, ix2 = collections.intersect(v1, v2, True)
+		self.assertEqual(values, [1, 2, 3, 4])
+		self.assertEqual(ix1, [1, 4, 6, 8])
+		self.assertEqual(ix2, [0, 2, 4, 5])
+
+		values, ix2, ix1 = collections.intersect(v2, v1, True)
+		self.assertEqual(values, [1, 2, 3, 4])
+		self.assertEqual(ix1, [1, 4, 6, 8])
+		self.assertEqual(ix2, [0, 2, 4, 5])
+
+	def testFullIntersectionWithDateTimes(self):
+		size = 1000
+		dateTimes1 = []
+		dateTimes2 = []
+		now = datetime.datetime.now()
+		for i in xrange(size):
+			dateTimes1.append(now + datetime.timedelta(seconds=i))
+			dateTimes2.append(now + datetime.timedelta(seconds=i))
+
+		self.assertEqual(dateTimes1, dateTimes2)
+
+		values, ix1, ix2 = collections.intersect(dateTimes1, dateTimes2)
+		self.assertEqual(values, dateTimes1)
+		self.assertEqual(values, dateTimes2)
+		self.assertEqual(ix1, range(size))
+		self.assertEqual(ix1, ix2)
+
 def getTestCases():
 	ret = []
 	ret.append(StatsTestCase("testMean"))
@@ -150,6 +210,10 @@ def getTestCases():
 	ret.append(CollectionsTestCase("testPartialIntersection3"))
 	ret.append(CollectionsTestCase("testPartialIntersection4"))
 	ret.append(CollectionsTestCase("testPartialIntersection5"))
+	ret.append(CollectionsTestCase("testPartialIntersection6"))
+	ret.append(CollectionsTestCase("testPartialIntersectionIncludeNones"))
+	ret.append(CollectionsTestCase("testPartialIntersectionSkipNones"))
+	ret.append(CollectionsTestCase("testFullIntersectionWithDateTimes"))
 
 	return ret
 

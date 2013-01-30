@@ -40,6 +40,10 @@ class SMATestCase(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			sma[-3]
 
+		self.assertEqual(len(sma.getDateTimes()), 2)
+		for i in range(len(sma)):
+			self.assertEqual(sma.getDateTimes()[i], None)
+
 	def testPeriod2(self):
 		sma = self.__buildSMA(2, [0, 1, 2])
 		self.assertTrue(sma[0] == None)
@@ -51,6 +55,10 @@ class SMATestCase(unittest.TestCase):
 		self.assertTrue(sma[2] == sma.getValue())
 		self.assertTrue(sma[1] == sma.getValue(1))
 		self.assertTrue(sma[0] == sma.getValue(2) == None)
+
+		self.assertEqual(len(sma.getDateTimes()), 3)
+		for i in range(len(sma)):
+			self.assertEqual(sma.getDateTimes()[i], None)
 
 	def testMultipleValues(self):
 		period = 5
@@ -113,9 +121,13 @@ class WMATestCase(unittest.TestCase):
 		return ma.WMA(dataseries.SequenceDataSeries(values), weights)
 
 	def testPeriod1(self):
-		sma = self.__buildWMA([2], [10, 20])
-		self.assertTrue(sma[0] == 10)
-		self.assertTrue(sma[1] == 20)
+		wma = self.__buildWMA([2], [10, 20])
+		self.assertTrue(wma[0] == 10)
+		self.assertTrue(wma[1] == 20)
+
+		self.assertEqual(len(wma.getDateTimes()), 2)
+		for i in range(len(wma)):
+			self.assertEqual(wma.getDateTimes()[i], None)
 
 	def testPeriod2(self):
 		weights = [3, 2, 1]
@@ -125,6 +137,11 @@ class WMATestCase(unittest.TestCase):
 		self.assertTrue(wma[0] == None)
 		self.assertTrue(wma[1] == None)
 		self.assertTrue(wma[2] == (1*3 + 2*2 + 3*1) / float(3+2+1))
+
+		self.assertEqual(len(wma.getDateTimes()), 3)
+		for i in range(len(wma)):
+			self.assertEqual(wma.getDateTimes()[i], None)
+
 
 class EMATestCase(unittest.TestCase):
 	def testStockChartsEMA(self):

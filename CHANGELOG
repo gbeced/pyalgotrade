@@ -1,3 +1,6 @@
+Version 0.11 (TBD)
+. [NEW] Function to align 2 dataseries with respect to time (pyalgotrade.dataseries.datetime_aligned).
+
 Version 0.10 (11/Jan/2013)
 . [NEW] Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
 . [NEW] Max. drawdown and max. drawdown duration analysis (pyalgotrade.stratanalyzer.drawdown.DrawDown). Thanks Sedov Anton for reporting a bug in the early implementation.

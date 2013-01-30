@@ -92,6 +92,9 @@ class DataSeriesFilter(TechnicalIndicatorBase):
 	def getLength(self):
 		return self.__dataSeries.getLength()
 
+	def getDateTimes(self):
+		return self.__dataSeries.getDateTimes()
+
 # Cache with FIFO replacement policy.
 class Cache:
 	def __init__(self, size):

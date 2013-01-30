@@ -21,6 +21,7 @@
 import unittest
 import common
 from pyalgotrade.technical import rsi
+from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
 	def testAvgGainLoss(self):
@@ -58,10 +59,18 @@ class TestCase(unittest.TestCase):
 		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_in
 		common.test_from_csv(self, "rsi-test.csv", lambda inputDS: rsi.RSI(inputDS, 14), 3, True)
 
+	def testDateTimes(self):
+		rsi = self.__buildRSI(range(10), 3)
+
+		self.assertEqual(len(rsi.getDateTimes()), 10)
+		for i in range(len(rsi)):
+			self.assertEqual(rsi.getDateTimes()[i], None)
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testAvgGainLoss"))
 	ret.append(TestCase("testStockChartsRSI"))
 	ret.append(TestCase("testStockChartsRSI_Reverse"))
+	ret.append(TestCase("testDateTimes"))
 	return ret
 

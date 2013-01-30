@@ -44,6 +44,8 @@ class BarFeedEventHandler_TestLoadOrder:
 			self.__testcase.assertTrue(self.__prevDateTime < dateTime)
 			# Check that the last value in the dataseries match the current datetime.
 			self.__testcase.assertTrue(self.__barFeed.getDataSeries().getValue().getDateTime() == dateTime)
+			# Check that the datetime for the last value matches that last datetime in the dataseries.
+			self.__testcase.assertEqual(self.__barFeed.getDataSeries()[-1].getDateTime(), self.__barFeed.getDataSeries().getDateTimes()[-1])
 		self.__prevDateTime = dateTime
 
 	def getEventCount(self):
@@ -212,6 +214,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 		for i in xrange(ds.getLength()):
 			currentBar = ds[i]
 			self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
+			self.assertEqual(ds[i].getDateTime(), ds.getDateTimes()[i])
 
 	def testWithoutTimezone(self):
 		barFeed = self.__loadIntradayBarFeed(None)
@@ -221,6 +224,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 			currentBar = ds[i]
 			# Datetime must be set to UTC.
 			self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
+			self.assertEqual(ds[i].getDateTime(), ds.getDateTimes()[i])
 
 	def testWithIntegerTimezone(self):
 		try:
@@ -277,5 +281,3 @@ def getTestCases():
 
 	return ret
 
-
-# vim: noet:ci:pi:sts=0:sw=4:ts=4

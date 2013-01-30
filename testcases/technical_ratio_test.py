@@ -38,6 +38,10 @@ class TestCase(unittest.TestCase):
 		self.assertTrue(ratio[-2] == ratio[1])
 		self.assertTrue(ratio[-1] == ratio[2])
 
+		self.assertEqual(len(ratio.getDateTimes()), 3)
+		for i in range(len(ratio)):
+			self.assertEqual(ratio.getDateTimes()[i], None)
+
 	def testNegativeValues(self):
 		ratio = self.__buildRatio([-1, -2, -1])
 		self.assertTrue(ratio[0] == None)
@@ -49,6 +53,10 @@ class TestCase(unittest.TestCase):
 
 		self.assertTrue(ratio[-2] == ratio[1])
 		self.assertTrue(ratio[-1] == ratio[2])
+
+		self.assertEqual(len(ratio.getDateTimes()), 3)
+		for i in range(len(ratio)):
+			self.assertEqual(ratio.getDateTimes()[i], None)
 
 def getTestCases():
 	ret = []

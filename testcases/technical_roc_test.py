@@ -35,6 +35,10 @@ class ROCTestCase(unittest.TestCase):
 			outputValue = roc_[12 + i]
 			self.assertTrue(round(outputValue, 2) == outputValues[i])
 
+		self.assertEqual(len(roc_.getDateTimes()), len(inputValues))
+		for i in range(len(roc_)):
+			self.assertEqual(roc_.getDateTimes()[i], None)
+
 	def testPeriod1(self):
 		def simple_roc(value1, value2):
 			return self.__buildROC([value1, value2], 1)[1]

@@ -19,7 +19,6 @@
 """
 
 import unittest
-import copy
 
 from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
@@ -42,6 +41,11 @@ class TestCase(unittest.TestCase):
 		self.assertTrue(crs[3] == 1)
 		for i in range(4, len(values1)):
 			self.assertTrue(crs[i] == 0)
+
+		# Check datetimes.
+		self.assertEqual(len(crs.getDateTimes()), len(values1))
+		for i in range(len(crs)):
+			self.assertEqual(crs.getDateTimes()[i], None)
 
 		# Check every 3 values.
 		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 3)
@@ -93,6 +97,11 @@ class TestCase(unittest.TestCase):
 		self.assertTrue(crs[4] == 1)
 		for i in range(5, len(values1)):
 			self.assertTrue(crs[i] == 0)
+
+		# Check datetimes.
+		self.assertEqual(len(crs.getDateTimes()), len(values2))
+		for i in range(len(crs)):
+			self.assertEqual(crs.getDateTimes()[i], None)
 
 		# Check every 3 values.
 		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 3)
@@ -147,8 +156,15 @@ class TestCase(unittest.TestCase):
 			else:
 				self.assertTrue(crs[-1] == 0)
 
+		# Check datetimes.
+		self.assertEqual(len(crs.getDateTimes()), 100)
+		self.assertEqual(crs.getDateTimes(), ds1.getDateTimes())
+		for i in range(len(crs)):
+			self.assertEqual(crs.getDateTimes()[i], None)
+
 def getTestCases():
 	ret = []
+
 	ret.append(TestCase("testCrossAboveOnce"))
 	ret.append(TestCase("testCrossAboveMany"))
 	ret.append(TestCase("testCrossBelowOnce"))
