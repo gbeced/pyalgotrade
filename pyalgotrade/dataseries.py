@@ -255,7 +255,7 @@ class AlignedDataSeriesSharedState:
 
 	def __resetDirty(self):
 		# Reset the dirty flag.
-		self.__ds1Len = self.__ds2.getDecorated().getLength()
+		self.__ds1Len = self.__ds1.getDecorated().getLength()
 		self.__ds2Len = self.__ds2.getDecorated().getLength()
 
 	def update(self):
