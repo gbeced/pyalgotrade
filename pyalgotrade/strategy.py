@@ -366,6 +366,25 @@ class Strategy:
 		"""Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
 		return self.__broker
 
+	def order(self, instrument, quantity, goodTillCanceled = False):
+		"""Places a market order.
+
+		:param instrument: Instrument identifier.
+		:type instrument: string.
+		:param quantity: The amount of shares. Positive means buy, negative means sell.
+		:type quantity: int.
+		:param goodTillCanceled: True if the order is good till canceled. If False then the order gets automatically canceled when the session closes.
+		:type goodTillCanceled: boolean.
+		"""
+		o = None
+		if quantity > 0:
+			o = self.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity)
+		elif quantity < 0:
+			o = self.getBroker().createMarketOrder(broker.Order.Action.SELL, instrument, abs(quantity))
+		if o:
+			o.setGoodTillCanceled(goodTillCanceled)
+			self.getBroker().placeOrder(o)
+
 	def enterLong(self, instrument, quantity, goodTillCanceled = False):
 		"""Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.
 
