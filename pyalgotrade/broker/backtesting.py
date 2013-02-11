@@ -354,9 +354,21 @@ class Broker(broker.Broker):
 	def setAllowNegativeCash(self, allowNegativeCash):
 		self.__allowNegativeCash = allowNegativeCash
 
-	def getCash(self):
-		"""Returns the available cash."""
-		return self.__cash
+	def getCash(self, includeShort = True):
+		"""
+		Returns the available cash.
+
+		:param includeShort: Include cash from short positions.
+		:type includeShort: boolean.
+		"""
+		ret = self.__cash
+		if includeShort == False and self.__barFeed.getCurrentBars() != None:
+			bars = self.__barFeed.getCurrentBars()
+			for instrument, shares in self.__shares.iteritems():
+				if shares < 0:
+					instrumentPrice = self.getBarClose(self.__getBar(bars, instrument))
+					ret += instrumentPrice * shares
+		return ret
 
 	def setCash(self, cash):
 		"""Sets the available cash."""
