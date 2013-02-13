@@ -109,6 +109,16 @@ class TechnicalTestCase(unittest.TestCase):
 		lines = run_sample_script("technical-1.py").split("\n")
 		self.assertTrue(compare_head("technical-1.output", lines[:-1]))
 
+class SampleStratTestCase(unittest.TestCase):
+	def testErnieChanGldVsGdx(self):
+		code = """import sys
+sys.path.append('samples')
+import statarb_erniechan
+statarb_erniechan.main(False)
+"""
+		lines = run_python_code(code).split("\n")
+		# I'm not checking the specific result since it will change as adjusted close values change.
+		self.assertTrue(lines[-2].find("Result: ") == 0)
 
 def getTestCases():
 	ret = []
@@ -125,6 +135,8 @@ def getTestCases():
 	ret.append(StratAnalyzerTestCase("testSampleStrategyAnalyzer"))
 
 	ret.append(TechnicalTestCase("testTechnical_1"))
+
+	ret.append(SampleStratTestCase("testErnieChanGldVsGdx"))
 
 	return ret
 

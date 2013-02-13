@@ -1,7 +1,3 @@
-# This example is based on:
-#  http://epchan.blogspot.com.ar/2006/11/gold-vs-gold-miners-another-arbitrage.html
-#  https://www.quantopian.com/posts/ernie-chans-gold-vs-gold-miners-stat-arb
-
 from pyalgotrade import strategy
 from pyalgotrade import dataseries
 from pyalgotrade.barfeed import yahoofeed
@@ -88,7 +84,7 @@ class MyStrategy(strategy.Strategy):
 		return self.__hedgeRatio
 
 	def __getOrderSize(self, bars, hedgeRatio):
-		# Only use 75% of available cash.
+		# Use up to 75% of available cash.
 		cash = self.getBroker().getCash(False) * 0.75
 		price1 = bars[self.__i1].getAdjClose()
 		price2 = bars[self.__i2].getAdjClose()
@@ -151,9 +147,12 @@ def build_feed(instruments, fromYear, toYear):
 
 def main(plot):
 	instruments = ["gld", "gdx"]
+	windowSize = 50
+
+	# Download the bars.
 	feed = build_feed(instruments, 2006, 2012)
 
-	myStrategy = MyStrategy(feed, instruments[0], instruments[1], 50)
+	myStrategy = MyStrategy(feed, instruments[0], instruments[1], windowSize)
 
 	if plot:
 		plt = plotter.StrategyPlotter(myStrategy, False, False, True)
@@ -166,5 +165,6 @@ def main(plot):
 	if plot:
 		plt.plot()
 
-main(True)
+if __name__ == "__main__":
+	main(True)
 
