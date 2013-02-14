@@ -159,11 +159,12 @@ class TestBarDataSeries(unittest.TestCase):
 
 class TestDateAlignedDataSeries(unittest.TestCase):
 	def testNotAligned(self):
+		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
 
 		now = datetime.datetime.now()
-		for i in range(10):
+		for i in range(size):
 			if i % 2 == 0:
 				ds1.appendValueWithDatetime(now + datetime.timedelta(seconds=i), i)
 			else:
@@ -179,7 +180,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 			self.assertEqual(ads.getDateTimes(), [])
 
 	def testFullyAligned(self):
-		size = 10
+		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
 
@@ -199,7 +200,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 				self.assertEqual(ads.getDateTimes()[i], now + datetime.timedelta(seconds=i))
 
 	def testPartiallyAligned(self):
-		size = 10
+		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
 		commonDateTimes = []
@@ -222,6 +223,20 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		self.assertEqual(ads1.getDateTimes(), commonDateTimes)
 		self.assertEqual(ads2.getDateTimes(), commonDateTimes)
 
+	def testIncremental(self):
+		size = 20
+		ds1 = dataseries.SequenceDataSeries()
+		ds2 = dataseries.SequenceDataSeries()
+		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+
+		now = datetime.datetime.now()
+		for i in range(size):
+			ds1.appendValueWithDatetime(now + datetime.timedelta(seconds=i), i)
+			ds2.appendValueWithDatetime(now + datetime.timedelta(seconds=i), i)
+			self.assertEqual(ads1.getLength(), ads2.getLength())
+			self.assertEqual(ads1[:], ads2[:])
+			self.assertEqual(ads1.getDateTimes()[:], ads2.getDateTimes()[:])
+
 def getTestCases():
 	ret = []
 
@@ -239,6 +254,7 @@ def getTestCases():
 	ret.append(TestDateAlignedDataSeries("testNotAligned"))
 	ret.append(TestDateAlignedDataSeries("testFullyAligned"))
 	ret.append(TestDateAlignedDataSeries("testPartiallyAligned"))
+	ret.append(TestDateAlignedDataSeries("testIncremental"))
 
 	return ret
 

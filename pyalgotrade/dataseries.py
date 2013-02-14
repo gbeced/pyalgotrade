@@ -225,7 +225,7 @@ class BarDataSeries(SequenceDataSeries):
 
 def datetime_aligned(ds1, ds2):
 	"""
-	Returns two dataseries that only exhibit those values whose datetimes are in both dataseries.
+	Returns two dataseries that exhibit only those values whose datetimes are in both dataseries.
 
 	:param ds1: A DataSeries instance.
 	:type ds1: :class:`DataSeries`
@@ -245,6 +245,9 @@ class AlignedDataSeriesSharedState:
 		self.__ds2 = ds2
 		self.__ds1Len = None
 		self.__ds2Len = None
+		# The position in each of the dataseries for the last intersection
+		self.__lastPos1 = None
+		self.__lastPos2 = None
 
 	def __isDirty(self):
 		if self.__ds1.getDecorated().getLength() != self.__ds1Len:
@@ -259,13 +262,34 @@ class AlignedDataSeriesSharedState:
 		self.__ds2Len = self.__ds2.getDecorated().getLength()
 
 	def update(self):
-		# TODO: Optimize this to make it incremental.
 		if self.__isDirty():
+			# Search for datetime intersections between the data series,
+			# but start right after the last one found.
 			ds1DateTimes = self.__ds1.getDecorated().getDateTimes()
 			ds2DateTimes = self.__ds2.getDecorated().getDateTimes()
-			dateTimes, ix1, ix2 = collections.intersect(ds1DateTimes, ds2DateTimes)
-			self.__ds1.update(dateTimes, ix1)
-			self.__ds2.update(dateTimes, ix2)
+			if self.__lastPos1 != None:
+				ds1DateTimes = ds1DateTimes[self.__lastPos1+1:]
+			if self.__lastPos2 != None:
+				ds2DateTimes = ds2DateTimes[self.__lastPos2+1:]
+
+			# Calculate the intersections.
+			dateTimes, pos1, pos2 = collections.intersect(ds1DateTimes, ds2DateTimes)
+
+			# Update each array's relative position to make them absolute positions.
+			if self.__lastPos1 != None and len(pos1):
+				pos1 = [self.__lastPos1 + pos + 1 for pos in pos1]
+			if self.__lastPos2 != None and len(pos2):
+				pos2 = [self.__lastPos2 + pos + 1 for pos in pos2]
+
+			# Update the last intersection.
+			if len(pos1):
+				self.__lastPos1 = pos1[-1]
+			if len(pos2):
+				self.__lastPos2 = pos2[-1]
+
+			# Update the aligned data series.
+			self.__ds1.update(dateTimes, pos1)
+			self.__ds2.update(dateTimes, pos2)
 			self.__resetDirty()
 
 class AlignedDataSeries(DataSeries):
@@ -283,8 +307,8 @@ class AlignedDataSeries(DataSeries):
 
 	def update(self, dateTimes, positions):
 		assert(len(dateTimes) == len(positions))
-		self.__dateTimes = dateTimes
-		self.__positions = positions
+		self.__dateTimes.extend(dateTimes)
+		self.__positions.extend(positions)
 
 	def getFirstValidPos(self):
 		self.__shared.update()
