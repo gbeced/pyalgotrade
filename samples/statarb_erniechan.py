@@ -73,7 +73,8 @@ class MyStrategy(strategy.Strategy):
 		self.__statArbHelper = StatArbHelper(feed[instrument1].getAdjCloseDataSeries(), feed[instrument2].getAdjCloseDataSeries(), windowSize)
 		self.__i1 = instrument1
 		self.__i2 = instrument2
-		# This dataseries are used only for plotting purposes.
+
+		# These are used only for plotting purposes.
 		self.__spread = dataseries.SequenceDataSeries()
 		self.__hedgeRatio = dataseries.SequenceDataSeries()
 
@@ -84,8 +85,7 @@ class MyStrategy(strategy.Strategy):
 		return self.__hedgeRatio
 
 	def __getOrderSize(self, bars, hedgeRatio):
-		# Use up to 75% of available cash.
-		cash = self.getBroker().getCash(False) * 0.75
+		cash = self.getBroker().getCash(False)
 		price1 = bars[self.__i1].getAdjClose()
 		price2 = bars[self.__i2].getAdjClose()
 		size1 = int(cash / (price1 + hedgeRatio * price2))
@@ -94,13 +94,11 @@ class MyStrategy(strategy.Strategy):
 
 	def buySpread(self, bars, hedgeRatio):
 		amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-
 		self.order(self.__i1, amount1)
 		self.order(self.__i2, amount2 * -1)
 
 	def sellSpread(self, bars, hedgeRatio):
 		amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-
 		self.order(self.__i1, amount1 * -1)
 		self.order(self.__i2, amount2)
 
@@ -114,7 +112,7 @@ class MyStrategy(strategy.Strategy):
 	def onBars(self, bars):
 		self.__statArbHelper.update()
 
-		# This dataseries are used only for plotting purposes.
+		# These is used only for plotting purposes.
 		self.__spread.appendValueWithDatetime(bars.getDateTime(), self.__statArbHelper.getSpread())
 		self.__hedgeRatio.appendValueWithDatetime(bars.getDateTime(), self.__statArbHelper.getHedgeRatio())
 
@@ -122,12 +120,13 @@ class MyStrategy(strategy.Strategy):
 			hedgeRatio = self.__statArbHelper.getHedgeRatio()
 			zScore = self.__statArbHelper.getZScore()
 			if zScore != None:
-				if abs(zScore) <= 1:
+				currentPos =  abs(self.getBroker().getShares(self.__i1)) + abs(self.getBroker().getShares(self.__i2))
+				if abs(zScore) <= 1 and currentPos != 0:
 					self.reducePosition(self.__i1)
 					self.reducePosition(self.__i2)
-				elif zScore <= -2: # Buy spread when its value drops below 2 standard deviations.
+				elif zScore <= -2 and currentPos == 0: # Buy spread when its value drops below 2 standard deviations.
 					self.buySpread(bars, hedgeRatio)
-				elif zScore >= 2: # Short spread when its value rises above 2 standard deviations.
+				elif zScore >= 2 and currentPos == 0: # Short spread when its value rises above 2 standard deviations.
 					self.sellSpread(bars, hedgeRatio)
 
 def build_feed(instruments, fromYear, toYear):
