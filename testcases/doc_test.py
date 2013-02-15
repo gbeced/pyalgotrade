@@ -111,14 +111,19 @@ class TechnicalTestCase(unittest.TestCase):
 
 class SampleStratTestCase(unittest.TestCase):
 	def testErnieChanGldVsGdx(self):
+		# Get the files that generated the result that we're checking for.
+		for year in range(2006, 2013):
+			for symbol in ["gld", "gdx"]:
+				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+				shutil.copy2(os.path.join("samples", fileName), ".")
+
 		code = """import sys
 sys.path.append('samples')
 import statarb_erniechan
 statarb_erniechan.main(False)
 """
 		lines = run_python_code(code).split("\n")
-		# I'm not checking the specific result since it will change as adjusted close values change.
-		self.assertTrue(lines[-2].find("Result: ") == 0)
+		self.assertTrue(compare_tail("statarb_erniechan.output", lines[-2:-1]))
 
 def getTestCases():
 	ret = []

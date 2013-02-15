@@ -6,7 +6,12 @@ This sample is based on:
  * https://www.quantopian.com/posts/ernie-chans-gold-vs-gold-miners-stat-arb
 
 .. literalinclude:: ../samples/statarb_erniechan.py
-and this is what the plot looks like:
+
+this is what the output should look like:
+
+.. literalinclude:: ../samples/statarb_erniechan.output
+
+and this is what the plot should look like:
 
 .. image:: ../samples/statarb_erniechan.png
 
