@@ -10,23 +10,27 @@ Before I move on I would like to thank Pablo Jorge who helped reviewing the init
 
 **This tutorial was developed on a UNIX environment, but the steps to adapt it to a Windows environment should be straightforward.**
 
-The PyAlgoTrade library has 4 main components:
+PyAlgoTrade has 5 main components:
 
  * Strategies
- * Technicals
  * Feeds
+ * DataSeries
+ * Technicals
  * Optimizer
 
 Strategies
     These are the classes that you define, that implement a certain trading strategy. When to buy, when to sell, etc.
 
-Technicals
-    These are a set of filters that you use to make calculations over a stream of values to decide what to do.
-    For example SMA (Simple Moving Average), RSI (Relative Strength Index), etc.
-
 Feeds
     These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
+
+DataSeries
+    A data series is an abstraction used to manage historical data.
+
+Technicals
+    These are a set of filters that you use to make calculations on top of DataSeries.
+    For example SMA (Simple Moving Average), RSI (Relative Strength Index), etc. These filters are modeled as DataSeries decorators.
 
 Optimizer
     These are a set of classes that allow you to distribute backtesting among different computers,
@@ -82,7 +86,7 @@ That is because we need at least 15 values to get something out of the SMA:
 
 All the technicals will return None when the value can't be calculated at a given time.
 
-One important thing about technicals is that they can be stacked. That is because they're modeled as data series too.
+One important thing about technicals is that they can be stacked. That is because they're modeled as data series as well.
 For example, getting an SMA over the RSI over the closing prices is as simple as this:
 
 .. literalinclude:: ../samples/tutorial-3.py
@@ -91,7 +95,7 @@ If you run the script you should see a bunch of values on the screen where:
 
  * The first 14 RSI values are None. That is because we need at least 15 values to get an RSI value.
  * The first 28 SMA values are None. That is because the first 14 RSI values are None, and the 15th one is the first not None value that the SMA filter receives.
-   Only when we have 15 not None values we can calculate the SMA(15).
+   We can calculate the SMA(15) only when we have 15 not None values .
 
 .. literalinclude:: ../samples/tutorial-3.output
 
