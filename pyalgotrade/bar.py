@@ -92,6 +92,10 @@ class Bar:
 		"""Returns the adjusted closing price."""
 		return self.__adjClose
 
+	def getTypicalPrice(self):
+		"""Returns the typical price."""
+		return (self.__high + self.__low + self.__close) / 3.0
+
 	def getSessionClose(self):
 		# Returns True if this is the last bar for the session, or False otherwise.
 		return self.__sessionClose

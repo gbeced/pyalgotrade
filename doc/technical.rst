@@ -22,6 +22,9 @@ Moving Averages
 .. automodule:: pyalgotrade.technical.ma
     :members: SMA, EMA, WMA
 
+.. automodule:: pyalgotrade.technical.vwap
+    :members: VWAP
+
 Momentum Indicators
 -------------------
 

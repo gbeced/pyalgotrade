@@ -21,6 +21,7 @@
 import unittest
 from testcases import technical_test
 from testcases import technical_ma_test
+from testcases import technical_vwap_test
 from testcases import technical_ratio_test
 from testcases import technical_trend_test
 from testcases import technical_rsi_test
@@ -48,6 +49,7 @@ def getTestCases():
 
 	ret += technical_test.getTestCases()
 	ret += technical_ma_test.getTestCases()
+	ret += technical_vwap_test.getTestCases()
 	ret += technical_ratio_test.getTestCases()
 	ret += technical_trend_test.getTestCases()
 	ret += technical_rsi_test.getTestCases()
