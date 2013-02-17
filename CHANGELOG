@@ -1,5 +1,6 @@
 Version 0.11 (TBD)
-. [NEW] Function to align 2 dataseries with respect to time (pyalgotrade.dataseries.datetime_aligned).
+. [NEW] Function to align 2 DataSeries with respect to time (pyalgotrade.dataseries.datetime_aligned).
+. [NEW] DataSeries now provide the datetime associted with each value (getDateTimes), making it easier to plot using matplotlib.
 
 Version 0.10 (11/Jan/2013)
 . [NEW] Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
@@ -7,7 +8,7 @@ Version 0.10 (11/Jan/2013)
 . [NEW] Returns analysis (pyalgotrade.stratanalyzer.returns.Returns).
 . [NEW] Trades analysis (pyalgotrade.stratanalyzer.trades.Trades).
 . [NEW] Support for bar timezones (pyalgotrade.marketsession).
-. [NEW] Support for sequence like operations in dataseries (__getitem__ and __len__. getValue and getValueAbsolute will soon get deprecated).
+. [NEW] Support for sequence like operations in DataSeries (__getitem__ and __len__. getValue and getValueAbsolute will soon get deprecated).
 . [NEW] Support for mapping like operations in bar feeds (__getitem__ and __contains__).
 . [NEW] Support for mapping like operations in bar.Bars (__getitem__ and __contains__).
 . [NEW] Google App Engine: Added support for re-executing strategies.
@@ -15,7 +16,7 @@ Version 0.10 (11/Jan/2013)
 . [FIX] broker.backtesting.getActiveOrders was not returning all orders during event dispatching.
 . [FIX] Fixed returns calculations for short positions. Thanks John Fawcett for explaining this.
 . [FIX] Fixed a bug in the Strategy class and the backtesting broker when dealing with multiple instruments. Was not handling absence of bars appropriately. Thanks Fabian Braennstroem for reporting this.
-. [FIX] Additional dataseries added to the portfolio subplot were not showing. Thanks Sedov Anton for reporting this.
+. [FIX] Additional DataSeries added to the portfolio subplot were not showing. Thanks Sedov Anton for reporting this.
 . [FIX] Additional subplots (those created using getOrCreateSubplot) are now ordered as created. Thanks Sedov Anton for reporting this and suggesting the fix.
 
 Version 0.9 (1/Sep/2012)
