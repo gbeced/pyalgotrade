@@ -125,6 +125,21 @@ statarb_erniechan.main(False)
 		lines = run_python_code(code).split("\n")
 		self.assertTrue(compare_tail("statarb_erniechan.output", lines[-2:-1]))
 
+	def testVWAPMomentum(self):
+		# Get the files that generated the result that we're checking for.
+		for year in range(2011, 2012):
+			for symbol in ["aapl"]:
+				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+				shutil.copy2(os.path.join("samples", fileName), ".")
+
+		code = """import sys
+sys.path.append('samples')
+import vwap_momentum
+vwap_momentum.main(False)
+"""
+		lines = run_python_code(code).split("\n")
+		self.assertTrue(compare_tail("vwap_momentum.output", lines[-2:-1]))
+
 def getTestCases():
 	ret = []
 
@@ -142,6 +157,7 @@ def getTestCases():
 	ret.append(TechnicalTestCase("testTechnical_1"))
 
 	ret.append(SampleStratTestCase("testErnieChanGldVsGdx"))
+	ret.append(SampleStratTestCase("testVWAPMomentum"))
 
 	return ret
 
