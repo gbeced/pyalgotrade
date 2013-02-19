@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 # RSI = 100 - 100 / (1 + RS)
 # RS = Average gain / Average loss
