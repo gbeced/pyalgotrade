@@ -178,12 +178,12 @@ class Subplot:
 	def __init__(self):
 		self.__series = {} # Series by name.
 		self.__dataSeries = {} # Maps a pyalgotrade.dataseries.DataSeries to a Series.
-		self.__nextColor = 1
+		self.__nextColor = 0
 
 	def __getColor(self, series):
 		ret = series.getColor()
 		if ret == None:
-			ret = Subplot.colors[len(Subplot.colors) % self.__nextColor]
+			ret = Subplot.colors[self.__nextColor % len(Subplot.colors)]
 			self.__nextColor += 1
 		return ret
 

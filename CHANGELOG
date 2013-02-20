@@ -2,6 +2,7 @@ Version 0.11 (TBD)
 . [NEW] DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.
 . [NEW] Function to align two DataSeries with respect to time (pyalgotrade.dataseries.datetime_aligned).
 . [NEW] VWAP technical indicator.
+. [FIX] An IndexError exception was raised in plotter.py when plotting many dataseries in the same subplot.
 
 Version 0.10 (11/Jan/2013)
 . [NEW] Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).
