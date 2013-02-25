@@ -1,131 +1,222 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<meta name="description" content="Python Algorithmic Trading Library" />
-		<meta name="keywords" content="Algorithmic Trading, Backtesting, Python, Stock Trading" />
-		<meta name="generator" content="RapidWeaver" />
-		
-		<title>PyAlgoTrade | Home</title>
-		<link rel="stylesheet" type="text/css" media="screen" href="rw_common/themes/realmacsoftware06/styles.css"  />
-		<link rel="stylesheet" type="text/css" media="screen" href="rw_common/themes/realmacsoftware06/colourtag.css"  />
-		<!--[if IE 6]><link rel="stylesheet" type="text/css" media="screen" href="rw_common/themes/realmacsoftware06/ie6.css"  /><![endif]-->
-		<!--[if IE 7]><link rel="stylesheet" type="text/css" media="screen" href="rw_common/themes/realmacsoftware06/ie7.css"  /><![endif]-->
-		<link rel="stylesheet" type="text/css" media="screen" href="rw_common/themes/realmacsoftware06/css/width/900.css" />
-		<link rel="stylesheet" type="text/css" media="screen" href="rw_common/themes/realmacsoftware06/css/sidebar/right.css" />
-		
-		<link rel="stylesheet" type="text/css" media="print" href="rw_common/themes/realmacsoftware06/print.css"  />
-		<script type="text/javascript" src="rw_common/themes/realmacsoftware06/javascript.js"></script>
-		
-		
-		
-		<!-- Google analytics -->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-1180709-11']);
-  _gaq.push(['_trackPageview']);
+<!DOCTYPE html>
+<html lang="en">
 
-  (function() {
-	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
+<head>
+	<meta charset="utf-8">
+	<title>PyAlgoTrade - Home</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Python Algorithmic Trading Library" />
+	<meta name="keywords" content="Algorithmic Trading, Backtesting, Python, Stock Trading" />
 
-<!-- Plus One Button -->
-<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+	<!-- Le styles -->
+	<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+	<style type="text/css">
+		body {
+			padding-top: 20px;
+			padding-bottom: 60px;
+		}
 
-		<!--[if IE 6]><script type="text/javascript" charset="utf-8">
-			var blankSrc = "rw_common/themes/realmacsoftware06/png/blank.gif";
-		</script>	
-		<style type="text/css">
+		/* Custom container */
+		.container {
+			margin: 0 auto;
+			max-width: 1000px;
+		}
+		.container > hr {
+			margin: 60px 0;
+		}
 
-		img {
-				behavior: url("rw_common/themes/realmacsoftware06/png/pngbehavior.htc");
-			}
-		
-		</style><![endif]-->
-	</head>
+		/* Main marketing message and sign up button */
+		.jumbotron {
+			margin: 80px 0;
+			text-align: center;
+		}
+		.jumbotron h1 {
+			font-size: 80px;
+			line-height: 1;
+		}
+		.jumbotron .lead {
+			font-size: 24px;
+			line-height: 1.25;
+		}
+		.jumbotron .btn {
+			font-size: 21px;
+			padding: 14px 24px;
+		}
+
+		/* Customize the navbar links to be fill the entire space of the .navbar */
+		.navbar .navbar-inner {
+			padding: 0;
+		}
+		.navbar .nav {
+			margin: 0;
+			display: table;
+			width: 100%;
+		}
+		.navbar .nav li {
+			display: table-cell;
+			width: 1%;
+			float: none;
+		}
+		.navbar .nav li a {
+			font-weight: bold;
+			text-align: center;
+			border-left: 1px solid rgba(255,255,255,.75);
+			border-right: 1px solid rgba(0,0,0,.1);
+		}
+		.navbar .nav li:first-child a {
+			border-left: 0;
+			border-radius: 3px 0 0 3px;
+		}
+		.navbar .nav li:last-child a {
+			border-right: 0;
+			border-radius: 0 3px 3px 0;
+		}
+
+		/* Social proof buttons from GitHub & Twitter */
+		.bs-docs-social {
+			margin: 80px 0;
+			padding: 15px 0;
+			text-align: center;
+			background-color: #f5f5f5;
+			border-top: 1px solid #ddd;
+			border-bottom: 1px solid #ddd;
+		}
+
+		/* Quick links on Home */
+		.bs-docs-social-buttons {
+			margin-left: 0;
+			margin-bottom: 0;
+			padding-left: 0;
+			list-style: none;
+		}
+		.bs-docs-social-buttons li {
+			display: inline-block;
+			padding: 5px 8px;
+			line-height: 1;
+			*display: inline;
+			*zoom: 1;
+		}
+	</style>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+	<script src="bootstrap/js/html5shiv.js"></script>
+	<![endif]-->
+
+	<!-- Fav and touch icons -->
+	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="bootstrap/ico/apple-touch-icon-144-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="bootstrap/ico/apple-touch-icon-114-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="bootstrap/ico/apple-touch-icon-72-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" href="bootstrap/ico/apple-touch-icon-57-precomposed.png">
+	<link rel="shortcut icon" href="bootstrap/ico/favicon.png">
+
+	<!-- Google analytics -->
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-1180709-11']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+		 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		 })();
+	 </script>
+
+	<!-- Plus One Button -->
+	<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+</head>
+
 <body>
-	<div id="topbar"></div>
-	<div id="pageHeader">
-		<div id="title">
-			
-			<h1>PyAlgoTrade</h1>
-			<h2>Python Algorithmic Trading Library</h2>
+	<div class="container">
+
+		<div class="masthead">
+			<h3 class="muted">PyAlgoTrade</h3>
+			<div class="navbar">
+				<div class="navbar-inner">
+					<div class="container">
+						<ul class="nav">
+							<li class="active"><a href="#">Home</a></li>
+							<li><a href="docs/">Documentation</a></li>
+							<li><a href="downloads/">Downloads</a></li>
+							<li><a href="contact/">Contact</a></li>
+						</ul>
+					</div>
+				</div>
+			</div><!-- /.navbar -->
 		</div>
-		<div id="navcontainer"><ul><li><a href="./" rel="self" id="current">Home</a></li><li><a href="downloads/" rel="self">Downloads</a></li><li><a href="contact/" rel="self">Contact</a></li></ul></div>
-	</div>
-	<div id="headerBottomGrad">
-		<img src="rw_common/themes/realmacsoftware06/images/bottom_grad.png" alt="" style="width: 3000px; height: 12px;" />
-	</div>
 
-	<div id="container">
-		<div id="sidebarContainer">
-			<div id="sidebar">
-				<h1 class="sideHeader"></h1>
-				<!-- Plus One Button -->
-<g:plusone size="medium"></g:plusone>
-<br />
-<!-- Twitter -->
-<a href="https://twitter.com/pyalgotrade" class="twitter-follow-button" data-show-count="false">Follow @pyalgotrade</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-<br />
-<!-- Ohloh -->
-<script type="text/javascript" src="http://www.ohloh.net/p/616491/widgets/project_thin_badge.js"></script>
+		<!-- Jumbotron -->
+		<div class="jumbotron">
+			<h1>Python Algorithmic Trading Library</h1>
+			<p class="lead">
+			PyAlgoTrade is a <b>Python</b> library for <b>backtesting</b> stock trading strategies.
+			Let’s say you have an idea for a trading strategy and you’d like to evaluate it with historical data and see how it behaves. PyAlgoTrade allows you to do so with minimal effort.
+			</p>
+			<a class="btn btn-large btn-success" href="http://gbeced.github.com/pyalgotrade/docs/v0.10/html/tutorial.html">Quickstart</a>
+		</div>
 
-				
+		<div class="bs-docs-social">
+			<div class="container">
+				<ul class="bs-docs-social-buttons">
+					<li>
+					<iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=gbeced&repo=pyalgotrade&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
+					</li>
+					<li>
+					<iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=gbeced&repo=pyalgotrade&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="102px" height="20px"></iframe>
+					</li>
+					<li>
+					<a href="https://twitter.com/pyalgotrade" class="twitter-follow-button" data-show-count="false">Follow @pyalgotrade</a>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+					</li>
+					<li>
+					<a href="https://twitter.com/share" class="twitter-share-button" data-via="pyalgotrade" data-count="none">Tweet</a>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+					</li>
+				</ul>
 			</div>
 		</div>
-		
-		<div id="contentContainer">
-			<div id="content">
+
+		<!-- Example row of columns -->
+		<div class="row-fluid">
+			<div class="span4">
+				<h2>Main features</h2>
+				<ul>
+					<li><a href="http://gbeced.github.com/pyalgotrade/docs/v0.10/html/">Fully documented</a>.</li>
+					<li>Support for Market, Limit, Stop and StopLimit orders.</li>
+					<li>Support for Yahoo! Finance and NinjaTrader CSV files.</li>
+					<li>Support for many technical indicators like Moving Averages, Momentum Indicators and others.</li>
+					<li>Sharpe ratio analysis.</li>
+					<li>Max. drawdown and max. drawdown duration analysis.</li>
+					<li>TA-Lib integration.</li>
+				</ul>
+			</div>
+			<div class="span4">
+				<h2>Scalable</h2>
 				<p>
-PyAlgoTrade is a <b>Python</b> library for <b>backtesting</b> stock trading strategies. 
-</p>
-
-<p>
-Main features:
-<ul>
-  <li>Support for Market, Limit, Stop and StopLimit orders.</li>
-  <li>Support for Yahoo! Finance CSV files.</li>
-  <li>Support for NinjaTrader CSV files.</li>
-  <li>Sharpe ratio analysis.</li>
-  <li>Max. drawdown and max. drawdown duration analysis.</li>
-  <li>Very easy to scale horizontally, that is, using one or more computers to backtest a strategy. You can even take advantage of Google's <b>cloud computing</b> infrastructure to run your strategies inside <b>Google App Engine</b>.</li>
-  <li>TA-Lib integration.</li>
-</ul>
-</p>
-
-<p>
-The best way to get an idea of what is this about, is to take a look at the <a href="http://gbeced.github.com/pyalgotrade/docs/v0.10/html/tutorial.html">tutorial</a>.
-The complete documentation is located <a href="http://gbeced.github.com/pyalgotrade/docs/v0.10/html/index.html">here</a>.
-</p>
-
-<br />
-
-<p>
-It is also very easy to get a plot of the strategy execution. It only takes 3 lines of code to get a plot like this:
-<img src="resources/tutorial-5.png"></img>
-</p>
-
-<br />
-
-<p>
-PyAlgoTrade is free, open source, and it is licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
-</p>
-
+				Very easy to scale horizontally, that is, using one or more computers to backtest a strategy.<br/>
+				</p>
+				<p>
+				You can even take advantage of Google's <b>cloud computing</b> infrastructure to run your strategies inside <b>Google App Engine</b>.
+				</p>
 			</div>
-			<div class="clearer"></div>
-			<div id="breadcrumbcontainer"></div>
+			<div class="span4">
+				<h2>Free</h2>
+				<p>
+				PyAlgoTrade is free, open source, and it is licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+				</p>
+			</div>
 		</div>
 
-		<div id="footer">
-			<p>&copy; 2011 Gabriel Becedillas</p>
+		<hr>
+
+		<div class="footer">
+			<p>&copy; Gabriel Becedillas 2011</p>
 		</div>
-	</div>
-	<div id="footerBottomGrad">
-		<img src="rw_common/themes/realmacsoftware06/images/bottom_grad.png" alt="" style="width: 3000px; height: 12px;" />
-	</div>
+
+	</div> <!-- /container -->
 </body>
 </html>
+
