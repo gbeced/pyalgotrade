@@ -1,7 +1,8 @@
 Version 0.11 (TBD)
 . [NEW] DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.
 . [NEW] Function to align two DataSeries with respect to time (pyalgotrade.dataseries.datetime_aligned).
-. [NEW] VWAP technical indicator.
+. [NEW] VWAP technical indicator (pyalgotrade.technical.vwap.VWAP).
+. [NEW] Line Break technical indicator (pyalgotrade.technical.linebreak.LineBreak).
 . [FIX] An IndexError exception was raised in plotter.py when plotting many dataseries in the same subplot.
 
 Version 0.10 (11/Jan/2013)
