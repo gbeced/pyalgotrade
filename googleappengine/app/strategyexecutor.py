@@ -1,6 +1,6 @@
 # PyAlgoTrade
 # 
-# Copyright 2012 Gabriel Martin Becedillas Ruiz
+# Copyright 2013 Gabriel Martin Becedillas Ruiz
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,23 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.api import taskqueue
 from google.appengine.api import memcache
+
+from common import logger
+from common import cls
+import persistence
+from pyalgotrade import bar
+from pyalgotrade import barfeed
+from pyalgotrade.barfeed import membf
 
 import pickle
 import zlib
-import traceback
-
-from pyalgotrade import barfeed
-from pyalgotrade.barfeed import membf
-from pyalgotrade import bar
-import persistence
-from queuehandlers import seresult
-from common import cls
-from common import timer
-import common.logger
 
 # Converts a persistence.Bar to a pyalgotrade.bar.Bar.
 def ds_bar_to_pyalgotrade_bar(dsBar):
@@ -54,10 +48,11 @@ def load_pyalgotrade_daily_bars(instrument, barType, fromDateTime, toDateTime):
 	feed.join()
 	return ret
 
+
 class BarsCache:
-	def __init__(self, logger):
+	def __init__(self, aLogger):
 		self.__cache = {}
-		self.__logger = logger
+		self.__logger = aLogger
 
 	def __addLocal(self, key, bars):
 		self.__cache[key] = bars
@@ -101,7 +96,7 @@ class BarsCache:
 
 class StrategyExecutor:
 	def __init__(self):
-		self.__logger = common.logger.Logger()
+		self.__logger = logger.Logger()
 		self.__barCache = BarsCache(self.__logger)
 
 	def __loadBars(self, stratExecConfig):
@@ -127,75 +122,4 @@ class StrategyExecutor:
 		myStrategy.run()
 		return myStrategy.getResult()
 
-class SEConsumerHandler(webapp.RequestHandler):
-	url = "/queue/seconsumer"
-	defaultBatchSize = 200
-
-	class Params:
-		stratExecConfigKeyParam = 'stratExecConfigKey'
-		paramsItParam = 'paramsIt'
-		batchSizeParam = 'batchSize'
-
-	@staticmethod
-	def queue(stratExecConfigKey, paramsIt, batchSize):
-		params = {}
-		params[SEConsumerHandler.Params.stratExecConfigKeyParam] = stratExecConfigKey
-		params[SEConsumerHandler.Params.paramsItParam] = pickle.dumps(paramsIt)
-		params[SEConsumerHandler.Params.batchSizeParam] = batchSize
-		taskqueue.add(queue_name="se-consumer-queue", url=SEConsumerHandler.url, params=params)
-
-	def post(self):
-		global strategyExecutor
-
-		tmr = timer.Timer()
-		stratExecConfigKey = self.request.get(SEConsumerHandler.Params.stratExecConfigKeyParam)
-		paramsIt = pickle.loads(str(self.request.get(SEConsumerHandler.Params.paramsItParam)))
-		batchSize = int(self.request.get(SEConsumerHandler.Params.batchSizeParam))
-		stratExecConfig = persistence.StratExecConfig.getByKey(stratExecConfigKey)
-
-		bestResult = 0
-		bestResultParams = []
-		executionsLeft = batchSize 
-		errors = 0 
-		while executionsLeft > 0:
-			try:
-				paramValues = paramsIt.getCurrent()
-
-				# If there are no more parameters, just stop.
-				if paramValues == None:
-					break
-
-				result = strategyExecutor.runStrategy(stratExecConfig, paramValues)
-				if result > bestResult:
-					bestResult = result
-					bestResultParams = paramValues
-			except Exception, e:
-				errors += 1
-				strategyExecutor.getLogger().error("Error executing strategy '%s' with parameters %s: %s" % (stratExecConfig.className, paramValues, e))
-				strategyExecutor.getLogger().error(traceback.format_exc())
-
-			executionsLeft -= 1
-			paramsIt.moveNext()
-
-			# Stop executing before we ran out of time. I'm assuming that strategies take less than 1 minute to execute.
-			if tmr.minutesElapsed() > 9 and executionsLeft > 0:
-				strategyExecutor.getLogger().info("Rescheduling. %d executions left." % executionsLeft)
-				SEConsumerHandler.queue(stratExecConfigKey, paramsIt, executionsLeft)
-				break
-
-		# Queue the results.
-		seresult.SEResultHandler.queue(stratExecConfigKey, bestResult, bestResultParams, batchSize - executionsLeft, errors)
-
-# This is global to reuse previously loaded bars.
-strategyExecutor = StrategyExecutor()
-
-def main():
-	_handlers = [
-			(SEConsumerHandler.url, SEConsumerHandler)
-			]
-	application = webapp.WSGIApplication(_handlers, debug=True)
-	run_wsgi_app(application)
-
-if __name__ == "__main__":
-	main()
 

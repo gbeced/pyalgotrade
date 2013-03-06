@@ -24,10 +24,10 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
 
 import persistence
+import usertasks
 from common import utils
 from common import cls
 from common import forms
-from queuehandlers import seproducer
 
 def get_stratexecconfig_for_template(stratExecConfigs):
 	ret = []
@@ -288,7 +288,7 @@ class StrategyExecutionPage(webapp.RequestHandler):
 				# Queue the strategy execution config and redirect.
 				stratExecConfig = self.__buildStratExecConfig(strategyClassName, strategyParams, form)
 				stratExecConfig.put()
-				seproducer.SEProducerHandler.queue(stratExecConfig.key())
+				usertasks.MasterTask(1, stratExecConfig).queue()
 				self.redirect(StrategyPage.getUrl(strategyClassName))
 			except Exception, e:
 				templateValues["submit_error"] = str(e)

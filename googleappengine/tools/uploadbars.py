@@ -102,6 +102,7 @@ def upload_intermediate_csv(options, csvPath):
 	cmd.append("--filename=%s" % csvPath)
 	cmd.append("--config_file=%s" % os.path.join(uploadBarsPath, "bulkloader.yaml"))
 	cmd.append("--url=%s" % options.url)
+	cmd.append("--num_threads=%d" % 1)
 
 	popenObj = subprocess.Popen(args=cmd)
 	popenObj.communicate()
