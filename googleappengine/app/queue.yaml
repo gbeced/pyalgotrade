@@ -5,7 +5,7 @@ queue:
   rate: 1/s
 
 - name: workertask-queue
-  rate: 5/s
+  rate: 1/s
 
 # DON'T CHANGE MAX_CONCURRENT_REQUESTS FOR THIS QUEUE.
 - name: resulttask-queue
