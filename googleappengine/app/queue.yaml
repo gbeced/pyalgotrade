@@ -1,4 +1,5 @@
 queue:
+# DON'T CHANGE MAX_CONCURRENT_REQUESTS FOR THIS QUEUE.
 - name: mastertask-queue
   max_concurrent_requests: 1
   rate: 1/s
@@ -6,6 +7,7 @@ queue:
 - name: workertask-queue
   rate: 5/s
 
+# DON'T CHANGE MAX_CONCURRENT_REQUESTS FOR THIS QUEUE.
 - name: resulttask-queue
   max_concurrent_requests: 1
   rate: 1/s
