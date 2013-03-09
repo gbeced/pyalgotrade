@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import dataseries
+import pyalgotrade.bar
 
 class Line:
 	"""A line in a line break chart."""
@@ -58,9 +59,11 @@ class LineBreak(dataseries.DataSeries):
 	:type barDataSeries: :class:`pyalgotrade.dataseries.BarDataSeries`.
 	:param reversalLines: The number of lines back to check to calculate a reversal. Must be greater than 1.
 	:type reversalLines: int.
+	:param useAdjustedValues: True to use adjusted high/low/close values.
+	:type useAdjustedValues: boolean.
 	"""
 
-	def __init__(self, barDataSeries, reversalLines):
+	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False):
 		if not isinstance(barDataSeries, dataseries.BarDataSeries):
 			raise Exception("barDataSeries must be a dataseries.BarDataSeries instance")
 		if reversalLines < 2:
@@ -71,6 +74,7 @@ class LineBreak(dataseries.DataSeries):
 		self.__lines = []
 		self.__dateTimes = []
 		self.__nextBar = 0
+		self.__useAdjustedValues = useAdjustedValues
 
 	def __isReversal(self, value, breakUp):
 		assert(len(self.__lines))
@@ -86,7 +90,7 @@ class LineBreak(dataseries.DataSeries):
 	def __update(self, bar):
 		if len(self.__lines) > 0:
 			lastLine = self.__lines[-1]
-			close = bar.getClose()
+			close = pyalgotrade.bar.get_close(bar, self.__useAdjustedValues)
 			if lastLine.isWhite():
 				if close > lastLine.getHigh():
 					# Price extends in the same direction
@@ -111,9 +115,9 @@ class LineBreak(dataseries.DataSeries):
 					self.__dateTimes.append(bar.getDateTime())
 		else:
 			white = False
-			if bar.getClose() >= bar.getOpen():
+			if pyalgotrade.bar.get_close(bar, self.__useAdjustedValues) >= pyalgotrade.bar.get_open(bar, self.__useAdjustedValues):
 				white = True
-			line = Line(bar.getLow(), bar.getHigh(), bar.getDateTime(), white)
+			line = Line(pyalgotrade.bar.get_low(bar, self.__useAdjustedValues), pyalgotrade.bar.get_high(bar, self.__useAdjustedValues), bar.getDateTime(), white)
 			self.__lines.append(line)
 			self.__dateTimes.append(bar.getDateTime())
 

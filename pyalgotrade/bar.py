@@ -157,3 +157,27 @@ class Bars:
 		"""Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if the instrument is not found."""
 		return self.__barDict.get(instrument, None)
 
+def get_open(bar, useAdjusted):
+	if useAdjusted:
+		return bar.getAdjOpen()
+	else:
+		return bar.getOpen()
+
+def get_high(bar, useAdjusted):
+	if useAdjusted:
+		return bar.getAdjHigh()
+	else:
+		return bar.getHigh()
+
+def get_low(bar, useAdjusted):
+	if useAdjusted:
+		return bar.getAdjLow()
+	else:
+		return bar.getLow()
+
+def get_close(bar, useAdjusted):
+	if useAdjusted:
+		return bar.getAdjClose()
+	else:
+		return bar.getClose()
+

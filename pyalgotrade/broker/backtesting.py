@@ -21,6 +21,7 @@
 from pyalgotrade import broker
 from pyalgotrade import warninghelpers
 import pyalgotrade.logger
+import pyalgotrade.bar
 import copy
 
 logger = pyalgotrade.logger.getLogger("broker.backtesting")
@@ -131,9 +132,9 @@ class DefaultStrategy(FillStrategy):
 	"""
 	def __getLimitOrderFillPrice(self, broker_, bar_, action, limitPrice):
 		ret = None
-		open_ = broker_.getBarOpen(bar_)
-		high = broker_.getBarHigh(bar_)
-		low = broker_.getBarLow(bar_)
+		open_ = pyalgotrade.bar.get_open(bar_, broker_.getUseAdjustedValues())
+		high = pyalgotrade.bar.get_high(bar_, broker_.getUseAdjustedValues())
+		low = pyalgotrade.bar.get_low(bar_, broker_.getUseAdjustedValues())
 
 		# If the bar is below the limit price, use the open price.
 		# If the bar includes the limit price, use the open price or the limit price.
@@ -161,9 +162,9 @@ class DefaultStrategy(FillStrategy):
 
 	def fillMarketOrder(self, order, broker_, bar):
 		if order.getFillOnClose():
-			ret = broker_.getBarClose(bar)
+			ret = pyalgotrade.bar.get_close(bar, broker_.getUseAdjustedValues())
 		else:
-			ret = broker_.getBarOpen(bar)
+			ret = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
 		return ret
 
 	# Return the fill price for a LimitOrder or None.
@@ -173,9 +174,9 @@ class DefaultStrategy(FillStrategy):
 	# Return the fill price for a StopOrder or None.
 	def fillStopOrder(self, order, broker_, bar):
 		ret = None
-		open_ = broker_.getBarOpen(bar)
-		high = broker_.getBarHigh(bar)
-		low = broker_.getBarLow(bar)
+		open_ = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
+		high = pyalgotrade.bar.get_high(bar, broker_.getUseAdjustedValues())
+		low = pyalgotrade.bar.get_low(bar, broker_.getUseAdjustedValues())
 		stopPrice = order.getStopPrice()
 
 		# If the bar is above the stop price, use the open price.
@@ -282,8 +283,8 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 
 	def __stopHit(self, broker_, bar_):
 		ret = False
-		high = broker_.getBarHigh(bar_)
-		low = broker_.getBarLow(bar_)
+		high = pyalgotrade.bar.get_high(bar_, broker_.getUseAdjustedValues())
+		low = pyalgotrade.bar.get_low(bar_, broker_.getUseAdjustedValues())
 		stopPrice = self.getStopPrice()
 
 		# If the bar is above the stop price, or the bar includes the stop price, the stop was hit.
@@ -366,7 +367,7 @@ class Broker(broker.Broker):
 			bars = self.__barFeed.getCurrentBars()
 			for instrument, shares in self.__shares.iteritems():
 				if shares < 0:
-					instrumentPrice = self.getBarClose(self.__getBar(bars, instrument))
+					instrumentPrice = pyalgotrade.bar.get_close(self.__getBar(bars, instrument), self.getUseAdjustedValues())
 					ret += instrumentPrice * shares
 		return ret
 
@@ -389,34 +390,6 @@ class Broker(broker.Broker):
 	def getFillStrategy(self):
 		"""Returns the :class:`FillStrategy` currently set."""
 		return self.__fillStrategy
-
-	def getBarOpen(self, bar_):
-		if self.getUseAdjustedValues():
-			ret = bar_.getAdjOpen()
-		else:
-			ret = bar_.getOpen()
-		return ret
-
-	def getBarHigh(self, bar_):
-		if self.getUseAdjustedValues():
-			ret = bar_.getAdjHigh()
-		else:
-			ret = bar_.getHigh()
-		return ret
-
-	def getBarLow(self, bar_):
-		if self.getUseAdjustedValues():
-			ret = bar_.getAdjLow()
-		else:
-			ret = bar_.getLow()
-		return ret
-
-	def getBarClose(self, bar_):
-		if self.getUseAdjustedValues():
-			ret = bar_.getAdjClose()
-		else:
-			ret = bar_.getClose()
-		return ret
 
 	def getUseAdjustedValues(self):
 		return self.__useAdjustedValues
@@ -445,7 +418,7 @@ class Broker(broker.Broker):
 		ret = self.getCash()
 		if bars != None:
 			for instrument, shares in self.__shares.iteritems():
-				instrumentPrice = self.getBarClose(self.__getBar(bars, instrument))
+				instrumentPrice = pyalgotrade.bar.get_close(self.__getBar(bars, instrument), self.getUseAdjustedValues())
 				ret += instrumentPrice * shares
 		return ret
 
