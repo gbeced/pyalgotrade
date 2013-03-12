@@ -3,6 +3,7 @@ Version 0.11 (TBD)
 . [NEW] Function to align two DataSeries with respect to time (pyalgotrade.dataseries.datetime_aligned).
 . [NEW] VWAP technical indicator (pyalgotrade.technical.vwap.VWAP).
 . [NEW] Line Break technical indicator (pyalgotrade.technical.linebreak.LineBreak).
+. [NEW] Methods to calculate unrealizeds returns and PnL in positions (getUnrealizedReturn and getUnrealizedNetProfit).
 . [FIX] An IndexError exception was raised in plotter.py when plotting many dataseries in the same subplot.
 
 Version 0.10 (11/Jan/2013)

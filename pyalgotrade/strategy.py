@@ -122,31 +122,79 @@ class Position:
 					self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
 		return ret
 
+	def getUnrealizedReturn(self, marketPrice):
+		"""Calculates the unrealized returns for the position.
+		
+		:param marketPrice: Price used to calculate the return. This value is used as the current price and compared against your entry price.
+		:type marketPrice: float.
+		:rtype: A float between 0 and 1.
+
+		.. note::
+			The position must be open.
+		"""
+		if not self.entryFilled():
+			raise Exception("Position not opened yet")
+		elif self.exitFilled():
+			raise Exception("Position already closed")
+		return self.getReturnImpl(marketPrice, False)
+
 	def getReturn(self, includeCommissions=True):
-		"""Returns the position's returns."""
+		"""Calculates the returns for the position.
+
+		:param includeCommissions: True to include commisions in the calculation.
+		:type includeCommissions: boolean.
+		:rtype: A float between 0 and 1.
+
+		.. note::
+			The position must be closed.
+		"""
 		if not self.entryFilled():
 			raise Exception("Position not opened yet")
 		elif not self.exitFilled():
 			raise Exception("Position not closed yet")
-		return self.getReturnImpl(includeCommissions)
+		return self.getReturnImpl(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
 	def getResult(self):
-		"""Returns the ratio between the order prices. It **doesn't** include commisions."""
 		warninghelpers.deprecation_warning("getResult will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
 		return self.getReturn(False)
 
-	def getReturnImpl(self, includeCommissions):
-		raise NotImplementedError()
-
 	def getNetProfit(self, includeCommissions=True):
-		"""Returns the position's net profit."""
+		"""Calculates the PnL for the position.
+
+		:param includeCommissions: True to include commisions in the calculation.
+		:type includeCommissions: boolean.
+		:rtype: A float with the PnL.
+
+		.. note::
+			The position must be closed.
+		"""
 		if not self.entryFilled():
 			raise Exception("Position not opened yet")
 		elif not self.exitFilled():
 			raise Exception("Position not closed yet")
-		return self.getNetProfitImpl(includeCommissions)
+		return self.getNetProfitImpl(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
-	def getNetProfitImpl(self, includeCommissions):
+	def getUnrealizedNetProfit(self, marketPrice):
+		"""Calculates the unrealized PnL for the position.
+		
+		:param marketPrice: Price used to calculate the PnL. This value is used as the current price and compared against your entry price.
+		:type marketPrice: float.
+		:rtype: A float with the unrealized PnL.
+
+		.. note::
+			The position must be open.
+		"""
+
+		if not self.entryFilled():
+			raise Exception("Position not opened yet")
+		elif self.exitFilled():
+			raise Exception("Position already closed")
+		return self.getNetProfitImpl(marketPrice, False)
+
+	def getReturnImpl(self, price, includeCommissions):
+		raise NotImplementedError()
+
+	def getNetProfitImpl(self, price, includeCommissions):
 		raise NotImplementedError()
 
 	def buildExitOrder(self, limitPrice, stopPrice):
@@ -181,16 +229,17 @@ class LongPosition(Position):
 	def __getPosTracker(self):
 		ret = returns.PositionTracker()
 		entryExecInfo = self.getEntryOrder().getExecutionInfo()
-		exitExecInfo = self.getExitOrder().getExecutionInfo()
 		ret.buy(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
-		ret.sell(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
+		if self.exitFilled():
+			exitExecInfo = self.getExitOrder().getExecutionInfo()
+			ret.sell(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
 		return ret
 
-	def getReturnImpl(self, includeCommissions):
-		return self.__getPosTracker().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+	def getReturnImpl(self, price, includeCommissions):
+		return self.__getPosTracker().getReturn(price, includeCommissions)
 
-	def getNetProfitImpl(self, includeCommissions):
-		return self.__getPosTracker().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+	def getNetProfitImpl(self, price, includeCommissions):
+		return self.__getPosTracker().getNetProfit(price, includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:
@@ -234,16 +283,17 @@ class ShortPosition(Position):
 	def __getPosTracker(self):
 		ret = returns.PositionTracker()
 		entryExecInfo = self.getEntryOrder().getExecutionInfo()
-		exitExecInfo = self.getExitOrder().getExecutionInfo()
 		ret.sell(entryExecInfo.getQuantity(), entryExecInfo.getPrice(), entryExecInfo.getCommission())
-		ret.buy(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
+		if self.exitFilled():
+			exitExecInfo = self.getExitOrder().getExecutionInfo()
+			ret.buy(exitExecInfo.getQuantity(), exitExecInfo.getPrice(), exitExecInfo.getCommission())
 		return ret
 
-	def getReturnImpl(self, includeCommissions):
-		return self.__getPosTracker().getReturn(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+	def getReturnImpl(self, price, includeCommissions):
+		return self.__getPosTracker().getReturn(price, includeCommissions)
 
-	def getNetProfitImpl(self, includeCommissions):
-		return self.__getPosTracker().getNetProfit(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+	def getNetProfitImpl(self, price, includeCommissions):
+		return self.__getPosTracker().getNetProfit(price, includeCommissions)
 
 	def buildExitOrder(self, limitPrice, stopPrice):
 		if limitPrice == None and stopPrice == None:
@@ -375,15 +425,17 @@ class Strategy:
 		:type quantity: int.
 		:param goodTillCanceled: True if the order is good till canceled. If False then the order gets automatically canceled when the session closes.
 		:type goodTillCanceled: boolean.
+		:rtype: The :class:`pyalgotrade.broker.MarketOrder` submitted.
 		"""
-		o = None
+		ret = None
 		if quantity > 0:
-			o = self.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity)
+			ret = self.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity)
 		elif quantity < 0:
-			o = self.getBroker().createMarketOrder(broker.Order.Action.SELL, instrument, abs(quantity))
-		if o:
-			o.setGoodTillCanceled(goodTillCanceled)
-			self.getBroker().placeOrder(o)
+			ret = self.getBroker().createMarketOrder(broker.Order.Action.SELL, instrument, abs(quantity))
+		if ret:
+			ret.setGoodTillCanceled(goodTillCanceled)
+			self.getBroker().placeOrder(ret)
+		return ret
 
 	def enterLong(self, instrument, quantity, goodTillCanceled = False):
 		"""Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.

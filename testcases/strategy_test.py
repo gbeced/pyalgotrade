@@ -239,6 +239,9 @@ class TestStrategy(strategy.Strategy):
 	def getNetProfit(self):
 		return self.__netProfit
 
+	def getActivePosition(self):
+		return self.__activePosition
+
 	def onStart(self):
 		pass
 
@@ -325,7 +328,7 @@ class StrategyTestCase(unittest.TestCase):
 		strat = TestStrategy(barFeed, 1000, broker_)
 		return strat
 
-class BrokerOrdersTestCase(StrategyTestCase):
+class BrokerOrderTestCase(StrategyTestCase):
 	def testLimitOrder(self):
 		strat = self.createStrategy(False, False)
 
@@ -335,6 +338,15 @@ class BrokerOrdersTestCase(StrategyTestCase):
 		self.assertTrue(o.isFilled())
 		self.assertTrue(strat.getOrderUpdatedEvents() == 1)
 	
+class StrategyOrderTestCase(StrategyTestCase):
+	def testLimitOrder(self):
+		strat = self.createStrategy(False, False)
+
+		o = strat.order(StrategyTestCase.TestInstrument, 1)
+		strat.run()
+		self.assertTrue(o.isFilled())
+		self.assertTrue(strat.getOrderUpdatedEvents() == 1)
+
 class LongPosTestCase(StrategyTestCase):
 	def __testLongPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
 		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
@@ -499,6 +511,31 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 127.05 - 127.07, 2))
 
+	def testUnrealized(self):
+		barFeed = self.loadIntradayBarFeed()
+		strat = TestStrategy(barFeed, 1000)
+		strat.setExitOnSessionClose(False)
+
+		# 3/Jan/2011 205300 - Enter long
+		# 3/Jan/2011 205400 - entry gets filled at 127.21
+		# 3/Jan/2011 210000 - last bar
+
+		strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
+		strat.run()
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getExitOkEvents() == 0)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+
+		self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21), 0)
+		self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21), 0)
+
+		self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(127.21*1.5), 4), 0.5)
+		self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(127.21*1.5), 4), 127.21/2)
+
+		self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21*2), 1)
+		self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21*2), 127.21)
+
 class ShortPosTestCase(StrategyTestCase):
 	def __testShortPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
 		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
@@ -632,6 +669,31 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.4 - 127.05), 2))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(127.4 - 127.05, 2))
+
+	def testUnrealized(self):
+		barFeed = self.loadIntradayBarFeed()
+		strat = TestStrategy(barFeed, 1000)
+		strat.setExitOnSessionClose(False)
+
+		# 3/Jan/2011 205300 - Enter long
+		# 3/Jan/2011 205400 - entry gets filled at 127.21
+		# 3/Jan/2011 210000 - last bar
+
+		strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterShort, StrategyTestCase.TestInstrument, 1, True)
+		strat.run()
+		self.assertTrue(strat.getEnterOkEvents() == 1)
+		self.assertTrue(strat.getExitOkEvents() == 0)
+		self.assertTrue(strat.getEnterCanceledEvents() == 0)
+		self.assertTrue(strat.getExitCanceledEvents() == 0)
+
+		self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21), 0)
+		self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21), 0)
+
+		self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(127.21/2), 4), 0.5)
+		self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(127.21/2), 4), 127.21/2)
+
+		self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21*2), -1)
+		self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21*2), -127.21)
 
 class LimitPosTestCase(StrategyTestCase):
 	def testLong(self):
@@ -886,6 +948,7 @@ def getTestCases(includeExternal = True):
 	ret.append(LongPosTestCase("testIntradayExitOnClose_EntryNotFilled"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnLastBar"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnPenultimateBar"))
+	ret.append(LongPosTestCase("testUnrealized"))
 
 	ret.append(ShortPosTestCase("testShortPosition"))
 	if includeExternal:
@@ -901,6 +964,7 @@ def getTestCases(includeExternal = True):
 		ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionExitCanceledAndReSubmitted"))
 	ret.append(ShortPosTestCase("testIntradayExitOnClose"))
+	ret.append(ShortPosTestCase("testUnrealized"))
 
 	ret.append(LimitPosTestCase("testLong"))
 	ret.append(LimitPosTestCase("testShort"))
@@ -916,7 +980,9 @@ def getTestCases(includeExternal = True):
 	ret.append(StopLimitPosTestCase("testLong"))
 	ret.append(StopLimitPosTestCase("testShort"))
 
-	ret.append(BrokerOrdersTestCase("testLimitOrder"))
+	ret.append(BrokerOrderTestCase("testLimitOrder"))
+
+	ret.append(StrategyOrderTestCase("testLimitOrder"))
 
 	return ret
 
