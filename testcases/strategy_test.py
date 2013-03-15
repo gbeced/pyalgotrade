@@ -199,6 +199,10 @@ class TestStrategy(strategy.Strategy):
 		self.__exitCanceledEvents = 0
 		self.__exitOnSessionClose = False
 		self.__brokerOrdersGTC = False
+		self.__onBarsHander = None
+
+	def setOnBarsHandler(self, handler):
+		self.__onBarsHander = handler
 
 	def addOrder(self, dateTime, method, *methodParams):
 		self.__orderEntry.setdefault(dateTime, [])
@@ -272,6 +276,9 @@ class TestStrategy(strategy.Strategy):
 		self.__exitCanceledEvents += 1
 
 	def onBars(self, bars):
+		if self.__onBarsHander:
+			self.__onBarsHander(self, bars)
+
 		dateTime = bars.getDateTime()
 
 		# Check position entry.

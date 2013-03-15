@@ -15,9 +15,11 @@
 # limitations under the License.
 
 import rsi2
+import triple_ma_crossover
 
 # Export strategies here.
 def get_strategy_classes():
 	ret = []
 	ret.append(rsi2.Strategy)
+	ret.append(triple_ma_crossover.Strategy)
 	return ret
