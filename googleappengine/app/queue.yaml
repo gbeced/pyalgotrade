@@ -1,10 +1,15 @@
 queue:
 # DON'T CHANGE MAX_CONCURRENT_REQUESTS FOR THIS QUEUE.
-- name: serial-queue
+- name: mastertask-queue
   max_concurrent_requests: 1
-  rate: 5/s
+  rate: 1/s
 
-- name: parallel-queue
+- name: workertask-queue
   max_concurrent_requests: 10
   rate: 5/s
+
+# DON'T CHANGE MAX_CONCURRENT_REQUESTS FOR THIS QUEUE.
+- name: resulttask-queue
+  max_concurrent_requests: 1
+  rate: 10/s
 

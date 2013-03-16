@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-master_task_queue = "serial-queue"
+master_task_queue = "mastertask-queue"
 master_task_url = "/chanchero/mastertask"
-worker_task_queue = "parallel-queue"
+worker_task_queue = "workertask-queue"
 worker_task_url = "/chanchero/workertask"
-result_task_queue = "serial-queue"
+result_task_queue = "resulttask-queue"
 result_task_url = "/chanchero/resulttask"
 
