@@ -102,7 +102,20 @@
 			</div><!-- /.navbar -->
 		</div>
 
-		<h2>Current version: 0.10 (11/Jan/2013)</h2>
+		<h2>Current version: 0.11 (17/Mar/2013)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.11/PyAlgoTrade-0.11.tar.gz/download">PyAlgoTrade-0.11.tar.gz</a>
+		<ul>
+			<li>DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.</li>
+			<li>Function to align two DataSeries with respect to time (pyalgotrade.dataseries.datetime_aligned).</li>
+			<li>VWAP technical indicator (pyalgotrade.technical.vwap.VWAP).</li>
+			<li>Line Break technical indicator (pyalgotrade.technical.linebreak.LineBreak).</li>
+			<li>Methods to calculate unrealized returns and PnL in positions (getUnrealizedReturn and getUnrealizedNetProfit).</li>
+			<li>Bug fix: An IndexError exception was raised in plotter.py when plotting many dataseries in the same subplot.</li>
+		</ul>
+
+		<hr>
+
+		<h2>Version 0.10 (11/Jan/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.10/PyAlgoTrade-0.10.tar.gz/download">PyAlgoTrade-0.10.tar.gz</a>
 		<ul>
 			<li>Sharpe Ratio analysis (pyalgotrade.stratanalyzer.sharpe.SharpeRatio).</li>
@@ -122,9 +135,7 @@
 			<li>Bug fix: Additional subplots (those created using getOrCreateSubplot) are now ordered as created. Thanks Sedov Anton for reporting this and suggesting the fix.</li>
 		</ul>
 
-		<hr>
-
-		<h2>Version: 0.9 (1/Sep/2012)</h2>
+		<h2>Version 0.9 (1/Sep/2012)</h2>
 		Download here: <a href="https://github.com/downloads/gbeced/pyalgotrade/PyAlgoTrade-0.9.tar.gz">PyAlgoTrade-0.9.tar.gz</a>
 		<ul>
 			<li>Added a method to the strategy class to get notified when an order gets updated (onOrderUpdated). This is only called if the order was placed using the broker interface directly.</li>
