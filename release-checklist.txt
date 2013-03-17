@@ -9,15 +9,16 @@ Release checklist
 [ ] Test GoogleApp Engine support. Look for errors in the logs.
 [ ] Run testcases using the installed lib.
 [ ] Run tutorial examples from the Optimizing section using the installed lib.
-[ ] Run tutorial examples from the Plotting section using the installed lib.
+[ ] Run tutorial examples from the Plotting section using the installed lib (samples/tutorial-5.py).
 [ ] Run compinv-3.py sample using the installed lib.
 
+[ ] Update the website (doc + package).
 [ ] Build package and upload to sourceforge.
-[ ] Update the website using RapidWeaver (doc + package).
-[ ] Update PyPi (both PKG-INFO and upload file).
+[ ] Update PyPi (both PKG-INFO and upload file using https://pypi.python.org/pypi?%3Aaction=submit_form).
 [ ] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
 [ ] Run testcases using the installed lib.
 
-[ ] Tag (git tag v0.x-rtm -m "Version 0.x").
+[ ] Commit and tag (git tag v0.x-rtm -m "Version 0.x").
 [ ] Push (git push; git push --tags).
+[ ] Push the website (git push).
 [ ] Tweet about it.
