@@ -5,7 +5,6 @@ import os
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import strategy
-from pyalgotrade import broker
 from pyalgotrade.utils import stats
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
@@ -64,11 +63,9 @@ class MyStrategy(strategy.Strategy):
 	def __onBarsBeforeBroker(self, bars):
 		for instrument, action, quantity in self.__ordersFile.getOrders(bars.getDateTime()):
 			if action.lower() == "buy":
-				action = broker.Order.Action.BUY
+				self.order(instrument, quantity, onClose=True)
 			else:
-				action = broker.Order.Action.SELL
-			o = self.getBroker().createMarketOrder(action, instrument, quantity, onClose=True)
-			self.getBroker().placeOrder(o)
+				self.order(instrument, quantity*-1, onClose=True)
 
 	def onOrderUpdated(self, order):
 		execInfo = order.getExecutionInfo()
@@ -87,6 +84,8 @@ def main():
 	print "Symbols", ordersFile.getInstruments()
 
 	# Load the data from QSTK storage. QS environment variable has to be defined.
+	if os.getenv("QS") == None:
+		raise Exception("QS environment variable not defined")
 	feed = yahoofeed.Feed()
 	feed.setBarFilter(csvfeed.DateRangeFilter(ordersFile.getFirstDate(), ordersFile.getLastDate()))
 	feed.setDailyBarTime(datetime.time(0, 0, 0)) # This is to match the dates loaded with the ones in the orders file.

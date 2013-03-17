@@ -336,7 +336,7 @@ class StrategyTestCase(unittest.TestCase):
 		return strat
 
 class BrokerOrderTestCase(StrategyTestCase):
-	def testLimitOrder(self):
+	def testMarketOrder(self):
 		strat = self.createStrategy(False, False)
 
 		o = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, StrategyTestCase.TestInstrument, 1)
@@ -346,7 +346,7 @@ class BrokerOrderTestCase(StrategyTestCase):
 		self.assertTrue(strat.getOrderUpdatedEvents() == 1)
 	
 class StrategyOrderTestCase(StrategyTestCase):
-	def testLimitOrder(self):
+	def testMarketOrder(self):
 		strat = self.createStrategy(False, False)
 
 		o = strat.order(StrategyTestCase.TestInstrument, 1)
@@ -987,9 +987,9 @@ def getTestCases(includeExternal = True):
 	ret.append(StopLimitPosTestCase("testLong"))
 	ret.append(StopLimitPosTestCase("testShort"))
 
-	ret.append(BrokerOrderTestCase("testLimitOrder"))
+	ret.append(BrokerOrderTestCase("testMarketOrder"))
 
-	ret.append(StrategyOrderTestCase("testLimitOrder"))
+	ret.append(StrategyOrderTestCase("testMarketOrder"))
 
 	return ret
 

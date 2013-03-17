@@ -2,7 +2,6 @@ from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
-from pyalgotrade import broker
 from pyalgotrade.utils import stats
 
 class MyStrategy(strategy.Strategy):
@@ -20,8 +19,7 @@ class MyStrategy(strategy.Strategy):
 			"simo": 17293,
 		}
 		for instrument, quantity in orders.items():
-			o =  self.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity, onClose=True)
-			self.getBroker().placeOrder(o)
+			self.order(instrument, quantity, onClose=True)
 
 	def onBars(self, bars):
 		pass
