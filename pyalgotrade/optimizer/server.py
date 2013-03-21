@@ -71,9 +71,13 @@ class Job:
 	def getBestResult(self):
 		return self.__bestResult
 
-	def setBestResult(self, result, parameters):
+	def getBestWorkerName(self):
+		return self.__bestWorkerName
+
+	def setBestResult(self, result, parameters, workerName):
 		self.__bestResult = result
 		self.__bestParameters = parameters
+		self.__bestWorkerName = workerName
 
 # Restrict to a particular path.
 class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
@@ -169,10 +173,11 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			activeJobs = len(self.__activeJobs) > 0
 		return jobsPending or activeJobs
 
-	def pushJobResults(self, jobId, result, parameters):
+	def pushJobResults(self, jobId, result, parameters, workerName):
 		jobId = pickle.loads(jobId)
 		result = pickle.loads(result)
 		parameters = pickle.loads(parameters)
+		workerName = pickle.loads(workerName)
 
 		job = None
 
@@ -187,10 +192,10 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
 		# Save the job with the best result
 		if self.__bestJob == None or result > self.__bestJob.getBestResult():
-			job.setBestResult(result, parameters)
+			job.setBestResult(result, parameters, workerName)
 			self.__bestJob = job
 
-		self.getLogger().info("Partial result $%.2f with parameters: %s" % (result, parameters))
+		self.getLogger().info("Partial result $%.2f with parameters: %s from %s" % (result, parameters, workerName))
 
 	def stop(self):
 		self.shutdown()
@@ -224,7 +229,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			# Show the best result.
 			bestJob = self.getBestJob()
 			if bestJob:
-				self.getLogger().info("Best final result $%.2f with parameters: %s" % (bestJob.getBestResult(), bestJob.getBestParameters()))
+				self.getLogger().info("Best final result $%.2f with parameters: %s from client %s" % (bestJob.getBestResult(), bestJob.getBestParameters(),bestJob.getBestWorkerName()))
 				ret = Results(bestJob.getBestParameters(), bestJob.getBestResult())
 			else:
 				self.getLogger().error("No jobs processed")

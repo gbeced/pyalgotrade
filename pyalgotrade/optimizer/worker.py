@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import os
 import xmlrpclib
 import pickle
 import time
@@ -47,10 +48,14 @@ def call_and_retry_on_network_error(function, retryCount, *parameters):
 	return ret
 
 class Worker:
-	def __init__(self, address, port):
+	def __init__(self, address, port, workerName=None):
 		url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
 		self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
 		self.__logger = optimizer.get_logger("server")
+		if workerName == None:
+			self.__workerName=os.uname()[1]
+		else:
+			self.__workerName=workerName
 
 	def getLogger(self):
 		return self.__logger
@@ -77,7 +82,8 @@ class Worker:
 		jobId = pickle.dumps(jobId)
 		result = pickle.dumps(result)
 		parameters = pickle.dumps(parameters)
-		call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters)
+		workerName = pickle.dumps(self.__workerName)
+		call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters, workerName)
 
 	def __processJob(self, job, barsFreq, instruments, bars):
 		bestResult = 0
@@ -114,7 +120,7 @@ class Worker:
 			self.__processJob(job, barsFreq, instruments, bars)
 			job = self.getNextJob()
 
-def worker_process(strategyClass, address, port):
+def worker_process(strategyClass, address, port, workerName):
 	class MyWorker(Worker):
 		def runStrategy(self, barFeed, *parameters):
 			strat = strategyClass(barFeed, *parameters)
@@ -122,10 +128,10 @@ def worker_process(strategyClass, address, port):
 			return strat.getResult()
 
 	# Create a worker and run it.
-	w = MyWorker(address, port)
+	w = MyWorker(address, port, workerName)
 	w.run()
 
-def run(strategyClass, address, port, workerCount = None):
+def run(strategyClass, address, port, workerCount = None, workerName = None):
 	"""Executes one or more worker processes that will run a strategy with the bars and parameters supplied by the server.
 
 	:param strategyClass: The strategy class.
@@ -135,6 +141,8 @@ def run(strategyClass, address, port, workerCount = None):
 	:type port: int.
 	:param workerCount: The number of worker processes to run. If None then as many workers as CPUs are used.
 	:type workerCount: int.
+	:param workerName: A name for the worker. A name that identifies the worker. If None, the system name is used.
+	:type workerName: string.
 	"""
 
 	assert(workerCount == None or workerCount > 0)
@@ -144,7 +152,7 @@ def run(strategyClass, address, port, workerCount = None):
 	workers = []
 	# Build the worker processes.
 	for i in range(workerCount):
-		workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, address, port)))
+		workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, address, port, workerName)))
 
 	# Start workers
 	for process in workers:
