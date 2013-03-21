@@ -26,7 +26,7 @@ from chanchero import config
 class MasterTaskHandler(webapp2.RequestHandler):
 	def post(self):
 		masterTask = tasks.MasterTask.fromPickleString(self.request.get("mastertask"))
-		maxWorkerTasksQueued = 100
+		maxWorkerTasksQueued = 500
 
 		# Get the number of tasks in the worker task queue.
 		stats = taskqueue.Queue(config.worker_task_queue).fetch_statistics()
