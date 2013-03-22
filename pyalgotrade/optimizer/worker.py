@@ -53,7 +53,7 @@ class Worker:
 		self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
 		self.__logger = optimizer.get_logger("server")
 		if workerName == None:
-			self.__workerName=os.uname()[1]
+			self.__workerName=socket.gethostname()
 		else:
 			self.__workerName=workerName
 
@@ -141,7 +141,7 @@ def run(strategyClass, address, port, workerCount = None, workerName = None):
 	:type port: int.
 	:param workerCount: The number of worker processes to run. If None then as many workers as CPUs are used.
 	:type workerCount: int.
-	:param workerName: A name for the worker. A name that identifies the worker. If None, the system name is used.
+	:param workerName: A name for the worker. A name that identifies the worker. If None, the hostname is used.
 	:type workerName: string.
 	"""
 
