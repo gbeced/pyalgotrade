@@ -20,6 +20,9 @@
 
 from pyalgotrade import dataseries
 
+class NotCached:
+	pass
+
 class TechnicalIndicatorBase(dataseries.DataSeries):
 	def __init__(self, windowSize, cacheSize=512):
 		assert(windowSize > 0)
@@ -55,13 +58,12 @@ class TechnicalIndicatorBase(dataseries.DataSeries):
 		assert(firstPos >= 0)
  
 		# Try to get the value from the cache.
-		if self.getCache().isCached(pos):
-			ret = self.getCache().getValue(pos)
-		else:
+		ret = self.__cache.getValue(pos, NotCached)
+		if ret == NotCached:
 			ret = self.calculateValue(firstPos, pos)
 			# Avoid caching None's in case a invalid pos is requested that becomes valid in the future.
 			if ret != None:
-				self.getCache().putValue(pos, ret)
+				self.__cache.putValue(pos, ret)
 		return ret
 
 class DataSeriesFilter(TechnicalIndicatorBase):
@@ -106,8 +108,8 @@ class Cache:
 	def isCached(self, pos):
 		return pos in self.__cache
 
-	def getValue(self, pos):
-		return self.__cache.get(pos)
+	def getValue(self, pos, default=None):
+		return self.__cache.get(pos, default)
 
 	def putValue(self, pos, value):
 		self.__cache[pos] = value
