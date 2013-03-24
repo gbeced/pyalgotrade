@@ -99,7 +99,13 @@ class Feed(barfeed.BarFeed):
 		self.__barsLeft -= 1
 		return ret
 
-
 	def getBarsLeft(self):
 		return self.__barsLeft
+
+def fetch_all(barFeed):
+	barFeed.start()
+	for b in barFeed:
+		pass
+	barFeed.stop()
+	barFeed.join()
 

@@ -1,5 +1,6 @@
 Version 0.12 (TBD)
 . [NEW] pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.
+. [FIX] Fixed a bug in EMA technical that could lead to max. recursion limit error.
 
 Version 0.11 (17/Mar/2013)
 . [NEW] DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.

@@ -100,21 +100,49 @@ class EMA(technical.DataSeriesFilter):
 
 	def __init__(self, dataSeries, period):
 		technical.DataSeriesFilter.__init__(self, dataSeries, period)
+		self.__multiplier = (2.0 / (self.getWindowSize() + 1))
+		self.__values = {}
 
 	def getPeriod(self):
 		return self.getWindowSize()
 
+	# Finds the last available (value, position) starting from pos.
+	def __findPrevValue(self, pos):
+		ret = None
+		while pos >= self.getFirstValidPos() and ret == None:
+			ret = self.__values.get(pos)
+			if ret == None:
+				pos -= 1
+		return (ret, pos)
+
+	def __calculateFirstValue(self):
+		# Calculate the first value, which is a SMA of the first X values of the wrapped data series.
+		smaEnd = self.getFirstValidPos()
+		smaBegin = smaEnd - (self.getWindowSize() - 1)
+		ret = calculate_sma(self.getDataSeries(), smaBegin, smaEnd)
+		self.__values[self.getFirstValidPos()] = ret
+		return ret
+
+	def __calculateEMA(self, startingValue, fromPos, toPos):
+		ret = startingValue
+		while fromPos <= toPos:
+			currValue = self.getDataSeries().getValueAbsolute(fromPos)
+			ret = (currValue - ret) * self.__multiplier + ret
+			self.__values[fromPos] = ret
+			fromPos += 1
+		return ret
+
 	def calculateValue(self, firstPos, lastPos):
 		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-		if lastPos == self.getFirstValidPos():
-			# First average is a SMA.
-			ret = calculate_sma(self.getDataSeries(), firstPos, lastPos)
-		else:
-			currValue = self.getDataSeries().getValueAbsolute(lastPos)
-			prevEMA = self.getValueAbsolute(lastPos - 1)
-			multiplier = (2.0 / (self.getPeriod() + 1))
-			ret = (currValue - prevEMA) * multiplier + prevEMA
-		return ret
+
+		lastValue, lastValuePos = self.__findPrevValue(lastPos-1)
+		if lastValue == None:
+			# If we don't have any previous value, we need to start from scratch.
+			lastValue = self.__calculateFirstValue()
+			lastValuePos = self.getFirstValidPos()
+
+		# Calculate the EMA starting from the last one we have.
+		return self.__calculateEMA(lastValue, lastValuePos+1, lastPos)
 
 class WMA(technical.DataSeriesFilter):
 	"""Weighted Moving Average filter.
