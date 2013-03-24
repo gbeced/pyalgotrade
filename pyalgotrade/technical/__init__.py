@@ -50,13 +50,13 @@ class TechnicalIndicatorBase(dataseries.DataSeries):
 		if pos < self.getFirstValidPos() or pos >= self.getLength():
 			return None
  
-		# Check that we have enough values to use
-		firstPos = pos - self.__windowSize + 1
-		assert(firstPos >= 0)
- 
 		# Try to get the value from the cache.
 		ret = self.__cache.getValue(pos, Cache.ValueNotCached)
 		if ret == Cache.ValueNotCached:
+			# Check that we have enough values to use
+			firstPos = pos - self.__windowSize + 1
+			assert(firstPos >= 0)
+
 			ret = self.calculateValue(firstPos, pos)
 			# Avoid caching None's in case a invalid pos is requested that becomes valid in the future.
 			if ret != None:
