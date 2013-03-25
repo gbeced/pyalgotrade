@@ -80,9 +80,10 @@ class DataSeriesFilter(TechnicalIndicatorBase):
 	def __init__(self, dataSeries, windowSize, cacheSize=512):
 		TechnicalIndicatorBase.__init__(self, windowSize, cacheSize)
 		self.__dataSeries = dataSeries
+		self.__firstValidPos = (windowSize - 1) + dataSeries.getFirstValidPos()
 
 	def getFirstValidPos(self):
-		return (self.getWindowSize() - 1) + self.__dataSeries.getFirstValidPos()
+		return self.__firstValidPos
 
 	def getDataSeries(self):
 		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
