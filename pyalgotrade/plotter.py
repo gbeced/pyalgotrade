@@ -177,7 +177,7 @@ class Subplot:
 
 	def __init__(self):
 		self.__series = {} # Series by name.
-		self.__dataSeries = {} # Maps a pyalgotrade.dataseries.DataSeries to a Series.
+		self.__callbacks = {} # Maps a function to a Series.
 		self.__nextColor = 0
 
 	def __getColor(self, series):
@@ -198,11 +198,21 @@ class Subplot:
 		:param dataSeries: The DataSeries to add.
 		:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 		"""
-		self.__dataSeries[dataSeries] = self.getSeries(label)
+		self.addCallback(label, lambda bars: dataSeries.getValue())
 
-	def addValuesFromDataSeries(self, dateTime):
-		for ds, series in self.__dataSeries.iteritems():
-			series.addValue(dateTime, ds.getValue())
+	def addCallback(self, label, callback):
+		"""Adds a callback that will be called on each bar.
+
+		:param label: A name for the series values.
+		:type label: string.
+		:param callback: A function that receives a :class:`pyalgotrade.bar.Bars` instance as a parameter and returns a number or None.
+		"""
+		self.__callbacks[callback] = self.getSeries(label)
+
+	def onBars(self, bars):
+		dateTime = bars.getDateTime()
+		for cb, series in self.__callbacks.iteritems():
+			series.addValue(dateTime, cb(bars))
 
 	def getSeries(self, name, defaultClass=LineMarker):
 		try:
@@ -242,6 +252,7 @@ class InstrumentSubplot(Subplot):
 		self.__instrumentSeries.setUseAdjClose(useAdjClose)
 
 	def onBars(self, bars):
+		Subplot.onBars(self, bars)
 		bar = bars.getBar(self.__instrument)
 		if bar:
 			dateTime = bars.getDateTime()
@@ -297,18 +308,17 @@ class StrategyPlotter:
 
 		# Notify named subplots.
 		for subplot in self.__namedSubplots.values():
-			subplot.addValuesFromDataSeries(dateTime)
+			subplot.onBars(bars)
 
 		# Notify bar subplots.
 		for subplot in self.__barSubplots.values():
 			subplot.onBars(bars)
-			subplot.addValuesFromDataSeries(dateTime)
 
 		# Feed the portfolio evolution subplot.
 		if self.__portfolioSubplot:
 			self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getEquity())
 			# This is in case additional dataseries were added to the portfolio subplot.
-			self.__portfolioSubplot.addValuesFromDataSeries(dateTime)
+			self.__portfolioSubplot.onBars(bars)
 
 	def __onOrderUpdated(self, broker_, order):
 		# Notify BarSubplots
