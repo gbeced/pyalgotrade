@@ -137,13 +137,23 @@ class BarFeed(membf.Feed):
 #
 # The csv Date column must have the following format: YYYY-MM-DD
 
+def parse_date(date):
+	# Sample: 2005-12-30
+	# This custom parsing works faster than:
+	# datetime.datetime.strptime(date, "%Y-%m-%d")
+	year = int(date[0:4])
+	month = int(date[5:7])
+	day = int(date[8:10])
+	ret = datetime.datetime(year, month, day)
+	return ret
+
 class YahooRowParser(RowParser):
 	def __init__(self, dailyBarTime, timezone = None):
 		self.__dailyBarTime = dailyBarTime
 		self.__timezone = timezone
 
 	def __parseDate(self, dateString):
-		ret = datetime.datetime.strptime(dateString, "%Y-%m-%d")
+		ret = parse_date(dateString)
 		# Time on Yahoo! Finance CSV files is empty. If told to set one, do it.
 		if self.__dailyBarTime != None:
 			ret = datetime.datetime.combine(ret, self.__dailyBarTime)

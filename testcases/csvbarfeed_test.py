@@ -79,22 +79,22 @@ class YahooTestCase(unittest.TestCase):
 		return parser.parseBar(row).getDateTime()
 
 	def testParseDate_1(self):
-		date = self.__parseDate("1950-1-1")
+		date = self.__parseDate("1950-01-01")
 		self.assertTrue(date.day == 1)
 		self.assertTrue(date.month == 1)
 		self.assertTrue(date.year == 1950)
 
 	def testParseDate_2(self):
-		date = self.__parseDate("2000-1-1")
+		date = self.__parseDate("2000-01-01")
 		self.assertTrue(date.day == 1)
 		self.assertTrue(date.month == 1)
 		self.assertTrue(date.year == 2000)
 
 	def testDateCompare(self):
-		self.assertTrue(self.__parseDate("2000-1-1") == self.__parseDate("2000-1-1"))
-		self.assertTrue(self.__parseDate("2000-1-1") != self.__parseDate("2001-1-1"))
-		self.assertTrue(self.__parseDate("1999-1-1") < self.__parseDate("2001-1-1"))
-		self.assertTrue(self.__parseDate("2011-1-1") > self.__parseDate("2001-2-2"))
+		self.assertTrue(self.__parseDate("2000-01-01") == self.__parseDate("2000-01-01"))
+		self.assertTrue(self.__parseDate("2000-01-01") != self.__parseDate("2001-01-01"))
+		self.assertTrue(self.__parseDate("1999-01-01") < self.__parseDate("2001-01-01"))
+		self.assertTrue(self.__parseDate("2011-01-01") > self.__parseDate("2001-02-02"))
 
 	def testCSVFeedLoadOrder(self):
 		barFeed = csvfeed.YahooFeed()
