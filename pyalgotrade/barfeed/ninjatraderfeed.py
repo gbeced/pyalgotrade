@@ -40,6 +40,18 @@ import datetime
 #
 # The exported data will be in the UTC time zone.
 
+def parse_datetime(dateTime):
+	# Sample: 20081231 230600
+	# This custom parsing works faster than:
+	# datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
+	year = int(dateTime[0:4])
+	month = int(dateTime[4:6])
+	day = int(dateTime[6:8])
+	hour = int(dateTime[9:11])
+	minute = int(dateTime[11:13])
+	sec = int(dateTime[13:15])
+	return datetime.datetime(year, month, day, hour, minute, sec)
+
 class Frequency:
 	MINUTE = pyalgotrade.barfeed.Frequency.MINUTE
 	DAILY = pyalgotrade.barfeed.Frequency.DAY
@@ -53,7 +65,7 @@ class RowParser(csvfeed.RowParser):
 	def __parseDateTime(self, dateTime):
 		ret = None
 		if self.__frequency == pyalgotrade.barfeed.Frequency.MINUTE:
-			ret = datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
+			ret = parse_datetime(dateTime)
 		elif self.__frequency == pyalgotrade.barfeed.Frequency.DAY:
 			ret = datetime.datetime.strptime(dateTime, "%Y%m%d")
 			# Time on CSV files is empty. If told to set one, do it.
