@@ -1,6 +1,7 @@
 Version 0.12 (TBD)
 . [NEW] pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.
 . [NEW] StrategyPlotter now allows plotting custom functions.
+. [NEW] Optimizations in different areas.
 . [FIX] Fixed a bug in EMA technical that could lead to max. recursion limit error.
 
 Version 0.11 (17/Mar/2013)
