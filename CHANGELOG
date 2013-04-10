@@ -3,6 +3,7 @@ Version 0.12 (TBD)
 . [NEW] StrategyPlotter now allows plotting custom functions.
 . [NEW] Optimizations in different areas.
 . [FIX] Fixed a bug in EMA technical that could lead to max. recursion limit error.
+. [FIX] Fixed a bug in the Strategy class that had a big impact on execution time. Bookkeeping for active positions and orders was not handled properly.
 
 Version 0.11 (17/Mar/2013)
 . [NEW] DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.

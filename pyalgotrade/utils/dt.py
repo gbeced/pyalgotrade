@@ -39,6 +39,9 @@ def localize(dateTime, timeZone):
 		ret = dateTime.astimezone(timeZone)
 	return ret
 
+def as_utc(dateTime):
+	return localize(dateTime, pytz.utc)
+
 def datetime_to_timestamp(dateTime):
 	""" Converts a datetime.datetime to a UTC timestamp."""
 	return calendar.timegm(dateTime.utctimetuple())

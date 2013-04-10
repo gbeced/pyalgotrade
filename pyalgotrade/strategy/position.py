@@ -207,6 +207,26 @@ class Position:
 	def isShort(self):
 		return not self.isLong()
 
+	def isOpen(self):
+		"""Returns True if the position is open."""
+		# Entry accepted	-> open
+		# Entry canceled	-> closed
+		# Entry filled		-> check exit
+		# 	No exit order	-> open
+		# 	Exit accepted	-> open
+		# 	Exit canceled	-> open
+		# 	Exit filled		-> closed
+
+		if self.__entryOrder.isAccepted():
+			ret = True
+		elif self.__entryOrder.isCanceled():
+			ret = False
+		elif self.__exitOrder == None or not self.__exitOrder.isFilled():
+			ret = True
+		else:
+			ret = False
+		return ret
+
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
 	def __init__(self, strategy, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):

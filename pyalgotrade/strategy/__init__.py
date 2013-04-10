@@ -40,7 +40,7 @@ class Strategy:
 
 	def __init__(self, barFeed, cash = 1000000, broker = None):
 		self.__feed = barFeed
-		self.__activePositions = {}
+		self.__activePositions = set()
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = pyalgotrade.observer.Event()
 		self.__analyzers = []
@@ -61,23 +61,15 @@ class Strategy:
 		return self.__barsProcessedEvent
 
 	def __registerOrder(self, position, order):
-		try:
-			orders = self.__activePositions[position]
-		except KeyError:
-			orders = set()
-			self.__activePositions[position] = orders
-
-		if order.isAccepted():
-			self.__orderToPosition[order] = position
-			orders.add(order)
+		assert(position.isOpen()) # Why would be registering an order for a closed position ?
+		self.__activePositions.add(position)
+		assert(order.isAccepted())
+		self.__orderToPosition[order] = position
 
 	def __unregisterOrder(self, position, order):
 		del self.__orderToPosition[order]
-
-		orders = self.__activePositions[position]
-		orders.remove(order)
-		if len(orders) == 0:
-			del self.__activePositions[position]
+		if not position.isOpen():
+			self.__activePositions.remove(position)
 
 	def __registerActivePosition(self, position):
 		for order in [position.getEntryOrder(), position.getExitOrder()]:
@@ -392,6 +384,7 @@ class Strategy:
 			self.onOrderUpdated(order)
 		elif position.getEntryOrder() == order:
 			if order.isFilled():
+				self.__unregisterOrder(position, order)
 				self.onEnterOk(position)
 			elif order.isCanceled():
 				self.__unregisterOrder(position, order)
@@ -413,7 +406,7 @@ class Strategy:
 			assert(order.isCanceled())
 
 	def __checkExitOnSessionClose(self, bars):
-		for position in self.__activePositions.keys():
+		for position in self.__activePositions:
 			order = position.checkExitOnSessionClose(bars)
 			if order:
 				self.__registerOrder(position, order)
