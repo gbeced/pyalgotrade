@@ -29,6 +29,34 @@ import datetime
 import types
 import pytz
 
+# A faster (but limited) version of csv.DictReader
+class FastDictReader:
+	def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
+		self.__fieldNames = fieldnames
+		self.reader = csv.reader(f, dialect, *args, **kwds)
+		self.__dict = {}
+
+	def __iter__(self):
+		return self
+
+	def next(self):
+		if self.__fieldNames is None:
+			self.__fieldNames = self.reader.next()
+
+		# Skip empty rows.
+		row = self.reader.next()
+		while row == []:
+			row = self.reader.next()
+
+		# Check that the row has the right number of columns.
+		assert(len(self.__fieldNames) == len(row))
+
+		# Copy the row values into the dict.
+		for i in xrange(len(self.__fieldNames)):
+			self.__dict[self.__fieldNames[i]] = row[i]
+
+		return self.__dict
+
 # Interface for csv row parsers.
 class RowParser:
 	def parseBar(self, csvRowDict):
@@ -120,7 +148,7 @@ class BarFeed(membf.Feed):
 	def addBarsFromCSV(self, instrument, path, rowParser):
 		# Load the csv file
 		loadedBars = []
-		reader = csv.DictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
+		reader = FastDictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
 		for row in reader:
 			bar_ = rowParser.parseBar(row)
 			if bar_ != None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):
