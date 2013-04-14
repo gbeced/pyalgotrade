@@ -49,3 +49,6 @@ Other Indicators
 .. automodule:: pyalgotrade.technical.linebreak
     :members: Line, LineBreak
 
+.. automodule:: pyalgotrade.technical.stats
+    :members: StdDev
+
