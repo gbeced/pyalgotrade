@@ -543,6 +543,12 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21*2), 1)
 		self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21*2), 127.21)
 
+	def testIsOpen_NotClosed(self):
+		strat = self.createStrategy(False, False)
+		strat.addPosEntry(datetime_from_date(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
+		strat.run()
+		self.assertTrue(strat.getActivePosition().isOpen())
+
 class ShortPosTestCase(StrategyTestCase):
 	def __testShortPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
 		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
@@ -956,6 +962,7 @@ def getTestCases(includeExternal = True):
 	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnLastBar"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_BuyOnPenultimateBar"))
 	ret.append(LongPosTestCase("testUnrealized"))
+	ret.append(LongPosTestCase("testIsOpen_NotClosed"))
 
 	ret.append(ShortPosTestCase("testShortPosition"))
 	if includeExternal:
