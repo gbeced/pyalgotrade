@@ -34,15 +34,14 @@ class FastDictReader:
 	def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
 		self.__fieldNames = fieldnames
 		self.reader = csv.reader(f, dialect, *args, **kwds)
+		if self.__fieldNames is None:
+			self.__fieldNames = self.reader.next()
 		self.__dict = {}
 
 	def __iter__(self):
 		return self
 
 	def next(self):
-		if self.__fieldNames is None:
-			self.__fieldNames = self.reader.next()
-
 		# Skip empty rows.
 		row = self.reader.next()
 		while row == []:
