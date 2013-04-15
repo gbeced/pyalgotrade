@@ -52,3 +52,6 @@ Other Indicators
 .. automodule:: pyalgotrade.technical.stats
     :members: StdDev
 
+.. automodule:: pyalgotrade.technical.bollinger
+    :members: BollingerBands
+

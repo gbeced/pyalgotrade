@@ -30,6 +30,7 @@ from testcases import technical_roc_test
 from testcases import technical_stoch_test
 from testcases import technical_linebreak_test
 from testcases import technical_stats_test
+from testcases import technical_bollinger_test
 from testcases import dataseries_test
 from testcases import csvbarfeed_test
 from testcases import dbfeed_test
@@ -60,6 +61,7 @@ def getTestCases():
 	ret += technical_roc_test.getTestCases()
 	ret += technical_stoch_test.getTestCases()
 	ret += technical_stats_test.getTestCases()
+	ret += technical_bollinger_test.getTestCases()
 	ret += dataseries_test.getTestCases()
 	ret += csvbarfeed_test.getTestCases()
 	ret += dbfeed_test.getTestCases()
