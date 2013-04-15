@@ -10,7 +10,7 @@ feed = yahoofeed.Feed()
 feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
 # Evaluate the strategy with the feed's bars.
-myStrategy = smacross_strategy.Strategy(feed, 20)
+myStrategy = smacross_strategy.Strategy(feed, "orcl", 20)
 
 # Attach different analyzers to a strategy before executing it.
 retAnalyzer = returns.Returns()
