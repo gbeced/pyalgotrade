@@ -23,7 +23,6 @@ import common
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
 from pyalgotrade.barfeed import ninjatraderfeed
-from pyalgotrade.barfeed import membf
 from pyalgotrade import barfeed
 
 class SMATestCase(unittest.TestCase):
@@ -160,7 +159,7 @@ class EMATestCase(unittest.TestCase):
 		barFeed = ninjatraderfeed.Feed(barfeed.Frequency.MINUTE)
 		barFeed.addBarsFromCSV("any", common.get_data_file_path("nt-spy-minute-2011.csv"))
 		# Load all the feed.
-		membf.fetch_all(barFeed)
+		barFeed.loadAll()
 
 		# Check that the max recursion limit bug is not hit when generating the last value first.
 		self.assertEquals(round(ma.EMA(barFeed["any"].getCloseDataSeries(), 10)[-1], 2), 128.81)

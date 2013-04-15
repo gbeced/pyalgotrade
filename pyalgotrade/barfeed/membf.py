@@ -102,10 +102,10 @@ class Feed(barfeed.BarFeed):
 	def getBarsLeft(self):
 		return self.__barsLeft
 
-def fetch_all(barFeed):
-	barFeed.start()
-	for b in barFeed:
-		pass
-	barFeed.stop()
-	barFeed.join()
+	def loadAll(self):
+		self.start()
+		for b in self:
+			pass
+		self.stop()
+		self.join()
 
