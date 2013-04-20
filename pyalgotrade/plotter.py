@@ -27,6 +27,14 @@ from matplotlib import ticker
 from matplotlib import finance
 from matplotlib import dates
 
+def get_last_value(dataSeries):
+	ret = None
+	try:
+		ret = dataSeries[-1]
+	except KeyError:
+		pass
+	return ret
+
 def _min(value1, value2):
 	if value1 is None:
 		return value2
@@ -198,7 +206,7 @@ class Subplot:
 		:param dataSeries: The DataSeries to add.
 		:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 		"""
-		self.addCallback(label, lambda bars: dataSeries.getValue())
+		self.addCallback(label, lambda bars: get_last_value(dataSeries))
 
 	def addCallback(self, label, callback):
 		"""Adds a callback that will be called on each bar.

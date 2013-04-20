@@ -43,7 +43,7 @@ class BarFeedEventHandler_TestLoadOrder:
 			# Check that bars are loaded in order
 			self.__testcase.assertTrue(self.__prevDateTime < dateTime)
 			# Check that the last value in the dataseries match the current datetime.
-			self.__testcase.assertTrue(self.__barFeed.getDataSeries().getValue().getDateTime() == dateTime)
+			self.__testcase.assertTrue(self.__barFeed.getDataSeries()[-1].getDateTime() == dateTime)
 			# Check that the datetime for the last value matches that last datetime in the dataseries.
 			self.__testcase.assertEqual(self.__barFeed.getDataSeries()[-1].getDateTime(), self.__barFeed.getDataSeries().getDateTimes()[-1])
 		self.__prevDateTime = dateTime

@@ -32,10 +32,10 @@ class Strategy(strategy.Strategy):
 
 		# If a position was not opened, check if we should enter a long position.
 		if self.__position == None:
-			if self.__crossAbove.getValue() > 0:
+			if self.__crossAbove[-1] > 0:
 				# Enter a buy market order for 10 shares. The order is good till canceled.
 				self.__position = self.enterLong(self.__instrument, 10, True)
 		# Check if we have to exit the position.
-		elif self.__crossBelow.getValue() > 0:
+		elif self.__crossBelow[-1] > 0:
 			 self.exitPosition(self.__position)
 

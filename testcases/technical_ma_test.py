@@ -54,10 +54,6 @@ class SMATestCase(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			sma[3]
 
-		self.assertTrue(sma[2] == sma.getValue())
-		self.assertTrue(sma[1] == sma.getValue(1))
-		self.assertTrue(sma[0] == sma.getValue(2) == None)
-
 		self.assertEqual(len(sma.getDateTimes()), 3)
 		for i in range(len(sma)):
 			self.assertEqual(sma.getDateTimes()[i], None)

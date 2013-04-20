@@ -89,12 +89,6 @@ class TestSequenceDataSeries(unittest.TestCase):
 class TestBarDataSeries(unittest.TestCase):
 	def testEmpty(self):
 		ds = dataseries.BarDataSeries()
-		self.assertTrue(ds.getValue(-2) == None)
-		self.assertTrue(ds.getValue(-1) == None)
-		self.assertTrue(ds.getValue() == None)
-		self.assertTrue(ds.getValue(1) == None)
-		self.assertTrue(ds.getValue(2) == None)
-
 		with self.assertRaises(IndexError):
 			ds[-1]
 		with self.assertRaises(IndexError):
@@ -118,11 +112,11 @@ class TestBarDataSeries(unittest.TestCase):
 			ds.appendValue( bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0) )
 
 		for i in range(0, 10):
-			self.assertTrue(ds.getValue(i) != None)
+			self.assertTrue(ds[i].getOpen() == 0)
 
 	def __testGetValue(self, ds, itemCount, value):
 		for i in range(0, itemCount):
-			self.assertTrue(ds.getValue(i) == value)
+			self.assertTrue(ds[i] == value)
 
 	def testNestedDataSeries(self):
 		ds = dataseries.BarDataSeries()
@@ -137,15 +131,18 @@ class TestBarDataSeries(unittest.TestCase):
 		self.__testGetValue(ds.getAdjCloseDataSeries(), 10, 3)
 
 	def testSeqLikeOps(self):
+		seq = []
 		ds = dataseries.BarDataSeries()
 		for i in range(10):
-			ds.appendValue( bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3) )
+			bar_ = bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3)
+			ds.appendValue(bar_)
+			seq.append(bar_)
 
-		self.assertEqual(ds[-1], ds.getValue())
-		self.assertEqual(ds[-2], ds.getValue(1))
-		self.assertEqual(ds[0], ds[0])
-		self.assertEqual(ds[1], ds[1])
-		self.assertEqual(ds[-2:][-1], ds.getValue())
+		self.assertEqual(ds[-1], seq[-1])
+		self.assertEqual(ds[-2], seq[-2])
+		self.assertEqual(ds[0], seq[0])
+		self.assertEqual(ds[1], seq[1])
+		self.assertEqual(ds[-2:][-1], seq[-2:][-1])
 
 	def testDateTimes(self):
 		ds = dataseries.BarDataSeries()
