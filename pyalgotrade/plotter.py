@@ -31,7 +31,7 @@ def get_last_value(dataSeries):
 	ret = None
 	try:
 		ret = dataSeries[-1]
-	except KeyError:
+	except IndexError:
 		pass
 	return ret
 
