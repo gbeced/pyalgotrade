@@ -85,6 +85,8 @@ class DataSeries(object):
 		return ret
 
 	def getValues(self, count, valuesAgo = 0, includeNone = False):
+		# Deprecated since 0.12
+		warninghelpers.deprecation_warning("getValues will be deprecated in the next version. Please use [] instead.", stacklevel=2)
 		if count <= 0:
 			return None
 

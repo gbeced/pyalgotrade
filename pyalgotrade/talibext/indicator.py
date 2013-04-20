@@ -23,10 +23,15 @@ import numpy
 
 # Returns the last values of a dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
 def value_ds_to_numpy(ds, count):
-	values = ds.getValues(count)
-	if values == None:
-		return None
-	return numpy.array([float(value) for value in values])
+	ret = None
+	try:
+		values = ds[count*-1:]
+		ret = numpy.array([float(value) for value in values])
+	except IndexError:
+		pass
+	except TypeError: # In case we try to convert None to float.
+		pass
+	return ret
 
 # Returns the last open values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
 def bar_ds_open_to_numpy(barDs, count):
