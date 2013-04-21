@@ -1,4 +1,4 @@
-Version 0.12 (TBD)
+Version 0.12 (20/Apr/2013)
 . [NEW] pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.
 . [NEW] StrategyPlotter now allows plotting custom functions.
 . [NEW] Optimizations in different areas.
