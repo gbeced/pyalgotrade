@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ernie Chan’s Gold vs. Gold Miners &mdash; PyAlgoTrade 0.12 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.12',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.12 documentation" href="index.html" />
+    <link rel="up" title="Sample strategies" href="samples.html" />
+    <link rel="next" title="VWAP Momentum Trade" href="sample_vwap_momentum.html" />
+    <link rel="prev" title="Sample strategies" href="samples.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_vwap_momentum.html" title="VWAP Momentum Trade"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.12 documentation</a> &raquo;</li>
+          <li><a href="samples.html" accesskey="U">Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ernie-chan-s-gold-vs-gold-miners">
+<h1>Ernie Chan&#8217;s Gold vs. Gold Miners<a class="headerlink" href="#ernie-chan-s-gold-vs-gold-miners" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>This sample is based on:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference external" href="http://epchan.blogspot.com.ar/2006/11/gold-vs-gold-miners-another-arbitrage.html">http://epchan.blogspot.com.ar/2006/11/gold-vs-gold-miners-another-arbitrage.html</a></li>
+<li><a class="reference external" href="https://www.quantopian.com/posts/ernie-chans-gold-vs-gold-miners-stat-arb">https://www.quantopian.com/posts/ernie-chans-gold-vs-gold-miners-stat-arb</a></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">dataseries</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">yahoofeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">yahoofinance</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="kn">as</span> <span class="nn">sm</span>
+
+<span class="k">def</span> <span class="nf">get_beta</span><span class="p">(</span><span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">):</span>
+	<span class="c"># http://statsmodels.sourceforge.net/stable/regression.html</span>
+	<span class="n">model</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">)</span>
+	<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">StatArbHelper</span><span class="p">:</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds1</span><span class="p">,</span> <span class="n">ds2</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">):</span>
+		<span class="c"># We&#39;re going to use datetime aligned versions of the dataseries.</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__ds1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ds2</span> <span class="o">=</span> <span class="n">dataseries</span><span class="o">.</span><span class="n">datetime_aligned</span><span class="p">(</span><span class="n">ds1</span><span class="p">,</span> <span class="n">ds2</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__windowSize</span> <span class="o">=</span> <span class="n">windowSize</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__spread</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__spreadMean</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__spreadStd</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zScore</span> <span class="o">=</span> <span class="bp">None</span>
+
+	<span class="k">def</span> <span class="nf">getSpread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spread</span>
+
+	<span class="k">def</span> <span class="nf">getSpreadMean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spreadMean</span>
+
+	<span class="k">def</span> <span class="nf">getSpreadStd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spreadStd</span>
+
+	<span class="k">def</span> <span class="nf">getZScore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__zScore</span>
+
+	<span class="k">def</span> <span class="nf">getHedgeRatio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span>
+
+	<span class="k">def</span> <span class="nf">__updateHedgeRatio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span> <span class="o">=</span> <span class="n">get_beta</span><span class="p">(</span><span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">__updateSpreadMeanAndStd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">spread</span> <span class="o">=</span> <span class="n">values1</span> <span class="o">-</span> <span class="n">values2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__spreadMean</span> <span class="o">=</span> <span class="n">spread</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__spreadStd</span> <span class="o">=</span> <span class="n">spread</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">__updateSpread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__spread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ds1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ds2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+	<span class="k">def</span> <span class="nf">__updateZScore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span>  <span class="bp">self</span><span class="o">.</span><span class="n">__spread</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spreadMean</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spreadStd</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__zScore</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spread</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spreadMean</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spreadStd</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__ds1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__windowSize</span><span class="p">:</span>
+			<span class="n">values1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__ds1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__windowSize</span><span class="p">:])</span>
+			<span class="n">values2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__ds2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__windowSize</span><span class="p">:])</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__updateHedgeRatio</span><span class="p">(</span><span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__updateSpread</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__updateSpreadMeanAndStd</span><span class="p">(</span><span class="n">values1</span><span class="p">,</span> <span class="n">values2</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__updateZScore</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">instrument1</span><span class="p">,</span> <span class="n">instrument2</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">):</span>
+		<span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">setUseAdjustedValues</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__statArbHelper</span> <span class="o">=</span> <span class="n">StatArbHelper</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="n">instrument1</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjCloseDataSeries</span><span class="p">(),</span> <span class="n">feed</span><span class="p">[</span><span class="n">instrument2</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjCloseDataSeries</span><span class="p">(),</span> <span class="n">windowSize</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__i1</span> <span class="o">=</span> <span class="n">instrument1</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__i2</span> <span class="o">=</span> <span class="n">instrument2</span>
+
+		<span class="c"># These are used only for plotting purposes.</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__spread</span> <span class="o">=</span> <span class="n">dataseries</span><span class="o">.</span><span class="n">SequenceDataSeries</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span> <span class="o">=</span> <span class="n">dataseries</span><span class="o">.</span><span class="n">SequenceDataSeries</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">getSpreadDS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spread</span>
+
+	<span class="k">def</span> <span class="nf">getHedgeRatioDS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span>
+
+	<span class="k">def</span> <span class="nf">__getOrderSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">):</span>
+		<span class="n">cash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getCash</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+		<span class="n">price1</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__i1</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjClose</span><span class="p">()</span>
+		<span class="n">price2</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__i2</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjClose</span><span class="p">()</span>
+		<span class="n">size1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cash</span> <span class="o">/</span> <span class="p">(</span><span class="n">price1</span> <span class="o">+</span> <span class="n">hedgeRatio</span> <span class="o">*</span> <span class="n">price2</span><span class="p">))</span>
+		<span class="n">size2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size1</span> <span class="o">*</span> <span class="n">hedgeRatio</span><span class="p">)</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">size1</span><span class="p">,</span> <span class="n">size2</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">buySpread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">):</span>
+		<span class="n">amount1</span><span class="p">,</span> <span class="n">amount2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getOrderSize</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i1</span><span class="p">,</span> <span class="n">amount1</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i2</span><span class="p">,</span> <span class="n">amount2</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">sellSpread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">):</span>
+		<span class="n">amount1</span><span class="p">,</span> <span class="n">amount2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getOrderSize</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i1</span><span class="p">,</span> <span class="n">amount1</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i2</span><span class="p">,</span> <span class="n">amount2</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">reducePosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">):</span>
+		<span class="n">currentPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">currentPos</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">currentPos</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">currentPos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">currentPos</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__statArbHelper</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+		<span class="c"># These is used only for plotting purposes.</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__spread</span><span class="o">.</span><span class="n">appendValueWithDatetime</span><span class="p">(</span><span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__statArbHelper</span><span class="o">.</span><span class="n">getSpread</span><span class="p">())</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__hedgeRatio</span><span class="o">.</span><span class="n">appendValueWithDatetime</span><span class="p">(</span><span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__statArbHelper</span><span class="o">.</span><span class="n">getHedgeRatio</span><span class="p">())</span>
+
+		<span class="k">if</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bars</span><span class="o">.</span><span class="n">getBar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i2</span><span class="p">):</span>
+			<span class="n">hedgeRatio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__statArbHelper</span><span class="o">.</span><span class="n">getHedgeRatio</span><span class="p">()</span>
+			<span class="n">zScore</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__statArbHelper</span><span class="o">.</span><span class="n">getZScore</span><span class="p">()</span>
+			<span class="k">if</span> <span class="n">zScore</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">currentPos</span> <span class="o">=</span>  <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i1</span><span class="p">))</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i2</span><span class="p">))</span>
+				<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">zScore</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">currentPos</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">reducePosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i1</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">reducePosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__i2</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="n">zScore</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">currentPos</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c"># Buy spread when its value drops below 2 standard deviations.</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">buySpread</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="n">zScore</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">currentPos</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c"># Short spread when its value rises above 2 standard deviations.</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">sellSpread</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">hedgeRatio</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">build_feed</span><span class="p">(</span><span class="n">instruments</span><span class="p">,</span> <span class="n">fromYear</span><span class="p">,</span> <span class="n">toYear</span><span class="p">):</span>
+	<span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">()</span>
+
+	<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fromYear</span><span class="p">,</span> <span class="n">toYear</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">instruments</span><span class="p">:</span>
+			<span class="n">fileName</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%d</span><span class="s">-yahoofinance.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fileName</span><span class="p">):</span>
+				<span class="k">print</span> <span class="s">&quot;Downloading </span><span class="si">%s</span><span class="s"> </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+				<span class="n">csv</span> <span class="o">=</span> <span class="n">yahoofinance</span><span class="o">.</span><span class="n">get_daily_csv</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+				<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+				<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+				<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+			<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">fileName</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">feed</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+	<span class="n">instruments</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;gld&quot;</span><span class="p">,</span> <span class="s">&quot;gdx&quot;</span><span class="p">]</span>
+	<span class="n">windowSize</span> <span class="o">=</span> <span class="mi">50</span>
+
+	<span class="c"># Download the bars.</span>
+	<span class="n">feed</span> <span class="o">=</span> <span class="n">build_feed</span><span class="p">(</span><span class="n">instruments</span><span class="p">,</span> <span class="mi">2006</span><span class="p">,</span> <span class="mi">2012</span><span class="p">)</span>
+
+	<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">instruments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">instruments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">windowSize</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+		<span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">myStrategy</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">getOrCreateSubplot</span><span class="p">(</span><span class="s">&quot;hedge&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;Hedge Ratio&quot;</span><span class="p">,</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getHedgeRatioDS</span><span class="p">())</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">getOrCreateSubplot</span><span class="p">(</span><span class="s">&quot;spread&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;Spread&quot;</span><span class="p">,</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getSpreadDS</span><span class="p">())</span>
+
+	<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+	<span class="k">print</span> <span class="s">&quot;Result: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+	<span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this is what the output should look like:</p>
+<div class="highlight-python"><pre>Downloading gld 2006
+Downloading gdx 2006
+Downloading gld 2007
+Downloading gdx 2007
+Downloading gld 2008
+Downloading gdx 2008
+Downloading gld 2009
+Downloading gdx 2009
+Downloading gld 2010
+Downloading gdx 2010
+Downloading gld 2011
+Downloading gdx 2011
+Downloading gld 2012
+Downloading gdx 2012
+Result: 1241843.95
+</pre>
+</div>
+<p>and this is what the plot should look like:</p>
+<img alt="_images/statarb_erniechan.png" src="_images/statarb_erniechan.png" />
+<p>you can get better returns by tunning the window size as well as the entry and exit values for the z-score.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="samples.html"
+                        title="previous chapter">Sample strategies</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sample_vwap_momentum.html"
+                        title="next chapter">VWAP Momentum Trade</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sample_statarb_erniechan.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_vwap_momentum.html" title="VWAP Momentum Trade"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.12 documentation</a> &raquo;</li>
+          <li><a href="samples.html" >Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

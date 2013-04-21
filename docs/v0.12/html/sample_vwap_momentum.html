@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VWAP Momentum Trade &mdash; PyAlgoTrade 0.12 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.12',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.12 documentation" href="index.html" />
+    <link rel="up" title="Sample strategies" href="samples.html" />
+    <link rel="next" title="Bollinger Bands" href="sample_bbands.html" />
+    <link rel="prev" title="Ernie Chan’s Gold vs. Gold Miners" href="sample_statarb_erniechan.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_bbands.html" title="Bollinger Bands"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sample_statarb_erniechan.html" title="Ernie Chan’s Gold vs. Gold Miners"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.12 documentation</a> &raquo;</li>
+          <li><a href="samples.html" accesskey="U">Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="vwap-momentum-trade">
+<h1>VWAP Momentum Trade<a class="headerlink" href="#vwap-momentum-trade" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>This sample is based on:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference external" href="https://www.quantopian.com/posts/momentum-trade">https://www.quantopian.com/posts/momentum-trade</a></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">yahoofeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">yahoofinance</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">vwap</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">vwapWindowSize</span><span class="p">):</span>
+		<span class="n">strategy</span><span class="o">.</span><span class="n">Strategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span> <span class="o">=</span> <span class="n">vwap</span><span class="o">.</span><span class="n">VWAP</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">],</span> <span class="n">vwapWindowSize</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">getVWAPDS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span>
+
+	<span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+		<span class="n">vwap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+		<span class="k">if</span> <span class="n">vwap</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">return</span>
+
+		<span class="n">shares</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">)</span>
+		<span class="n">price</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span>
+		<span class="n">notional</span> <span class="o">=</span> <span class="n">shares</span> <span class="o">*</span> <span class="n">price</span>
+		<span class="k">if</span> <span class="n">price</span> <span class="o">&lt;</span> <span class="n">vwap</span> <span class="o">*</span> <span class="mf">0.995</span> <span class="ow">and</span> <span class="n">notional</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="n">vwap</span> <span class="o">*</span> <span class="mf">1.005</span> <span class="ow">and</span> <span class="n">notional</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> 
+
+<span class="k">def</span> <span class="nf">build_feed</span><span class="p">(</span><span class="n">instruments</span><span class="p">,</span> <span class="n">fromYear</span><span class="p">,</span> <span class="n">toYear</span><span class="p">):</span>
+	<span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">()</span>
+
+	<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fromYear</span><span class="p">,</span> <span class="n">toYear</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">instruments</span><span class="p">:</span>
+			<span class="n">fileName</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%d</span><span class="s">-yahoofinance.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fileName</span><span class="p">):</span>
+				<span class="k">print</span> <span class="s">&quot;Downloading </span><span class="si">%s</span><span class="s"> </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+				<span class="n">csv</span> <span class="o">=</span> <span class="n">yahoofinance</span><span class="o">.</span><span class="n">get_daily_csv</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+				<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+				<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+				<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+			<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">fileName</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">feed</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+	<span class="n">instrument</span> <span class="o">=</span> <span class="s">&quot;aapl&quot;</span>
+	<span class="n">vwapWindowSize</span> <span class="o">=</span> <span class="mi">5</span>
+
+	<span class="c"># Download the bars.</span>
+	<span class="n">feed</span> <span class="o">=</span> <span class="n">build_feed</span><span class="p">([</span><span class="n">instrument</span><span class="p">],</span> <span class="mi">2011</span><span class="p">,</span> <span class="mi">2012</span><span class="p">)</span>
+
+	<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">vwapWindowSize</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+		<span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">myStrategy</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">getInstrumentSubplot</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;vwap&quot;</span><span class="p">,</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getVWAPDS</span><span class="p">())</span>
+
+	<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+	<span class="k">print</span> <span class="s">&quot;Result: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+	<span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this is what the output should look like:</p>
+<div class="highlight-python"><pre>Downloading aapl 2011
+Downloading aapl 2012
+Result: 1436098.00
+</pre>
+</div>
+<p>and this is what the plot should look like:</p>
+<img alt="_images/vwap_momentum.png" src="_images/vwap_momentum.png" />
+<p>you can get better returns by tunning the VWAP period as well as the entry and exit points.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sample_statarb_erniechan.html"
+                        title="previous chapter">Ernie Chan&#8217;s Gold vs. Gold Miners</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sample_bbands.html"
+                        title="next chapter">Bollinger Bands</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sample_vwap_momentum.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_bbands.html" title="Bollinger Bands"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sample_statarb_erniechan.html" title="Ernie Chan’s Gold vs. Gold Miners"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.12 documentation</a> &raquo;</li>
+          <li><a href="samples.html" >Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

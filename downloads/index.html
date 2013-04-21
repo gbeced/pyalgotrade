@@ -102,7 +102,21 @@
 			</div><!-- /.navbar -->
 		</div>
 
-		<h2>Current version: 0.11 (17/Mar/2013)</h2>
+		<h2>Current version: 0.12 (20/Apr/2013)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.12/PyAlgoTrade-0.12.tar.gz/download">PyAlgoTrade-0.12.tar.gz</a>
+		<ul>
+			<li>pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.</li>
+			<li>StrategyPlotter now allows plotting custom functions.</li>
+			<li>Optimizations in different areas.</li>
+			<li>Standard deviation technical indicator (pyalgotrade.technical.stats.StdDev).</li>
+			<li>Bollinger Bands technical indicator (pyalgotrade.technical.bollinger.BollingerBands).</li>
+			<li>Fixed a bug in EMA technical that could lead to max. recursion limit error.</li>
+			<li>Fixed a bug in the Strategy class that had a big impact on execution time. Bookkeeping for active positions and orders was not handled properly.</li>
+		</ul>
+
+		<hr>
+
+		<h2>Version: 0.11 (17/Mar/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.11/PyAlgoTrade-0.11.tar.gz/download">PyAlgoTrade-0.11.tar.gz</a>
 		<ul>
 			<li>DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.</li>
@@ -112,8 +126,6 @@
 			<li>Methods to calculate unrealized returns and PnL in positions (getUnrealizedReturn and getUnrealizedNetProfit).</li>
 			<li>Bug fix: An IndexError exception was raised in plotter.py when plotting many dataseries in the same subplot.</li>
 		</ul>
-
-		<hr>
 
 		<h2>Version 0.10 (11/Jan/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.10/PyAlgoTrade-0.10.tar.gz/download">PyAlgoTrade-0.10.tar.gz</a>

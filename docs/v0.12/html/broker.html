@@ -1,0 +1,828 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>broker – Order management classes &mdash; PyAlgoTrade 0.12 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.12',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.12 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="strategy – Basic strategy classes" href="strategy.html" />
+    <link rel="prev" title="technical – Technical indicators" href="technical.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="technical.html" title="technical – Technical indicators"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.12 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="broker-order-management-classes">
+<h1>broker &#8211; Order management classes<a class="headerlink" href="#broker-order-management-classes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyalgotrade.broker">
+<span id="base-module-and-classes"></span><h2>Base module and classes<a class="headerlink" href="#module-pyalgotrade.broker" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.broker.Order">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">Order</tt><big>(</big><em>type_</em>, <em>action</em>, <em>instrument</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for orders.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>type</strong> (<tt class="xref py py-class docutils literal"><span class="pre">Order.Type</span></tt>) &#8211; The order type</li>
+<li><strong>action</strong> (<tt class="xref py py-class docutils literal"><span class="pre">Order.Action</span></tt>) &#8211; The order action.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Order quantity.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Valid <strong>action</strong> parameter values are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Order.Action.BUY</li>
+<li>Order.Action.BUY_TO_COVER</li>
+<li>Order.Action.SELL</li>
+<li>Order.Action.SELL_SHORT</li>
+</ul>
+</div></blockquote>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getAction">
+<tt class="descname">getAction</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order action.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getAllOrNone">
+<tt class="descname">getAllOrNone</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getAllOrNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order should be completely filled or else canceled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getExecutionInfo">
+<tt class="descname">getExecutionInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getExecutionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order execution info if the order was filled, or None otherwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyalgotrade.broker.OrderExecutionInfo" title="pyalgotrade.broker.OrderExecutionInfo"><tt class="xref py py-class docutils literal"><span class="pre">OrderExecutionInfo</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getGoodTillCanceled">
+<tt class="descname">getGoodTillCanceled</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getGoodTillCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order is good till canceled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getInstrument">
+<tt class="descname">getInstrument</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getInstrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the instrument identifier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getQuantity">
+<tt class="descname">getQuantity</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getQuantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the quantity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getState">
+<tt class="descname">getState</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order state.</p>
+<dl class="docutils">
+<dt>Valid order states are:</dt>
+<dd><ul class="first last simple">
+<li>Order.State.ACCEPTED (the initial state).</li>
+<li>Order.State.CANCELED</li>
+<li>Order.State.FILLED</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.getType">
+<tt class="descname">getType</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the order type</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.isAccepted">
+<tt class="descname">isAccepted</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.isAccepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order state is Order.State.ACCEPTED.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.isCanceled">
+<tt class="descname">isCanceled</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.isCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order state is Order.State.CANCELED.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.isFilled">
+<tt class="descname">isFilled</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.isFilled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order state is Order.State.FILLED.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.setAllOrNone">
+<tt class="descname">setAllOrNone</tt><big>(</big><em>allOrNone</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.setAllOrNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the All-Or-None property for this order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>allOrNone</strong> (<em>boolean.</em>) &#8211; True if the order should be completely filled or else canceled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.setGoodTillCanceled">
+<tt class="descname">setGoodTillCanceled</tt><big>(</big><em>goodTillCanceled</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.setGoodTillCanceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets if the order should be good till canceled.
+Orders that are not filled by the time the session closes will be will be automatically canceled
+if they were not set as good till canceled</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>goodTillCanceled</strong> (<em>boolean.</em>) &#8211; True if the order should be good till canceled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Order.setQuantity">
+<tt class="descname">setQuantity</tt><big>(</big><em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Order.setQuantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the quantity.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.MarketOrder">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">MarketOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>quantity</em>, <em>onClose</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.MarketOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for market orders.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.MarketOrder.getFillOnClose">
+<tt class="descname">getFillOnClose</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.MarketOrder.getFillOnClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the order should be filled as close to the closing price as possible (Market-On-Close order).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.MarketOrder.setFillOnClose">
+<tt class="descname">setFillOnClose</tt><big>(</big><em>onClose</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.MarketOrder.setFillOnClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets if the order should be filled as close to the closing price as possible (Market-On-Close order).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.LimitOrder">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">LimitOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>limitPrice</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.LimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for limit orders.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.LimitOrder.getLimitPrice">
+<tt class="descname">getLimitPrice</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.LimitOrder.getLimitPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the limit price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.LimitOrder.setLimitPrice">
+<tt class="descname">setLimitPrice</tt><big>(</big><em>limitPrice</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.LimitOrder.setLimitPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the limit price.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.StopOrder">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">StopOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>stopPrice</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for stop orders.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.StopOrder.getStopPrice">
+<tt class="descname">getStopPrice</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopOrder.getStopPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the stop price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.StopOrder.setStopPrice">
+<tt class="descname">setStopPrice</tt><big>(</big><em>stopPrice</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopOrder.setStopPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the stop price.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.StopLimitOrder">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">StopLimitOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>limitPrice</em>, <em>stopPrice</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopLimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for stop limit orders.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.StopLimitOrder.getLimitPrice">
+<tt class="descname">getLimitPrice</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopLimitOrder.getLimitPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the limit price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.StopLimitOrder.getStopPrice">
+<tt class="descname">getStopPrice</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopLimitOrder.getStopPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the stop price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.StopLimitOrder.isLimitOrderActive">
+<tt class="descname">isLimitOrderActive</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopLimitOrder.isLimitOrderActive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the limit order is active.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.StopLimitOrder.setLimitPrice">
+<tt class="descname">setLimitPrice</tt><big>(</big><em>limitPrice</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopLimitOrder.setLimitPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the limit price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.StopLimitOrder.setStopPrice">
+<tt class="descname">setStopPrice</tt><big>(</big><em>stopPrice</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.StopLimitOrder.setStopPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the stop price.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.OrderExecutionInfo">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">OrderExecutionInfo</tt><big>(</big><em>price</em>, <em>quantity</em>, <em>commission</em>, <em>dateTime</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execution information for a filled order.</p>
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getCommission">
+<tt class="descname">getCommission</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getCommission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the commission applied.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getDateTime">
+<tt class="descname">getDateTime</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <tt class="xref py py-class docutils literal"><span class="pre">datatime.datetime</span></tt> when the order was executed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getPrice">
+<tt class="descname">getPrice</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getPrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the fill price.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.OrderExecutionInfo.getQuantity">
+<tt class="descname">getQuantity</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.OrderExecutionInfo.getQuantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the quantity.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.Broker">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.</tt><tt class="descname">Broker</tt><a class="headerlink" href="#pyalgotrade.broker.Broker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for brokers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.cancelOrder">
+<tt class="descname">cancelOrder</tt><big>(</big><em>order</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.cancelOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests an order to be canceled. If the order is filled an Exception is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">Order</span></tt></a>.) &#8211; The order to cancel.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.createLimitOrder">
+<tt class="descname">createLimitOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>limitPrice</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.createLimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Limit order.
+A limit order is an order to buy or sell a stock at a specific price or better.
+A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed at the
+limit price or higher.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>action</strong> (<em>Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.</em>) &#8211; The order action.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>limitPrice</strong> (<em>float</em>) &#8211; The order price.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Order quantity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#pyalgotrade.broker.LimitOrder" title="pyalgotrade.broker.LimitOrder"><tt class="xref py py-class docutils literal"><span class="pre">LimitOrder</span></tt></a> subclass.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.createMarketOrder">
+<tt class="descname">createMarketOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>quantity</em>, <em>onClose=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.createMarketOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Market order.
+A market order is an order to buy or sell a stock at the best available price.
+Generally, this type of order will be executed immediately. However, the price at which a market order will be executed
+is not guaranteed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>action</strong> (<em>Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.</em>) &#8211; The order action.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Order quantity.</li>
+<li><strong>onClose</strong> (<em>boolean.</em>) &#8211; True if the order should be filled as close to the closing price as possible (Market-On-Close order). Default is False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#pyalgotrade.broker.MarketOrder" title="pyalgotrade.broker.MarketOrder"><tt class="xref py py-class docutils literal"><span class="pre">MarketOrder</span></tt></a> subclass.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.createStopLimitOrder">
+<tt class="descname">createStopLimitOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>stopPrice</em>, <em>limitPrice</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.createStopLimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Stop-Limit order.
+A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit order.
+Once the stop price is reached, a stop-limit order becomes a limit order that will be executed at a specified price
+(or better). The benefit of a stop-limit order is that the investor can control the price at which the order can be executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>action</strong> (<em>Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.</em>) &#8211; The order action.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>stopPrice</strong> (<em>float</em>) &#8211; The trigger price.</li>
+<li><strong>limitPrice</strong> (<em>float</em>) &#8211; The price for the limit order.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Order quantity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#pyalgotrade.broker.StopLimitOrder" title="pyalgotrade.broker.StopLimitOrder"><tt class="xref py py-class docutils literal"><span class="pre">StopLimitOrder</span></tt></a> subclass.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.createStopOrder">
+<tt class="descname">createStopOrder</tt><big>(</big><em>action</em>, <em>instrument</em>, <em>stopPrice</em>, <em>quantity</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.createStopOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Stop order.
+A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the stock
+reaches a specified price, known as the stop price.
+When the stop price is reached, a stop order becomes a market order.
+A buy stop order is entered at a stop price above the current market price. Investors generally use a buy stop order
+to limit a loss or to protect a profit on a stock that they have sold short.
+A sell stop order is entered at a stop price below the current market price. Investors generally use a sell stop order
+to limit a loss or to protect a profit on a stock that they own.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>action</strong> (<em>Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.</em>) &#8211; The order action.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>stopPrice</strong> (<em>float</em>) &#8211; The trigger price.</li>
+<li><strong>quantity</strong> (<em>int.</em>) &#8211; Order quantity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#pyalgotrade.broker.StopOrder" title="pyalgotrade.broker.StopOrder"><tt class="xref py py-class docutils literal"><span class="pre">StopOrder</span></tt></a> subclass.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.getActiveOrders">
+<tt class="descname">getActiveOrders</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.getActiveOrders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sequence with the orders that are still active.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.getPositions">
+<tt class="descname">getPositions</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.getPositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary that maps instruments to shares.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.getShares">
+<tt class="descname">getShares</tt><big>(</big><em>instrument</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.getShares" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of shares for an instrument.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.Broker.placeOrder">
+<tt class="descname">placeOrder</tt><big>(</big><em>order</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.Broker.placeOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submits an order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.Order" title="pyalgotrade.broker.Order"><tt class="xref py py-class docutils literal"><span class="pre">Order</span></tt></a>.) &#8211; The order to submit.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the order is filled or canceled, an exception will be raised.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.broker.backtesting">
+<span id="backtesting-module-and-classes"></span><h2>Backtesting module and classes<a class="headerlink" href="#module-pyalgotrade.broker.backtesting" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.broker.backtesting.Broker">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.backtesting.</tt><tt class="descname">Broker</tt><big>(</big><em>cash</em>, <em>barFeed</em>, <em>commission=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backtesting broker.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cash</strong> (<em>int or float.</em>) &#8211; The initial amount of cash.</li>
+<li><strong>barFeed</strong> (<a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BarFeed" title="pyalgotrade.barfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt></a>) &#8211; The bar feed that will provide the bars.</li>
+<li><strong>commission</strong> (<tt class="xref py py-class docutils literal"><span class="pre">Commission</span></tt>) &#8211; An object responsible for calculating order commissions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.getCash">
+<tt class="descname">getCash</tt><big>(</big><em>includeShort=True</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.getCash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the available cash.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>includeShort</strong> (<em>boolean.</em>) &#8211; Include cash from short positions.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.getCommission">
+<tt class="descname">getCommission</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.getCommission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the commission instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.getEquity">
+<tt class="descname">getEquity</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.getEquity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the portfolio value (cash + shares).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.getFillStrategy">
+<tt class="descname">getFillStrategy</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.getFillStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="#pyalgotrade.broker.backtesting.FillStrategy" title="pyalgotrade.broker.backtesting.FillStrategy"><tt class="xref py py-class docutils literal"><span class="pre">FillStrategy</span></tt></a> currently set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.setCash">
+<tt class="descname">setCash</tt><big>(</big><em>cash</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.setCash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the available cash.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.setCommission">
+<tt class="descname">setCommission</tt><big>(</big><em>commission</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.setCommission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the commission instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.Broker.setFillStrategy">
+<tt class="descname">setFillStrategy</tt><big>(</big><em>strategy</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.Broker.setFillStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the <a class="reference internal" href="#pyalgotrade.broker.backtesting.FillStrategy" title="pyalgotrade.broker.backtesting.FillStrategy"><tt class="xref py py-class docutils literal"><span class="pre">FillStrategy</span></tt></a> to use.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.backtesting.FillStrategy">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.backtesting.</tt><tt class="descname">FillStrategy</tt><a class="headerlink" href="#pyalgotrade.broker.backtesting.FillStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for order filling strategies.</p>
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.FillStrategy.fillLimitOrder">
+<tt class="descname">fillLimitOrder</tt><big>(</big><em>order</em>, <em>broker_</em>, <em>bar</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.FillStrategy.fillLimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override to return the fill price for a limit order or None if the order can&#8217;t be filled at the given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.LimitOrder" title="pyalgotrade.broker.LimitOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.LimitOrder</span></tt></a>.) &#8211; The order.</li>
+<li><strong>broker</strong> (<a class="reference internal" href="#pyalgotrade.broker.backtesting.Broker" title="pyalgotrade.broker.backtesting.Broker"><tt class="xref py py-class docutils literal"><span class="pre">Broker</span></tt></a>.) &#8211; The broker.</li>
+<li><strong>bar</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a>.) &#8211; The current bar.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">An int/float with the fill price or None if the order should not be filled.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.FillStrategy.fillMarketOrder">
+<tt class="descname">fillMarketOrder</tt><big>(</big><em>order</em>, <em>broker_</em>, <em>bar</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.FillStrategy.fillMarketOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override to return the fill price for a market order or None if the order can&#8217;t be filled at the given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.MarketOrder" title="pyalgotrade.broker.MarketOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.MarketOrder</span></tt></a>.) &#8211; The order.</li>
+<li><strong>broker</strong> (<a class="reference internal" href="#pyalgotrade.broker.backtesting.Broker" title="pyalgotrade.broker.backtesting.Broker"><tt class="xref py py-class docutils literal"><span class="pre">Broker</span></tt></a>.) &#8211; The broker.</li>
+<li><strong>bar</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a>.) &#8211; The current bar.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">An int/float with the fill price or None if the order should not be filled.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.FillStrategy.fillStopLimitOrder">
+<tt class="descname">fillStopLimitOrder</tt><big>(</big><em>order</em>, <em>broker_</em>, <em>bar</em>, <em>justHitStopPrice</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.FillStrategy.fillStopLimitOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override to return the fill price for a stop limit order or None if the order can&#8217;t be filled at the given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.StopLimitOrder" title="pyalgotrade.broker.StopLimitOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.StopLimitOrder</span></tt></a>.) &#8211; The order.</li>
+<li><strong>broker</strong> (<a class="reference internal" href="#pyalgotrade.broker.backtesting.Broker" title="pyalgotrade.broker.backtesting.Broker"><tt class="xref py py-class docutils literal"><span class="pre">Broker</span></tt></a>.) &#8211; The broker.</li>
+<li><strong>bar</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a>.) &#8211; The current bar.</li>
+<li><strong>justHitStopPrice</strong> (<em>boolean.</em>) &#8211; True if the stop price has just been hit with the current bar.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">An int/float with the fill price or None if the order should not be filled.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.broker.backtesting.FillStrategy.fillStopOrder">
+<tt class="descname">fillStopOrder</tt><big>(</big><em>order</em>, <em>broker_</em>, <em>bar</em><big>)</big><a class="headerlink" href="#pyalgotrade.broker.backtesting.FillStrategy.fillStopOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override to return the fill price for a stop order or None if the order can&#8217;t be filled at the given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>order</strong> (<a class="reference internal" href="#pyalgotrade.broker.StopOrder" title="pyalgotrade.broker.StopOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.StopOrder</span></tt></a>.) &#8211; The order.</li>
+<li><strong>broker</strong> (<a class="reference internal" href="#pyalgotrade.broker.backtesting.Broker" title="pyalgotrade.broker.backtesting.Broker"><tt class="xref py py-class docutils literal"><span class="pre">Broker</span></tt></a>.) &#8211; The broker.</li>
+<li><strong>bar</strong> (<a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a>.) &#8211; The current bar.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">An int/float with the fill price or None if the order should not be filled.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.broker.backtesting.DefaultStrategy">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.broker.backtesting.</tt><tt class="descname">DefaultStrategy</tt><a class="headerlink" href="#pyalgotrade.broker.backtesting.DefaultStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>This strategy works as follows:</p>
+<ul>
+<li><p class="first">A <a class="reference internal" href="#pyalgotrade.broker.MarketOrder" title="pyalgotrade.broker.MarketOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.MarketOrder</span></tt></a> is always filled using the open/close price.</p>
+</li>
+<li><dl class="first docutils">
+<dt>A <a class="reference internal" href="#pyalgotrade.broker.LimitOrder" title="pyalgotrade.broker.LimitOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.LimitOrder</span></tt></a> will be filled like this:</dt>
+<dd><ul class="first last simple">
+<li>If the limit price was penetrated with the open price, then the open price is used.</li>
+<li>If the bar includes the limit price, then the limit price is used.</li>
+<li>Note that when buying the price is penetrated if it gets &lt;= the limit price, and when selling the price is penetrated if it gets &gt;= the limit price</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>A <a class="reference internal" href="#pyalgotrade.broker.StopOrder" title="pyalgotrade.broker.StopOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.StopOrder</span></tt></a> will be filled like this:</dt>
+<dd><ul class="first last simple">
+<li>If the stop price was penetrated with the open price, then the open price is used.</li>
+<li>If the bar includes the stop price, then the stop price is used.</li>
+<li>Note that when buying the price is penetrated if it gets &gt;= the stop price, and when selling the price is penetrated if it gets &lt;= the stop price</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>A <a class="reference internal" href="#pyalgotrade.broker.StopLimitOrder" title="pyalgotrade.broker.StopLimitOrder"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.StopLimitOrder</span></tt></a> will be filled like this:</dt>
+<dd><ul class="first last">
+<li><p class="first">If the stop price was penetrated with the open price, or if the bar includes the stop price, then the limit order becomes active.</p>
+</li>
+<li><dl class="first docutils">
+<dt>If the limit order is active:</dt>
+<dd><ul class="first last simple">
+<li>If the limit order was activated in this same bar and the limit price is penetrated as well, then the best between the stop price and the limit fill price (as described earlier) is used.</li>
+<li>If the limit order was activated at a previous bar then the limit fill price (as described earlier) is used.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is the default strategy used by the Broker.</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">broker &#8211; Order management classes</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.broker">Base module and classes</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.broker.backtesting">Backtesting module and classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="technical.html"
+                        title="previous chapter">technical &#8211; Technical indicators</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="strategy.html"
+                        title="next chapter">strategy &#8211; Basic strategy classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/broker.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="technical.html" title="technical – Technical indicators"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.12 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
