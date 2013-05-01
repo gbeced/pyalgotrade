@@ -22,6 +22,7 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.talibext import indicator
 from pyalgotrade import bar
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 import common
 
 import datetime
@@ -185,7 +186,7 @@ class TestCase(unittest.TestCase):
 	def __loadBarDS(self):
 		seconds = 0
 
-		ret = dataseries.BarDataSeries()
+		ret = bards.BarDataSeries()
 		for i in xrange(len(OPEN_VALUES)):
 			dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
 			ret.appendValue(bar.Bar(dateTime, OPEN_VALUES[i], HIGH_VALUES[i], LOW_VALUES[i], CLOSE_VALUES[i], VOLUME_VALUES[i], CLOSE_VALUES[i]))
@@ -195,7 +196,7 @@ class TestCase(unittest.TestCase):
 	def __loadSarTestBarDs(self):
 		seconds = 0
 
-		ret = dataseries.BarDataSeries()
+		ret = bards.BarDataSeries()
 		for i in xrange(len(SAR_HIGH)):
 			dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
 			ret.appendValue(bar.Bar(dateTime, SAR_LOW[i], SAR_HIGH[i], SAR_LOW[i], SAR_HIGH[i], 0, SAR_LOW[i]))

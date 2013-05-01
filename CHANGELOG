@@ -1,3 +1,6 @@
+Version 0.13 (TBD)
+. [CHANGE] BarValueDataSeries and BarDataSeries where moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.
+
 Version 0.12 (20/Apr/2013)
 . [NEW] pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.
 . [NEW] StrategyPlotter now allows plotting custom functions.

@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 from pyalgotrade import observer
 from pyalgotrade import bar
 from pyalgotrade import warninghelpers
@@ -118,26 +118,26 @@ class BasicBarFeed:
 	def registerInstrument(self, instrument):
 		self.__defaultInstrument = instrument
 		if instrument not in self.__ds:
-			self.__ds[instrument] = dataseries.BarDataSeries()
+			self.__ds[instrument] = bards.BarDataSeries()
 
 	def getDataSeries(self, instrument = None):
-		"""Returns the :class:`pyalgotrade.dataseries.BarDataSeries` for a given instrument.
+		"""Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument.
 
 		:param instrument: Instrument identifier. If None, the default instrument is returned.
 		:type instrument: string.
-		:rtype: :class:`pyalgotrade.dataseries.BarDataSeries`.
+		:rtype: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
 		"""
 		if instrument == None:
 			instrument = self.__defaultInstrument
 		return self.__ds[instrument]
 
 	def __getitem__(self, instrument):
-		"""Returns the :class:`pyalgotrade.dataseries.BarDataSeries` for a given instrument.
+		"""Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument.
 		If the instrument is not found an exception is raised."""
 		return self.__ds[instrument]
 
 	def __contains__(self, instrument):
-		"""Returns True if a :class:`pyalgotrade.dataseries.BarDataSeries` for the given instrument is available."""
+		"""Returns True if a :class:`pyalgotrade.dataseries.bards.BarDataSeries` for the given instrument is available."""
 		return instrument in self.__ds
 
 # This class is responsible for:

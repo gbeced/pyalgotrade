@@ -21,7 +21,7 @@
 import unittest
 import datetime
 from pyalgotrade.technical import stoch
-from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
 
 def values_equal(v1, v2):
@@ -42,7 +42,7 @@ class TestCase(unittest.TestCase):
 
 	def __buildBarDataSeries(self, closePrices, highPrices, lowPrices):
 		assert(len(closePrices) == len(highPrices) == len(lowPrices))
-		ret = dataseries.BarDataSeries()
+		ret = bards.BarDataSeries()
 		for i in range(len(highPrices)):
 			ret.appendValue( self.__buildBar(closePrices[i], highPrices[i], lowPrices[i], closePrices[i]) )
 		return ret

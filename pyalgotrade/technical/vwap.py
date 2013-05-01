@@ -20,12 +20,13 @@
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 
 class VWAP(technical.DataSeriesFilter):
 	"""Volume Weighted Average Price filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
-	:type dataSeries: :class:`pyalgotrade.dataseries.BarDataSeries`.
+	:type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
 	:param period: The number of values to use to calculate the VWAP.
 	:type period: int.
 	:param useTypicalPrice: True if the typical price should be used instead of the closing price.
@@ -34,8 +35,8 @@ class VWAP(technical.DataSeriesFilter):
 	"""
 
 	def __init__(self, dataSeries, period, useTypicalPrice=False):
-		if not isinstance(dataSeries, dataseries.BarDataSeries):
-			raise Exception("dataSeries must be a dataseries.BarDataSeries instance")
+		if not isinstance(dataSeries, bards.BarDataSeries):
+			raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 		technical.DataSeriesFilter.__init__(self, dataSeries, period)
 		self.__useTypicalPrice = useTypicalPrice
 

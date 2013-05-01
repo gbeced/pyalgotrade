@@ -58,7 +58,7 @@ class StochasticOscillator(technical.DataSeriesFilter):
 	Note that the value returned by this filter is %K. To access %D use :meth:`getD`.
 
 	:param barDataSeries: The BarDataSeries instance being filtered.
-	:type barDataSeries: :class:`pyalgotrade.dataseries.BarDataSeries`.
+	:type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
 	:param period: The period. Must be > 1.
 	:type period: int.
 	:param dSMAPeriod: The %D SMA period. Must be > 1.

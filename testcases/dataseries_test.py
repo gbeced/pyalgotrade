@@ -22,6 +22,7 @@ import unittest
 import datetime
 
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
 
 class TestSequenceDataSeries(unittest.TestCase):
@@ -88,7 +89,7 @@ class TestSequenceDataSeries(unittest.TestCase):
 
 class TestBarDataSeries(unittest.TestCase):
 	def testEmpty(self):
-		ds = dataseries.BarDataSeries()
+		ds = bards.BarDataSeries()
 		with self.assertRaises(IndexError):
 			ds[-1]
 		with self.assertRaises(IndexError):
@@ -97,7 +98,7 @@ class TestBarDataSeries(unittest.TestCase):
 			ds[1000]
 
 	def testAppendInvalidDatetime(self):
-		ds = dataseries.BarDataSeries()
+		ds = bards.BarDataSeries()
 		for i in range(10):
 			now = datetime.datetime.now() + datetime.timedelta(seconds=i)
 			ds.appendValue( bar.Bar(now, 0, 0, 0, 0, 0, 0) )
@@ -107,7 +108,7 @@ class TestBarDataSeries(unittest.TestCase):
 			self.assertRaises(Exception, ds.appendValue, bar.Bar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0))
 
 	def testNonEmpty(self):
-		ds = dataseries.BarDataSeries()
+		ds = bards.BarDataSeries()
 		for i in range(10):
 			ds.appendValue( bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0) )
 
@@ -119,7 +120,7 @@ class TestBarDataSeries(unittest.TestCase):
 			self.assertTrue(ds[i] == value)
 
 	def testNestedDataSeries(self):
-		ds = dataseries.BarDataSeries()
+		ds = bards.BarDataSeries()
 		for i in range(10):
 			ds.appendValue( bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3) )
 
@@ -132,7 +133,7 @@ class TestBarDataSeries(unittest.TestCase):
 
 	def testSeqLikeOps(self):
 		seq = []
-		ds = dataseries.BarDataSeries()
+		ds = bards.BarDataSeries()
 		for i in range(10):
 			bar_ = bar.Bar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3)
 			ds.appendValue(bar_)
@@ -145,7 +146,7 @@ class TestBarDataSeries(unittest.TestCase):
 		self.assertEqual(ds[-2:][-1], seq[-2:][-1])
 
 	def testDateTimes(self):
-		ds = dataseries.BarDataSeries()
+		ds = bards.BarDataSeries()
 		firstDt = datetime.datetime.now()
 		for i in range(10):
 			ds.appendValue( bar.Bar(firstDt + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3) )

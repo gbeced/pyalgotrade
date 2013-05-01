@@ -2,7 +2,7 @@ TA-Lib integration
 ==================
 
 The **pyalgotrade.talibext.indicator** module provides integration with Python wrapper for TA-Lib (http://mrjbq7.github.com/ta-lib/)
-to enable calling TA-Lib functions directly with :class:`pyalgotrade.dataseries.DataSeries` or :class:`pyalgotrade.dataseries.BarDataSeries`
+to enable calling TA-Lib functions directly with :class:`pyalgotrade.dataseries.DataSeries` or :class:`pyalgotrade.dataseries.bards.BarDataSeries`
 instances instead of numpy arrays.
 
 If you're familiar with the **talib** module, then using the **pyalgotrade.talibext.indicator** module should be straightforward.
@@ -28,7 +28,7 @@ number of values to use from the dataseries. In the example above, we're calcula
 If the parameter name is **ds**, then you should pass a regular :class:`pyalgotrade.dataseries.DataSeries` instance, like the one
 shown in the example above.
 
-If the parameter name is **barDs**, then you should pass a :class:`pyalgotrade.dataseries.BarDataSeries` instance, like in the next
+If the parameter name is **barDs**, then you should pass a :class:`pyalgotrade.dataseries.bards.BarDataSeries` instance, like in the next
 example: ::
 
     def onBars(self, bars):

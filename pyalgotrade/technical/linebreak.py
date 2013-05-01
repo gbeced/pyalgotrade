@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 import pyalgotrade.bar
 
 class Line:
@@ -56,7 +57,7 @@ class LineBreak(dataseries.DataSeries):
 	This is a DataSeries of :class:`Line` instances.
 
 	:param barDataSeries: The DataSeries instance being filtered.
-	:type barDataSeries: :class:`pyalgotrade.dataseries.BarDataSeries`.
+	:type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
 	:param reversalLines: The number of lines back to check to calculate a reversal. Must be greater than 1.
 	:type reversalLines: int.
 	:param useAdjustedValues: True to use adjusted high/low/close values.
@@ -64,8 +65,8 @@ class LineBreak(dataseries.DataSeries):
 	"""
 
 	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False):
-		if not isinstance(barDataSeries, dataseries.BarDataSeries):
-			raise Exception("barDataSeries must be a dataseries.BarDataSeries instance")
+		if not isinstance(barDataSeries, bards.BarDataSeries):
+			raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 		if reversalLines < 2:
 			raise Exception("reversalLines must be greater than 1")
 

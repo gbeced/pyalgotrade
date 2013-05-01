@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import bar
 from pyalgotrade.utils import collections
 from pyalgotrade import warninghelpers
 
@@ -172,61 +171,6 @@ class SequenceDataSeries(DataSeries):
 
 	def getDateTimes(self):
 		return self.__dateTimes
-
-class BarValueDataSeries(DataSeries):
-	def __init__(self, barDataSeries, barMethod):
-		self.__barDataSeries = barDataSeries
-		self.__barMethod = barMethod
-
-	def getFirstValidPos(self):
-		return self.__barDataSeries.getFirstValidPos()
-
-	def getLength(self):
-		return self.__barDataSeries.getLength()
-
-	def getValueAbsolute(self, pos):
-		ret = self.__barDataSeries.getValueAbsolute(pos)
-		if ret != None:
-			ret = self.__barMethod(ret)
-		return ret
-
-	def getDateTimes(self):
-		return self.__barDataSeries.getDateTimes()
-
-class BarDataSeries(SequenceDataSeries):
-	"""A :class:`DataSeries` of :class:`pyalgotrade.bar.Bar` instances."""
-
-	def __init__(self):
-		SequenceDataSeries.__init__(self)
-
-	def appendValue(self, value):
-		# Check that bars are appended in order.
-		assert(value != None)
-		SequenceDataSeries.appendValueWithDatetime(self, value.getDateTime(), value)
-
-	def getOpenDataSeries(self):
-		"""Returns a :class:`DataSeries` with the open prices."""
-		return BarValueDataSeries(self, bar.Bar.getOpen)
-
-	def getCloseDataSeries(self):
-		"""Returns a :class:`DataSeries` with the close prices."""
-		return BarValueDataSeries(self, bar.Bar.getClose)
-
-	def getHighDataSeries(self):
-		"""Returns a :class:`DataSeries` with the high prices."""
-		return BarValueDataSeries(self, bar.Bar.getHigh)
-
-	def getLowDataSeries(self):
-		"""Returns a :class:`DataSeries` with the low prices."""
-		return BarValueDataSeries(self, bar.Bar.getLow)
-
-	def getVolumeDataSeries(self):
-		"""Returns a :class:`DataSeries` with the volume."""
-		return BarValueDataSeries(self, bar.Bar.getVolume)
-
-	def getAdjCloseDataSeries(self):
-		"""Returns a :class:`DataSeries` with the adjusted close prices."""
-		return BarValueDataSeries(self, bar.Bar.getAdjClose)
 
 def datetime_aligned(ds1, ds2):
 	"""
