@@ -24,7 +24,7 @@ from pyalgotrade import dataseries
 
 class CacheTest(unittest.TestCase):
 	def testCacheSize1(self):
-		cache = technical.Cache(1)
+		cache = technical.FIFOCache(1)
 
 		self.assertTrue(not cache.isCached(0))
 		self.assertTrue(cache.getValue(0) == None)
@@ -40,7 +40,7 @@ class CacheTest(unittest.TestCase):
 		self.assertTrue(cache.getValue(0) == None)
 
 	def testCacheSize2(self):
-		cache = technical.Cache(2)
+		cache = technical.FIFOCache(2)
 		cache.putValue(0, 0)
 		cache.putValue(1, 1)
 		cache.putValue(2, 2)

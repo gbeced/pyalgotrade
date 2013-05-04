@@ -26,6 +26,9 @@ class BarValueDataSeries(dataseries.DataSeries):
 		self.__barDataSeries = barDataSeries
 		self.__barMethod = barMethod
 
+	def supportsCaching(self):
+		return self.__barDataSeries.supportsCaching()
+
 	def getFirstValidPos(self):
 		return self.__barDataSeries.getFirstValidPos()
 

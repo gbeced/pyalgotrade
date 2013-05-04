@@ -62,6 +62,13 @@ class DataSeries(object):
 		"""Returns a list of :class:`datetime.datetime` associated with each value."""
 		raise NotImplementedError()
 
+	# Should return True if its safe to cache return values.
+	# If I get value at position x, and that value will always be the same, then it is safe to cache
+	# return values, otherwise its not.
+	# This is a property of a dataseries that should not change during its lifetime.
+	def supportsCaching(self):
+		raise NotImplementedError()
+
 	# Returns a sequence of absolute values [firstPos, lastPos].
 	# if includeNone is False and at least one value is None, then None is returned.
 	# TODO: Deprecate this.
@@ -146,17 +153,24 @@ class SequenceDataSeries(DataSeries):
 	def getLength(self):
 		return len(self.__values)
 
+	def supportsCaching(self):
+		return True
+
 	def getValueAbsolute(self, pos):
 		ret = None
 		if pos >= 0 and pos < len(self.__values):
 			ret = self.__values[pos]
 		return ret
 
-	def appendValue(self, value):
+	def append(self, value):
 		"""Appends a value."""
 		self.appendValueWithDatetime(None, value)
 
-	def appendValueWithDatetime(self, dateTime, value):
+	def appendValue(self, value):
+		# TODO: Deprecate this.
+		self.append(value)
+
+	def appendWithDateTime(self, dateTime, value):
 		"""
 		Appends a value with an associated datetime.
 
@@ -168,6 +182,11 @@ class SequenceDataSeries(DataSeries):
 		self.__dateTimes.append(dateTime)
 		self.__values.append(value)
 		assert(len(self.__values) == len(self.__dateTimes))
+
+
+	def appendValueWithDatetime(self, dateTime, value):
+		# TODO: Deprecate this.
+		self.appendWithDateTime(dateTime, value)
 
 	def getDateTimes(self):
 		return self.__dateTimes

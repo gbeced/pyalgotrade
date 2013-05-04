@@ -20,14 +20,62 @@
 
 from pyalgotrade import dataseries
 
+class Cache:
+	class ValueNotCached:
+		pass
+
+	def isCached(self, pos):
+		raise NotImplementedError()
+
+	def getValue(self, pos, default=None):
+		raise NotImplementedError()
+
+	def putValue(self, pos, value):
+		raise NotImplementedError()
+
+class FIFOCache(Cache):
+	def __init__(self, size):
+		assert(size > 0)
+		self.__size = size
+		self.__cache = {}
+		self.__pos = []
+
+	def isCached(self, pos):
+		return pos in self.__cache
+
+	def getValue(self, pos, default=None):
+		return self.__cache.get(pos, default)
+
+	def putValue(self, pos, value):
+		self.__cache[pos] = value
+		self.__pos.append(pos)
+
+		# Free up an entry if necessary
+		if len(self.__cache) > self.__size:
+			del self.__cache[ self.__pos.pop(0) ]
+
+class NoCache(Cache):
+	def isCached(self, pos):
+		return False
+
+	def getValue(self, pos, default=None):
+		return default
+
+	def putValue(self, pos, value):
+		pass
+
+# Base class for filters that operate on a window.
 class TechnicalIndicatorBase(dataseries.DataSeries):
+	DefaultCacheSize = 512
+
 	def __init__(self, windowSize, cacheSize=512):
 		assert(windowSize > 0)
-		self.__windowSize = windowSize
-		self.__cache = Cache(cacheSize)
 
-	def getCache(self):
-		return self.__cache
+		self.__windowSize = windowSize
+		if cacheSize > 0:
+			self.__cache = FIFOCache(cacheSize)
+		else:
+			self.__cache = NoCache()
 
 	def getWindowSize(self):
 		"""Returns the window size."""
@@ -77,10 +125,17 @@ class DataSeriesFilter(TechnicalIndicatorBase):
 	.. note::
 		This is a base class and should not be used directly.
 	"""
-	def __init__(self, dataSeries, windowSize, cacheSize=512):
+	def __init__(self, dataSeries, windowSize):
+		if dataSeries.supportsCaching():
+			cacheSize = TechnicalIndicatorBase.DefaultCacheSize
+		else:
+			cacheSize = 0
 		TechnicalIndicatorBase.__init__(self, windowSize, cacheSize)
 		self.__dataSeries = dataSeries
 		self.__firstValidPos = (windowSize - 1) + dataSeries.getFirstValidPos()
+
+	def supportsCaching(self):
+		return self.__dataSeries.supportsCaching()
 
 	def getFirstValidPos(self):
 		return self.__firstValidPos
@@ -95,28 +150,4 @@ class DataSeriesFilter(TechnicalIndicatorBase):
 	def getDateTimes(self):
 		return self.__dataSeries.getDateTimes()
 
-# Cache with FIFO replacement policy.
-class Cache:
-	class ValueNotCached:
-		pass
-
-	def __init__(self, size):
-		assert(size > 0)
-		self.__size = size
-		self.__cache = {}
-		self.__pos = []
-
-	def isCached(self, pos):
-		return pos in self.__cache
-
-	def getValue(self, pos, default=None):
-		return self.__cache.get(pos, default)
-
-	def putValue(self, pos, value):
-		self.__cache[pos] = value
-		self.__pos.append(pos)
-
-		# Free up an entry if necessary
-		if len(self.__cache) > self.__size:
-			del self.__cache[ self.__pos.pop(0) ]
 
