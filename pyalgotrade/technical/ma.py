@@ -20,15 +20,33 @@
 
 from pyalgotrade import technical
 
-def calculate_sma(filterDS, firstPos, lastPos):
+def calculate_sma(valueDS, firstPos, lastPos):
 	accum = 0
 	for i in xrange(firstPos, lastPos+1):
-		value = filterDS.getValueAbsolute(i)
+		value = valueDS.getValueAbsolute(i)
 		if value is None:
 			return None
 		accum += value
 
 	ret = accum / float(lastPos - firstPos + 1)
+	return ret
+
+def calculate_ema(valueDS, firstPos, lastPos, period):
+	# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+	assert(period > 1)
+	assert(lastPos - firstPos >= period - 1)
+
+	# The first value is a SMA
+	ret = calculate_sma(valueDS, firstPos, firstPos + period - 1)
+
+	multiplier = (2.0 / (period + 1))
+	i = firstPos + period
+	while i <= lastPos:
+		value = valueDS.getValueAbsolute(i)
+		if value is None:
+			return None
+		ret = (value - ret) * multiplier + ret
+		i += 1
 	return ret
 
 # This is the formula I'm using to calculate the averages based on previous ones.
@@ -75,8 +93,10 @@ class SMA(technical.DataSeriesFilter):
 
 	def __calculateSMA(self, firstPos, lastPos):
 		ret = calculate_sma(self.getDataSeries(), firstPos, lastPos)
-		self.__prevAvg = ret
-		self.__prevAvgPos = lastPos
+		# The fast sma calculation is only safe if the dataseries supports caching.
+		if self.getDataSeries().supportsCaching():
+			self.__prevAvg = ret
+			self.__prevAvgPos = lastPos
 		return ret
 
 	def getPeriod(self):
@@ -100,6 +120,7 @@ class EMA(technical.DataSeriesFilter):
 
 	def __init__(self, dataSeries, period):
 		technical.DataSeriesFilter.__init__(self, dataSeries, period)
+		assert(period > 1)
 		self.__multiplier = (2.0 / (self.getWindowSize() + 1))
 		self.__values = {}
 
@@ -133,16 +154,19 @@ class EMA(technical.DataSeriesFilter):
 		return ret
 
 	def calculateValue(self, firstPos, lastPos):
-		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+		if self.getDataSeries().supportsCaching():
+			# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+			lastValue, lastValuePos = self.__findPrevValue(lastPos-1)
+			if lastValue == None:
+				# If we don't have any previous value, we need to start from scratch.
+				lastValue = self.__calculateFirstValue()
+				lastValuePos = self.getFirstValidPos()
 
-		lastValue, lastValuePos = self.__findPrevValue(lastPos-1)
-		if lastValue == None:
-			# If we don't have any previous value, we need to start from scratch.
-			lastValue = self.__calculateFirstValue()
-			lastValuePos = self.getFirstValidPos()
-
-		# Calculate the EMA starting from the last one we have.
-		return self.__calculateEMA(lastValue, lastValuePos+1, lastPos)
+			# Calculate the EMA starting from the last one we have.
+			ret = self.__calculateEMA(lastValue, lastValuePos+1, lastPos)
+		else:
+			ret = calculate_ema(self.getDataSeries(), self.getDataSeries().getFirstValidPos(), lastPos, self.getWindowSize())
+		return ret
 
 class WMA(technical.DataSeriesFilter):
 	"""Weighted Moving Average filter.
