@@ -21,7 +21,19 @@
 from pyalgotrade import technical
 import numpy
 
-class StdDev(technical.DataSeriesFilter):
+class StdDevEventWindow(technical.EventWindow):
+	def __init__(self, period, ddof):
+		assert(period > 0)
+		technical.EventWindow.__init__(self, period)
+		self.__ddof = ddof
+
+	def getValue(self):
+		ret = None
+		if len(self.getValues()) == self.getWindowSize():
+			ret =  numpy.array(self.getValues()).std(ddof=self.__ddof)
+		return ret
+
+class StdDev(technical.DataSeriesFilterEx):
 	"""Standard deviation filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -33,13 +45,5 @@ class StdDev(technical.DataSeriesFilter):
 	"""
 
 	def __init__(self, dataSeries, period, ddof=0):
-		technical.DataSeriesFilter.__init__(self, dataSeries, period)
-		self.__ddof = ddof
-
-	def calculateValue(self, firstPos, lastPos):
-		ret = None
-		values = self.getDataSeries().getValuesAbsolute(firstPos, lastPos)
-		if values:
-			ret =  numpy.array(values).std(ddof=self.__ddof)
-		return ret
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, StdDevEventWindow(period, ddof))
 
