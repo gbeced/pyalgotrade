@@ -65,6 +65,8 @@ class LineBreak(dataseries.DataSeries):
 	"""
 
 	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False):
+		dataseries.DataSeries.__init__(self)
+
 		if not isinstance(barDataSeries, bards.BarDataSeries):
 			raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 		if reversalLines < 2:

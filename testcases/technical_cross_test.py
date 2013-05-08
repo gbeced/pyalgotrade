@@ -26,9 +26,14 @@ from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
 	def __buildCrossTechnical(self, cls, values1, values2, period):
-		ds1 = dataseries.SequenceDataSeries(values1)
-		ds2 = dataseries.SequenceDataSeries(values2)
-		return cls(ds1, ds2, period)
+		assert(len(values1) == len(values2))
+		ds1 = dataseries.SequenceDataSeries()
+		ds2 = dataseries.SequenceDataSeries()
+		ret = cls(ds1, ds2, period)
+		for i in xrange(len(values1)):
+			ds1.append(values1[i])
+			ds2.append(values2[i])
+		return ret
 
 	def testCrossAboveOnce(self):
 		values1 = [1, 1, 1, 10, 1, 1, 1]
@@ -145,13 +150,13 @@ class TestCase(unittest.TestCase):
 	def testWithSMAs(self):
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		crs = cross.CrossAbove(ma.SMA(ds1, 15),  ma.SMA(ds2, 25), 2)
+		sma1 = ma.SMA(ds1, 15)
+		sma2 = ma.SMA(ds2, 25)
+		crs = cross.CrossAbove(sma1, sma2, 2)
 		for i in range(100):
 			ds1.appendValue(i)
 			ds2.appendValue(50)
-			if i < 24:
-				self.assertTrue(crs[-1] == None)
-			elif i == 58:
+			if i == 58:
 				self.assertTrue(crs[-1] == 1)
 			else:
 				self.assertTrue(crs[-1] == 0)
@@ -170,5 +175,6 @@ def getTestCases():
 	ret.append(TestCase("testCrossBelowOnce"))
 	ret.append(TestCase("testCrossBelowMany"))
 	ret.append(TestCase("testWithSMAs"))
+
 	return ret
 

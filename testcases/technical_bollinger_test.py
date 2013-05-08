@@ -30,15 +30,17 @@ class TestCase(unittest.TestCase):
 		expectedUpper = [91.29, 91.95, 92.61, 92.93, 93.31, 93.73, 93.90, 94.27, 94.57, 94.79, 95.04, 94.91, 94.90, 94.90, 94.86, 94.67, 94.56, 94.68, 94.58, 94.53, 94.53, 94.37, 94.15]
 		expectedLower = [86.12, 86.14, 85.87, 85.85, 85.70, 85.65, 85.59, 85.56, 85.60, 85.98, 86.27, 86.82, 86.87, 86.91, 87.12, 87.63, 87.83, 87.56, 87.76, 87.97, 87.95, 87.96, 87.95]
 
-		ds = dataseries.SequenceDataSeries(prices)
-		bBands = bollinger.BollingerBands(ds, 20, 2)
+		seqDS = dataseries.SequenceDataSeries()
+		bBands = bollinger.BollingerBands(seqDS, 20, 2)
+		for value in prices:
+			seqDS.append(value)
 
 		for i in xrange(19):
 			self.assertEquals(bBands.getMiddleBand()[i], None)
 			self.assertEquals(bBands.getUpperBand()[i], None)
 			self.assertEquals(bBands.getLowerBand()[i], None)
 
-		for i in xrange(19, len(ds)):
+		for i in xrange(19, len(seqDS)):
 			self.assertEquals(round(bBands.getMiddleBand()[i], 2), expectedMiddle[i-19])
 			self.assertEquals(round(bBands.getUpperBand()[i], 2), expectedUpper[i-19])
 			self.assertEquals(round(bBands.getLowerBand()[i], 2), expectedLower[i-19])

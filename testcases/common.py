@@ -37,7 +37,7 @@ def load_test_csv(path):
 			expected = float(expected)
 		expectedSeq.append(expected)
 
-	return (dataseries.SequenceDataSeries(inputSeq), dataseries.SequenceDataSeries(expectedSeq))
+	return inputSeq, expectedSeq
 
 def normalize_value(value, decimals):
 	if value != None:
@@ -47,17 +47,13 @@ def normalize_value(value, decimals):
 def get_data_file_path(fileName):
 	return os.path.join(os.path.split(__file__)[0], "data", fileName)
 
-def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, reverseOrder = False):
-	inputDS, expectedDS = load_test_csv(get_data_file_path(filename))
-
-	if reverseOrder:
-		generator = xrange(inputDS.getLength()-1, -1, -1)
-	else:
-		generator = xrange(inputDS.getLength())
-
-	filterInstance = filterClassBuilder(inputDS)
-	for i in generator:
-		value = normalize_value(filterInstance[i], roundDecimals)
-		expectedValue = normalize_value(expectedDS[i], roundDecimals)
+def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2):
+	inputValues, expectedValues = load_test_csv(get_data_file_path(filename))
+	inputDS = dataseries.SequenceDataSeries()
+	filterDS = filterClassBuilder(inputDS)
+	for i in xrange(len(inputValues)):
+		inputDS.append(inputValues[i])
+		value = normalize_value(filterDS[i], roundDecimals)
+		expectedValue = normalize_value(expectedValues[i], roundDecimals)
 		testcase.assertEquals(value, expectedValue)
 

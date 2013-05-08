@@ -31,6 +31,17 @@ def calculate_sma(valueDS, firstPos, lastPos):
 	ret = accum / float(lastPos - firstPos + 1)
 	return ret
 
+def calculate_sma_new(values, begin, end):
+	accum = 0
+	for i in xrange(begin, end):
+		value = values[i]
+		if value is None:
+			return None
+		accum += value
+
+	ret = accum / float(end - begin)
+	return ret
+
 def calculate_ema(valueDS, firstPos, lastPos, period):
 	# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
 	assert(period > 1)
@@ -66,7 +77,30 @@ def calculate_ema(valueDS, firstPos, lastPos, period):
 # avg1 = avg0 - x 
 # avg1 = avg0 + d/3 - a/3
 
-class SMA(technical.DataSeriesFilter):
+class SMAEventWindow(technical.EventWindow):
+	def __init__(self, period):
+		assert(period > 0)
+		technical.EventWindow.__init__(self, period)
+		self.__value = None
+
+	def onNewValue(self, dateTime, value):
+		firstValue = None
+		if len(self.getValues()) > 0:
+			firstValue = self.getValues()[0]
+			assert(firstValue != None)
+
+		technical.EventWindow.onNewValue(self, dateTime, value)
+
+		if value != None and len(self.getValues()) == self.getWindowSize():
+			if self.__value == None:
+				self.__value = calculate_sma_new(self.getValues(), 0, self.getWindowSize())
+			else:
+				self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
+
+	def getValue(self):
+		return self.__value
+
+class SMA(technical.DataSeriesFilterEx):
 	"""Simple Moving Average filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -74,129 +108,67 @@ class SMA(technical.DataSeriesFilter):
 	:param period: The number of values to use to calculate the SMA.
 	:type period: int.
 	"""
-
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilter.__init__(self, dataSeries, period)
-		self.__prevAvg = None
-		self.__prevAvgPos = None
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, SMAEventWindow(period))
 
-	def __calculateFastSMA(self, firstPos, lastPos):
-		assert(firstPos > 0)
-		firstValue = self.getDataSeries().getValueAbsolute(firstPos-1)
-		lastValue = self.getDataSeries().getValueAbsolute(lastPos)
-		if lastValue is None:
-			return None
+class EMAEventWindow(technical.EventWindow):
+	def __init__(self, period):
+		assert(period > 1)
+		technical.EventWindow.__init__(self, period)
+		self.__multiplier = (2.0 / (period + 1))
+		self.__value = None
 
-		self.__prevAvg = self.__prevAvg + lastValue / float(self.getPeriod()) - firstValue / float(self.getPeriod())
-		self.__prevAvgPos = lastPos
-		return self.__prevAvg
+	def onNewValue(self, dateTime, value):
+		technical.EventWindow.onNewValue(self, dateTime, value)
 
-	def __calculateSMA(self, firstPos, lastPos):
-		ret = calculate_sma(self.getDataSeries(), firstPos, lastPos)
-		# The fast sma calculation is only safe if the dataseries supports caching.
-		if self.getDataSeries().supportsCaching():
-			self.__prevAvg = ret
-			self.__prevAvgPos = lastPos
-		return ret
+		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+		if value != None and len(self.getValues()) == self.getWindowSize():
+			if self.__value == None:
+				self.__value = calculate_sma_new(self.getValues(), 0, len(self.getValues()))
+			else:
+				self.__value = (value - self.__value) * self.__multiplier + self.__value
 
-	def getPeriod(self):
-		return self.getWindowSize()
+	def getValue(self):
+		return self.__value
 
-	def calculateValue(self, firstPos, lastPos):
-		if self.__prevAvgPos != None and self.__prevAvgPos == lastPos - 1:
-			ret = self.__calculateFastSMA(firstPos, lastPos)
-		else:
-			ret = self.__calculateSMA(firstPos, lastPos)
-		return ret
-
-class EMA(technical.DataSeriesFilter):
+class EMA(technical.DataSeriesFilterEx):
 	"""Exponential Moving Average filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param period: The number of values to use to calculate the EMA.
+	:param period: The number of values to use to calculate the EMA. Must be an integer greater than 1.
 	:type period: int.
 	"""
 
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilter.__init__(self, dataSeries, period)
-		assert(period > 1)
-		self.__multiplier = (2.0 / (self.getWindowSize() + 1))
-		self.__values = {}
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, EMAEventWindow(period))
 
-	def getPeriod(self):
-		return self.getWindowSize()
+class WMAEventWindow(technical.EventWindow):
+	def __init__(self, weights):
+		assert(len(weights) > 0)
+		technical.EventWindow.__init__(self, len(weights))
+		self.__weights = weights
 
-	# Finds the last available (value, position) starting from pos.
-	def __findPrevValue(self, pos):
+	def getValue(self):
 		ret = None
-		while pos >= self.getFirstValidPos() and ret == None:
-			ret = self.__values.get(pos)
-			if ret == None:
-				pos -= 1
-		return (ret, pos)
-
-	def __calculateFirstValue(self):
-		# Calculate the first value, which is a SMA of the first X values of the wrapped data series.
-		smaEnd = self.getFirstValidPos()
-		smaBegin = smaEnd - (self.getWindowSize() - 1)
-		ret = calculate_sma(self.getDataSeries(), smaBegin, smaEnd)
-		self.__values[self.getFirstValidPos()] = ret
+		if len(self.getValues()) == self.getWindowSize():
+			accum = 0
+			weightSum = 0
+			for i, value in enumerate(self.getValues()):
+				weight = self.__weights[i]
+				accum += value * weight
+				weightSum += weight
+			ret = accum / float(weightSum)
 		return ret
 
-	def __calculateEMA(self, startingValue, fromPos, toPos):
-		ret = startingValue
-		while fromPos <= toPos:
-			currValue = self.getDataSeries().getValueAbsolute(fromPos)
-			ret = (currValue - ret) * self.__multiplier + ret
-			self.__values[fromPos] = ret
-			fromPos += 1
-		return ret
-
-	def calculateValue(self, firstPos, lastPos):
-		if self.getDataSeries().supportsCaching():
-			# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-			lastValue, lastValuePos = self.__findPrevValue(lastPos-1)
-			if lastValue == None:
-				# If we don't have any previous value, we need to start from scratch.
-				lastValue = self.__calculateFirstValue()
-				lastValuePos = self.getFirstValidPos()
-
-			# Calculate the EMA starting from the last one we have.
-			ret = self.__calculateEMA(lastValue, lastValuePos+1, lastPos)
-		else:
-			ret = calculate_ema(self.getDataSeries(), self.getDataSeries().getFirstValidPos(), lastPos, self.getWindowSize())
-		return ret
-
-class WMA(technical.DataSeriesFilter):
+class WMA(technical.DataSeriesFilterEx):
 	"""Weighted Moving Average filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 	:param weights: A list of int/float with the weights.
 	:type weights: list.
-	
 	"""
 	def __init__(self, dataSeries, weights):
-		technical.DataSeriesFilter.__init__(self, dataSeries, len(weights))
-		self.__weights = weights
-
-	def getPeriod(self):
-		return self.getWindowSize()
-
-	def getWeights(self):
-		return self.__weights
-
-	def calculateValue(self, firstPos, lastPos):
-		accum = 0
-		weightSum = 0
-		for i in xrange(firstPos, lastPos+1):
-			value = self.getDataSeries().getValueAbsolute(i)
-			if value is None:
-				return None
-
-			weight = self.__weights[i - firstPos]
-			accum += value * weight
-			weightSum += weight
-		return accum / float(weightSum)
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, WMAEventWindow(weights))
 

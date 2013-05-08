@@ -40,19 +40,20 @@ class TestCase(unittest.TestCase):
 		self.__currSeconds += 1
 		return bar.Bar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice)
 
-	def __buildBarDataSeries(self, closePrices, highPrices, lowPrices):
+	def __fillBarDataSeries(self, barDS, closePrices, highPrices, lowPrices):
 		assert(len(closePrices) == len(highPrices) == len(lowPrices))
-		ret = bards.BarDataSeries()
 		for i in range(len(highPrices)):
-			ret.appendValue( self.__buildBar(closePrices[i], highPrices[i], lowPrices[i], closePrices[i]) )
-		return ret
+			barDS.appendValue( self.__buildBar(closePrices[i], highPrices[i], lowPrices[i], closePrices[i]) )
 
 	def testShortPeriod(self):
 		highPrices = [3, 3, 3]
 		lowPrices = [1, 1, 1]
 		closePrices = [2, 2, 3]
 
-		stochFilter = stoch.StochasticOscillator(self.__buildBarDataSeries(closePrices, highPrices, lowPrices), 2, 2)
+		barDS = bards.BarDataSeries()
+		stochFilter = stoch.StochasticOscillator(barDS, 2, 2)
+		self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
+
 		self.assertTrue( values_equal(stochFilter[0], None) )
 		self.assertTrue( values_equal(stochFilter[1], 50) )
 		self.assertTrue( values_equal(stochFilter[2], 100) )
@@ -74,7 +75,10 @@ class TestCase(unittest.TestCase):
 		kValues = [None, None, None, None, None, None, None, None, None, None, None, None, None, 70.4382, 67.6089, 89.2021, 65.8106, 81.7477, 64.5238, 74.5298, 98.5814, 70.1045, 73.0561, 73.4178, 61.2313, 60.9563, 40.3861, 40.3861, 66.8285, 56.7314]
 		dValues = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, 75.7497, 74.2072, 78.9201, 70.6940, 73.6004, 79.2117, 81.0719, 80.5807, 72.1928, 69.2351, 65.2018, 54.1912, 47.2428, 49.2003, 54.6487]
 
-		stochFilter = stoch.StochasticOscillator(self.__buildBarDataSeries(closePrices, highPrices, lowPrices), 14)
+		barDS = bards.BarDataSeries()
+		stochFilter = stoch.StochasticOscillator(barDS, 14)
+		self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
+
 		for i in range(len(kValues)):
 			self.assertTrue( values_equal(stochFilter[i], kValues[i]) )
 			self.assertTrue( values_equal(stochFilter.getD()[i], dValues[i]) )

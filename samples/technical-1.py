@@ -14,11 +14,13 @@ class Accumulator(technical.DataSeriesFilter):
             accum += value
         return accum
 
-# Build a sequence based DataSeries.
-ds = dataseries.SequenceDataSeries(range(0, 50))
+# Build a sequence based DataSeries and wrap it with a 3 element Accumulator filter.
+seqDS = dataseries.SequenceDataSeries()
+ds = Accumulator(seqDS, 3)
 
-# Wrap it with a 3 element Accumulator filter.
-ds = Accumulator(ds, 3)
+# Put in some values.
+for i in range(0, 50):
+	seqDS.append(i)
 
 # Get some values.
 print ds[0] # Not enough values yet.

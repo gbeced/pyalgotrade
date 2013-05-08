@@ -1,7 +1,9 @@
 from pyalgotrade import dataseries
 
-# Build a sequence based DataSeries.
-ds = dataseries.SequenceDataSeries(range(0, 50))
+# Build a sequence based DataSeries and put in some values.
+ds = dataseries.SequenceDataSeries()
+for i in range(0, 50):
+	ds.append(i)
 
 # Get the last value.
 print ds[49]

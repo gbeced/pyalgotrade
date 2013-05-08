@@ -24,7 +24,11 @@ from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
 	def __buildRatio(self, values):
-		return ratio.Ratio(dataseries.SequenceDataSeries(values))
+		seqDS = dataseries.SequenceDataSeries()
+		ret = ratio.Ratio(seqDS)
+		for value in values:
+			seqDS.append(value)
+		return ret
 
 	def testSimple(self):
 		ratio = self.__buildRatio([1, 2, 1])

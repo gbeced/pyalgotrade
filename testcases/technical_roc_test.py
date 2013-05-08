@@ -24,7 +24,11 @@ from pyalgotrade import dataseries
 
 class ROCTestCase(unittest.TestCase):
 	def __buildROC(self, values, period):
-		return roc.RateOfChange(dataseries.SequenceDataSeries(values), period)
+		seqDS = dataseries.SequenceDataSeries()
+		ret = roc.RateOfChange(seqDS, period)
+		for value in values:
+			seqDS.append(value)
+		return ret
 
 	def testPeriod12(self):
 		# http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change

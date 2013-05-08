@@ -24,7 +24,11 @@ from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
 	def __buildTrend(self, values, trendDays, positiveThreshold, negativeThreshold):
-		return trend.Trend(dataseries.SequenceDataSeries(values), trendDays, positiveThreshold, negativeThreshold)
+		seqDS = dataseries.SequenceDataSeries()
+		ret = trend.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold)
+		for value in values:
+			seqDS.append(value)
+		return ret
 
 	def testTrend(self):
 		trend = self.__buildTrend([1, 2, 3, 2, 1], 3, 0, 0)

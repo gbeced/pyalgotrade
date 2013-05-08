@@ -20,6 +20,7 @@
 
 from pyalgotrade.utils import collections
 from pyalgotrade import warninghelpers
+from pyalgotrade import observer
 
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
@@ -29,6 +30,9 @@ class DataSeries(object):
 	.. note::
 		This is a base class and should not be used directly.
 	"""
+
+	def __init__(self):
+		self.__newValueEvent = observer.Event()
 
 	def __len__(self):
 		"""Returns the number of elements in the data series."""
@@ -48,6 +52,13 @@ class DataSeries(object):
 		else:
 			raise TypeError("Invalid argument type")
 
+	# Event handler receives:
+	# 1: Dataseries generating the event
+	# 2: The datetime for the new value
+	# 3: The new value
+	def getNewValueEvent(self):
+		return self.__newValueEvent
+
 	def getFirstValidPos(self):
 		raise NotImplementedError()
 
@@ -60,13 +71,6 @@ class DataSeries(object):
 
 	def getDateTimes(self):
 		"""Returns a list of :class:`datetime.datetime` associated with each value."""
-		raise NotImplementedError()
-
-	# Should return True if its safe to cache return values.
-	# If I get value at position x, and that value will always be the same, then it is safe to cache
-	# return values, otherwise its not.
-	# This is a property of a dataseries that should not change during its lifetime.
-	def supportsCaching(self):
 		raise NotImplementedError()
 
 	# Returns a sequence of absolute values [firstPos, lastPos].
@@ -118,28 +122,12 @@ class DataSeries(object):
 		return ret
 
 class SequenceDataSeries(DataSeries):
-	"""A sequence based :class:`DataSeries`.
+	"""A sequence based :class:`DataSeries`."""
 
-	:param values: The values that this DataSeries will hold. If its None, an empty list is used.
-	:type values: list.
-	:param dateTimes: A list of the :class:`datetime.datetime` associated with each value. If this is not None,
-		 it has be the same length as *values*.
-	:type dateTimes: list.
-
-	.. note::
-		Neither *values* nor *dateTimes* get cloned, and this class takes ownership of them.
-	"""
-
-	def __init__(self, values = None, dateTimes = None):
-		if values != None:
-			self.__values = values
-			if dateTimes == None:
-				self.__dateTimes = [None for v in self.__values]
-			elif len(dateTimes) != len(values):
-				raise Exception("The number of datetimes don't match the number of values")
-		else:
-			self.__values = []
-			self.__dateTimes = []
+	def __init__(self):
+		DataSeries.__init__(self)
+		self.__values = []
+		self.__dateTimes = []
 
 	def __len__(self):
 		return len(self.__values)
@@ -152,9 +140,6 @@ class SequenceDataSeries(DataSeries):
 
 	def getLength(self):
 		return len(self.__values)
-
-	def supportsCaching(self):
-		return True
 
 	def getValueAbsolute(self, pos):
 		ret = None
@@ -183,6 +168,7 @@ class SequenceDataSeries(DataSeries):
 		self.__values.append(value)
 		assert(len(self.__values) == len(self.__dateTimes))
 
+		self.getNewValueEvent().emit(self, dateTime, value)
 
 	def appendValueWithDatetime(self, dateTime, value):
 		# TODO: Deprecate this.
@@ -262,6 +248,7 @@ class AlignedDataSeriesSharedState:
 
 class AlignedDataSeries(DataSeries):
 	def __init__(self, ds):
+		DataSeries.__init__(self)
 		self.__shared = None
 		self.__ds = ds
 		self.__dateTimes = []

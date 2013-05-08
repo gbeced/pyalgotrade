@@ -50,18 +50,76 @@ def gain_loss_one(prevValue, nextValue):
 		loss = 0
 	return gain, loss
 
-def avg_gain_loss(values):
-	assert(len(values) > 1)
+# [begin, end)
+def avg_gain_loss(values, begin, end):
+	rangeLen = end - begin
+	if rangeLen < 2:
+		return None
 
 	gain = 0
 	loss = 0
-	for i in xrange(1, len(values)):
+	for i in xrange(begin+1, end):
 		currGain, currLoss = gain_loss_one(values[i-1], values[i])
 		gain += currGain
 		loss += currLoss
-	return (gain/float(len(values)-1), loss/float(len(values)-1))
+	return (gain/float(rangeLen-1), loss/float(rangeLen-1))
 
-class RSI(technical.DataSeriesFilter):
+def rsi(values, period):
+	assert(period > 1)
+	if len(values) < period + 1:
+		return None
+
+	avgGain, avgLoss = avg_gain_loss(values, 0, period)
+	for i in xrange(period, len(values)):
+		gain, loss = gain_loss_one(values[i-1], values[i])
+		avgGain = (avgGain * (period - 1) + gain) / float(period)
+		avgLoss = (avgLoss * (period - 1) + loss) / float(period)
+
+	if avgLoss == 0:
+		return 100
+	rs = avgGain / avgLoss
+	return 100 - 100 / (1 + rs)
+
+class RSIEventWindow(technical.EventWindow):
+	def __init__(self, period):
+		assert(period > 1)
+		# We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
+		technical.EventWindow.__init__(self, period + 1)
+		self.__value = None
+		self.__prevGain = None
+		self.__prevLoss = None
+		self.__period = period
+
+	def onNewValue(self, dateTime, value):
+		technical.EventWindow.onNewValue(self, dateTime, value)
+
+		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+		if value != None and len(self.getValues()) == self.getWindowSize():
+			if self.__prevGain == None:
+				assert(self.__prevLoss == None)
+				avgGain, avgLoss = avg_gain_loss(self.getValues(), 0, len(self.getValues()))
+			else:
+				# Rest of averages are smoothed
+				assert(self.__prevLoss != None)
+				prevValue = self.getValues()[-2]
+				currValue = self.getValues()[-1]
+				currGain, currLoss = gain_loss_one(prevValue, currValue)
+				avgGain = (self.__prevGain * (self.__period-1) + currGain) / float(self.__period)
+				avgLoss = (self.__prevLoss * (self.__period-1) + currLoss) / float(self.__period)
+					
+			if avgLoss == 0:
+				self.__value = 100
+			else:
+				rs = avgGain / avgLoss
+				self.__value = 100 - 100 / (1 + rs)
+
+			self.__prevGain = avgGain
+			self.__prevLoss = avgLoss
+
+	def getValue(self):
+		return self.__value
+
+class RSI(technical.DataSeriesFilterEx):
 	"""Relative Strength Index filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -71,51 +129,5 @@ class RSI(technical.DataSeriesFilter):
 	"""
 
 	def __init__(self, dataSeries, period):
-		assert(period > 1)
-		# We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
-		technical.DataSeriesFilter.__init__(self, dataSeries, period + 1)
-
-		self.__period = period
-		self.__averages = {}
-
-	def getPeriod(self):
-		return self.__period
-
-	def __getAverages(self, pos):
-		ret =  self.__averages.get(pos, None)
-		if ret is None:
-			if pos == self.getFirstValidPos():
-				# First averages
-				values = self.getDataSeries().getValuesAbsolute(pos - self.__period, pos)
-				assert(values is not None)
-				ret = avg_gain_loss(values)
-			else:
-				# Rest of averages are smoothed
-				prevAvgGain, prevAvgLoss = self.__getAverages(pos - 1)
-				assert(prevAvgGain != None)
-				assert(prevAvgLoss != None)
-
-				prevValue = self.getDataSeries().getValueAbsolute(pos-1)
-				assert(prevValue != None)
-				currValue = self.getDataSeries().getValueAbsolute(pos)
-				assert(currValue != None)
-				currGain, currLoss = gain_loss_one(prevValue, currValue)
-
-				avgGain = (prevAvgGain * (self.__period-1) + currGain) / float(self.__period)
-				avgLoss = (prevAvgLoss * (self.__period-1) + currLoss) / float(self.__period)
-				ret = (avgGain, avgLoss)
-
-			self.__averages[pos] = ret
-
-		return ret
-
-	def calculateValue(self, firstPos, lastPos):
-		avgGain, avgLoss = self.__getAverages(lastPos)
-
-		if avgLoss == 0:
-			return 100
-		rs = avgGain / avgLoss
-		rsi = 100 - 100 / (1 + rs)
-
-		return rsi
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, RSIEventWindow(period))
 

@@ -25,14 +25,21 @@ import numpy
 
 class TestCase(unittest.TestCase):
 	def testStdDev_1(self):
-		ds = dataseries.SequenceDataSeries([1, 1, 2, 3, 5])
-		stdDev = stats.StdDev(ds, 1)
+		values = [1, 1, 2, 3, 5]
+		seqDS = dataseries.SequenceDataSeries()
+		stdDev = stats.StdDev(seqDS, 1)
+		for value in values:
+			seqDS.append(value)
 		for i in stdDev:
 			self.assertEquals(i, 0)
 
 	def testStdDev(self):
-		ds = dataseries.SequenceDataSeries([1, 1, 2, 3, 5])
-		stdDev = stats.StdDev(ds, 2)
+		values = [1, 1, 2, 3, 5]
+		seqDS = dataseries.SequenceDataSeries()
+		stdDev = stats.StdDev(seqDS, 2)
+		for value in values:
+			seqDS.append(value)
+
 		self.assertEquals(stdDev[0], None)
 		self.assertEquals(stdDev[1], numpy.array([1, 1]).std())
 		self.assertEquals(stdDev[2], numpy.array([1, 2]).std())

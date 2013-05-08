@@ -53,7 +53,21 @@ def get_low_high_values(barWrapper, bars):
 		highestHigh = max(highestHigh, barWrapper.getHigh(currBar))
 	return (lowestLow, highestHigh)
 
-class StochasticOscillator(technical.DataSeriesFilter):
+class SOEventWindow(technical.EventWindow):
+	def __init__(self, period, useAdjustedValues):
+		assert(period > 1)
+		technical.EventWindow.__init__(self, period)
+		self.__barWrapper = BarWrapper(useAdjustedValues)
+
+	def getValue(self):
+		ret = None
+		if len(self.getValues()) == self.getWindowSize():
+			lowestLow, highestHigh = get_low_high_values(self.__barWrapper, self.getValues())
+			currentClose = self.__barWrapper.getClose(self.getValues()[-1])
+			ret = (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100
+		return ret
+
+class StochasticOscillator(technical.DataSeriesFilterEx):
 	"""Stochastic Oscillator filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillato.
 	Note that the value returned by this filter is %K. To access %D use :meth:`getD`.
 
@@ -68,20 +82,9 @@ class StochasticOscillator(technical.DataSeriesFilter):
 	"""
 
 	def __init__(self, barDataSeries, period, dSMAPeriod = 3, useAdjustedValues = False):
-		assert(period > 1)
 		assert(dSMAPeriod > 1)
-		technical.DataSeriesFilter.__init__(self, barDataSeries, period)
+		technical.DataSeriesFilterEx.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues))
 		self.__d = ma.SMA(self, dSMAPeriod)
-		self.__barWrapper = BarWrapper(useAdjustedValues)
-
-	def calculateValue(self, firstPos, lastPos):
-		bars = self.getDataSeries().getValuesAbsolute(firstPos, lastPos)
-		if bars == None:
-			return None
-
-		lowestLow, highestHigh = get_low_high_values(self.__barWrapper, bars)
-		currentClose = self.__barWrapper.getClose(bars[-1])
-		return (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100
 
 	def getD(self):
 		"""Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""

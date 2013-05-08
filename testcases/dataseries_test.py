@@ -27,7 +27,7 @@ from pyalgotrade import bar
 
 class TestSequenceDataSeries(unittest.TestCase):
 	def testEmpty(self):
-		ds = dataseries.SequenceDataSeries([])
+		ds = dataseries.SequenceDataSeries()
 		self.assertTrue(ds.getFirstValidPos() == 0)
 		self.assertTrue(ds.getLength() == 0)
 		with self.assertRaises(IndexError):
@@ -40,7 +40,9 @@ class TestSequenceDataSeries(unittest.TestCase):
 			ds[1]
 
 	def testNonEmpty(self):
-		ds = dataseries.SequenceDataSeries(range(10))
+		ds = dataseries.SequenceDataSeries()
+		for value in range(10):
+			ds.append(value)
 		self.assertTrue(ds.getFirstValidPos() == 0)
 		self.assertTrue(ds.getLength() == 10)
 		self.assertTrue(ds[-1] == 9)
@@ -60,7 +62,9 @@ class TestSequenceDataSeries(unittest.TestCase):
 
 	def testSeqLikeOps(self):
 		seq = range(10)
-		ds = dataseries.SequenceDataSeries(seq)
+		ds = dataseries.SequenceDataSeries()
+		for value in seq:
+			ds.append(value)
 
 		# Test length and every item.
 		self.assertEqual(len(ds), len(seq))

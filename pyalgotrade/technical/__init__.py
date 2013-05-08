@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import collections
+
 from pyalgotrade import dataseries
 
 class Cache:
@@ -64,13 +66,54 @@ class NoCache(Cache):
 	def putValue(self, pos, value):
 		pass
 
+class EventWindow:
+	def __init__(self, windowSize):
+		assert(windowSize > 0)
+		self.__values = collections.deque(maxlen=windowSize)
+		self.__windowSize = windowSize
+
+	def onNewValue(self, dateTime, value):
+		if value != None:
+			self.__values.append(value)
+
+	def getValues(self):
+		return self.__values
+
+	def getWindowSize(self):
+		return self.__windowSize
+
+	def getValue(self):
+		raise NotImplementedError()
+
+# Base class for DataSeries filters based on EventWindow implementations.
+class DataSeriesFilterEx(dataseries.SequenceDataSeries):
+	def __init__(self, dataSeries, eventWindow):
+		dataseries.SequenceDataSeries.__init__(self)
+
+		self.__dataSeries = dataSeries
+		self.__dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
+		self.__eventWindow = eventWindow
+
+	def __onNewValue(self, dataSeries, dateTime, value):
+		# Let the event window perform calculations.
+		self.__eventWindow.onNewValue(dateTime, value)
+		# Get the resulting value
+		newValue = self.__eventWindow.getValue()
+		# Add the new value.
+		self.appendWithDateTime(dateTime, newValue)
+
+	def getDataSeries(self):
+		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
+		return self.__dataSeries
+
 # Base class for filters that operate on a window.
 class TechnicalIndicatorBase(dataseries.DataSeries):
 	DefaultCacheSize = 512
 
 	def __init__(self, windowSize, cacheSize=512):
-		assert(windowSize > 0)
+		dataseries.DataSeries.__init__(self)
 
+		assert(windowSize > 0)
 		self.__windowSize = windowSize
 		if cacheSize > 0:
 			self.__cache = FIFOCache(cacheSize)
@@ -126,16 +169,9 @@ class DataSeriesFilter(TechnicalIndicatorBase):
 		This is a base class and should not be used directly.
 	"""
 	def __init__(self, dataSeries, windowSize):
-		if dataSeries.supportsCaching():
-			cacheSize = TechnicalIndicatorBase.DefaultCacheSize
-		else:
-			cacheSize = 0
-		TechnicalIndicatorBase.__init__(self, windowSize, cacheSize)
+		TechnicalIndicatorBase.__init__(self, windowSize)
 		self.__dataSeries = dataSeries
 		self.__firstValidPos = (windowSize - 1) + dataSeries.getFirstValidPos()
-
-	def supportsCaching(self):
-		return self.__dataSeries.supportsCaching()
 
 	def getFirstValidPos(self):
 		return self.__firstValidPos
