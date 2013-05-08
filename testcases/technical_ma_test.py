@@ -164,19 +164,6 @@ class WMATestCase(unittest.TestCase):
 			self.assertEqual(wma.getDateTimes()[i], None)
 
 class EMATestCase(unittest.TestCase):
-	def testEMAFunc(self):
-		period = 2
-		values = [1, 2, 3, 4, 5]
-		seqDS = dataseries.SequenceDataSeries()
-		ema = ma.EMA(seqDS, period)
-		for value in values:
-			seqDS.append(value)
-
-		self.assertEqual(ema[1], ma.calculate_ema(seqDS, 0, 1, period))
-		self.assertEqual(ema[2], ma.calculate_ema(seqDS, 0, 2, period))
-		self.assertEqual(ema[3], ma.calculate_ema(seqDS, 0, 3, period))
-		self.assertEqual(ema[4], ma.calculate_ema(seqDS, 0, 4, period))
-
 	def testStockChartsEMA(self):
 		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
 		common.test_from_csv(self, "sc-ema-10.csv", lambda inputDS: ma.EMA(inputDS, 10), 3)
@@ -206,7 +193,6 @@ def getTestCases():
 	ret.append(WMATestCase("testPeriod1"))
 	ret.append(WMATestCase("testPeriod2"))
 
-	ret.append(EMATestCase("testEMAFunc"))
 	ret.append(EMATestCase("testStockChartsEMA"))
 	ret.append(EMATestCase("testMaxRecursion"))
 

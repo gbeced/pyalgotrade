@@ -20,18 +20,7 @@
 
 from pyalgotrade import technical
 
-def calculate_sma(valueDS, firstPos, lastPos):
-	accum = 0
-	for i in xrange(firstPos, lastPos+1):
-		value = valueDS.getValueAbsolute(i)
-		if value is None:
-			return None
-		accum += value
-
-	ret = accum / float(lastPos - firstPos + 1)
-	return ret
-
-def calculate_sma_new(values, begin, end):
+def calculate_sma(values, begin, end):
 	accum = 0
 	for i in xrange(begin, end):
 		value = values[i]
@@ -40,24 +29,6 @@ def calculate_sma_new(values, begin, end):
 		accum += value
 
 	ret = accum / float(end - begin)
-	return ret
-
-def calculate_ema(valueDS, firstPos, lastPos, period):
-	# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-	assert(period > 1)
-	assert(lastPos - firstPos >= period - 1)
-
-	# The first value is a SMA
-	ret = calculate_sma(valueDS, firstPos, firstPos + period - 1)
-
-	multiplier = (2.0 / (period + 1))
-	i = firstPos + period
-	while i <= lastPos:
-		value = valueDS.getValueAbsolute(i)
-		if value is None:
-			return None
-		ret = (value - ret) * multiplier + ret
-		i += 1
 	return ret
 
 # This is the formula I'm using to calculate the averages based on previous ones.
@@ -93,7 +64,7 @@ class SMAEventWindow(technical.EventWindow):
 
 		if value != None and len(self.getValues()) == self.getWindowSize():
 			if self.__value == None:
-				self.__value = calculate_sma_new(self.getValues(), 0, self.getWindowSize())
+				self.__value = calculate_sma(self.getValues(), 0, self.getWindowSize())
 			else:
 				self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
 
@@ -124,7 +95,7 @@ class EMAEventWindow(technical.EventWindow):
 		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
 		if value != None and len(self.getValues()) == self.getWindowSize():
 			if self.__value == None:
-				self.__value = calculate_sma_new(self.getValues(), 0, len(self.getValues()))
+				self.__value = calculate_sma(self.getValues(), 0, len(self.getValues()))
 			else:
 				self.__value = (value - self.__value) * self.__multiplier + self.__value
 
