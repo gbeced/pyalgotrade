@@ -21,18 +21,21 @@
 from pyalgotrade import technical
 from pyalgotrade import utils
 
+class RatioEventWindow(technical.EventWindow):
+	def __init__(self):
+		technical.EventWindow.__init__(self, 2)
+
+	def getValue(self):
+		ret = None
+		if len(self.getValues()) == self.getWindowSize():
+			prev = self.getValues()[0]
+			actual = self.getValues()[-1]
+			ret = utils.get_change_percentage(actual, prev)
+		return ret
+
 # Calculates the ratio between a value and the previous one.
 # The ratio can't be calculated if a previous value is 0.
-class Ratio(technical.DataSeriesFilter):
+class Ratio(technical.DataSeriesFilterEx):
 	def __init__(self, dataSeries):
-		technical.DataSeriesFilter.__init__(self, dataSeries, 2)
-
-	def calculateValue(self, firstPos, lastPos):
-		prev = self.getDataSeries().getValueAbsolute(firstPos)
-		actual = self.getDataSeries().getValueAbsolute(lastPos)
-
-		if actual is None or prev is None or prev == 0:
-			return None
-
-		return utils.get_change_percentage(actual, prev)
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, RatioEventWindow())
 

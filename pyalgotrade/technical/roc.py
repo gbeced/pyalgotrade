@@ -33,7 +33,6 @@ class ROCEventWindow(technical.EventWindow):
 				ret = (actual - prev) / float(prev) * 100
 		return ret
 
-
 class RateOfChange(technical.DataSeriesFilterEx):
 	"""Rate of change filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change.
 
