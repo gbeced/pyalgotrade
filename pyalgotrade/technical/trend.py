@@ -23,7 +23,19 @@ from pyalgotrade import technical
 import numpy
 from scipy import stats
 
-class Slope(technical.DataSeriesFilter):
+class SlopeEventWindow(technical.EventWindow):
+	def __init__(self, windowSize):
+		technical.EventWindow.__init__(self, windowSize)
+		self.__x = numpy.array(range(windowSize))
+
+	def getValue(self):
+		ret = None
+		if len(self.getValues()) == self.getWindowSize():
+			y = numpy.array(self.getValues())
+			ret = stats.linregress(self.__x, y)[0]
+		return ret
+
+class Slope(technical.DataSeriesFilterEx):
 	"""The Slope filter calculates the slope of the least-squares regression line.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -33,36 +45,32 @@ class Slope(technical.DataSeriesFilter):
 	"""
 
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilter.__init__(self, dataSeries, period)
-		self.__x = numpy.array(range(period))
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, SlopeEventWindow(period))
 
 	def getTrendDays(self):
 		return self.getWindowSize()
 
-	def calculateValue(self, firstPos, lastPos):
-		values = self.getDataSeries().getValuesAbsolute(firstPos, lastPos)
-		if values is None:
-			return None
-
-		y = numpy.array(values)
-		return stats.linregress(self.__x, y)[0]
-
-class Trend(Slope):
-	def __init__(self, dataSeries, trendDays, positiveThreshold = 0, negativeThreshold = 0):
+class TrendEventWindow(SlopeEventWindow):
+	def __init__(self, windowSize, positiveThreshold, negativeThreshold):
 		if negativeThreshold > positiveThreshold:
 			raise Exception("Invalid thresholds")
 
-		Slope.__init__(self, dataSeries, trendDays)
+		SlopeEventWindow.__init__(self, windowSize)
 		self.__positiveThreshold = positiveThreshold
 		self.__negativeThreshold = negativeThreshold
-
-	def calculateValue(self, firstPos, lastPos):
-		ret = None
-		slope = Slope.calculateValue(self, firstPos, lastPos)
-		if slope != None:
-			if slope > self.__positiveThreshold:
+	
+	def getValue(self):
+		ret = SlopeEventWindow.getValue(self)
+		if ret != None:
+			if ret > self.__positiveThreshold:
 				ret = True
-			elif slope < self.__negativeThreshold:
+			elif ret < self.__negativeThreshold:
 				ret = False
+			else: # Between negative and postive thresholds.
+				ret = None
 		return ret
+
+class Trend(technical.DataSeriesFilterEx):
+	def __init__(self, dataSeries, trendDays, positiveThreshold = 0, negativeThreshold = 0):
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold))
 
