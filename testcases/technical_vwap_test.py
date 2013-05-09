@@ -30,14 +30,13 @@ class VWAPTestCase(unittest.TestCase):
 		# Load the feed and process all bars.
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(VWAPTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		for i in barFeed:
-			pass
 		return barFeed
 
 	def testPeriod1_ClosingPrice(self):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		vwap_ = vwap.VWAP(bars, 1)
+		barFeed.loadAll()
 		for i in xrange(len(bars)):
 			self.assertEqual(round(bars[i].getClose(), 5), round(vwap_[i], 5))
 
@@ -45,6 +44,7 @@ class VWAPTestCase(unittest.TestCase):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		vwap_ = vwap.VWAP(bars, 1, True)
+		barFeed.loadAll()
 		for i in xrange(len(bars)):
 			self.assertEqual(round(bars[i].getTypicalPrice(), 5), round(vwap_[i], 5))
 
@@ -52,6 +52,7 @@ class VWAPTestCase(unittest.TestCase):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		vwap_ = vwap.VWAP(bars, 2)
+		barFeed.loadAll()
 		self.assertEqual(vwap_[0], None)
 		for i in xrange(1, len(vwap_)):
 			self.assertNotEqual(vwap_[i], None)
@@ -60,6 +61,7 @@ class VWAPTestCase(unittest.TestCase):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		vwap_ = vwap.VWAP(bars, 2, True)
+		barFeed.loadAll()
 		self.assertEqual(vwap_[0], None)
 		for i in xrange(1, len(vwap_)):
 			self.assertNotEqual(vwap_[i], None)
@@ -68,6 +70,7 @@ class VWAPTestCase(unittest.TestCase):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		vwap_ = vwap.VWAP(bars, 50)
+		barFeed.loadAll()
 		for i in xrange(49):
 			self.assertEqual(vwap_[i], None)
 		for i in xrange(49, len(vwap_)):
@@ -77,6 +80,7 @@ class VWAPTestCase(unittest.TestCase):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		vwap_ = vwap.VWAP(bars, 50, True)
+		barFeed.loadAll()
 		for i in xrange(49):
 			self.assertEqual(vwap_[i], None)
 		for i in xrange(49, len(vwap_)):

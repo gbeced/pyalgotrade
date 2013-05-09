@@ -19,10 +19,30 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
-class VWAP(technical.DataSeriesFilter):
+class VWAPEventWindow(technical.EventWindow):
+	def __init__(self, windowSize, useTypicalPrice):
+		technical.EventWindow.__init__(self, windowSize)
+		self.__useTypicalPrice = useTypicalPrice
+
+	def getValue(self):
+		ret = None
+		if len(self.getValues()) == self.getWindowSize():
+			cumTotal = 0
+			cumVolume = 0
+
+			for bar in self.getValues():
+				if self.__useTypicalPrice:
+					cumTotal += bar.getTypicalPrice() * bar.getVolume()
+				else:
+					cumTotal += bar.getClose() * bar.getVolume()
+				cumVolume += bar.getVolume()
+
+			ret = cumTotal / float(cumVolume)
+		return ret
+
+class VWAP(technical.DataSeriesFilterEx):
 	"""Volume Weighted Average Price filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -31,31 +51,13 @@ class VWAP(technical.DataSeriesFilter):
 	:type period: int.
 	:param useTypicalPrice: True if the typical price should be used instead of the closing price.
 	:type useTypicalPrice: boolean.
-
 	"""
 
 	def __init__(self, dataSeries, period, useTypicalPrice=False):
 		if not isinstance(dataSeries, bards.BarDataSeries):
 			raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
-		technical.DataSeriesFilter.__init__(self, dataSeries, period)
-		self.__useTypicalPrice = useTypicalPrice
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice))
 
 	def getPeriod(self):
 		return self.getWindowSize()
-
-	def calculateValue(self, firstPos, lastPos):
-		cumTotal = 0
-		cumVolume = 0
-
-		for i in xrange(firstPos, lastPos+1):
-			bar = self.getDataSeries().getValueAbsolute(i)
-			if bar is None:
-				return None
-			if self.__useTypicalPrice:
-				cumTotal += bar.getTypicalPrice() * bar.getVolume()
-			else:
-				cumTotal += bar.getClose() * bar.getVolume()
-			cumVolume += bar.getVolume()
-
-		return cumTotal / float(cumVolume)
 
