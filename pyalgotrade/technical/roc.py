@@ -20,7 +20,21 @@
 
 from pyalgotrade import technical
 
-class RateOfChange(technical.DataSeriesFilter):
+class ROCEventWindow(technical.EventWindow):
+	def __init__(self, windowSize):
+		technical.EventWindow.__init__(self, windowSize)
+
+	def getValue(self):
+		ret = None
+		if len(self.getValues()) == self.getWindowSize():
+			prev = self.getValues()[0]
+			actual = self.getValues()[-1]
+			if actual != None and prev != None and prev != 0:
+				ret = (actual - prev) / float(prev) * 100
+		return ret
+
+
+class RateOfChange(technical.DataSeriesFilterEx):
 	"""Rate of change filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -31,14 +45,5 @@ class RateOfChange(technical.DataSeriesFilter):
 
 	def __init__(self, dataSeries, valuesAgo):
 		assert(valuesAgo > 0)
-		technical.DataSeriesFilter.__init__(self, dataSeries, valuesAgo + 1)
-
-	def calculateValue(self, firstPos, lastPos):
-		prev = self.getDataSeries().getValueAbsolute(firstPos)
-		actual = self.getDataSeries().getValueAbsolute(lastPos)
-
-		if actual is None or prev is None or prev == 0:
-			return None
-
-		return (actual - prev) / float(prev) * 100
+		technical.DataSeriesFilterEx.__init__(self, dataSeries, ROCEventWindow(valuesAgo + 1))
 
