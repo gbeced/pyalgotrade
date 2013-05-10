@@ -177,6 +177,9 @@ class SequenceDataSeries(DataSeries):
 	def getDateTimes(self):
 		return self.__dateTimes
 
+	def getValues(self):
+		return self.__values
+
 def datetime_aligned(ds1, ds2):
 	"""
 	Returns two dataseries that exhibit only those values whose datetimes are in both dataseries.

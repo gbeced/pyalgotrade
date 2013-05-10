@@ -30,14 +30,13 @@ class VWAPTestCase(unittest.TestCase):
 		# Load the feed and process all bars.
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(VWAPTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		for i in barFeed:
-			pass
 		return barFeed
 
 	def test2LineBreak(self):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		lineBreak = linebreak.LineBreak(bars, 2)
+		barFeed.loadAll()
 
 		self.assertEqual(len(lineBreak), 77)
 		self.assertEqual(bars[0].getLow(), lineBreak[0].getLow())
@@ -52,6 +51,7 @@ class VWAPTestCase(unittest.TestCase):
 		barFeed = self.__getFeed()
 		bars = barFeed[VWAPTestCase.Instrument]
 		lineBreak = linebreak.LineBreak(bars, 3)
+		barFeed.loadAll()
 
 		self.assertEqual(len(lineBreak), 33)
 		self.assertEqual(bars[0].getLow(), lineBreak[0].getLow())
