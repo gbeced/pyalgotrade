@@ -33,7 +33,7 @@ class StdDevEventWindow(technical.EventWindow):
 			ret =  numpy.array(self.getValues()).std(ddof=self.__ddof)
 		return ret
 
-class StdDev(technical.DataSeriesFilterEx):
+class StdDev(technical.EventBasedFilter):
 	"""Standard deviation filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -45,5 +45,5 @@ class StdDev(technical.DataSeriesFilterEx):
 	"""
 
 	def __init__(self, dataSeries, period, ddof=0):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, StdDevEventWindow(period, ddof))
+		technical.EventBasedFilter.__init__(self, dataSeries, StdDevEventWindow(period, ddof))
 

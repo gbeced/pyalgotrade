@@ -35,7 +35,7 @@ class SlopeEventWindow(technical.EventWindow):
 			ret = stats.linregress(self.__x, y)[0]
 		return ret
 
-class Slope(technical.DataSeriesFilterEx):
+class Slope(technical.EventBasedFilter):
 	"""The Slope filter calculates the slope of the least-squares regression line.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -45,7 +45,7 @@ class Slope(technical.DataSeriesFilterEx):
 	"""
 
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, SlopeEventWindow(period))
+		technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period))
 
 	def getTrendDays(self):
 		return self.getWindowSize()
@@ -70,7 +70,7 @@ class TrendEventWindow(SlopeEventWindow):
 				ret = None
 		return ret
 
-class Trend(technical.DataSeriesFilterEx):
+class Trend(technical.EventBasedFilter):
 	def __init__(self, dataSeries, trendDays, positiveThreshold = 0, negativeThreshold = 0):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold))
+		technical.EventBasedFilter.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold))
 

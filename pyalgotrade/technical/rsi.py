@@ -119,7 +119,7 @@ class RSIEventWindow(technical.EventWindow):
 	def getValue(self):
 		return self.__value
 
-class RSI(technical.DataSeriesFilterEx):
+class RSI(technical.EventBasedFilter):
 	"""Relative Strength Index filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -129,5 +129,5 @@ class RSI(technical.DataSeriesFilterEx):
 	"""
 
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, RSIEventWindow(period))
+		technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period))
 

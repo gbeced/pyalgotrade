@@ -33,7 +33,7 @@ class ROCEventWindow(technical.EventWindow):
 				ret = (actual - prev) / float(prev) * 100
 		return ret
 
-class RateOfChange(technical.DataSeriesFilterEx):
+class RateOfChange(technical.EventBasedFilter):
 	"""Rate of change filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -44,5 +44,5 @@ class RateOfChange(technical.DataSeriesFilterEx):
 
 	def __init__(self, dataSeries, valuesAgo):
 		assert(valuesAgo > 0)
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, ROCEventWindow(valuesAgo + 1))
+		technical.EventBasedFilter.__init__(self, dataSeries, ROCEventWindow(valuesAgo + 1))
 

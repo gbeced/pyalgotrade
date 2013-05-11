@@ -42,7 +42,7 @@ class VWAPEventWindow(technical.EventWindow):
 			ret = cumTotal / float(cumVolume)
 		return ret
 
-class VWAP(technical.DataSeriesFilterEx):
+class VWAP(technical.EventBasedFilter):
 	"""Volume Weighted Average Price filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -56,7 +56,7 @@ class VWAP(technical.DataSeriesFilterEx):
 	def __init__(self, dataSeries, period, useTypicalPrice=False):
 		if not isinstance(dataSeries, bards.BarDataSeries):
 			raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice))
+		technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice))
 
 	def getPeriod(self):
 		return self.getWindowSize()

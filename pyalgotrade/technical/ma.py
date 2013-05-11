@@ -71,7 +71,7 @@ class SMAEventWindow(technical.EventWindow):
 	def getValue(self):
 		return self.__value
 
-class SMA(technical.DataSeriesFilterEx):
+class SMA(technical.EventBasedFilter):
 	"""Simple Moving Average filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -80,7 +80,7 @@ class SMA(technical.DataSeriesFilterEx):
 	:type period: int.
 	"""
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, SMAEventWindow(period))
+		technical.EventBasedFilter.__init__(self, dataSeries, SMAEventWindow(period))
 
 class EMAEventWindow(technical.EventWindow):
 	def __init__(self, period):
@@ -102,7 +102,7 @@ class EMAEventWindow(technical.EventWindow):
 	def getValue(self):
 		return self.__value
 
-class EMA(technical.DataSeriesFilterEx):
+class EMA(technical.EventBasedFilter):
 	"""Exponential Moving Average filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -112,7 +112,7 @@ class EMA(technical.DataSeriesFilterEx):
 	"""
 
 	def __init__(self, dataSeries, period):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, EMAEventWindow(period))
+		technical.EventBasedFilter.__init__(self, dataSeries, EMAEventWindow(period))
 
 class WMAEventWindow(technical.EventWindow):
 	def __init__(self, weights):
@@ -132,7 +132,7 @@ class WMAEventWindow(technical.EventWindow):
 			ret = accum / float(weightSum)
 		return ret
 
-class WMA(technical.DataSeriesFilterEx):
+class WMA(technical.EventBasedFilter):
 	"""Weighted Moving Average filter.
 
 	:param dataSeries: The DataSeries instance being filtered.
@@ -141,5 +141,5 @@ class WMA(technical.DataSeriesFilterEx):
 	:type weights: list.
 	"""
 	def __init__(self, dataSeries, weights):
-		technical.DataSeriesFilterEx.__init__(self, dataSeries, WMAEventWindow(weights))
+		technical.EventBasedFilter.__init__(self, dataSeries, WMAEventWindow(weights))
 

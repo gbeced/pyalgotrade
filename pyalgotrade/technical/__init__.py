@@ -66,6 +66,8 @@ class NoCache(Cache):
 	def putValue(self, pos, value):
 		pass
 
+# Helper class for DataSeries filters that make calculations when new values are added to the
+# dataseries they wrap.
 class EventWindow:
 	def __init__(self, windowSize):
 		assert(windowSize > 0)
@@ -85,8 +87,9 @@ class EventWindow:
 	def getValue(self):
 		raise NotImplementedError()
 
-# Base class for DataSeries filters based on EventWindow implementations.
-class DataSeriesFilterEx(dataseries.SequenceDataSeries):
+# Base class for DataSeries filters that make calculations when new values are added to the
+# dataseries they wrap.
+class EventBasedFilter(dataseries.SequenceDataSeries):
 	def __init__(self, dataSeries, eventWindow):
 		dataseries.SequenceDataSeries.__init__(self)
 
@@ -185,5 +188,4 @@ class DataSeriesFilter(TechnicalIndicatorBase):
 
 	def getDateTimes(self):
 		return self.__dataSeries.getDateTimes()
-
 

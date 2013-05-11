@@ -67,7 +67,7 @@ class SOEventWindow(technical.EventWindow):
 			ret = (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100
 		return ret
 
-class StochasticOscillator(technical.DataSeriesFilterEx):
+class StochasticOscillator(technical.EventBasedFilter):
 	"""Stochastic Oscillator filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillato.
 	Note that the value returned by this filter is %K. To access %D use :meth:`getD`.
 
@@ -83,7 +83,7 @@ class StochasticOscillator(technical.DataSeriesFilterEx):
 
 	def __init__(self, barDataSeries, period, dSMAPeriod = 3, useAdjustedValues = False):
 		assert(dSMAPeriod > 1)
-		technical.DataSeriesFilterEx.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues))
+		technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues))
 		self.__d = ma.SMA(self, dSMAPeriod)
 
 	def getD(self):
