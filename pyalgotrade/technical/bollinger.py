@@ -18,23 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import technical
+from pyalgotrade import dataseries
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import stats
-
-class Band(technical.DataSeriesFilter):
-	def __init__(self, middleBandDS, priceDS, n, k):
-		technical.DataSeriesFilter.__init__(self, middleBandDS, 1)
-		self.__stdDev = stats.StdDev(priceDS, n)
-		self.__k = k
-
-	def calculateValue(self, firstPos, lastPos):
-		assert(firstPos == lastPos)
-		ret = None
-		value = self.getDataSeries().getValueAbsolute(firstPos)
-		if value != None:
-			ret = value + self.__stdDev.getValueAbsolute(firstPos) * self.__k
-		return ret
 
 class BollingerBands:
 	"""Bollinger Bands filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands.
@@ -48,9 +34,27 @@ class BollingerBands:
 	"""
 
 	def __init__(self, dataSeries, period, numStdDev):
-		self.__middleBand = ma.SMA(dataSeries, period)
-		self.__upperBand = Band(self.__middleBand, dataSeries, period, numStdDev)
-		self.__lowerBand = Band(self.__middleBand, dataSeries, period, numStdDev*-1)
+		self.__sma = ma.SMA(dataSeries, period)
+		self.__stdDev = stats.StdDev(dataSeries, period)
+		self.__upperBand = dataseries.SequenceDataSeries()
+		self.__lowerBand = dataseries.SequenceDataSeries()
+		self.__numStdDev = numStdDev
+		# It is important to subscribe after sma and stddev since we'll use those values.
+		dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
+
+	def __onNewValue(self, dataSeries, dateTime, value):
+		upperValue = None
+		lowerValue = None
+
+		if value != None:
+			sma = self.__sma[-1]
+			if sma != None:
+				stdDev = self.__stdDev[-1]
+				upperValue = sma + stdDev * self.__numStdDev
+				lowerValue = sma + stdDev * self.__numStdDev * -1
+
+		self.__upperBand.appendWithDateTime(dateTime, upperValue)
+		self.__lowerBand.appendWithDateTime(dateTime, lowerValue)
 
 	def getUpperBand(self):
 		"""
@@ -62,7 +66,7 @@ class BollingerBands:
 		"""
 		Returns the middle band as a :class:`pyalgotrade.dataseries.DataSeries`.
 		"""
-		return self.__middleBand
+		return self.__sma
 
 	def getLowerBand(self):
 		"""
