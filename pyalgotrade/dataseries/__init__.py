@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade.utils import collections
 from pyalgotrade import warninghelpers
 from pyalgotrade import observer
 
@@ -152,7 +151,7 @@ class SequenceDataSeries(DataSeries):
 		self.appendValueWithDatetime(None, value)
 
 	def appendValue(self, value):
-		# TODO: Deprecate this.
+		# TODO: Deprecate this. Use append(...) instead.
 		self.append(value)
 
 	def appendWithDateTime(self, dateTime, value):
@@ -171,7 +170,7 @@ class SequenceDataSeries(DataSeries):
 		self.getNewValueEvent().emit(self, dateTime, value)
 
 	def appendValueWithDatetime(self, dateTime, value):
-		# TODO: Deprecate this.
+		# TODO: Deprecate this. Use appendWithDateTime(...) instead.
 		self.appendWithDateTime(dateTime, value)
 
 	def getDateTimes(self):
@@ -189,101 +188,54 @@ def datetime_aligned(ds1, ds2):
 	:param ds2: A DataSeries instance.
 	:type ds2: :class:`DataSeries`
 	"""
-	aligned1 = AlignedDataSeries(ds1)
-	aligned2 = AlignedDataSeries(ds2)
-	shared = AlignedDataSeriesSharedState(aligned1, aligned2)
-	aligned1.setShared(shared)
-	aligned2.setShared(shared)
+	syncer = Syncer(ds1, ds2)
+	aligned1 = SequenceDataSeries()
+	aligned2 = SequenceDataSeries()
+	syncer.setDestinationDSs(aligned1, aligned2)
 	return (aligned1, aligned2)
 
-class AlignedDataSeriesSharedState:
-	def __init__(self, ds1, ds2):
-		self.__ds1 = ds1
-		self.__ds2 = ds2
-		self.__ds1Len = None
-		self.__ds2Len = None
-		# The position in each of the dataseries for the last intersection
-		self.__lastPos1 = None
-		self.__lastPos2 = None
+# This class is responsible for filling 2 dataseries when 2 other dataseries get new values.
+class Syncer:
+	def __init__(self, sourceDS1, sourceDS2):
+		self.__sourceDS1 = sourceDS1
+		self.__sourceDS2 = sourceDS2
+		self.__destDS1 = None
+		self.__destDS2 = None
+		sourceDS1.getNewValueEvent().subscribe(self.__onNewValue1)
+		sourceDS2.getNewValueEvent().subscribe(self.__onNewValue2)
+		# Source dataseries will keep a reference to self and that will prevent from getting this destroyed.
 
-	def __isDirty(self):
-		if self.__ds1.getDecorated().getLength() != self.__ds1Len:
-			return True
-		if self.__ds2.getDecorated().getLength() != self.__ds2Len:
-			return True
-		return False
-
-	def __resetDirty(self):
-		# Reset the dirty flag.
-		self.__ds1Len = self.__ds1.getDecorated().getLength()
-		self.__ds2Len = self.__ds2.getDecorated().getLength()
-
-	def update(self):
-		if self.__isDirty():
-			# Search for datetime intersections between the data series,
-			# but start right after the last one found.
-			ds1DateTimes = self.__ds1.getDecorated().getDateTimes()
-			ds2DateTimes = self.__ds2.getDecorated().getDateTimes()
-			if self.__lastPos1 != None:
-				ds1DateTimes = ds1DateTimes[self.__lastPos1+1:]
-			if self.__lastPos2 != None:
-				ds2DateTimes = ds2DateTimes[self.__lastPos2+1:]
-
-			# Calculate the intersections.
-			dateTimes, pos1, pos2 = collections.intersect(ds1DateTimes, ds2DateTimes)
-
-			# Update each array's relative position to make them absolute positions.
-			if self.__lastPos1 != None and len(pos1):
-				pos1 = [self.__lastPos1 + pos + 1 for pos in pos1]
-			if self.__lastPos2 != None and len(pos2):
-				pos2 = [self.__lastPos2 + pos + 1 for pos in pos2]
-
-			# Update the last intersection.
-			if len(pos1):
-				self.__lastPos1 = pos1[-1]
-			if len(pos2):
-				self.__lastPos2 = pos2[-1]
-
-			# Update the aligned data series.
-			self.__ds1.update(dateTimes, pos1)
-			self.__ds2.update(dateTimes, pos2)
-			self.__resetDirty()
-
-class AlignedDataSeries(DataSeries):
-	def __init__(self, ds):
-		DataSeries.__init__(self)
-		self.__shared = None
-		self.__ds = ds
-		self.__dateTimes = []
-		self.__positions = []
-
-	def getDecorated(self):
-		return self.__ds
-
-	def setShared(self, shared):
-		self.__shared = shared
-
-	def update(self, dateTimes, positions):
-		assert(len(dateTimes) == len(positions))
-		self.__dateTimes.extend(dateTimes)
-		self.__positions.extend(positions)
-
-	def getFirstValidPos(self):
-		self.__shared.update()
-		return 0
-
-	def getLength(self):
-		self.__shared.update()
-		return len(self.__positions)
-
-	def getValueAbsolute(self, pos):
-		self.__shared.update()
+	# Scan backwards for the position of dateTime in ds.
+	def __findPosForDateTime(self, ds, dateTime):
 		ret = None
-		if pos >= 0 and pos < self.getLength():
-			ret = self.__ds.getValueAbsolute(self.__positions[pos])
+		dateTimes = ds.getDateTimes()
+		i = len(ds) - 1
+		while i >= 0:
+			if dateTimes[i] == dateTime:
+				ret = i
+				break
+			elif dateTimes[i] < dateTime:
+				break
+			i -= 1
 		return ret
 
-	def getDateTimes(self):
-		self.__shared.update()
-		return self.__dateTimes
+	def __onNewValue1(self, dataSeries, dateTime, value):
+		pos2 = self.__findPosForDateTime(self.__sourceDS2, dateTime)
+		# If a value for dateTime was added to self.__sourceDS1, and a value for that same datetime is also in self.__sourceDS2
+		# then append to both destination dataseries.
+		if pos2 != None:
+			self.__destDS1.appendWithDateTime(dateTime, value)
+			self.__destDS2.appendWithDateTime(dateTime, self.__sourceDS2[pos2])
+
+	def __onNewValue2(self, dataSeries, dateTime, value):
+		pos1 = self.__findPosForDateTime(self.__sourceDS1, dateTime)
+		# If a value for dateTime was added to self.__sourceDS2, and a value for that same datetime is also in self.__sourceDS1
+		# then append to both destination dataseries.
+		if pos1 != None:
+			self.__destDS2.appendWithDateTime(dateTime, value)
+			self.__destDS1.appendWithDateTime(dateTime, self.__sourceDS1[pos1])
+
+	def setDestinationDSs(self, ds1, ds2):
+		self.__destDS1 = ds1
+		self.__destDS2 = ds2
 

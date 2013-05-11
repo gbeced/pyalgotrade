@@ -164,6 +164,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
+		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -174,7 +175,6 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 
 		self.assertEqual(len(ds1), len(ds2))
 
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
 		for ads in [ads1, ads2]:
 			self.assertEqual(ads.getLength(), 0)
 			self.assertEqual(ads.getFirstValidPos(), 0)
@@ -185,6 +185,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
+		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -193,7 +194,6 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 
 		self.assertEqual(len(ds1), len(ds2))
 
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
 		for ads in [ads1, ads2]:
 			self.assertEqual(ads.getLength(), size)
 			self.assertEqual(ads.getFirstValidPos(), 0)
@@ -203,9 +203,10 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 
 	def testPartiallyAligned(self):
 		size = 20
+		commonDateTimes = []
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		commonDateTimes = []
+		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -218,7 +219,6 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 			else:
 				ds2.appendValueWithDatetime(now + datetime.timedelta(seconds=i), i)
 
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
 
 		self.assertEqual(ads1.getLength(), ads2.getLength())
 		self.assertEqual(ads1[:], ads2[:])
