@@ -30,9 +30,6 @@ class DataSeries(object):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self):
-		self.__newValueEvent = observer.Event()
-
 	def __len__(self):
 		"""Returns the number of elements in the data series."""
 		return self.getLength()
@@ -50,13 +47,6 @@ class DataSeries(object):
 			return self.getValueAbsolute(key)
 		else:
 			raise TypeError("Invalid argument type")
-
-	# Event handler receives:
-	# 1: Dataseries generating the event
-	# 2: The datetime for the new value
-	# 3: The new value
-	def getNewValueEvent(self):
-		return self.__newValueEvent
 
 	def getFirstValidPos(self):
 		raise NotImplementedError()
@@ -124,7 +114,7 @@ class SequenceDataSeries(DataSeries):
 	"""A sequence based :class:`DataSeries`."""
 
 	def __init__(self):
-		DataSeries.__init__(self)
+		self.__newValueEvent = observer.Event()
 		self.__values = []
 		self.__dateTimes = []
 
@@ -133,6 +123,13 @@ class SequenceDataSeries(DataSeries):
 
 	def __getitem__(self, key):
 		return self.__values[key]
+
+	# Event handler receives:
+	# 1: Dataseries generating the event
+	# 2: The datetime for the new value
+	# 3: The new value
+	def getNewValueEvent(self):
+		return self.__newValueEvent
 
 	def getFirstValidPos(self):
 		return 0

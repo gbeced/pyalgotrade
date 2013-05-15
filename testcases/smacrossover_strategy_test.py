@@ -30,10 +30,8 @@ class SMACrossOverStrategy(strategy.Strategy):
 	def __init__(self, feed, fastSMA, slowSMA):
 		strategy.Strategy.__init__(self, feed, 1000)
 		ds = feed["orcl"].getCloseDataSeries()
-		fastSMADS = ma.SMA(ds, fastSMA)
-		slowSMADS = ma.SMA(ds, slowSMA)
-		self.__crossAbove = cross.CrossAbove(fastSMADS, slowSMADS)
-		self.__crossBelow = cross.CrossBelow(fastSMADS, slowSMADS)
+		self.__fastSMADS = ma.SMA(ds, fastSMA)
+		self.__slowSMADS = ma.SMA(ds, slowSMA)
 		self.__longPos = None
 		self.__shortPos = None
 		self.__finalValue = None
@@ -87,23 +85,19 @@ class SMACrossOverStrategy(strategy.Strategy):
 		bar = bars.getBar("orcl")
 		self.printDebug("%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
 
-		# Wait for enough bars to be available.
-		if self.__crossAbove[-1] is None or self.__crossBelow[-1] is None:
-			return
-
-		if self.__crossAbove[-1] == 1:
+		if cross.cross_above(self.__fastSMADS, self.__slowSMADS) == 1:
 			if self.__shortPos:
 				self.exitShortPosition(bars, self.__shortPos)
 			assert(self.__longPos == None)
 			self.__longPos = self.enterLongPosition(bars)
-		elif self.__crossBelow[-1] == 1:
+		elif cross.cross_below(self.__fastSMADS, self.__slowSMADS) == 1:
 			if self.__longPos:
 				self.exitLongPosition(bars, self.__longPos)
 			assert(self.__shortPos == None)
 			self.__shortPos = self.enterShortPosition(bars)
 
 	def onFinish(self, bars):
-		self.__finalValue = self.getBroker().getValue(bars)
+		self.__finalValue = self.getBroker().getValue()
 
 class MarketOrderStrategy(SMACrossOverStrategy):
 	def enterLongPosition(self, bars):

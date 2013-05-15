@@ -18,8 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import technical
-
 def compute_diff(values1, values2):
 	assert(len(values1) == len(values2))
 	ret = []
@@ -33,77 +31,70 @@ def compute_diff(values1, values2):
 		ret.append(diff)
 	return ret
 
-def positive(value):
-	return value > 0
+def _cross_impl(values1, values2, start, end, signCheck):
+	# Get both set of values.
+	values1 = values1[start:end]
+	values2 = values2[start:end]
 
-def negative(value):
-	return value < 0
+	# Compute differences and check sign changes.
+	ret = 0
+	diffs = compute_diff(values1, values2)
+	prevDiff = None
+	for diff in diffs:
+		if prevDiff != None and not signCheck(prevDiff) and signCheck(diff):
+			ret += 1
+		prevDiff = diff
+	return ret
 
-class Base(technical.TechnicalIndicatorBase):
-	def __init__(self, ds1, ds2, period, signCheck):
-		assert(period > 1)
-		technical.TechnicalIndicatorBase.__init__(self, 1)
-		self.__ds1 = ds1
-		self.__ds2 = ds2
-		self.__period = period
-		self.__signCheck = signCheck
+# Note: 
+# Up to version 0.11 CrossAbove and CrossBelow were DataSeries.
+# In version 0.12 SequenceDataSeries was refactored to support specifying a limit to the amount
+# of values to hold. This was introduced mainly to reduce memory footprint.
+# This change had a huge impact on the way DataSeries filters were implemented since they were
+# mosly views and didn't hold any actual values. For example, a SMA(200) didn't hold any values at all
+# but rather calculate those on demand by requesting 200 values from the DataSeries being wrapped.
+# Now that the DataSeries being wrapped may not hold so many values, DataSeries filters were refactored
+# to an event based model and they will calculate and hold resulting values as new values get added to
+# the underlying DataSeries (the one being wrapped).
+# Since it was too complicated to make CrossAbove and CrossBelow filters work with this new model (
+# mainly because the underlying DataSeries may not get new values added at the same time, or one after
+# another) I decided to turn those into functions, cross_above and cross_below.
 
-	def getDateTimes(self):
-		# I'm using self.__ds1 because this is basically a wrapper on top of the first dataseries.
-		return self.__ds1.getDateTimes()
-
-	def getFirstValidPos(self):
-		return max(self.__ds1.getFirstValidPos(), self.__ds2.getFirstValidPos())
-
-	def getLength(self):
-		# I'm using self.__ds1 because this is basically a wrapper on top of the first dataseries.
-		return self.__ds1.getLength()
-
-	def calculateValue(self, firstPos, lastPos):
-		# Get both set of values.
-		firstPos = max(lastPos - (self.__period - 1), 0)
-		valuesDS1 = self.__ds1.getValuesAbsolute(firstPos, lastPos, True)
-		valuesDS2 = self.__ds2.getValuesAbsolute(firstPos, lastPos, True)
-
-		# Compute differences and check sign changes.
-		ret = 0
-		diffs = compute_diff(valuesDS1, valuesDS2)
-		prevDiff = None
-		for diff in diffs:
-			if prevDiff != None and not self.__signCheck(prevDiff) and self.__signCheck(diff):
-				ret += 1
-			prevDiff = diff
-		return ret
-
-class CrossAbove(Base):
+def cross_above(values1, values2, start=-2, end=None):
 	"""Checks for a cross above conditions over the specified period between two DataSeries objects.
 
-	It returns the number of times ds1 crossed above ds2 during the given period.
+	It returns the number of times values1 crossed above values2 during the given period.
 
-	:param ds1: The DataSeries that crosses.
-	:type ds1: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param ds2: The DataSeries being crossed.
-	:type ds2: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param period: Max number of values to check for cross above conditions. Must be > 1.
-	:type period: int.
+	:param values1: The DataSeries that crosses.
+	:type values1: :class:`pyalgotrade.dataseries.DataSeries`.
+	:param values2: The DataSeries being crossed.
+	:type values2: :class:`pyalgotrade.dataseries.DataSeries`.
+	:param start: The start of the range.
+	:type start: int.
+	:param end: The end of the range.
+	:type end: int.
+
+	.. note::
+		The default start and end values check for cross above conditions over the last 2 values.
 	"""
+	return _cross_impl(values1, values2, start, end, lambda x: x > 0)
 
-	def __init__(self, ds1, ds2, period = 2):
-		Base.__init__(self, ds1, ds2, period, positive)
-
-class CrossBelow(Base):
+def cross_below(values1, values2, start=-2, end=None):
 	"""Checks for a cross below conditions over the specified period between two DataSeries objects.
 
-	It returns the number of times ds1 crossed below ds2 during the given period.
+	It returns the number of times values1 crossed below values2 during the given period.
 
-	:param ds1: The DataSeries that crosses.
-	:type ds1: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param ds2: The DataSeries being crossed.
-	:type ds2: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param period: Max number of values to check for cross below conditions. Must be > 1.
-	:type period: int.
+	:param values1: The DataSeries that crosses.
+	:type values1: :class:`pyalgotrade.dataseries.DataSeries`.
+	:param values2: The DataSeries being crossed.
+	:type values2: :class:`pyalgotrade.dataseries.DataSeries`.
+	:param start: The start of the range.
+	:type start: int.
+	:param end: The end of the range.
+	:type end: int.
+
+	.. note::
+		The default start and end values check for cross below conditions over the last 2 values.
 	"""
-
-	def __init__(self, ds1, ds2, period = 2):
-		Base.__init__(self, ds1, ds2, period, negative)
+	return _cross_impl(values1, values2, start, end, lambda x: x < 0)
 

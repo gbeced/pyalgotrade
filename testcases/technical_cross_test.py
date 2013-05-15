@@ -25,147 +25,124 @@ from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
-	def __buildCrossTechnical(self, cls, values1, values2, period):
-		assert(len(values1) == len(values2))
-		ds1 = dataseries.SequenceDataSeries()
-		ds2 = dataseries.SequenceDataSeries()
-		ret = cls(ds1, ds2, period)
-		for i in xrange(len(values1)):
-			ds1.append(values1[i])
-			ds2.append(values2[i])
+	def __buildSeqDS(self, values):
+		ret = dataseries.SequenceDataSeries()
+		for value in values:
+			ret.append(value)
 		return ret
 
 	def testCrossAboveOnce(self):
-		values1 = [1, 1, 1, 10, 1, 1, 1]
-		values2 = [2, 2, 2,  2, 2, 2, 2]
+		values1 = self.__buildSeqDS([1, 1, 1, 10, 1, 1, 1])
+		values2 = self.__buildSeqDS([2, 2, 2,  2, 2, 2, 2])
 
 		# Check every 2 values.
-		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 2)
-		for i in range(0, 3):
-			self.assertTrue(crs[i] == 0)
-		self.assertTrue(crs[3] == 1)
-		for i in range(4, len(values1)):
-			self.assertTrue(crs[i] == 0)
-
-		# Check datetimes.
-		self.assertEqual(len(crs.getDateTimes()), len(values1))
-		for i in range(len(crs)):
-			self.assertEqual(crs.getDateTimes()[i], None)
+		self.assertEqual(cross.cross_above(values1, values2, 0, 2), 0)
+		self.assertEqual(cross.cross_above(values1, values2, 1, 3), 0)
+		self.assertEqual(cross.cross_above(values1, values2, 2, 4), 1)
+		self.assertEqual(cross.cross_above(values1, values2, 3, 5), 0)
+		self.assertEqual(cross.cross_above(values1, values2, 4, 6), 0)
+		self.assertEqual(cross.cross_above(values1, values2, 5, 7), 0)
 
 		# Check every 3 values.
-		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 3)
-		for i in range(0, 3):
-			self.assertTrue(crs[i] == 0)
-		for i in range(3, 5):
-			self.assertTrue(crs[i] == 1)
-		for i in range(5, len(values1)):
-			self.assertTrue(crs[i] == 0)
+		self.assertEqual(cross.cross_above(values1, values2, 0, 3), 0)
+		self.assertEqual(cross.cross_above(values1, values2, 1, 4), 1)
+		self.assertEqual(cross.cross_above(values1, values2, 2, 5), 1)
+		self.assertEqual(cross.cross_above(values1, values2, 3, 6), 0)
+		self.assertEqual(cross.cross_above(values1, values2, 4, 7), 0)
 
 		# Check for all values.
-		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 100)
-		self.assertTrue(crs[-1] == 1)
+		self.assertEqual(cross.cross_above(values1, values2, 0, 7), 1)
+		self.assertEqual(cross.cross_above(values1, values2, 0, -1), 1)
 
 	def testCrossAboveMany(self):
 		count = 100
 		values1 = [-1 if i % 2 == 0 else 1 for i in range(count)]
 		values2 = [0 for i in range(count)]
 
+		# Check first value
+		self.assertEqual(cross.cross_above(values1, values2, 0, 0), 0)
+
 		# Check every 2 values.
-		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 2)
-		self.assertTrue(crs[0] == 0)
+		period = 2
 		for i in range(1, count):
 			if i % 2 == 0:
-				self.assertTrue(crs[i] == 0)
+				self.assertEqual(cross.cross_above(values1, values2, i - period + 1, i + 1), 0)
 			else:
-				self.assertTrue(crs[i] == 1)
+				self.assertEqual(cross.cross_above(values1, values2, i - period + 1, i + 1), 1)
 
 		# Check every 4 values.
-		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 4)
+		period = 4
 		for i in range(3, count):
 			if i % 2 == 0:
-				self.assertTrue(crs[i] == 1)
+				self.assertEqual(cross.cross_above(values1, values2, i - period + 1, i + 1), 1)
 			else:
-				self.assertTrue(crs[i] == 2)
+				self.assertEqual(cross.cross_above(values1, values2, i - period + 1, i + 1), 2)
 
 		# Check for all values.
-		crs = self.__buildCrossTechnical(cross.CrossAbove, values1, values2, 100)
-		self.assertTrue(crs[-1] == count / 2)
+		self.assertEqual(cross.cross_above(values1, values2, 0, count), count / 2)
 
 	def testCrossBelowOnce(self):
-		values1 = [1, 1, 1, 10, 1, 1, 1]
-		values2 = [2, 2, 2,  2, 2, 2, 2]
+		values1 = self.__buildSeqDS([2, 2, 2,  2, 2, 2, 2])
+		values2 = self.__buildSeqDS([1, 1, 1, 10, 1, 1, 1])
 
 		# Check every 2 values.
-		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 2)
-		for i in range(0, 4):
-			self.assertTrue(crs[i] == 0)
-		self.assertTrue(crs[4] == 1)
-		for i in range(5, len(values1)):
-			self.assertTrue(crs[i] == 0)
-
-		# Check datetimes.
-		self.assertEqual(len(crs.getDateTimes()), len(values2))
-		for i in range(len(crs)):
-			self.assertEqual(crs.getDateTimes()[i], None)
+		self.assertEqual(cross.cross_below(values1, values2, 0, 2), 0)
+		self.assertEqual(cross.cross_below(values1, values2, 1, 3), 0)
+		self.assertEqual(cross.cross_below(values1, values2, 2, 4), 1)
+		self.assertEqual(cross.cross_below(values1, values2, 3, 5), 0)
+		self.assertEqual(cross.cross_below(values1, values2, 4, 6), 0)
+		self.assertEqual(cross.cross_below(values1, values2, 5, 7), 0)
 
 		# Check every 3 values.
-		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 3)
-		for i in range(0, 4):
-			self.assertTrue(crs[i] == 0)
-		for i in range(4, 6):
-			self.assertTrue(crs[i] == 1)
-
-		self.assertTrue(crs[6] == 0)
+		self.assertEqual(cross.cross_below(values1, values2, 0, 3), 0)
+		self.assertEqual(cross.cross_below(values1, values2, 1, 4), 1)
+		self.assertEqual(cross.cross_below(values1, values2, 2, 5), 1)
+		self.assertEqual(cross.cross_below(values1, values2, 3, 6), 0)
+		self.assertEqual(cross.cross_below(values1, values2, 4, 7), 0)
 
 		# Check for all values.
-		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 100)
-		self.assertTrue(crs[-1] == 1)
+		self.assertEqual(cross.cross_below(values1, values2, 0, 7), 1)
+		self.assertEqual(cross.cross_below(values1, values2, 0, -1), 1)
 
 	def testCrossBelowMany(self):
 		count = 100
-		values1 = [-1 if i % 2 == 0 else 1 for i in range(count)]
-		values2 = [0 for i in range(count)]
+		values1 = [0 for i in range(count)]
+		values2 = [-1 if i % 2 == 0 else 1 for i in range(count)]
+
+		# Check first value
+		self.assertEqual(cross.cross_below(values1, values2, 0, 0), 0)
 
 		# Check every 2 values.
-		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 2)
-		self.assertTrue(crs[1] == 0)
-		for i in range(2, count):
+		period = 2
+		for i in range(1, count):
 			if i % 2 == 0:
-				self.assertTrue(crs[i] == 1)
+				self.assertEqual(cross.cross_below(values1, values2, i - period + 1, i + 1), 0)
 			else:
-				self.assertTrue(crs[i] == 0)
+				self.assertEqual(cross.cross_below(values1, values2, i - period + 1, i + 1), 1)
 
 		# Check every 4 values.
-		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 4)
+		period = 4
 		for i in range(3, count):
 			if i % 2 == 0:
-				self.assertTrue(crs[i] == 2)
+				self.assertEqual(cross.cross_below(values1, values2, i - period + 1, i + 1), 1)
 			else:
-				self.assertTrue(crs[i] == 1)
+				self.assertEqual(cross.cross_below(values1, values2, i - period + 1, i + 1), 2)
 
 		# Check for all values.
-		crs = self.__buildCrossTechnical(cross.CrossBelow, values1, values2, 100)
-		self.assertTrue(crs[-1] == count / 2 - 1)
+		self.assertEqual(cross.cross_below(values1, values2, 0, count), count / 2)
 
-	def testWithSMAs(self):
+	def testCrossAboveWithSMA(self):
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
 		sma1 = ma.SMA(ds1, 15)
 		sma2 = ma.SMA(ds2, 25)
-		crs = cross.CrossAbove(sma1, sma2, 2)
 		for i in range(100):
 			ds1.appendValue(i)
 			ds2.appendValue(50)
 			if i == 58:
-				self.assertTrue(crs[-1] == 1)
+				self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 1)
 			else:
-				self.assertTrue(crs[-1] == 0)
-
-		# Check datetimes.
-		self.assertEqual(len(crs.getDateTimes()), 100)
-		self.assertEqual(crs.getDateTimes(), ds1.getDateTimes())
-		for i in range(len(crs)):
-			self.assertEqual(crs.getDateTimes()[i], None)
+				self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 0)
 
 def getTestCases():
 	ret = []
@@ -174,7 +151,7 @@ def getTestCases():
 	ret.append(TestCase("testCrossAboveMany"))
 	ret.append(TestCase("testCrossBelowOnce"))
 	ret.append(TestCase("testCrossBelowMany"))
-	ret.append(TestCase("testWithSMAs"))
+	ret.append(TestCase("testCrossAboveWithSMA"))
 
 	return ret
 

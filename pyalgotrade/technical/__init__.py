@@ -88,7 +88,7 @@ class EventWindow:
 		raise NotImplementedError()
 
 # Base class for DataSeries filters that make calculations when new values are added to the
-# dataseries they wrap.
+# dataseries they wrap. This kind of filters store resulting values.
 class EventBasedFilter(dataseries.SequenceDataSeries):
 	def __init__(self, dataSeries, eventWindow):
 		dataseries.SequenceDataSeries.__init__(self)
@@ -109,23 +109,46 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
 		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
 		return self.__dataSeries
 
-# Base class for filters that operate on a window.
-class TechnicalIndicatorBase(dataseries.DataSeries):
-	DefaultCacheSize = 512
+# Base class for dataseries views that operate on a set of values.
+class DataSeriesFilter(dataseries.DataSeries):
+	"""A DataSeriesFilter is a :class:`pyalgotrade.dataseries.DataSeries` instance that decorates another
+	:class:`pyalgotrade.dataseries.DataSeries` instance to make some calculations with the values from
+	the DataSeries being decorated.
 
-	def __init__(self, windowSize, cacheSize=512):
-		dataseries.DataSeries.__init__(self)
+	:param dataSeries: The DataSeries instance being filtered.
+	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+	:param windowSize: The amount of values to use from the filtered DataSeries to calculate our own values. Must be > 0.
+	:type windowSize: int.
 
+	.. note::
+		This is a base class and should not be used directly.
+	"""
+
+	def __init__(self, dataSeries, windowSize):
 		assert(windowSize > 0)
+		self.__dataSeries = dataSeries
 		self.__windowSize = windowSize
-		if cacheSize > 0:
-			self.__cache = FIFOCache(cacheSize)
-		else:
-			self.__cache = NoCache()
+		self.__firstValidPos = (windowSize - 1) + dataSeries.getFirstValidPos()
 
 	def getWindowSize(self):
 		"""Returns the window size."""
 		return self.__windowSize
+
+	def getFirstValidPos(self):
+		return self.__firstValidPos
+
+	def getDataSeries(self):
+		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being wrapped."""
+		return self.__dataSeries
+
+	def getLength(self):
+		return self.__dataSeries.getLength()
+
+	def getDateTimes(self):
+		return self.__dataSeries.getDateTimes()
+
+	def getValueForInvalidPos(self, pos):
+		return None
 
 	# Override to implement filtering logic. Should never be called directly.
 	# firstPos <= lastPos
@@ -142,50 +165,11 @@ class TechnicalIndicatorBase(dataseries.DataSeries):
 	def getValueAbsolute(self, pos):
 		# Check that there are enough values to calculate this (given the current window size and the nested ones).
 		if pos < self.getFirstValidPos() or pos >= self.getLength():
-			return None
+			return self.getValueForInvalidPos(pos)
  
-		# Try to get the value from the cache.
-		ret = self.__cache.getValue(pos, Cache.ValueNotCached)
-		if ret == Cache.ValueNotCached:
-			# Check that we have enough values to use
-			firstPos = pos - self.__windowSize + 1
-			assert(firstPos >= 0)
-
-			ret = self.calculateValue(firstPos, pos)
-			# Avoid caching None's in case a invalid pos is requested that becomes valid in the future.
-			if ret != None:
-				self.__cache.putValue(pos, ret)
+		# Check that we have enough values to use
+		firstPos = pos - self.__windowSize + 1
+		assert(firstPos >= 0)
+		ret = self.calculateValue(firstPos, pos)
 		return ret
-
-class DataSeriesFilter(TechnicalIndicatorBase):
-	"""A DataSeriesFilter is a :class:`pyalgotrade.dataseries.DataSeries` instance that decorates another :class:`pyalgotrade.dataseries.DataSeries` instance
-	to make some calculations with the values from the DataSeries being decorated.
-
-	:param dataSeries: The DataSeries instance being filtered.
-	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param windowSize: The amount of values to use from the filtered DataSeries to calculate our own values. Must be > 0.
-	:type windowSize: int.
-	:param cacheSize: The values that this filter calculates will be cached so they don't have to be calculated twice. This parameter controls how many results will be kept in the cache.
-	:type cacheSize: int.
-
-	.. note::
-		This is a base class and should not be used directly.
-	"""
-	def __init__(self, dataSeries, windowSize):
-		TechnicalIndicatorBase.__init__(self, windowSize)
-		self.__dataSeries = dataSeries
-		self.__firstValidPos = (windowSize - 1) + dataSeries.getFirstValidPos()
-
-	def getFirstValidPos(self):
-		return self.__firstValidPos
-
-	def getDataSeries(self):
-		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
-		return self.__dataSeries
-
-	def getLength(self):
-		return self.__dataSeries.getLength()
-
-	def getDateTimes(self):
-		return self.__dataSeries.getDateTimes()
 

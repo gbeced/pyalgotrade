@@ -44,7 +44,7 @@ Other Indicators
     :members: Slope
 
 .. automodule:: pyalgotrade.technical.cross
-    :members: CrossAbove, CrossBelow
+    :members: cross_above, cross_below
 
 .. automodule:: pyalgotrade.technical.linebreak
     :members: Line, LineBreak

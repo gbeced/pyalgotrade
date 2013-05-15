@@ -36,10 +36,10 @@ class NikkeiSpyStrategy(strategy.Strategy):
 		assert(smaPeriod > 3)
 		self.__lead = "^n225"
 		self.__lag = "spy"
+		self.__adjClose = feed[self.__lead].getAdjCloseDataSeries()
 		# Exit signal is more sensitive than entry.
-		adjClose = feed[self.__lead].getAdjCloseDataSeries()
-		self.__crossAbove = cross.CrossAbove(adjClose, ma.SMA(adjClose, smaPeriod))
-		self.__crossBelow = cross.CrossAbove(adjClose, ma.SMA(adjClose, int(smaPeriod/2)))
+		self.__fastSMA = ma.SMA(self.__adjClose, int(smaPeriod/2))
+		self.__slowSMA = ma.SMA(self.__adjClose, smaPeriod)
 		self.__pos = None
 
 	def onEnterCanceled(self, position):
@@ -58,11 +58,11 @@ class NikkeiSpyStrategy(strategy.Strategy):
 
 	def onBars(self, bars):
 		if bars.getBar(self.__lead):
-			if self.__crossAbove[-1] == 1 and self.__pos == None:
+			if cross.cross_above(self.__adjClose, self.__slowSMA) == 1 and self.__pos == None:
 				shares = self.__calculatePosSize()
 				if shares:
 					self.__pos = self.enterLong(self.__lag, shares)
-			elif self.__crossBelow[-1] == 1 and self.__pos != None:
+			elif cross.cross_below(self.__adjClose, self.__fastSMA) == 1 and self.__pos != None:
 				self.exitPosition(self.__pos)
 
 class TestCase(unittest.TestCase):
@@ -72,7 +72,7 @@ class TestCase(unittest.TestCase):
 		self.assertTrue("cacho" not in feed)
 		strat = NikkeiSpyStrategy(feed, 34)
 		strat.run()
-		self.assertEqual(round(strat.getResult(), 2), 1125558.12)
+		self.assertEqual(round(strat.getResult(), 2), 1033854.48)
 
 	def testDifferentTimezones(self):
 		# Market times in UTC:
