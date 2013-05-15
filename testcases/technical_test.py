@@ -22,35 +22,6 @@ import unittest
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
-class CacheTest(unittest.TestCase):
-	def testCacheSize1(self):
-		cache = technical.FIFOCache(1)
-
-		self.assertTrue(not cache.isCached(0))
-		self.assertTrue(cache.getValue(0) == None)
-
-		cache.putValue(0, 10)
-		self.assertTrue(cache.getValue(0) == 10)
-
-		cache.putValue(1, 20)
-		self.assertTrue(cache.getValue(1) == 20)
-
-		# Check that the value was replaced
-		self.assertTrue(not cache.isCached(0))
-		self.assertTrue(cache.getValue(0) == None)
-
-	def testCacheSize2(self):
-		cache = technical.FIFOCache(2)
-		cache.putValue(0, 0)
-		cache.putValue(1, 1)
-		cache.putValue(2, 2)
-
-		self.assertTrue(cache.getValue(1) == 1)
-		self.assertTrue(cache.getValue(2) == 2)
-
-		# Check that the value was replaced
-		self.assertTrue(cache.getValue(0) == None)
-
 class DataSeriesFilterTest(unittest.TestCase):
 	class TestFilter(technical.DataSeriesFilter):
 		def __init__(self, dataSeries):
@@ -80,8 +51,6 @@ class DataSeriesFilterTest(unittest.TestCase):
 
 def getTestCases():
 	ret = []
-	ret.append(CacheTest("testCacheSize1"))
-	ret.append(CacheTest("testCacheSize2"))
 	ret.append(DataSeriesFilterTest("testInvalidPosNotCached"))
 	return ret
 

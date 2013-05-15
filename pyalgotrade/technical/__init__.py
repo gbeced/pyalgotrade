@@ -22,50 +22,6 @@ import collections
 
 from pyalgotrade import dataseries
 
-class Cache:
-	class ValueNotCached:
-		pass
-
-	def isCached(self, pos):
-		raise NotImplementedError()
-
-	def getValue(self, pos, default=None):
-		raise NotImplementedError()
-
-	def putValue(self, pos, value):
-		raise NotImplementedError()
-
-class FIFOCache(Cache):
-	def __init__(self, size):
-		assert(size > 0)
-		self.__size = size
-		self.__cache = {}
-		self.__pos = []
-
-	def isCached(self, pos):
-		return pos in self.__cache
-
-	def getValue(self, pos, default=None):
-		return self.__cache.get(pos, default)
-
-	def putValue(self, pos, value):
-		self.__cache[pos] = value
-		self.__pos.append(pos)
-
-		# Free up an entry if necessary
-		if len(self.__cache) > self.__size:
-			del self.__cache[ self.__pos.pop(0) ]
-
-class NoCache(Cache):
-	def isCached(self, pos):
-		return False
-
-	def getValue(self, pos, default=None):
-		return default
-
-	def putValue(self, pos, value):
-		pass
-
 # Helper class for DataSeries filters that make calculations when new values are added to the
 # dataseries they wrap.
 class EventWindow:
