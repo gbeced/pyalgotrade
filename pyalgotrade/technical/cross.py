@@ -47,8 +47,8 @@ def _cross_impl(values1, values2, start, end, signCheck):
 	return ret
 
 # Note: 
-# Up to version 0.11 CrossAbove and CrossBelow were DataSeries.
-# In version 0.12 SequenceDataSeries was refactored to support specifying a limit to the amount
+# Up to version 0.12 CrossAbove and CrossBelow were DataSeries.
+# In version 0.13 SequenceDataSeries was refactored to support specifying a limit to the amount
 # of values to hold. This was introduced mainly to reduce memory footprint.
 # This change had a huge impact on the way DataSeries filters were implemented since they were
 # mosly views and didn't hold any actual values. For example, a SMA(200) didn't hold any values at all
