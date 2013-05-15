@@ -97,7 +97,7 @@ class YahooTestCase(unittest.TestCase):
 		self.assertTrue(self.__parseDate("2011-01-01") > self.__parseDate("2001-02-02"))
 
 	def testCSVFeedLoadOrder(self):
-		barFeed = csvfeed.YahooFeed()
+		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
@@ -109,7 +109,7 @@ class YahooTestCase(unittest.TestCase):
 		self.assertTrue(handler.getEventCount() > 0)
 
 	def __testFilteredRangeImpl(self, fromDate, toDate):
-		barFeed = csvfeed.YahooFeed()
+		barFeed = yahoofeed.Feed()
 		barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))

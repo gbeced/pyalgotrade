@@ -151,8 +151,8 @@ class Returns(stratanalyzer.StrategyAnalyzer):
 		analyzer.getEvent().subscribe(self.__onReturns)
 
 	def __onReturns(self, returnsAnalyzerBase):
-		self.__netReturns.appendValue(returnsAnalyzerBase.getNetReturn())
-		self.__cumReturns.appendValue(returnsAnalyzerBase.getCumulativeReturn())
+		self.__netReturns.append(returnsAnalyzerBase.getNetReturn())
+		self.__cumReturns.append(returnsAnalyzerBase.getCumulativeReturn())
 
 	def getReturns(self):
 		"""Returns a :class:`pyalgotrade.dataseries.DataSeries` with the returns for each bar."""

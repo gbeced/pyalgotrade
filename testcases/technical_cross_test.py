@@ -137,8 +137,8 @@ class TestCase(unittest.TestCase):
 		sma1 = ma.SMA(ds1, 15)
 		sma2 = ma.SMA(ds2, 25)
 		for i in range(100):
-			ds1.appendValue(i)
-			ds2.appendValue(50)
+			ds1.append(i)
+			ds2.append(50)
 			if i == 58:
 				self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 1)
 			else:

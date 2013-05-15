@@ -43,7 +43,7 @@ class TestCase(unittest.TestCase):
 	def __fillBarDataSeries(self, barDS, closePrices, highPrices, lowPrices):
 		assert(len(closePrices) == len(highPrices) == len(lowPrices))
 		for i in range(len(highPrices)):
-			barDS.appendValue( self.__buildBar(closePrices[i], highPrices[i], lowPrices[i], closePrices[i]) )
+			barDS.append( self.__buildBar(closePrices[i], highPrices[i], lowPrices[i], closePrices[i]) )
 
 	def testShortPeriod(self):
 		highPrices = [3, 3, 3]

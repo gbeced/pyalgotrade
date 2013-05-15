@@ -266,7 +266,7 @@ class TestStrategy(strategy.Strategy):
 
 	def onExitOk(self, position):
 		# print "Exit ok", position.getExitOrder().getExecutionInfo().getDateTime()
-		self.__result += position.getResult()
+		self.__result += position.getReturn()
 		self.__netProfit += position.getNetProfit()
 		self.__exitOkEvents += 1
 		self.__activePosition = None

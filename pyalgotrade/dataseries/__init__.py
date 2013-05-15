@@ -64,8 +64,9 @@ class DataSeries(object):
 
 	# Returns a sequence of absolute values [firstPos, lastPos].
 	# if includeNone is False and at least one value is None, then None is returned.
-	# TODO: Deprecate this.
 	def getValuesAbsolute(self, firstPos, lastPos, includeNone = False):
+		# Deprecated since 0.13
+		warninghelpers.deprecation_warning("getValuesAbsolute will be deprecated in the next version. Please use [] instead.", stacklevel=2)
 		ret = []
 		for i in xrange(firstPos, lastPos+1):
 			value = self.getValueAbsolute(i)
@@ -111,7 +112,7 @@ class DataSeries(object):
 		return ret
 
 class SequenceDataSeries(DataSeries):
-	"""A sequence based :class:`DataSeries`."""
+	"""A :class:`DataSeries` that holds values in a sequence in memory."""
 
 	def __init__(self):
 		self.__newValueEvent = observer.Event()
@@ -145,10 +146,11 @@ class SequenceDataSeries(DataSeries):
 
 	def append(self, value):
 		"""Appends a value."""
-		self.appendValueWithDatetime(None, value)
+		self.appendWithDateTime(None, value)
 
 	def appendValue(self, value):
-		# TODO: Deprecate this. Use append(...) instead.
+		# Deprecated since 0.13
+		warninghelpers.deprecation_warning("appendValue will be deprecated in the next version. Please use append instead.", stacklevel=2)
 		self.append(value)
 
 	def appendWithDateTime(self, dateTime, value):
@@ -167,7 +169,8 @@ class SequenceDataSeries(DataSeries):
 		self.getNewValueEvent().emit(self, dateTime, value)
 
 	def appendValueWithDatetime(self, dateTime, value):
-		# TODO: Deprecate this. Use appendWithDateTime(...) instead.
+		# Deprecated since 0.13
+		warninghelpers.deprecation_warning("appendValueWithDatetime will be deprecated in the next version. Please use appendWithDateTime instead.", stacklevel=2)
 		self.appendWithDateTime(dateTime, value)
 
 	def getDateTimes(self):

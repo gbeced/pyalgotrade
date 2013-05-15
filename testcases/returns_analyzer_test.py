@@ -332,7 +332,7 @@ class ReturnsTestCase(unittest.TestCase):
 		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
 		strat.run()
-		finalValue = strat.getBroker().getValue(strat.getFeed().getLastBars())
+		finalValue = strat.getBroker().getValue()
 
 		self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 4), round((finalValue - initialValue) / float(initialValue), 4))
 

@@ -55,7 +55,7 @@ class BasicBarFeed:
 			for instrument in bars.getInstruments():
 				bar_ = bars.getBar(instrument)
 				self.__lastBars[instrument] = bar_ 
-				self.__ds[instrument].appendValue(bar_)
+				self.__ds[instrument].append(bar_)
 		return bars
 
 	def __iter__(self):

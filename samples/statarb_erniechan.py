@@ -113,8 +113,8 @@ class MyStrategy(strategy.Strategy):
 		self.__statArbHelper.update()
 
 		# These is used only for plotting purposes.
-		self.__spread.appendValueWithDatetime(bars.getDateTime(), self.__statArbHelper.getSpread())
-		self.__hedgeRatio.appendValueWithDatetime(bars.getDateTime(), self.__statArbHelper.getHedgeRatio())
+		self.__spread.appendWithDateTime(bars.getDateTime(), self.__statArbHelper.getSpread())
+		self.__hedgeRatio.appendWithDateTime(bars.getDateTime(), self.__statArbHelper.getHedgeRatio())
 
 		if bars.getBar(self.__i1) and bars.getBar(self.__i2):
 			hedgeRatio = self.__statArbHelper.getHedgeRatio()
