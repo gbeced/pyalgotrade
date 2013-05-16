@@ -1,4 +1,5 @@
 Version 0.13 (TBD)
+. [CHANGE] DataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) were refactored to an event based model.
 . [CHANGE] BarValueDataSeries and BarDataSeries where moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.
 . [CHANGE] pyalgotrade.technical.cross.CrossAbove and pyalgotrade.technical.cross.CrossBelow were refactored as functions (pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below). They are not DataSeries any more.
 . [CHANGE] pyalgotrade.technical.DataSeriesFilter was removed. DataSeries filters now have to be modeled using pyalgotrade.technical.EventWindow and pyalgotrade.technical.EventBasedFilter classes.
