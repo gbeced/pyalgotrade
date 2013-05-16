@@ -1,14 +1,13 @@
 technical -- Technical indicators
 =================================
 
-.. module:: pyalgotrade.technical
-.. autoclass:: pyalgotrade.technical.DataSeriesFilter
-    :members: calculateValue, getDataSeries, getWindowSize
+.. automodule:: pyalgotrade.technical
+    :members: EventWindow, EventBasedFilter
 
 Example
 -------
 
-Creating a custom filter is easy:
+The following example shows how to combine an :class:`EventWindow` and an :class:`EventBasedFilter` to build a custom filter:
 
 .. literalinclude:: ../samples/technical-1.py
 

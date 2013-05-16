@@ -22,21 +22,25 @@ import unittest
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
+class TestEventWindow(technical.EventWindow):
+	def __init__(self):
+		technical.EventWindow.__init__(self, 1, False)
+
+	def getValue(self):
+		return self.getValues()[-1]
+
+class TestFilter(technical.EventBasedFilter):
+	def __init__(self, dataSeries):
+		technical.EventBasedFilter.__init__(self, dataSeries, TestEventWindow())
+
 class DataSeriesFilterTest(unittest.TestCase):
-	class TestFilter(technical.DataSeriesFilter):
-		def __init__(self, dataSeries):
-			technical.DataSeriesFilter.__init__(self, dataSeries, 1)
-
-		def calculateValue(self, firstPos, lastPos):
-			return self.getDataSeries()[lastPos]
-
 	def testInvalidPosNotCached(self):
 		ds = dataseries.SequenceDataSeries()
+		testFilter = TestFilter(ds)
 		for i in range(10):
 			ds.append(i)
 			ds.append(None) # Interleave Nones.
 
-		testFilter = DataSeriesFilterTest.TestFilter(ds)
 		self.assertTrue(testFilter[-1] == None)
 		self.assertTrue(testFilter[-2] == 9)
 		self.assertTrue(testFilter[-4] == 8) # We go 3 instead of 2 because we need to skip the interleaved None values.
