@@ -21,6 +21,9 @@
 from pyalgotrade import warninghelpers
 from pyalgotrade import observer
 
+def resize_list(list_, size):
+	return list_[-1*size:]
+
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
 class DataSeries(object):
@@ -112,18 +115,39 @@ class DataSeries(object):
 		return ret
 
 class SequenceDataSeries(DataSeries):
-	"""A :class:`DataSeries` that holds values in a sequence in memory."""
+	"""A :class:`DataSeries` that holds values in a sequence in memory.
+	
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
+	"""
 
-	def __init__(self):
+	def __init__(self, maxLen = None):
+		assert(maxLen == None or maxLen > 0)
 		self.__newValueEvent = observer.Event()
+		# I'm not using collections.deque because:
+		# 1: Random access is slower.
+		# 2: Slicing is not supported.
 		self.__values = []
 		self.__dateTimes = []
+		self.__maxLen = maxLen
 
 	def __len__(self):
 		return len(self.__values)
 
 	def __getitem__(self, key):
 		return self.__values[key]
+
+	def setMaxLen(self, maxLen):
+		"""Sets the maximum number of values to hold and resizes accordingly if necessary."""
+		self.__maxLen = maxLen
+		if maxLen != None and len(self.__values) > maxLen:
+			self.__values = resize_list(self.__values, maxLen)
+			self.__dateTimes = resize_list(self.__dateTimes, maxLen)
+
+	def getMaxLen(self, maxLen):
+		"""Returns the maximum number of values to hold."""
+		return self.__maxLen
 
 	# Event handler receives:
 	# 1: Dataseries generating the event
@@ -165,6 +189,11 @@ class SequenceDataSeries(DataSeries):
 		self.__dateTimes.append(dateTime)
 		self.__values.append(value)
 		assert(len(self.__values) == len(self.__dateTimes))
+
+		# Check bounds
+		if self.__maxLen != None and len(self.__values) > self.__maxLen:
+			self.__dateTimes.pop(0)
+			self.__values.pop(0)
 
 		self.getNewValueEvent().emit(self, dateTime, value)
 

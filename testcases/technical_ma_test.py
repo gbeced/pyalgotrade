@@ -133,9 +133,16 @@ class SMATestCase(unittest.TestCase):
 			self.assertEqual(sma[-1], smaEW.getValue())
 			smaEW.onNewValue(None, None) # This value should get skipped
 
+	def testStockChartsSMA_Bounded(self):
+		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1)
+		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=2)
+		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=4)
+		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1000)
+
 class WMATestCase(unittest.TestCase):
-	def __buildWMA(self, weights, values):
-		seqDS = dataseries.SequenceDataSeries()
+	def __buildWMA(self, weights, values, maxLen=None):
+		seqDS = dataseries.SequenceDataSeries(maxLen=maxLen)
 		ret = ma.WMA(seqDS, weights)
 		for value in values:
 			seqDS.append(value)
@@ -150,11 +157,11 @@ class WMATestCase(unittest.TestCase):
 		for i in range(len(wma)):
 			self.assertEqual(wma.getDateTimes()[i], None)
 
-	def testPeriod2(self):
+	def __testPeriod2Impl(self, maxLen):
 		weights = [3, 2, 1]
 		values = [1, 2, 3]
 
-		wma = self.__buildWMA(weights, values)
+		wma = self.__buildWMA(weights, values, maxLen)
 		self.assertTrue(wma[0] == None)
 		self.assertTrue(wma[1] == None)
 		self.assertTrue(wma[2] == (1*3 + 2*2 + 3*1) / float(3+2+1))
@@ -162,6 +169,14 @@ class WMATestCase(unittest.TestCase):
 		self.assertEqual(len(wma.getDateTimes()), 3)
 		for i in range(len(wma)):
 			self.assertEqual(wma.getDateTimes()[i], None)
+
+	def testPeriod2(self):
+		self.__testPeriod2Impl(None)
+
+	def testPeriod2_Bounded(self):
+		self.__testPeriod2Impl(1)
+		self.__testPeriod2Impl(2)
+		self.__testPeriod2Impl(100)
 
 class EMATestCase(unittest.TestCase):
 	def testStockChartsEMA(self):
@@ -189,9 +204,11 @@ def getTestCases():
 	ret.append(SMATestCase("testNinjaTraderSMA"))
 	ret.append(SMATestCase("testSeqLikeOps"))
 	ret.append(SMATestCase("testEventWindow"))
+	ret.append(SMATestCase("testStockChartsSMA_Bounded"))
 
 	ret.append(WMATestCase("testPeriod1"))
 	ret.append(WMATestCase("testPeriod2"))
+	ret.append(WMATestCase("testPeriod2_Bounded"))
 
 	ret.append(EMATestCase("testStockChartsEMA"))
 	ret.append(EMATestCase("testMaxRecursion"))

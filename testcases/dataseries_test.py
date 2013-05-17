@@ -91,6 +91,54 @@ class TestSequenceDataSeries(unittest.TestCase):
 			for i in xrange(-100, 100):
 				self.assertEqual(ds[i::step], seq[i::step])
 
+	def testBounded(self):
+		ds = dataseries.SequenceDataSeries(maxLen=2)
+		for i in xrange(100):
+			ds.append(i)
+			if i > 0:
+				self.assertEqual(ds[0], i - 1)
+				self.assertEqual(ds[1], i)
+		self.assertEqual(len(ds), 2)
+
+	def testResize1(self):
+		ds = dataseries.SequenceDataSeries(100)
+		for i in xrange(100):
+			ds.append(i)
+
+		self.assertEqual(len(ds), 100)
+		self.assertEqual(len(ds.getDateTimes()), 100)
+		self.assertEqual(ds[0], 0)
+		self.assertEqual(ds[-1], 99)
+
+		ds.setMaxLen(2)
+		self.assertEqual(len(ds), 2)
+		self.assertEqual(len(ds.getDateTimes()), 2)
+		self.assertEqual(ds[0], 98)
+		self.assertEqual(ds[1], 99)
+
+	def testResize2(self):
+		ds = dataseries.SequenceDataSeries()
+		for i in xrange(100):
+			ds.append(i)
+
+		ds.setMaxLen(1000)
+		self.assertEqual(len(ds), 100)
+		self.assertEqual(len(ds.getDateTimes()), 100)
+		self.assertEqual(ds[0], 0)
+		self.assertEqual(ds[-1], 99)
+
+		ds.setMaxLen(None)
+		self.assertEqual(len(ds), 100)
+		self.assertEqual(len(ds.getDateTimes()), 100)
+		self.assertEqual(ds[0], 0)
+		self.assertEqual(ds[-1], 99)
+
+		ds.setMaxLen(10)
+		self.assertEqual(len(ds), 10)
+		self.assertEqual(len(ds.getDateTimes()), 10)
+		self.assertEqual(ds[0], 90)
+		self.assertEqual(ds[-1], 99)
+
 class TestBarDataSeries(unittest.TestCase):
 	def testEmpty(self):
 		ds = bards.BarDataSeries()
@@ -331,6 +379,9 @@ def getTestCases():
 	ret.append(TestSequenceDataSeries("testEmpty"))
 	ret.append(TestSequenceDataSeries("testNonEmpty"))
 	ret.append(TestSequenceDataSeries("testSeqLikeOps"))
+	ret.append(TestSequenceDataSeries("testBounded"))
+	ret.append(TestSequenceDataSeries("testResize1"))
+	ret.append(TestSequenceDataSeries("testResize2"))
 
 	ret.append(TestBarDataSeries("testEmpty"))
 	ret.append(TestBarDataSeries("testAppendInvalidDatetime"))
