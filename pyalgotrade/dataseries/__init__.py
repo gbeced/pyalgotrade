@@ -145,7 +145,7 @@ class SequenceDataSeries(DataSeries):
 			self.__values = resize_list(self.__values, maxLen)
 			self.__dateTimes = resize_list(self.__dateTimes, maxLen)
 
-	def getMaxLen(self, maxLen):
+	def getMaxLen(self):
 		"""Returns the maximum number of values to hold."""
 		return self.__maxLen
 
