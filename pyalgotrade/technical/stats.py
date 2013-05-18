@@ -42,8 +42,11 @@ class StdDev(technical.EventBasedFilter):
 	:type period: int.
 	:param ddof: Delta degrees of freedom.
 	:type ddof: int.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, ddof=0):
-		technical.EventBasedFilter.__init__(self, dataSeries, StdDevEventWindow(period, ddof))
+	def __init__(self, dataSeries, period, ddof=0, maxLen = None):
+		technical.EventBasedFilter.__init__(self, dataSeries, StdDevEventWindow(period, ddof), maxLen)
 

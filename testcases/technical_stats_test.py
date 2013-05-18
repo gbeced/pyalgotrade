@@ -46,9 +46,21 @@ class TestCase(unittest.TestCase):
 		self.assertEquals(stdDev[3], numpy.array([2, 3]).std())
 		self.assertEquals(stdDev[4], numpy.array([3, 5]).std())
 
+	def testStdDev_Bounded(self):
+		values = [1, 1, 2, 3, 5]
+		seqDS = dataseries.SequenceDataSeries()
+		stdDev = stats.StdDev(seqDS, 2, maxLen=2)
+		for value in values:
+			seqDS.append(value)
+
+		self.assertEquals(stdDev[0], numpy.array([2, 3]).std())
+		self.assertEquals(stdDev[1], numpy.array([3, 5]).std())
+
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testStdDev_1"))
 	ret.append(TestCase("testStdDev"))
+	ret.append(TestCase("testStdDev_Bounded"))
 	return ret
 

@@ -64,13 +64,13 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 	:param eventWindow: The EventWindow instance to use to calculate new values.
 	:type eventWindow: :class:`EventWindow`.
-
-	.. note::
-		This is a base class and should not be used directly.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, eventWindow):
-		dataseries.SequenceDataSeries.__init__(self)
+	def __init__(self, dataSeries, eventWindow, maxLen = None):
+		dataseries.SequenceDataSeries.__init__(self, maxLen)
 
 		self.__dataSeries = dataSeries
 		self.__dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
