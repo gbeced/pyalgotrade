@@ -45,8 +45,36 @@ class TestCase(unittest.TestCase):
 			self.assertEquals(round(bBands.getUpperBand()[i], 2), expectedUpper[i-19])
 			self.assertEquals(round(bBands.getLowerBand()[i], 2), expectedLower[i-19])
 
+	def testStockChartsBollinger_Bounded(self):
+		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands
+		prices = [86.1557, 89.0867, 88.7829, 90.3228, 89.0671, 91.1453, 89.4397, 89.1750, 86.9302, 87.6752, 86.9596, 89.4299, 89.3221, 88.7241, 87.4497, 87.2634, 89.4985, 87.9006, 89.1260, 90.7043, 92.9001, 92.9784, 91.8021, 92.6647, 92.6843, 92.3021, 92.7725, 92.5373, 92.9490, 93.2039, 91.0669, 89.8318, 89.7435, 90.3994, 90.7387, 88.0177, 88.0867, 88.8439, 90.7781, 90.5416, 91.3894, 90.6500]
+		expectedMiddle = [91.24, 91.17, 91.05]
+		expectedUpper = [94.53, 94.37, 94.15]
+		expectedLower = [87.95, 87.96, 87.95]
+
+		seqDS = dataseries.SequenceDataSeries()
+		bBands = bollinger.BollingerBands(seqDS, 20, 2, 3)
+		for value in prices:
+			seqDS.append(value)
+
+		for i in xrange(3):
+			self.assertEquals(round(bBands.getMiddleBand()[i], 2), expectedMiddle[i])
+			self.assertEquals(round(bBands.getUpperBand()[i], 2), expectedUpper[i])
+			self.assertEquals(round(bBands.getLowerBand()[i], 2), expectedLower[i])
+
+		self.assertEquals(len(bBands.getMiddleBand()), 3)
+		self.assertEquals(len(bBands.getMiddleBand().getValues()), 3)
+		self.assertEquals(len(bBands.getMiddleBand().getDateTimes()), 3)
+		self.assertEquals(len(bBands.getUpperBand()), 3)
+		self.assertEquals(len(bBands.getUpperBand().getValues()), 3)
+		self.assertEquals(len(bBands.getUpperBand().getDateTimes()), 3)
+		self.assertEquals(len(bBands.getLowerBand()), 3)
+		self.assertEquals(len(bBands.getLowerBand().getValues()), 3)
+		self.assertEquals(len(bBands.getLowerBand().getDateTimes()), 3)
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testStockChartsBollinger"))
+	ret.append(TestCase("testStockChartsBollinger_Bounded"))
 	return ret
 
