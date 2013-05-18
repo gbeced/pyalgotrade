@@ -79,12 +79,15 @@ class StochasticOscillator(technical.EventBasedFilter):
 	:type dSMAPeriod: int.
 	:param useAdjustedValues: True to use adjusted Low/High/Close values.
 	:type useAdjustedValues: boolean.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, barDataSeries, period, dSMAPeriod = 3, useAdjustedValues = False):
+	def __init__(self, barDataSeries, period, dSMAPeriod = 3, useAdjustedValues = False, maxLen = None):
 		assert(dSMAPeriod > 1)
-		technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues))
-		self.__d = ma.SMA(self, dSMAPeriod)
+		technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
+		self.__d = ma.SMA(self, dSMAPeriod, maxLen)
 
 	def getD(self):
 		"""Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
