@@ -62,11 +62,35 @@ class VWAPTestCase(unittest.TestCase):
 		self.assertEqual(lineBreak[32].isWhite(), False)
 		self.assertEqual(lineBreak[32].isBlack(), True)
 
+	def testLineBreakBounded(self):
+		barFeed = self.__getFeed()
+		bars = barFeed[VWAPTestCase.Instrument]
+
+		# Invalid maxLen, smaller than reversalLines.
+		with self.assertRaises(Exception):
+			lineBreak = linebreak.LineBreak(bars, 3, maxLen=2)
+
+		lineBreak = linebreak.LineBreak(bars, 3, maxLen=4)
+		# Invalid maxLen, smaller than reversalLines.
+		with self.assertRaises(Exception):
+			lineBreak.setMaxLen(2)
+		barFeed.loadAll()
+
+		self.assertEqual(len(lineBreak), 4)
+		self.assertEqual(len(lineBreak[:]), 4)
+		self.assertEqual(len(lineBreak.getValues()), 4)
+		self.assertEqual(len(lineBreak.getDateTimes()), 4)
+		self.assertEqual(lineBreak[-1].getLow(), 10.76)
+		self.assertEqual(lineBreak[-1].getHigh(), 10.92)
+		self.assertEqual(lineBreak[-1].isWhite(), False)
+		self.assertEqual(lineBreak[-1].isBlack(), True)
+
 def getTestCases():
 	ret = []
 
 	ret.append(VWAPTestCase("test2LineBreak"))
 	ret.append(VWAPTestCase("test3LineBreak"))
+	ret.append(VWAPTestCase("testLineBreakBounded"))
 
 	return ret
 

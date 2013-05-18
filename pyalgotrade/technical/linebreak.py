@@ -62,15 +62,21 @@ class LineBreak(dataseries.SequenceDataSeries):
 	:type reversalLines: int.
 	:param useAdjustedValues: True to use adjusted high/low/close values.
 	:type useAdjustedValues: boolean.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+		This value can't be smaller than reversalLines.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False):
-		dataseries.SequenceDataSeries.__init__(self)
-
+	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False, maxLen = None):
 		if not isinstance(barDataSeries, bards.BarDataSeries):
 			raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 		if reversalLines < 2:
 			raise Exception("reversalLines must be greater than 1")
+		if maxLen != None and maxLen < reversalLines:
+			raise Exception("maxLen can't be smaller than reversalLines")
+
+		dataseries.SequenceDataSeries.__init__(self, maxLen)
 
 		self.__reversalLines = reversalLines
 		self.__useAdjustedValues = useAdjustedValues
@@ -119,4 +125,9 @@ class LineBreak(dataseries.SequenceDataSeries):
 				white = True
 			ret = Line(pyalgotrade.bar.get_low(bar, self.__useAdjustedValues), pyalgotrade.bar.get_high(bar, self.__useAdjustedValues), bar.getDateTime(), white)
 		return ret
+
+	def setMaxLen(self, maxLen):
+		if maxLen != None and maxLen < self.__reversalLines:
+			raise Exception("maxLen can't be smaller than reversalLines")
+		dataseries.SequenceDataSeries.setMaxLen(self, maxLen)
 
