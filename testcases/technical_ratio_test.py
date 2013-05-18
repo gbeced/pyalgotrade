@@ -23,9 +23,9 @@ from pyalgotrade.technical import ratio
 from pyalgotrade import dataseries
 
 class TestCase(unittest.TestCase):
-	def __buildRatio(self, values):
+	def __buildRatio(self, values, ratioMaxLen=None):
 		seqDS = dataseries.SequenceDataSeries()
-		ret = ratio.Ratio(seqDS)
+		ret = ratio.Ratio(seqDS, ratioMaxLen)
 		for value in values:
 			seqDS.append(value)
 		return ret
@@ -62,10 +62,17 @@ class TestCase(unittest.TestCase):
 		for i in range(len(ratio)):
 			self.assertEqual(ratio.getDateTimes()[i], None)
 
+	def testBounded(self):
+		ratio = self.__buildRatio([-1, -2, -1], 2)
+		self.assertEqual(ratio[0], -1)
+		self.assertEqual(ratio[1], 0.5)
+		self.assertEqual(len(ratio), 2)
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testSimple"))
 	ret.append(TestCase("testNegativeValues"))
+	ret.append(TestCase("testBounded"))
 	return ret
 
 

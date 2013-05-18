@@ -36,6 +36,6 @@ class RatioEventWindow(technical.EventWindow):
 # Calculates the ratio between a value and the previous one.
 # The ratio can't be calculated if a previous value is 0.
 class Ratio(technical.EventBasedFilter):
-	def __init__(self, dataSeries):
-		technical.EventBasedFilter.__init__(self, dataSeries, RatioEventWindow())
+	def __init__(self, dataSeries, maxLen = None):
+		technical.EventBasedFilter.__init__(self, dataSeries, RatioEventWindow(), maxLen)
 
