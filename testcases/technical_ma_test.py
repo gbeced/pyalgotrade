@@ -32,9 +32,9 @@ def safe_round(number, ndigits):
 	return ret
 
 class SMATestCase(unittest.TestCase):
-	def __buildSMA(self, period, values):
+	def __buildSMA(self, period, values, smaMaxLen=None):
 		seqDs = dataseries.SequenceDataSeries()
-		ret = ma.SMA(seqDs, period)
+		ret = ma.SMA(seqDs, period, smaMaxLen)
 		for value in values:
 			seqDs.append(value)
 		return ret
@@ -67,6 +67,13 @@ class SMATestCase(unittest.TestCase):
 		self.assertEqual(len(sma.getDateTimes()), 3)
 		for i in range(len(sma)):
 			self.assertEqual(sma.getDateTimes()[i], None)
+
+	def testPeriod2_BoundedFilter(self):
+		sma = self.__buildSMA(2, [0, 1, 2, 3, 4], 2)
+		self.assertEqual(sma[0], (2+3) / float(2))
+		self.assertEqual(sma[1], (3+4) / float(2))
+		self.assertEqual(sma[1], sma[-1])
+		self.assertEqual(len(sma.getDateTimes()), 2)
 
 	def testMultipleValues(self):
 		period = 5
@@ -133,7 +140,7 @@ class SMATestCase(unittest.TestCase):
 			self.assertEqual(sma[-1], smaEW.getValue())
 			smaEW.onNewValue(None, None) # This value should get skipped
 
-	def testStockChartsSMA_Bounded(self):
+	def testStockChartsSMA_BoundedSeq(self):
 		# Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
 		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1)
 		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=2)
@@ -141,9 +148,9 @@ class SMATestCase(unittest.TestCase):
 		common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1000)
 
 class WMATestCase(unittest.TestCase):
-	def __buildWMA(self, weights, values, maxLen=None):
-		seqDS = dataseries.SequenceDataSeries(maxLen=maxLen)
-		ret = ma.WMA(seqDS, weights)
+	def __buildWMA(self, weights, values, seqMaxLen=None, wmaMaxLen=None):
+		seqDS = dataseries.SequenceDataSeries(maxLen=seqMaxLen)
+		ret = ma.WMA(seqDS, weights, wmaMaxLen)
 		for value in values:
 			seqDS.append(value)
 		return ret
@@ -173,10 +180,21 @@ class WMATestCase(unittest.TestCase):
 	def testPeriod2(self):
 		self.__testPeriod2Impl(None)
 
-	def testPeriod2_Bounded(self):
+	def testPeriod2_BoundedSeq(self):
 		self.__testPeriod2Impl(1)
 		self.__testPeriod2Impl(2)
 		self.__testPeriod2Impl(100)
+
+	def testPeriod2_BoundedFilter(self):
+		weights = [3, 2, 1]
+		values = [1, 2, 3]
+
+		wma = self.__buildWMA(weights, values, wmaMaxLen=2)
+		self.assertEqual(wma[0], None)
+		self.assertEqual(wma[1], (1*3 + 2*2 + 3*1) / float(3+2+1))
+		self.assertEqual(len(wma), 2)
+		self.assertEqual(len(wma.getValues()), 2)
+		self.assertEqual(len(wma.getDateTimes()), 2)
 
 class EMATestCase(unittest.TestCase):
 	def testStockChartsEMA(self):
@@ -193,25 +211,42 @@ class EMATestCase(unittest.TestCase):
 		# Check that the max recursion limit bug is not hit when generating the last value first.
 		self.assertEquals(round(ema[-1], 2), 128.81)
 
+	def testBoundedFilter(self):
+		values = [22.2734, 22.1940, 22.0847, 22.1741, 22.1840, 22.1344, 22.2337, 22.4323, 22.2436, 22.2933, 22.1542, 22.3926, 22.3816, 22.6109, 23.3558, 24.0519, 23.7530, 23.8324, 23.9516, 23.6338, 23.8225, 23.8722, 23.6537, 23.1870, 23.0976, 23.3260, 22.6805, 23.0976, 22.4025, 22.1725]
+
+		seqDS = dataseries.SequenceDataSeries()
+		ema = ma.EMA(seqDS, 10, 2)
+		for value in values:
+			seqDS.append(value)
+
+		self.assertEqual(round(ema[0], 5), 23.08068)
+		self.assertEqual(round(ema[1], 5), 22.91556)
+		self.assertEqual(len(ema), 2)
+		self.assertEqual(len(ema.getValues()), 2)
+		self.assertEqual(len(ema.getDateTimes()), 2)
+
 def getTestCases():
 	ret = []
 
 	ret.append(SMATestCase("testPeriod1"))
 	ret.append(SMATestCase("testPeriod2"))
+	ret.append(SMATestCase("testPeriod2_BoundedFilter"))
 	ret.append(SMATestCase("testMultipleValues"))
 	ret.append(SMATestCase("testStockChartsSMA"))
 	ret.append(SMATestCase("testMultipleValuesSkippingOne"))
 	ret.append(SMATestCase("testNinjaTraderSMA"))
 	ret.append(SMATestCase("testSeqLikeOps"))
 	ret.append(SMATestCase("testEventWindow"))
-	ret.append(SMATestCase("testStockChartsSMA_Bounded"))
+	ret.append(SMATestCase("testStockChartsSMA_BoundedSeq"))
 
 	ret.append(WMATestCase("testPeriod1"))
 	ret.append(WMATestCase("testPeriod2"))
-	ret.append(WMATestCase("testPeriod2_Bounded"))
+	ret.append(WMATestCase("testPeriod2_BoundedSeq"))
+	ret.append(WMATestCase("testPeriod2_BoundedFilter"))
 
 	ret.append(EMATestCase("testStockChartsEMA"))
 	ret.append(EMATestCase("testMaxRecursion"))
+	ret.append(EMATestCase("testBoundedFilter"))
 
 	return ret
 
