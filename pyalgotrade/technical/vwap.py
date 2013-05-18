@@ -51,12 +51,15 @@ class VWAP(technical.EventBasedFilter):
 	:type period: int.
 	:param useTypicalPrice: True if the typical price should be used instead of the closing price.
 	:type useTypicalPrice: boolean.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, useTypicalPrice=False):
+	def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen = None):
 		if not isinstance(dataSeries, bards.BarDataSeries):
 			raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
-		technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice))
+		technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
 
 	def getPeriod(self):
 		return self.getWindowSize()

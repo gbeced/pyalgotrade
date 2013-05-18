@@ -86,6 +86,16 @@ class VWAPTestCase(unittest.TestCase):
 		for i in xrange(49, len(vwap_)):
 			self.assertNotEqual(vwap_[i], None)
 
+	def testBounded(self):
+		barFeed = self.__getFeed()
+		bars = barFeed[VWAPTestCase.Instrument]
+		vwap_ = vwap.VWAP(bars, 50, True, 2)
+		barFeed.loadAll()
+
+		outputValues = [14.605005665747331, 14.605416923506045]
+		for i in xrange(2):
+			self.assertEqual(round(vwap_[i], 4), round(outputValues[i], 4))
+
 def getTestCases():
 	ret = []
 
@@ -95,7 +105,7 @@ def getTestCases():
 	ret.append(VWAPTestCase("testPeriod2_TypicalPrice"))
 	ret.append(VWAPTestCase("testPeriod50_ClosingPrice"))
 	ret.append(VWAPTestCase("testPeriod50_TypicalPrice"))
-
+	ret.append(VWAPTestCase("testBounded"))
 
 	return ret
 
