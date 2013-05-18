@@ -53,9 +53,9 @@ class TestCase(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			rsi.avg_gain_loss([1, 1.5, 2], 2, 4)
 
-	def __buildRSI(self, values, period):
+	def __buildRSI(self, values, period, rsiMaxLen=None):
 		seqDS = dataseries.SequenceDataSeries()
-		ret = rsi.RSI(seqDS, period)
+		ret = rsi.RSI(seqDS, period, rsiMaxLen)
 		for value in values:
 			seqDS.append(value)
 		return ret
@@ -77,11 +77,21 @@ class TestCase(unittest.TestCase):
 		values = [44.3389, 44.0902, 44.1497, 43.6124, 44.3278, 44.8264, 45.0955, 45.4245, 45.8433, 46.0826, 45.8931, 46.0328, 45.6140, 46.2820, 46.2820, 46.0028, 46.0328, 46.4116, 46.2222, 45.6439, 46.2122, 46.2521, 45.7137, 46.4515, 45.7835, 45.3548, 44.0288, 44.1783, 44.2181, 44.5672, 43.4205, 42.6628, 43.1314]
 		self.assertEqual(round(rsi.rsi(values, 14), 8), 37.77295211)
 
+	def testRSI_Bounded(self):
+		values = [44.3389, 44.0902, 44.1497, 43.6124, 44.3278, 44.8264, 45.0955, 45.4245, 45.8433, 46.0826, 45.8931, 46.0328, 45.6140, 46.2820, 46.2820]
+		rsi = self.__buildRSI(values, 14, 1)
+		self.assertEqual(round(rsi[0], 8), 70.53278948)
+		self.assertEqual(len(rsi), 1)
+		self.assertEqual(len(rsi.getValues()), 1)
+		self.assertEqual(len(rsi.getDateTimes()), 1)
+		self.assertEqual(round(rsi.getValues()[-1], 8), 70.53278948)
+
 def getTestCases():
 	ret = []
 	ret.append(TestCase("testAvgGainLoss"))
 	ret.append(TestCase("testStockChartsRSI"))
 	ret.append(TestCase("testDateTimes"))
 	ret.append(TestCase("testRSIFunc"))
+	ret.append(TestCase("testRSI_Bounded"))
 	return ret
 

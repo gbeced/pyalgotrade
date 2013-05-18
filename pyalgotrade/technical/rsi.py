@@ -126,8 +126,11 @@ class RSI(technical.EventBasedFilter):
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 	:param period: The period. Note that if period is **n**, then **n+1** values are used. Must be > 1.
 	:type period: int.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period):
-		technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period))
+	def __init__(self, dataSeries, period, maxLen = None):
+		technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)
 
