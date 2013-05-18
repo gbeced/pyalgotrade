@@ -42,10 +42,13 @@ class Slope(technical.EventBasedFilter):
 	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 	:param period: The number of values to use to calculate the slope.
 	:type period: int.
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period):
-		technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period))
+	def __init__(self, dataSeries, period, maxLen = None):
+		technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period), maxLen)
 
 	def getTrendDays(self):
 		return self.getWindowSize()
@@ -71,6 +74,6 @@ class TrendEventWindow(SlopeEventWindow):
 		return ret
 
 class Trend(technical.EventBasedFilter):
-	def __init__(self, dataSeries, trendDays, positiveThreshold = 0, negativeThreshold = 0):
-		technical.EventBasedFilter.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold))
+	def __init__(self, dataSeries, trendDays, positiveThreshold = 0, negativeThreshold = 0, maxLen = None):
+		technical.EventBasedFilter.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold), maxLen)
 
