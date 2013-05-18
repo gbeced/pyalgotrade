@@ -23,9 +23,9 @@ from pyalgotrade.technical import roc
 from pyalgotrade import dataseries
 
 class ROCTestCase(unittest.TestCase):
-	def __buildROC(self, values, period):
+	def __buildROC(self, values, period, rocMaxLen=None):
 		seqDS = dataseries.SequenceDataSeries()
-		ret = roc.RateOfChange(seqDS, period)
+		ret = roc.RateOfChange(seqDS, period, rocMaxLen)
 		for value in values:
 			seqDS.append(value)
 		return ret
@@ -52,9 +52,18 @@ class ROCTestCase(unittest.TestCase):
 		self.assertTrue(simple_roc(2, 1) == -50)
 		self.assertTrue(simple_roc(2, 1) == simple_roc(100, 50))
 
+	def testBounded(self):
+		# http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change
+		inputValues = [ 11045.27, 11167.32, 11008.61, 11151.83, 10926.77, 10868.12, 10520.32, 10380.43, 10785.14, 10748.26, 10896.91, 10782.95, 10620.16, 10625.83, 10510.95, 10444.37, 10068.01, 10193.39, 10066.57, 10043.75]
+		outputValues = [-4.31, -3.24]
+		roc_ = self.__buildROC(inputValues, 12, 2)
+		for i in xrange(2):
+			self.assertEqual(round(roc_[i], 2), outputValues[i])
+
 def getTestCases():
 	ret = []
 	ret.append(ROCTestCase("testPeriod12"))
 	ret.append(ROCTestCase("testPeriod1"))
+	ret.append(ROCTestCase("testBounded"))
 	return ret
 
