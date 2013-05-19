@@ -18,9 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.utils import dt
+from pyalgotrade import bar
 
 import types
+import datetime
 
 ######################################################################
 ## Yahoo Finance CSV parser
@@ -31,14 +35,57 @@ import types
 #
 # The csv Date column must have the following format: YYYY-MM-DD
 
-class RowParser(csvfeed.YahooRowParser):
-	pass
+def parse_date(date):
+	# Sample: 2005-12-30
+	# This custom parsing works faster than:
+	# datetime.datetime.strptime(date, "%Y-%m-%d")
+	year = int(date[0:4])
+	month = int(date[5:7])
+	day = int(date[8:10])
+	ret = datetime.datetime(year, month, day)
+	return ret
 
-class Feed(csvfeed.YahooFeed):
+class RowParser(csvfeed.RowParser):
+	def __init__(self, dailyBarTime, timezone = None):
+		self.__dailyBarTime = dailyBarTime
+		self.__timezone = timezone
+
+	def __parseDate(self, dateString):
+		ret = parse_date(dateString)
+		# Time on Yahoo! Finance CSV files is empty. If told to set one, do it.
+		if self.__dailyBarTime != None:
+			ret = datetime.datetime.combine(ret, self.__dailyBarTime)
+		# Localize the datetime if a timezone was given.
+		if self.__timezone:
+			ret = dt.localize(ret, self.__timezone)
+		return ret
+
+	def getFieldNames(self):
+		# It is expected for the first row to have the field names.
+		return None
+
+	def getDelimiter(self):
+		return ","
+
+	def parseBar(self, csvRowDict):
+		dateTime = self.__parseDate(csvRowDict["Date"])
+		close = float(csvRowDict["Close"])
+		open_ = float(csvRowDict["Open"])
+		high = float(csvRowDict["High"])
+		low = float(csvRowDict["Low"])
+		volume = float(csvRowDict["Volume"])
+		adjClose = float(csvRowDict["Adj Close"])
+		return bar.Bar(dateTime, open_, high, low, close, volume, adjClose)
+
+class Feed(csvfeed.BarFeed):
 	"""A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
 
 	:param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
 	:type timezone: A pytz timezone.
+	:param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
+		If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 
 	.. note::
 		Yahoo! Finance csv files lack timezone information.
@@ -48,8 +95,12 @@ class Feed(csvfeed.YahooFeed):
 			* If any of the instruments loaded are from different timezones, then the timezone parameter must be set.
 	"""
 
-	def __init__(self, timezone = None):
-		csvfeed.YahooFeed.__init__(self, timezone, True)
+	def __init__(self, timezone = None, maxLen=None):
+		if type(timezone) == types.IntType:
+			raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
+
+		csvfeed.BarFeed.__init__(self, barfeed.Frequency.DAY, maxLen)
+		self.__timezone = timezone
 	
 	def addBarsFromCSV(self, instrument, path, timezone = None):
 		"""Loads bars for a given instrument from a CSV formatted file.
@@ -57,11 +108,17 @@ class Feed(csvfeed.YahooFeed):
 		
 		:param instrument: Instrument identifier.
 		:type instrument: string.
-		:param path: The path to the file.
+		:param path: The path to the CSV file.
 		:type path: string.
 		:param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
 		:type timezone: A pytz timezone.
 		"""
 
-		csvfeed.YahooFeed.addBarsFromCSV(self, instrument, path, timezone)
+		if type(timezone) == types.IntType:
+			raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
+
+		if timezone is None:
+			timezone = self.__timezone
+		rowParser = RowParser(self.getDailyBarTime(), timezone)
+		csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 

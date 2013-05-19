@@ -74,7 +74,7 @@ class YahooTestCase(unittest.TestCase):
 	TestInstrument = "orcl"
 
 	def __parseDate(self, date):
-		parser = csvfeed.YahooRowParser(datetime.time(23, 59))
+		parser = yahoofeed.RowParser(datetime.time(23, 59))
 		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "Adj Close":0}
 		return parser.parseBar(row).getDateTime()
 
@@ -193,6 +193,25 @@ class YahooTestCase(unittest.TestCase):
 		barFeed.stop()
 		barFeed.join()
 
+	def testBounded(self):
+		barFeed = yahoofeed.Feed(maxLen=2)
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+		barFeed.start()
+		for bars in barFeed:
+			pass
+		barFeed.stop()
+		barFeed.join()
+
+		barDS = barFeed[YahooTestCase.TestInstrument]
+		self.assertEqual(len(barDS), 2)
+		self.assertEqual(len(barDS.getDateTimes()), 2)
+		self.assertEqual(len(barDS.getCloseDataSeries()), 2)
+		self.assertEqual(len(barDS.getCloseDataSeries().getDateTimes()), 2)
+		self.assertEqual(len(barDS.getOpenDataSeries()), 2)
+		self.assertEqual(len(barDS.getHighDataSeries()), 2)
+		self.assertEqual(len(barDS.getLowDataSeries()), 2)
+		self.assertEqual(len(barDS.getAdjCloseDataSeries()), 2)
+
 class NinjaTraderTestCase(unittest.TestCase):
 	def __loadIntradayBarFeed(self, timeZone = None):
 		ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
@@ -258,6 +277,26 @@ class NinjaTraderTestCase(unittest.TestCase):
 			if price != None:
 				self.assertTrue(price == bars.getBar("spy").getClose())
 
+	def testBounded(self):
+		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, maxLen=2)
+		barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
+
+		barFeed.start()
+		for bars in barFeed:
+			pass
+		barFeed.stop()
+		barFeed.join()
+
+		barDS = barFeed["spy"]
+		self.assertEqual(len(barDS), 2)
+		self.assertEqual(len(barDS.getDateTimes()), 2)
+		self.assertEqual(len(barDS.getCloseDataSeries()), 2)
+		self.assertEqual(len(barDS.getCloseDataSeries().getDateTimes()), 2)
+		self.assertEqual(len(barDS.getOpenDataSeries()), 2)
+		self.assertEqual(len(barDS.getHighDataSeries()), 2)
+		self.assertEqual(len(barDS.getLowDataSeries()), 2)
+		self.assertEqual(len(barDS.getAdjCloseDataSeries()), 2)
+
 def getTestCases():
 	ret = []
 
@@ -273,11 +312,13 @@ def getTestCases():
 	ret.append(YahooTestCase("testWithPerFileTimezone"))
 	ret.append(YahooTestCase("testWithIntegerTimezone"))
 	ret.append(YahooTestCase("testMapTypeOperations"))
+	ret.append(YahooTestCase("testBounded"))
 
 	ret.append(NinjaTraderTestCase("testWithTimezone"))
 	ret.append(NinjaTraderTestCase("testWithoutTimezone"))
 	ret.append(NinjaTraderTestCase("testWithIntegerTimezone"))
 	ret.append(NinjaTraderTestCase("testLocalizeAndFilter"))
+	ret.append(NinjaTraderTestCase("testBounded"))
 
 	return ret
 

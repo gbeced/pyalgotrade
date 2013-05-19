@@ -29,8 +29,8 @@ from pyalgotrade.barfeed import helpers
 # - Forward the call to start() if they override it.
 
 class Feed(barfeed.BarFeed):
-	def __init__(self, frequency):
-		barfeed.BarFeed.__init__(self, frequency)
+	def __init__(self, frequency, maxLen=None):
+		barfeed.BarFeed.__init__(self, frequency, maxLen)
 		self.__bars = {}
 		self.__nextBarIdx = {}
 		self.__started = False

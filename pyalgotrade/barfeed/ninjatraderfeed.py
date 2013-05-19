@@ -103,6 +103,10 @@ class Feed(csvfeed.BarFeed):
 	:param frequency: The frequency of the bars.
 	:param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
 	:type timezone: A pytz timezone.
+	:param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
+		If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 
 	.. note::
 
@@ -112,11 +116,11 @@ class Feed(csvfeed.BarFeed):
 		 * pyalgotrade.barfeed.Frequency.DAY
 	"""
 
-	def __init__(self, frequency, timezone = None):
+	def __init__(self, frequency, timezone = None, maxLen=None):
 		if type(timezone) == types.IntType:
 			raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 
-		csvfeed.BarFeed.__init__(self, frequency)
+		csvfeed.BarFeed.__init__(self, frequency, maxLen)
 		self.__timezone = timezone
 
 	def addBarsFromCSV(self, instrument, path, timezone = None):

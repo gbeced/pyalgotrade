@@ -36,16 +36,18 @@ class Frequency:
 # Subclasses should implement:
 # - getNextBars
 #
-# THIS IS A VERY BASIC CLASS AND IN WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
+# THIS IS A VERY BASIC CLASS AND IT WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
 
 class BasicBarFeed:
-	def __init__(self, frequency):
+	def __init__(self, frequency, maxLen=None):
+		assert(maxLen == None or maxLen > 0)
 		self.__ds = {}
 		self.__defaultInstrument = None
 		self.__newBarsEvent = observer.Event()
 		self.__currentBars = None
 		self.__lastBars = {}
 		self.__frequency = frequency
+		self.__maxLen = maxLen
 
 	def __getNextBarsAndUpdateDS(self):
 		bars = self.getNextBars()
@@ -118,7 +120,7 @@ class BasicBarFeed:
 	def registerInstrument(self, instrument):
 		self.__defaultInstrument = instrument
 		if instrument not in self.__ds:
-			self.__ds[instrument] = bards.BarDataSeries()
+			self.__ds[instrument] = bards.BarDataSeries(self.__maxLen)
 
 	def getDataSeries(self, instrument = None):
 		"""Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument.
@@ -151,12 +153,16 @@ class BarFeed(BasicBarFeed):
 
 	:param frequency: The bars frequency.
 	:type frequency: barfeed.Frequency.MINUTE or barfeed.Frequency.DAY.
+	:param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
+		If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
 
 	.. note::
 		This is a base class and should not be used directly.
 	"""
-	def __init__(self, frequency):
-		BasicBarFeed.__init__(self, frequency)
+	def __init__(self, frequency, maxLen=None):
+		BasicBarFeed.__init__(self, frequency, maxLen)
 		self.__prevDateTime = None
 
 	# Override to return a map from instrument names to bars or None if there is no data. All bars datetime must be equal.
@@ -182,8 +188,8 @@ class BarFeed(BasicBarFeed):
 
 # This class is used by the optimizer module. The barfeed is already built on the server side, and the bars are sent back to workers.
 class OptimizerBarFeed(BasicBarFeed):
-	def __init__(self, frequency, instruments, bars):
-		BasicBarFeed.__init__(self, frequency)
+	def __init__(self, frequency, instruments, bars, maxLen=None):
+		BasicBarFeed.__init__(self, frequency, maxLen)
 		for instrument in instruments:
 			self.registerInstrument(instrument)
 		self.__bars = bars
@@ -207,5 +213,4 @@ class OptimizerBarFeed(BasicBarFeed):
 
 	def stopDispatching(self):
 		return self.__nextBar >= len(self.__bars)
-
 

@@ -28,16 +28,17 @@ from pyalgotrade import marketsession
 import common
 
 class TemporarySQLiteFeed:
-	def __init__(self, dbFilePath, frequency):
+	def __init__(self, dbFilePath, frequency, maxLen=None):
 		if os.path.exists(dbFilePath):
 			raise Exception("File exists")
 
 		self.__dbFilePath = dbFilePath
 		self.__frequency = frequency
 		self.__feed = None
+		self.__maxLen = maxLen
 
 	def __enter__(self):
-		self.__feed = sqlitefeed.Feed(self.__dbFilePath, self.__frequency)
+		self.__feed = sqlitefeed.Feed(self.__dbFilePath, self.__frequency, maxLen=self.__maxLen)
 
 	def __exit__(self, exc_type, exc_val, exc_tb):
 		self.__feed = None
@@ -83,10 +84,41 @@ class SQLiteFeedTestCase(unittest.TestCase):
 				self.assertEqual(yahooDS[i].getBarsTillSessionClose(), sqliteDS[i].getBarsTillSessionClose())
 				self.assertEqual(yahooDS[i].getSessionClose(), sqliteDS[i].getSessionClose())
 
+	def testBounded(self):
+		tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY, maxLen=2)
+		with tmpFeed:
+			# Load bars using a Yahoo! feed.
+			yahooFeed = yahoofeed.Feed(maxLen=1)
+			yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
+			yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+
+			# Fill the database using the bars from the Yahoo! feed.
+			sqliteFeed = tmpFeed.getFeed()
+			sqliteFeed.getDatabase().addBarsFromFeed(yahooFeed)
+
+			# Load the SQLite feed and process all bars.
+			sqliteFeed.loadBars("orcl")
+			sqliteFeed.start()
+			for bars in sqliteFeed:
+				pass
+			sqliteFeed.stop()
+			sqliteFeed.join()
+
+			barDS = sqliteFeed["orcl"]
+			self.assertEqual(len(barDS), 2)
+			self.assertEqual(len(barDS.getDateTimes()), 2)
+			self.assertEqual(len(barDS.getCloseDataSeries()), 2)
+			self.assertEqual(len(barDS.getCloseDataSeries().getDateTimes()), 2)
+			self.assertEqual(len(barDS.getOpenDataSeries()), 2)
+			self.assertEqual(len(barDS.getHighDataSeries()), 2)
+			self.assertEqual(len(barDS.getLowDataSeries()), 2)
+			self.assertEqual(len(barDS.getAdjCloseDataSeries()), 2)
+
 def getTestCases():
 	ret = []
 
 	ret.append(SQLiteFeedTestCase("testLoadDailyBars"))
+	ret.append(SQLiteFeedTestCase("testBounded"))
 
 	return ret
 

@@ -21,16 +21,21 @@
 from pyalgotrade import dataseries
 
 class BarDataSeries(dataseries.SequenceDataSeries):
-	"""A :class:`pyalgotrade.dataseries.DataSeries` of :class:`pyalgotrade.bar.Bar` instances."""
+	"""A :class:`pyalgotrade.dataseries.DataSeries` of :class:`pyalgotrade.bar.Bar` instances.
 
-	def __init__(self):
-		dataseries.SequenceDataSeries.__init__(self)
-		self.__openDS = dataseries.SequenceDataSeries()
-		self.__closeDS = dataseries.SequenceDataSeries()
-		self.__highDS = dataseries.SequenceDataSeries()
-		self.__lowDS = dataseries.SequenceDataSeries()
-		self.__volumeDS = dataseries.SequenceDataSeries()
-		self.__adjCloseDS = dataseries.SequenceDataSeries()
+	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
+	"""
+
+	def __init__(self, maxLen = None):
+		dataseries.SequenceDataSeries.__init__(self, maxLen)
+		self.__openDS = dataseries.SequenceDataSeries(maxLen)
+		self.__closeDS = dataseries.SequenceDataSeries(maxLen)
+		self.__highDS = dataseries.SequenceDataSeries(maxLen)
+		self.__lowDS = dataseries.SequenceDataSeries(maxLen)
+		self.__volumeDS = dataseries.SequenceDataSeries(maxLen)
+		self.__adjCloseDS = dataseries.SequenceDataSeries(maxLen)
 
 	def append(self, value):
 		self.appendWithDateTime(value.getDateTime(), value)

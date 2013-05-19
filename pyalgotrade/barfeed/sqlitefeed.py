@@ -131,8 +131,8 @@ class Database(dbfeed.Database):
 		return ret
 
 class Feed(membf.Feed):
-	def __init__(self, dbFilePath, frequency):
-		membf.Feed.__init__(self, frequency)
+	def __init__(self, dbFilePath, frequency, maxLen=None):
+		membf.Feed.__init__(self, frequency, maxLen)
 		self.__db = Database(dbFilePath)
 
 	def getDatabase(self):
