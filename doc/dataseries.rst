@@ -2,7 +2,11 @@ dataseries -- Basic dataseries classes
 ======================================
 
 .. automodule:: pyalgotrade.dataseries
-    :members: DataSeries, SequenceDataSeries, datetime_aligned
+    :members: DataSeries, SequenceDataSeries
+    :special-members:
+
+.. automodule:: pyalgotrade.dataseries.aligned
+    :members: datetime_aligned
     :special-members:
 
 .. automodule:: pyalgotrade.dataseries.bards

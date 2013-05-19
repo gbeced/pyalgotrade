@@ -1,5 +1,6 @@
 from pyalgotrade import strategy
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import aligned
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade import plotter
 from pyalgotrade.tools import yahoofinance
@@ -17,7 +18,7 @@ def get_beta(values1, values2):
 class StatArbHelper:
 	def __init__(self, ds1, ds2, windowSize):
 		# We're going to use datetime aligned versions of the dataseries.
-		self.__ds1, self.__ds2 = dataseries.datetime_aligned(ds1, ds2)
+		self.__ds1, self.__ds2 = aligned.datetime_aligned(ds1, ds2)
 		self.__windowSize = windowSize
 		self.__hedgeRatio = None
 		self.__spread = None

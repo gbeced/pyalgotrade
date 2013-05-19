@@ -1,10 +1,11 @@
 Version 0.13 (TBD)
 . [NEW] pyalgotrade.dataseries.SequenceDataSeries now supports setting the maximum number of values to hold in case you don't want it to grow too much.
 . [CHANGE] DataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) were refactored to an event based model.
-. [CHANGE] BarValueDataSeries and BarDataSeries where moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.
+. [CHANGE] BarValueDataSeries and BarDataSeries were moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.
 . [CHANGE] pyalgotrade.technical.cross.CrossAbove and pyalgotrade.technical.cross.CrossBelow were refactored as functions (pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below). They are not DataSeries any more.
 . [CHANGE] pyalgotrade.technical.DataSeriesFilter was removed. DataSeries filters now have to be modeled using pyalgotrade.technical.EventWindow and pyalgotrade.technical.EventBasedFilter classes.
 . [CHANGE] pyalgotrade.dataseries.SequenceDataSeries constructor no longer accepts values and datetimes.
+. [CHANGE] pyalgotrade.dataseries.datetime_aligned was moved to pyalgotrade.dataseries.aligned.datetime_aligned.
 
 Version 0.12 (20/Apr/2013)
 . [NEW] pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.

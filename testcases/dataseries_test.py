@@ -23,6 +23,7 @@ import datetime
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
+from pyalgotrade.dataseries import aligned
 from pyalgotrade import bar
 
 class TestSequenceDataSeries(unittest.TestCase):
@@ -212,7 +213,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -233,7 +234,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -254,7 +255,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		commonDateTimes = []
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -276,7 +277,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -290,9 +291,9 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 		# Align the aligned dataseries again with respect to each other.
-		ads1, ads2 = dataseries.datetime_aligned(ads1, ads2)
+		ads1, ads2 = aligned.datetime_aligned(ads1, ads2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -313,9 +314,9 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 		# Align the aligned dataseries again with respect to each other.
-		ads1, ads2 = dataseries.datetime_aligned(ads1, ads2)
+		ads1, ads2 = aligned.datetime_aligned(ads1, ads2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -336,9 +337,9 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		commonDateTimes = []
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 		# Align the aligned dataseries again with respect to each other.
-		ads1, ads2 = dataseries.datetime_aligned(ads1, ads2)
+		ads1, ads2 = aligned.datetime_aligned(ads1, ads2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -360,9 +361,9 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 		size = 20
 		ds1 = dataseries.SequenceDataSeries()
 		ds2 = dataseries.SequenceDataSeries()
-		ads1, ads2 = dataseries.datetime_aligned(ds1, ds2)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
 		# Align the aligned dataseries again with respect to each other.
-		ads1, ads2 = dataseries.datetime_aligned(ads1, ads2)
+		ads1, ads2 = aligned.datetime_aligned(ads1, ads2)
 
 		now = datetime.datetime.now()
 		for i in range(size):
@@ -372,6 +373,35 @@ class TestDateAlignedDataSeries(unittest.TestCase):
 			self.assertEqual(ads1[:], ads2[:])
 			self.assertEqual(ads1.getDateTimes()[:], ads2.getDateTimes()[:])
 
+	def testBounded(self):
+		ds1 = dataseries.SequenceDataSeries()
+		ds2 = dataseries.SequenceDataSeries()
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2, 1)
+
+		now = datetime.datetime.now()
+		ds1.appendWithDateTime(now + datetime.timedelta(seconds=1), 1)
+		ds1.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
+		ds1.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
+		ds2.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
+		ds2.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
+		ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
+		self.assertEqual(ads1.getValues(), [3])
+		self.assertEqual(ads2.getValues(), [3])
+
+	def testBoundedSources(self):
+		ds1 = dataseries.SequenceDataSeries(1)
+		ds2 = dataseries.SequenceDataSeries(1)
+		ads1, ads2 = aligned.datetime_aligned(ds1, ds2)
+
+		now = datetime.datetime.now()
+		ds1.appendWithDateTime(now + datetime.timedelta(seconds=1), 1)
+		ds1.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
+		ds1.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
+		ds2.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
+		ds2.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
+		ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
+		self.assertEqual(ads1.getValues(), [2, 3])
+		self.assertEqual(ads2.getValues(), [2, 3])
 
 def getTestCases():
 	ret = []
@@ -398,6 +428,8 @@ def getTestCases():
 	ret.append(TestDateAlignedDataSeries("testFullyAligned_Recursive"))
 	ret.append(TestDateAlignedDataSeries("testPartiallyAligned_Recursive"))
 	ret.append(TestDateAlignedDataSeries("testIncremental_Recursive"))
+	ret.append(TestDateAlignedDataSeries("testBounded"))
+	ret.append(TestDateAlignedDataSeries("testBoundedSources"))
 
 	return ret
 
