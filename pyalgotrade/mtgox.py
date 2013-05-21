@@ -19,18 +19,98 @@
 """
 
 from ws4py.client import WebSocketBaseClient
+
 import json
+import datetime
+
+# https://en.bitcoin.it/wiki/MtGox/API/Streaming#Trade
+class Trade:
+	def __init__(self, tradeDict):
+		self.__tradeDict = tradeDict
+
+	def getAmount(self):
+		"""The traded amount in item (BTC)."""
+		return int(self.__tradeDict["amount_int"]) * 0.00000001
+
+	def getDateTime(self):
+		""":class:`datetime.datetime` for the trade."""
+		return datetime.datetime.fromtimestamp(int(self.__tradeDict["date"]))
+
+	def getPrice(self):
+		"""Returns the price."""
+		ret = int(self.__tradeDict["price_int"])
+		if self.getCurrency() in ["JPY", "SEK"]:
+			ret = ret * 0.001
+		else:
+			ret = ret * 0.00001
+		return ret
+
+	def getCurrency(self):
+		"""Currency in which trade was completed."""
+		return self.__tradeDict["price_currency"]
+
+	def getType(self):
+		"""Returns bid or ask, depending if this trade resulted from the execution of a bid or a ask."""
+		return self.__tradeDict["trade_type"]
+
+# https://en.bitcoin.it/wiki/MtGox/API#Number_Formats
+def get_value_int(currency, value_int):
+	ret = int(value_int)
+	if currency in ["JPY", "SEK"]:
+		ret = ret * 0.001
+	elif currency == "BTC":
+		ret = ret * 0.00000001
+	else:
+		ret = ret * 0.00001
+	return ret
 
 class Price:
 	def __init__(self, priceDict):
-		self.__value = float(priceDict["value"])
-		self.__currency = priceDict["currency"]
+		self.__priceDict = priceDict
 
 	def getValue(self):
-		return self.__value
+		return get_value_int(self.getCurrency(), self.__priceDict["value_int"])
 
 	def getCurrency(self):
-		return self.__currency
+		return self.__priceDict["currency"]
+
+# https://en.bitcoin.it/wiki/MtGox/API/Streaming#Ticker
+class Ticker:
+	def __init__(self, tickerDict):
+		self.__tickerDict = tickerDict
+
+	def getDateTime(self):
+		return datetime.datetime.fromtimestamp(int(self.__tickerDict["now"]) / 1000000)
+
+	def getAverage(self):
+		return Price(self.__tickerDict["avg"])
+
+	def getBuy(self):
+		return Price(self.__tickerDict["buy"])
+
+	def getHigh(self):
+		return Price(self.__tickerDict["high"])
+
+	def getLast(self):
+		return Price(self.__tickerDict["last"])
+
+	def getLastLocal(self):
+		return Price(self.__tickerDict["last_local"])
+
+	def getLastOrig(self):
+		return Price(self.__tickerDict["last_orig"])
+
+	def getLow(self):
+		return Price(self.__tickerDict["low"])
+
+	def getSell(self):
+		return Price(self.__tickerDict["sell"])
+
+	def getVolume(self):
+		return Price(self.__tickerDict["vol"])
+
+	def getVWAP(self):
+		return Price(self.__tickerDict["vwap"])
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming
 class WebSocketClient(WebSocketBaseClient):
@@ -60,13 +140,13 @@ class WebSocketClient(WebSocketBaseClient):
 
 	def onPrivate(self, data):
 		if data["private"] == "ticker":
-			self.onTicker(data["ticker"])
+			self.onTicker( Ticker(data["ticker"]) )
 		elif data["private"] == "trade":
 			# From https://en.bitcoin.it/wiki/MtGox/API/HTTP/v1:
 			# A trade can appear in more than one currency, to ignore duplicates,
 			# use only the trades having primary =Y
 			if data["trade"]["primary"] == "Y":
-				self.onTrade(data["trade"])
+				self.onTrade( Trade(data["trade"]) )
 		elif data["private"] == "depth":
 			self.onDepth(data["depth"])
 		elif data["private"] == "result":
@@ -87,10 +167,10 @@ class WebSocketClient(WebSocketBaseClient):
 	def onUnknownOperation(self, operation, data):
 		pass
 
-	def onTicker(self, data):
+	def onTicker(self, ticker):
 		pass
 
-	def onTrade(self, data):
+	def onTrade(self, trade):
 		pass
 
 	def onDepth(self, data):
