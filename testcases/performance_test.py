@@ -42,7 +42,8 @@ def load_intraday_bars():
 
 	print "Loading bars from file"
 	feed = ninjatraderfeed.Feed(barfeed.Frequency.MINUTE)
-	feed.setBarFilter(csvfeed.DateRangeFilter(dt.as_utc(datetime.datetime(2008, 1, 1)), dt.as_utc(datetime.datetime(2008, 12, 31))))
+	# feed.setBarFilter(csvfeed.DateRangeFilter(dt.as_utc(datetime.datetime(2008, 1, 1)), dt.as_utc(datetime.datetime(2008, 12, 31))))
+	feed.setBarFilter(csvfeed.DateRangeFilter(dt.as_utc(datetime.datetime(2008, 1, 1)), dt.as_utc(datetime.datetime(2008, 3, 31))))
 	feed.addBarsFromCSV(instrument, "/Users/gabo/Downloads/etf-quotes/SPY.Last.txt")
 
 def run_smacross_strategy():
@@ -56,28 +57,31 @@ def run_smacross_strategy():
 def run_sma():
 	global feed
 
+	sma = ma.SMA(feed[instrument].getCloseDataSeries(), 200)
+
 	print "Processing all bars"
 	feed.loadAll()
+
 	print "Processing all SMA"
-	sma = ma.SMA(feed[instrument].getCloseDataSeries(), 200)
 	for v in sma:
 		pass
 
 def run_stddev():
 	global feed
 
+	stddev = stats.StdDev(feed[instrument].getCloseDataSeries(), 50)
+
 	print "Processing all bars"
 	feed.loadAll()
 	print "Processing all StdDev"
-	stddev = stats.StdDev(feed[instrument].getCloseDataSeries(), 50)
 	for v in stddev:
 		pass
 
 def main():
 	# Run only one of these.
 	# run_smacross_strategy()
-	# run_sma()
-	run_stddev()
+	run_sma()
+	# run_stddev()
 
 def profile(method):
 	import cProfile
@@ -97,10 +101,10 @@ def printprofile():
 if __name__ == "__main__":
 	print "PID:", os.getpid()
 
-	load_intraday_bars()
+	# load_intraday_bars()
 	# profile("load_intraday_bars()")
 
-	main()
+	# main()
 	# profile("main()")
 
 	# printprofile()
