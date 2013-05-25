@@ -366,16 +366,7 @@ class StrategyPlotter:
 		"""
 		return self.__portfolioSubplot
 
-	def plot(self, fromDateTime = None, toDateTime = None):
-		"""Plots the strategy execution. Must be called after running the strategy.
-
-		:param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
-		:type fromDateTime: datetime.datetime
-		:param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
-		:type toDateTime: datetime.datetime
-		"""
-
-		# dateTimes = [dateTime for dateTime in self.__dateTimes]
+	def __buildFigureImpl(self, fromDateTime = None, toDateTime = None):
 		dateTimes = _filter_datetimes(self.__dateTimes, fromDateTime, toDateTime)
 		dateTimes.sort()
 
@@ -397,7 +388,32 @@ class StrategyPlotter:
 				mplSubplot.grid(True)
 				subplotIndex += 1
 
+		return (fig, mplSubplots)
+
+	def buildFigure(self, fromDateTime = None, toDateTime = None):
+		"""Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
+
+		:param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
+		:type fromDateTime: datetime.datetime
+		:param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
+		:type toDateTime: datetime.datetime
+		:rtype: matplotlib.figure.Figure.
+		"""
+		fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
+		return fig
+
+	def plot(self, fromDateTime = None, toDateTime = None):
+		"""Plots the strategy execution. Must be called after running the strategy.
+
+		:param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
+		:type fromDateTime: datetime.datetime
+		:param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
+		:type toDateTime: datetime.datetime
+		"""
+
+		fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
 		_adjustXAxis(mplSubplots)
+		fig.autofmt_xdate()
 
 		# Display
 		plt.show()
