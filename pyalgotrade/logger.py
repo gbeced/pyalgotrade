@@ -25,7 +25,7 @@ factoryLock = threading.Lock()
 loggers = {}
 
 # Defaults
-log_format = "%(asctime)s [%(levelname)s] %(message)s"
+log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
 level=logging.INFO
 file_log = None # File name
 console_log = True
