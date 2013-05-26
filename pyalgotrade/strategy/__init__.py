@@ -429,20 +429,12 @@ class Strategy:
 		"""Call once (**and only once**) to backtest the strategy. """
 		try:
 			self.__feed.getNewBarsEvent().subscribe(self.__onBars)
-			self.__feed.start()
-			self.__broker.start()
 			self.onStart()
 
-			# Dispatch events as long as the feed or the broker have something to dispatch.
-			stopDispBroker = self.__broker.stopDispatching()
-			stopDispFeed = self.__feed.stopDispatching()
-			while not stopDispFeed or not stopDispBroker:
-				if not stopDispBroker:
-					self.__broker.dispatch()
-				if not stopDispFeed:
-					self.__feed.dispatch()
-				stopDispBroker = self.__broker.stopDispatching()
-				stopDispFeed = self.__feed.stopDispatching()
+			dispatcher = pyalgotrade.observer.Dispatcher()
+			dispatcher.addSubject(self.__broker)
+			dispatcher.addSubject(self.__feed)
+			dispatcher.run()
 
 			if self.__feed.getCurrentBars() != None:
 				self.onFinish(self.__feed.getCurrentBars())
@@ -450,8 +442,4 @@ class Strategy:
 				raise Exception("Feed was empty")
 		finally:
 			self.__feed.getNewBarsEvent().unsubscribe(self.__onBars)
-			self.__broker.stop()
-			self.__feed.stop()
-			self.__broker.join()
-			self.__feed.join()
 

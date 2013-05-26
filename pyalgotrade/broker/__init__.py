@@ -296,7 +296,7 @@ class OrderExecutionInfo:
 
 ######################################################################
 ## Base broker class
-class Broker:
+class Broker(observer.Subject):
 	"""Base class for brokers.
 
 	.. note::
@@ -310,15 +310,6 @@ class Broker:
 	def getOrderUpdatedEvent(self):
 		return self.__orderUpdatedEvent
 	
-	def start(self):
-		raise NotImplementedError()
-
-	def stop(self):
-		raise NotImplementedError()
-
-	def join(self):
-		raise NotImplementedError()
-
 	def getShares(self, instrument):
 		"""Returns the number of shares for an instrument."""
 		raise NotImplementedError()
@@ -331,14 +322,6 @@ class Broker:
 		"""Returns a sequence with the orders that are still active."""
 		raise NotImplementedError()
 
-	# Return True if there are not more events to dispatch.
-	def stopDispatching(self):
-		raise NotImplementedError()
-
-	# Dispatch events.
-	def dispatch(self):
-		raise NotImplementedError()
-	
 	def placeOrder(self, order):
 		"""Submits an order.
 

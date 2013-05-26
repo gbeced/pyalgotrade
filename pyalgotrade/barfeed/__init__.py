@@ -38,7 +38,7 @@ class Frequency:
 #
 # THIS IS A VERY BASIC CLASS AND IT WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
 
-class BasicBarFeed:
+class BasicBarFeed(observer.Subject):
 	def __init__(self, frequency, maxLen=None):
 		assert(maxLen == None or maxLen > 0)
 		self.__ds = {}
@@ -64,7 +64,7 @@ class BasicBarFeed:
 		return self
 
 	def next(self):
-		if self.stopDispatching():
+		if self.eof():
 			raise StopIteration()
 		return self.__getNextBarsAndUpdateDS()
 
@@ -82,19 +82,6 @@ class BasicBarFeed:
 	def getLastBar(self, instrument):
 		"""Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or None."""
 		return self.__lastBars.get(instrument, None)
-
-	def start(self):
-		raise NotImplementedError()
-
-	def stop(self):
-		raise NotImplementedError()
-
-	def join(self):
-		raise NotImplementedError()
-
-	# Return True if there are not more events to dispatch.
-	def stopDispatching(self):
-		raise NotImplementedError()
 
 	# Subclasses should implement this and return a pyalgotrade.bar.Bars or None if there are no bars.
 	def getNextBars(self):
@@ -204,6 +191,9 @@ class OptimizerBarFeed(BasicBarFeed):
 	def join(self):
 		pass
 
+	def peekDateTime(self):
+		self.__bars[self.__nextBar].getDateTime()
+
 	def getNextBars(self):
 		ret = None
 		if self.__nextBar < len(self.__bars):
@@ -211,6 +201,6 @@ class OptimizerBarFeed(BasicBarFeed):
 			self.__nextBar += 1
 		return ret
 
-	def stopDispatching(self):
+	def eof(self):
 		return self.__nextBar >= len(self.__bars)
 

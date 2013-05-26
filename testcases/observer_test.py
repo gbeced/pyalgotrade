@@ -19,10 +19,150 @@
 """
 
 import unittest
+import datetime
+import copy
 
 from pyalgotrade import observer
 
-class ObserverTestCase(unittest.TestCase):
+class NonRealtimeFeed(observer.Subject):
+	def __init__(self, datetimes):
+		self.__datetimes = datetimes
+		self.__event = observer.Event()
+
+	def getEvent(self):
+		return self.__event
+
+	def start(self):
+		pass
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
+
+	def eof(self):
+		return len(self.__datetimes) == 0
+
+	def dispatch(self):
+		self.__event.emit(self.__datetimes.pop(0))
+
+	def peekDateTime(self):
+		return self.__datetimes[0]
+
+class RealtimeFeed(observer.Subject):
+	def __init__(self, datetimes):
+		self.__datetimes = datetimes
+		self.__event = observer.Event()
+
+	def getEvent(self):
+		return self.__event
+
+	def start(self):
+		pass
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
+
+	def eof(self):
+		return len(self.__datetimes) == 0
+
+	def dispatch(self):
+		self.__event.emit(self.__datetimes.pop(0))
+
+	def peekDateTime(self):
+		return None
+
+class DispatcherTestCase(unittest.TestCase):
+	def test1NrtFeed(self):
+		values = []
+		now = datetime.datetime.now()
+		datetimes = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+		nrtFeed = NonRealtimeFeed(copy.copy(datetimes))
+		nrtFeed.getEvent().subscribe(lambda x: values.append(x))
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(nrtFeed)
+		dispatcher.run()
+
+		self.assertEquals(values, datetimes)
+
+	def test2NrtFeeds(self):
+		values = []
+		now = datetime.datetime.now()
+		datetimes1 = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+		datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in xrange(10)]
+		nrtFeed1 = NonRealtimeFeed(copy.copy(datetimes1))
+		nrtFeed1.getEvent().subscribe(lambda x: values.append(x))
+		nrtFeed2 = NonRealtimeFeed(copy.copy(datetimes2))
+		nrtFeed2.getEvent().subscribe(lambda x: values.append(x))
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(nrtFeed1)
+		dispatcher.addSubject(nrtFeed2)
+		dispatcher.run()
+
+		self.assertEquals(len(values), len(datetimes1) + len(datetimes2))
+		self.assertEquals(values[:len(datetimes1)], datetimes1)
+		self.assertEquals(values[len(datetimes1):], datetimes2)
+
+	def test1RtFeed(self):
+		values = []
+		now = datetime.datetime.now()
+		datetimes = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+		nrtFeed = RealtimeFeed(copy.copy(datetimes))
+		nrtFeed.getEvent().subscribe(lambda x: values.append(x))
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(nrtFeed)
+		dispatcher.run()
+
+		self.assertEquals(values, datetimes)
+
+	def test2RtFeeds(self):
+		values = []
+		now = datetime.datetime.now()
+		datetimes1 = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+		datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in xrange(10)]
+		nrtFeed1 = RealtimeFeed(copy.copy(datetimes1))
+		nrtFeed1.getEvent().subscribe(lambda x: values.append(x))
+		nrtFeed2 = RealtimeFeed(copy.copy(datetimes2))
+		nrtFeed2.getEvent().subscribe(lambda x: values.append(x))
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(nrtFeed1)
+		dispatcher.addSubject(nrtFeed2)
+		dispatcher.run()
+
+		self.assertEquals(len(values), len(datetimes1) + len(datetimes2))
+		for i in xrange(len(datetimes1)):
+			self.assertEquals(values[i*2], datetimes1[i])
+			self.assertEquals(values[i*2+1], datetimes2[i])
+
+	def test2Combined(self):
+		values = []
+		now = datetime.datetime.now()
+		datetimes1 = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+		datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in xrange(10)]
+		nrtFeed1 = RealtimeFeed(copy.copy(datetimes1))
+		nrtFeed1.getEvent().subscribe(lambda x: values.append(x))
+		nrtFeed2 = NonRealtimeFeed(copy.copy(datetimes2))
+		nrtFeed2.getEvent().subscribe(lambda x: values.append(x))
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(nrtFeed1)
+		dispatcher.addSubject(nrtFeed2)
+		dispatcher.run()
+
+		self.assertEquals(len(values), len(datetimes1) + len(datetimes2))
+		for i in xrange(len(datetimes1)):
+			self.assertEquals(values[i*2], datetimes1[i])
+			self.assertEquals(values[i*2+1], datetimes2[i])
+
+class EventTestCase(unittest.TestCase):
 	def testEmitOrder(self):
 		handlersData = []
 
@@ -87,8 +227,16 @@ class ObserverTestCase(unittest.TestCase):
 
 def getTestCases():
 	ret = []
-	ret.append(ObserverTestCase("testEmitOrder"))
-	ret.append(ObserverTestCase("testDuplicateHandlers"))
-	ret.append(ObserverTestCase("testReentrancy"))
+
+	ret.append(EventTestCase("testEmitOrder"))
+	ret.append(EventTestCase("testDuplicateHandlers"))
+	ret.append(EventTestCase("testReentrancy"))
+
+	ret.append(DispatcherTestCase("test1NrtFeed"))
+	ret.append(DispatcherTestCase("test2NrtFeeds"))
+	ret.append(DispatcherTestCase("test1RtFeed"))
+	ret.append(DispatcherTestCase("test2RtFeeds"))
+	ret.append(DispatcherTestCase("test2Combined"))
+
 	return ret
 

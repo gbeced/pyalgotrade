@@ -104,7 +104,7 @@ class YahooTestCase(unittest.TestCase):
 		# Dispatch and handle events.
 		handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, YahooTestCase.TestInstrument)
 		barFeed.getNewBarsEvent().subscribe(handler.onBars)
-		while not barFeed.stopDispatching():
+		while not barFeed.eof():
 			barFeed.dispatch()
 		self.assertTrue(handler.getEventCount() > 0)
 
@@ -117,7 +117,7 @@ class YahooTestCase(unittest.TestCase):
 		# Dispatch and handle events.
 		handler = BarFeedEventHandler_TestFilterRange(self, YahooTestCase.TestInstrument, fromDate, toDate)
 		barFeed.getNewBarsEvent().subscribe(handler.onBars)
-		while not barFeed.stopDispatching():
+		while not barFeed.eof():
 			barFeed.dispatch()
 		self.assertTrue(handler.getEventCount() > 0)
 
@@ -219,7 +219,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 		# This is need to get session close attributes set. Strategy class is responsible for calling this.
 		ret.start()
 		# Process all events to get the dataseries fully loaded.
-		while not ret.stopDispatching():
+		while not ret.eof():
 			ret.dispatch()
 		ret.stop()
 		ret.join()

@@ -54,3 +54,73 @@ class Event:
 		self.__emitting = False
 		self.__applyChanges()
 
+class Subject:
+	def start(self):
+		raise NotImplementedError()
+
+	def stop(self):
+		raise NotImplementedError()
+
+	def join(self):
+		raise NotImplementedError()
+
+	# Return True if there are not more events to dispatch.
+	def eof(self):
+		raise NotImplementedError()
+
+	def dispatch(self):
+		raise NotImplementedError()
+
+	def peekDateTime(self):
+		# Return the datetime for the next event.
+		# This is needed to properly synchronize non-realtime subjects.
+		raise NotImplementedError()
+
+# This class is responsible for dispatching events from multiple subjects, synchronizing them if necessary.
+class Dispatcher:
+	def __init__(self):
+		self.__subjects = []
+
+	def addSubject(self, subject):
+		self.__subjects.append(subject)
+
+	def __dispatch(self):
+		smallestDateTime = None
+		toDispatch = []
+		ret = False
+
+		# Scan for the lowest datetime, dispaching on realtime subjects as the appear.
+		for subject in self.__subjects:
+			if not subject.eof():
+				ret = True
+				nextDateTime = subject.peekDateTime()
+				if nextDateTime == None:
+					subject.dispatch()
+				elif smallestDateTime == None:
+					assert(len(toDispatch) == 0)
+					smallestDateTime = nextDateTime
+					toDispatch.append(subject)
+				elif nextDateTime == smallestDateTime:
+					toDispatch.append(subject)
+				elif nextDateTime < smallestDateTime:
+					smallestDateTime = nextDateTime
+					toDispatch = [subject]
+
+		# Dispatch on those subjects with the smallest datetime.
+		for subject in toDispatch:
+			subject.dispatch()
+		return ret
+
+	def run(self):
+		try:
+			for subject in self.__subjects:
+				subject.start()
+
+			while self.__dispatch():
+				pass
+		finally:
+			for subject in self.__subjects:
+				subject.stop()
+			for subject in self.__subjects:
+				subject.join()
+

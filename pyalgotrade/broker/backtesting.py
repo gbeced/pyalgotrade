@@ -495,15 +495,18 @@ class Broker(broker.Broker):
 	def join(self):
 		pass
 
-	def stopDispatching(self):
+	def eof(self):
 		# If there are no more events in the barfeed, then there is nothing left for us to do since all processing took
 		# place while processing barfeed events.
-		return self.__barFeed.stopDispatching()
+		return self.__barFeed.eof()
 
 	def dispatch(self):
 		# All events were already emitted while handling barfeed events.
 		pass
 	
+	def peekDateTime(self):
+		return None
+
 	def createMarketOrder(self, action, instrument, quantity, onClose = False):
 		return MarketOrder(action, instrument, quantity, onClose)
 

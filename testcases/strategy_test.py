@@ -98,7 +98,7 @@ class ExternalBarFeed(barfeed.BasicBarFeed):
 	def join(self):
 		self.__thread.join()
 
-	def stopDispatching(self):
+	def eof(self):
 		return self.__stopDispatching
 
 class ExternalBroker(broker.Broker):
@@ -147,8 +147,8 @@ class ExternalBroker(broker.Broker):
 		self.__thread.join()
 
 	# Return True if there are not more events to dispatch.
-	def stopDispatching(self):
-		ret = self.__decorated.stopDispatching() and self.__ordersQueue.empty()
+	def eof(self):
+		ret = self.__decorated.eof() and self.__ordersQueue.empty()
 		return ret
 
 	# Dispatch events.

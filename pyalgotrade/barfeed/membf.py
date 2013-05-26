@@ -63,7 +63,7 @@ class Feed(barfeed.BarFeed):
 
 		self.registerInstrument(instrument)
 
-	def stopDispatching(self):
+	def eof(self):
 		ret = True
 		# Check if there is at least one more bar to return.
 		for instrument, bars in self.__bars.iteritems():
@@ -73,16 +73,22 @@ class Feed(barfeed.BarFeed):
 				break
 		return ret
 
-	def fetchNextBars(self):
-		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
-		smallestDateTime = None
+	def peekDateTime(self):
+		ret = None
 
-		# Make a first pass to get the smallest datetime.
 		for instrument, bars in self.__bars.iteritems():
 			nextIdx = self.__nextBarIdx[instrument]
 			if nextIdx < len(bars):
-				if smallestDateTime == None or bars[nextIdx].getDateTime() < smallestDateTime:
-					smallestDateTime = bars[nextIdx].getDateTime()
+				if ret == None or bars[nextIdx].getDateTime() < ret:
+					ret = bars[nextIdx].getDateTime()
+
+		# ret should not be None since peekDateTime should only get called if eof returned False.
+		assert(ret != None)
+		return ret
+
+	def fetchNextBars(self):
+		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
+		smallestDateTime = self.peekDateTime()
 
 		if smallestDateTime == None:
 			assert(self.__barsLeft == 0)
