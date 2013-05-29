@@ -45,6 +45,7 @@ class Strategy:
 		self.__barsProcessedEvent = pyalgotrade.observer.Event()
 		self.__analyzers = []
 		self.__namedAnalyzers = {}
+		self.__dispatcher = pyalgotrade.observer.Dispatcher()
 
 		if broker == None:
 			# When doing backtesting (broker == None), the broker should subscribe to barFeed events before the strategy.
@@ -52,7 +53,16 @@ class Strategy:
 			self.__broker = pyalgotrade.broker.backtesting.Broker(cash, barFeed)
 		else:
 			self.__broker = broker
+
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
+		self.__feed.getNewBarsEvent().subscribe(self.__onBars)
+
+		# It is important to dispatch broker events before feed events, specially if we're backtesting.
+		self.__dispatcher.addSubject(self.__broker)
+		self.__dispatcher.addSubject(self.__feed)
+
+	def getDispatcher(self):
+		return self.__dispatcher
 
 	def getResult(self):
 		return self.getBroker().getEquity()
@@ -427,19 +437,12 @@ class Strategy:
 
 	def run(self):
 		"""Call once (**and only once**) to backtest the strategy. """
-		try:
-			self.__feed.getNewBarsEvent().subscribe(self.__onBars)
-			self.onStart()
+		self.onStart()
 
-			dispatcher = pyalgotrade.observer.Dispatcher()
-			dispatcher.addSubject(self.__broker)
-			dispatcher.addSubject(self.__feed)
-			dispatcher.run()
+		self.__dispatcher.run()
 
-			if self.__feed.getCurrentBars() != None:
-				self.onFinish(self.__feed.getCurrentBars())
-			else:
-				raise Exception("Feed was empty")
-		finally:
-			self.__feed.getNewBarsEvent().unsubscribe(self.__onBars)
+		if self.__feed.getCurrentBars() != None:
+			self.onFinish(self.__feed.getCurrentBars())
+		else:
+			raise Exception("Feed was empty")
 
