@@ -20,6 +20,7 @@
 
 from ws4py.client import WebSocketBaseClient
 from pyalgotrade import observer
+from pyalgotrade.mtgox import barfeed
 import pyalgotrade.logger
 
 import json
@@ -53,6 +54,10 @@ class Trade:
 		""":class:`datetime.datetime` for the trade."""
 		return datetime.datetime.fromtimestamp(int(self.__tradeDict["date"]))
 
+	def getDateTimeWithMicroseconds(self):
+		""":class:`datetime.datetime` for the trade."""
+		return datetime.datetime.fromtimestamp(int(self.__tradeDict["tid"]) / 1000000.0)
+
 	def getPrice(self):
 		"""Returns the price."""
 		return get_value_int(self.getCurrency(), self.__tradeDict["price_int"])
@@ -81,7 +86,7 @@ class Ticker:
 		self.__tickerDict = tickerDict
 
 	def getDateTime(self):
-		return datetime.datetime.fromtimestamp(int(self.__tickerDict["now"]) / 1000000)
+		return datetime.datetime.fromtimestamp(int(self.__tickerDict["now"]) / 1000000.0)
 
 	def getAverage(self):
 		return Price(self.__tickerDict["avg"])
@@ -123,7 +128,7 @@ class Depth:
 		return self.__depthDict["currency"]
 
 	def getDateTime(self):
-		return datetime.datetime.fromtimestamp(int(self.__depthDict["now"]) / 1000000)
+		return datetime.datetime.fromtimestamp(int(self.__depthDict["now"]) / 1000000.0)
 
 	def getPrice(self):
 		"""Returns the price at which volume change happened."""
@@ -254,11 +259,11 @@ class Client(observer.Subject):
 		self.__queue = Queue.Queue()
 		self.__wsClient = WS2Client(currencies, self.__queue)
 		self.__stopped = False
-		self.__tradeEvent = observer.Event()
 		self.__tickerEvent = observer.Event()
+		self.__barFeed = barfeed.BarFeed(currencies)
 
-	def getTradeEvent(self):
-		return self.__tradeEvent
+	def getBarFeed(self):
+		return self.__barFeed
 
 	def getTickerEvent(self):
 		return self.__tickerEvent
@@ -289,11 +294,15 @@ class Client(observer.Subject):
 	def dispatch(self):
 		# TODO: Optimize this to process more than one element at a time.
 		try:
-			objType, obj = self.__queue.get(True, 1)
+			objType, obj = self.__queue.get(True, 0.1)
 			if objType == WS2Client.QUEUE_ELEMENT_TICKER:
 				self.__tickerEvent.emit(obj)
 			elif objType == WS2Client.QUEUE_ELEMENT_TRADE:
-				self.__tradeEvent.emit(obj)
+				# If Trade events are ever emitted it is important to prevent the startegy from processing those
+				# before the bars to prevent look-ahead bias. 
+				# Maybe we should dispatch barfeed events right away after calling addTrade.
+				self.__barFeed.addTrade(obj)
+				self.__barFeed.dispatch()
 			else:
 				logger.error("Invalid object received to dispatch: %s" % (obj))
 		except Queue.Empty:
