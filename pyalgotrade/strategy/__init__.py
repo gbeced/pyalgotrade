@@ -436,7 +436,7 @@ class Strategy:
 		self.__barsProcessedEvent.emit(self, bars)
 
 	def run(self):
-		"""Call once (**and only once**) to backtest the strategy. """
+		"""Call once (**and only once**) to backtest the strategy."""
 		self.onStart()
 
 		self.__dispatcher.run()
@@ -446,3 +446,7 @@ class Strategy:
 		else:
 			raise Exception("Feed was empty")
 
+	def stop(self):
+		"""Stops a running strategy."""
+		self.__dispatcher.stop()
+	

@@ -80,6 +80,10 @@ class Subject:
 class Dispatcher:
 	def __init__(self):
 		self.__subjects = []
+		self.__stopped = False
+
+	def stop(self):
+		self.__stopped = True
 
 	def addSubject(self, subject):
 		self.__subjects.append(subject)
@@ -116,7 +120,7 @@ class Dispatcher:
 			for subject in self.__subjects:
 				subject.start()
 
-			while self.__dispatch():
+			while not self.__stopped and self.__dispatch():
 				pass
 		finally:
 			for subject in self.__subjects:
