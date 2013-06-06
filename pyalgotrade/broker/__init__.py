@@ -28,6 +28,8 @@ from pyalgotrade import observer
 class Order:
 	"""Base class for orders. 
 
+	:param orderId: The order id.
+	:type orderId: string.
 	:param type_: The order type
 	:type type_: :class:`Order.Type`
 	:param action: The order action.
@@ -66,7 +68,8 @@ class Order:
 		STOP				= 3
 		STOP_LIMIT			= 4
 
-	def __init__(self, type_, action, instrument, quantity):
+	def __init__(self, orderId, type_, action, instrument, quantity):
+		self.__id = orderId
 		self.__type = type_
 		self.__action = action
 		self.__instrument = instrument
@@ -77,6 +80,26 @@ class Order:
 		self.__state = Order.State.ACCEPTED
 		self.__dirty = False
 
+	# This is to check that orders are not compared directly. order ids should be compared.
+	# def __eq__(self, other):
+	# 	if other == None:
+	# 		return False
+	# 	assert(False)
+
+	# This is to check that orders are not compared directly. order ids should be compared.
+	# def __ne__(self, other):
+	# 	if other == None:
+	# 		return True
+	# 	assert(False)
+
+	def getId(self):
+		"""Returns the order id."""
+		return self.__id
+
+	def isActive(self):
+		"""Returns True if the order is active."""
+		return self.isAccepted()
+
 	def isDirty(self):
 		return self.__dirty
 
@@ -84,7 +107,7 @@ class Order:
 		self.__dirty = dirty
 
 	def getType(self):
-		"""Returns the order type"""
+		"""Returns the order type."""
 		return self.__type
 
 	def getAction(self):
@@ -176,8 +199,8 @@ class MarketOrder(Order):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, action, instrument, quantity, onClose):
-		Order.__init__(self, Order.Type.MARKET, action, instrument, quantity)
+	def __init__(self, orderId, action, instrument, quantity, onClose):
+		Order.__init__(self, orderId, Order.Type.MARKET, action, instrument, quantity)
 		self.__onClose = onClose
 
 	def getFillOnClose(self):
@@ -197,8 +220,8 @@ class LimitOrder(Order):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, action, instrument, limitPrice, quantity):
-		Order.__init__(self, Order.Type.LIMIT, action, instrument, quantity)
+	def __init__(self, orderId, action, instrument, limitPrice, quantity):
+		Order.__init__(self, orderId, Order.Type.LIMIT, action, instrument, quantity)
 		self.__limitPrice = limitPrice
 
 	def getLimitPrice(self):
@@ -218,8 +241,8 @@ class StopOrder(Order):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, action, instrument, stopPrice, quantity):
-		Order.__init__(self, Order.Type.STOP, action, instrument, quantity)
+	def __init__(self, orderId, action, instrument, stopPrice, quantity):
+		Order.__init__(self, orderId, Order.Type.STOP, action, instrument, quantity)
 		self.__stopPrice = stopPrice
 
 	def getStopPrice(self):
@@ -239,8 +262,8 @@ class StopLimitOrder(Order):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, action, instrument, limitPrice, stopPrice, quantity):
-		Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, quantity)
+	def __init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity):
+		Order.__init__(self, orderId, Order.Type.STOP_LIMIT, action, instrument, quantity)
 		self.__limitPrice = limitPrice
 		self.__stopPrice = stopPrice
 		self.__limitOrderActive = False # Set to true when the limit order is activated (stop price is hit)

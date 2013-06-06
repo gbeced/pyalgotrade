@@ -91,7 +91,7 @@ class Position:
 
 	def close(self, limitPrice, stopPrice, goodTillCanceled = None):
 		# If a previous exit order was pending, cancel it.
-		if self.getExitOrder() != None:
+		if self.getExitOrder() != None and self.getExitOrder().isActive():
 			self.getStrategy().getBroker().cancelOrder(self.getExitOrder())
 
 		closeOrder = self.buildExitOrder(limitPrice, stopPrice)

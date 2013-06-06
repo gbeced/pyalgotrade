@@ -245,8 +245,8 @@ class BacktestingOrder:
 			self.checkCanceled(broker, bars)
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
-	def __init__(self, action, instrument, quantity, onClose):
-		broker.MarketOrder.__init__(self, action, instrument, quantity, onClose)
+	def __init__(self, orderId, action, instrument, quantity, onClose):
+		broker.MarketOrder.__init__(self, orderId, action, instrument, quantity, onClose)
 		BacktestingOrder.__init__(self)
 
 	def tryExecuteImpl(self, broker_, bar_):
@@ -255,8 +255,8 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
-	def __init__(self, action, instrument, limitPrice, quantity):
-		broker.LimitOrder.__init__(self, action, instrument, limitPrice, quantity)
+	def __init__(self, orderId, action, instrument, limitPrice, quantity):
+		broker.LimitOrder.__init__(self, orderId, action, instrument, limitPrice, quantity)
 		BacktestingOrder.__init__(self)
 
 	def tryExecuteImpl(self, broker_, bar_):
@@ -265,8 +265,8 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
 			broker_.commitOrderExecution(self, price, self.getQuantity(), bar_.getDateTime())
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
-	def __init__(self, action, instrument, stopPrice, quantity):
-		broker.StopOrder.__init__(self, action, instrument, stopPrice, quantity)
+	def __init__(self, orderId, action, instrument, stopPrice, quantity):
+		broker.StopOrder.__init__(self, orderId, action, instrument, stopPrice, quantity)
 		BacktestingOrder.__init__(self)
 
 	def tryExecuteImpl(self, broker_, bar_):
@@ -277,8 +277,8 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
-	def __init__(self, action, instrument, limitPrice, stopPrice, quantity):
-		broker.StopLimitOrder.__init__(self, action, instrument, limitPrice, stopPrice, quantity)
+	def __init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity):
+		broker.StopLimitOrder.__init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity)
 		BacktestingOrder.__init__(self)
 
 	def __stopHit(self, broker_, bar_):
@@ -337,7 +337,7 @@ class Broker(broker.Broker):
 		else:
 			self.__commission = commission
 		self.__shares = {}
-		self.__activeOrders = []
+		self.__activeOrders = {}
 		self.__useAdjustedValues = False
 		self.__fillStrategy = DefaultStrategy()
 
@@ -345,6 +345,12 @@ class Broker(broker.Broker):
 		barFeed.getNewBarsEvent().subscribe(self.onBars)
 		self.__barFeed = barFeed
 		self.__allowNegativeCash = False
+		self.__nextOrderId = 1
+
+	def __getNextOrderId(self):
+		ret = str(self.__nextOrderId)
+		self.__nextOrderId += 1
+		return ret
 
 	def __getBar(self, bars, instrument):
 		ret = bars.getBar(instrument)
@@ -398,7 +404,7 @@ class Broker(broker.Broker):
 		self.__useAdjustedValues = useAdjusted
 
 	def getActiveOrders(self):
-		return self.__activeOrders
+		return self.__activeOrders.values()
 
 	def getPendingOrders(self):
 		warninghelpers.deprecation_warning("getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.", stacklevel=2)
@@ -467,23 +473,21 @@ class Broker(broker.Broker):
 
 	def placeOrder(self, order):
 		if order.isAccepted():
-			if order not in self.__activeOrders:
-				self.__activeOrders.append(order)
+			if order.getId() not in self.__activeOrders:
+				self.__activeOrders[order.getId()] = order
 			order.setDirty(False)
 		else:
 			raise Exception("The order was already processed")
 
 	def onBars(self, bars):
-		activeOrders = copy.copy(self.__activeOrders)
-
-		for order in activeOrders:
+		for order in self.__activeOrders.values():
 			if order.isAccepted():
 				order.tryExecute(self, bars)
 				if not order.isAccepted():
-					self.__activeOrders.remove(order)
+					del self.__activeOrders[order.getId()]
 					self.getOrderUpdatedEvent().emit(self, order)
 			else:
-				self.__activeOrders.remove(order)
+				del self.__activeOrders[order.getId()]
 				self.getOrderUpdatedEvent().emit(self, order)
 
 	def start(self):
@@ -508,20 +512,22 @@ class Broker(broker.Broker):
 		return None
 
 	def createMarketOrder(self, action, instrument, quantity, onClose = False):
-		return MarketOrder(action, instrument, quantity, onClose)
+		return MarketOrder(self.__getNextOrderId(), action, instrument, quantity, onClose)
 
 	def createLimitOrder(self, action, instrument, limitPrice, quantity):
-		return LimitOrder(action, instrument, limitPrice, quantity)
+		return LimitOrder(self.__getNextOrderId(), action, instrument, limitPrice, quantity)
 
 	def createStopOrder(self, action, instrument, stopPrice, quantity):
-		return StopOrder(action, instrument, stopPrice, quantity)
+		return StopOrder(self.__getNextOrderId(), action, instrument, stopPrice, quantity)
 
 	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-		return StopLimitOrder(action, instrument, limitPrice, stopPrice, quantity)
+		return StopLimitOrder(self.__getNextOrderId(), action, instrument, limitPrice, stopPrice, quantity)
 
 	def cancelOrder(self, order):
-		if order.isFilled():
+		activeOrder = self.__activeOrders.get(order.getId())
+		if activeOrder is None:
+			raise Exception("The order is not active anymore")
+		if activeOrder.isFilled():
 			raise Exception("Can't cancel order that has already been filled")
-		order.setState(broker.Order.State.CANCELED)
+		activeOrder.setState(broker.Order.State.CANCELED)
 
-# vim: noet:ci:pi:sts=0:sw=4:ts=4

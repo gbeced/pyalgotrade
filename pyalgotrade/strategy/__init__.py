@@ -74,10 +74,10 @@ class Strategy:
 		assert(position.isOpen()) # Why would be registering an order for a closed position ?
 		self.__activePositions.add(position)
 		assert(order.isAccepted())
-		self.__orderToPosition[order] = position
+		self.__orderToPosition[order.getId()] = position
 
 	def __unregisterOrder(self, position, order):
-		del self.__orderToPosition[order]
+		del self.__orderToPosition[order.getId()]
 		if not position.isOpen():
 			self.__activePositions.remove(position)
 
@@ -389,10 +389,10 @@ class Strategy:
 		pass
 
 	def __onOrderUpdate(self, broker, order):
-		position = self.__orderToPosition.get(order, None)
+		position = self.__orderToPosition.get(order.getId(), None)
 		if position == None:
 			self.onOrderUpdated(order)
-		elif position.getEntryOrder() == order:
+		elif position.getEntryOrder().getId() == order.getId():
 			if order.isFilled():
 				self.__unregisterOrder(position, order)
 				self.onEnterOk(position)
@@ -401,7 +401,7 @@ class Strategy:
 				self.onEnterCanceled(position)
 			else:
 				assert(False)
-		elif position.getExitOrder() == order:
+		elif position.getExitOrder().getId() == order.getId():
 			if order.isFilled():
 				self.__unregisterOrder(position, order)
 				self.onExitOk(position)
