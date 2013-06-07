@@ -81,16 +81,16 @@ class Order:
 		self.__dirty = False
 
 	# This is to check that orders are not compared directly. order ids should be compared.
-	# def __eq__(self, other):
-	# 	if other == None:
-	# 		return False
-	# 	assert(False)
+	#def __eq__(self, other):
+	#	if other == None:
+	#		return False
+	#	assert(False)
 
 	# This is to check that orders are not compared directly. order ids should be compared.
-	# def __ne__(self, other):
-	# 	if other == None:
-	# 		return True
-	# 	assert(False)
+	#def __ne__(self, other):
+	#	if other == None:
+	#		return True
+	#	assert(False)
 
 	def getId(self):
 		"""Returns the order id."""
