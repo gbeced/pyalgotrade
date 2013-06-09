@@ -15,7 +15,6 @@ Buying and selling can be done in 3 different ways:
         * :meth:`pyalgotrade.strategy.Strategy.enterShortStop`
         * :meth:`pyalgotrade.strategy.Strategy.enterLongStopLimit`
         * :meth:`pyalgotrade.strategy.Strategy.enterShortStopLimit`
-        * :meth:`pyalgotrade.strategy.Strategy.exitPosition`
     * Using the :class:`pyalgotrade.broker.Broker` interface directly.
 
 .. automodule:: pyalgotrade.strategy

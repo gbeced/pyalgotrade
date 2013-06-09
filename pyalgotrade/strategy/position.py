@@ -43,6 +43,7 @@ class Position:
 		self.__exitOnSessionClose = False
 		entryOrder.setGoodTillCanceled(goodTillCanceled)
 		self.__exitDateTime = None
+		self.getStrategy().registerPositionOrder(self, entryOrder)
 
 	def getStrategy(self):
 		return self.__strategy
@@ -75,7 +76,9 @@ class Position:
 		return self.__entryOrder
 
 	def setExitOrder(self, exitOrder):
+		assert(self.__exitOrder == None or not self.__exitOrder.isActive())
 		self.__exitOrder = exitOrder
+		self.getStrategy().registerPositionOrder(self, exitOrder)
 
 	def getExitOrder(self):
 		"""Returns the :class:`pyalgotrade.broker.Order` used to exit the position. If this position hasn't been closed yet, None is returned."""
@@ -89,10 +92,46 @@ class Position:
 		"""Returns the number of shares used to enter this position."""
 		return self.__entryOrder.getQuantity()
 
-	def close(self, limitPrice, stopPrice, goodTillCanceled = None):
-		# If a previous exit order was pending, cancel it.
+	def cancelEntry(self):
+		"""Cancels the entry order if its active."""
+		if self.getEntryOrder().isActive():
+			self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
+
+	def cancelExit(self):
+		"""Cancels the exit order if its active."""
 		if self.getExitOrder() != None and self.getExitOrder().isActive():
 			self.getStrategy().getBroker().cancelOrder(self.getExitOrder())
+
+	def exit(self, limitPrice=None, stopPrice=None, goodTillCanceled=None):
+		"""Generates the exit order for the position.
+
+		:param limitPrice: The limit price.
+		:type limitPrice: float.
+		:param stopPrice: The stop price.
+		:type stopPrice: float.
+		:param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
+		:type goodTillCanceled: boolean.
+
+		.. note::
+			* If the entry order was not filled yet, it will be canceled.
+			* If the exit order for this position was filled, this won't have any effect.
+			* If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
+			* If limitPrice is not set and stopPrice is not set, then a :class:`pyalgotrade.broker.MarketOrder` is used to exit the position.
+			* If limitPrice is set and stopPrice is not set, then a :class:`pyalgotrade.broker.LimitOrder` is used to exit the position.
+			* If limitPrice is not set and stopPrice is set, then a :class:`pyalgotrade.broker.StopOrder` is used to exit the position.
+			* If limitPrice is set and stopPrice is set, then a :class:`pyalgotrade.broker.StopLimitOrder` is used to exit the position.
+		"""
+
+		if self.getEntryOrder().isActive():
+			self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
+			return
+
+		if self.exitFilled():
+			return
+
+		# Fail if a previous exit order is active.
+		if self.getExitOrder() != None and self.getExitOrder().isActive():
+			raise Exception("Exit order is active and it should be canceled first")
 
 		closeOrder = self.buildExitOrder(limitPrice, stopPrice)
 

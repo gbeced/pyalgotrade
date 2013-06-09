@@ -3,6 +3,7 @@ Version 0.13 (TBD)
 . [NEW] pyalgotrade.dataseries.SequenceDataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) now support setting the maximum number of values to hold in case you don't want them to grow too much.
 . [NEW] StrategyPlotter now calls autofmt_xdate on the figure before plotting it. Thanks Thomas Jung for suggesting this.
 . [NEW] StrategyPlotter now supports only building the figure so you can customize it (StrategyPlotter.buildFigure).
+. [CHANGE] In order to resubmit the exit order for a position, the orignal exit order has to be canceled first using cancelExit.
 . [CHANGE] DataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) were refactored to an event based model.
 . [CHANGE] BarValueDataSeries and BarDataSeries were moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.
 . [CHANGE] pyalgotrade.technical.cross.CrossAbove and pyalgotrade.technical.cross.CrossBelow were refactored as functions (pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below). They are not DataSeries any more.

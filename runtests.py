@@ -46,6 +46,7 @@ from testcases import sharpe_analyzer_test
 from testcases import drawdown_analyzer_test
 from testcases import utils_test
 from testcases import doc_test
+from testcases import position_test
 
 def getTestCases():
 	ret = []
@@ -67,6 +68,7 @@ def getTestCases():
 	ret += dbfeed_test.getTestCases()
 	ret += broker_test.getTestCases()
 	ret += strategy_test.getTestCases(includeExternal=False)
+	ret += position_test.getTestCases()
 	ret += smacrossover_strategy_test.getTestCases()
 	ret += multi_instrument_strategy_test.getTestCases()
 	ret += talib_test.getTestCases()

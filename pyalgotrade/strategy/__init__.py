@@ -22,6 +22,7 @@ import pyalgotrade.broker
 import pyalgotrade.broker.backtesting
 import pyalgotrade.observer
 import pyalgotrade.strategy.position
+from pyalgotrade import warninghelpers
 
 class Strategy:
 	"""Base class for strategies. 
@@ -54,12 +55,18 @@ class Strategy:
 		else:
 			self.__broker = broker
 
-		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
+		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
 		self.__feed.getNewBarsEvent().subscribe(self.__onBars)
 
 		# It is important to dispatch broker events before feed events, specially if we're backtesting.
 		self.__dispatcher.addSubject(self.__broker)
 		self.__dispatcher.addSubject(self.__feed)
+
+	def getActivePositions(self):
+		return self.__activePositions
+
+	def getOrderToPosition(self):
+		return self.__orderToPosition
 
 	def getDispatcher(self):
 		return self.__dispatcher
@@ -70,21 +77,16 @@ class Strategy:
 	def getBarsProcessedEvent(self):
 		return self.__barsProcessedEvent
 
-	def __registerOrder(self, position, order):
-		assert(position.isOpen()) # Why would be registering an order for a closed position ?
+	def registerPositionOrder(self, position, order):
+		assert(position.isOpen()) # Why register an order for a closed position ?
 		self.__activePositions.add(position)
-		assert(order.isActive())
+		assert(order.isActive()) # Why register an inactive order ?
 		self.__orderToPosition[order.getId()] = position
 
 	def __unregisterOrder(self, position, order):
 		del self.__orderToPosition[order.getId()]
 		if not position.isOpen():
 			self.__activePositions.remove(position)
-
-	def __registerActivePosition(self, position):
-		for order in [position.getEntryOrder(), position.getExitOrder()]:
-			if order and order.isActive():
-				self.__registerOrder(position, order)
 
 	def __notifyAnalyzers(self, lambdaExpression):
 		for s in self.__analyzers:
@@ -160,7 +162,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.LongPosition(self, instrument, None, None, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def enterShort(self, instrument, quantity, goodTillCanceled = False):
@@ -176,7 +177,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, None, None, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def enterLongLimit(self, instrument, limitPrice, quantity, goodTillCanceled = False):
@@ -194,7 +194,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, None, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def enterShortLimit(self, instrument, limitPrice, quantity, goodTillCanceled = False):
@@ -212,7 +211,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, None, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 	
 	def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled = False):
@@ -230,7 +228,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.LongPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled = False):
@@ -248,7 +245,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled = False):
@@ -268,7 +264,6 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def enterShortStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled = False):
@@ -288,40 +283,11 @@ class Strategy:
 		"""
 
 		ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
-		self.__registerActivePosition(ret)
 		return ret
 
 	def exitPosition(self, position, limitPrice = None, stopPrice = None, goodTillCanceled = None):
-		"""Generates the exit order for the position.
-
-		:param position: A position returned by any of the enterLongXXX or enterShortXXX methods.
-		:type position: :class:`pyalgotrade.strategy.position.Position`.
-		:param limitPrice: The limit price.
-		:type limitPrice: float.
-		:param stopPrice: The stop price.
-		:type stopPrice: float.
-		:param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
-		:type goodTillCanceled: boolean.
-
-		.. note::
-			* If the entry order was not filled yet, it will be canceled.
-			* If a previous exit order for this position was filled, this won't have any effect.
-			* If a previous exit order for this position is pending, it will get canceled and the new exit order submitted.
-			* If limitPrice is not set and stopPrice is not set, then a :class:`pyalgotrade.broker.MarketOrder` is used to exit the position.
-			* If limitPrice is set and stopPrice is not set, then a :class:`pyalgotrade.broker.LimitOrder` is used to exit the position.
-			* If limitPrice is not set and stopPrice is set, then a :class:`pyalgotrade.broker.StopOrder` is used to exit the position.
-			* If limitPrice is set and stopPrice is set, then a :class:`pyalgotrade.broker.StopLimitOrder` is used to exit the position.
-		"""
-
-		if position.exitFilled():
-			return
-
-		# Before exiting a position, the entry order must have been filled.
-		if position.getEntryOrder().isFilled():
-			position.close(limitPrice, stopPrice, goodTillCanceled)
-			self.__registerActivePosition(position)
-		else: # If the entry was not filled, cancel it.
-			self.getBroker().cancelOrder(position.getEntryOrder())
+		warninghelpers.deprecation_warning("exitPosition will be deprecated in the next version. Please use the exit method in the position class instead.", stacklevel=2)
+		position.exit(limitPrice, stopPrice, goodTillCanceled)
 
 	def onEnterOk(self, position):
 		"""Override (optional) to get notified when the order submitted to enter a position was filled. The default implementation is empty.
@@ -388,7 +354,7 @@ class Strategy:
 		"""
 		pass
 
-	def __onOrderUpdate(self, broker, order):
+	def __onOrderUpdated(self, broker, order):
 		position = self.__orderToPosition.get(order.getId(), None)
 		if position == None:
 			self.onOrderUpdated(order)
@@ -419,7 +385,7 @@ class Strategy:
 		for position in self.__activePositions:
 			order = position.checkExitOnSessionClose(bars)
 			if order:
-				self.__registerOrder(position, order)
+				self.registerPositionOrder(position, order)
 
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
