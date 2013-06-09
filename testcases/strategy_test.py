@@ -343,7 +343,7 @@ class BrokerOrderTestCase(StrategyTestCase):
 		strat.getBroker().placeOrder(o)
 		strat.run()
 		self.assertTrue(o.isFilled())
-		self.assertTrue(strat.getOrderUpdatedEvents() == 1)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 	
 class StrategyOrderTestCase(StrategyTestCase):
 	def testMarketOrder(self):
@@ -352,7 +352,7 @@ class StrategyOrderTestCase(StrategyTestCase):
 		o = strat.order(StrategyTestCase.TestInstrument, 1)
 		strat.run()
 		self.assertTrue(o.isFilled())
-		self.assertTrue(strat.getOrderUpdatedEvents() == 1)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 
 class LongPosTestCase(StrategyTestCase):
 	def __testLongPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):

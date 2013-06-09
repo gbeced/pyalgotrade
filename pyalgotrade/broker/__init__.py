@@ -24,6 +24,13 @@ from pyalgotrade import observer
 ## Orders
 ## http://stocks.about.com/od/tradingbasics/a/markords.htm
 ## http://www.interactivebrokers.com/en/software/tws/usersguidebook/ordertypes/basic_order_types.htm
+#
+# State chart:
+# INITIAL	-> CANCELED
+#			-> SUBMITTED -> CANCELED
+#			-> SUBMITTED -> ACCEPTED
+#			-> SUBMITTED -> ACCEPTED -> CANCELED
+#			-> SUBMITTED -> ACCEPTED -> FILLED
 
 class Order:
 	"""Base class for orders. 
@@ -58,9 +65,11 @@ class Order:
 		SELL_SHORT		= 4
 
 	class State:
-		ACCEPTED		= 1
-		CANCELED		= 2
-		FILLED			= 3
+		INITIAL			= 1 # Initial state.
+		SUBMITTED		= 2 # Order has been submitted.
+		ACCEPTED		= 3 # Order has been acknowledged by the broker.
+		CANCELED		= 4 # Order has been cancelled.
+		FILLED			= 5 # Order has been filled.
 
 	class Type:
 		MARKET				= 1
@@ -77,8 +86,7 @@ class Order:
 		self.__executionInfo = None
 		self.__goodTillCanceled = False
 		self.__allOrNone = True
-		self.__state = Order.State.ACCEPTED
-		self.__dirty = False
+		self.__state = Order.State.INITIAL
 
 	# This is to check that orders are not compared directly. order ids should be compared.
 	#def __eq__(self, other):
@@ -96,16 +104,6 @@ class Order:
 		"""Returns the order id."""
 		return self.__id
 
-	def isActive(self):
-		"""Returns True if the order is active."""
-		return self.isAccepted()
-
-	def isDirty(self):
-		return self.__dirty
-
-	def setDirty(self, dirty):
-		self.__dirty = dirty
-
 	def getType(self):
 		"""Returns the order type."""
 		return self.__type
@@ -118,11 +116,25 @@ class Order:
 		"""Returns the order state.
 
 		Valid order states are:
-		 * Order.State.ACCEPTED (the initial state).
+		 * Order.State.INITIAL (the initial state).
+		 * Order.State.SUBMITTED
+		 * Order.State.ACCEPTED
 		 * Order.State.CANCELED
 		 * Order.State.FILLED
 		"""
 		return self.__state
+
+	def isActive(self):
+		"""Returns True if the order is active."""
+		return self.__state in [Order.State.INITIAL, Order.State.SUBMITTED, Order.State.ACCEPTED]
+
+	def isInitial(self):
+		"""Returns True if the order state is Order.State.INITIAL."""
+		return self.__state == Order.State.INITIAL
+
+	def isSubmitted(self):
+		"""Returns True if the order state is Order.State.SUBMITTED."""
+		return self.__state == Order.State.SUBMITTED
 
 	def isAccepted(self):
 		"""Returns True if the order state is Order.State.ACCEPTED."""
@@ -147,7 +159,6 @@ class Order:
 	def setQuantity(self, quantity):
 		"""Updates the quantity."""
 		self.__quantity = quantity
-		self.setDirty(True)
 
 	def getGoodTillCanceled(self):
 		"""Returns True if the order is good till canceled."""
@@ -162,7 +173,6 @@ class Order:
 		:type goodTillCanceled: boolean.
 		"""
 		self.__goodTillCanceled = goodTillCanceled
-		self.setDirty(True)
 
 	def getAllOrNone(self):
 		"""Returns True if the order should be completely filled or else canceled."""
@@ -175,7 +185,6 @@ class Order:
 		:type allOrNone: boolean.
 		"""
 		self.__allOrNone = allOrNone
-		self.setDirty(True)
 
 	def setExecuted(self, orderExecutionInfo):
 		self.__executionInfo = orderExecutionInfo
@@ -210,7 +219,6 @@ class MarketOrder(Order):
 	def setFillOnClose(self, onClose):
 		"""Sets if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
 		self.__onClose = onClose
-		self.setDirty(True)
 
 class LimitOrder(Order):
 	"""Base class for limit orders.
@@ -231,7 +239,6 @@ class LimitOrder(Order):
 	def setLimitPrice(self, limitPrice):
 		"""Updates the limit price."""
 		self.__limitPrice = limitPrice
-		self.setDirty(True)
 
 class StopOrder(Order):
 	"""Base class for stop orders.
@@ -252,7 +259,6 @@ class StopOrder(Order):
 	def setStopPrice(self, stopPrice):
 		"""Updates the stop price."""
 		self.__stopPrice = stopPrice
-		self.setDirty(True)
 
 class StopLimitOrder(Order):
 	"""Base class for stop limit orders.
@@ -275,7 +281,6 @@ class StopLimitOrder(Order):
 	def setLimitPrice(self, limitPrice):
 		"""Updates the limit price."""
 		self.__limitPrice = limitPrice
-		self.setDirty(True)
 
 	def getStopPrice(self):
 		"""Returns the stop price."""
@@ -284,7 +289,6 @@ class StopLimitOrder(Order):
 	def setStopPrice(self, stopPrice):
 		"""Updates the stop price."""
 		self.__stopPrice = stopPrice
-		self.setDirty(True)
 
 	def setLimitOrderActive(self, limitOrderActive):
 		self.__limitOrderActive = limitOrderActive

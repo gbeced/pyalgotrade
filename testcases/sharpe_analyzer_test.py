@@ -61,7 +61,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True) # Adj. Close: 127.64
 		strat.run()
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
-		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
 		# The results are slightly different only because I'm taking into account the first bar as well.
 		self.assertTrue(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 4) == 0.7889)
 
@@ -92,7 +92,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
 		strat.run()
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09 - commision*2))
-		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
 		# The results are slightly different only because I'm taking into account the first bar as well,
 		# and I'm also adding commissions.
 		self.assertEqual(round(stratAnalyzer.getSharpeRatio(0.04, 252, annualized=True), 6), 0.776443)
@@ -124,7 +124,7 @@ class SharpeRatioTestCase(unittest.TestCase):
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.BUY_TO_COVER, "spy", 1, True) # Adj. Close: 147.67
 
 		strat.run()
-		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 8)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(initialCash + (127.64 - 42.09) + (105.52 - 147.67), 2))
 		# TODO: The results are different from the ones in the book. Analyze why.
 		# self.assertTrue(round(stratAnalyzer.getSharpeRatio(0, 252), 5) == 0.92742)

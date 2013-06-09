@@ -73,7 +73,7 @@ class Strategy:
 	def __registerOrder(self, position, order):
 		assert(position.isOpen()) # Why would be registering an order for a closed position ?
 		self.__activePositions.add(position)
-		assert(order.isAccepted())
+		assert(order.isActive())
 		self.__orderToPosition[order.getId()] = position
 
 	def __unregisterOrder(self, position, order):
@@ -83,7 +83,7 @@ class Strategy:
 
 	def __registerActivePosition(self, position):
 		for order in [position.getEntryOrder(), position.getExitOrder()]:
-			if order and order.isAccepted():
+			if order and order.isActive():
 				self.__registerOrder(position, order)
 
 	def __notifyAnalyzers(self, lambdaExpression):
@@ -400,7 +400,7 @@ class Strategy:
 				self.__unregisterOrder(position, order)
 				self.onEnterCanceled(position)
 			else:
-				assert(False)
+				assert(order.isAccepted())
 		elif position.getExitOrder().getId() == order.getId():
 			if order.isFilled():
 				self.__unregisterOrder(position, order)
@@ -409,7 +409,7 @@ class Strategy:
 				self.__unregisterOrder(position, order)
 				self.onExitCanceled(position)
 			else:
-				assert(False)
+				assert(order.isAccepted())
 		else:
 			# The order used to belong to a position but it was ovewritten with a new one
 			# and the previous order should have been canceled.

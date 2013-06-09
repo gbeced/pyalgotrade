@@ -472,21 +472,29 @@ class Broker(broker.Broker):
 		return ret
 
 	def placeOrder(self, order):
-		if order.isAccepted():
+		if order.isActive():
 			if order.getId() not in self.__activeOrders:
 				self.__activeOrders[order.getId()] = order
-			order.setDirty(False)
+			# Switch from INITIAL -> SUBMITTED
+			if order.getState() == broker.Order.State.INITIAL:
+				order.setState(broker.Order.State.SUBMITTED)
 		else:
 			raise Exception("The order was already processed")
 
 	def onBars(self, bars):
 		for order in self.__activeOrders.values():
+			# Switch from SUBMITTED -> ACCEPTED
+			if order.isSubmitted():
+				order.setState(broker.Order.State.ACCEPTED)
+				self.getOrderUpdatedEvent().emit(self, order)
+
 			if order.isAccepted():
 				order.tryExecute(self, bars)
-				if not order.isAccepted():
+				if not order.isActive():
 					del self.__activeOrders[order.getId()]
 					self.getOrderUpdatedEvent().emit(self, order)
 			else:
+				assert(not order.isActive())
 				del self.__activeOrders[order.getId()]
 				self.getOrderUpdatedEvent().emit(self, order)
 

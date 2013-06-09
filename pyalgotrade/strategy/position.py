@@ -217,14 +217,12 @@ class Position:
 		# 	Exit canceled	-> open
 		# 	Exit filled		-> closed
 
-		if self.__entryOrder.isAccepted():
+		ret = False
+		if self.__entryOrder.isActive():
 			ret = True
-		elif self.__entryOrder.isCanceled():
-			ret = False
-		elif self.__exitOrder == None or not self.__exitOrder.isFilled():
-			ret = True
-		else:
-			ret = False
+		elif self.__entryOrder.isFilled():
+			if self.__exitOrder == None or not self.__exitOrder.isFilled():
+				ret = True
 		return ret
 
 # This class is reponsible for order management in long positions.

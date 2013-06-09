@@ -168,7 +168,7 @@ class AnalyzerTestCase(unittest.TestCase):
 		strat.run()
 
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
-		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
+		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
 		self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
 		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration()== 432)
 
