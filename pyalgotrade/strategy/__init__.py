@@ -286,6 +286,7 @@ class Strategy:
 		return ret
 
 	def exitPosition(self, position, limitPrice = None, stopPrice = None, goodTillCanceled = None):
+		# Deprecated since v0.13
 		warninghelpers.deprecation_warning("exitPosition will be deprecated in the next version. Please use the exit method in the position class instead.", stacklevel=2)
 		position.exit(limitPrice, stopPrice, goodTillCanceled)
 

@@ -38,7 +38,7 @@ class MyStrategy(strategy.Strategy):
 
     def onExitCanceled(self, position):
         # If the exit was canceled, re-submit it.
-        self.exitPosition(position)
+        position.exit()
 
     def onBars(self, bars):
         # Wait for enough bars to be available to calculate SMA and RSI.
@@ -48,10 +48,10 @@ class MyStrategy(strategy.Strategy):
         bar = bars["dia"]
         if self.__longPos != None:
             if self.exitLongSignal(bar):
-                self.exitPosition(self.__longPos)
+                self.__longPos.exit()
         elif self.__shortPos != None:
             if self.exitShortSignal(bar):
-                self.exitPosition(self.__shortPos)
+                self.__shortPos.exit()
         else:
             if self.enterLongSignal(bar):
                 self.__longPos = self.enterLong("dia", 10, True)

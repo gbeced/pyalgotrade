@@ -21,7 +21,7 @@ class Strategy(strategy.Strategy):
 
 	def onExitCanceled(self, position):
 		# If the exit was canceled, re-submit it.
-		self.exitPosition(self.__position)
+		self.__position.exit()
 
 	def onBars(self, bars):
 		# If a position was not opened, check if we should enter a long position.
@@ -31,5 +31,5 @@ class Strategy(strategy.Strategy):
 				self.__position = self.enterLong(self.__instrument, 10, True)
 		# Check if we have to exit the position.
 		elif cross.cross_below(self.__close, self.__sma) > 0:
-			 self.exitPosition(self.__position)
+			 self.__position.exit()
 

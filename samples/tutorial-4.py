@@ -26,7 +26,7 @@ class MyStrategy(strategy.Strategy):
 
     def onExitCanceled(self, position):
         # If the exit was canceled, re-submit it.
-        self.exitPosition(self.__position)
+        self.__position.exit()
 
     def onBars(self, bars):
         # Wait for enough bars to be available to calculate a SMA.
@@ -41,7 +41,7 @@ class MyStrategy(strategy.Strategy):
                 self.__position = self.enterLong(self.__instrument, 10, True)
         # Check if we have to exit the position.
         elif bar.getClose() < self.__sma[-1]:
-             self.exitPosition(self.__position)
+             self.__position.exit()
 
     def onFinish(self, bars):
         print "Final portfolio value: $%.2f" % self.getBroker().getEquity()
