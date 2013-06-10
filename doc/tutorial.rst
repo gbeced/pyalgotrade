@@ -104,8 +104,8 @@ Trading
 
 Let's move on with a simple strategy, this time simulating actual trading. The idea is very simple:
 
- * If the closing price is above the SMA(15) we enter a long position (we place a buy market order).
- * If a long order is in place, and the closing price drops below the SMA(15) we exit the long position (we place a sell market order).
+ * If the adjusted close price is above the SMA(15) we enter a long position (we place a buy market order).
+ * If a long order is in place, and the adjusted close price drops below the SMA(15) we exit the long position (we place a sell market order).
 
 .. literalinclude:: ../samples/tutorial-4.py
 
@@ -123,7 +123,7 @@ We could certainly do something like this:
 
 and we would find out that we can get better results with a SMA(20): ::
 
-    Final portfolio value: $1124.90
+    Final portfolio value: $1075.38
 
 This is ok if we only have to try a limited set of parameters values. But if we have to test a strategy with multiple
 parameters, then the serial approach is definitely not going to scale as strategies get more complex.

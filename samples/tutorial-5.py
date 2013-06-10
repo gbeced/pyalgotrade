@@ -19,6 +19,8 @@ myStrategy.attachAnalyzer(returnsAnalyzer)
 plt = plotter.StrategyPlotter(myStrategy)
 # Include the SMA in the instrument's subplot to get it displayed along with the closing prices.
 plt.getInstrumentSubplot("orcl").addDataSeries("SMA", myStrategy.getSMA())
+# Plot adjusted close values instead of regular close.
+plt.getInstrumentSubplot("orcl").setUseAdjClose(True)
 # Plot the strategy returns at each bar.
 plt.getOrCreateSubplot("returns").addDataSeries("Net return", returnsAnalyzer.getReturns())
 plt.getOrCreateSubplot("returns").addDataSeries("Cum. return", returnsAnalyzer.getCumulativeReturns())
@@ -29,4 +31,5 @@ print "Final portfolio value: $%.2f" % myStrategy.getResult()
 
 # Plot the strategy.
 plt.plot()
+
 

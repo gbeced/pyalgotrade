@@ -400,6 +400,7 @@ class StrategyPlotter:
 		:rtype: matplotlib.figure.Figure.
 		"""
 		fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
+		fig.autofmt_xdate()
 		return fig
 
 	def plot(self, fromDateTime = None, toDateTime = None):
