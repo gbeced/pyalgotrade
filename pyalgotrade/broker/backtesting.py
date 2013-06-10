@@ -22,7 +22,6 @@ from pyalgotrade import broker
 from pyalgotrade import warninghelpers
 import pyalgotrade.logger
 import pyalgotrade.bar
-import copy
 
 logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
@@ -348,7 +347,7 @@ class Broker(broker.Broker):
 		self.__nextOrderId = 1
 
 	def __getNextOrderId(self):
-		ret = str(self.__nextOrderId)
+		ret = self.__nextOrderId
 		self.__nextOrderId += 1
 		return ret
 
