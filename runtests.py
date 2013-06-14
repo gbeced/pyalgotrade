@@ -19,6 +19,11 @@
 """
 
 import unittest
+
+# This is necessary when running testcases on Windows.
+import os
+os.environ["PYTHONPATH"]="."
+
 from testcases import technical_test
 from testcases import technical_ma_test
 from testcases import technical_vwap_test
