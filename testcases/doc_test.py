@@ -40,6 +40,7 @@ def run_python_code(code, outputFileName=None):
 
 def run_python_script(script, params=[]):
 	cmd = ["python"]
+	cmd.append("-u")
 	cmd.append(script)
 	cmd.extend(params)
 	return run_and_get_output(cmd)
