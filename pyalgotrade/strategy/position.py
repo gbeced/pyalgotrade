@@ -37,6 +37,7 @@ class Position:
 	"""
 
 	def __init__(self, strategy, entryOrder, goodTillCanceled):
+		assert(entryOrder.isSubmitted())
 		self.__strategy = strategy
 		self.__entryOrder = entryOrder
 		self.__exitOrder = None
@@ -278,8 +279,10 @@ class LongPosition(Position):
 		else:
 			assert(False)
 
-		Position.__init__(self, strategy, entryOrder, goodTillCanceled)
+		# This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
 		strategy.getBroker().placeOrder(entryOrder)
+
+		Position.__init__(self, strategy, entryOrder, goodTillCanceled)
 
 	def __getPosTracker(self):
 		ret = returns.PositionTracker()
@@ -332,8 +335,10 @@ class ShortPosition(Position):
 		else:
 			assert(False)
 
-		Position.__init__(self, strategy, entryOrder, goodTillCanceled)
+		# This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
 		strategy.getBroker().placeOrder(entryOrder)
+
+		Position.__init__(self, strategy, entryOrder, goodTillCanceled)
 
 	def __getPosTracker(self):
 		ret = returns.PositionTracker()
