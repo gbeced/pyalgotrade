@@ -391,7 +391,7 @@ class Strategy:
 	def __onBars(self, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
 
-		self.__notifyAnalyzers(lambda s: s.beforeOnBars(self))
+		self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
 		# 1: Let the strategy process current bars and place orders.
 		self.onBars(bars)

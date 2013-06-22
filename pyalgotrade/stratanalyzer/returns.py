@@ -114,7 +114,8 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		self.__lastPortfolioValue = strat.getBroker().getEquity()
 
 	# An event will be notified when return are calculated at each bar. The hander should receive 1 parameter:
-	# 1: This analyzer's instance
+	# 1: The current datetime.
+	# 2: This analyzer's instance
 	def getEvent(self):
 		return self.__event
 
@@ -124,7 +125,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 	def getCumulativeReturn(self):
 		return self.__cumRet
 
-	def beforeOnBars(self, strat):
+	def beforeOnBars(self, strat, bars):
 		currentPortfolioValue = strat.getBroker().getEquity()
 		netReturn = (currentPortfolioValue - self.__lastPortfolioValue) / float(self.__lastPortfolioValue)
 		self.__lastPortfolioValue = currentPortfolioValue
@@ -135,7 +136,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 		self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
 
 		# Notify that new returns are available.
-		self.__event.emit(self)
+		self.__event.emit(bars.getDateTime(), self)
 
 class Returns(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
@@ -150,7 +151,7 @@ class Returns(stratanalyzer.StrategyAnalyzer):
 		analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
 		analyzer.getEvent().subscribe(self.__onReturns)
 
-	def __onReturns(self, returnsAnalyzerBase):
+	def __onReturns(self, dateTime, returnsAnalyzerBase):
 		self.__netReturns.append(returnsAnalyzerBase.getNetReturn())
 		self.__cumReturns.append(returnsAnalyzerBase.getCumulativeReturn())
 

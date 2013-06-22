@@ -74,7 +74,7 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 		# 		ret += strat.getBroker().getBarHigh(_bar) * shares
 		# return ret
 
-	def beforeOnBars(self, strat):
+	def beforeOnBars(self, strat, bars):
 		equity = self.calculateEquity(strat)
 		self.__currDrawDown.update(equity, equity)
 		self.__longestDDDuration = max(self.__longestDDDuration, self.__currDrawDown.getDuration())
