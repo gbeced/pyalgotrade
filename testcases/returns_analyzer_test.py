@@ -22,6 +22,7 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade import broker
+from pyalgotrade import marketsession
 
 import strategy_test
 import common
@@ -336,6 +337,20 @@ class ReturnsTestCase(unittest.TestCase):
 
 		self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 4), round((finalValue - initialValue) / float(initialValue), 4))
 
+	def testMultipleInstrumentsInterleaved(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV("spy", common.get_data_file_path("spy-2010-yahoofinance.csv"), marketsession.NYSE.getTimezone())
+		barFeed.addBarsFromCSV("nikkei", common.get_data_file_path("nikkei-2010-yahoofinance.csv"), marketsession.TSE.getTimezone())
+
+		strat = strategy_test.TestStrategy(barFeed, 1000)
+		stratAnalyzer = returns.Returns()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		strat.order("spy", 1)
+		strat.run()
+		# The cumulative return should be the same if we load nikkei or not.
+		self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 5), 0.01338)
+
 def getTestCases():
 	ret = []
 
@@ -358,6 +373,7 @@ def getTestCases():
 	ret.append(ReturnsTestCase("testTwoBarReturns_CloseClose"))
 	ret.append(ReturnsTestCase("testCumulativeReturn"))
 	ret.append(ReturnsTestCase("testGoogle2011"))
+	ret.append(ReturnsTestCase("testMultipleInstrumentsInterleaved"))
 
 	return ret
 
