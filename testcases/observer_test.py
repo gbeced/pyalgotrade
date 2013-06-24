@@ -25,9 +25,10 @@ import copy
 from pyalgotrade import observer
 
 class NonRealtimeFeed(observer.Subject):
-	def __init__(self, datetimes):
+	def __init__(self, datetimes, priority = None):
 		self.__datetimes = datetimes
 		self.__event = observer.Event()
+		self.__priority = priority
 
 	def getEvent(self):
 		return self.__event
@@ -50,10 +51,14 @@ class NonRealtimeFeed(observer.Subject):
 	def peekDateTime(self):
 		return self.__datetimes[0]
 
+	def getDispatchPriority(self):
+		return self.__priority
+
 class RealtimeFeed(observer.Subject):
-	def __init__(self, datetimes):
+	def __init__(self, datetimes, priority = None):
 		self.__datetimes = datetimes
 		self.__event = observer.Event()
+		self.__priority = priority
 
 	def getEvent(self):
 		return self.__event
@@ -75,6 +80,9 @@ class RealtimeFeed(observer.Subject):
 
 	def peekDateTime(self):
 		return None
+
+	def getDispatchPriority(self):
+		return self.__priority
 
 class DispatcherTestCase(unittest.TestCase):
 	def test1NrtFeed(self):
@@ -162,6 +170,31 @@ class DispatcherTestCase(unittest.TestCase):
 			self.assertEquals(values[i*2], datetimes1[i])
 			self.assertEquals(values[i*2+1], datetimes2[i])
 
+	def testPriority(self):
+		feed4 = RealtimeFeed([], None)
+		feed3 = RealtimeFeed([], None)
+		feed2 = RealtimeFeed([], 3)
+		feed1 = RealtimeFeed([], 0)
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(feed3)
+		dispatcher.addSubject(feed2)
+		dispatcher.addSubject(feed1)
+		self.assertEquals(dispatcher.getSubjects(), [feed1, feed2, feed3])
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(feed1)
+		dispatcher.addSubject(feed2)
+		dispatcher.addSubject(feed3)
+		self.assertEquals(dispatcher.getSubjects(), [feed1, feed2, feed3])
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(feed3)
+		dispatcher.addSubject(feed4)
+		dispatcher.addSubject(feed2)
+		dispatcher.addSubject(feed1)
+		self.assertEquals(dispatcher.getSubjects(), [feed1, feed2, feed3, feed4])
+
 class EventTestCase(unittest.TestCase):
 	def testEmitOrder(self):
 		handlersData = []
@@ -237,6 +270,7 @@ def getTestCases():
 	ret.append(DispatcherTestCase("test1RtFeed"))
 	ret.append(DispatcherTestCase("test2RtFeeds"))
 	ret.append(DispatcherTestCase("test2Combined"))
+	ret.append(DispatcherTestCase("testPriority"))
 
 	return ret
 

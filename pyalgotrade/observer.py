@@ -76,6 +76,11 @@ class Subject:
 		# This is needed to properly synchronize non-realtime subjects.
 		raise NotImplementedError()
 
+	def getDispatchPriority(self):
+		# Returns a number (or None) used to order subjects within the dispatch queue.
+		# The return value should never change.
+		return None
+
 # This class is responsible for dispatching events from multiple subjects, synchronizing them if necessary.
 class Dispatcher:
 	def __init__(self):
@@ -85,8 +90,20 @@ class Dispatcher:
 	def stop(self):
 		self.__stopped = True
 
+	def getSubjects(self):
+		return self.__subjects
+
 	def addSubject(self, subject):
-		self.__subjects.append(subject)
+		if subject.getDispatchPriority() == None:
+			self.__subjects.append(subject)
+		else:
+			# Find the position for the subject's priority.
+			pos = 0
+			for s in self.__subjects:
+				if s.getDispatchPriority() == None or subject.getDispatchPriority() < s.getDispatchPriority():
+					break
+				pos += 1
+			self.__subjects.insert(pos, subject)
 
 	def __dispatch(self):
 		smallestDateTime = None
