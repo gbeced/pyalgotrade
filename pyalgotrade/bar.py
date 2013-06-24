@@ -19,7 +19,7 @@
 """
 
 class Bar:
-	"""An instrument's prices at a given time.
+	"""A Bar is a summary of the trading activity for a security in a given period.
 
 	:param dateTime: The date time.
 	:type dateTime: datetime.datetime
