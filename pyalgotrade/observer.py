@@ -107,29 +107,26 @@ class Dispatcher:
 
 	def __dispatch(self):
 		smallestDateTime = None
-		toDispatch = []
 		ret = False
 
-		# Scan for the lowest datetime, dispaching on realtime subjects as the appear.
+		# Scan for the lowest datetime.
 		for subject in self.__subjects:
 			if not subject.eof():
 				ret = True
 				nextDateTime = subject.peekDateTime()
-				if nextDateTime == None:
-					subject.dispatch()
-				elif smallestDateTime == None:
-					assert(len(toDispatch) == 0)
-					smallestDateTime = nextDateTime
-					toDispatch.append(subject)
-				elif nextDateTime == smallestDateTime:
-					toDispatch.append(subject)
-				elif nextDateTime < smallestDateTime:
-					smallestDateTime = nextDateTime
-					toDispatch = [subject]
+				if nextDateTime != None:
+					if smallestDateTime == None:
+						smallestDateTime = nextDateTime
+					elif nextDateTime < smallestDateTime:
+						smallestDateTime = nextDateTime
 
-		# Dispatch on those subjects with the smallest datetime.
-		for subject in toDispatch:
-			subject.dispatch()
+		# Dispatch realtime subjects and those subjects with the lowest datetime.
+		if ret:
+			for subject in self.__subjects:
+				if not subject.eof():
+					nextDateTime = subject.peekDateTime()
+					if nextDateTime == None or nextDateTime == smallestDateTime:
+						subject.dispatch()
 		return ret
 
 	def run(self):

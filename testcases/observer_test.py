@@ -195,6 +195,22 @@ class DispatcherTestCase(unittest.TestCase):
 		dispatcher.addSubject(feed1)
 		self.assertEquals(dispatcher.getSubjects(), [feed1, feed2, feed3, feed4])
 
+	def testDispatchOrder(self):
+		values = []
+		now = datetime.datetime.now()
+		feed1 = NonRealtimeFeed([now], 0)
+		feed2 = RealtimeFeed([now + datetime.timedelta(seconds=1)], None)
+		feed1.getEvent().subscribe(lambda x: values.append(x))
+		feed2.getEvent().subscribe(lambda x: values.append(x))
+
+		dispatcher = observer.Dispatcher()
+		dispatcher.addSubject(feed2)
+		dispatcher.addSubject(feed1)
+		self.assertEquals(dispatcher.getSubjects(), [feed1, feed2])
+		dispatcher.run()
+		# Check that although feed2 is realtime, feed1 was dispatched before.
+		self.assertTrue(values[0] < values[1])
+
 class EventTestCase(unittest.TestCase):
 	def testEmitOrder(self):
 		handlersData = []
@@ -271,6 +287,7 @@ def getTestCases():
 	ret.append(DispatcherTestCase("test2RtFeeds"))
 	ret.append(DispatcherTestCase("test2Combined"))
 	ret.append(DispatcherTestCase("testPriority"))
+	ret.append(DispatcherTestCase("testDispatchOrder"))
 
 	return ret
 
