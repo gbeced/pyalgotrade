@@ -44,7 +44,7 @@ class Order:
 	:param instrument: Instrument identifier.
 	:type instrument: string.
 	:param quantity: Order quantity.
-	:type quantity: int.
+	:type quantity: int/float.
 
 	.. note::
 
@@ -371,7 +371,7 @@ class Broker(observer.Subject):
 		:param instrument: Instrument identifier.
 		:type instrument: string.
 		:param quantity: Order quantity.
-		:type quantity: int.
+		:type quantity: int/float.
 		:param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close order). Default is False.
 		:type onClose: boolean.
 		:rtype: A :class:`MarketOrder` subclass.
@@ -391,7 +391,7 @@ class Broker(observer.Subject):
 		:param limitPrice: The order price.
 		:type limitPrice: float
 		:param quantity: Order quantity.
-		:type quantity: int.
+		:type quantity: int/float.
 		:rtype: A :class:`LimitOrder` subclass.
 		"""
 		raise NotImplementedError()
@@ -413,7 +413,7 @@ class Broker(observer.Subject):
 		:param stopPrice: The trigger price.
 		:type stopPrice: float
 		:param quantity: Order quantity.
-		:type quantity: int.
+		:type quantity: int/float.
 		:rtype: A :class:`StopOrder` subclass.
 		"""
 		raise NotImplementedError()
@@ -433,7 +433,7 @@ class Broker(observer.Subject):
 		:param limitPrice: The price for the limit order.
 		:type limitPrice: float
 		:param quantity: Order quantity.
-		:type quantity: int.
+		:type quantity: int/float.
 		:rtype: A :class:`StopLimitOrder` subclass.
 		"""
 		raise NotImplementedError()

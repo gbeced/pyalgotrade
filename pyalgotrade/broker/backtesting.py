@@ -319,7 +319,7 @@ class Broker(broker.Broker):
 	"""Backtesting broker.
 
 	:param cash: The initial amount of cash.
-	:type cash: int or float.
+	:type cash: int/float.
 	:param barFeed: The bar feed that will provide the bars.
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
 	:param commission: An object responsible for calculating order commissions.
