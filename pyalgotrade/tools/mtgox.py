@@ -121,9 +121,8 @@ class TradesFile:
 			self.__f.write("%s,%s,%s\n" % (trade.getId(), trade.getPrice(), trade.getAmount()))
 		self.__f.flush()
 
-def download_trades(currency, tid):
+def __download_trades_impl(currency, tid):
 	url = "https://data.mtgox.com/api/1/BTC%s/trades?since=%d" % (currency.upper(), tid)
-	logger.info("Downloading trades since %s." % (tid_to_datetime(tid)))
 
 	f = urllib.urlopen(url)
 	buff = f.read()
@@ -133,6 +132,22 @@ def download_trades(currency, tid):
 	response = json.loads(buff)
 	if response["result"] != "success":
 		raise Exception("Failed to download data. Result '%s'" % (response["result"]))
+	return response
+
+def download_trades(currency, tid, retries=3):
+	logger.info("Downloading trades since %s." % (tid_to_datetime(tid)))
+
+	done = False
+	while not done:
+		try:
+			response = __download_trades_impl(currency, tid)
+			done = True
+		except Exception, e:
+			if retries == 0:
+				raise e
+			else:
+				logger.error("%s. Retrying..." % (e))
+				retries -= 1
 
 	ret =  Trades(response["return"])
 	logger.info("Got %d trades." % (len(ret.getTrades())))
