@@ -19,38 +19,11 @@
 """
 
 from pyalgotrade.utils import dt
+from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
 
-import csv
 import datetime
 import pytz
-
-# A faster (but limited) version of csv.DictReader
-class FastDictReader:
-	def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
-		self.__fieldNames = fieldnames
-		self.reader = csv.reader(f, dialect, *args, **kwds)
-		if self.__fieldNames is None:
-			self.__fieldNames = self.reader.next()
-		self.__dict = {}
-
-	def __iter__(self):
-		return self
-
-	def next(self):
-		# Skip empty rows.
-		row = self.reader.next()
-		while row == []:
-			row = self.reader.next()
-
-		# Check that the row has the right number of columns.
-		assert(len(self.__fieldNames) == len(row))
-
-		# Copy the row values into the dict.
-		for i in xrange(len(self.__fieldNames)):
-			self.__dict[self.__fieldNames[i]] = row[i]
-
-		return self.__dict
 
 # Interface for csv row parsers.
 class RowParser:
@@ -143,7 +116,7 @@ class BarFeed(membf.Feed):
 	def addBarsFromCSV(self, instrument, path, rowParser):
 		# Load the csv file
 		loadedBars = []
-		reader = FastDictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
+		reader = csvutils.FastDictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
 		for row in reader:
 			bar_ = rowParser.parseBar(row)
 			if bar_ != None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):
