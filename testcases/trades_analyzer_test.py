@@ -70,13 +70,13 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 
 		# Winning trade
 		strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 0), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1) # 127.14
-		strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 16), strat.exitPosition) # 127.16
+		strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 16)) # 127.16
 		# Losing trade
 		strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 30), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1) # 127.2
-		strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 31), strat.exitPosition) # 127.16
+		strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 31)) # 127.16
 		# Winning trade
 		strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 38), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1) # 127.16
-		strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 42), strat.exitPosition) # 127.26
+		strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 42)) # 127.26
 		# Unfinished trade not closed
 		strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 47), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1) # 127.34
 		strat.run()

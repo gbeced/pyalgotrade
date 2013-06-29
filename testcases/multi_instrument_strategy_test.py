@@ -63,7 +63,7 @@ class NikkeiSpyStrategy(strategy.Strategy):
 				if shares:
 					self.__pos = self.enterLong(self.__lag, shares)
 			elif cross.cross_below(self.__adjClose, self.__fastSMA) == 1 and self.__pos != None:
-				self.exitPosition(self.__pos)
+				self.__pos.exit()
 
 class TestCase(unittest.TestCase):
 	def __testDifferentTimezonesImpl(self, feed):

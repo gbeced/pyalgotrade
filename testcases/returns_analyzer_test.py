@@ -313,7 +313,7 @@ class ReturnsTestCase(unittest.TestCase):
 		strat = strategy_test.TestStrategy(barFeed, initialCash)
 
 		strat.addPosEntry(strategy_test.datetime_from_date(2001, 1, 12), strat.enterLong, ReturnsTestCase.TestInstrument, 1) # 33.06
-		strat.addPosExit(strategy_test.datetime_from_date(2001, 11, 27), strat.exitPosition) # 14.32
+		strat.addPosExit(strategy_test.datetime_from_date(2001, 11, 27)) # 14.32
 	
 		stratAnalyzer = returns.Returns()
 		strat.attachAnalyzer(stratAnalyzer)
