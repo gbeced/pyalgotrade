@@ -21,18 +21,15 @@
 import urllib
 import datetime
 import json
+import socket
 
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
 
+socket.setdefaulttimeout(10)
 logger = pyalgotrade.logger.getLogger("mtgox")
 
-def __adjust_month(month):
-	if month > 12 or month < 1:
-		raise Exception("Invalid month")
-	return month
-
-def __get_last_day(month):
+def get_last_day(month):
 	ret = 31
 	if month in (4, 6, 9, 11):
 		ret = 30
@@ -121,7 +118,7 @@ class TradesFile:
 			self.__f.write("%s,%s,%s\n" % (trade.getId(), trade.getPrice(), trade.getAmount()))
 		self.__f.flush()
 
-def __download_trades_impl(currency, tid):
+def download_trades_impl(currency, tid):
 	url = "https://data.mtgox.com/api/1/BTC%s/trades?since=%d" % (currency.upper(), tid)
 
 	f = urllib.urlopen(url)
@@ -134,13 +131,13 @@ def __download_trades_impl(currency, tid):
 		raise Exception("Failed to download data. Result '%s'" % (response["result"]))
 	return response
 
-def download_trades(currency, tid, retries=3):
+def download_trades_since(currency, tid, retries=3):
 	logger.info("Downloading trades since %s." % (tid_to_datetime(tid)))
 
 	done = False
 	while not done:
 		try:
-			response = __download_trades_impl(currency, tid)
+			response = download_trades_impl(currency, tid)
 			done = True
 		except Exception, e:
 			if retries == 0:
@@ -153,28 +150,16 @@ def download_trades(currency, tid, retries=3):
 	logger.info("Got %d trades." % (len(ret.getTrades())))
 	return ret
 
-def __save_trades(tradesFile, currency, fromYear, fromMonth, toYear, toMonth):
-	fromDay = 1
-	toDay = __get_last_day(toMonth)
-	fromMonth = __adjust_month(fromMonth)
-	toMonth = __adjust_month(toMonth)
-
-	# Calculate the first and last trade ids for the given range.
-	begin = datetime.datetime(fromYear, fromMonth, fromDay)
-	end = datetime.datetime(toYear, toMonth, toDay)
-	now = datetime.datetime.now()
-	if end > now:
-		end = now
-	nextTid = datetime_to_tid(begin)
-	lastTid = datetime_to_tid(end)
+def download_trades(tradesFile, currency, tidBegin, tidEnd):
+	nextTid = tidBegin
 
 	done = False
 	while not done:
-		trades = download_trades(currency, nextTid)
+		trades = download_trades_since(currency, nextTid)
 		if len(trades.getTrades()) == 0:
 			done = True
 		# The last trade is smaller than lastTid, we need to get more trades right after that one.
-		elif trades.getLast().getId() < lastTid:
+		elif trades.getLast().getId() < tidEnd:
 			tradesFile.addTrades(trades.getTrades())
 			nextTid = trades.getFirst().getId() + 1
 		# We went beyond last trade. Only store the appropriate ones.
@@ -182,11 +167,20 @@ def __save_trades(tradesFile, currency, fromYear, fromMonth, toYear, toMonth):
 			done = True
 			tradeItems = []
 			for trade in trades.getTrades():
-				if trade.getId() < lastTid:
+				if trade.getId() < tidEnd:
 					tradeItems.append(trade)
-			tradesFile.addTrades(trades.getTrades())
+			tradesFile.addTrades(tradeItems)
 
-def download_trades_csv(currency, year, filePath):
+def download_trades_by_year(currency, year, filePath):
+	# Calculate the first and last trade ids for the year.
+	begin = datetime.datetime(year, 1, 1)
+	end = datetime.datetime(year+1, 1, 1)
+	now = datetime.datetime.now()
+	if end > now:
+		end = now
+	tidBegin = datetime_to_tid(begin)
+	tidEnd = datetime_to_tid(end)
+
 	tradesFile = TradesFile(filePath)
-	__save_trades(tradesFile, currency, year, 1, year+1, 1)
+	download_trades(tradesFile, currency, tidBegin, tidEnd)
 
