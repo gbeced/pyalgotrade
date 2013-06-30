@@ -22,6 +22,7 @@ import urllib
 import datetime
 import json
 import socket
+import time
 
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
@@ -37,9 +38,12 @@ def get_last_day(month):
 		ret = 28
 	return ret
 
+def timestamp_to_tid(unixTime):
+	return unixTime * 1000000
+
 def datetime_to_tid(dateTime):
-	unixTime = dt.datetime_to_timestamp(dateTime)
-	return unixTime* 1000000
+	unixTime = dt.datetime_to_timestamp(dt.as_utc(dateTime))
+	return timestamp_to_tid(unixTime)
 
 def tid_to_datetime(tid):
 	unixTime = int(tid) / 1000000.0
@@ -57,13 +61,16 @@ def from_value_int(currency, value_int):
 		ret = ret * 0.00001
 	return ret
 
+def from_amount_int(value_int):
+	return int(value_int) * 0.00000001
+
 class Trade:
 	def __init__(self, trade):
 		self.__tradeId = int(trade["tid"])
 		self.__dateTime = tid_to_datetime(trade["tid"])
 		currency = trade["price_currency"]
 		self.__price = from_value_int(currency, trade["price_int"])
-		self.__amount = from_value_int(currency, trade["amount_int"])
+		self.__amount = from_amount_int(trade["amount_int"])
 
 	def getId(self):
 		return self.__tradeId
@@ -133,6 +140,7 @@ def download_trades_impl(currency, tid):
 
 def download_trades_since(currency, tid, retries=3):
 	logger.info("Downloading trades since %s." % (tid_to_datetime(tid)))
+	# logger.info("Downloading trades since %d." % (tid))
 
 	done = False
 	while not done:
@@ -161,7 +169,7 @@ def download_trades(tradesFile, currency, tidBegin, tidEnd):
 		# The last trade is smaller than lastTid, we need to get more trades right after that one.
 		elif trades.getLast().getId() < tidEnd:
 			tradesFile.addTrades(trades.getTrades())
-			nextTid = trades.getFirst().getId() + 1
+			nextTid = trades.getLast().getId() + 1
 		# We went beyond last trade. Only store the appropriate ones.
 		else:
 			done = True
@@ -175,9 +183,16 @@ def download_trades_by_year(currency, year, filePath):
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, 1, 1)
 	end = datetime.datetime(year+1, 1, 1)
-	now = datetime.datetime.now()
-	if end > now:
-		end = now
+	tidBegin = datetime_to_tid(begin)
+	tidEnd = datetime_to_tid(end)
+
+	tradesFile = TradesFile(filePath)
+	download_trades(tradesFile, currency, tidBegin, tidEnd)
+
+def download_trades_by_day(currency, year, month, day, filePath):
+	# Calculate the first and last trade ids for the year.
+	begin = datetime.datetime(year, month, day)
+	end = begin + datetime.timedelta(days=1)
 	tidBegin = datetime_to_tid(begin)
 	tidEnd = datetime_to_tid(end)
 
