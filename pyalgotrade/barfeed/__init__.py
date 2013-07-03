@@ -24,7 +24,7 @@ from pyalgotrade import bar
 from pyalgotrade import warninghelpers
 
 class Frequency:
-	REALTIME = 99
+	TRADE = 99 # A bar is created for each trade.
 	# SECOND	= 1
 	MINUTE	= 2
 	# HOUR	= 3
@@ -50,6 +50,10 @@ class BasicBarFeed(observer.Subject):
 		self.__lastBars = {}
 		self.__frequency = frequency
 		self.__maxLen = maxLen
+
+	# Return True if bars provided have adjusted close values.
+	def barsHaveAdjClose(self):
+		raise NotImplementedError()
 
 	def __getNextBarsAndUpdateDS(self):
 		bars = self.getNextBars()

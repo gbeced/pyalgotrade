@@ -126,7 +126,7 @@ class Database(dbfeed.Database):
 			dateTime = dt.timestamp_to_datetime(row[0])
 			if timezone:
 				dateTime = dt.localize(dateTime, timezone)
-			ret.append(bar.Bar(dateTime, row[1], row[2], row[3], row[4], row[5], row[6]))
+			ret.append(bar.BasicBar(dateTime, row[1], row[2], row[3], row[4], row[5], row[6]))
 		cursor.close()
 		return ret
 

@@ -189,7 +189,7 @@ class TestCase(unittest.TestCase):
 		ret = bards.BarDataSeries()
 		for i in xrange(len(OPEN_VALUES)):
 			dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-			ret.append(bar.Bar(dateTime, OPEN_VALUES[i], HIGH_VALUES[i], LOW_VALUES[i], CLOSE_VALUES[i], VOLUME_VALUES[i], CLOSE_VALUES[i]))
+			ret.append(bar.BasicBar(dateTime, OPEN_VALUES[i], HIGH_VALUES[i], LOW_VALUES[i], CLOSE_VALUES[i], VOLUME_VALUES[i], CLOSE_VALUES[i]))
 			seconds += 1
 		return ret
 
@@ -199,7 +199,7 @@ class TestCase(unittest.TestCase):
 		ret = bards.BarDataSeries()
 		for i in xrange(len(SAR_HIGH)):
 			dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-			ret.append(bar.Bar(dateTime, SAR_LOW[i], SAR_HIGH[i], SAR_LOW[i], SAR_HIGH[i], 0, SAR_LOW[i]))
+			ret.append(bar.BasicBar(dateTime, SAR_LOW[i], SAR_HIGH[i], SAR_LOW[i], SAR_HIGH[i], 0, SAR_LOW[i]))
 			seconds += 1
 		return ret
 

@@ -75,7 +75,7 @@ class RowParser(csvfeed.RowParser):
 		low = float(csvRowDict["Low"])
 		volume = float(csvRowDict["Volume"])
 		adjClose = float(csvRowDict["Adj Close"])
-		return bar.Bar(dateTime, open_, high, low, close, volume, adjClose)
+		return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose)
 
 class Feed(csvfeed.BarFeed):
 	"""A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
@@ -101,7 +101,10 @@ class Feed(csvfeed.BarFeed):
 
 		csvfeed.BarFeed.__init__(self, barfeed.Frequency.DAY, maxLen)
 		self.__timezone = timezone
-	
+
+	def barsHaveAdjClose(self):
+		return True
+
 	def addBarsFromCSV(self, instrument, path, timezone = None):
 		"""Loads bars for a given instrument from a CSV formatted file.
 		The instrument gets registered in the bar feed.

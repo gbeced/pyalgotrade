@@ -216,13 +216,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 	def __loadIntradayBarFeed(self, timeZone = None):
 		ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
 		ret.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-		# This is need to get session close attributes set. Strategy class is responsible for calling this.
-		ret.start()
-		# Process all events to get the dataseries fully loaded.
-		while not ret.eof():
-			ret.dispatch()
-		ret.stop()
-		ret.join()
+		ret.loadAll()
 		return ret
 
 	def testWithTimezone(self):
@@ -280,12 +274,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 	def testBounded(self):
 		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, maxLen=2)
 		barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
-
-		barFeed.start()
-		for bars in barFeed:
-			pass
-		barFeed.stop()
-		barFeed.join()
+		barFeed.loadAll()
 
 		barDS = barFeed["spy"]
 		self.assertEqual(len(barDS), 2)

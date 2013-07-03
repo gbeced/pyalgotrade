@@ -400,6 +400,8 @@ class Broker(broker.Broker):
 		return self.__useAdjustedValues
 
 	def setUseAdjustedValues(self, useAdjusted):
+		if not self.__barFeed.barsHaveAdjClose():
+			raise Exception("The barfeed doesn't support adjusted close values")
 		self.__useAdjustedValues = useAdjusted
 
 	def getActiveOrders(self):

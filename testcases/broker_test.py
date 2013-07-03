@@ -51,7 +51,7 @@ class BaseTestCase(unittest.TestCase):
 	def buildBars(self, openPrice, highPrice, lowPrice, closePrice, sessionClose = False):
 		ret = {}
 		dateTime = self.__getNextDateTime(sessionClose)
-		bar_ = bar.Bar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice)
+		bar_ = bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice)
 		bar_.setSessionClose(sessionClose)
 		ret[BaseTestCase.TestInstrument] = bar_
 		return bar.Bars(ret)

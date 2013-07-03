@@ -28,7 +28,7 @@ import zlib
 
 # Converts a persistence.Bar to a pyalgotrade.bar.Bar.
 def ds_bar_to_pyalgotrade_bar(dsBar):
-	return bar.Bar(dsBar.dateTime, dsBar.open_, dsBar.high, dsBar.low, dsBar.close_, dsBar.volume, dsBar.adjClose)
+	return bar.BasicBar(dsBar.dateTime, dsBar.open_, dsBar.high, dsBar.low, dsBar.close_, dsBar.volume, dsBar.adjClose)
 
 # Loads pyalgotrade.bar.Bars objects from the db.
 def load_pyalgotrade_daily_bars(instrument, barType, fromDateTime, toDateTime):

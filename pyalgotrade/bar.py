@@ -18,24 +18,61 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-class Bar:
+class Bar(object):
 	"""A Bar is a summary of the trading activity for a security in a given period.
 
-	:param dateTime: The date time.
-	:type dateTime: datetime.datetime
-	:param open_: The opening price.
-	:type open_: float
-	:param high: The highest price.
-	:type high: float
-	:param low: The lowest price.
-	:type low: float
-	:param close: The closing price.
-	:type close: float
-	:param volume: The volume.
-	:type volume: float
-	:param close: The adjusted closing price.
-	:type close: float
+	.. note::
+		This is a base class and should not be used directly.
 	"""
+
+	def getDateTime(self):
+		"""Returns the :class:`datetime.datetime`."""
+		raise NotImplementedError()
+
+	def getOpen(self):
+		"""Returns the opening price."""
+		raise NotImplementedError()
+
+	def getHigh(self):
+		"""Returns the highest price."""
+		raise NotImplementedError()
+
+	def getLow(self):
+		"""Returns the lowest price."""
+		raise NotImplementedError()
+
+	def getClose(self):
+		"""Returns the closing price."""
+		raise NotImplementedError()
+
+	def getVolume(self):
+		"""Returns the volume."""
+		raise NotImplementedError()
+
+	def getAdjClose(self):
+		"""Returns the adjusted closing price."""
+		raise NotImplementedError()
+
+	def getTypicalPrice(self):
+		"""Returns the typical price."""
+		return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
+
+	def getSessionClose(self):
+		# Returns True if this is the last bar for the session, or False otherwise.
+		raise NotImplementedError()
+
+	def setSessionClose(self, sessionClose):
+		raise NotImplementedError()
+
+	def getBarsTillSessionClose(self):
+		raise NotImplementedError()
+
+	def setBarsTillSessionClose(self, barsTillSessionClose):
+		raise NotImplementedError()
+
+class BasicBar(Bar):
+	# Optimization to reduce memory footprint.
+	__slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__sessionClose', '__barsTillSessionClose')
 
 	def __init__(self, dateTime, open_, high, low, close, volume, adjClose):
 		assert(high >= open_)
@@ -55,28 +92,28 @@ class Bar:
 		self.__sessionClose = False
 		self.__barsTillSessionClose = None
 
+	def __setstate__(self, state):
+		(self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__sessionClose, self.__barsTillSessionClose) = state
+
+	def __getstate__(self):
+		return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__sessionClose, self.__barsTillSessionClose)
+
 	def getDateTime(self):
-		"""Returns the :class:`datetime.datetime`."""
 		return self.__dateTime
 
 	def getOpen(self):
-		"""Returns the opening price."""
 		return self.__open
 
 	def getHigh(self):
-		"""Returns the highest price."""
 		return self.__high
 
 	def getLow(self):
-		"""Returns the lowest price."""
 		return self.__low
 
 	def getClose(self):
-		"""Returns the closing price."""
 		return self.__close
 
 	def getVolume(self):
-		"""Returns the volume."""
 		return self.__volume
 
 	def getAdjOpen(self):
@@ -89,12 +126,7 @@ class Bar:
 		return self.__adjClose * self.__low / float(self.__close)
 
 	def getAdjClose(self):
-		"""Returns the adjusted closing price."""
 		return self.__adjClose
-
-	def getTypicalPrice(self):
-		"""Returns the typical price."""
-		return (self.__high + self.__low + self.__close) / 3.0
 
 	def getSessionClose(self):
 		# Returns True if this is the last bar for the session, or False otherwise.

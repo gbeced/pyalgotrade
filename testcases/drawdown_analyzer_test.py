@@ -36,7 +36,7 @@ def build_bars_from_closing_prices(closingPrices):
 
 	nextDateTime = datetime.datetime.now()
 	for closePrice in closingPrices:
-		bar_ = bar.Bar(nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice)
+		bar_ = bar.BasicBar(nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice)
 		ret.append(bar_)
 		nextDateTime = nextDateTime + datetime.timedelta(days=1)
 	return ret
