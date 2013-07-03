@@ -24,11 +24,12 @@ import os
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed
 from pyalgotrade import barfeed
+from pyalgotrade import dataseries
 from pyalgotrade import marketsession
 import common
 
 class TemporarySQLiteFeed:
-	def __init__(self, dbFilePath, frequency, maxLen=None):
+	def __init__(self, dbFilePath, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		if os.path.exists(dbFilePath):
 			raise Exception("File exists")
 

@@ -69,7 +69,7 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, eventWindow, maxLen = None):
+	def __init__(self, dataSeries, eventWindow, maxLen=dataseries.DEFAULT_MAX_LEN):
 		dataseries.SequenceDataSeries.__init__(self, maxLen)
 		self.__dataSeries = dataSeries
 		self.__dataSeries.getNewValueEvent().subscribe(self.__onNewValue)

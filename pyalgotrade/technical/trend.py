@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
 
 import numpy
 from scipy import stats
@@ -47,7 +48,7 @@ class Slope(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, maxLen = None):
+	def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period), maxLen)
 
 	def getTrendDays(self):
@@ -74,6 +75,6 @@ class TrendEventWindow(SlopeEventWindow):
 		return ret
 
 class Trend(technical.EventBasedFilter):
-	def __init__(self, dataSeries, trendDays, positiveThreshold = 0, negativeThreshold = 0, maxLen = None):
+	def __init__(self, dataSeries, trendDays, positiveThreshold=0, negativeThreshold=0, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold), maxLen)
 

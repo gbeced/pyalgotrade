@@ -47,7 +47,7 @@ def normalize_value(value, decimals):
 def get_data_file_path(fileName):
 	return os.path.join(os.path.split(__file__)[0], "data", fileName)
 
-def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, maxLen=None):
+def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, maxLen=dataseries.DEFAULT_MAX_LEN):
 	inputValues, expectedValues = load_test_csv(get_data_file_path(filename))
 	inputDS = dataseries.SequenceDataSeries(maxLen=maxLen)
 	filterDS = filterClassBuilder(inputDS)

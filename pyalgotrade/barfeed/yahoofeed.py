@@ -22,6 +22,7 @@ from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.utils import dt
 from pyalgotrade import bar
+from pyalgotrade import dataseries
 
 import types
 import datetime
@@ -95,7 +96,7 @@ class Feed(csvfeed.BarFeed):
 			* If any of the instruments loaded are from different timezones, then the timezone parameter must be set.
 	"""
 
-	def __init__(self, timezone = None, maxLen=None):
+	def __init__(self, timezone = None, maxLen=dataseries.DEFAULT_MAX_LEN):
 		if type(timezone) == types.IntType:
 			raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 

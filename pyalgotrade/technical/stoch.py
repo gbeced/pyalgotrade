@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
 from pyalgotrade.technical import ma
 
 class BarWrapper:
@@ -84,7 +85,7 @@ class StochasticOscillator(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, barDataSeries, period, dSMAPeriod = 3, useAdjustedValues = False, maxLen = None):
+	def __init__(self, barDataSeries, period, dSMAPeriod=3, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
 		assert(dSMAPeriod > 1)
 		technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
 		self.__d = ma.SMA(self, dSMAPeriod, maxLen)

@@ -21,6 +21,7 @@
 from pyalgotrade.barfeed import dbfeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
+from pyalgotrade import dataseries
 from pyalgotrade.utils import dt
 
 import sqlite3
@@ -131,7 +132,7 @@ class Database(dbfeed.Database):
 		return ret
 
 class Feed(membf.Feed):
-	def __init__(self, dbFilePath, frequency, maxLen=None):
+	def __init__(self, dbFilePath, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		membf.Feed.__init__(self, frequency, maxLen)
 		self.__db = Database(dbFilePath)
 

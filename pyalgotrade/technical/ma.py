@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
 
 def calculate_sma(values, begin, end):
 	accum = 0
@@ -82,7 +83,7 @@ class SMA(technical.EventBasedFilter):
 		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
 	:type maxLen: int.
 	"""
-	def __init__(self, dataSeries, period, maxLen = None):
+	def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, SMAEventWindow(period), maxLen)
 
 class EMAEventWindow(technical.EventWindow):
@@ -117,7 +118,7 @@ class EMA(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, maxLen = None):
+	def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, EMAEventWindow(period), maxLen)
 
 class WMAEventWindow(technical.EventWindow):
@@ -150,6 +151,6 @@ class WMA(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, weights, maxLen = None):
+	def __init__(self, dataSeries, weights, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, WMAEventWindow(weights), maxLen)
 

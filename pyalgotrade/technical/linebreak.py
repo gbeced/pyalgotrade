@@ -68,7 +68,7 @@ class LineBreak(dataseries.SequenceDataSeries):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False, maxLen = None):
+	def __init__(self, barDataSeries, reversalLines, useAdjustedValues = False, maxLen=dataseries.DEFAULT_MAX_LEN):
 		if not isinstance(barDataSeries, bards.BarDataSeries):
 			raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 		if reversalLines < 2:

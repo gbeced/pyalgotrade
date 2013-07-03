@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import barfeed
+from pyalgotrade import dataseries
 from pyalgotrade.barfeed import helpers
 
 # This class is responsible for:
@@ -29,7 +30,7 @@ from pyalgotrade.barfeed import helpers
 # - Forward the call to start() if they override it.
 
 class Feed(barfeed.BarFeed):
-	def __init__(self, frequency, maxLen=None):
+	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		barfeed.BarFeed.__init__(self, frequency, maxLen)
 		self.__bars = {}
 		self.__nextBarIdx = {}

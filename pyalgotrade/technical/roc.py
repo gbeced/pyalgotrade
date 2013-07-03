@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
 
 class ROCEventWindow(technical.EventWindow):
 	def __init__(self, windowSize):
@@ -45,7 +46,7 @@ class RateOfChange(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, valuesAgo, maxLen = None):
+	def __init__(self, dataSeries, valuesAgo, maxLen=dataseries.DEFAULT_MAX_LEN):
 		assert(valuesAgo > 0)
 		technical.EventBasedFilter.__init__(self, dataSeries, ROCEventWindow(valuesAgo + 1), maxLen)
 

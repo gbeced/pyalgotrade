@@ -53,7 +53,7 @@ class TestCase(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			rsi.avg_gain_loss([1, 1.5, 2], 2, 4)
 
-	def __buildRSI(self, values, period, rsiMaxLen=None):
+	def __buildRSI(self, values, period, rsiMaxLen=dataseries.DEFAULT_MAX_LEN):
 		seqDS = dataseries.SequenceDataSeries()
 		ret = rsi.RSI(seqDS, period, rsiMaxLen)
 		for value in values:

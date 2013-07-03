@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
 class VWAPEventWindow(technical.EventWindow):
@@ -56,7 +57,7 @@ class VWAP(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen = None):
+	def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen=dataseries.DEFAULT_MAX_LEN):
 		if not isinstance(dataSeries, bards.BarDataSeries):
 			raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 		technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)

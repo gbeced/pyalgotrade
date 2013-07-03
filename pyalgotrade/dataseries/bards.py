@@ -28,7 +28,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, maxLen = None):
+	def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
 		dataseries.SequenceDataSeries.__init__(self, maxLen)
 		self.__openDS = dataseries.SequenceDataSeries(maxLen)
 		self.__closeDS = dataseries.SequenceDataSeries(maxLen)

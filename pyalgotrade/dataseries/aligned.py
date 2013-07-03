@@ -20,7 +20,7 @@
 
 from pyalgotrade import dataseries
 
-def datetime_aligned(ds1, ds2, maxLen=None):
+def datetime_aligned(ds1, ds2, maxLen=dataseries.DEFAULT_MAX_LEN):
 	"""
 	Returns two dataseries that exhibit only those values whose datetimes are in both dataseries.
 

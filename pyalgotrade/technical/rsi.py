@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
 
 # RSI = 100 - 100 / (1 + RS)
 # RS = Average gain / Average loss
@@ -131,6 +132,6 @@ class RSI(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, maxLen = None):
+	def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)
 

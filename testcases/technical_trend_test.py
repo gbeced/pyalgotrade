@@ -23,7 +23,7 @@ from pyalgotrade.technical import trend
 from pyalgotrade import dataseries
 
 class SlopeTest(unittest.TestCase):
-	def __buildSlope(self, values, period, slopeMaxLen=None):
+	def __buildSlope(self, values, period, slopeMaxLen=dataseries.DEFAULT_MAX_LEN):
 		seqDS = dataseries.SequenceDataSeries()
 		ret = trend.Slope(seqDS, period, slopeMaxLen)
 		for value in values:
@@ -44,7 +44,7 @@ class SlopeTest(unittest.TestCase):
 		self.assertEqual(slope[1], -1.0)
 
 class TrendTest(unittest.TestCase):
-	def __buildTrend(self, values, trendDays, positiveThreshold, negativeThreshold, trendMaxLen=None):
+	def __buildTrend(self, values, trendDays, positiveThreshold, negativeThreshold, trendMaxLen=dataseries.DEFAULT_MAX_LEN):
 		seqDS = dataseries.SequenceDataSeries()
 		ret = trend.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold, trendMaxLen)
 		for value in values:

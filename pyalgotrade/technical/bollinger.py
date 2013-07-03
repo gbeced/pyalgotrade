@@ -36,7 +36,7 @@ class BollingerBands:
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, numStdDev, maxLen = None):
+	def __init__(self, dataSeries, period, numStdDev, maxLen=dataseries.DEFAULT_MAX_LEN):
 		self.__sma = ma.SMA(dataSeries, period, maxLen=maxLen)
 		self.__stdDev = stats.StdDev(dataSeries, period, maxLen=maxLen)
 		self.__upperBand = dataseries.SequenceDataSeries(maxLen)

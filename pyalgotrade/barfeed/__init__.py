@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import observer
 from pyalgotrade import bar
@@ -41,7 +42,7 @@ class Frequency:
 # THIS IS A VERY BASIC CLASS AND IT WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
 
 class BasicBarFeed(observer.Subject):
-	def __init__(self, frequency, maxLen=None):
+	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		assert(maxLen == None or maxLen > 0)
 		self.__ds = {}
 		self.__defaultInstrument = None
@@ -154,7 +155,7 @@ class BarFeed(BasicBarFeed):
 	.. note::
 		This is a base class and should not be used directly.
 	"""
-	def __init__(self, frequency, maxLen=None):
+	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		BasicBarFeed.__init__(self, frequency, maxLen)
 		self.__prevDateTime = None
 
@@ -181,7 +182,7 @@ class BarFeed(BasicBarFeed):
 
 # This class is used by the optimizer module. The barfeed is already built on the server side, and the bars are sent back to workers.
 class OptimizerBarFeed(BasicBarFeed):
-	def __init__(self, frequency, instruments, bars, maxLen=None):
+	def __init__(self, frequency, instruments, bars, maxLen=dataseries.DEFAULT_MAX_LEN):
 		BasicBarFeed.__init__(self, frequency, maxLen)
 		for instrument in instruments:
 			self.registerInstrument(instrument)

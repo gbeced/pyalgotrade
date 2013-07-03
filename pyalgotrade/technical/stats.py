@@ -19,6 +19,8 @@
 """
 
 from pyalgotrade import technical
+from pyalgotrade import dataseries
+
 import numpy
 
 class StdDevEventWindow(technical.EventWindow):
@@ -47,6 +49,6 @@ class StdDev(technical.EventBasedFilter):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, dataSeries, period, ddof=0, maxLen = None):
+	def __init__(self, dataSeries, period, ddof=0, maxLen=dataseries.DEFAULT_MAX_LEN):
 		technical.EventBasedFilter.__init__(self, dataSeries, StdDevEventWindow(period, ddof), maxLen)
 

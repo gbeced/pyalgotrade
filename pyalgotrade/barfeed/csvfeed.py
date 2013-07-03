@@ -21,6 +21,7 @@
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
+from pyalgotrade import dataseries
 
 import datetime
 import pytz
@@ -88,7 +89,7 @@ class BarFeed(membf.Feed):
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, frequency, maxLen=None):
+	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		membf.Feed.__init__(self, frequency, maxLen)
 		self.__barFilter = None
 		self.__dailyTime = datetime.time(23, 59, 59)

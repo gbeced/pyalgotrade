@@ -21,6 +21,8 @@
 from pyalgotrade import warninghelpers
 from pyalgotrade import observer
 
+DEFAULT_MAX_LEN = 1024
+
 def resize_list(list_, size):
 	return list_[-1*size:]
 
@@ -122,7 +124,7 @@ class SequenceDataSeries(DataSeries):
 	:type maxLen: int.
 	"""
 
-	def __init__(self, maxLen = None):
+	def __init__(self, maxLen=DEFAULT_MAX_LEN):
 		assert(maxLen == None or maxLen > 0)
 		self.__newValueEvent = observer.Event()
 		# I'm not using collections.deque because:
