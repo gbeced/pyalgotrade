@@ -18,6 +18,7 @@ Contents:
     talib
     compinvpart1
     samples
+    mtgox
 
 Indices and tables
 ==================

@@ -21,21 +21,11 @@
 import urllib
 import datetime
 import json
-import socket
 
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
 
-socket.setdefaulttimeout(10)
 logger = pyalgotrade.logger.getLogger("mtgox")
-
-def get_last_day(month):
-	ret = 31
-	if month in (4, 6, 9, 11):
-		ret = 30
-	elif month == 2:
-		ret = 28
-	return ret
 
 def timestamp_to_tid(unixTime):
 	return unixTime * 1000000
@@ -114,8 +104,8 @@ class Trades:
 		return self.__trades
 
 class TradesFile:
-	def __init__(self, filePath):
-		self.__f = open(filePath, "w")
+	def __init__(self, csvFile):
+		self.__f = open(csvFile, "w")
 		self.__f.write("id,price,amount\n")
 		self.__f.flush()
 
@@ -178,17 +168,45 @@ def download_trades(tradesFile, currency, tidBegin, tidEnd):
 					tradeItems.append(trade)
 			tradesFile.addTrades(tradeItems)
 
-def download_trades_by_year(currency, year, filePath):
+def download_trades_by_year(currency, year, csvFile):
+	"""Download trades for a given year.
+
+	:param currency: Currency in which trade was completed.
+	:type currency: string.
+	:param year: The year.
+	:type year: int.
+	:param csvFile: The path to the CSV file to write the trades.
+	:type csvFile: string.
+
+	.. note::
+		This will take some time since Mt. Gox API returns no more than 1000 trades on each request
+	"""
+
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, 1, 1)
 	end = datetime.datetime(year+1, 1, 1)
 	tidBegin = datetime_to_tid(begin)
 	tidEnd = datetime_to_tid(end)
 
-	tradesFile = TradesFile(filePath)
+	tradesFile = TradesFile(csvFile)
 	download_trades(tradesFile, currency, tidBegin, tidEnd)
 
-def download_trades_by_month(currency, year, month, filePath):
+def download_trades_by_month(currency, year, month, csvFile):
+	"""Download trades for a given month.
+
+	:param currency: Currency in which trade was completed.
+	:type currency: string.
+	:param year: The year.
+	:type year: int.
+	:param month: The month.
+	:type month: int.
+	:param csvFile: The path to the CSV file to write the trades.
+	:type csvFile: string.
+
+	.. note::
+		This will take some time since Mt. Gox API returns no more than 1000 trades on each request
+	"""
+
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, month, 1)
 	if month == 12:
@@ -198,16 +216,16 @@ def download_trades_by_month(currency, year, month, filePath):
 	tidBegin = datetime_to_tid(begin)
 	tidEnd = datetime_to_tid(end)
 
-	tradesFile = TradesFile(filePath)
+	tradesFile = TradesFile(csvFile)
 	download_trades(tradesFile, currency, tidBegin, tidEnd)
 
-def download_trades_by_day(currency, year, month, day, filePath):
+def download_trades_by_day(currency, year, month, day, csvFile):
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, month, day)
 	end = begin + datetime.timedelta(days=1)
 	tidBegin = datetime_to_tid(begin)
 	tidEnd = datetime_to_tid(end)
 
-	tradesFile = TradesFile(filePath)
+	tradesFile = TradesFile(csvFile)
 	download_trades(tradesFile, currency, tidBegin, tidEnd)
 
