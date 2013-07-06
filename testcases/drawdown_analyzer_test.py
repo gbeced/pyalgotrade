@@ -43,93 +43,134 @@ def build_bars_from_closing_prices(closingPrices):
 
 class DDHelperCase(unittest.TestCase):
 	def testNoDrawDown1(self):
-		helper = drawdown.DrawDownHelper(10)
+		helper = drawdown.DrawDownHelper()
+		helper.update(datetime.datetime.now(), 10, 10)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
 
 	def testNoDrawDown2(self):
-		helper = drawdown.DrawDownHelper(10)
+		helper = drawdown.DrawDownHelper()
+
+		dt = datetime.datetime.now()
+		helper.update(dt, 10, 10)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
-		helper.update(10.01, 10.01)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 10.01, 10.01)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
-		helper.update(11, 11)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 11, 11)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
 
 	def testDrawDown1(self):
-		helper = drawdown.DrawDownHelper(10)
+		helper = drawdown.DrawDownHelper()
+
+		dt = datetime.datetime.now()
+		helper.update(dt, 10, 10)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
-		helper.update(5, 5)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 5, 5)
 		self.assertEqual(helper.getMaxDrawDown(), -0.5)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.5)
-		self.assertEqual(helper.getDuration(), 1)
-		helper.update(4, 4)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(days=1))
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 4, 4)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.6)
-		self.assertEqual(helper.getDuration(), 2)
-		helper.update(4, 4)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(days=2))
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 4, 4)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.6)
-		self.assertEqual(helper.getDuration(), 3)
-		helper.update(5, 5)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(days=3))
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 5, 5)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.5)
-		self.assertEqual(helper.getDuration(), 4)
-		helper.update(9, 9)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(days=4))
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 9, 9)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.1)
-		self.assertEqual(helper.getDuration(), 5)
-		helper.update(9.9, 9.9)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(days=5))
+
+		dt += datetime.timedelta(days=1)
+		helper.update(dt, 9.9, 9.9)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(round(helper.getCurrentDrawDown(), 2), -0.01)
-		self.assertEqual(helper.getDuration(), 6)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(days=6))
 
 	def testDrawDown2(self):
-		helper = drawdown.DrawDownHelper(10)
+		helper = drawdown.DrawDownHelper()
+
+		dt = datetime.datetime.now()
+		helper.update(dt, 10, 10)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
-		helper.update(5, 5)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 5, 5)
 		self.assertEqual(helper.getMaxDrawDown(), -0.5)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.5)
-		self.assertEqual(helper.getDuration(), 1)
-		helper.update(4, 4)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=1))
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 4, 4)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.6)
-		self.assertEqual(helper.getDuration(), 2)
-		helper.update(4, 4)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=2))
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 4, 4)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.6)
-		self.assertEqual(helper.getDuration(), 3)
-		helper.update(5, 5)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=3))
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 5, 5)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.5)
-		self.assertEqual(helper.getDuration(), 4)
-		helper.update(9, 9)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=4))
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 9, 9)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.1)
-		self.assertEqual(helper.getDuration(), 5)
-		helper.update(9.9, 9.9)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=5))
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 9.9, 9.9)
 		self.assertEqual(helper.getMaxDrawDown(), -0.6)
 		self.assertEqual(round(helper.getCurrentDrawDown(), 2), -0.01)
-		self.assertEqual(helper.getDuration(), 6)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=6))
 
-		helper.update(20, 20)
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 20, 20)
 		self.assertEqual(helper.getMaxDrawDown(), 0)
 		self.assertEqual(helper.getCurrentDrawDown(), 0)
-		self.assertEqual(helper.getDuration(), 0)
-		helper.update(10, 10)
+		self.assertEqual(helper.getDuration(), datetime.timedelta())
+
+		dt += datetime.timedelta(minutes=1)
+		helper.update(dt, 10, 10)
 		self.assertEqual(helper.getMaxDrawDown(), -0.5)
 		self.assertEqual(helper.getCurrentDrawDown(), -0.5)
-		self.assertEqual(helper.getDuration(), 1)
+		self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=1))
 
 class AnalyzerTestCase(unittest.TestCase):
 	def testNoTrades(self):
@@ -146,7 +187,7 @@ class AnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(strat.getBroker().getCash() == 1000)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 0)
 		self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
-		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration()== 0)
+		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta())
 
 	def __testIGE_BrokerImpl(self, quantity):
 		initialCash = 42.09*quantity
@@ -170,7 +211,7 @@ class AnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
 		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
 		self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
-		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration()== 432)
+		self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta(days=623))
 
 	def testIGE_Broker(self):
 		self.__testIGE_BrokerImpl(1)
@@ -199,17 +240,17 @@ class AnalyzerTestCase(unittest.TestCase):
 		# No drawdown
 		stratAnalyzer = self.__testManualImpl([10, 10, 10], 10)
 		self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0)
-		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), 0)
+		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), datetime.timedelta())
 
 	def testManual_1DD(self):
 		stratAnalyzer = self.__testManualImpl([10, 9, 8], 10)
 		self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0.2)
-		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), 2)
+		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), datetime.timedelta(days=2))
 
 	def testManual_2DD(self):
 		stratAnalyzer = self.__testManualImpl([10, 9.5, 9, 8, 11, 8], 10)
 		self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0.27)
-		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), 3)
+		self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), datetime.timedelta(days=3))
 
 def getTestCases():
 	ret = []

@@ -20,16 +20,19 @@
 
 from pyalgotrade import stratanalyzer
 
+import datetime
+
 class DrawDownHelper:
-	def __init__(self, initialValue):
-		self.__highWatermark = initialValue
-		self.__lowWatermark = initialValue
-		self.__lastLow = initialValue
-		self.__duration = 0
+	def __init__(self):
+		self.__highWatermark = None
+		self.__lowWatermark = None
+		self.__lastLow = None
+		self.__highDateTime = None
+		self.__lastDateTime = None
 
 	# The drawdown duration, not necessarily the max drawdown duration.
 	def getDuration(self):
-		return self.__duration
+		return self.__lastDateTime - self.__highDateTime
 
 	def getMaxDrawDown(self):
 		return (self.__lowWatermark - self.__highWatermark) / float(self.__highWatermark)
@@ -37,19 +40,17 @@ class DrawDownHelper:
 	def getCurrentDrawDown(self):
 		return (self.__lastLow - self.__highWatermark) / float(self.__highWatermark)
 
-	def update(self, low, high):
+	def update(self, dateTime, low, high):
 		assert(low <= high)
 		self.__lastLow = low
-		if high < self.__highWatermark:
-			self.__duration += 1
-			self.__lowWatermark = min(self.__lowWatermark, low)
-		else:
+		self.__lastDateTime = dateTime
+
+		if self.__highWatermark == None or high >= self.__highWatermark:
 			self.__highWatermark = high
 			self.__lowWatermark = low
-			if low == high:
-				self.__duration = 0
-			else:
-				self.__duration = 1
+			self.__highDateTime = dateTime
+		else:
+			self.__lowWatermark = min(self.__lowWatermark, low)
 
 class DrawDown(stratanalyzer.StrategyAnalyzer):
 	"""A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
@@ -57,11 +58,8 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 
 	def __init__(self):
 		self.__maxDD = 0
-		self.__longestDDDuration = 0
-		self.__currDrawDown = None
-
-	def attached(self, strat):
-		self.__currDrawDown = DrawDownHelper(self.calculateEquity(strat))
+		self.__longestDDDuration = datetime.timedelta()
+		self.__currDrawDown = DrawDownHelper()
 
 	def calculateEquity(self, strat):
 		return strat.getBroker().getEquity()
@@ -76,7 +74,7 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 
 	def beforeOnBars(self, strat, bars):
 		equity = self.calculateEquity(strat)
-		self.__currDrawDown.update(equity, equity)
+		self.__currDrawDown.update(bars.getDateTime(), equity, equity)
 		self.__longestDDDuration = max(self.__longestDDDuration, self.__currDrawDown.getDuration())
 		self.__maxDD = min(self.__maxDD, self.__currDrawDown.getMaxDrawDown())
 
@@ -86,6 +84,8 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 
 	def getLongestDrawDownDuration(self):
 		"""Returns the duration of the longest drawdown.
+
+		:rtype: :class:`datetime.timedelta`.
 
 		.. note::
 			Note that this is the duration of the longest drawdown, not necessarily the deepest one.
