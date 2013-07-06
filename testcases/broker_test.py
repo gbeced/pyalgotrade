@@ -56,6 +56,20 @@ class BaseTestCase(unittest.TestCase):
 		ret[BaseTestCase.TestInstrument] = bar_
 		return bar.Bars(ret)
 
+class CommissionTestCase(unittest.TestCase):
+	def testNoCommission(self):
+		comm = backtesting.NoCommission()
+		self.assertEqual(comm.calculate(None, 1, 1), 0)
+
+	def testFixedPerTrade(self):
+		comm = backtesting.FixedPerTrade(1.2)
+		self.assertEqual(comm.calculate(None, 1, 1), 1.2)
+
+	def testTradePercentage(self):
+		comm = backtesting.TradePercentage(0.1)
+		self.assertEqual(comm.calculate(None, 1, 1), 0.1)
+		self.assertEqual(comm.calculate(None, 2, 2), 0.4)
+
 class BrokerTestCase(BaseTestCase):
 	def testRegressionGetActiveOrders(self):
 		activeOrders = []
@@ -217,7 +231,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getEquityWithBars(self.buildBars(1, 1, 1, 1)) == 1 + 1)
 
 	def testBuyWithCommission(self):
-		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedCommission(10))
+		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedPerTrade(10))
 
 		# Buy
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 100)
@@ -324,7 +338,7 @@ class MarketOrderTestCase(BaseTestCase):
 	def testSellShortWithCommission(self):
 		sharePrice = 100
 		commission = 10
-		brk = backtesting.Broker(1010, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedCommission(commission))
+		brk = backtesting.Broker(1010, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedPerTrade(commission))
 
 		# Sell 10 shares
 		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 10)
@@ -1109,6 +1123,10 @@ class StopLimitOrderTestCase(BaseTestCase):
 
 def getTestCases():
 	ret = []
+
+	ret.append(CommissionTestCase("testNoCommission"))
+	ret.append(CommissionTestCase("testFixedPerTrade"))
+	ret.append(CommissionTestCase("testTradePercentage"))
 
 	ret.append(BrokerTestCase("testRegressionGetActiveOrders"))
 

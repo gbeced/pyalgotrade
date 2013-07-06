@@ -29,19 +29,55 @@ logger = pyalgotrade.logger.getLogger("broker.backtesting")
 ## Commissions
 
 class Commission:
+	"""Base class for implementing different commission schemes.
+
+	.. note::
+		This is a base class and should not be used directly.
+	"""
+
 	def calculate(self, order, price, quantity):
+		"""Calculates the commission for an order.
+
+		:param order: The order being executed.
+		:type order: :class:`pyalgotrade.broker.Order`.
+		:param price: The price for each share.
+		:type price: float.
+		:param quantity: The order size.
+		:type quantity: float.
+		:rtype: float.
+		"""
 		raise NotImplementedError()
 
 class NoCommission(Commission):
+	"""A :class:`Commission` class that always returns 0."""
+
 	def calculate(self, order, price, quantity):
 		return 0
 
-class FixedCommission(Commission):
-	def __init__(self, cost):
-		self.__cost = cost
+class FixedPerTrade(Commission):
+	"""A :class:`Commission` class that charges a fixed amount for the whole trade.
+
+	:param amount: The commission for an order.
+	:type amount: float.
+	"""
+	def __init__(self, amount):
+		self.__amount = amount
 
 	def calculate(self, order, price, quantity):
-		return self.__cost
+		return self.__amount
+
+class TradePercentage(Commission):
+	"""A :class:`Commission` class that charges a percentage of the whole trade.
+
+	:param percentage: The percentage to charge. 0.01 means 1%, and so on. It must be smaller than 1.
+	:type percentage: float.
+	"""
+	def __init__(self, percentage):
+		assert(percentage < 1)
+		self.__percentage = percentage
+
+	def calculate(self, order, price, quantity):
+		return price * quantity * self.__percentage
 
 ######################################################################
 ## Order filling strategies
@@ -381,11 +417,19 @@ class Broker(broker.Broker):
 		self.__cash = cash
 
 	def getCommission(self):
-		"""Returns the commission instance."""
+		"""Returns the commission instance.
+
+		:rtype: :class:`Commission`.
+		"""
 		return self.__commission
 
 	def setCommission(self, commission):
-		"""Sets the commission instance."""
+		"""Sets the commission instance.
+
+		:param commission: An object responsible for calculating order commissions.
+		:type commission: :class:`Commission`.
+		"""
+
 		self.__commission = commission
 
 	def setFillStrategy(self, strategy):

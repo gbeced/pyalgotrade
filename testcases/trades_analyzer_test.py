@@ -146,7 +146,7 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 
 	def testSomeTradesWithCommissions(self):
 		strat = self.__createStrategy()
-		strat.getBroker().setCommission(backtesting.FixedCommission(0.01))
+		strat.getBroker().setCommission(backtesting.FixedPerTrade(0.01))
 		stratAnalyzer = trades.Trades()
 		strat.attachAnalyzer(stratAnalyzer)
 
