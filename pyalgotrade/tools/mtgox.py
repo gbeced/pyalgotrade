@@ -22,7 +22,6 @@ import urllib
 import datetime
 import json
 import socket
-import time
 
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
@@ -183,6 +182,19 @@ def download_trades_by_year(currency, year, filePath):
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, 1, 1)
 	end = datetime.datetime(year+1, 1, 1)
+	tidBegin = datetime_to_tid(begin)
+	tidEnd = datetime_to_tid(end)
+
+	tradesFile = TradesFile(filePath)
+	download_trades(tradesFile, currency, tidBegin, tidEnd)
+
+def download_trades_by_month(currency, year, month, filePath):
+	# Calculate the first and last trade ids for the year.
+	begin = datetime.datetime(year, month, 1)
+	if month == 12:
+		end = datetime.datetime(year+1, 1, 1)
+	else:
+		end = datetime.datetime(year, month + 1, 1)
 	tidBegin = datetime_to_tid(begin)
 	tidEnd = datetime_to_tid(end)
 
