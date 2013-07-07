@@ -27,9 +27,10 @@ The output should look like this: ::
     .
 
 and it will take some time since Mt. Gox API returns no more than 1000 trades on each request.
-The CSV files will have 3 columns:
+The CSV files will have 4 columns:
 
- * The trade identifier (which is in fact the trade timestamp in microseconds)
- * The price
- * The amount of bitcoin traded
+ * The trade identifier (which is in fact the trade timestamp in microseconds).
+ * The price.
+ * The amount of bitcoin traded.
+ * If the trade is the result of the execution of a bid or an ask.
 

@@ -60,6 +60,7 @@ class Trade:
 		currency = trade["price_currency"]
 		self.__price = from_value_int(currency, trade["price_int"])
 		self.__amount = from_amount_int(trade["amount_int"])
+		self.__type = trade["trade_type"]
 
 	def getId(self):
 		return self.__tradeId
@@ -72,6 +73,9 @@ class Trade:
 
 	def getAmount(self):
 		return self.__amount
+
+	def getType(self):
+		return self.__type
 
 class Trades:
 	def __init__(self, trades):
@@ -106,12 +110,12 @@ class Trades:
 class TradesFile:
 	def __init__(self, csvFile):
 		self.__f = open(csvFile, "w")
-		self.__f.write("id,price,amount\n")
+		self.__f.write("id,price,amount,type\n")
 		self.__f.flush()
 
 	def addTrades(self, trades):
 		for trade in trades:
-			self.__f.write("%s,%s,%s\n" % (trade.getId(), trade.getPrice(), trade.getAmount()))
+			self.__f.write("%s,%s,%s,%s\n" % (trade.getId(), trade.getPrice(), trade.getAmount(), trade.getType()))
 		self.__f.flush()
 
 def download_trades_impl(currency, tid):
