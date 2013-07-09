@@ -1,8 +1,13 @@
 mtgox -- Mt. Gox reference
 ==========================
 
-Tools
+tools
 -----
 .. automodule:: pyalgotrade.mtgox.tools
+    :members:
+
+barfeed
+-------
+.. automodule:: pyalgotrade.mtgox.barfeed
     :members:
 

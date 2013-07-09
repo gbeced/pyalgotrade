@@ -6,15 +6,16 @@ strategies through Mt. Gox (https://mtgox.com/).
 
 In this tutorial we'll first backtest a trading strategy using historical data, and later on we'll
 test it using a realtime feed.
+Before we move on, this document assumes that you're already familiar with the basic concepts presented
+in the :ref:`tutorial-label` section.
 
 Backtesting
 -----------
 
 The first thing that we'll need to test our strategy is some data.
-Let's start by downloading trades for January and February 2013 using the following commands::
+Let's start by downloading trades for January 2013 using the following command::
 
     python -c "from pyalgotrade.mtgox import tools; tools.download_trades_by_month('USD', 2013, 1, 'trades-mgtox-usd-2013-01.csv')"
-    python -c "from pyalgotrade.mtgox import tools; tools.download_trades_by_month('USD', 2013, 2, 'trades-mgtox-usd-2013-02.csv')"
 
 The output should look like this: ::
 
@@ -26,11 +27,29 @@ The output should look like this: ::
     .
     .
 
-and it will take some time since Mt. Gox API returns no more than 1000 trades on each request.
-The CSV files will have 4 columns:
+and it will take some time since Mt. Gox API returns no more than 1000 trades on each request and there
+are about 150218 trades.
+The CSV file will have 4 columns:
 
  * The trade identifier (which is in fact the trade timestamp in microseconds).
  * The price.
  * The amount of bitcoin traded.
  * If the trade is the result of the execution of a bid or an ask.
+
+Let's move on with a simple strategy, that is, one that just prints information from each bar as they are processed:
+
+.. literalinclude:: ../samples/tutorial-mtgox-1.py
+
+
+The code is doing 3 main things:
+ 1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar in the feed.
+ 2. Loading the feed from a CSV file.
+ 3. Running the strategy with the bars supplied by the feed.
+
+Note that a :class:`pyalgotrade.bar.Bar` instance will be created for every trade in the file.
+
+If you run the script you should see something like this:
+
+.. literalinclude:: ../samples/tutorial-mtgox-1.output
+
 

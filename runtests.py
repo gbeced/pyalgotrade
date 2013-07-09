@@ -52,6 +52,7 @@ from testcases import drawdown_analyzer_test
 from testcases import utils_test
 from testcases import doc_test
 from testcases import position_test
+from testcases import mtgox_test
 
 def getTestCases():
 	ret = []
@@ -84,6 +85,7 @@ def getTestCases():
 	ret += drawdown_analyzer_test.getTestCases()
 	ret += utils_test.getTestCases()
 	ret += doc_test.getTestCases()
+	ret += mtgox_test.getTestCases()
 
 	return ret
 

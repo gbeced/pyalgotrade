@@ -86,6 +86,12 @@ class TutorialTestCase(unittest.TestCase):
 		lines = run_sample_script("tutorial-4.py").split("\n")
 		self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
 
+	def testTutorial1MtGox(self):
+		shutil.copy2(os.path.join("samples", "trades-mgtox-usd-2013-01.csv"), ".")
+		lines = run_sample_script("tutorial-mtgox-1.py").split("\n")
+		self.assertTrue(compare_head("tutorial-mtgox-1.output", lines[0:10]))
+		self.assertTrue(compare_tail("tutorial-mtgox-1.output", lines[-10:-1]))
+
 class CompInvTestCase(unittest.TestCase):
 	def testCompInv_1(self):
 		shutil.copy2(os.path.join("samples", "aeti-2011-yahoofinance.csv"), ".")
@@ -163,6 +169,7 @@ def getTestCases():
 	ret.append(TutorialTestCase("testTutorial2"))
 	ret.append(TutorialTestCase("testTutorial3"))
 	ret.append(TutorialTestCase("testTutorial4"))
+	ret.append(TutorialTestCase("testTutorial1MtGox"))
 
 	ret.append(CompInvTestCase("testCompInv_1"))
 

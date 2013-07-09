@@ -23,43 +23,17 @@ import datetime
 import json
 
 import pyalgotrade.logger
-from pyalgotrade.utils import dt
+from pyalgotrade.mtgox import base
 
 logger = pyalgotrade.logger.getLogger("mtgox")
-
-def timestamp_to_tid(unixTime):
-	return unixTime * 1000000
-
-def datetime_to_tid(dateTime):
-	unixTime = dt.datetime_to_timestamp(dt.as_utc(dateTime))
-	return timestamp_to_tid(unixTime)
-
-def tid_to_datetime(tid):
-	unixTime = int(tid) / 1000000.0
-	return dt.timestamp_to_datetime(unixTime)
-
-# https://en.bitcoin.it/wiki/MtGox/API#Number_Formats
-def from_value_int(currency, value_int):
-	currency = currency.upper()
-	ret = int(value_int)
-	if currency in ["JPY", "SEK"]:
-		ret = ret * 0.001
-	elif currency == "BTC":
-		ret = ret * 0.00000001
-	else:
-		ret = ret * 0.00001
-	return ret
-
-def from_amount_int(value_int):
-	return int(value_int) * 0.00000001
 
 class Trade:
 	def __init__(self, trade):
 		self.__tradeId = int(trade["tid"])
-		self.__dateTime = tid_to_datetime(trade["tid"])
+		self.__dateTime = base.tid_to_datetime(trade["tid"])
 		currency = trade["price_currency"]
-		self.__price = from_value_int(currency, trade["price_int"])
-		self.__amount = from_amount_int(trade["amount_int"])
+		self.__price = base.from_value_int(currency, trade["price_int"])
+		self.__amount = base.from_amount_int(trade["amount_int"])
 		self.__type = trade["trade_type"]
 
 	def getId(self):
@@ -132,7 +106,7 @@ def download_trades_impl(currency, tid):
 	return response
 
 def download_trades_since(currency, tid, retries=3):
-	logger.info("Downloading trades since %s." % (tid_to_datetime(tid)))
+	logger.info("Downloading trades since %s." % (base.tid_to_datetime(tid)))
 	# logger.info("Downloading trades since %d." % (tid))
 
 	done = False
@@ -189,8 +163,8 @@ def download_trades_by_year(currency, year, csvFile):
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, 1, 1)
 	end = datetime.datetime(year+1, 1, 1)
-	tidBegin = datetime_to_tid(begin)
-	tidEnd = datetime_to_tid(end)
+	tidBegin = base.datetime_to_tid(begin)
+	tidEnd = base.datetime_to_tid(end)
 
 	tradesFile = TradesFile(csvFile)
 	download_trades(tradesFile, currency, tidBegin, tidEnd)
@@ -217,8 +191,8 @@ def download_trades_by_month(currency, year, month, csvFile):
 		end = datetime.datetime(year+1, 1, 1)
 	else:
 		end = datetime.datetime(year, month + 1, 1)
-	tidBegin = datetime_to_tid(begin)
-	tidEnd = datetime_to_tid(end)
+	tidBegin = base.datetime_to_tid(begin)
+	tidEnd = base.datetime_to_tid(end)
 
 	tradesFile = TradesFile(csvFile)
 	download_trades(tradesFile, currency, tidBegin, tidEnd)
@@ -227,8 +201,8 @@ def download_trades_by_day(currency, year, month, day, csvFile):
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, month, day)
 	end = begin + datetime.timedelta(days=1)
-	tidBegin = datetime_to_tid(begin)
-	tidEnd = datetime_to_tid(end)
+	tidBegin = base.datetime_to_tid(begin)
+	tidEnd = base.datetime_to_tid(end)
 
 	tradesFile = TradesFile(csvFile)
 	download_trades(tradesFile, currency, tidBegin, tidEnd)
