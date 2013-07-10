@@ -15,7 +15,7 @@ Backtesting
 The first thing that we'll need to test our strategy is some data.
 Let's start by downloading trades for January 2013 using the following command::
 
-    python -c "from pyalgotrade.mtgox import tools; tools.download_trades_by_month('USD', 2013, 1, 'trades-mgtox-usd-2013-01.csv')"
+    python -c "from pyalgotrade.mtgox import tools; tools.download_trades_by_month('USD', 2013, 1, 'trades-mtgox-usd-2013-01.csv')"
 
 The output should look like this: ::
 

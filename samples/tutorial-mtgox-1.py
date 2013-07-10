@@ -8,7 +8,7 @@ class MyStrategy(strategy.Strategy):
 
 # Load the trades from the CSV file
 feed = barfeed.TradesCSVFeed()
-feed.addBarsFromCSV("trades-mgtox-usd-2013-01.csv")
+feed.addBarsFromCSV("trades-mtgox-usd-2013-01.csv")
 
 # Run the strategy with the feed's bars.
 myStrategy = MyStrategy(feed)
