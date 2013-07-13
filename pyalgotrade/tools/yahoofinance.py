@@ -57,3 +57,19 @@ def get_daily_csv(instrument, year):
 	toMonth = 12
 	return __download_instrument_prices(instrument, fromMonth, year, toMonth, year)
 
+def download_daily_bars(instrument, year, csvFile):
+	"""Download bars for a given year.
+
+	:param instrument: Instrument identifier.
+	:type instrument: string.
+	:param year: The year.
+	:type year: int.
+	:param csvFile: The path to the CSV file to write the bars.
+	:type csvFile: string.
+	"""
+
+	bars = get_daily_csv(instrument, year)
+	f = open(csvFile, "w")
+	f.write(bars)
+	f.close()
+

@@ -20,14 +20,20 @@
 
 import unittest
 import datetime
+import logging
 
 from pyalgotrade.mtgox import barfeed
-import common
+from pyalgotrade.mtgox import tools
+
+tools.logger.setLevel(logging.ERROR)
 
 class TradesFeedTestCase(unittest.TestCase):
-	def testLoadTrades(self):
+	def testDownloadAndParse(self):
+		path = "trades-mgtox-usd-2013-01-01.csv"
+		tools.download_trades_by_day("usd", 2013, 1, 1, path)
+
 		bf = barfeed.TradesCSVFeed()
-		bf.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
+		bf.addBarsFromCSV(path)
 		bf.loadAll()
 		ds = bf["BTC"]
 		self.assertTrue(len(ds) > 0)
@@ -42,7 +48,7 @@ class TradesFeedTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 
-	ret.append(TradesFeedTestCase("testLoadTrades"))
+	ret.append(TradesFeedTestCase("testDownloadAndParse"))
 
 	return ret
 
