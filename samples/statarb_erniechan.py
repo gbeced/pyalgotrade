@@ -138,10 +138,7 @@ def build_feed(instruments, fromYear, toYear):
             fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
             if not os.path.exists(fileName):
                 print "Downloading %s %d" % (symbol, year)
-                csv = yahoofinance.get_daily_csv(symbol, year)
-                f = open(fileName, "w")
-                f.write(csv)
-                f.close()
+                yahoofinance.download_daily_bars(symbol, year, fileName)
             feed.addBarsFromCSV(symbol, fileName)
     return feed
 
