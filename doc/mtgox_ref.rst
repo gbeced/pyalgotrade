@@ -1,13 +1,24 @@
 mtgox -- Mt. Gox reference
 ==========================
 
-tools
------
+pyalgotrade.mtgox.tools
+-----------------------
+
 .. automodule:: pyalgotrade.mtgox.tools
     :members:
+    :show-inheritance:
 
-barfeed
--------
+pyalgotrade.mtgox.barfeed
+-------------------------
+
 .. automodule:: pyalgotrade.mtgox.barfeed
     :members:
+    :show-inheritance:
+
+pyalgotrade.mtgox.broker
+------------------------
+
+.. automodule:: pyalgotrade.mtgox.broker
+    :members: BacktestingBroker
+    :show-inheritance:
 
