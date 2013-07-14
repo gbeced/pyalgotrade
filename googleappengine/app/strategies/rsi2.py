@@ -18,10 +18,10 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 
-class Strategy(strategy.Strategy):
+class Strategy(strategy.BacktestingStrategy):
 	def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
 		initialCash = 2000
-		strategy.Strategy.__init__(self, feed, initialCash)
+		strategy.BacktestingStrategy.__init__(self, feed, initialCash)
 		self.__instrument = feed.getDefaultInstrument()
 		ds = feed.getDataSeries().getCloseDataSeries()
 		self.__entrySMA = ma.SMA(ds, entrySMA)

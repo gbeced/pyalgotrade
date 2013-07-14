@@ -22,7 +22,7 @@ from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
 
 class BacktestingBroker(backtesting.Broker):
-	"""A backtesting :class:`pyalgotrade.broker.backtesting.Broker`.
+	"""A backtesting broker.
 
 	:param cash: The initial amount of cash.
 	:type cash: int/float.

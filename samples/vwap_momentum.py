@@ -6,9 +6,9 @@ from pyalgotrade.technical import vwap
 
 import os
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, vwapWindowSize):
-        strategy.Strategy.__init__(self, feed)
+        strategy.BacktestingStrategy.__init__(self, feed)
         self.__instrument = instrument
         self.__vwap = vwap.VWAP(feed[instrument], vwapWindowSize)
 

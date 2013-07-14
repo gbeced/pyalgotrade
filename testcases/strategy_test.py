@@ -20,15 +20,11 @@
 
 import unittest
 import datetime
-import threading
-import Queue
-import time
 import pytz
 
 from pyalgotrade import strategy
 from pyalgotrade import barfeed
 from pyalgotrade import broker
-from pyalgotrade.broker import backtesting
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
@@ -46,142 +42,9 @@ def datetime_from_date(year, month, day):
 	ret = datetime.datetime.combine(ret, datetime.time(23, 59, 59))
 	return ret
 
-# This class decorates a barfeed.BarFeed and simulates an external barfeed that lives in a different thread.
-class ExternalBarFeed(barfeed.BasicBarFeed):
-	def __init__(self, decoratedBarFeed):
-		barfeed.BasicBarFeed.__init__(self, decoratedBarFeed.getFrequency())
-		self.__decorated = decoratedBarFeed
-		self.__stopped = False
-		self.__stopDispatching = False
-
-		# The barfeed runs in its own thread and will put bars in a queue that will be consumed by the strategy when fetchNextBars is called.
-		self.__queue = Queue.Queue()
-
-		# We're wrapping the barfeed so we need to register the same instruments.
-		for instrument in decoratedBarFeed.getRegisteredInstruments():
-			self.registerInstrument(instrument)
-
-		# This is the thread that will run the barfeed.
-		self.__thread = threading.Thread(target=self.__threadMain)
-
-	def __threadMain(self):
-		self.__decorated.start()
-
-		# Just consume the bars and put them in a queue.
-		bars = self.__decorated.getNextBars()
-		while bars != None and not self.__stopped:
-			self.__queue.put(bars)
-			bars = self.__decorated.getNextBars()
-
-		# Flag end of barfeed
-		self.__queue.put(None)
-		self.__decorated.stop()
-		self.__decorated.join()
-
-	def getNextBars(self):
-		# Consume the bars from the queue.
-		ret = None
-		try:
-			# If there is nothing there after 5 seconds, then treat this as the end.
-			ret = self.__queue.get(True, 5)
-		except Queue.Empty:
-			self.__stopDispatching = True
-			ret = None
-		return ret
-
-	def start(self):
-		self.__thread.start()
-
-	def stop(self):
-		self.__stopped = True
-
-	def join(self):
-		self.__thread.join()
-
-	def eof(self):
-		return self.__stopDispatching
-
-class ExternalBroker(broker.Broker):
-	def __init__(self, cash, barFeed, commission=None):
-		broker.Broker.__init__(self)
-
-		self.__ordersQueue = Queue.Queue()
-		self.__stop = False
-
-		# We're using a backtesting broker which only processes orders when bars are recevied.
-		self.__decorated = backtesting.Broker(cash, barFeed, commission)
-		# We'll queue events from the backtesting broker and forward those ONLY when dispatch is called.
-		self.__decorated.getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
-
-		self.__thread = threading.Thread(target=self.__threadMain)
-
-	def __onOrderUpdated(self, broker_, order):
-		self.__ordersQueue.put(order)
-
-	def __threadMain(self):
-		self.__decorated.start()
-
-		# There is nothing special to do here since the backtesting broker will run when barfeed events are processed.
-		while not self.__stop or not self.__ordersQueue.empty():
-			time.sleep(1)
-
-		self.__decorated.stop()
-		self.__decorated.join()
-
-	def setCash(self, cash):
-		self.__decorated.setCash(cash)
-
-	def getCash(self):
-		return self.__decorated.getCash()
-
-	def setUseAdjustedValues(self, useAdjusted):
-		self.__decorated.setUseAdjustedValues(useAdjusted)
-
-	def start(self):
-		self.__thread.start()
-
-	def stop(self):
-		self.__stop = True
-
-	def join(self):
-		self.__thread.join()
-
-	# Return True if there are not more events to dispatch.
-	def eof(self):
-		ret = self.__decorated.eof() and self.__ordersQueue.empty()
-		return ret
-
-	# Dispatch events.
-	def dispatch(self):
-		# Get orders from the queue and emit events.
-		try:
-			while True:
-				order = self.__ordersQueue.get(False)
-				self.getOrderUpdatedEvent().emit(self, order)
-		except Queue.Empty:
-			pass
-	
-	def placeOrder(self, order):
-		return self.__decorated.placeOrder(order)
-	
-	def createMarketOrder(self, action, instrument, quantity, onClose = False):
-		return self.__decorated.createMarketOrder(action, instrument, quantity, onClose)
-
-	def createLimitOrder(self, action, instrument, limitPrice, quantity):
-		return self.__decorated.createLimitOrder(action, instrument, limitPrice, quantity)
-
-	def createStopOrder(self, action, instrument, stopPrice, quantity):
-		return self.__decorated.createStopOrder(action, instrument, stopPrice, quantity)
-
-	def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-		return self.__decorated.createStopLimitOrder(action, instrument, stopPrice, limitPrice, quantity)
-
-	def cancelOrder(self, order):
-		return self.__decorated.cancelOrder(order)
-
-class TestStrategy(strategy.Strategy):
-	def __init__(self, barFeed, cash, broker_ = None):
-		strategy.Strategy.__init__(self, barFeed, cash, broker_)
+class TestStrategy(strategy.BacktestingStrategy):
+	def __init__(self, barFeed, cash):
+		strategy.BacktestingStrategy.__init__(self, barFeed, cash)
 
 		self.__activePosition = None
 		# Maps dates to a tuple of (method, params)
@@ -319,25 +182,18 @@ class StrategyTestCase(unittest.TestCase):
 		barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		return barFeed
 
-	def createStrategy(self, simulateExternalBarFeed, simulateExternalBroker, useDailyBarFeed = True):
+	def createStrategy(self, useDailyBarFeed = True):
 		if useDailyBarFeed:
 			barFeed = self.loadDailyBarFeed()
 		else:
 			barFeed = self.loadIntradayBarFeed()
 
-		if simulateExternalBarFeed:
-			barFeed = ExternalBarFeed(barFeed)
-
-		broker_ = None
-		if simulateExternalBroker:
-			broker_ = ExternalBroker(1000, barFeed)
-
-		strat = TestStrategy(barFeed, 1000, broker_)
+		strat = TestStrategy(barFeed, 1000)
 		return strat
 
 class BrokerOrderTestCase(StrategyTestCase):
 	def testMarketOrder(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		o = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, StrategyTestCase.TestInstrument, 1)
 		strat.getBroker().placeOrder(o)
@@ -347,7 +203,7 @@ class BrokerOrderTestCase(StrategyTestCase):
 	
 class StrategyOrderTestCase(StrategyTestCase):
 	def testMarketOrder(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		o = strat.order(StrategyTestCase.TestInstrument, 1)
 		strat.run()
@@ -355,8 +211,8 @@ class StrategyOrderTestCase(StrategyTestCase):
 		self.assertTrue(strat.getOrderUpdatedEvents() == 2)
 
 class LongPosTestCase(StrategyTestCase):
-	def __testLongPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
-		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
+	def testLongPosition(self):
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-08,27.37,27.50,24.50,24.81,63040000,24.26 - Sell
@@ -375,17 +231,8 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getResult(), 3) == -0.108)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.37 - 30.69, 2))
 
-	def testLongPosition(self):
-		self.__testLongPositionImpl(False, False)
-
-	def testLongPosition_ExternalBF(self):
-		self.__testLongPositionImpl(True, False)
-
-	def testLongPosition_ExternalBFAndBroker(self):
-		self.__testLongPositionImpl(True, True)
-
-	def __testLongPositionAdjCloseImpl(self, simulateExternalBarFeed, simulateExternalBroker):
-		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
+	def testLongPositionAdjClose(self):
+		strat = self.createStrategy()
 		strat.getBroker().setUseAdjustedValues(True)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -404,17 +251,8 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getResult(), 3) == 0.105)
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.31 - 27.44, 2))
 
-	def testLongPositionAdjClose(self):
-		self.__testLongPositionAdjCloseImpl(False, False)
-
-	def testLongPositionAdjClose_ExternalBF(self):
-		self.__testLongPositionAdjCloseImpl(True, False)
-
-	def testLongPositionAdjClose_ExternalBFAndBroker(self):
-		self.__testLongPositionAdjCloseImpl(True, True)
-
 	def testLongPositionGTC(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 		strat.getBroker().setCash(48)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -437,7 +275,7 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(57.63 - 47.94, 2))
 
 	def testEntryCanceled(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 		strat.getBroker().setCash(10)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -544,14 +382,14 @@ class LongPosTestCase(StrategyTestCase):
 		self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21*2), 127.21)
 
 	def testIsOpen_NotClosed(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 		strat.addPosEntry(datetime_from_date(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
 		strat.run()
 		self.assertTrue(strat.getActivePosition().isOpen())
 
 class ShortPosTestCase(StrategyTestCase):
-	def __testShortPositionImpl(self, simulateExternalBarFeed, simulateExternalBroker):
-		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
+	def testShortPosition(self):
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-08,27.37,27.50,24.50,24.81,63040000,24.26
@@ -569,17 +407,8 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getResult(), 3) == round(0.10817856, 3))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(30.69 - 27.37, 2))
 
-	def testShortPosition(self):
-		self.__testShortPositionImpl(False, False)
-
-	def testShortPosition_ExternalBF(self):
-		self.__testShortPositionImpl(True, False)
-
-	def testShortPosition_ExternalBFAndBroker(self):
-		self.__testShortPositionImpl(True, True)
-	
-	def __testShortPositionAdjCloseImpl(self, simulateExternalBarFeed, simulateExternalBroker):
-		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
+	def testShortPositionAdjClose(self):
+		strat = self.createStrategy()
 		strat.getBroker().setUseAdjustedValues(True)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -598,17 +427,8 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getResult(), 3) == round(-0.104591837, 3))
 		self.assertTrue(round(strat.getNetProfit(), 2) == round(27.44 - 30.31, 2))
 
-	def testShortPositionAdjClose(self):
-		self.__testShortPositionAdjCloseImpl(False, False)
-
-	def testShortPositionAdjClose_ExternalBF(self):
-		self.__testShortPositionAdjCloseImpl(True, False)
-
-	def testShortPositionAdjClose_ExternalBFAndBroker(self):
-		self.__testShortPositionAdjCloseImpl(True, True)
-
-	def __testShortPositionExitCanceledImpl(self, simulateExternalBarFeed, simulateExternalBroker):
-		strat = self.createStrategy(simulateExternalBarFeed, simulateExternalBroker)
+	def testShortPositionExitCanceled(self):
+		strat = self.createStrategy()
 		strat.getBroker().setCash(0)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -627,17 +447,8 @@ class ShortPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == 23.19)
 		self.assertTrue(strat.getNetProfit() == 0)
 
-	def testShortPositionExitCanceled(self):
-		self.__testShortPositionExitCanceledImpl(False, False)
-
-	def testShortPositionExitCanceled_ExternalBF(self):
-		self.__testShortPositionExitCanceledImpl(True, False)
-
-	def testShortPositionExitCanceled_ExternalBFAndBroker(self):
-		self.__testShortPositionExitCanceledImpl(True, True)
-
 	def testShortPositionExitCanceledAndReSubmitted(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 		strat.getBroker().setCash(0)
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
@@ -710,7 +521,7 @@ class ShortPosTestCase(StrategyTestCase):
 
 class LimitPosTestCase(StrategyTestCase):
 	def testLong(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
@@ -731,7 +542,7 @@ class LimitPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1004)
 
 	def testShort(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-24,23.31,24.25,23.12,24.12,22446100,23.58 - exit filled
@@ -752,7 +563,7 @@ class LimitPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 23.31), 2))
 
 	def testExitOnEntryNotFilled(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - entry canceled
@@ -773,7 +584,7 @@ class LimitPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
 
 	def testExitTwice(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
@@ -795,7 +606,7 @@ class LimitPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 25), 2))
 
 	def testExitCancelsEntry(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74 - exitPosition (cancels the entry).
@@ -813,7 +624,7 @@ class LimitPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
 
 	def testEntryGTCExitNotGTC(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-15,28.81,29.44,27.70,28.87,50655200,28.23 - GTC exitPosition (never filled)
@@ -833,7 +644,7 @@ class LimitPosTestCase(StrategyTestCase):
 
 class StopPosTestCase(StrategyTestCase):
 	def testLong(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
@@ -854,7 +665,7 @@ class StopPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26 - 25.12), 2))
 
 	def testShort(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-24,23.31,24.25,23.12,24.12,22446100,23.58 - exit filled
@@ -876,7 +687,7 @@ class StopPosTestCase(StrategyTestCase):
 
 class StopLimitPosTestCase(StrategyTestCase):
 	def testLong(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
@@ -897,7 +708,7 @@ class StopLimitPosTestCase(StrategyTestCase):
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (28 - 24), 2))
 
 	def testShort(self):
-		strat = self.createStrategy(False, False)
+		strat = self.createStrategy()
 
 		# Date,Open,High,Low,Close,Volume,Adj Close
 		# 2000-11-24,23.31,24.25,23.12,24.12,22446100,23.58 - exit filled
@@ -921,17 +732,11 @@ class StopLimitPosTestCase(StrategyTestCase):
 		self.assertTrue(strat.getExitCanceledEvents() == 0)
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 24), 2))
 
-def getTestCases(includeExternal = True):
+def getTestCases(includeExternal = False):
 	ret = []
 
 	ret.append(LongPosTestCase("testLongPosition"))
-	if includeExternal:
-		ret.append(LongPosTestCase("testLongPosition_ExternalBF"))
-		ret.append(LongPosTestCase("testLongPosition_ExternalBFAndBroker"))
 	ret.append(LongPosTestCase("testLongPositionAdjClose"))
-	if includeExternal:
-		ret.append(LongPosTestCase("testLongPositionAdjClose_ExternalBF"))
-		ret.append(LongPosTestCase("testLongPositionAdjClose_ExternalBFAndBroker"))
 	ret.append(LongPosTestCase("testLongPositionGTC"))
 	ret.append(LongPosTestCase("testEntryCanceled"))
 	ret.append(LongPosTestCase("testIntradayExitOnClose_AllInOneDay"))
@@ -942,17 +747,8 @@ def getTestCases(includeExternal = True):
 	ret.append(LongPosTestCase("testIsOpen_NotClosed"))
 
 	ret.append(ShortPosTestCase("testShortPosition"))
-	if includeExternal:
-		ret.append(ShortPosTestCase("testShortPosition_ExternalBF"))
-		ret.append(ShortPosTestCase("testShortPosition_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionAdjClose"))
-	if includeExternal:
-		ret.append(ShortPosTestCase("testShortPositionAdjClose_ExternalBF"))
-		ret.append(ShortPosTestCase("testShortPositionAdjClose_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionExitCanceled"))
-	if includeExternal:
-		ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBF"))
-		ret.append(ShortPosTestCase("testShortPositionExitCanceled_ExternalBFAndBroker"))
 	ret.append(ShortPosTestCase("testShortPositionExitCanceledAndReSubmitted"))
 	ret.append(ShortPosTestCase("testIntradayExitOnClose"))
 	ret.append(ShortPosTestCase("testUnrealized"))

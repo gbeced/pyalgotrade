@@ -1,9 +1,9 @@
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
-        strategy.Strategy.__init__(self, feed)
+        strategy.BacktestingStrategy.__init__(self, feed)
         self.__instrument = instrument
 
     def onBars(self, bars):

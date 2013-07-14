@@ -5,4 +5,5 @@ bar -- Instrument prices
     :members:
     :member-order: bysource
     :special-members:
+    :show-inheritance:
 

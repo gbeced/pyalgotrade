@@ -91,8 +91,8 @@ class SharpeRatioTestCase(unittest.TestCase):
 		# 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-		brk = backtesting.Broker(initialCash, barFeed, backtesting.FixedPerTrade(commision))
-		strat = strategy_test.TestStrategy(barFeed, initialCash, brk)
+		strat = strategy_test.TestStrategy(barFeed, initialCash)
+		strat.getBroker().setCommission(backtesting.FixedPerTrade(commision))
 		strat.getBroker().setUseAdjustedValues(True)
 		strat.setBrokerOrdersGTC(True)
 		stratAnalyzer = sharpe.SharpeRatio()

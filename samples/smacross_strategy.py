@@ -2,9 +2,9 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 
-class Strategy(strategy.Strategy):
+class Strategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod, cash=1000):
-        strategy.Strategy.__init__(self, feed, cash)
+        strategy.BacktestingStrategy.__init__(self, feed, cash)
         self.__instrument = instrument
         self.__position = None
         # We'll use adjusted close values instead of regular close values.

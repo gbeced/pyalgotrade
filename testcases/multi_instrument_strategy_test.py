@@ -29,9 +29,9 @@ from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 import common
 
-class NikkeiSpyStrategy(strategy.Strategy):
+class NikkeiSpyStrategy(strategy.BacktestingStrategy):
 	def __init__(self, feed, smaPeriod):
-		strategy.Strategy.__init__(self, feed)
+		strategy.BacktestingStrategy.__init__(self, feed)
 
 		assert(smaPeriod > 3)
 		self.__lead = "^n225"

@@ -4,9 +4,9 @@ from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.utils import stats
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
 	def __init__(self, feed):
-		strategy.Strategy.__init__(self, feed, 1000000)
+		strategy.BacktestingStrategy.__init__(self, feed, 1000000)
 
 		# We wan't to use adjusted close prices instead of close.
 		self.getBroker().setUseAdjustedValues(True)

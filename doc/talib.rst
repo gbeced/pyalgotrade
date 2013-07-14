@@ -42,3 +42,5 @@ The following TA-Lib functions are available through the **pyalgotrade.talibext.
 .. automodule:: pyalgotrade.talibext.indicator
     :members:
     :member-order: bysource
+    :show-inheritance:
+

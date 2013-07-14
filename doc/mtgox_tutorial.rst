@@ -41,10 +41,11 @@ Let's move on with a simple strategy, that is, one that just prints information 
 .. literalinclude:: ../samples/tutorial-mtgox-1.py
 
 
-The code is doing 3 main things:
+The code is doing 4 main things:
  1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar in the feed.
- 2. Loading the feed from a CSV file.
- 3. Running the strategy with the bars supplied by the feed.
+ 2. Loading the feed from a trades CSV file.
+ 3. Creating a broker for backtesting.
+ 4. Running the strategy with the bars supplied by the feed and the backtesting broker.
 
 Note that a :class:`pyalgotrade.bar.Bar` instance will be created for every trade in the file.
 

@@ -12,20 +12,24 @@ Before I move on I would like to thank Pablo Jorge who helped reviewing the init
 
 **This tutorial was developed on a UNIX environment, but the steps to adapt it to a Windows environment should be straightforward.**
 
-PyAlgoTrade has 5 main components:
+PyAlgoTrade has 6 main components:
 
  * Strategies
  * Feeds
+ * Brokers
  * DataSeries
  * Technicals
  * Optimizer
 
 Strategies
-    These are the classes that you define, that implement a certain trading strategy. When to buy, when to sell, etc.
+    These are the classes that you define that implement the trading logic. When to buy, when to sell, etc.
 
 Feeds
     These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
+
+Brokers
+    Brokers are responsible for executing orders.
 
 DataSeries
     A data series is an abstraction used to manage historical data.
@@ -38,7 +42,7 @@ Optimizer
     These are a set of classes that allow you to distribute backtesting among different computers,
     or different processes running in the same computer, or a combination of both. They make horizontal scaling easy.
 
-Having said all that, the first thing that we'll need to test our strategy is some data.
+Having said all that, the first thing that we'll need to test our strategies is some data.
 Let's use Oracle's stock prices for year 2000, which we'll download with the following command: ::
 
     python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('orcl', 2000, 'orcl-2000.csv')"

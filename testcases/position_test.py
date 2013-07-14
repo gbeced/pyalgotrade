@@ -19,21 +19,9 @@
 """
 
 import unittest
-import datetime
-import threading
-import Queue
-import time
-import pytz
 
 from pyalgotrade import strategy
-from pyalgotrade import barfeed
-from pyalgotrade import broker
-from pyalgotrade.broker import backtesting
-from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import yahoofeed
-from pyalgotrade.barfeed import ninjatraderfeed
-from pyalgotrade.utils import dt
-from pyalgotrade import marketsession
 import common
 
 def load_daily_barfeed(instrument):
@@ -41,9 +29,9 @@ def load_daily_barfeed(instrument):
 	barFeed.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 	return barFeed
 
-class TestStrategy(strategy.Strategy):
+class TestStrategy(strategy.BacktestingStrategy):
 	def __init__(self, barFeed, instrument):
-		strategy.Strategy.__init__(self, barFeed)
+		strategy.BacktestingStrategy.__init__(self, barFeed)
 		self.instrument = instrument
 		self.enterOk = 0
 		self.enterCanceled = 0

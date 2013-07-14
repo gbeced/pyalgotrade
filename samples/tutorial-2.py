@@ -2,9 +2,9 @@ from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
-        strategy.Strategy.__init__(self, feed)
+        strategy.BacktestingStrategy.__init__(self, feed)
         # We want a 15 period SMA over the closing prices.
         self.__sma = ma.SMA(feed[instrument].getCloseDataSeries(), 15)
         self.__instrument = instrument

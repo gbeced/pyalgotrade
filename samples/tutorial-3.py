@@ -3,9 +3,9 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
-        strategy.Strategy.__init__(self, feed)
+        strategy.BacktestingStrategy.__init__(self, feed)
         self.__rsi = rsi.RSI(feed[instrument].getCloseDataSeries(), 14)
         self.__sma = ma.SMA(self.__rsi, 15)
         self.__instrument = instrument

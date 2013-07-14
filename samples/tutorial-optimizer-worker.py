@@ -3,9 +3,9 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
-        strategy.Strategy.__init__(self, feed, 2000)
+        strategy.BacktestingStrategy.__init__(self, feed, 2000)
         ds = feed["dia"].getCloseDataSeries()
         self.__entrySMA = ma.SMA(ds, entrySMA)
         self.__exitSMA = ma.SMA(ds, exitSMA)

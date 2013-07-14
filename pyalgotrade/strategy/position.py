@@ -26,7 +26,7 @@ class Position:
 	"""Base class for positions. 
 
 	:param strategy: The strategy that this position belongs to.
-	:type strategy: :class:`pyalgotrade.strategy.Strategy`.
+	:type strategy: :class:`pyalgotrade.strategy.BaseStrategy`.
 	:param entryOrder: The order used to enter the position.
 	:type entryOrder: :class:`pyalgotrade.broker.Order`
 	:param goodTillCanceled: True if the entry order should be set as good till canceled.

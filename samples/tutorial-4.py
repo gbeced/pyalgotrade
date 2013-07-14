@@ -2,9 +2,9 @@ from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod):
-        strategy.Strategy.__init__(self, feed, 1000)
+        strategy.BacktestingStrategy.__init__(self, feed, 1000)
         self.__position = None
         self.__instrument = instrument
         # We'll use adjusted close values instead of regular close values.

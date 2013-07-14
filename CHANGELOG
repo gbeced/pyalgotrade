@@ -4,6 +4,7 @@ Version 0.13 (TBD)
 . [NEW] StrategyPlotter now calls autofmt_xdate on the figure before plotting it. Thanks Thomas Jung for suggesting this.
 . [NEW] StrategyPlotter now supports only building the figure so you can customize it (StrategyPlotter.buildFigure).
 . [NEW] bar.Bar was optimized to use less memory. Thanks Tibor Kiss for suggesting this.
+. [CHANGE] Strategy class was renamed to BacktestingStrategy (the old name is still supported in this version).
 . [CHANGE] Max. drawdown duration is now returned as a datetime.timedelta object.
 . [CHANGE] Sharpe Ratio analyzer was modified to better support intraday trading. The tradingPeriods parameter is not supported anymore.
 . [CHANGE] In order to resubmit the exit order for a position, the orignal exit order has to be canceled first using cancelExit.

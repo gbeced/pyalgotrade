@@ -24,37 +24,27 @@ import pyalgotrade.observer
 import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
 
-class Strategy:
+class BaseStrategy:
 	"""Base class for strategies. 
 
-	:param barFeed: The bar feed to use to backtest the strategy.
+	:param barFeed: The bar feed that will supply the bars.
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-	:param cash: The amount of cash available.
-	:type cash: int/float.
-	:param broker: Broker to use. If not specified the default backtesting broker (:class:`pyalgotrade.broker.backtesting.Broker`) 
-					will be used.
+	:param broker: The broker that will handle orders.
 	:type broker: :class:`pyalgotrade.broker.Broker`.
 
 	.. note::
 		This is a base class and should not be used directly.
 	"""
 
-	def __init__(self, barFeed, cash = 1000000, broker = None):
+	def __init__(self, barFeed, broker):
 		self.__feed = barFeed
+		self.__broker = broker
 		self.__activePositions = set()
 		self.__orderToPosition = {}
 		self.__barsProcessedEvent = pyalgotrade.observer.Event()
 		self.__analyzers = []
 		self.__namedAnalyzers = {}
 		self.__dispatcher = pyalgotrade.observer.Dispatcher()
-
-		if broker == None:
-			# When doing backtesting (broker == None), the broker should subscribe to barFeed events before the strategy.
-			# This is to avoid executing orders placed in the current tick.
-			self.__broker = pyalgotrade.broker.backtesting.Broker(cash, barFeed)
-		else:
-			self.__broker = broker
-
 		self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
 		self.__feed.getNewBarsEvent().subscribe(self.__onBars)
 
@@ -348,7 +338,8 @@ class Strategy:
 		raise NotImplementedError()
 
 	def onOrderUpdated(self, order):
-		"""Override (optional) to get notified when an order gets updated. This is only called if the order was placed using the broker interface directly.
+		"""Override (optional) to get notified when an order gets updated.
+		This is not called for orders placed using any of the enterLong or enterShort methods.
 
 		:param order: The order updated.
 		:type order: :class:`pyalgotrade.broker.Order`.
@@ -403,7 +394,7 @@ class Strategy:
 		self.__barsProcessedEvent.emit(self, bars)
 
 	def run(self):
-		"""Call once (**and only once**) to backtest the strategy."""
+		"""Call once (**and only once**) to run the strategy."""
 		self.onStart()
 
 		self.__dispatcher.run()
@@ -417,3 +408,27 @@ class Strategy:
 		"""Stops a running strategy."""
 		self.__dispatcher.stop()
 	
+class BacktestingStrategy(BaseStrategy):
+	"""Base class for backtesting strategies. 
+
+	:param barFeed: The bar feed to use to backtest the strategy.
+	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+	:param cash: The amount of cash available.
+	:type cash: int/float.
+
+	.. note::
+		This is a base class and should not be used directly.
+	"""
+
+	def __init__(self, barFeed, cash = 1000000):
+		# The broker should subscribe to barFeed events before the strategy.
+		# This is to avoid executing orders placed in the current tick.
+		broker = pyalgotrade.broker.backtesting.Broker(cash, barFeed)
+		BaseStrategy.__init__(self, barFeed, broker)
+	
+class Strategy(BacktestingStrategy):
+	def __init__(self, *args, **kwargs):
+		# Deprecated since v0.13
+		warninghelpers.deprecation_warning("Strategy class will be deprecated in the next version. Please use BaseStrategy or BacktestingStrategy instead.", stacklevel=2)
+		BacktestingStrategy.__init__(self, *args, **kwargs)
+

@@ -4,14 +4,17 @@ dataseries -- Basic dataseries classes
 .. automodule:: pyalgotrade.dataseries
     :members: DataSeries, SequenceDataSeries
     :special-members:
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.dataseries.aligned
     :members: datetime_aligned
     :special-members:
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.dataseries.bards
     :members: BarDataSeries
     :special-members:
+    :show-inheritance:
 
 Example
 -------

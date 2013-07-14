@@ -26,9 +26,9 @@ from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 import common
 
-class SMACrossOverStrategy(strategy.Strategy):
+class SMACrossOverStrategy(strategy.BacktestingStrategy):
 	def __init__(self, feed, fastSMA, slowSMA):
-		strategy.Strategy.__init__(self, feed, 1000)
+		strategy.BacktestingStrategy.__init__(self, feed, 1000)
 		ds = feed["orcl"].getCloseDataSeries()
 		self.__fastSMADS = ma.SMA(ds, fastSMA)
 		self.__slowSMADS = ma.SMA(ds, slowSMA)

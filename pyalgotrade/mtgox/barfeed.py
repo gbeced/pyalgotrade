@@ -119,7 +119,7 @@ class RowParser(csvfeed.RowParser):
 		return TradeBar(dateTime, price, amount, tradeType)
 
 class TradesCSVFeed(csvfeed.BarFeed):
-	"""A :class:`pyalgotrade.barfeed.BarFeed` that builds bars from a trades CSV file .
+	"""A BarFeed that builds bars from a trades CSV file .
 
 	:param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
 	:type timezone: A pytz timezone.

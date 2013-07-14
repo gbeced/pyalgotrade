@@ -17,9 +17,9 @@
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 
-class Strategy(strategy.Strategy):
+class Strategy(strategy.BacktestingStrategy):
 	def __init__(self, feed, ema1, ema2, ema3, ema4, daysToHold):
-		strategy.Strategy.__init__(self, feed)
+		strategy.BacktestingStrategy.__init__(self, feed)
 		self.__instrument = feed.getDefaultInstrument()
 		self.__daysToHold = daysToHold
 		ds = feed[self.__instrument].getCloseDataSeries()

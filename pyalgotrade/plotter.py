@@ -279,7 +279,7 @@ class StrategyPlotter:
 	"""Class responsible for plotting a strategy execution.
 
 	:param strat: The strategy to plot.
-	:type strat: :class:`pyalgotrade.strategy.Strategy`.
+	:type strat: :class:`pyalgotrade.strategy.BaseStrategy`.
 	:param plotAllInstruments: Set to True to get a subplot for each instrument available.
 	:type plotAllInstruments: boolean.
 	:param plotBuySell: Set to True to get the buy/sell events plotted for each instrument available.

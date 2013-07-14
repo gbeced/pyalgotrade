@@ -3,6 +3,7 @@ technical -- Technical indicators
 
 .. automodule:: pyalgotrade.technical
     :members: EventWindow, EventBasedFilter
+    :show-inheritance:
 
 Example
 -------
@@ -20,37 +21,47 @@ Moving Averages
 
 .. automodule:: pyalgotrade.technical.ma
     :members: SMA, EMA, WMA
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.vwap
     :members: VWAP
+    :show-inheritance:
 
 Momentum Indicators
 -------------------
 
 .. automodule:: pyalgotrade.technical.rsi
     :members: RSI
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.stoch
     :members: StochasticOscillator
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.roc
     :members: RateOfChange
+    :show-inheritance:
 
 Other Indicators
 ----------------
 
 .. automodule:: pyalgotrade.technical.trend
     :members: Slope
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.cross
     :members: cross_above, cross_below
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.linebreak
     :members: Line, LineBreak
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.stats
     :members: StdDev
+    :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.bollinger
     :members: BollingerBands
+    :show-inheritance:
 

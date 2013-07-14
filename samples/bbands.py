@@ -6,9 +6,9 @@ from pyalgotrade.technical import bollinger
 
 import os
 
-class MyStrategy(strategy.Strategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, bBandsPeriod):
-        strategy.Strategy.__init__(self, feed)
+        strategy.BacktestingStrategy.__init__(self, feed)
         self.__instrument = instrument
         self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(), bBandsPeriod, 2)
 
