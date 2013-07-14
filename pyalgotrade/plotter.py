@@ -95,6 +95,9 @@ class Series:
 	def getValue(self, dateTime):
 		return self.__values.get(dateTime, None)
 
+	def getValues(self):
+		self.__values
+
 	def getMarker(self):
 		raise NotImplementedError()
 
