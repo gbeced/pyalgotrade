@@ -10,6 +10,7 @@ PyAlgoTrade was developed with Python 2.7 and depends on:
  * NumPy and SciPy (http://numpy.scipy.org/)
  * matplotlib (http://matplotlib.sourceforge.net/)
  * pytz (http://pytz.sourceforge.net/)
+ * ws4py (https://github.com/Lawouach/WebSocket-for-Python)
 
 so you need to have those installed in order to use this library.
 

@@ -152,3 +152,47 @@ class TradesCSVFeed(csvfeed.BarFeed):
 		rowParser = RowParser(timezone)
 		csvfeed.BarFeed.addBarsFromCSV(self, "BTC", path, rowParser)
 
+class LiveBarFeed(barfeed.BarFeed):
+	def __init__(self, currency, maxLen=dataseries.DEFAULT_MAX_LEN):
+		barfeed.BarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
+		self.__barDicts = []
+		self.__currency = currency
+		self.registerInstrument("BTC")
+
+	def onTrade(self, trade):
+		if trade.getCurrency() == self.__currency:
+			# Build a bar for each trade.
+			# We're using getDateTimeWithMicroseconds instead of getDateTime because sometimes
+			# there are many trades in the same second and that produces errors in:
+			# - barfeed.BarFeed.getNextBars and in 
+			# - dataseries.SequenceDataSeries.appendWithDateTime
+			barDict = {
+					"BTC" : TradeBar(trade.getDateTimeWithMicroseconds(), trade.getPrice(), trade.getAmount(), trade.getType())
+					}
+			self.__barDicts.append(barDict)
+
+			# Dispatch immediately
+			self.dispatch()
+
+	def fetchNextBars(self):
+		ret = None
+		if len(self.__barDicts):
+			ret = self.__barDicts.pop(0)
+		return ret
+
+	def peekDateTime(self):
+		# Return None since this is a realtime subject.
+		return None
+
+	def eof(self):
+		return len(self.__barDicts) == 0
+
+	def start(self):
+		pass
+
+	def stop(self):
+		pass
+
+	def join(self):
+		pass
+
