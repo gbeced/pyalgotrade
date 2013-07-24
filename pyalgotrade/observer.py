@@ -55,12 +55,15 @@ class Event:
 		self.__applyChanges()
 
 class Subject:
+	# This may raise.
 	def start(self):
 		raise NotImplementedError()
 
+	# This should not raise.
 	def stop(self):
 		raise NotImplementedError()
 
+	# This should not raise.
 	def join(self):
 		raise NotImplementedError()
 

@@ -118,8 +118,8 @@ class RowParser(csvfeed.RowParser):
 
 		return TradeBar(dateTime, price, amount, tradeType)
 
-class TradesCSVFeed(csvfeed.BarFeed):
-	"""A BarFeed that builds bars from a trades CSV file .
+class CSVTradeFeed(csvfeed.BarFeed):
+	"""A BarFeed that builds bars from a trades CSV file.
 
 	:param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
 	:type timezone: A pytz timezone.
@@ -145,6 +145,9 @@ class TradesCSVFeed(csvfeed.BarFeed):
 		:type path: string.
 		:param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
 		:type timezone: A pytz timezone.
+
+		.. note::
+			Every file that you load bars from must have trades in the same currency.
 		"""
 
 		if timezone is None:
@@ -152,14 +155,32 @@ class TradesCSVFeed(csvfeed.BarFeed):
 		rowParser = RowParser(timezone)
 		csvfeed.BarFeed.addBarsFromCSV(self, "BTC", path, rowParser)
 
-class LiveBarFeed(barfeed.BarFeed):
-	def __init__(self, currency, maxLen=dataseries.DEFAULT_MAX_LEN):
+class LiveTradeFeed(barfeed.BarFeed):
+	"""A real-time BarFeed that builds bars from live trades.
+
+	:param client: A MtGox client.
+	:type client: :class:`pyalgotrade.mtgox.client.Client`.
+	:param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
+		If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
+
+	.. note::
+		Note that a :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so
+		open, high, low and close values will all be the same.
+	"""
+
+	def __init__(self, client, maxLen=dataseries.DEFAULT_MAX_LEN):
 		barfeed.BarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
 		self.__barDicts = []
-		self.__currency = currency
+		self.__currency = client.getCurrency()
 		self.registerInstrument("BTC")
+		client.getTradeEvent().subscribe(self.__onTrade)
 
-	def onTrade(self, trade):
+	def isRealTime(self):
+		return True
+
+	def __onTrade(self, trade):
 		if trade.getCurrency() == self.__currency:
 			# Build a bar for each trade.
 			# We're using getDateTimeWithMicroseconds instead of getDateTime because sometimes

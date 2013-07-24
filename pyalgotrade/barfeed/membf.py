@@ -22,7 +22,7 @@ from pyalgotrade import barfeed
 from pyalgotrade import dataseries
 from pyalgotrade.barfeed import helpers
 
-# This class is responsible for:
+# A non real-time BarFeed responsible for:
 # - Holding bars in memory.
 # - Aligning them with respect to time.
 #
@@ -36,6 +36,9 @@ class Feed(barfeed.BarFeed):
 		self.__nextBarIdx = {}
 		self.__started = False
 		self.__barsLeft = 0
+
+	def isRealTime(self):
+		return False
 
 	def start(self):
 		self.__started = True

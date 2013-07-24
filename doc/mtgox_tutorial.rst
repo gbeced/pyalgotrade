@@ -36,12 +36,12 @@ The CSV file will have 4 columns:
  * The amount of bitcoin traded.
  * If the trade is the result of the execution of a bid or an ask.
 
-Let's move on with a simple strategy, that is, one that just prints information from each bar as they are processed:
+Let's move on with a simple strategy that prints information from each bar as they are processed:
 
 .. literalinclude:: ../samples/tutorial-mtgox-1.py
 
 
-The code is doing 4 main things:
+The code is doing 4 important things:
  1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar in the feed.
  2. Loading the feed from a trades CSV file.
  3. Creating a broker for backtesting.
@@ -53,4 +53,25 @@ If you run the script you should see something like this:
 
 .. literalinclude:: ../samples/tutorial-mtgox-1.output
 
+TODO: Include a trading strategy
+
+Papertrading
+------------
+
+Let's move on with a simple strategy that prints live bars as they come from MtGox.
+
+.. literalinclude:: ../samples/tutorial-mtgox-3.py
+
+The code is doing 5 important things:
+ 1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar received.
+ 2. Creating a client to connect to MtGox. For papertrading purposes we only need to specify the currency to use.
+ 3. Creating a feed that will build bars from the trades received through the client.
+ 4. Creating a broker for backtesting.
+ 5. Running the strategy with the bars supplied by the feed and the backtesting broker.
+
+If you run the script you should see something like this:
+
+.. literalinclude:: ../samples/tutorial-mtgox-3.output
+
+TODO: Include a trading strategy
 

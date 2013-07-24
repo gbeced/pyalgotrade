@@ -42,6 +42,8 @@ def apikey_as_binary(key):
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming
 class WebSocketClient(WebSocketBaseClient):
+	DEPTH_NOTIFICATIONS_CHANNEL = "24e67e0d-1cad-4cc0-9e7a-f8523ef460fe"
+
 	# currency is the account's currency.
 	def __init__(self, currency, apiKey, apiSecret):
 		currencies = [currency]

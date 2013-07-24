@@ -32,7 +32,7 @@ class TradesFeedTestCase(unittest.TestCase):
 		path = "trades-mgtox-usd-2013-01-01.csv"
 		tools.download_trades_by_day("usd", 2013, 1, 1, path)
 
-		bf = barfeed.TradesCSVFeed()
+		bf = barfeed.CSVTradeFeed()
 		bf.addBarsFromCSV(path)
 		bf.loadAll()
 		ds = bf["BTC"]

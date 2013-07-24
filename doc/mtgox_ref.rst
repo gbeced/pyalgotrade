@@ -8,6 +8,13 @@ Tools
     :members:
     :show-inheritance:
 
+Client
+------
+
+.. automodule:: pyalgotrade.mtgox.client
+    :members:
+    :show-inheritance:
+
 Feeds
 -----
 

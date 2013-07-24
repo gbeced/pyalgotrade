@@ -1,4 +1,5 @@
 from pyalgotrade import strategy
+from pyalgotrade.mtgox import client
 from pyalgotrade.mtgox import barfeed
 from pyalgotrade.mtgox import broker
 
@@ -7,14 +8,18 @@ class MyStrategy(strategy.BaseStrategy):
         bar = bars["BTC"]
         print "%s: %s %s" % (bar.getDateTime(), bar.getClose(), bar.getVolume())
 
-# Load the trades from the CSV file
-feed = barfeed.CSVTradeFeed()
-feed.addBarsFromCSV("trades-mtgox-usd-2013-01.csv")
+# Create a client responsible for all the interaction with MtGox
+cl = client.Client("USD", None, None)
+
+# Create a real-time feed that will build bars from live trades.
+feed = barfeed.LiveTradeFeed(cl)
 
 # Create a backtesting broker.
 brk = broker.BacktestingBroker(1000, feed)
 
 # Run the strategy with the feed and the broker.
 myStrategy = MyStrategy(feed, brk)
+# It is VERY important to add the client to the event dispatch loop before running the strategy.
+myStrategy.getDispatcher().addSubject(cl)
 myStrategy.run()
 

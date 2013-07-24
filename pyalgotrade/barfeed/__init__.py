@@ -52,6 +52,10 @@ class BasicBarFeed(observer.Subject):
 		self.__frequency = frequency
 		self.__maxLen = maxLen
 
+	# Return True if this is a real-time BarFeed.
+	def isRealTime(self):
+		raise NotImplementedError()
+
 	# Return True if bars provided have adjusted close values.
 	def barsHaveAdjClose(self):
 		raise NotImplementedError()
@@ -188,6 +192,9 @@ class OptimizerBarFeed(BasicBarFeed):
 			self.registerInstrument(instrument)
 		self.__bars = bars
 		self.__nextBar = 0
+
+	def isRealTime(self):
+		return False
 
 	def start(self):
 		pass
