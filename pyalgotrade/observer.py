@@ -97,6 +97,7 @@ class Dispatcher:
 		return self.__subjects
 
 	def addSubject(self, subject):
+		assert(subject not in self.__subjects)
 		if subject.getDispatchPriority() == None:
 			self.__subjects.append(subject)
 		else:
