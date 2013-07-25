@@ -34,7 +34,7 @@ class SlopeTest(unittest.TestCase):
 		slope = self.__buildSlope([1, 2, 3, 2, 1], 3)
 		self.assertEqual(slope[0], None)
 		self.assertEqual(slope[1], None)
-		self.assertEqual(slope[2], 1.0)
+		self.assertEqual(round(slope[2], 2), 1.0)
 		self.assertEqual(slope[3], 0.0)
 		self.assertEqual(slope[4], -1.0)
 

@@ -22,7 +22,13 @@ from pyalgotrade import technical
 from pyalgotrade import dataseries
 
 import numpy
-from scipy import stats
+
+def linear_regression(values):
+	y = values
+	xi = numpy.arange(0, len(values))
+	A = numpy.array([ xi, numpy.ones(len(values))])
+	w = numpy.linalg.lstsq(A.T, y)[0]
+	return w
 
 class SlopeEventWindow(technical.EventWindow):
 	def __init__(self, windowSize):
@@ -33,7 +39,7 @@ class SlopeEventWindow(technical.EventWindow):
 		ret = None
 		if len(self.getValues()) == self.getWindowSize():
 			y = numpy.array(self.getValues())
-			ret = stats.linregress(self.__x, y)[0]
+			ret = linear_regression(y)[0]
 		return ret
 
 class Slope(technical.EventBasedFilter):
