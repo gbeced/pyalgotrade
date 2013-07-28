@@ -42,8 +42,8 @@ class WSClient(wsclient.WebSocketClient):
 	ON_CONNECTED = 6
 
 	# currency is the account's currency.
-	def __init__(self, currency, queue, apiKey, apiSecret):
-		wsclient.WebSocketClient.__init__(self, currency, apiKey, apiSecret)
+	def __init__(self, queue, currency, apiKey, apiSecret, ignoreMultiCurrency):
+		wsclient.WebSocketClient.__init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency)
 		self.__queue = queue
 
 	def opened(self):
@@ -88,6 +88,8 @@ class Client(observer.Subject):
 	:type apiKey: string.
 	:param apiSecret: Your API secret. Set this to None for paper trading.
 	:type apiSecret: string.
+	:param ignoreMultiCurrency: Ignore multi currency trades.
+	:type ignoreMultiCurrency: boolean.
 
 	.. note::
 		For apiKey and apiSecret check the **Application and API access** section in mtgox.com.
@@ -95,7 +97,7 @@ class Client(observer.Subject):
 	QUEUE_TIMEOUT = 0.01
 
 	# currency is the account's currency.
-	def __init__(self, currency, apiKey, apiSecret):
+	def __init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency=False):
 		if currency not in ["USD", "AUD", "CAD", "CHF", "CNY", "DKK", "EUR", "GBP", "HKD", "JPY", "NZD", "PLN", "RUB", "SEK", "SGD", "THB", "NOK", "CZK"]:
 			raise Exception("Invalid currency")
 
@@ -111,7 +113,7 @@ class Client(observer.Subject):
 		# We use the streaming client only to get updates and not to send requests (using authCall)
 		# because when placing orders sometimes we were receving the order update before the result
 		# with the order GUID.
-		self.__wsClient = WSClient(currency, self.__queue, apiKey, apiSecret)
+		self.__wsClient = WSClient(self.__queue, currency, apiKey, apiSecret, ignoreMultiCurrency)
 
 		# Build papertrading/livetrading objects.
 		if apiKey == None or  apiSecret == None:
@@ -224,6 +226,6 @@ class Client(observer.Subject):
 		return None
 
 	def getDispatchPriority(self):
-		# The broker and the barfeed had priority None, so this is enough to get before them.
-		return 10
+		# The number is irrelevant since the broker and barfeed will set their priorities relative to this one.
+		return 100
 

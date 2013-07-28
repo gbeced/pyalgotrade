@@ -80,7 +80,7 @@ class Subject:
 		raise NotImplementedError()
 
 	def getDispatchPriority(self):
-		# Returns a number (or None) used to order subjects within the dispatch queue.
+		# Returns a number (or None) used to sort subjects within the dispatch queue.
 		# The return value should never change.
 		return None
 

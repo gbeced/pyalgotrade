@@ -176,6 +176,11 @@ class LiveTradeFeed(barfeed.BarFeed):
 		self.__currency = client.getCurrency()
 		self.registerInstrument("BTC")
 		client.getTradeEvent().subscribe(self.__onTrade)
+		# Dispatch after the client.
+		self.__dipatchPriority = client.getDispatchPriority() + 1
+
+	def getDispatchPriority(self):
+		return self.__dipatchPriority
 
 	def isRealTime(self):
 		return True

@@ -52,16 +52,17 @@ class Trade:
 		return self.__type
 
 class Trades:
-	def __init__(self, trades):
+	def __init__(self, trades, ignoreMultiCurrency):
 		self.__first = None
 		self.__last = None
 		self.__trades = []
+		self.__ignoreMultiCurrency = ignoreMultiCurrency
 
 		for trade in trades:
 			# From https://en.bitcoin.it/wiki/MtGox/API/HTTP/v1:
 			# A trade can appear in more than one currency, to ignore duplicates,
 			# use only the trades having primary =Y
-			if trade["primary"] != "Y":
+			if self.__ignoreMultiCurrency == True and trade["primary"] != "Y":
 				continue
 			tradeObj = Trade(trade)
 			self.__trades.append(tradeObj)
@@ -105,7 +106,7 @@ def download_trades_impl(currency, tid):
 		raise Exception("Failed to download data. Result '%s'" % (response["result"]))
 	return response
 
-def download_trades_since(currency, tid, retries=3):
+def download_trades_since(currency, tid, ignoreMultiCurrency, retries=3):
 	logger.info("Downloading trades since %s." % (base.tid_to_datetime(tid)))
 	# logger.info("Downloading trades since %d." % (tid))
 
@@ -121,16 +122,16 @@ def download_trades_since(currency, tid, retries=3):
 				logger.error("%s. Retrying..." % (e))
 				retries -= 1
 
-	ret =  Trades(response["return"])
+	ret =  Trades(response["return"], ignoreMultiCurrency)
 	logger.info("Got %d trades." % (len(ret.getTrades())))
 	return ret
 
-def download_trades(tradesFile, currency, tidBegin, tidEnd):
+def download_trades(tradesFile, currency, tidBegin, tidEnd, ignoreMultiCurrency):
 	nextTid = tidBegin
 
 	done = False
 	while not done:
-		trades = download_trades_since(currency, nextTid)
+		trades = download_trades_since(currency, nextTid, ignoreMultiCurrency)
 		if len(trades.getTrades()) == 0:
 			done = True
 		# The last trade is smaller than lastTid, we need to get more trades right after that one.
@@ -146,7 +147,7 @@ def download_trades(tradesFile, currency, tidBegin, tidEnd):
 					tradeItems.append(trade)
 			tradesFile.addTrades(tradeItems)
 
-def download_trades_by_year(currency, year, csvFile):
+def download_trades_by_year(currency, year, csvFile, ignoreMultiCurrency=False):
 	"""Download trades for a given year.
 
 	:param currency: Currency in which trade was completed.
@@ -155,6 +156,9 @@ def download_trades_by_year(currency, year, csvFile):
 	:type year: int.
 	:param csvFile: The path to the CSV file to write the trades.
 	:type csvFile: string.
+	:param ignoreMultiCurrency: Ignore multi currency trades.
+	:type ignoreMultiCurrency: boolean.
+
 
 	.. note::
 		This will take some time since Mt. Gox API returns no more than 1000 trades on each request
@@ -167,9 +171,9 @@ def download_trades_by_year(currency, year, csvFile):
 	tidEnd = base.datetime_to_tid(end)
 
 	tradesFile = TradesFile(csvFile)
-	download_trades(tradesFile, currency, tidBegin, tidEnd)
+	download_trades(tradesFile, currency, tidBegin, tidEnd, ignoreMultiCurrency)
 
-def download_trades_by_month(currency, year, month, csvFile):
+def download_trades_by_month(currency, year, month, csvFile, ignoreMultiCurrency=False):
 	"""Download trades for a given month.
 
 	:param currency: Currency in which trade was completed.
@@ -180,6 +184,8 @@ def download_trades_by_month(currency, year, month, csvFile):
 	:type month: int.
 	:param csvFile: The path to the CSV file to write the trades.
 	:type csvFile: string.
+	:param ignoreMultiCurrency: Ignore multi currency trades.
+	:type ignoreMultiCurrency: boolean.
 
 	.. note::
 		This will take some time since Mt. Gox API returns no more than 1000 trades on each request
@@ -195,9 +201,9 @@ def download_trades_by_month(currency, year, month, csvFile):
 	tidEnd = base.datetime_to_tid(end)
 
 	tradesFile = TradesFile(csvFile)
-	download_trades(tradesFile, currency, tidBegin, tidEnd)
+	download_trades(tradesFile, currency, tidBegin, tidEnd, ignoreMultiCurrency)
 
-def download_trades_by_day(currency, year, month, day, csvFile):
+def download_trades_by_day(currency, year, month, day, csvFile, ignoreMultiCurrency=False):
 	# Calculate the first and last trade ids for the year.
 	begin = datetime.datetime(year, month, day)
 	end = begin + datetime.timedelta(days=1)
@@ -205,5 +211,5 @@ def download_trades_by_day(currency, year, month, day, csvFile):
 	tidEnd = base.datetime_to_tid(end)
 
 	tradesFile = TradesFile(csvFile)
-	download_trades(tradesFile, currency, tidBegin, tidEnd)
+	download_trades(tradesFile, currency, tidBegin, tidEnd, ignoreMultiCurrency)
 

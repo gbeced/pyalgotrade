@@ -45,13 +45,14 @@ class WebSocketClient(WebSocketBaseClient):
 	DEPTH_NOTIFICATIONS_CHANNEL = "24e67e0d-1cad-4cc0-9e7a-f8523ef460fe"
 
 	# currency is the account's currency.
-	def __init__(self, currency, apiKey, apiSecret):
+	def __init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency=False):
 		currencies = [currency]
 		url = 'ws://websocket.mtgox.com/mtgox?Currency=%s' % (",".join(currencies))
 		WebSocketBaseClient.__init__(self, url)
 		self.__nonce = None
 		self.__apiKey = apiKey
 		self.__apiSecret = apiSecret
+		self.__ignoreMultiCurrency = ignoreMultiCurrency
 
 	def __getNonce(self):
 		# nonce must be greater than the last one.
@@ -138,7 +139,7 @@ class WebSocketClient(WebSocketBaseClient):
 			# From https://en.bitcoin.it/wiki/MtGox/API/HTTP/v1:
 			# A trade can appear in more than one currency, to ignore duplicates,
 			# use only the trades having primary =Y
-			if data["trade"]["primary"] == "Y":
+			if self.__ignoreMultiCurrency == False or data["trade"]["primary"] == "Y":
 				self.onTrade( base.Trade(data["trade"]) )
 		elif data["private"] == "depth":
 			self.onDepth( base.Depth(data["depth"]) )
