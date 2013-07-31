@@ -13,12 +13,13 @@ Contents:
 
     intro
     tutorial
-    googleappengine
     code
+    tools
     talib
+    googleappengine
+    mtgox
     compinvpart1
     samples
-    mtgox
 
 Indices and tables
 ==================

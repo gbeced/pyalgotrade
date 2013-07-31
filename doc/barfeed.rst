@@ -8,7 +8,7 @@ barfeed -- Bar providers
     :show-inheritance:
 
 .. automodule:: pyalgotrade.barfeed.csvfeed
-    :members: BarFeed
+    :members: BarFeed, GenericBarFeed
     :show-inheritance:
 
 Yahoo! Finance

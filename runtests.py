@@ -54,6 +54,7 @@ from testcases import doc_test
 from testcases import position_test
 from testcases import mtgox_test
 from testcases import yahoo_test
+from testcases import resample_test
 
 def getTestCases():
 	ret = []
@@ -88,6 +89,7 @@ def getTestCases():
 	ret += doc_test.getTestCases()
 	ret += mtgox_test.getTestCases()
 	ret += yahoo_test.getTestCases()
+	ret += resample_test.getTestCases()
 
 	return ret
 

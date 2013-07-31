@@ -1,0 +1,180 @@
+# PyAlgoTrade
+# 
+# Copyright 2013 Gabriel Martin Becedillas Ruiz
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+.. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
+"""
+
+import os
+
+from pyalgotrade.utils import dt
+from pyalgotrade import observer
+
+minute = 60
+hour = minute*60
+day = hour*24
+
+datetime_format = "%Y-%m-%d %H:%M:%S"
+
+# frequency in seconds
+def get_slot_datetime(dateTime, frequency):
+	ts = dt.datetime_to_timestamp(dateTime)
+	slot = ts / frequency
+	slotTs = (slot + 1) * frequency - 1
+	ret = dt.timestamp_to_datetime(slotTs, False)
+	if not dt.datetime_is_naive(dateTime):
+		ret = dt.localize(ret, dateTime.tzinfo)
+	return ret
+
+class CSVFileWriter:
+	def __init__(self, csvFile):
+		self.__file = open(csvFile, "w")
+		self.__writeLine("Date Time", "Open", "High", "Low", "Close", "Volume", "Adj Close")
+
+	def __writeLine(self, *values):
+		line = ",".join([str(value) for value in values])
+		self.__file.write(line)
+		self.__file.write(os.linesep)
+
+	def writeSlot(self, slot):
+		adjClose = slot.getAdjClose()
+		if adjClose == None:
+			adjClose = ""
+		dateTime = slot.getDateTime().strftime(datetime_format)
+		self.__writeLine(dateTime, slot.getOpen(), slot.getHigh(), slot.getLow(), slot.getClose(), slot.getVolume(), adjClose)
+
+	def close(self):
+		self.__file.close()
+
+class Slot:
+	def __init__(self, dateTime, bar):
+		self.__dateTime = dateTime
+		self.__open = bar.getOpen()
+		self.__high = bar.getHigh()
+		self.__low = bar.getLow()
+		self.__close = bar.getClose()
+		self.__volume = bar.getVolume()
+		self.__adjClose = bar.getAdjClose()
+
+	def getDateTime(self):
+		return self.__dateTime
+
+	def getOpen(self):
+		return self.__open
+
+	def getHigh(self):
+		return self.__high
+
+	def getLow(self):
+		return self.__low
+
+	def getClose(self):
+		return self.__close
+
+	def getVolume(self):
+		return self.__volume
+
+	def getAdjClose(self):
+		return self.__adjClose
+
+	def addBar(self, bar):
+		self.__high = max(self.__high, bar.getHigh())
+		self.__low = min(self.__low, bar.getLow())
+		self.__close = bar.getClose()
+		self.__volume += bar.getVolume()
+
+class Sampler:
+	def __init__(self, barFeed, frequency, csvFile):
+		instruments = barFeed.getRegisteredInstruments()
+		if len(instruments) != 1:
+			raise Exception("Only barfeeds with 1 instrument can be resampled")
+
+		barFeed.getNewBarsEvent().subscribe(self.__onBars)
+		self.__barFeed = barFeed
+		self.__frequency = frequency
+		self.__instrument = instruments[0]
+		self.__slot = None
+		self.__writer = CSVFileWriter(csvFile)
+
+	def __onBars(self, bars):
+		dateTime = get_slot_datetime(bars.getDateTime(), self.__frequency)
+		bar = bars[self.__instrument]
+
+		if self.__slot == None:
+			self.__slot = Slot(dateTime, bar)
+		elif self.__slot.getDateTime() == dateTime:
+			self.__slot.addBar(bar)
+		else:
+			self.__writer.writeSlot(self.__slot)
+			self.__slot = Slot(dateTime, bar)
+
+	def finish(self):
+		if self.__slot != None:
+			self.__writer.writeSlot(self.__slot)
+		self.__writer.close()
+
+def resample(barFeed, frequency, csvFile):
+	sampler = Sampler(barFeed, frequency, csvFile)
+
+	# Process all bars.
+	disp = observer.Dispatcher()
+	disp.addSubject(barFeed)
+	disp.run()
+
+	sampler.finish()
+
+def resample_minute(barFeed, csvFile):
+	"""Resample a BarFeed into a CSV file grouping bars by minute. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
+
+	:param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
+	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
+	:param csvFile: The path to the CSV file to write.
+	:type csvFile: string.
+
+	.. note::
+		Datetimes are stored without timezone information.
+	"""
+
+	resample(barFeed, minute, csvFile)
+
+def resample_hour(barFeed, csvFile):
+	"""Resample a BarFeed into a CSV file grouping bars by hour. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
+
+	:param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
+	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
+	:param csvFile: The path to the CSV file to write.
+	:type csvFile: string.
+
+	.. note::
+		Datetimes are stored without timezone information.
+	"""
+
+	resample(barFeed, hour, csvFile)
+
+def resample_day(barFeed, csvFile):
+	"""Resample a BarFeed into a CSV file grouping bars by day. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
+
+	:param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
+	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
+	:param csvFile: The path to the CSV file to write.
+	:type csvFile: string.
+
+	.. note::
+		Datetimes are stored without timezone information.
+	"""
+
+	resample(barFeed, day, csvFile)
+

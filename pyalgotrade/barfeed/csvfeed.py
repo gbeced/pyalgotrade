@@ -22,6 +22,7 @@ from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
 from pyalgotrade import dataseries
+from pyalgotrade import bar
 
 import datetime
 import pytz
@@ -124,4 +125,99 @@ class BarFeed(membf.Feed):
 				loadedBars.append(bar_)
 
 		self.addBarsFromSequence(instrument, loadedBars)
+
+class GenericRowParser(RowParser):
+	def __init__(self, timezone):
+		self.__timezone = timezone
+		self.__haveAdjClose = False
+
+	def barsHaveAdjClose(self):
+		return self.__haveAdjClose
+
+	def __parseDate(self, dateString):
+		datetime_format = "%Y-%m-%d %H:%M:%S"
+		ret = datetime.datetime.strptime(dateString, datetime_format)
+		# Localize the datetime if a timezone was given.
+		if self.__timezone:
+			ret = dt.localize(ret, self.__timezone)
+		return ret
+
+	def getFieldNames(self):
+		# It is expected for the first row to have the field names.
+		return None
+
+	def getDelimiter(self):
+		return ","
+
+	def parseBar(self, csvRowDict):
+		dateTime = self.__parseDate(csvRowDict["Date Time"])
+		close = float(csvRowDict["Close"])
+		open_ = float(csvRowDict["Open"])
+		high = float(csvRowDict["High"])
+		low = float(csvRowDict["Low"])
+		volume = float(csvRowDict["Volume"])
+
+		adjClose = csvRowDict["Adj Close"]
+		if len(adjClose) > 0:
+			adjClose = float(adjClose)
+			self.__haveAdjClose = True
+		else:
+			adjClose = None
+
+		return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose)
+
+class GenericBarFeed(BarFeed):
+	"""A BarFeed that loads bars from CSV files that have the following format:
+	::
+
+		Date Time,Open,High,Low,Close,Volume,Adj Close
+		2013-01-01 00:59:59,13.51001,13.56,13.51,13.56,273.88014126,13.51001
+
+	:param frequency: The frequency of the bars.
+	:param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+	:type timezone: A pytz timezone.
+	:param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
+		If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
+
+	.. note::
+		* It is ok if the **Adj Close** column is empty.
+		* Valid **frequency** parameter values are:
+
+		 * pyalgotrade.barfeed.Frequency.MINUTE 
+		 * pyalgotrade.barfeed.Frequency.HOUR
+		 * pyalgotrade.barfeed.Frequency.DAY
+
+	"""
+
+	def __init__(self, frequency, timezone = None, maxLen=dataseries.DEFAULT_MAX_LEN):
+		BarFeed.__init__(self, frequency, maxLen)
+		self.__timezone = timezone
+		self.__haveAdjClose = False
+
+	def barsHaveAdjClose(self):
+		return self.__haveAdjClose
+
+	def addBarsFromCSV(self, instrument, path, timezone = None):
+		"""Loads bars for a given instrument from a CSV formatted file.
+		The instrument gets registered in the bar feed.
+		
+		:param instrument: Instrument identifier.
+		:type instrument: string.
+		:param path: The path to the CSV file.
+		:type path: string.
+		:param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+		:type timezone: A pytz timezone.
+		"""
+
+		if timezone is None:
+			timezone = self.__timezone
+		rowParser = GenericRowParser(timezone)
+		BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
+
+		if rowParser.barsHaveAdjClose():
+			self.__haveAdjClose = True
+		elif self.__haveAdjClose == True:
+			raise Exception("Previous bars had adjusted close and these ones doesn't have.")
 

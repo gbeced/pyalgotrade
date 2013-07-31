@@ -64,7 +64,7 @@ def download_daily_bars(instrument, year, csvFile):
 	:type instrument: string.
 	:param year: The year.
 	:type year: int.
-	:param csvFile: The path to the CSV file to write the bars.
+	:param csvFile: The path to the CSV file to write.
 	:type csvFile: string.
 	"""
 

@@ -46,10 +46,10 @@ def datetime_to_timestamp(dateTime):
 	""" Converts a datetime.datetime to a UTC timestamp."""
 	return calendar.timegm(dateTime.utctimetuple())
 
-def timestamp_to_datetime(timeStamp):
+def timestamp_to_datetime(timeStamp, localized=True):
 	""" Converts a UTC timestamp to a datetime.datetime."""
 	ret = datetime.datetime.utcfromtimestamp(timeStamp)
-	return localize(ret, pytz.utc)
-
-
+	if localized:
+		ret = localize(ret, pytz.utc)
+	return ret
 
