@@ -22,6 +22,7 @@ import os
 
 from pyalgotrade.utils import dt
 from pyalgotrade import observer
+from pyalgotrade import barfeed
 
 minute = 60
 hour = minute*60
@@ -126,7 +127,7 @@ class Sampler:
 			self.__writer.writeSlot(self.__slot)
 		self.__writer.close()
 
-def resample(barFeed, frequency, csvFile):
+def resample_impl(barFeed, frequency, csvFile):
 	sampler = Sampler(barFeed, frequency, csvFile)
 
 	# Process all bars.
@@ -136,45 +137,37 @@ def resample(barFeed, frequency, csvFile):
 
 	sampler.finish()
 
-def resample_minute(barFeed, csvFile):
-	"""Resample a BarFeed into a CSV file grouping bars by minute. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
+def resample_to_csv(barFeed, frequency, csvFile):
+	"""Resample a BarFeed into a CSV file grouping bars by a certain frequency. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
+	The CSV file will have the following format:
+	::
+
+		Date Time,Open,High,Low,Close,Volume,Adj Close
+		2013-01-01 00:59:59,13.51001,13.56,13.51,13.56,273.88014126,13.51001
+
 
 	:param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
 	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
+	:param frequency: The output frequency.
 	:param csvFile: The path to the CSV file to write.
 	:type csvFile: string.
 
 	.. note::
-		Datetimes are stored without timezone information.
+		* Datetimes are stored without timezone information.
+		* **Adj Close** column may be empty if the input bar feed doesn't have that info.
+		* Valid **frequency** parameter values are:
+
+		 * pyalgotrade.barfeed.Frequency.MINUTE 
+		 * pyalgotrade.barfeed.Frequency.HOUR
+		 * pyalgotrade.barfeed.Frequency.DAY
 	"""
 
-	resample(barFeed, minute, csvFile)
-
-def resample_hour(barFeed, csvFile):
-	"""Resample a BarFeed into a CSV file grouping bars by hour. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
-
-	:param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
-	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
-	:param csvFile: The path to the CSV file to write.
-	:type csvFile: string.
-
-	.. note::
-		Datetimes are stored without timezone information.
-	"""
-
-	resample(barFeed, hour, csvFile)
-
-def resample_day(barFeed, csvFile):
-	"""Resample a BarFeed into a CSV file grouping bars by day. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
-
-	:param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
-	:type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
-	:param csvFile: The path to the CSV file to write.
-	:type csvFile: string.
-
-	.. note::
-		Datetimes are stored without timezone information.
-	"""
-
-	resample(barFeed, day, csvFile)
+	if frequency == barfeed.Frequency.MINUTE:
+		 resample_impl(barFeed, minute, csvFile)
+	elif frequency == barfeed.Frequency.HOUR:
+		 resample_impl(barFeed, hour, csvFile)
+	elif frequency == barfeed.Frequency.DAY:
+		 resample_impl(barFeed, day, csvFile)
+	else:
+		raise Exception("Invalid frequency")
 

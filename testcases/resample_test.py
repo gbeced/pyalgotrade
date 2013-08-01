@@ -35,7 +35,7 @@ class ResampleTestCase(unittest.TestCase):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
-		resample.resample_minute(feed, "minute-mgtox-usd-2013-01-01.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.MINUTE, "minute-mgtox-usd-2013-01-01.csv")
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.MINUTE)
@@ -50,7 +50,7 @@ class ResampleTestCase(unittest.TestCase):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
-		resample.resample_hour(feed, "hour-mgtox-usd-2013-01-01.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, "hour-mgtox-usd-2013-01-01.csv")
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.HOUR)
@@ -65,7 +65,7 @@ class ResampleTestCase(unittest.TestCase):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
-		resample.resample_day(feed, "day-mgtox-usd-2013-01-01.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.DAY, "day-mgtox-usd-2013-01-01.csv")
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.DAY)
@@ -85,7 +85,7 @@ class ResampleTestCase(unittest.TestCase):
 		# Resample.
 		feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-		resample.resample_hour(feed, "hour-nt-spy-minute-2011.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, "hour-nt-spy-minute-2011.csv")
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.HOUR, marketsession.USEquities.getTimezone())
@@ -106,7 +106,7 @@ class ResampleTestCase(unittest.TestCase):
 		# Resample.
 		feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-		resample.resample_day(feed, "day-nt-spy-minute-2011.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.DAY, "day-nt-spy-minute-2011.csv")
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.DAY)

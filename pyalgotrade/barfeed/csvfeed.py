@@ -188,7 +188,6 @@ class GenericBarFeed(BarFeed):
 		 * pyalgotrade.barfeed.Frequency.MINUTE 
 		 * pyalgotrade.barfeed.Frequency.HOUR
 		 * pyalgotrade.barfeed.Frequency.DAY
-
 	"""
 
 	def __init__(self, frequency, timezone = None, maxLen=dataseries.DEFAULT_MAX_LEN):
