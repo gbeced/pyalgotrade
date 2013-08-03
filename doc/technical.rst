@@ -49,6 +49,10 @@ Other Indicators
     :members: Slope
     :show-inheritance:
 
+.. automodule:: pyalgotrade.technical.highlow
+    :members: High, Low
+    :show-inheritance:
+
 .. automodule:: pyalgotrade.technical.cross
     :members: cross_above, cross_below
     :show-inheritance:
