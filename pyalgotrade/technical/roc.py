@@ -27,7 +27,7 @@ class ROCEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			prev = self.getValues()[0]
 			actual = self.getValues()[-1]
 			if actual != None and prev != None and prev != 0:

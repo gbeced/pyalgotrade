@@ -62,7 +62,7 @@ class SOEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			lowestLow, highestHigh = get_low_high_values(self.__barWrapper, self.getValues())
 			currentClose = self.__barWrapper.getClose(self.getValues()[-1])
 			ret = (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100

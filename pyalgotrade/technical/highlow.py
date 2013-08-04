@@ -32,7 +32,7 @@ class HighLowEventWindow(technical.EventWindow):
 	def getValue(self):
 		ret = None
 		values = self.getValues()
-		if len(values) == self.getWindowSize():
+		if self.windowFull():
 			ret = values[0]
 			for value in values:
 				ret = self.__fun(ret, value)

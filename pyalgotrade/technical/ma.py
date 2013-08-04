@@ -63,7 +63,7 @@ class SMAEventWindow(technical.EventWindow):
 
 		technical.EventWindow.onNewValue(self, dateTime, value)
 
-		if value != None and len(self.getValues()) == self.getWindowSize():
+		if value != None and self.windowFull():
 			if self.__value == None:
 				self.__value = calculate_sma(self.getValues(), 0, self.getWindowSize())
 			else:
@@ -97,7 +97,7 @@ class EMAEventWindow(technical.EventWindow):
 		technical.EventWindow.onNewValue(self, dateTime, value)
 
 		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-		if value != None and len(self.getValues()) == self.getWindowSize():
+		if value != None and self.windowFull():
 			if self.__value == None:
 				self.__value = calculate_sma(self.getValues(), 0, len(self.getValues()))
 			else:
@@ -129,7 +129,7 @@ class WMAEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			accum = 0
 			weightSum = 0
 			for i, value in enumerate(self.getValues()):

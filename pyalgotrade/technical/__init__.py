@@ -19,6 +19,7 @@
 """
 
 import collections
+import types
 
 from pyalgotrade import dataseries
 
@@ -36,6 +37,7 @@ class EventWindow:
 
 	def __init__(self, windowSize, skipNone=True):
 		assert(windowSize > 0)
+		assert(type(windowSize) == types.IntType)
 		self.__values = collections.deque(maxlen=windowSize)
 		self.__windowSize = windowSize
 		self.__skipNone = skipNone
@@ -51,6 +53,9 @@ class EventWindow:
 	def getWindowSize(self):
 		"""Returns the window size."""
 		return self.__windowSize
+
+	def windowFull(self):
+		return len(self.__values) == self.__windowSize
 
 	def getValue(self):
 		"""Override to calculate a value using the values in the window."""
@@ -86,4 +91,8 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
 	def getDataSeries(self):
 		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
 		return self.__dataSeries
+
+	def getEventWindow(self):
+		"""Returns the :class:`EventWindow` instance to use to calculate new values."""
+		return self.__eventWindow
 

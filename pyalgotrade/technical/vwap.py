@@ -29,7 +29,7 @@ class VWAPEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			cumTotal = 0
 			cumVolume = 0
 

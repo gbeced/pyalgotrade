@@ -95,7 +95,7 @@ class RSIEventWindow(technical.EventWindow):
 		technical.EventWindow.onNewValue(self, dateTime, value)
 
 		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-		if value != None and len(self.getValues()) == self.getWindowSize():
+		if value != None and self.windowFull():
 			if self.__prevGain == None:
 				assert(self.__prevLoss == None)
 				avgGain, avgLoss = avg_gain_loss(self.getValues(), 0, len(self.getValues()))

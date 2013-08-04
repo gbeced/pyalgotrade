@@ -37,7 +37,7 @@ class SlopeEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			y = numpy.array(self.getValues())
 			ret = linear_regression(y)[0]
 		return ret

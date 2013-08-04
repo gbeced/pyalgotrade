@@ -31,7 +31,7 @@ class StdDevEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			ret =  numpy.array(self.getValues()).std(ddof=self.__ddof)
 		return ret
 

@@ -28,7 +28,7 @@ class RatioEventWindow(technical.EventWindow):
 
 	def getValue(self):
 		ret = None
-		if len(self.getValues()) == self.getWindowSize():
+		if self.windowFull():
 			prev = self.getValues()[0]
 			actual = self.getValues()[-1]
 			ret = utils.get_change_percentage(actual, prev)
