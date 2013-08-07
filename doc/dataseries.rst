@@ -16,6 +16,11 @@ dataseries -- Basic dataseries classes
     :special-members:
     :show-inheritance:
 
+.. automodule:: pyalgotrade.dataseries.resampled
+    :members: ResampledBarDataSeries
+    :special-members:
+    :show-inheritance:
+
 Example
 -------
 

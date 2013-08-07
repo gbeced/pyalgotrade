@@ -20,25 +20,11 @@
 
 import os
 
-from pyalgotrade.utils import dt
 from pyalgotrade import observer
 from pyalgotrade import barfeed
-
-minute = 60
-hour = minute*60
-day = hour*24
+from pyalgotrade.dataseries import resampled
 
 datetime_format = "%Y-%m-%d %H:%M:%S"
-
-# frequency in seconds
-def get_slot_datetime(dateTime, frequency):
-	ts = dt.datetime_to_timestamp(dateTime)
-	slot = ts / frequency
-	slotTs = (slot + 1) * frequency - 1
-	ret = dt.timestamp_to_datetime(slotTs, False)
-	if not dt.datetime_is_naive(dateTime):
-		ret = dt.localize(ret, dateTime.tzinfo)
-	return ret
 
 class CSVFileWriter:
 	def __init__(self, csvFile):
@@ -60,43 +46,6 @@ class CSVFileWriter:
 	def close(self):
 		self.__file.close()
 
-class Slot:
-	def __init__(self, dateTime, bar):
-		self.__dateTime = dateTime
-		self.__open = bar.getOpen()
-		self.__high = bar.getHigh()
-		self.__low = bar.getLow()
-		self.__close = bar.getClose()
-		self.__volume = bar.getVolume()
-		self.__adjClose = bar.getAdjClose()
-
-	def getDateTime(self):
-		return self.__dateTime
-
-	def getOpen(self):
-		return self.__open
-
-	def getHigh(self):
-		return self.__high
-
-	def getLow(self):
-		return self.__low
-
-	def getClose(self):
-		return self.__close
-
-	def getVolume(self):
-		return self.__volume
-
-	def getAdjClose(self):
-		return self.__adjClose
-
-	def addBar(self, bar):
-		self.__high = max(self.__high, bar.getHigh())
-		self.__low = min(self.__low, bar.getLow())
-		self.__close = bar.getClose()
-		self.__volume += bar.getVolume()
-
 class Sampler:
 	def __init__(self, barFeed, frequency, csvFile):
 		instruments = barFeed.getRegisteredInstruments()
@@ -111,16 +60,16 @@ class Sampler:
 		self.__writer = CSVFileWriter(csvFile)
 
 	def __onBars(self, bars):
-		dateTime = get_slot_datetime(bars.getDateTime(), self.__frequency)
+		dateTime = resampled.get_slot_datetime(bars.getDateTime(), self.__frequency)
 		bar = bars[self.__instrument]
 
 		if self.__slot == None:
-			self.__slot = Slot(dateTime, bar)
+			self.__slot = resampled.Slot(dateTime, bar)
 		elif self.__slot.getDateTime() == dateTime:
 			self.__slot.addBar(bar)
 		else:
 			self.__writer.writeSlot(self.__slot)
-			self.__slot = Slot(dateTime, bar)
+			self.__slot = resampled.Slot(dateTime, bar)
 
 	def finish(self):
 		if self.__slot != None:
@@ -163,11 +112,11 @@ def resample_to_csv(barFeed, frequency, csvFile):
 	"""
 
 	if frequency == barfeed.Frequency.MINUTE:
-		 resample_impl(barFeed, minute, csvFile)
+		 resample_impl(barFeed, resampled.minute, csvFile)
 	elif frequency == barfeed.Frequency.HOUR:
-		 resample_impl(barFeed, hour, csvFile)
+		 resample_impl(barFeed, resampled.hour, csvFile)
 	elif frequency == barfeed.Frequency.DAY:
-		 resample_impl(barFeed, day, csvFile)
+		 resample_impl(barFeed, resampled.day, csvFile)
 	else:
 		raise Exception("Invalid frequency")
 

@@ -28,6 +28,7 @@ from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.tools import resample
 from pyalgotrade import marketsession
 from pyalgotrade.utils import dt
+from pyalgotrade.dataseries import resampled
 import common
 
 class ResampleTestCase(unittest.TestCase):
@@ -35,7 +36,9 @@ class ResampleTestCase(unittest.TestCase):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
+		resampledBarDS = resampled.ResampledBarDataSeries(feed["BTC"], barfeed.Frequency.MINUTE)
 		resample.resample_to_csv(feed, barfeed.Frequency.MINUTE, "minute-mgtox-usd-2013-01-01.csv")
+		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.MINUTE)
@@ -46,11 +49,17 @@ class ResampleTestCase(unittest.TestCase):
 		self.assertEqual(feed["BTC"][0].getDateTime(), datetime.datetime(2013, 01, 01, 00, 04, 59))
 		self.assertEqual(feed["BTC"][-1].getDateTime(), datetime.datetime(2013, 01, 01, 23, 58, 59))
 
+		self.assertEqual(len(resampledBarDS), len(feed["BTC"]))
+		self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(feed["BTC"][0].getDateTime()))
+		self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(feed["BTC"][-1].getDateTime()))
+
 	def testResampleMtGoxHour(self):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
+		resampledBarDS = resampled.ResampledBarDataSeries(feed["BTC"], barfeed.Frequency.HOUR)
 		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, "hour-mgtox-usd-2013-01-01.csv")
+		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.HOUR)
@@ -61,11 +70,17 @@ class ResampleTestCase(unittest.TestCase):
 		self.assertEqual(feed["BTC"][0].getDateTime(), datetime.datetime(2013, 01, 01, 00, 59, 59))
 		self.assertEqual(feed["BTC"][-1].getDateTime(), datetime.datetime(2013, 01, 01, 23, 59, 59))
 
+		self.assertEqual(len(resampledBarDS), len(feed["BTC"]))
+		self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(feed["BTC"][0].getDateTime()))
+		self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(feed["BTC"][-1].getDateTime()))
+
 	def testResampleMtGoxDay(self):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
+		resampledBarDS = resampled.ResampledBarDataSeries(feed["BTC"], barfeed.Frequency.DAY)
 		resample.resample_to_csv(feed, barfeed.Frequency.DAY, "day-mgtox-usd-2013-01-01.csv")
+		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.DAY)
@@ -81,11 +96,23 @@ class ResampleTestCase(unittest.TestCase):
 		self.assertEqual(feed["BTC"][0].getVolume(), 28168.9114596)
 		self.assertEqual(feed["BTC"][0].getAdjClose(), 13.51001)
 
+		self.assertEqual(len(resampledBarDS), len(feed["BTC"]))
+		self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(feed["BTC"][0].getDateTime()))
+		self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(feed["BTC"][-1].getDateTime()))
+		self.assertEqual(resampledBarDS[0].getOpen(), feed["BTC"][0].getOpen())
+		self.assertEqual(resampledBarDS[0].getHigh(), feed["BTC"][0].getHigh())
+		self.assertEqual(resampledBarDS[0].getLow(), feed["BTC"][0].getLow())
+		self.assertEqual(resampledBarDS[0].getClose(), feed["BTC"][0].getClose())
+		self.assertEqual(round(resampledBarDS[0].getVolume(), 5), round(feed["BTC"][0].getVolume(), 5))
+		self.assertEqual(resampledBarDS[0].getAdjClose(), feed["BTC"][0].getAdjClose())
+
 	def testResampleNinjaTraderHour(self):
 		# Resample.
 		feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+		resampledBarDS = resampled.ResampledBarDataSeries(feed["spy"], barfeed.Frequency.HOUR)
 		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, "hour-nt-spy-minute-2011.csv")
+		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.HOUR, marketsession.USEquities.getTimezone())
@@ -102,11 +129,17 @@ class ResampleTestCase(unittest.TestCase):
 		self.assertEqual(feed["spy"][0].getVolume(), 3397.0)
 		self.assertEqual(feed["spy"][0].getAdjClose(), None)
 
+		self.assertEqual(len(resampledBarDS), len(feed["spy"]))
+		self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(datetime.datetime(2011, 01, 03, 9, 59, 59)))
+		self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(datetime.datetime(2011, 02, 01, 01, 59, 59)))
+
 	def testResampleNinjaTraderDay(self):
 		# Resample.
 		feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+		resampledBarDS = resampled.ResampledBarDataSeries(feed["spy"], barfeed.Frequency.DAY)
 		resample.resample_to_csv(feed, barfeed.Frequency.DAY, "day-nt-spy-minute-2011.csv")
+		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.DAY)
@@ -116,6 +149,10 @@ class ResampleTestCase(unittest.TestCase):
 		self.assertEqual(len(feed["spy"]), 25)
 		self.assertEqual(feed["spy"][0].getDateTime(), dt.localize(datetime.datetime(2011, 01, 03, 23, 59, 59), marketsession.USEquities.getTimezone()))
 		self.assertEqual(feed["spy"][-1].getDateTime(), dt.localize(datetime.datetime(2011, 02, 01, 23, 59, 59), marketsession.USEquities.getTimezone()))
+
+		self.assertEqual(len(resampledBarDS), len(feed["spy"]))
+		self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(datetime.datetime(2011, 01, 03, 23, 59, 59)))
+		self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(datetime.datetime(2011, 02, 01, 23, 59, 59)))
 
 def getTestCases():
 	ret = []
