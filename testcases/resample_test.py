@@ -29,9 +29,39 @@ from pyalgotrade.tools import resample
 from pyalgotrade import marketsession
 from pyalgotrade.utils import dt
 from pyalgotrade.dataseries import resampled
+from pyalgotrade.dataseries import bards
+from pyalgotrade import bar
 import common
 
 class ResampleTestCase(unittest.TestCase):
+	def testResample(self):
+		barDs = bards.BarDataSeries()
+		resampledBarDS = resampled.ResampledBarDataSeries(barDs, barfeed.Frequency.MINUTE)
+
+		barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 1), 2.1, 3, 1, 2, 10, 1))
+		barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 2), 2, 3, 1, 2.3, 10, 2))
+		barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 2, 1), 2, 3, 1, 2, 10, 2))
+
+		self.assertEqual(len(resampledBarDS), 1)
+		self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2011, 1, 1, 1, 1, 59))
+		self.assertEqual(resampledBarDS[0].getOpen(), 2.1)
+		self.assertEqual(resampledBarDS[0].getHigh(), 3)
+		self.assertEqual(resampledBarDS[0].getLow(), 1)
+		self.assertEqual(resampledBarDS[0].getClose(), 2.3)
+		self.assertEqual(resampledBarDS[0].getVolume(), 20)
+		self.assertEqual(resampledBarDS[0].getAdjClose(), 2)
+
+		resampledBarDS.pushLast()
+		self.assertEqual(len(resampledBarDS), 2)
+		self.assertEqual(resampledBarDS[1].getDateTime(), datetime.datetime(2011, 1, 1, 1, 2, 59))
+		self.assertEqual(resampledBarDS[1].getOpen(), 2)
+		self.assertEqual(resampledBarDS[1].getHigh(), 3)
+		self.assertEqual(resampledBarDS[1].getLow(), 1)
+		self.assertEqual(resampledBarDS[1].getClose(), 2)
+		self.assertEqual(resampledBarDS[1].getVolume(), 10)
+		self.assertEqual(resampledBarDS[1].getAdjClose(), 2)
+
+
 	def testResampleMtGoxMinute(self):
 		# Resample.
 		feed = mtgoxfeed.CSVTradeFeed()
@@ -94,7 +124,7 @@ class ResampleTestCase(unittest.TestCase):
 		self.assertEqual(feed["BTC"][0].getLow(), 13.16123)
 		self.assertEqual(feed["BTC"][0].getClose(), 13.30413)
 		self.assertEqual(feed["BTC"][0].getVolume(), 28168.9114596)
-		self.assertEqual(feed["BTC"][0].getAdjClose(), 13.51001)
+		self.assertEqual(feed["BTC"][0].getAdjClose(), 13.30413)
 
 		self.assertEqual(len(resampledBarDS), len(feed["BTC"]))
 		self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(feed["BTC"][0].getDateTime()))
@@ -157,6 +187,7 @@ class ResampleTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 
+	ret.append(ResampleTestCase("testResample"))
 	ret.append(ResampleTestCase("testResampleMtGoxMinute"))
 	ret.append(ResampleTestCase("testResampleMtGoxHour"))
 	ret.append(ResampleTestCase("testResampleMtGoxDay"))

@@ -69,6 +69,7 @@ class Slot:
 		self.__high = max(self.__high, bar_.getHigh())
 		self.__low = min(self.__low, bar_.getLow())
 		self.__close = bar_.getClose()
+		self.__adjClose = bar_.getAdjClose()
 		self.__volume += bar_.getVolume()
 
 	def buildBasicBar(self):
