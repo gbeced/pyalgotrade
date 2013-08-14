@@ -49,9 +49,17 @@ class Position:
 	def getStrategy(self):
 		return self.__strategy
 
+	def entryActive(self):
+		"""Returns True if the entry order is active."""
+		return self.__entryOrder != None and self.__entryOrder.isActive()
+
 	def entryFilled(self):
 		"""Returns True if the entry order was filled."""
 		return self.__entryOrder != None and self.__entryOrder.isFilled()
+
+	def exitActive(self):
+		"""Returns True if the exit order is active."""
+		return self.__exitOrder != None and self.__exitOrder.isActive()
 
 	def exitFilled(self):
 		"""Returns True if the exit order was filled."""

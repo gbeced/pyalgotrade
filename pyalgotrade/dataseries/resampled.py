@@ -88,7 +88,7 @@ class ResampledBarDataSeries(bards.BarDataSeries):
 	.. note::
 		* Valid **frequency** parameter values are:
 
-		 * pyalgotrade.barfeed.Frequency.MINUTE 
+		 * pyalgotrade.barfeed.Frequency.MINUTE
 		 * pyalgotrade.barfeed.Frequency.HOUR
 		 * pyalgotrade.barfeed.Frequency.DAY
 	"""

@@ -1,0 +1,23 @@
+Loading bars
+Running strategy
+2013-03-01 01:03:01.723215+00:00 BUY (ask: 32.7275508 commit: 32.973007431 target: 33.218464062)
+2013-03-01 01:07:07.577842+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-01 01:07:10.018437+00:00 BUY (ask: 32.4675176 commit: 32.711023982 target: 32.954530364)
+2013-03-01 01:10:17.828689+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-01 03:54:44.713943+00:00 BUY (ask: 32.89958 commit: 33.14632685 target: 33.3930737)
+2013-03-01 03:59:14.375401+00:00 Waiting period exceeded. Cancel entry
+.
+.
+.
+2013-03-31 19:18:18.430133+00:00 BUY (ask: 91.1302 commit: 91.8136765 target: 92.497153)
+2013-03-31 19:21:29.664933+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-31 21:47:23.413314+00:00 BUY (ask: 91.203161 commit: 91.8871847075 target: 92.571208415)
+2013-03-31 21:50:44.928156+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-31 23:08:43.620930+00:00 BUY (ask: 90.3560294 commit: 91.0336996205 target: 91.711369841)
+2013-03-31 23:13:07.495571+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+Result: 225.23
