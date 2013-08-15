@@ -1,25 +1,26 @@
-from pyalgotrade import strategy
 from pyalgotrade.mtgox import client
 from pyalgotrade.mtgox import barfeed
 from pyalgotrade.mtgox import broker
 
-class MyStrategy(strategy.BaseStrategy):
-    def onBars(self, bars):
-        bar = bars["BTC"]
-        print "%s: %s %s" % (bar.getDateTime(), bar.getClose(), bar.getVolume())
+import mtgox_scalper
 
-# Create a client responsible for all the interaction with MtGox
-cl = client.Client("USD", None, None)
+def main():
+    # Create a client responsible for all the interaction with MtGox
+    cl = client.Client("USD", None, None)
 
-# Create a real-time feed that will build bars from live trades.
-feed = barfeed.LiveTradeFeed(cl)
+    # Create a real-time feed that will build bars from live trades.
+    feed = barfeed.LiveTradeFeed(cl)
 
-# Create a backtesting broker.
-brk = broker.BacktestingBroker(1000, feed)
+    # Create a backtesting broker.
+    brk = broker.BacktestingBroker(200, feed)
 
-# Run the strategy with the feed and the broker.
-myStrategy = MyStrategy(feed, brk)
-# It is VERY important to add the client to the event dispatch loop before running the strategy.
-myStrategy.getDispatcher().addSubject(cl)
-myStrategy.run()
+    # Run the strategy with the feed and the broker.
+    strat = mtgox_scalper.Strategy("BTC", feed, brk)
+    # It is VERY important to add the client to the event dispatch loop before running the strategy.
+    strat.getDispatcher().addSubject(cl)
+    # This is just to get each bar printed.
+    strat.setVerbosityLevel(0)
+    strat.run()
 
+if __name__ == "__main__":
+    main()

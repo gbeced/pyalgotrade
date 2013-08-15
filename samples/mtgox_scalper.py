@@ -16,6 +16,7 @@ from pyalgotrade.technical import stats
 class Strategy(strategy.BaseStrategy):
     def __init__(self, instrument, feed, brk):
         strategy.BaseStrategy.__init__(self, feed, brk)
+        self.__verbosityLevel = 1
         self.__instrument = instrument
         self.__orderSize = 0.2
         self.__targetPricePct = 0.015
@@ -31,6 +32,13 @@ class Strategy(strategy.BaseStrategy):
 
         self.__switchNoPos()
 
+    def setVerbosityLevel(self, level):
+        self.__verbosityLevel = level
+
+    def __log(self, level, *elements):
+        if level >= self.__verbosityLevel:
+            print " ".join([str(element) for element in elements])
+
     def __switchNoPos(self):
         self.__stateFun = self.__onNoPos
         self.__position = None
@@ -40,7 +48,7 @@ class Strategy(strategy.BaseStrategy):
 
     def __exitWithMarketOrder(self, bars):
         # Exit with a market order at the target price and switch to WaitExitMarket
-        print bars.getDateTime(), "SELL (Market order)"
+        self.__log(1, bars.getDateTime(), "SELL (Market order)")
         self.__position.exit()
         self.__stateFun = self.__onWaitExitMarket
 
@@ -55,7 +63,7 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__position == position)
         assert(self.__stateFun == self.__onWaitEntry)
 
-        print position.getEntryOrder().getExecutionInfo().getDateTime(), "BUY filled at", position.getEntryOrder().getExecutionInfo().getPrice()
+        self.__log(1, position.getEntryOrder().getExecutionInfo().getDateTime(), "BUY filled at", position.getEntryOrder().getExecutionInfo().getPrice())
 
         # Switch to LongPos
         self.__deadline = position.getEntryOrder().getExecutionInfo().getDateTime() + self.__maxHoldPeriod
@@ -65,7 +73,7 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__position == position)
         assert(self.__stateFun == self.__onWaitEntry)
 
-        print "BUY canceled."
+        self.__log(1, "BUY canceled.")
 
         # Switch to NoPos
         self.__switchNoPos()
@@ -74,7 +82,7 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__position == position)
         assert(self.__stateFun in (self.__onWaitExitLimit, self.__onWaitExitMarket))
 
-        print position.getExitOrder().getExecutionInfo().getDateTime(), "SELL filled. %", position.getReturn()
+        self.__log(1, position.getExitOrder().getExecutionInfo().getDateTime(), "SELL filled. %", position.getReturn())
 
         # Switch to NoPos
         self.__switchNoPos()
@@ -83,7 +91,7 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__position == position)
         assert(self.__stateFun in (self.__onWaitExitLimit, self.__onWaitExitMarket))
 
-        print "SELL canceled. Resubmitting as market order."
+        self.__log(1, "SELL canceled. Resubmitting as market order.")
 
         # If the exit was canceled, re-submit it as a market order.
         self.__position.exit()
@@ -109,7 +117,7 @@ class Strategy(strategy.BaseStrategy):
             self.__commitPrice = bidPrice * (1 + self.__commitPricePct)
             self.__targetPrice = bidPrice * (1 + self.__targetPricePct)
             # EnterLong and switch state to WaitEntry
-            print bars.getDateTime(), "BUY (ask: %s commit: %s target: %s)" % (bidPrice, self.__commitPrice, self.__targetPrice)
+            self.__log(1, bars.getDateTime(), "BUY (ask: %s commit: %s target: %s)" % (bidPrice, self.__commitPrice, self.__targetPrice))
             self.__position = self.enterLongLimit(self.__instrument, bidPrice, self.__orderSize, True)
             self.__stateFun = self.__onWaitEntry
             self.__deadline = bars.getDateTime() + self.__maxWaitEntry
@@ -121,7 +129,7 @@ class Strategy(strategy.BaseStrategy):
 
         if self.__waitingPeriodExceeded(bars.getDateTime()):
             # Cancel the entry order. This should eventually take us back to NoPos.
-            print bars.getDateTime(), "Waiting period exceeded. Cancel entry"
+            self.__log(1, bars.getDateTime(), "Waiting period exceeded. Cancel entry")
             self.__position.cancelEntry()
 
     # LongPos: In a long position.
@@ -133,14 +141,14 @@ class Strategy(strategy.BaseStrategy):
         currentPrice = bars[self.__instrument].getClose()
         # If the holding perios is exceeded, we exit with a market order.
         if self.__waitingPeriodExceeded(bars.getDateTime()):
-            print bars.getDateTime(), "Holding period exceeded."
+            self.__log(1, bars.getDateTime(), "Holding period exceeded.")
             self.__exitWithMarketOrder(bars)
         elif self.__stopLoss(currentPrice):
-            print bars.getDateTime(), "Stop loss."
+            self.__log(1, bars.getDateTime(), "Stop loss.")
             self.__exitWithMarketOrder(bars)
         elif currentPrice >= self.__commitPrice:
             # Exit with a limit order at the target price and switch to WaitExitLimit
-            print bars.getDateTime(), "SELL (%s)" % (self.__targetPrice)
+            self.__log(1, bars.getDateTime(), "SELL (%s)" % (self.__targetPrice))
             self.__position.exit(self.__targetPrice)
             self.__stateFun = self.__onWaitExitLimit
 
@@ -151,7 +159,7 @@ class Strategy(strategy.BaseStrategy):
         if self.__position.exitActive():
             currentPrice = bars[self.__instrument].getClose()
             if self.__stopLoss(currentPrice):
-                print bars.getDateTime(), "Stop loss. Canceling SELL (Limit order)."
+                self.__log(1, bars.getDateTime(), "Stop loss. Canceling SELL (Limit order).")
                 self.__position.cancelExit()
         else:
             self.__exitWithMarketOrder()
@@ -161,5 +169,6 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__position != None)
 
     def onBars(self, bars):
+        self.__log(0, bars.getDateTime(), "Price:", bars[self.__instrument].getClose(), "Volume:", bars[self.__instrument].getVolume(), "Volatility:", self.returnsVolatility[-1])
         self.__stateFun(bars)
 
