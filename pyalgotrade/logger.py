@@ -32,7 +32,6 @@ console_log = True
 
 def __set_defaults(handler):
 	handler.setFormatter(logging.Formatter(log_format))
-	# handler.setLevel(level)
 
 def __build_logger(name):
 	ret = logging.getLogger(name)

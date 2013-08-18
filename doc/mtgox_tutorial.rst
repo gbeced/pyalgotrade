@@ -81,16 +81,12 @@ Let's move on with a simple strategy that prints live bars as they come from MtG
 
 .. literalinclude:: ../samples/tutorial_mtgox_2.py
 
-The code is doing 5 important things:
- 1. Declaring a new strategy. There is only one method that has to be defined, *onBars*, which is called for every bar received.
- 2. Creating a client to connect to MtGox. For papertrading purposes we only need to specify the currency to use.
- 3. Creating a feed that will build bars from the trades received through the client.
- 4. Creating a broker for backtesting.
- 5. Running the strategy with the bars supplied by the feed and the backtesting broker.
+The code is doing 4 things:
+ 1. Creating a client to connect to MtGox. For papertrading purposes we only need to specify the currency to use.
+ 2. Creating a live feed that will build bars from the trades received through the client.
+ 3. Creating a broker for backtesting.
+ 4. Running the strategy with the bars supplied by the feed and the backtesting broker. Note that we had to add the client to the event dispatch loop before running the strategy.
 
 If you run the script you should see something like this:
 
 .. literalinclude:: ../samples/tutorial_mtgox_2.output
-
-TODO: Include a trading strategy
-

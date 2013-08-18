@@ -25,7 +25,8 @@ import binascii
 import hmac
 import base64
 
-from ws4py.client import WebSocketBaseClient
+import tornado
+from ws4py.client import tornadoclient
 
 from pyalgotrade.mtgox import base
 
@@ -40,15 +41,117 @@ def sign_request(request, apiSecret):
 def apikey_as_binary(key):
 	return binascii.unhexlify(key.replace("-", ""))
 
+# This class is responsible for sending keep alive messages and detecting disconnections
+# from the server.
+class KeepAliveMgr:
+	HEART_BEAT_MSG = "keep-alive-msg"
+
+	def __init__(self, wsClient, ioLoop, frequency, maxMsgsWithoutResponse):
+		assert(maxMsgsWithoutResponse > 0)
+		assert(frequency > 0)
+		self.__wsClient = wsClient
+		self.__callback = tornado.ioloop.PeriodicCallback(self.keepAlive, frequency, ioLoop)
+		self.__msgsWithoutResponse = 0
+		self.__maxMsgsWithoutResponse = maxMsgsWithoutResponse
+
+	def keepAlive(self):
+		if self.__msgsWithoutResponse >= self.__maxMsgsWithoutResponse:
+			self.__wsClient.onDisconnectionDetected()
+		else:
+			try:
+				self.__wsClient.send(KeepAliveMgr.HEART_BEAT_MSG, False)
+				self.__msgsWithoutResponse += 1
+			except Exception:
+				self.__wsClient.onDisconnectionDetected()
+
+	def handleResponse(self, data):
+		# MtGox sends back the invalid message response as a remark.
+		ret = False
+		if data["op"] == "remark":
+			if data.get("debug", {}).get("data_raw") == KeepAliveMgr.HEART_BEAT_MSG:
+				self.__msgsWithoutResponse = 0
+				ret = True
+		return ret
+
+	def start(self):
+		self.__callback.start()
+
+	def stop(self):
+		self.__callback.stop()
+
+class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
+	KEEP_ALIVE_FREQUENCY = 5*1000
+	KEEP_ALIVE_MAX_MSG = 5
+
+	def __init__(self, url):
+		tornadoclient.TornadoWebSocketClient.__init__(self, url)
+		self.__keepAliveMgr = None
+		self.__connected = False
+
+	# This is to avoid a stack trace because TornadoWebSocketClient is not implementing _cleanup.
+	def _cleanup(self):
+		ret = None
+		try:
+			ret = tornadoclient.TornadoWebSocketClient._cleanup(self)
+		except Exception:
+			pass
+		return ret
+
+	def received_message(self, message):
+		data = json.loads(message.data)
+
+		if self.__keepAliveMgr == None or not self.__keepAliveMgr.handleResponse(data):
+			self.onMessage(data)
+
+	def opened(self):
+		self.__connected = True
+		if WebSocketClientBase.KEEP_ALIVE_FREQUENCY:
+			self.__keepAliveMgr = KeepAliveMgr(self, tornado.ioloop.IOLoop.instance(), WebSocketClientBase.KEEP_ALIVE_FREQUENCY, WebSocketClientBase.KEEP_ALIVE_MAX_MSG)
+			self.__keepAliveMgr.start()
+		self.onOpened()
+
+	def closed(self, code, reason):
+		self.__connected = False
+		if self.__keepAliveMgr:
+			self.__keepAliveMgr.stop()
+			self.__keepAliveMgr = None
+		tornado.ioloop.IOLoop.instance().stop()
+
+		self.onClosed(code, reason)
+
+	def handshake_ok(self):
+		pass
+
+	def isConnected(self):
+		return self.__connected
+
+	def startClient(self):
+		tornado.ioloop.IOLoop.instance().start()
+
+	def stopClient(self):
+		self.close_connection()
+
+	def onOpened(self):
+		raise NotImplementedError()
+
+	def onMessage(self, data):
+		raise NotImplementedError()
+
+	def onClosed(self, code, reason):
+		raise NotImplementedError()
+
+	def onDisconnectionDetected(self):
+		raise NotImplementedError()
+
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming
-class WebSocketClient(WebSocketBaseClient):
+class WebSocketClient(WebSocketClientBase):
 	DEPTH_NOTIFICATIONS_CHANNEL = "24e67e0d-1cad-4cc0-9e7a-f8523ef460fe"
 
 	# currency is the account's currency.
 	def __init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency=False):
 		currencies = [currency]
 		url = 'ws://websocket.mtgox.com/mtgox?Currency=%s' % (",".join(currencies))
-		WebSocketBaseClient.__init__(self, url)
+		WebSocketClientBase.__init__(self, url)
 		self.__nonce = None
 		self.__apiKey = apiKey
 		self.__apiSecret = apiSecret
@@ -62,8 +165,7 @@ class WebSocketClient(WebSocketBaseClient):
 		self.__nonce = ret
 		return ret
 
-	def received_message(self, message):
-		data = json.loads(message.data)
+	def onMessage(self, data):
 		if data["op"] == "private":
 			self.onPrivate(data)
 		elif data["op"] == "subscribe":
@@ -122,15 +224,6 @@ class WebSocketClient(WebSocketBaseClient):
 
 	# def requestPrivateKeyId(self):
 	# 	return self.__authCall("private/idkey")
-
-	def opened(self):
-		pass
-
-	def closed(self, code, reason):
-		pass
-
-	def handshake_ok(self):
-		pass
 
 	def onPrivate(self, data):
 		if data["private"] == "ticker":

@@ -46,11 +46,15 @@ class WSClient(wsclient.WebSocketClient):
 		wsclient.WebSocketClient.__init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency)
 		self.__queue = queue
 
-	def opened(self):
+	def onOpened(self):
 		self.__queue.put((WSClient.ON_CONNECTED, None))
 
-	def closed(self, code, reason):
+	def onClosed(self, code, reason):
 		logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+
+	def onDisconnectionDetected(self):
+		logger.error("Disconnection detected")
+		self.close_connection()
 
 	def onSubscribe(self, data):
 		logger.info("Subscribe: %s." % (data))
@@ -103,7 +107,6 @@ class Client(observer.Subject):
 
 		self.__currency = currency
 		self.__thread = None
-		self.__stopped = False
 		self.__initializationFailed = None
 		self.__queue = Queue.Queue()
 		self.__tickerEvent = observer.Event()
@@ -158,7 +161,7 @@ class Client(observer.Subject):
 		return self.__userOrderEvent
 
 	def __threadMain(self):
-		self.__wsClient.run()
+		self.__wsClient.startClient()
 
 	def start(self):
 		if self.__thread == None:
@@ -179,10 +182,9 @@ class Client(observer.Subject):
 
 	def stop(self):
 		try:
-			self.__stopped = True
 			if self.__thread != None and self.__thread.is_alive():
 				logger.info("Shutting down MtGox client.")
-				self.__wsClient.close()
+				self.__wsClient.stopClient()
 		except Exception, e:
 			logger.error("Error shutting down MtGox client: %s" % (str(e)))
 
@@ -191,7 +193,7 @@ class Client(observer.Subject):
 			self.__thread.join()
 
 	def eof(self):
-		return self.__stopped
+		return not self.__wsClient.isConnected()
 
 	def dispatchImpl(self, eventFilter):
 		try:
