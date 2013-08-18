@@ -77,7 +77,7 @@ tutorial is to show how to build and run a strategy.
 Papertrading
 ------------
 
-Let's move on with a simple strategy that prints live bars as they come from MtGox.
+Now let's move running the same strategy but instead of using historical data we'll use live data coming directly from MtGox:
 
 .. literalinclude:: ../samples/tutorial_mtgox_2.py
 
