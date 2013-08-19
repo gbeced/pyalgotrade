@@ -31,7 +31,7 @@ class ROCEventWindow(technical.EventWindow):
 			prev = self.getValues()[0]
 			actual = self.getValues()[-1]
 			if actual != None and prev != None and prev != 0:
-				ret = (actual - prev) / float(prev) * 100
+				ret = (actual - prev) / float(prev)
 		return ret
 
 class RateOfChange(technical.EventBasedFilter):

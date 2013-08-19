@@ -36,7 +36,7 @@ class ROCTestCase(unittest.TestCase):
 		roc_ = self.__buildROC(inputValues, 12)
 		outputValues = [-3.85, -4.85, -4.52, -6.34, -7.86, -6.21, -4.31, -3.24]
 		for i in range(len(outputValues)):
-			outputValue = roc_[12 + i]
+			outputValue = roc_[12 + i] * 100
 			self.assertTrue(round(outputValue, 2) == outputValues[i])
 
 		self.assertEqual(len(roc_.getDateTimes()), len(inputValues))
@@ -47,9 +47,9 @@ class ROCTestCase(unittest.TestCase):
 		def simple_roc(value1, value2):
 			return self.__buildROC([value1, value2], 1)[1]
 
-		self.assertTrue(simple_roc(1, 2) == 100)
+		self.assertTrue(simple_roc(1, 2) == 1)
 		self.assertTrue(simple_roc(1, 2) == simple_roc(50, 100))
-		self.assertTrue(simple_roc(2, 1) == -50)
+		self.assertTrue(simple_roc(2, 1) == -0.5)
 		self.assertTrue(simple_roc(2, 1) == simple_roc(100, 50))
 
 	def testBounded(self):
@@ -58,7 +58,7 @@ class ROCTestCase(unittest.TestCase):
 		outputValues = [-4.31, -3.24]
 		roc_ = self.__buildROC(inputValues, 12, 2)
 		for i in xrange(2):
-			self.assertEqual(round(roc_[i], 2), outputValues[i])
+			self.assertEqual(round(roc_[i], 4), round(outputValues[i] / 100, 4))
 
 def getTestCases():
 	ret = []

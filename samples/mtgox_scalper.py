@@ -55,7 +55,7 @@ class Strategy(strategy.BaseStrategy):
     # Calculate the bid price based on the current price and the volatility.
     def __getBidPrice(self, currentPrice):
         vol = self.returnsVolatility[-1]
-        if vol != None and vol > 0.6:
+        if vol != None and vol > 0.006:
             return currentPrice * 0.98
         return None
 
