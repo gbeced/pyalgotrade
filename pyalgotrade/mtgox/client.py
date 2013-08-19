@@ -26,6 +26,7 @@ import httpclient
 
 import threading
 import Queue
+import time
 
 logger = pyalgotrade.logger.getLogger("mtgox")
 
@@ -40,6 +41,7 @@ class WSClient(wsclient.WebSocketClient):
 	ON_RESULT = 4
 	ON_REMARK = 5
 	ON_CONNECTED = 6
+	ON_DISCONNECTED = 7
 
 	# currency is the account's currency.
 	def __init__(self, queue, currency, apiKey, apiSecret, ignoreMultiCurrency):
@@ -53,8 +55,8 @@ class WSClient(wsclient.WebSocketClient):
 		logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
 
 	def onDisconnectionDetected(self):
-		logger.error("Disconnection detected")
 		self.close_connection()
+		self.__queue.put((WSClient.ON_DISCONNECTED, None))
 
 	def onSubscribe(self, data):
 		logger.info("Subscribe: %s." % (data))
@@ -106,17 +108,19 @@ class Client(observer.Subject):
 			raise Exception("Invalid currency")
 
 		self.__currency = currency
+		self.__apiKey = apiKey
+		self.__apiSecret = apiSecret
+		self.__ignoreMultiCurrency = ignoreMultiCurrency
+
 		self.__thread = None
-		self.__initializationFailed = None
 		self.__queue = Queue.Queue()
+		self.__initializationFailed = None
+		self.__stopped = False
 		self.__tickerEvent = observer.Event()
 		self.__tradeEvent = observer.Event()
 		self.__userOrderEvent = observer.Event()
-
-		# We use the streaming client only to get updates and not to send requests (using authCall)
-		# because when placing orders sometimes we were receving the order update before the result
-		# with the order GUID.
-		self.__wsClient = WSClient(self.__queue, currency, apiKey, apiSecret, ignoreMultiCurrency)
+		self.__wsClient = None
+		self.__enableReconnection = True
 
 		# Build papertrading/livetrading objects.
 		if apiKey == None or  apiSecret == None:
@@ -128,11 +132,41 @@ class Client(observer.Subject):
 	def getCurrency(self):
 		return self.__currency
 
+	def setEnableReconnection(self, enable):
+		self.__enableReconnection = enable
+
+	def __threadMain(self):
+		self.__wsClient.startClient()
+		# logger.info("Thread finished.")
+
+	def __initializeClient(self):
+		logger.info("Initializing MtGox client.")
+
+		# We use the streaming client only to get updates and not to send requests (using authCall)
+		# because when placing orders sometimes we were receving the order update before the result
+		# with the order GUID.
+		self.__wsClient = WSClient(self.__queue, self.__currency, self.__apiKey, self.__apiSecret, self.__ignoreMultiCurrency)
+		self.__initializationFailed = None
+		self.__wsClient.connect()
+
+		# Start the thread that will run the client.
+		self.__thread = threading.Thread(target=self.__threadMain)
+		self.__thread.start()
+
+		# Wait for initialization to complete.
+		while self.__initializationFailed == None and self.__thread.is_alive():
+			self.dispatchImpl([WSClient.ON_CONNECTED])
+		if self.__initializationFailed == False:
+			logger.info("Initialization ok.")
+		else:
+			logger.error("Initialization failed.")
+		return self.__initializationFailed == False
+
 	def __onConnected(self):
 		logger.info("Connection opened.")
 
 		try:
-			# Remove Depth notifications channel.
+			# Remove depth notifications channel.
 			self.__wsClient.unsubscribeChannel(wsclient.WebSocketClient.DEPTH_NOTIFICATIONS_CHANNEL)
 
 			if self.__paperTrading == False:
@@ -151,6 +185,18 @@ class Client(observer.Subject):
 			self.__initializationFailed = True
 			logger.error("Error: %s" % str(e))
 
+	def __onDisconnected(self):
+		logger.error("Disconnection detected")
+		if self.__enableReconnection:
+			initialized = False
+			while not self.__stopped and not initialized:
+				logger.info("Reconnecting")
+				initialized = self.__initializeClient()
+				if not initialized:
+					time.sleep(5)
+		else:
+			self.__stopped = True
+
 	def getTickerEvent(self):
 		return self.__tickerEvent
 
@@ -160,28 +206,16 @@ class Client(observer.Subject):
 	def getUserOrderEvent(self):
 		return self.__userOrderEvent
 
-	def __threadMain(self):
-		self.__wsClient.startClient()
-
 	def start(self):
-		if self.__thread == None:
-			logger.info("Initializing MtGox client.")
-			self.__wsClient.connect()
-			self.__thread = threading.Thread(target=self.__threadMain)
-			self.__thread.start()
-
-			# Wait for initialization to complete.
-			while self.__initializationFailed == None and self.__thread.is_alive():
-				self.dispatchImpl([WSClient.ON_CONNECTED])
-			if self.__initializationFailed == False:
-				logger.info("Initialization complete.")
-			else:
-				raise Exception("Initialization failed")
-		else:
+		if self.__thread != None:
 			raise Exception("Already running")
+		elif self.__initializeClient() == False:
+			self.__stopped = True
+			raise Exception("Initialization failed")
 
 	def stop(self):
 		try:
+			self.__stopped = True
 			if self.__thread != None and self.__thread.is_alive():
 				logger.info("Shutting down MtGox client.")
 				self.__wsClient.stopClient()
@@ -193,7 +227,7 @@ class Client(observer.Subject):
 			self.__thread.join()
 
 	def eof(self):
-		return not self.__wsClient.isConnected()
+		return self.__stopped
 
 	def dispatchImpl(self, eventFilter):
 		try:
@@ -215,6 +249,8 @@ class Client(observer.Subject):
 				logger.info("Remark: %s - %s" % (requestId, data))
 			elif eventType == WSClient.ON_CONNECTED:
 				self.__onConnected()
+			elif eventType == WSClient.ON_DISCONNECTED:
+				self.__onDisconnected()
 			else:
 				logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
 		except Queue.Empty:

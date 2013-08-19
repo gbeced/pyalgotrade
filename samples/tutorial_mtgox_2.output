@@ -1,6 +1,6 @@
 2013-08-19 00:32:34,573 mtgox [INFO] Initializing MtGox client.
 2013-08-19 00:32:35,198 mtgox [INFO] Connection opened.
-2013-08-19 00:32:35,199 mtgox [INFO] Initialization complete.
+2013-08-19 00:32:35,199 mtgox [INFO] Initialization ok.
 2013-08-19 00:32:57.063971 Price: 116.95505 Volume: 0.01079 Volatility: None
 2013-08-19 00:33:35.472846 Price: 116.95504 Volume: 0.199 Volatility: None
 2013-08-19 00:33:51.604106 Price: 116.95503 Volume: 0.01033 Volatility: None
