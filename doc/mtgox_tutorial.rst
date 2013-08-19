@@ -77,16 +77,17 @@ tutorial is to show how to build and run a strategy.
 Papertrading
 ------------
 
-Now let's move running the same strategy but instead of using historical data we'll use live data coming directly from MtGox:
+Now let's run the same strategy but instead of using historical data we'll use live data coming directly from MtGox:
 
 .. literalinclude:: ../samples/tutorial_mtgox_2.py
 
 The code is doing 4 things:
  1. Creating a client to connect to MtGox. For papertrading purposes we only need to specify the currency to use.
  2. Creating a live feed that will build bars from the trades received through the client.
- 3. Creating a broker for backtesting.
+ 3. Creating a broker for backtesting. The broker will charge a 0.6 % fee for each order.
  4. Running the strategy with the bars supplied by the feed and the backtesting broker. Note that we had to add the client to the event dispatch loop before running the strategy.
 
 If you run the script you should see something like this:
 
 .. literalinclude:: ../samples/tutorial_mtgox_2.output
+
