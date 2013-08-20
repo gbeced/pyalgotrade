@@ -11,7 +11,8 @@ Release checklist
 [ ] Run tutorial examples from the Optimizing section using the installed lib.
 [ ] Run tutorial examples from the Plotting section using the installed lib (samples/tutorial-5.py).
 [ ] Run samples/tutorial-mtgox-3.py using the installed lib.
-[ ] Run compinv-3.py sample using the installed lib.
+[ ] Run samples/compinv-3.py using the installed lib.
+[ ] Run samples/tutorial_mtgox_2.py using the installed lib.
 
 [ ] Update the website (doc + package).
 [ ] Build package and upload to sourceforge.
