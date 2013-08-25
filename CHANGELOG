@@ -1,4 +1,5 @@
 Version 0.13 (TBD)
+. [NEW] Added support for handling realtime Twitter events (pyalgotrade.twitter.feed).
 . [NEW] Added support for backtesting and papertrading Bitcoin strategies through MtGox. Thanks Jeremi Joslin for helping with the testing.
 . [NEW] Bar feeds now support setting the maximum number of values to hold for the BarDataSeries in case you don't want them to grow too much.
 . [NEW] pyalgotrade.dataseries.SequenceDataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) now support setting the maximum number of values to hold in case you don't want them to grow too much.

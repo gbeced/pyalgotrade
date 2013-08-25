@@ -18,6 +18,7 @@ Contents:
     talib
     googleappengine
     mtgox
+    twitter
     compinvpart1
     samples
 

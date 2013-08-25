@@ -1,6 +1,10 @@
 Tutorial for Bitcoin trading through Mt. Gox
 ============================================
 
+MtGox support depends on **ws4py** (https://github.com/Lawouach/WebSocket-for-Python) 
+and **tornado** (http://www.tornadoweb.org/en/stable/)
+so be sure to have those installed before moving forward.
+
 PyAlgoTrade allows you to backtest and paper trade (backtest using a realtime feed) Bitcoin trading
 strategies through Mt. Gox (https://mtgox.com/).
 
