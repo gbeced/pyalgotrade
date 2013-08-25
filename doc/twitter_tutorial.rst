@@ -7,6 +7,15 @@ to have it installed before moving forward.
 The goal of this short tutorial is to illustrate how to connect to Twitter to process events.
 We will also be using a live BarFeed since backtesting on Twitter is not supported.
 
+In order to connect to Twitter's API you'll need:
+ * Consumer key
+ * Consumer secret
+ * Access token
+ * Access token secret
+
+Go to http://dev.twitter.com and create an app.  The consumer key and secret will be generated for you after that.
+Then you'll need to create an access token under the "Your access token" section.
+
 .. literalinclude:: ../samples/tutorial_twitter_mtgox.py
 
 The code is doing 5 things:

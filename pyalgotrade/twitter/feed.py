@@ -91,7 +91,6 @@ class TwitterFeed(observer.Subject):
 		if type(languages) != types.ListType:
 			raise Exception("languages must be a list")
 
-		# TODO: Check that track/follow are either lists or None.
 		self.__event = observer.Event()
 		self.__queue = Queue.Queue()
 		self.__thread = None
@@ -123,12 +122,11 @@ class TwitterFeed(observer.Subject):
 			pass
 		return ret
 
-	def getEvent(self):
-		"""Returns the event endpoint to subscribe to get notified when new Twitter events arrive.
-		The event handler will receive a dictionary with the data as defined in:
+	def subscribe(self, callback):
+		"""Subscribe to Twitter events. The event handler will receive a dictionary with the data as defined in:
 		https://dev.twitter.com/docs/streaming-apis/messages#Public_stream_messages.
 		"""
-		return self.__event
+		return self.__event.subscribe(callback)
 
 	def start(self):
 		if self.__thread != None:

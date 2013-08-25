@@ -12,7 +12,7 @@ class Strategy(strategy.BaseStrategy):
         self.__instrument = instrument
 
         # Subscribe to Twitter events.
-        twitterFeed.getEvent().subscribe(self.onTweet)
+        twitterFeed.subscribe(self.onTweet)
 
         # It is VERY important to add the these to the event dispatch loop before running the strategy.
         self.getDispatcher().addSubject(mtgoxClient)
@@ -31,7 +31,7 @@ class Strategy(strategy.BaseStrategy):
 
 def main():
     # Go to http://dev.twitter.com and create an app.
-    # The consumer key and secret will be generated for you after
+    # The consumer key and secret will be generated for you after that.
     consumer_key="<YOUR-CONSUMER-KEY-HERE>"
     consumer_secret="<YOUR-CONSUMER-SECRET-HERE>"
 
