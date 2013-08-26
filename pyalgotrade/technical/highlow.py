@@ -42,7 +42,7 @@ class High(technical.EventBasedFilter):
 	"""This filter calculates the highest value.
 
 	:param dataSeries: The DataSeries instance being filtered.
-	:type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
+	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 	:param period: The number of values to use to calculate the highest value.
 	:type period: int.
 	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
@@ -57,7 +57,7 @@ class Low(technical.EventBasedFilter):
 	"""This filter calculates the lowest value.
 
 	:param dataSeries: The DataSeries instance being filtered.
-	:type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
+	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
 	:param period: The number of values to use to calculate the lowest value.
 	:type period: int.
 	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
