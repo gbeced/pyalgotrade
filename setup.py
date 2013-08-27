@@ -20,13 +20,13 @@
 from distutils.core import setup
 
 setup(name='PyAlgoTrade',
-	version='0.12',
+	version='0.13',
 	description='Python Algorithmic Trading',
 	long_description='Python library for backtesting stock trading strategies.',
 	author='Gabriel Martin Becedillas Ruiz',
 	author_email='pyalgotrade@gmail.com',
 	url='http://gbeced.github.io/pyalgotrade/',
-	download_url='http://sourceforge.net/projects/pyalgotrade/files/0.12/PyAlgoTrade-0.12.tar.gz/download',
+	download_url='http://sourceforge.net/projects/pyalgotrade/files/0.13/PyAlgoTrade-0.13.tar.gz/download',
 	packages=['pyalgotrade',
 		'pyalgotrade.barfeed',
 		'pyalgotrade.broker',
@@ -38,5 +38,6 @@ setup(name='PyAlgoTrade',
 		'pyalgotrade.talibext',
 		'pyalgotrade.technical',
 		'pyalgotrade.tools',
+		'pyalgotrade.twitter',
 		'pyalgotrade.utils',],
 )

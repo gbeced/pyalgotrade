@@ -1,4 +1,4 @@
-Version 0.13 (TBD)
+Version 0.13 (26/Aug/2013)
 . [NEW] Added support for handling realtime Twitter events (pyalgotrade.twitter.feed).
 . [NEW] Added support for backtesting and papertrading Bitcoin strategies through MtGox. Thanks Jeremi Joslin for helping with the testing.
 . [NEW] Bar feeds now support setting the maximum number of values to hold for the BarDataSeries in case you don't want them to grow too much.
@@ -7,8 +7,8 @@ Version 0.13 (TBD)
 . [NEW] StrategyPlotter now supports only building the figure so you can customize it (StrategyPlotter.buildFigure).
 . [NEW] bar.Bar was optimized to use less memory. Thanks Tibor Kiss for suggesting this.
 . [NEW] Added tools to resample BarFeeds to different frequencies and using them (pyalgotrade.tools.resample and pyalgotrade.barfeed.csvfeed.GenericBarFeed).
-. [NEW] High and Low technical indicators (pyalgotrade.technical.highlow.High and pyalgotrade.technical.highlow.Low).
 . [NEW] Added a BarDataSeries that can resample another BarDataSeries to a higher frequency (pyalgotrade.dataseries.resampled.ResampledBarDataSeries).
+. [NEW] High and Low technical indicators (pyalgotrade.technical.highlow.High and pyalgotrade.technical.highlow.Low).
 . [CHANGE] pyalgotrade.technical.roc.RateOfChange indicator was changed and now it doesn't multiply by 100 the results.
 . [CHANGE] The pyalgotrade.technical.trend package does not depend on SciPy any more.
 . [CHANGE] Strategy class was renamed to BacktestingStrategy (the old name is still supported in this version).
