@@ -102,7 +102,42 @@
 			</div><!-- /.navbar -->
 		</div>
 
-		<h2>Current version: 0.12 (20/Apr/2013)</h2>
+		<h2>Current version: 0.13 (26/Aug/2013)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.13/PyAlgoTrade-0.13.tar.gz/download">PyAlgoTrade-0.13.tar.gz</a>
+		<ul>
+			<li>Added support for handling <b>realtime Twitter events</b> (pyalgotrade.twitter.feed).
+			Example <a href="http://gbeced.github.io/pyalgotrade/docs/v0.13/html/twitter_tutorial.html">here</a>.</li>
+			<li>Added support for <b>backtesting and papertrading Bitcoin strategies through MtGox</b>.
+			Thanks Jeremi Joslin for helping with the testing.
+			Example <a href="http://gbeced.github.io/pyalgotrade/docs/v0.13/html/mtgox_tutorial.html">here</a>.</li>
+			<li>Bar feeds now support setting the maximum number of values to hold for the BarDataSeries in case you don't want them to grow too much.</li>
+			<li>pyalgotrade.dataseries.SequenceDataSeries and DataSeries filters (everything inside the pyalgotrade.technical package)
+			now support setting the maximum number of values to hold in case you don't want them to grow too much.</li>
+			<li>StrategyPlotter now calls autofmt_xdate on the figure before plotting it. Thanks Thomas Jung for suggesting this.</li>
+			<li>StrategyPlotter now supports only building the figure so you can customize it (StrategyPlotter.buildFigure).</li>
+			<li>bar.Bar was optimized to use less memory. Thanks Tibor Kiss for suggesting this.</li>
+			<li>Added tools to resample BarFeeds to different frequencies and using them (pyalgotrade.tools.resample and pyalgotrade.barfeed.csvfeed.GenericBarFeed).</li>
+			<li>Added a BarDataSeries that can resample another BarDataSeries to a higher frequency (pyalgotrade.dataseries.resampled.ResampledBarDataSeries).</li>
+			<li>High and Low technical indicators (pyalgotrade.technical.highlow.High and pyalgotrade.technical.highlow.Low).</li>
+			<li>pyalgotrade.technical.roc.RateOfChange indicator was changed and now it doesn't multiply by 100 the results.</li>
+			<li>The pyalgotrade.technical.trend package does not depend on SciPy any more.</li>
+			<li>Strategy class was renamed to BacktestingStrategy (the old name is still supported in this version).</li>
+			<li>Max. drawdown duration is now returned as a datetime.timedelta object.</li>
+			<li>Sharpe Ratio analyzer was modified to better support intraday trading. The tradingPeriods parameter is not supported anymore.</li>
+			<li>In order to resubmit the exit order for a position, the orignal exit order has to be canceled first using cancelExit.</li>
+			<li>DataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) were refactored to an event based model.</li>
+			<li>BarValueDataSeries and BarDataSeries were moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.</li>
+			<li>pyalgotrade.technical.cross.CrossAbove and pyalgotrade.technical.cross.CrossBelow were refactored as functions (pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below).
+			They are not DataSeries any more.</li>
+			<li>pyalgotrade.technical.DataSeriesFilter was removed.
+			DataSeries filters now have to be modeled using pyalgotrade.technical.EventWindow and pyalgotrade.technical.EventBasedFilter classes.</li>
+			<li>pyalgotrade.dataseries.SequenceDataSeries constructor no longer accepts values and datetimes.</li>
+			<li>pyalgotrade.dataseries.datetime_aligned was moved to pyalgotrade.dataseries.aligned.datetime_aligned.</li>
+		</ul>
+
+		<hr>
+
+		<h2>Version: 0.12 (20/Apr/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.12/PyAlgoTrade-0.12.tar.gz/download">PyAlgoTrade-0.12.tar.gz</a>
 		<ul>
 			<li>pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.</li>
@@ -113,8 +148,6 @@
 			<li>Fixed a bug in EMA technical that could lead to max. recursion limit error.</li>
 			<li>Fixed a bug in the Strategy class that had a big impact on execution time. Bookkeeping for active positions and orders was not handled properly.</li>
 		</ul>
-
-		<hr>
 
 		<h2>Version: 0.11 (17/Mar/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.11/PyAlgoTrade-0.11.tar.gz/download">PyAlgoTrade-0.11.tar.gz</a>
