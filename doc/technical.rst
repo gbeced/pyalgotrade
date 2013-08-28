@@ -69,3 +69,7 @@ Other Indicators
     :members: BollingerBands
     :show-inheritance:
 
+.. automodule:: pyalgotrade.technical.cumret
+    :members: CumulativeReturn
+    :show-inheritance:
+

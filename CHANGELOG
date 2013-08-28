@@ -1,3 +1,6 @@
+Version 0.14 (TBD)
+. [NEW] Cumulative returns filter (pyalgotrade.technical.cumret.CumulativeReturn).
+
 Version 0.13 (26/Aug/2013)
 . [NEW] Added support for handling realtime Twitter events (pyalgotrade.twitter.feed).
 . [NEW] Added support for backtesting and papertrading Bitcoin strategies through MtGox. Thanks Jeremi Joslin for helping with the testing.
