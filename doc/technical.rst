@@ -62,7 +62,7 @@ Other Indicators
     :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.stats
-    :members: StdDev
+    :members: StdDev, ZScore
     :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.bollinger
