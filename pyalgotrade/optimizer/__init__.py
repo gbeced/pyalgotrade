@@ -18,14 +18,3 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import logging
-
-def get_logger(name, level=logging.DEBUG):
-	logFormat = "%(levelname)s %(asctime)s: %(message)s"
-	ret = logging.getLogger()
-	ret.setLevel(level)
-	handler = logging.StreamHandler()
-	handler.setFormatter(logging.Formatter(logFormat))
-	ret.addHandler(handler)
-	return ret
-

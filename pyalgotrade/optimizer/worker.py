@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import os
 import xmlrpclib
 import pickle
 import time
@@ -26,7 +25,7 @@ import socket
 import random
 import multiprocessing
 
-from pyalgotrade import optimizer
+import pyalgotrade.logger
 from pyalgotrade import barfeed
 
 def call_function(function, *parameters):
@@ -51,7 +50,7 @@ class Worker:
 	def __init__(self, address, port, workerName=None):
 		url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
 		self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
-		self.__logger = optimizer.get_logger("server")
+		self.__logger = pyalgotrade.logger.getLogger(workerName)
 		if workerName == None:
 			self.__workerName=socket.gethostname()
 		else:

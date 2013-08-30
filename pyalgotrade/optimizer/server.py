@@ -23,7 +23,7 @@ import threading
 import time
 import pickle
 import random
-from pyalgotrade import optimizer
+import pyalgotrade.logger
 
 class AutoStopThread(threading.Thread):
 	def __init__(self, server):
@@ -96,7 +96,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 		self.__parametersLock = threading.Lock()
 		self.__bestJob = None
 		self.__parametersIterator = None
-		self.__logger = optimizer.get_logger("server")
+		self.__logger = pyalgotrade.logger.getLogger("server")
 		if autoStop:
 			self.__autoStopThread = AutoStopThread(self)
 		else:

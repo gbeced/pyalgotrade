@@ -23,7 +23,8 @@ import threading
 import logging
 import socket
 import random
-from pyalgotrade import optimizer
+import os
+
 from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
 
@@ -38,8 +39,9 @@ def worker_process(strategyClass, port):
 			return strat.getResult()
 
 	# Create a worker and run it.
-	w = Worker("localhost", port, None)
-	w.setLogger(optimizer.get_logger("worker", logging.ERROR))
+	name = "worker-%s" % (os.getpid())
+	w = Worker("localhost", port, name)
+	w.getLogger().setLevel(logging.ERROR)
 	w.run()
 
 def find_port():
