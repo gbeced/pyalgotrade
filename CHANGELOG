@@ -1,6 +1,7 @@
 Version 0.14 (TBD)
 . [NEW] Cumulative returns filter (pyalgotrade.technical.cumret.CumulativeReturn).
 . [NEW] Z-Score filter (pyalgotrade.technical.stats.ZScore).
+. [FIX] Fixed https://github.com/gbeced/pyalgotrade/issues/10. 
 
 Version 0.13 (26/Aug/2013)
 . [NEW] Added support for handling realtime Twitter events (pyalgotrade.twitter.feed).
