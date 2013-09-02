@@ -166,6 +166,35 @@ class TradesAnalyzerTestCase(unittest.TestCase):
 		self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForUnprofitableTrades(), numpy.array([0.02])))
 		self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForEvenTrades(), numpy.array([])))
 
+	def testProportionalCommissionBug(self):
+		# Regression test for a bug reported by 'Jackson Sam' on 30/Aug/2013.
+		strat = self.__createStrategy()
+		strat.getBroker().setCommission(backtesting.FixedPerTrade(0.01))
+		stratAnalyzer = trades.Trades()
+		strat.attachAnalyzer(stratAnalyzer)
+
+		# There are 3 trades here:
+		# Trade 1 (Long)
+		#   Buy 1 @ 127.16 Commission: 0.01
+		#   Sell 1 @ 127.26 Commission: 0.005
+		# Trade 2 (Short)
+		#   Sell 1 @ 127.26 Commission: 0.005
+		#   Buy 1 @ 127.37 Commission: 0.005
+		# Trade 3 (Long)
+		#   Buy 1 @ 127.37 Commission: 0.005
+		#   Sell 1 @ 127.4 Commission: 0.01
+
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 38), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1) # Fill at 127.16
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 42), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 2) # Fill at 127.26
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 53), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 2) # Fill at 127.37
+		strat.addOrder(buildUTCDateTime(2011, 1, 3, 15, 58), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1) # Fill at 127.4
+
+		strat.run()
+		allReturns = stratAnalyzer.getAllReturns()
+		self.assertEquals(round(allReturns[0], 6), 0.000668)
+		self.assertEquals(round(allReturns[1], 6), -0.000943)
+		self.assertEquals(round(allReturns[2], 6), 0.000118)
+
 	def testLongShort(self):
 		strat = self.__createStrategy()
 		stratAnalyzer = trades.Trades()
@@ -385,6 +414,7 @@ def getTestCases():
 	ret.append(TradesAnalyzerTestCase("testSomeTrades_Position"))
 	ret.append(TradesAnalyzerTestCase("testSomeTrades"))
 	ret.append(TradesAnalyzerTestCase("testSomeTradesWithCommissions"))
+	ret.append(TradesAnalyzerTestCase("testProportionalCommissionBug"))
 	ret.append(TradesAnalyzerTestCase("testLong2"))
 	ret.append(TradesAnalyzerTestCase("testLong3"))
 	ret.append(TradesAnalyzerTestCase("testLongShort"))
