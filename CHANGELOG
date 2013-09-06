@@ -3,6 +3,7 @@ Version 0.14 (TBD)
 . [NEW] Z-Score filter (pyalgotrade.technical.stats.ZScore).
 . [FIX] Fixed https://github.com/gbeced/pyalgotrade/issues/10. 
 . [FIX] Fixed a bug in the trades analyzer. Proportional commissions when switching from long to short or viceversa were not properly calculated. Thanks Sam Jackson for reporting this and providing a patch.
+. [FIX] Fixed a bug when using the optimizer and a broker with adjusted values.
 
 Version 0.13 (26/Aug/2013)
 . [NEW] Added support for handling realtime Twitter events (pyalgotrade.twitter.feed).

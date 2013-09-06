@@ -192,6 +192,13 @@ class OptimizerBarFeed(BasicBarFeed):
 			self.registerInstrument(instrument)
 		self.__bars = bars
 		self.__nextBar = 0
+		try:
+			self.__barsHaveAdjClose = self.__bars[0][instruments[0]].getAdjClose() != None
+		except Exception, e:
+			self.__barsHaveAdjClose = False
+
+	def barsHaveAdjClose(self):
+		return self.__barsHaveAdjClose
 
 	def isRealTime(self):
 		return False
