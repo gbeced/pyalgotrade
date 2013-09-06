@@ -195,7 +195,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			job.setBestResult(result, parameters, workerName)
 			self.__bestJob = job
 
-		self.getLogger().info("Partial result %.2f with parameters: %s from %s" % (result, parameters, workerName))
+		self.getLogger().info("Partial result %s with parameters: %s from %s" % (result, parameters, workerName))
 
 	def stop(self):
 		self.shutdown()
@@ -229,7 +229,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			# Show the best result.
 			bestJob = self.getBestJob()
 			if bestJob:
-				self.getLogger().info("Best final result %.2f with parameters: %s from client %s" % (bestJob.getBestResult(), bestJob.getBestParameters(),bestJob.getBestWorkerName()))
+				self.getLogger().info("Best final result %s with parameters: %s from client %s" % (bestJob.getBestResult(), bestJob.getBestParameters(),bestJob.getBestWorkerName()))
 				ret = Results(bestJob.getBestParameters(), bestJob.getBestResult())
 			else:
 				self.getLogger().error("No jobs processed")
