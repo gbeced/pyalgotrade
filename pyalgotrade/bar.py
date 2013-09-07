@@ -75,12 +75,18 @@ class BasicBar(Bar):
 	__slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__sessionClose', '__barsTillSessionClose')
 
 	def __init__(self, dateTime, open_, high, low, close, volume, adjClose):
-		assert(high >= open_)
-		assert(high >= low)
-		assert(high >= close)
-		assert(low <= open_)
-		assert(low <= high)
-		assert(low <= close)
+		if high < open_:
+			raise Exception("high < open on %s" % (dateTime))
+		if high < low:
+			raise Exception("high < low on %s" % (dateTime))
+		if high < close:
+			raise Exception("high < close on %s" % (dateTime))
+		if low > open_:
+			raise Exception("low > open on %s" % (dateTime))
+		if low > high:
+			raise Exception("low > high on %s" % (dateTime))
+		if low > close:
+			raise Exception("low > close on %s" % (dateTime))
 
 		self.__dateTime = dateTime
 		self.__open = open_
