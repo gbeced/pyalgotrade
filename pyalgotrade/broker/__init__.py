@@ -178,13 +178,13 @@ class Order:
 		"""Returns True if the order should be completely filled or else canceled."""
 		return self.__allOrNone
 
-	def setAllOrNone(self, allOrNone):
-		"""Sets the All-Or-None property for this order.
-
-		:param allOrNone: True if the order should be completely filled or else canceled.
-		:type allOrNone: boolean.
-		"""
-		self.__allOrNone = allOrNone
+#	def setAllOrNone(self, allOrNone):
+#		"""Sets the All-Or-None property for this order.
+#
+#		:param allOrNone: True if the order should be completely filled or else canceled.
+#		:type allOrNone: boolean.
+#		"""
+#		self.__allOrNone = allOrNone
 
 	def setExecuted(self, orderExecutionInfo):
 		self.__executionInfo = orderExecutionInfo
