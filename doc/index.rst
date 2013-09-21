@@ -15,6 +15,7 @@ Contents:
     tutorial
     code
     tools
+    eventprofiler
     talib
     googleappengine
     mtgox

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 # 
-# Copyright 2012 Gabriel Martin Becedillas Ruiz
+# Copyright 2013 Gabriel Martin Becedillas Ruiz
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 """
 
 import sys
-sys.path.append("..")
+sys.path.append("../..")
 
 from pyalgotrade.barfeed import sqlitefeed
 from pyalgotrade.barfeed import yahoofeed
@@ -27,8 +27,10 @@ from pyalgotrade import marketsession
 from pyalgotrade.tools import yahoofinance
 import pyalgotrade.logger
 
+
 import tempfile
 
+pyalgotrade.logger.file_log = "update-db.log"
 logger = pyalgotrade.logger.getLogger("update-db")
 
 def download_bars(db, symbol, year, timezone):
@@ -58,8 +60,7 @@ def update_bars(dbFilePath, symbolsFile, timezone, fromYear, toYear):
 def main():
 	fromYear = 2000
 	toYear = 2012
-	update_bars("yahoofinance.sqlite", "nasdaq-symbols.txt", marketsession.NASDAQ.timezone, fromYear, toYear)
-	update_bars("yahoofinance.sqlite", "nyse-symbols.txt", marketsession.NYSE.timezone, fromYear, toYear)
+	update_bars("yahoofinance-sp500.sqlite", "sp500-symbols.txt", marketsession.USEquities.timezone, fromYear, toYear)
 
 main()
 

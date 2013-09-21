@@ -1,0 +1,8 @@
+2013-09-20 23:30:45,340 yahoofinance [INFO] Creating data directory
+2013-09-20 23:30:45,341 yahoofinance [INFO] Downloading AA 2008 to data/AA-2008-yahoofinance.csv
+2013-09-20 23:30:46,092 yahoofinance [INFO] Downloading AES 2008 to data/AES-2008-yahoofinance.csv
+2013-09-20 23:30:46,683 yahoofinance [INFO] Downloading AIG 2008 to data/AIG-2008-yahoofinance.csv
+2013-09-20 23:30:47,260 yahoofinance [INFO] Downloading AA 2009 to data/AA-2009-yahoofinance.csv
+2013-09-20 23:30:48,019 yahoofinance [INFO] Downloading AES 2009 to data/AES-2009-yahoofinance.csv
+2013-09-20 23:30:48,761 yahoofinance [INFO] Downloading AIG 2009 to data/AIG-2009-yahoofinance.csv
+14 events found

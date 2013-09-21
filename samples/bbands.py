@@ -29,24 +29,12 @@ class MyStrategy(strategy.BacktestingStrategy):
         elif shares > 0 and bar.getClose() > upper:
             self.order(self.__instrument, -1*shares) 
 
-def build_feed(instruments, fromYear, toYear):
-    feed = yahoofeed.Feed()
-
-    for year in range(fromYear, toYear+1):
-        for symbol in instruments:
-            fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-            if not os.path.exists(fileName):
-                print "Downloading %s %d" % (symbol, year)
-                yahoofinance.download_daily_bars(symbol, year, fileName)
-            feed.addBarsFromCSV(symbol, fileName)
-    return feed
-
 def main(plot):
     instrument = "yhoo"
     bBandsPeriod = 40
 
     # Download the bars.
-    feed = build_feed([instrument], 2011, 2012)
+    feed = yahoofinance.build_feed([instrument], 2011, 2012, "data")
 
     myStrategy = MyStrategy(feed, instrument, bBandsPeriod)
 

@@ -126,10 +126,12 @@ class TechnicalTestCase(unittest.TestCase):
 class SampleStratTestCase(unittest.TestCase):
 	def testErnieChanGldVsGdx(self):
 		# Get the files that generated the result that we're checking for.
+		if not os.path.exists("data"):
+			os.mkdir("data")
 		for year in range(2006, 2013):
 			for symbol in ["gld", "gdx"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), ".")
+				shutil.copy2(os.path.join("samples", fileName), "data")
 
 		code = """import sys
 sys.path.append('samples')
@@ -141,10 +143,12 @@ statarb_erniechan.main(False)
 
 	def testVWAPMomentum(self):
 		# Get the files that generated the result that we're checking for.
-		for year in range(2011, 2012):
+		if not os.path.exists("data"):
+			os.mkdir("data")
+		for year in range(2011, 2013):
 			for symbol in ["aapl"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), ".")
+				shutil.copy2(os.path.join("samples", fileName), "data")
 
 		code = """import sys
 sys.path.append('samples')
@@ -156,10 +160,12 @@ vwap_momentum.main(False)
 
 	def testBBands(self):
 		# Get the files that generated the result that we're checking for.
-		for year in range(2011, 2012):
+		if not os.path.exists("data"):
+			os.mkdir("data")
+		for year in range(2011, 2013):
 			for symbol in ["yhoo"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), ".")
+				shutil.copy2(os.path.join("samples", fileName), "data")
 
 		code = """import sys
 sys.path.append('samples')
@@ -168,6 +174,23 @@ bbands.main(False)
 """
 		lines = run_python_code(code).split("\n")
 		self.assertTrue(compare_tail("bbands.output", lines[-2:-1]))
+
+	def testEventStudy(self):
+		# Get the files that generated the result that we're checking for.
+		if not os.path.exists("data"):
+			os.mkdir("data")
+		for year in range(2008, 2010):
+			for symbol in ["AA", "AES", "AIG"]:
+				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+				shutil.copy2(os.path.join("samples", fileName), "data")
+
+		code = """import sys
+sys.path.append('samples')
+import eventstudy
+eventstudy.main(False)
+"""
+		lines = run_python_code(code).split("\n")
+		self.assertTrue(compare_tail("eventstudy.output", lines[-2:-1]))
 
 def getTestCases():
 	ret = []
@@ -189,6 +212,7 @@ def getTestCases():
 	ret.append(SampleStratTestCase("testErnieChanGldVsGdx"))
 	ret.append(SampleStratTestCase("testVWAPMomentum"))
 	ret.append(SampleStratTestCase("testBBands"))
+	ret.append(SampleStratTestCase("testEventStudy"))
 
 	return ret
 

@@ -1,3 +1,4 @@
-Downloading yhoo 2011
-Downloading yhoo 2012
+2013-09-21 00:06:07,740 yahoofinance [INFO] Creating data directory
+2013-09-21 00:06:07,741 yahoofinance [INFO] Downloading yhoo 2011 to data/yhoo-2011-yahoofinance.csv
+2013-09-21 00:06:09,621 yahoofinance [INFO] Downloading yhoo 2012 to data/yhoo-2012-yahoofinance.csv
 Result: 1395359.58

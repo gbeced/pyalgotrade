@@ -19,6 +19,10 @@
 """
 
 import urllib
+import os
+
+import pyalgotrade.logger
+from pyalgotrade.barfeed import yahoofeed
 
 def __adjust_month(month):
 	if month > 12 or month < 1:
@@ -72,4 +76,29 @@ def download_daily_bars(instrument, year, csvFile):
 	f = open(csvFile, "w")
 	f.write(bars)
 	f.close()
+
+def build_feed(instruments, fromYear, toYear, storage, timezone=None, skipErrors=False):
+	logger = pyalgotrade.logger.getLogger("yahoofinance")
+	ret = yahoofeed.Feed()
+
+	if not os.path.exists(storage):
+		logger.info("Creating %s directory" % (storage))
+		os.mkdir(storage)
+
+	for year in range(fromYear, toYear+1):
+		for instrument in instruments:
+			fileName = os.path.join(storage, "%s-%d-yahoofinance.csv" % (instrument, year))
+			if not os.path.exists(fileName):
+				logger.info("Downloading %s %d to %s" % (instrument, year, fileName))
+				try: 
+					download_daily_bars(instrument, year, fileName)
+				except Exception, e:
+					if skipErrors:
+						logger.error(str(e))
+						continue
+					else:
+						raise e
+			ret.addBarsFromCSV(instrument, fileName)
+	return ret
+
 

@@ -1,4 +1,5 @@
 Version 0.14 (TBD)
+. [NEW] Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
 . [NEW] Cumulative returns filter (pyalgotrade.technical.cumret.CumulativeReturn).
 . [NEW] Z-Score filter (pyalgotrade.technical.stats.ZScore).
 . [FIX] Fixed a bug with loggers when using the optimizer: https://github.com/gbeced/pyalgotrade/issues/10. 

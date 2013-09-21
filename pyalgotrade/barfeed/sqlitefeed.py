@@ -136,6 +136,9 @@ class Feed(membf.Feed):
 		membf.Feed.__init__(self, frequency, maxLen)
 		self.__db = Database(dbFilePath)
 
+	def barsHaveAdjClose(self):
+		return True
+
 	def getDatabase(self):
 		return self.__db
 

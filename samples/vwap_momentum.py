@@ -45,7 +45,7 @@ def main(plot):
     vwapWindowSize = 5
 
     # Download the bars.
-    feed = build_feed([instrument], 2011, 2012)
+    feed = yahoofinance.build_feed([instrument], 2011, 2012, "data")
 
     myStrategy = MyStrategy(feed, instrument, vwapWindowSize)
 
