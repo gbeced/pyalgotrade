@@ -47,7 +47,7 @@ def __download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYea
 
 	f = urllib.urlopen(url)
 	if f.headers['Content-Type'] != 'text/csv':
-		raise Exception("Failed to download data")
+		raise Exception("Failed to download data: %s" % f.getcode())
 	buff = f.read()
 
 	# Remove the BOM
@@ -79,7 +79,7 @@ def download_daily_bars(instrument, year, csvFile):
 
 def build_feed(instruments, fromYear, toYear, storage, timezone=None, skipErrors=False):
 	logger = pyalgotrade.logger.getLogger("yahoofinance")
-	ret = yahoofeed.Feed()
+	ret = yahoofeed.Feed(timezone)
 
 	if not os.path.exists(storage):
 		logger.info("Creating %s directory" % (storage))
@@ -100,5 +100,4 @@ def build_feed(instruments, fromYear, toYear, storage, timezone=None, skipErrors
 						raise e
 			ret.addBarsFromCSV(instrument, fileName)
 	return ret
-
 
