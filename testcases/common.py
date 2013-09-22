@@ -57,3 +57,11 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, max
 		expectedValue = normalize_value(expectedValues[i], roundDecimals)
 		testcase.assertEquals(value, expectedValue)
 
+def get_temp_path():
+	return "data"
+
+def init_temp_path():
+	storage = get_temp_path()
+	if not os.path.exists(storage):
+		os.mkdir(storage)
+

@@ -20,6 +20,7 @@
 
 import unittest
 import datetime
+import os
 
 from pyalgotrade import barfeed
 import pyalgotrade.mtgox.barfeed as mtgoxfeed 
@@ -67,12 +68,13 @@ class ResampleTestCase(unittest.TestCase):
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
 		resampledBarDS = resampled.ResampledBarDataSeries(feed["BTC"], barfeed.Frequency.MINUTE)
-		resample.resample_to_csv(feed, barfeed.Frequency.MINUTE, "minute-mgtox-usd-2013-01-01.csv")
+		resampledFile = os.path.join(common.get_temp_path(), "minute-mgtox-usd-2013-01-01.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.MINUTE, resampledFile)
 		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.MINUTE)
-		feed.addBarsFromCSV("BTC", "minute-mgtox-usd-2013-01-01.csv")
+		feed.addBarsFromCSV("BTC", resampledFile)
 		feed.loadAll()
 		
 		self.assertEqual(len(feed["BTC"]), 537)
@@ -88,12 +90,13 @@ class ResampleTestCase(unittest.TestCase):
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
 		resampledBarDS = resampled.ResampledBarDataSeries(feed["BTC"], barfeed.Frequency.HOUR)
-		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, "hour-mgtox-usd-2013-01-01.csv")
+		resampledFile = os.path.join(common.get_temp_path(), "hour-mgtox-usd-2013-01-01.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, resampledFile)
 		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.HOUR)
-		feed.addBarsFromCSV("BTC", "hour-mgtox-usd-2013-01-01.csv")
+		feed.addBarsFromCSV("BTC", resampledFile)
 		feed.loadAll()
 	
 		self.assertEqual(len(feed["BTC"]), 24)
@@ -109,12 +112,13 @@ class ResampleTestCase(unittest.TestCase):
 		feed = mtgoxfeed.CSVTradeFeed()
 		feed.addBarsFromCSV(common.get_data_file_path("trades-mgtox-usd-2013-01-01.csv"))
 		resampledBarDS = resampled.ResampledBarDataSeries(feed["BTC"], barfeed.Frequency.DAY)
-		resample.resample_to_csv(feed, barfeed.Frequency.DAY, "day-mgtox-usd-2013-01-01.csv")
+		resampledFile = os.path.join(common.get_temp_path(), "day-mgtox-usd-2013-01-01.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.DAY, resampledFile)
 		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.DAY)
-		feed.addBarsFromCSV("BTC", "day-mgtox-usd-2013-01-01.csv")
+		feed.addBarsFromCSV("BTC", resampledFile)
 		feed.loadAll()
 	
 		self.assertEqual(len(feed["BTC"]), 1)
@@ -141,12 +145,13 @@ class ResampleTestCase(unittest.TestCase):
 		feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
 		resampledBarDS = resampled.ResampledBarDataSeries(feed["spy"], barfeed.Frequency.HOUR)
-		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, "hour-nt-spy-minute-2011.csv")
+		resampledFile = os.path.join(common.get_temp_path(), "hour-nt-spy-minute-2011.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.HOUR, resampledFile)
 		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.HOUR, marketsession.USEquities.getTimezone())
-		feed.addBarsFromCSV("spy", "hour-nt-spy-minute-2011.csv")
+		feed.addBarsFromCSV("spy", resampledFile)
 		feed.loadAll()
 
 		self.assertEqual(len(feed["spy"]), 340)
@@ -168,12 +173,13 @@ class ResampleTestCase(unittest.TestCase):
 		feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
 		feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
 		resampledBarDS = resampled.ResampledBarDataSeries(feed["spy"], barfeed.Frequency.DAY)
-		resample.resample_to_csv(feed, barfeed.Frequency.DAY, "day-nt-spy-minute-2011.csv")
+		resampledFile = os.path.join(common.get_temp_path(), "day-nt-spy-minute-2011.csv")
+		resample.resample_to_csv(feed, barfeed.Frequency.DAY, resampledFile)
 		resampledBarDS.pushLast() # Need to manually push the last stot since time didn't change.
 
 		# Load the resampled file.
 		feed = csvfeed.GenericBarFeed(barfeed.Frequency.DAY)
-		feed.addBarsFromCSV("spy", "day-nt-spy-minute-2011.csv", marketsession.USEquities.getTimezone())
+		feed.addBarsFromCSV("spy", resampledFile, marketsession.USEquities.getTimezone())
 		feed.loadAll()
 	
 		self.assertEqual(len(feed["spy"]), 25)

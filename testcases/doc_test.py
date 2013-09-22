@@ -23,6 +23,8 @@ import subprocess
 import os
 import shutil
 
+from testcases import common
+
 def run_and_get_output(cmd):
 	return subprocess.check_output(cmd, universal_newlines=True)
 
@@ -100,10 +102,11 @@ tutorial_mtgox_1.main(False)
 
 class CompInvTestCase(unittest.TestCase):
 	def testCompInv_1(self):
-		shutil.copy2(os.path.join("samples", "aeti-2011-yahoofinance.csv"), ".")
-		shutil.copy2(os.path.join("samples", "egan-2011-yahoofinance.csv"), ".")
-		shutil.copy2(os.path.join("samples", "simo-2011-yahoofinance.csv"), ".")
-		shutil.copy2(os.path.join("samples", "glng-2011-yahoofinance.csv"), ".")
+		common.init_temp_path()
+		shutil.copy2(os.path.join("samples", "aeti-2011-yahoofinance.csv"), common.get_temp_path())
+		shutil.copy2(os.path.join("samples", "egan-2011-yahoofinance.csv"), common.get_temp_path())
+		shutil.copy2(os.path.join("samples", "simo-2011-yahoofinance.csv"), common.get_temp_path())
+		shutil.copy2(os.path.join("samples", "glng-2011-yahoofinance.csv"), common.get_temp_path())
 		lines = run_sample_script("compinv-1.py").split("\n")
 		self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
 
