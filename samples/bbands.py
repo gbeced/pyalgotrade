@@ -34,7 +34,7 @@ def main(plot):
     bBandsPeriod = 40
 
     # Download the bars.
-    feed = yahoofinance.build_feed([instrument], 2011, 2012, "data")
+    feed = yahoofinance.build_feed([instrument], 2011, 2012, ".")
 
     myStrategy = MyStrategy(feed, instrument, bBandsPeriod)
 

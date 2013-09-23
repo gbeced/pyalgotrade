@@ -46,7 +46,7 @@ class BuyOnGap(eventprofiler.Predicate):
 
 def main(plot):
     instruments = ["AA", "AES", "AIG"]
-    feed = yahoofinance.build_feed(instruments, 2008, 2009, "data")
+    feed = yahoofinance.build_feed(instruments, 2008, 2009, ".")
 
     predicate = BuyOnGap(feed)
     eventProfiler = eventprofiler.Profiler(predicate, 5, 5)

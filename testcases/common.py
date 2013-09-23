@@ -20,6 +20,7 @@
 
 import csv
 import os
+import shutil
 
 from pyalgotrade import dataseries
 
@@ -57,11 +58,24 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals = 2, max
 		expectedValue = normalize_value(expectedValues[i], roundDecimals)
 		testcase.assertEquals(value, expectedValue)
 
-def get_temp_path():
-	return "data"
-
 def init_temp_path():
 	storage = get_temp_path()
 	if not os.path.exists(storage):
 		os.mkdir(storage)
+
+def get_temp_path():
+	return "data"
+
+class CopyFiles:
+	def __init__(self, files, dst):
+		self.__files = files
+		self.__dst = dst
+
+	def __enter__(self):
+		for src in self.__files:
+			shutil.copy2(src, self.__dst)
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		for src in self.__files:
+			os.remove(os.path.join(self.__dst, os.path.basename(src)))
 

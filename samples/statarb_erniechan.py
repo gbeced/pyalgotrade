@@ -135,7 +135,7 @@ def main(plot):
     windowSize = 50
 
     # Download the bars.
-    feed = yahoofinance.build_feed(instruments, 2006, 2012, "data")
+    feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
 
     myStrategy = MyStrategy(feed, instruments[0], instruments[1], windowSize)
 

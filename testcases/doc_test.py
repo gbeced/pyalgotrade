@@ -66,49 +66,45 @@ def compare_tail(fileName, lines):
 
 class TutorialTestCase(unittest.TestCase):
 	def testTutorial1(self):
-		shutil.copy2(os.path.join("testcases", "data", "orcl-2000.csv"), ".")
-		lines = run_sample_script("tutorial-1.py").split("\n")
-		self.assertTrue(compare_head("tutorial-1.output", lines[:3]))
-		self.assertTrue(compare_tail("tutorial-1.output", lines[-4:-1]))
+		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+			lines = run_sample_script("tutorial-1.py").split("\n")
+			self.assertTrue(compare_head("tutorial-1.output", lines[:3]))
+			self.assertTrue(compare_tail("tutorial-1.output", lines[-4:-1]))
 
 	def testTutorial2(self):
-		shutil.copy2(os.path.join("testcases", "data", "orcl-2000.csv"), ".")
-		lines = run_sample_script("tutorial-2.py").split("\n")
-		self.assertTrue(compare_head("tutorial-2.output", lines[:15]))
-		self.assertTrue(compare_tail("tutorial-2.output", lines[-4:-1]))
+		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+			lines = run_sample_script("tutorial-2.py").split("\n")
+			self.assertTrue(compare_head("tutorial-2.output", lines[:15]))
+			self.assertTrue(compare_tail("tutorial-2.output", lines[-4:-1]))
 
 	def testTutorial3(self):
-		shutil.copy2(os.path.join("testcases", "data", "orcl-2000.csv"), ".")
-		lines = run_sample_script("tutorial-3.py").split("\n")
-		self.assertTrue(compare_head("tutorial-3.output", lines[:30]))
-		self.assertTrue(compare_tail("tutorial-3.output", lines[-4:-1]))
+		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+			lines = run_sample_script("tutorial-3.py").split("\n")
+			self.assertTrue(compare_head("tutorial-3.output", lines[:30]))
+			self.assertTrue(compare_tail("tutorial-3.output", lines[-4:-1]))
 
 	def testTutorial4(self):
-		shutil.copy2(os.path.join("testcases", "data", "orcl-2000.csv"), ".")
-		lines = run_sample_script("tutorial-4.py").split("\n")
-		self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
+		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+			lines = run_sample_script("tutorial-4.py").split("\n")
+			self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
 
 	def testTutorial1MtGox(self):
-		shutil.copy2(os.path.join("samples", "trades-mtgox-usd-2013-03.csv"), ".")
-
-		code = """import sys
+		with common.CopyFiles([os.path.join("samples", "data", "trades-mtgox-usd-2013-03.csv")], "."):
+			code = """import sys
 sys.path.append('samples')
 import tutorial_mtgox_1
 tutorial_mtgox_1.main(False)
 """
-		lines = run_python_code(code).split("\n")
-		self.assertTrue(compare_head("tutorial_mtgox_1.output", lines[0:10]))
-		self.assertTrue(compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_head("tutorial_mtgox_1.output", lines[0:10]))
+			self.assertTrue(compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
 
 class CompInvTestCase(unittest.TestCase):
 	def testCompInv_1(self):
-		common.init_temp_path()
-		shutil.copy2(os.path.join("samples", "aeti-2011-yahoofinance.csv"), common.get_temp_path())
-		shutil.copy2(os.path.join("samples", "egan-2011-yahoofinance.csv"), common.get_temp_path())
-		shutil.copy2(os.path.join("samples", "simo-2011-yahoofinance.csv"), common.get_temp_path())
-		shutil.copy2(os.path.join("samples", "glng-2011-yahoofinance.csv"), common.get_temp_path())
-		lines = run_sample_script("compinv-1.py").split("\n")
-		self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
+		files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
+		with common.CopyFiles(files, "."):
+			lines = run_sample_script("compinv-1.py").split("\n")
+			self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
 
 class DataSeriesTestCase(unittest.TestCase):
 	def testDataSeries_1(self):
@@ -117,9 +113,9 @@ class DataSeriesTestCase(unittest.TestCase):
 
 class StratAnalyzerTestCase(unittest.TestCase):
 	def testSampleStrategyAnalyzer(self):
-		shutil.copy2(os.path.join("testcases", "data", "orcl-2000.csv"), ".")
-		lines = run_sample_script("sample-strategy-analyzer.py").split("\n")
-		self.assertTrue(compare_head("sample-strategy-analyzer.output", lines[:-1]))
+		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+			lines = run_sample_script("sample-strategy-analyzer.py").split("\n")
+			self.assertTrue(compare_head("sample-strategy-analyzer.output", lines[:-1]))
 
 class TechnicalTestCase(unittest.TestCase):
 	def testTechnical_1(self):
@@ -128,72 +124,68 @@ class TechnicalTestCase(unittest.TestCase):
 
 class SampleStratTestCase(unittest.TestCase):
 	def testErnieChanGldVsGdx(self):
-		# Get the files that generated the result that we're checking for.
-		if not os.path.exists("data"):
-			os.mkdir("data")
+		files = []
 		for year in range(2006, 2013):
 			for symbol in ["gld", "gdx"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), "data")
+				files.append(os.path.join("samples", "data", fileName))
 
-		code = """import sys
+		with common.CopyFiles(files, "."):
+			code = """import sys
 sys.path.append('samples')
 import statarb_erniechan
 statarb_erniechan.main(False)
 """
-		lines = run_python_code(code).split("\n")
-		self.assertTrue(compare_tail("statarb_erniechan.output", lines[-2:-1]))
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_tail("statarb_erniechan.output", lines[-2:-1]))
 
 	def testVWAPMomentum(self):
-		# Get the files that generated the result that we're checking for.
-		if not os.path.exists("data"):
-			os.mkdir("data")
+		files = []
 		for year in range(2011, 2013):
 			for symbol in ["aapl"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), "data")
+				files.append(os.path.join("samples", "data", fileName))
 
-		code = """import sys
+		with common.CopyFiles(files, "."):
+			code = """import sys
 sys.path.append('samples')
 import vwap_momentum
 vwap_momentum.main(False)
 """
-		lines = run_python_code(code).split("\n")
-		self.assertTrue(compare_tail("vwap_momentum.output", lines[-2:-1]))
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_tail("vwap_momentum.output", lines[-2:-1]))
 
 	def testBBands(self):
-		# Get the files that generated the result that we're checking for.
-		if not os.path.exists("data"):
-			os.mkdir("data")
+		files = []
 		for year in range(2011, 2013):
 			for symbol in ["yhoo"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), "data")
+				files.append(os.path.join("samples", "data", fileName))
 
-		code = """import sys
+		with common.CopyFiles(files, "."):
+			code = """import sys
 sys.path.append('samples')
 import bbands
 bbands.main(False)
 """
-		lines = run_python_code(code).split("\n")
-		self.assertTrue(compare_tail("bbands.output", lines[-2:-1]))
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_tail("bbands.output", lines[-2:-1]))
 
 	def testEventStudy(self):
-		# Get the files that generated the result that we're checking for.
-		if not os.path.exists("data"):
-			os.mkdir("data")
+		files = []
 		for year in range(2008, 2010):
 			for symbol in ["AA", "AES", "AIG"]:
 				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-				shutil.copy2(os.path.join("samples", fileName), "data")
+				files.append(os.path.join("samples", "data", fileName))
 
-		code = """import sys
+		with common.CopyFiles(files, "."):
+			code = """import sys
 sys.path.append('samples')
 import eventstudy
 eventstudy.main(False)
 """
-		lines = run_python_code(code).split("\n")
-		self.assertTrue(compare_tail("eventstudy.output", lines[-2:-1]))
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_tail("eventstudy.output", lines[-2:-1]))
 
 def getTestCases():
 	ret = []

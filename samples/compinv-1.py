@@ -28,10 +28,10 @@ class MyStrategy(strategy.BacktestingStrategy):
 
 # Load the yahoo feed from CSV files.
 feed = yahoofeed.Feed()
-feed.addBarsFromCSV("aeti", os.path.join("data", "aeti-2011-yahoofinance.csv"))
-feed.addBarsFromCSV("egan", os.path.join("data", "egan-2011-yahoofinance.csv"))
-feed.addBarsFromCSV("glng", os.path.join("data", "glng-2011-yahoofinance.csv"))
-feed.addBarsFromCSV("simo", os.path.join("data", "simo-2011-yahoofinance.csv"))
+feed.addBarsFromCSV("aeti", "aeti-2011-yahoofinance.csv")
+feed.addBarsFromCSV("egan", "egan-2011-yahoofinance.csv")
+feed.addBarsFromCSV("glng", "glng-2011-yahoofinance.csv")
+feed.addBarsFromCSV("simo", "simo-2011-yahoofinance.csv")
 
 # Evaluate the strategy with the feed's bars.
 myStrategy = MyStrategy(feed)
