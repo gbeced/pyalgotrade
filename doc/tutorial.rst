@@ -215,7 +215,7 @@ and something like this on the worker/s console: ::
     .
     .
 
-Note that you should run **only one server and one or more workers in different computers**.
+Note that you should run **only one server and one or more workers**.
 
 If you just want to run strategies in parallel in your own desktop you can take advantage of the pyalgotrade.optimizer.local
 module like this:
