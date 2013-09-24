@@ -81,6 +81,10 @@ class RowParser(csvfeed.RowParser):
 		if self.__sanitize:
 			if low > open_:
 				low = open_
+			if low > close:
+				low = close
+			if high < open_:
+				high = open_
 
 		return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose)
 
