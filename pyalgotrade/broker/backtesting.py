@@ -154,6 +154,9 @@ class DefaultStrategy(FillStrategy):
 	"""
 	Default fill strategy.
 
+	:param volumeLimit: The proportion of the volume that an order can take up in a bar. Must be > 0 and <= 1.
+	:type volumeLimit: float.
+
 	This strategy works as follows:
 
 	* A :class:`pyalgotrade.broker.MarketOrder` is always filled using the open/close price.
@@ -174,6 +177,25 @@ class DefaultStrategy(FillStrategy):
 	.. note::
 		This is the default strategy used by the Broker.
 	"""
+
+	def __init__(self, volumeLimit=0.25):
+		assert(volumeLimit > 0 and volumeLimit <= 1)
+		self.__volumeLimit = volumeLimit
+
+	def setVolumeLimit(self, volumeLimit):
+		self.__volumeLimit = volumeLimit
+
+	def __getFillSize(self, order, bar):
+		if self.__volumeLimit != None:
+			maxQuantity = bar.getVolume() * self.__volumeLimit
+			if order.getQuantity() > maxQuantity:
+				# Partial fills not supported yet.
+				ret = None
+			else:
+				ret = order.getQuantity()
+		else:
+			ret = order.getQuantity()
+		return ret
 
 	def __getLimitOrderFillPrice(self, broker_, bar, action, limitPrice):
 		ret = None
@@ -206,27 +228,38 @@ class DefaultStrategy(FillStrategy):
 		return ret
 
 	def fillMarketOrder(self, order, broker_, bar):
+		fillSize = self.__getFillSize(order, bar)
+		if fillSize == None:
+			return None
+
+		ret = None
 		if order.getFillOnClose():
 			price = pyalgotrade.bar.get_close(bar, broker_.getUseAdjustedValues())
 		else:
 			price = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
-
-		ret = None
 		if price != None:
 			ret = FillInfo(price)
 		return ret
 
 	# Return the fill price for a LimitOrder or None.
 	def fillLimitOrder(self, order, broker_, bar):
-		price = self.__getLimitOrderFillPrice(broker_, bar, order.getAction(), order.getLimitPrice())
+		fillSize = self.__getFillSize(order, bar)
+		if fillSize == None:
+			return None
 
 		ret = None
+		price = self.__getLimitOrderFillPrice(broker_, bar, order.getAction(), order.getLimitPrice())
 		if price != None:
 			ret = FillInfo(price)
 		return ret
 
 	# Return the fill price for a StopOrder or None.
 	def fillStopOrder(self, order, broker_, bar):
+		fillSize = self.__getFillSize(order, bar)
+		if fillSize == None:
+			return None
+
+		ret = None
 		price = None
 		open_ = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
 		high = pyalgotrade.bar.get_high(bar, broker_.getUseAdjustedValues())
@@ -256,13 +289,17 @@ class DefaultStrategy(FillStrategy):
 		else: # Unknown action
 			assert(False)
 
-		ret = None
 		if price != None:
 			ret = FillInfo(price)
 		return ret
 
 	# Return the fill price for a StopLimitOrder or None.
 	def fillStopLimitOrder(self, order, broker_, bar, justHitStopPrice):
+		fillSize = self.__getFillSize(order, bar)
+		if fillSize == None:
+			return None
+
+		ret = None
 		price = self.__getLimitOrderFillPrice(broker_, bar, order.getAction(), order.getLimitPrice())
 		# If we just hit the stop price, we need to make additional checks.
 		if price != None and justHitStopPrice:
@@ -275,7 +312,6 @@ class DefaultStrategy(FillStrategy):
 			else: # Unknown action
 				assert(False)
 
-		ret = None
 		if price != None:
 			ret = FillInfo(price)
 		return ret

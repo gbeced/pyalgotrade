@@ -201,6 +201,9 @@ class AnalyzerTestCase(unittest.TestCase):
 		stratAnalyzer = drawdown.DrawDown()
 		strat.attachAnalyzer(stratAnalyzer)
 
+		# Disable volume checks to match book results.
+		strat.getBroker().getFillStrategy().setVolumeLimit(None) 
+
 		# Manually place the order to get it filled on the first bar.
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)

@@ -48,10 +48,12 @@ class BaseTestCase(unittest.TestCase):
 			self.__currMinutes += 1
 		return self.__nextDateTime + datetime.timedelta(minutes=self.__currMinutes)
 
-	def buildBars(self, openPrice, highPrice, lowPrice, closePrice, sessionClose = False):
+	def buildBars(self, openPrice, highPrice, lowPrice, closePrice, sessionClose=False, volume=None):
 		ret = {}
 		dateTime = self.__getNextDateTime(sessionClose)
-		bar_ = bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice)
+		if volume == None:
+			volume = closePrice*10
+		bar_ = bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, volume, closePrice)
 		bar_.setSessionClose(sessionClose)
 		ret[BaseTestCase.TestInstrument] = bar_
 		return bar.Bars(ret)
@@ -88,6 +90,31 @@ class BrokerTestCase(BaseTestCase):
 		self.assertEqual(activeOrders[1], 1) # First order gets filled, one order is active.
 		self.assertEqual(activeOrders[2], 1) # Second order gets accepted, one order is active.
 		self.assertEqual(activeOrders[3], 0) # Second order gets filled, zero orders are active.
+
+	def testVolumeLimit(self):
+		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		orders = []
+
+		# Try with different order types.
+		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 3)
+		brk.placeOrder(order)
+		orders.append(order)
+		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
+		brk.placeOrder(order)
+		orders.append(order)
+		order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
+		brk.placeOrder(order)
+		orders.append(order)
+		order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 10, 3)
+		brk.placeOrder(order)
+		orders.append(order)
+
+		brk.onBars(self.buildBars(10, 15, 8, 12, volume=10))
+		for order in orders:
+			self.assertFalse(order.isFilled())
+		brk.onBars(self.buildBars(10, 15, 8, 12, volume=12))
+		for order in orders:
+			self.assertTrue(order.isFilled())
 
 class MarketOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
@@ -236,7 +263,7 @@ class MarketOrderTestCase(BaseTestCase):
 		# Buy
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 100)
 		brk.placeOrder(order)
-		brk.onBars(self.buildBars(10, 15, 8, 12))
+		brk.onBars(self.buildBars(10, 15, 8, 12, volume=500))
 		self.assertTrue(order.isFilled())
 		self.assertTrue(order.getExecutionInfo().getCommission() == 10)
 		self.assertTrue(len(brk.getActiveOrders()) == 0)
@@ -1129,6 +1156,7 @@ def getTestCases():
 	ret.append(CommissionTestCase("testTradePercentage"))
 
 	ret.append(BrokerTestCase("testRegressionGetActiveOrders"))
+	ret.append(BrokerTestCase("testVolumeLimit"))
 
 	ret.append(MarketOrderTestCase("testBuyAndSell"))
 	ret.append(MarketOrderTestCase("testFailToBuy"))

@@ -66,6 +66,9 @@ class SharpeRatioTestCase(unittest.TestCase):
 		stratAnalyzer = sharpe.SharpeRatio()
 		strat.attachAnalyzer(stratAnalyzer)
 
+		# Disable volume checks to match book results.
+		strat.getBroker().getFillStrategy().setVolumeLimit(None) 
+
 		# Manually place the order to get it filled on the first bar.
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
@@ -98,11 +101,15 @@ class SharpeRatioTestCase(unittest.TestCase):
 		stratAnalyzer = sharpe.SharpeRatio()
 		strat.attachAnalyzer(stratAnalyzer)
 
+		# Disable volume checks to match book results.
+		strat.getBroker().getFillStrategy().setVolumeLimit(None) 
+
 		# Manually place the order to get it filled on the first bar.
 		order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True) # Adj. Close: 42.09
 		order.setGoodTillCanceled(True)
 		strat.getBroker().placeOrder(order)
 		strat.addOrder(strategy_test.datetime_from_date(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True) # Adj. Close: 127.64
+
 		strat.run()
 		self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09 - commision*2))
 		self.assertTrue(strat.getOrderUpdatedEvents() == 4)
