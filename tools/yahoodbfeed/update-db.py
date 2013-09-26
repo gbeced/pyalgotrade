@@ -88,18 +88,18 @@ def update_db(dbFilePath, symbolsFile, timezone, fromYear, toYear):
 # http://www.nasdaq.com/screening/companies-by-name.aspx?exchange=NASDAQ&render=download
 
 def main():
-	fromYear = 2000
+	fromYear = 2008
 	toYear = 2012
 
-	symbolsFile = "nyse-symbols.txt"
-	dbFile = "nyse.sqlite"
-	timezone = marketsession.USEquities.timezone
+	# symbolsFile = "nyse-symbols.txt"
+	# dbFile = "nyse.sqlite"
+	# timezone = marketsession.USEquities.timezone
 
-	# symbolsFile = "merval-symbols.txt"
-	# dbFile = "merval.sqlite"
-	# timezone = marketsession.MERVAL.timezone
+	symbolsFile = "merval-symbols.txt"
+	dbFile = "merval.sqlite"
+	timezone = marketsession.MERVAL.timezone
 
-	# download_files(symbolsFile, fromYear, toYear)
+	download_files(symbolsFile, fromYear, toYear)
 	# update_db(dbFile, symbolsFile, timezone, fromYear, toYear)
 
 main()
