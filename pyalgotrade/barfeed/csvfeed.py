@@ -83,7 +83,7 @@ class USEquitiesRTH(DateRangeFilter):
 				return False
 		return ret
 
-class BarFeed(membf.Feed):
+class BarFeed(membf.BarFeed):
 	"""Base class for CSV file based :class:`pyalgotrade.barfeed.BarFeed`.
 
 	.. note::
@@ -91,7 +91,7 @@ class BarFeed(membf.Feed):
 	"""
 
 	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
-		membf.Feed.__init__(self, frequency, maxLen)
+		membf.BarFeed.__init__(self, frequency, maxLen)
 		self.__barFilter = None
 		self.__dailyTime = datetime.time(23, 59, 59)
 

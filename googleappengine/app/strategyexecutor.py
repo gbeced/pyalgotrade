@@ -38,7 +38,7 @@ def load_pyalgotrade_daily_bars(instrument, barType, fromDateTime, toDateTime):
 	bars = [ds_bar_to_pyalgotrade_bar(dbBar) for dbBar in dbBars]
 
 	# Use a feed to build pyalgotrade.bar.Bars objects.
-	feed = membf.Feed(barfeed.Frequency.DAY)
+	feed = membf.BarFeed(barfeed.Frequency.DAY)
 	feed.addBarsFromSequence(instrument, bars)
 	ret = []
 	feed.start()

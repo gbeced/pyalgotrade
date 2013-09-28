@@ -30,7 +30,7 @@ from pyalgotrade import bar
 # Subclasses should:
 # - Forward the call to start() if they override it.
 
-class Feed(barfeed.BaseBarFeed):
+class BarFeed(barfeed.BaseBarFeed):
 	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
 		self.__bars = {}
