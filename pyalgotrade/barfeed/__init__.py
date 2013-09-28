@@ -20,7 +20,7 @@
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
-from pyalgotrade import observer
+from pyalgotrade import feed
 from pyalgotrade import bar
 from pyalgotrade import warninghelpers
 
@@ -31,53 +31,41 @@ class Frequency:
 	HOUR	= 3
 	DAY		= 4
 
-# This class is responsible for:
-# - Managing and upating BarDataSeries instances.
-# - Event dispatching
-#
 # Subclasses should implement:
-# - observer.Subject interface
 # - getNextBars
 #
 # THIS IS A VERY BASIC CLASS AND IT WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
 
-class BasicBarFeed(observer.Subject):
+class BasicBarFeed(feed.Feed):
 	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+		feed.Feed.__init__(self, maxLen)
 		assert(maxLen == None or maxLen > 0)
-		self.__ds = {}
 		self.__defaultInstrument = None
-		self.__newBarsEvent = observer.Event()
 		self.__currentBars = None
 		self.__lastBars = {}
 		self.__frequency = frequency
-		self.__maxLen = maxLen
-
-	# Return True if this is a real-time BarFeed.
-	def isRealTime(self):
-		raise NotImplementedError()
 
 	# Return True if bars provided have adjusted close values.
 	def barsHaveAdjClose(self):
 		raise NotImplementedError()
 
-	def __getNextBarsAndUpdateDS(self):
+	# Subclasses should implement this and return a pyalgotrade.bar.Bars or None if there are no bars.
+	def getNextBars(self):
+		raise NotImplementedError()
+
+	def createDataSeries(self, key, maxLen):
+		return bards.BarDataSeries(maxLen)
+
+	def getNextValues(self):
+		dateTime = None
 		bars = self.getNextBars()
 		if bars != None:
+			dateTime = bars.getDateTime()
+			# Update self.__currentBars and self.__lastBars
 			self.__currentBars = bars
-			# Update self.__lastBars and the dataseries.
 			for instrument in bars.getInstruments():
-				bar_ = bars.getBar(instrument)
-				self.__lastBars[instrument] = bar_ 
-				self.__ds[instrument].append(bar_)
-		return bars
-
-	def __iter__(self):
-		return self
-
-	def next(self):
-		if self.eof():
-			raise StopIteration()
-		return self.__getNextBarsAndUpdateDS()
+				self.__lastBars[instrument] = bars[instrument]
+		return (dateTime, bars)
 
 	def getFrequency(self):
 		return self.__frequency
@@ -94,31 +82,21 @@ class BasicBarFeed(observer.Subject):
 		"""Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or None."""
 		return self.__lastBars.get(instrument, None)
 
-	# Subclasses should implement this and return a pyalgotrade.bar.Bars or None if there are no bars.
-	def getNextBars(self):
-		raise NotImplementedError()
-
 	def getNewBarsEvent(self):
-		return self.__newBarsEvent
+		# This is for backwards compatibility purposes.
+		return self.getEvent()
 
 	def getDefaultInstrument(self):
 		"""Returns the default instrument."""
 		return self.__defaultInstrument
 
-	# Dispatch events.
-	def dispatch(self):
-		bars = self.__getNextBarsAndUpdateDS()
-		if bars != None:
-			self.__newBarsEvent.emit(bars)
-
 	def getRegisteredInstruments(self):
 		"""Returns a list of registered intstrument names."""
-		return self.__ds.keys()
+		return self.getKeys()
 
 	def registerInstrument(self, instrument):
 		self.__defaultInstrument = instrument
-		if instrument not in self.__ds:
-			self.__ds[instrument] = bards.BarDataSeries(self.__maxLen)
+		self.registerDataSeries(instrument)
 
 	def getDataSeries(self, instrument = None):
 		"""Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument.
@@ -129,16 +107,7 @@ class BasicBarFeed(observer.Subject):
 		"""
 		if instrument == None:
 			instrument = self.__defaultInstrument
-		return self.__ds[instrument]
-
-	def __getitem__(self, instrument):
-		"""Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument.
-		If the instrument is not found an exception is raised."""
-		return self.__ds[instrument]
-
-	def __contains__(self, instrument):
-		"""Returns True if a :class:`pyalgotrade.dataseries.bards.BarDataSeries` for the given instrument is available."""
-		return instrument in self.__ds
+		return self[instrument]
 
 # This class is responsible for:
 # - Checking the pyalgotrade.bar.Bar objects returned by fetchNextBars and building pyalgotrade.bar.Bars objects.

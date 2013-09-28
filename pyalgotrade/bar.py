@@ -183,6 +183,9 @@ class Bars:
 		"""Returns True if a :class:`pyalgotrade.bar.Bar` for the given instrument is available."""
 		return instrument in self.__barDict
 
+	def items(self):
+		return self.__barDict.items()
+
 	def getInstruments(self):
 		"""Returns the instrument symbols."""
 		return self.__barDict.keys()
