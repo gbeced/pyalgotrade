@@ -79,7 +79,7 @@ class BrokerTestCase(BaseTestCase):
 		def onOrderUpdated(broker, order):
 			activeOrders.append(len(broker.getActiveOrders()))
 
-		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 		brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
 		brk.placeOrder(brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1))
 		brk.placeOrder(brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1))
@@ -92,7 +92,7 @@ class BrokerTestCase(BaseTestCase):
 		self.assertEqual(activeOrders[3], 0) # Second order gets filled, zero orders are active.
 
 	def testVolumeLimit(self):
-		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 		orders = []
 
 		# Try with different order types.
@@ -118,7 +118,7 @@ class BrokerTestCase(BaseTestCase):
 
 class MarketOrderTestCase(BaseTestCase):
 	def testBuyAndSell(self):
-		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(11, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		cb = Callback()
@@ -149,7 +149,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testFailToBuy(self):
-		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(5, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
 
@@ -177,7 +177,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuy_GTC(self):
-		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(5, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
 		order.setGoodTillCanceled(True)
@@ -207,7 +207,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuyAndSellInTwoSteps(self):
-		brk = backtesting.Broker(20.4, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(20.4, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2)
@@ -243,7 +243,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 
 	def testPortfolioValue(self):
-		brk = backtesting.Broker(11, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(11, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
@@ -258,7 +258,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getEquityWithBars(self.buildBars(1, 1, 1, 1)) == 1 + 1)
 
 	def testBuyWithCommission(self):
-		brk = backtesting.Broker(1020, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedPerTrade(10))
+		brk = backtesting.Broker(1020, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedPerTrade(10))
 
 		# Buy
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 100)
@@ -271,7 +271,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 100)
 
 	def testSellShort_1(self):
-		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Short sell
 		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 1)
@@ -297,7 +297,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getShares(BaseTestCase.TestInstrument) == 0)
 
 	def testSellShort_2(self):
-		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Short sell 1
 		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 1)
@@ -333,7 +333,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getEquityWithBars(self.buildBars(70, 70, 70, 70)) == 1000 + 50 + 50)
 
 	def testSellShort_3(self):
-		brk = backtesting.Broker(100, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(100, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy 1
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
@@ -365,7 +365,7 @@ class MarketOrderTestCase(BaseTestCase):
 	def testSellShortWithCommission(self):
 		sharePrice = 100
 		commission = 10
-		brk = backtesting.Broker(1010, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedPerTrade(commission))
+		brk = backtesting.Broker(1010, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE), commission=backtesting.FixedPerTrade(commission))
 
 		# Sell 10 shares
 		order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 10)
@@ -386,7 +386,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(brk.getCash() == sharePrice - commission)
 
 	def testCancel(self):
-		brk = backtesting.Broker(100, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(100, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 		order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
 		brk.placeOrder(order)
 		brk.cancelOrder(order)
@@ -394,7 +394,7 @@ class MarketOrderTestCase(BaseTestCase):
 		self.assertTrue(order.isCanceled())
 
 	def testReSubmit(self):
-		brk = backtesting.Broker(1000, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		cb = Callback()
 		brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
@@ -408,7 +408,7 @@ class MarketOrderTestCase(BaseTestCase):
 
 class LimitOrderTestCase(BaseTestCase):
 	def testBuyAndSell_HitTargetPrice(self):
-		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(20, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		cb = Callback()
@@ -439,7 +439,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testBuyAndSell_GetBetterPrice(self):
-		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(20, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		cb = Callback()
@@ -470,7 +470,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testBuyAndSell_GappingBars(self):
-		brk = backtesting.Broker(20, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(20, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Bar is below the target price.
 		cb = Callback()
@@ -501,7 +501,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testFailToBuy(self):
-		brk = backtesting.Broker(5, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(5, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 5, 1)
 
@@ -529,7 +529,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testBuy_GTC(self):
-		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(10, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 4, 2)
 		order.setGoodTillCanceled(True)
@@ -559,7 +559,7 @@ class LimitOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 1)
 
 	def testReSubmit(self):
-		brk = backtesting.Broker(10, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(10, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1, 1)
 		order.setGoodTillCanceled(True)
@@ -597,7 +597,7 @@ class LimitOrderTestCase(BaseTestCase):
 
 class StopOrderTestCase(BaseTestCase):
 	def testLongPosStopLoss(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		cb = Callback()
@@ -633,7 +633,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testLongPosStopLoss_GappingBars(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		cb = Callback()
@@ -669,7 +669,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testShortPosStopLoss(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Sell short
 		cb = Callback()
@@ -705,7 +705,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testShortPosStopLoss_GappingBars(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Sell short
 		cb = Callback()
@@ -741,7 +741,7 @@ class StopOrderTestCase(BaseTestCase):
 		self.assertTrue(cb.eventCount == 2)
 
 	def testReSubmit(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy
 		cb = Callback()
@@ -782,7 +782,7 @@ class StopOrderTestCase(BaseTestCase):
 
 class StopLimitOrderTestCase(BaseTestCase):
 	def testFillOpen(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
@@ -829,7 +829,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 7)
 
 	def testFillOpen_GappingBars(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
@@ -876,7 +876,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
 
 	def testFillLimit(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
@@ -923,7 +923,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 6)
 
 	def testHitStopAndLimit(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()
@@ -950,7 +950,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
 
 	def testInvertedPrices_FillOpen(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
@@ -997,7 +997,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 9)
 
 	def testInvertedPrices_FillOpen_GappingBars(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
@@ -1044,7 +1044,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 10)
 
 	def testInvertedPrices_FillLimit(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
@@ -1091,7 +1091,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
 
 	def testInvertedPrices_HitStopAndLimit(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 12. Buy <= 10.
 		cb = Callback()
@@ -1118,7 +1118,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 		self.assertTrue(order.getExecutionInfo().getPrice() == 8)
 
 	def testReSubmit(self):
-		brk = backtesting.Broker(15, barFeed=barfeed.BarFeed(barfeed.Frequency.MINUTE))
+		brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(barfeed.Frequency.MINUTE))
 
 		# Buy. Stop >= 10. Buy <= 12.
 		cb = Callback()

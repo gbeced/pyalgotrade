@@ -155,7 +155,7 @@ class CSVTradeFeed(csvfeed.BarFeed):
 		rowParser = RowParser(timezone)
 		csvfeed.BarFeed.addBarsFromCSV(self, "BTC", path, rowParser)
 
-class LiveTradeFeed(barfeed.BarFeed):
+class LiveTradeFeed(barfeed.BaseBarFeed):
 	"""A real-time BarFeed that builds bars from live trades.
 
 	:param client: A MtGox client.
@@ -200,10 +200,10 @@ class LiveTradeFeed(barfeed.BarFeed):
 			# Dispatch immediately
 			self.dispatch()
 
-	def fetchNextBars(self):
+	def getNextBars(self):
 		ret = None
 		if len(self.__barDicts):
-			ret = self.__barDicts.pop(0)
+			ret = bar.Bars(self.__barDicts.pop(0))
 		return ret
 
 	def peekDateTime(self):

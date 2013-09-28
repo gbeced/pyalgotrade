@@ -21,6 +21,7 @@
 from pyalgotrade import barfeed
 from pyalgotrade import dataseries
 from pyalgotrade.barfeed import helpers
+from pyalgotrade import bar
 
 # A non real-time BarFeed responsible for:
 # - Holding bars in memory.
@@ -29,9 +30,9 @@ from pyalgotrade.barfeed import helpers
 # Subclasses should:
 # - Forward the call to start() if they override it.
 
-class Feed(barfeed.BarFeed):
+class Feed(barfeed.BaseBarFeed):
 	def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
-		barfeed.BarFeed.__init__(self, frequency, maxLen)
+		barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
 		self.__bars = {}
 		self.__nextBarIdx = {}
 		self.__started = False
@@ -90,7 +91,7 @@ class Feed(barfeed.BarFeed):
 		assert(ret != None)
 		return ret
 
-	def fetchNextBars(self):
+	def getNextBars(self):
 		# All bars must have the same datetime. We will return all the ones with the smallest datetime.
 		smallestDateTime = self.peekDateTime()
 
@@ -107,7 +108,7 @@ class Feed(barfeed.BarFeed):
 				self.__nextBarIdx[instrument] += 1
 
 		self.__barsLeft -= 1
-		return ret
+		return bar.Bars(ret)
 
 	def getBarsLeft(self):
 		return self.__barsLeft

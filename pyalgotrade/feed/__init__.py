@@ -21,7 +21,9 @@
 from pyalgotrade import observer
 from pyalgotrade import dataseries
 
-class Feed(observer.Subject):
+# Base class for feeds.
+# These are data providing abstractions.
+class BaseFeed(observer.Subject):
 	def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
 		assert(maxLen == None or maxLen > 0)
 		self.__ds = {}

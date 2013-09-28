@@ -7,6 +7,7 @@ Version 0.14 (TBD)
 . [FIX] Fixed a bug when using the optimizer and a broker with adjusted values.
 . [CHANGE] broker.backtesting.FillStrategy was changed to return a broker.backtesting.FillInfo instance.
 . [CHANGE] broker.backtesting.FillStrategy now takes bar volume into account to fill an order.
+. [CHANGE] pyalgotrade.barfeed.BarFeed was renamed to pyalgotrade.barfeed.BaseBarFeed and pyalgotrade.barfeed.BasicBarFeed was removed.
 
 Version 0.13 (26/Aug/2013)
 . [NEW] Added support for handling realtime Twitter events (pyalgotrade.twitter.feed).

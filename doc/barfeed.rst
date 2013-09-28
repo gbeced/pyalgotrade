@@ -2,11 +2,13 @@ barfeed -- Bar providers
 ========================
 
 .. automodule:: pyalgotrade.barfeed
-    :members: BarFeed
+    :members: BaseBarFeed
     :inherited-members:
     :special-members:
     :show-inheritance:
 
+CSV
+---
 .. automodule:: pyalgotrade.barfeed.csvfeed
     :members: BarFeed, GenericBarFeed
     :show-inheritance:
