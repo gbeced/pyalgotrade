@@ -186,6 +186,9 @@ class Bars:
 	def items(self):
 		return self.__barDict.items()
 
+	def keys(self):
+		return self.__barDict.keys()
+
 	def getInstruments(self):
 		"""Returns the instrument symbols."""
 		return self.__barDict.keys()

@@ -59,17 +59,17 @@ class Sampler:
 		self.__slot = None
 		self.__writer = CSVFileWriter(csvFile)
 
-	def __onBars(self, bars):
-		dateTime = resampled.get_slot_datetime(bars.getDateTime(), self.__frequency)
+	def __onBars(self, dateTime, bars):
+		slotDateTime = resampled.get_slot_datetime(dateTime, self.__frequency)
 		bar = bars[self.__instrument]
 
 		if self.__slot == None:
-			self.__slot = resampled.Slot(dateTime, bar)
-		elif self.__slot.getDateTime() == dateTime:
+			self.__slot = resampled.Slot(slotDateTime, bar)
+		elif self.__slot.getDateTime() == slotDateTime:
 			self.__slot.addBar(bar)
 		else:
 			self.__writer.writeSlot(self.__slot)
-			self.__slot = resampled.Slot(dateTime, bar)
+			self.__slot = resampled.Slot(slotDateTime, bar)
 
 	def finish(self):
 		if self.__slot != None:

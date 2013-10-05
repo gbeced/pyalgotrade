@@ -22,9 +22,8 @@ from pyalgotrade import feed
 from pyalgotrade import dataseries
 
 class MemFeed(feed.BaseFeed):
-	def __init__(self, dateTimeKey, maxLen=dataseries.DEFAULT_MAX_LEN):
+	def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
 		feed.BaseFeed.__init__(self, maxLen)
-		self.__dateTimeKey = dateTimeKey
 		self.__values = []
 		self.__nextIdx = 0
 
@@ -46,7 +45,7 @@ class MemFeed(feed.BaseFeed):
 	def peekDateTime(self):
 		ret = None
 		if self.__nextIdx < len(self.__values):
-			ret = self.__values[self.__nextIdx][self.__dateTimeKey]
+			ret = self.__values[self.__nextIdx][0]
 		return ret
 
 	def isRealTime(self):
@@ -58,17 +57,20 @@ class MemFeed(feed.BaseFeed):
 	def getNextValues(self):
 		ret = (None, None)
 		if self.__nextIdx < len(self.__values):
-			dateTime = self.__values[self.__nextIdx][self.__dateTimeKey]
-			values = self.__values[self.__nextIdx]
-			# Remove the datetime column to avoid building a dataseries for that.
-			# All the values in the dataseries will have the datetime associated anyway.
-			del values[self.__dateTimeKey]
-			ret = (dateTime, values)
+			ret = self.__values[self.__nextIdx]
 			self.__nextIdx += 1
 		return ret
 
+	# Add values to the feed. values should be a sequence of tupes. The tupes should have two elements:
+	# 1: datetime.datetime.
+	# 2: dictionary or dict-like object.
 	def addValues(self, values):
-		self.__values.extend(values)
-		cmpFun = lambda x, y: cmp(x[self.__dateTimeKey], y[self.__dateTimeKey])
-		self.__values.sort(cmpFun)
+		if len(values):
+			# Register a dataseries for each item.
+			for key in values[0][1].keys():
+				self.registerDataSeries(key)
+
+			self.__values.extend(values)
+			cmpFun = lambda x, y: cmp(x[0], y[0])
+			self.__values.sort(cmpFun)
 

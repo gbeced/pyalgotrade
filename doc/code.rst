@@ -8,6 +8,7 @@ Contents:
 
     bar
     dataseries
+    feed
     barfeed
     technical
     broker

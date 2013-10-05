@@ -4,8 +4,6 @@ from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.utils import stats
 
-import os
-
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed):
         strategy.BacktestingStrategy.__init__(self, feed, 1000000)

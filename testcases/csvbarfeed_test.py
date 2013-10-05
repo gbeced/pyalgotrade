@@ -26,6 +26,7 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.utils import dt
 from pyalgotrade import marketsession
+import feed_test
 import common
 
 class BarFeedEventHandler_TestLoadOrder:
@@ -36,7 +37,7 @@ class BarFeedEventHandler_TestLoadOrder:
 		self.__barFeed = barFeed
 		self.__instrument = instrument
 
-	def onBars(self, bars):
+	def onBars(self, dateTime, bars):
 		self.__count += 1
 		dateTime = bars.getBar(self.__instrument).getDateTime()
 		if self.__prevDateTime != None:
@@ -59,7 +60,7 @@ class BarFeedEventHandler_TestFilterRange:
 		self.__fromDate = fromDate
 		self.__toDate = toDate
 
-	def onBars(self, bars):
+	def onBars(self, dateTime, bars):
 		self.__count += 1
 
 		if self.__fromDate != None:
@@ -77,6 +78,11 @@ class YahooTestCase(unittest.TestCase):
 		parser = yahoofeed.RowParser(datetime.time(23, 59))
 		row = {"Date":date, "Close":0, "Open":0 , "High":0 , "Low":0 , "Volume":0 , "Adj Close":0}
 		return parser.parseBar(row).getDateTime()
+
+	def testBaseFeedInterface(self):
+		barFeed = yahoofeed.Feed()
+		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+		feed_test.testBaseFeedInterface(self, barFeed)
 
 	def testParseDate_1(self):
 		date = self.__parseDate("1950-01-01")
@@ -137,34 +143,25 @@ class YahooTestCase(unittest.TestCase):
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		barFeed.start()
-		for bars in barFeed:
+		for dateTime, bars in barFeed:
 			bar = bars.getBar(YahooTestCase.TestInstrument)
 			self.assertTrue(dt.datetime_is_naive(bar.getDateTime()))
-		barFeed.stop()
-		barFeed.join()
 
 	def testWithDefaultTimezone(self):
 		barFeed = yahoofeed.Feed(marketsession.USEquities.getTimezone())
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-		barFeed.start()
-		for bars in barFeed:
+		for dateTime, bars in barFeed:
 			bar = bars.getBar(YahooTestCase.TestInstrument)
 			self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
-		barFeed.stop()
-		barFeed.join()
 
 	def testWithPerFileTimezone(self):
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-		barFeed.start()
-		for bars in barFeed:
+		for dateTime, bars in barFeed:
 			bar = bars.getBar(YahooTestCase.TestInstrument)
 			self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
-		barFeed.stop()
-		barFeed.join()
 
 	def testWithIntegerTimezone(self):
 		try:
@@ -183,24 +180,18 @@ class YahooTestCase(unittest.TestCase):
 	def testMapTypeOperations(self):
 		barFeed = yahoofeed.Feed()
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-		barFeed.start()
-		for bars in barFeed:
+		for dateTime, bars in barFeed:
 			self.assertTrue(YahooTestCase.TestInstrument in bars)
 			self.assertFalse(YahooTestCase.TestInstrument not in bars)
 			bars[YahooTestCase.TestInstrument]
 			with self.assertRaises(KeyError):
 				bars["pirulo"]
-		barFeed.stop()
-		barFeed.join()
 
 	def testBounded(self):
 		barFeed = yahoofeed.Feed(maxLen=2)
 		barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-		barFeed.start()
-		for bars in barFeed:
+		for dateTime, bars in barFeed:
 			pass
-		barFeed.stop()
-		barFeed.join()
 
 		barDS = barFeed[YahooTestCase.TestInstrument]
 		self.assertEqual(len(barDS), 2)
@@ -218,6 +209,11 @@ class NinjaTraderTestCase(unittest.TestCase):
 		ret.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
 		ret.loadAll()
 		return ret
+
+	def testBaseFeedInterface(self):
+		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+		barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+		feed_test.testBaseFeedInterface(self, barFeed)
 
 	def testWithTimezone(self):
 		timeZone = marketsession.USEquities.getTimezone()
@@ -266,7 +262,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 		}
 		barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timezone)
 		barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
-		for bars in barFeed:
+		for dateTime, bars in barFeed:
 			price = prices.get(bars.getDateTime(), None)
 			if price != None:
 				self.assertTrue(price == bars.getBar("spy").getClose())
@@ -289,6 +285,7 @@ class NinjaTraderTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 
+	ret.append(YahooTestCase("testBaseFeedInterface"))
 	ret.append(YahooTestCase("testParseDate_1"))
 	ret.append(YahooTestCase("testParseDate_2"))
 	ret.append(YahooTestCase("testDateCompare"))
@@ -303,6 +300,7 @@ def getTestCases():
 	ret.append(YahooTestCase("testMapTypeOperations"))
 	ret.append(YahooTestCase("testBounded"))
 
+	ret.append(NinjaTraderTestCase("testBaseFeedInterface"))
 	ret.append(NinjaTraderTestCase("testWithTimezone"))
 	ret.append(NinjaTraderTestCase("testWithoutTimezone"))
 	ret.append(NinjaTraderTestCase("testWithIntegerTimezone"))

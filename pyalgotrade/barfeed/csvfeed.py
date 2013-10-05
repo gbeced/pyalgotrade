@@ -30,18 +30,18 @@ import pytz
 # Interface for csv row parsers.
 class RowParser:
 	def parseBar(self, csvRowDict):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def getFieldNames(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 	def getDelimiter(self):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 # Interface for bar filters.
 class BarFilter:
 	def includeBar(self, bar_):
-		raise Exception("Not implemented")
+		raise NotImplementedError()
 
 class DateRangeFilter(BarFilter):
 	def __init__(self, fromDate = None, toDate = None):

@@ -26,10 +26,20 @@ import logging
 from pyalgotrade.mtgox import barfeed
 from pyalgotrade.mtgox import tools
 import common
+import feed_test
 
 tools.logger.setLevel(logging.ERROR)
 
 class TradesFeedTestCase(unittest.TestCase):
+	def testBaseFeedInterface(self):
+		common.init_temp_path()
+		path = os.path.join(common.get_temp_path(), "trades-mgtox-usd-2013-01-01.csv")
+		tools.download_trades_by_day("usd", 2013, 1, 1, path)
+
+		bf = barfeed.CSVTradeFeed()
+		bf.addBarsFromCSV(path)
+		feed_test.testBaseFeedInterface(self, bf)
+
 	def testDownloadAndParse(self):
 		common.init_temp_path()
 		path = os.path.join(common.get_temp_path(), "trades-mgtox-usd-2013-01-01.csv")
@@ -51,6 +61,7 @@ class TradesFeedTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 
+	ret.append(TradesFeedTestCase("testBaseFeedInterface"))
 	ret.append(TradesFeedTestCase("testDownloadAndParse"))
 
 	return ret

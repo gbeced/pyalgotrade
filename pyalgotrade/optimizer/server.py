@@ -206,11 +206,8 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 			# Initialize instruments, bars and parameters.
 			self.getLogger().info("Loading bars")
 			loadedBars = []
-			barFeed.start()
-			for bars in barFeed:
+			for dateTime, bars in barFeed:
 				loadedBars.append(bars)
-			barFeed.stop()
-			barFeed.join()
 			instruments = barFeed.getRegisteredInstruments()
 			self.__instrumentsAndBars = pickle.dumps((instruments, loadedBars))
 			self.__barsFreq = barFeed.getFrequency()

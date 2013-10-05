@@ -163,7 +163,7 @@ class Profiler:
 				nextTs.append((event, t))
 		self.__futureRets[instrument] = nextTs
 
-	def __onBars(self, bars):
+	def __onBars(self, dateTime, bars):
 		for instrument in bars.getInstruments():
 			self.__addCurrentReturns(instrument)
 			eventOccurred = self.__predicate.eventOccurred(instrument, self.__feed[instrument])

@@ -64,7 +64,7 @@ def compare_tail(fileName, lines):
 	fileLines = get_file_lines(os.path.join("samples", fileName))
 	return fileLines[len(lines)*-1:] == lines 
 
-class TutorialTestCase(unittest.TestCase):
+class DocCodeTest(unittest.TestCase):
 	def testTutorial1(self):
 		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
 			lines = run_sample_script("tutorial-1.py").split("\n")
@@ -98,6 +98,16 @@ tutorial_mtgox_1.main(False)
 			lines = run_python_code(code).split("\n")
 			self.assertTrue(compare_head("tutorial_mtgox_1.output", lines[0:10]))
 			self.assertTrue(compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
+
+	def testCSVFeed(self):
+		with common.CopyFiles([os.path.join("testcases", "data", "quandl_gold_2.csv")], "."):
+			code = """import sys
+sys.path.append('samples')
+import csvfeed_1
+"""
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_head("csvfeed_1.output", lines[0:10]))
+			self.assertTrue(compare_tail("csvfeed_1.output", lines[-10:-1]))
 
 class CompInvTestCase(unittest.TestCase):
 	def testCompInv_1(self):
@@ -190,11 +200,12 @@ eventstudy.main(False)
 def getTestCases():
 	ret = []
 
-	ret.append(TutorialTestCase("testTutorial1"))
-	ret.append(TutorialTestCase("testTutorial2"))
-	ret.append(TutorialTestCase("testTutorial3"))
-	ret.append(TutorialTestCase("testTutorial4"))
-	ret.append(TutorialTestCase("testTutorial1MtGox"))
+	ret.append(DocCodeTest("testTutorial1"))
+	ret.append(DocCodeTest("testTutorial2"))
+	ret.append(DocCodeTest("testTutorial3"))
+	ret.append(DocCodeTest("testTutorial4"))
+	ret.append(DocCodeTest("testTutorial1MtGox"))
+	ret.append(DocCodeTest("testCSVFeed"))
 
 	ret.append(CompInvTestCase("testCompInv_1"))
 

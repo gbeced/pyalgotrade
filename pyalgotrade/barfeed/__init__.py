@@ -21,7 +21,6 @@
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
-from pyalgotrade import bar
 from pyalgotrade import warninghelpers
 
 class Frequency:
@@ -39,10 +38,16 @@ class Frequency:
 # THIS IS A VERY BASIC CLASS AND IT WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
 
 class BaseBarFeed(feed.BaseFeed):
-	"""Base class for :class:`pyalgotrade.bar.Bars` providing feeds.
+	"""Base class for :class:`pyalgotrade.bar.Bar` providing feeds.
 
-	:param frequency: The bars frequency.
-	:type frequency: barfeed.Frequency.MINUTE or barfeed.Frequency.DAY.
+	:param frequency: The bars frequency. Valid frequency values are:
+
+		* barfeed.Frequency.TRADE
+		* barfeed.Frequency.SECOND
+		* barfeed.Frequency.MINUTE
+		* barfeed.Frequency.HOUR
+		* barfeed.Frequency.DAY
+
 	:param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
 		If not None, it must be greater than 0.
 		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
@@ -67,7 +72,11 @@ class BaseBarFeed(feed.BaseFeed):
 
 	# Subclasses should implement this and return a pyalgotrade.bar.Bars or None if there are no bars.
 	def getNextBars(self):
-		"""Returns the next :class:`pyalgotrade.bar.Bars` in the feed or None if there are no bars."""
+		"""Override to return the next :class:`pyalgotrade.bar.Bars` in the feed or None if there are no bars.
+
+		.. note::
+			This is for BaseBarFeed subclasses and it should not be called directly.
+		"""
 		raise NotImplementedError()
 
 	def createDataSeries(self, key, maxLen):
@@ -107,7 +116,7 @@ class BaseBarFeed(feed.BaseFeed):
 
 	def getNewBarsEvent(self):
 		# This is for backwards compatibility purposes.
-		return self.getEvent()
+		return self.getNewValuesEvent()
 
 	def getDefaultInstrument(self):
 		"""Returns the default instrument."""

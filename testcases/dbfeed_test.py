@@ -27,6 +27,7 @@ from pyalgotrade import barfeed
 from pyalgotrade import dataseries
 from pyalgotrade import marketsession
 import common
+import feed_test
 
 class TemporarySQLiteFeed:
 	def __init__(self, dbFilePath, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
@@ -51,6 +52,22 @@ class TemporarySQLiteFeed:
 class SQLiteFeedTestCase(unittest.TestCase):
 	dbName = "SQLiteFeedTestCase.sqlite"
 
+	def testBaseFeedInterface(self):
+		tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY)
+		with tmpFeed:
+			# Load bars using a Yahoo! feed.
+			yahooFeed = yahoofeed.Feed()
+			yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
+			yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+
+			# Fill the database using the bars from the Yahoo! feed.
+			sqliteFeed = tmpFeed.getFeed()
+			sqliteFeed.getDatabase().addBarsFromFeed(yahooFeed)
+
+			# Load the SQLite feed and process all bars.
+			sqliteFeed.loadBars("orcl")
+			feed_test.testBaseFeedInterface(self, sqliteFeed)
+
 	def testLoadDailyBars(self):
 		tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY)
 		with tmpFeed:
@@ -65,11 +82,8 @@ class SQLiteFeedTestCase(unittest.TestCase):
 
 			# Load the SQLite feed and process all bars.
 			sqliteFeed.loadBars("orcl")
-			sqliteFeed.start()
 			for bars in sqliteFeed:
 				pass
-			sqliteFeed.stop()
-			sqliteFeed.join()
 
 			# Check that both dataseries have the same bars.
 			yahooDS = yahooFeed["orcl"]
@@ -99,11 +113,8 @@ class SQLiteFeedTestCase(unittest.TestCase):
 
 			# Load the SQLite feed and process all bars.
 			sqliteFeed.loadBars("orcl")
-			sqliteFeed.start()
 			for bars in sqliteFeed:
 				pass
-			sqliteFeed.stop()
-			sqliteFeed.join()
 
 			barDS = sqliteFeed["orcl"]
 			self.assertEqual(len(barDS), 2)
@@ -118,6 +129,7 @@ class SQLiteFeedTestCase(unittest.TestCase):
 def getTestCases():
 	ret = []
 
+	ret.append(SQLiteFeedTestCase("testBaseFeedInterface"))
 	ret.append(SQLiteFeedTestCase("testLoadDailyBars"))
 	ret.append(SQLiteFeedTestCase("testBounded"))
 

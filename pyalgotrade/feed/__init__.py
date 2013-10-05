@@ -19,12 +19,29 @@
 """
 
 from pyalgotrade import observer
-from pyalgotrade import dataseries
 
-# Base class for feeds.
-# These are data providing abstractions.
+def feed_iterator(feed):
+	feed.start()
+	try:
+		while not feed.eof():
+			yield feed.getNextValuesAndUpdateDS()
+	finally:
+		feed.stop()
+		feed.join()
+
 class BaseFeed(observer.Subject):
-	def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
+	"""Base class for feeds.
+
+	:param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
+		If not None, it must be greater than 0.
+		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+	:type maxLen: int.
+
+	.. note::
+		This is a base class and should not be used directly.
+	"""
+
+	def __init__(self, maxLen):
 		assert(maxLen == None or maxLen > 0)
 		self.__ds = {}
 		self.__event = observer.Event()
@@ -38,7 +55,9 @@ class BaseFeed(observer.Subject):
 	def createDataSeries(self, key, maxLen):
 		raise NotImplementedError()
 
-	# Subclasses should implement this and return a (datetime.datetime, dict-like) tuple.
+	# Subclasses should implement this and return a tuple with two elements:
+	# 1: datetime.datetime.
+	# 2: dictionary or dict-like object.
 	def getNextValues(self):
 		raise NotImplementedError()
 
@@ -46,7 +65,7 @@ class BaseFeed(observer.Subject):
 		if key not in self.__ds:
 			self.__ds[key] = self.createDataSeries(key, self.__maxLen)
 
-	def __getNextValuesAndUpdateDS(self):
+	def getNextValuesAndUpdateDS(self):
 		dateTime, values = self.getNextValues()
 		if dateTime != None:
 			# TODO: Check that dateTime is a datetime.datetime instance.
@@ -58,32 +77,33 @@ class BaseFeed(observer.Subject):
 					ds = self.createDataSeries(key, self.__maxLen)
 					self.__ds[key] = ds
 				ds.appendWithDateTime(dateTime, value)
-		return values
+		return (dateTime, values)
 
 	def __iter__(self):
-		return self
+		return feed_iterator(self)
 
-	def next(self):
-		if self.eof():
-			raise StopIteration()
-		return self.__getNextValuesAndUpdateDS()
+	def getNewValuesEvent(self):
+		"""Returns the event that will be emitted when new values are available.
+		To subscribe you need to pass in a callable object that receives two parameters:
 
-	def getEvent(self):
+		 1. A :class:`datetime.datetime` instance.
+		 2. The new value.
+		"""
 		return self.__event
 
 	def dispatch(self):
-		values = self.__getNextValuesAndUpdateDS()
-		if values != None:
-			self.__event.emit(values)
+		dateTime, values = self.getNextValuesAndUpdateDS()
+		if dateTime != None:
+			self.__event.emit(dateTime, values)
 
 	def getKeys(self):
 		return self.__ds.keys()
 
 	def __getitem__(self, key):
-		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` for a given instrument."""
+		"""Returns the :class:`pyalgotrade.dataseries.DataSeries` for a given key."""
 		return self.__ds[key]
 
 	def __contains__(self, key):
-		"""Returns True if a :class:`pyalgotrade.dataseries.DataSeries` for the given instrument is available."""
+		"""Returns True if a :class:`pyalgotrade.dataseries.DataSeries` for the given key is available."""
 		return key in self.__ds
 

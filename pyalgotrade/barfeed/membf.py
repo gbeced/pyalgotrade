@@ -87,8 +87,6 @@ class BarFeed(barfeed.BaseBarFeed):
 				if ret == None or bars[nextIdx].getDateTime() < ret:
 					ret = bars[nextIdx].getDateTime()
 
-		# ret should not be None since peekDateTime should only get called if eof returned False.
-		assert(ret != None)
 		return ret
 
 	def getNextBars(self):
@@ -114,9 +112,6 @@ class BarFeed(barfeed.BaseBarFeed):
 		return self.__barsLeft
 
 	def loadAll(self):
-		self.start()
 		for b in self:
 			pass
-		self.stop()
-		self.join()
 

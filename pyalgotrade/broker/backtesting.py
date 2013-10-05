@@ -589,7 +589,7 @@ class Broker(broker.Broker):
 		else:
 			raise Exception("The order was already processed")
 
-	def onBars(self, bars):
+	def onBars(self, dateTime, bars):
 		for order in self.__activeOrders.values():
 			# Switch from SUBMITTED -> ACCEPTED
 			if order.isSubmitted():

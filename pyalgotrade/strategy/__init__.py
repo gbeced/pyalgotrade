@@ -379,7 +379,7 @@ class BaseStrategy:
 			if order:
 				self.registerPositionOrder(position, order)
 
-	def __onBars(self, bars):
+	def __onBars(self, dateTime, bars):
 		# THE ORDER HERE IS VERY IMPORTANT
 
 		self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))

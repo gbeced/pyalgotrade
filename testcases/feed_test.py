@@ -1,12 +1,12 @@
 # PyAlgoTrade
 # 
-# Copyright 2012 Gabriel Martin Becedillas Ruiz
+# Copyright 2013 Gabriel Martin Becedillas Ruiz
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # 
-#   http://www.apache.org/licenses/LICENSE-2.0
+#	http://www.apache.org/licenses/LICENSE-2.0
 # 
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,20 +18,18 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-class Database:
-	def addBars(self, bars, frequency):
-		for instrument in bars.getInstruments():
-			bar = bars.getBar(instrument)
-			self.addBar(instrument, bar, frequency)
+from pyalgotrade import observer
 
-	def addBarsFromFeed(self, feed):
-		for dateTime, bars in feed:
-			if bars:
-				self.addBars(bars, feed.getFrequency())
+# This will test both the feed and subject interface.
+def testBaseFeedInterface(testCase, feed):
+	# This tests the observer.Subject interface.
+	dispatcher = observer.Dispatcher()
+	dispatcher.addSubject(feed)
+	dispatcher.run()
 
-	def addBar(self, instrument, bar, frequency):
-		raise NotImplementedError()
+	# This tests the feed.BaseFeed interface.
+	feed.isRealTime()
+	feed.createDataSeries("any", 10)
+	feed.getNextValues()
 
-	def getBars(self, instrument, frequency, timezone = None, fromDateTime = None, toDateTime = None):
-		raise NotImplementedError()
 

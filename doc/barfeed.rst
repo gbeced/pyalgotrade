@@ -1,9 +1,11 @@
+.. _barfeed-label:
+
 barfeed -- Bar providers
 ========================
 
 .. automodule:: pyalgotrade.barfeed
     :members: BaseBarFeed
-    :inherited-members:
+    :member-order: bysource
     :special-members:
     :show-inheritance:
 
