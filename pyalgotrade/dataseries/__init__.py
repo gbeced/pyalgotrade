@@ -29,7 +29,7 @@ def resize_list(list_, size):
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
 class DataSeries(object):
-	"""Base class for data series. A data series is an abstraction used to manage historical data.
+	"""Base class for data series.
 
 	.. note::
 		This is a base class and should not be used directly.
@@ -117,7 +117,7 @@ class DataSeries(object):
 		return ret
 
 class SequenceDataSeries(DataSeries):
-	"""A :class:`DataSeries` that holds values in a sequence in memory.
+	"""A DataSeries that holds values in a sequence in memory.
 	
 	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
 		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.

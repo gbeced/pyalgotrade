@@ -116,11 +116,6 @@ class CompInvTestCase(unittest.TestCase):
 			lines = run_sample_script("compinv-1.py").split("\n")
 			self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
 
-class DataSeriesTestCase(unittest.TestCase):
-	def testDataSeries_1(self):
-		lines = run_sample_script("dataseries-1.py").split("\n")
-		self.assertTrue(compare_head("dataseries-1.output", lines[:-1]))
-
 class StratAnalyzerTestCase(unittest.TestCase):
 	def testSampleStrategyAnalyzer(self):
 		with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
@@ -208,8 +203,6 @@ def getTestCases():
 	ret.append(DocCodeTest("testCSVFeed"))
 
 	ret.append(CompInvTestCase("testCompInv_1"))
-
-	ret.append(DataSeriesTestCase("testDataSeries_1"))
 
 	ret.append(StratAnalyzerTestCase("testSampleStrategyAnalyzer"))
 

@@ -76,7 +76,7 @@ class Slot:
 		return bar.BasicBar(self.__dateTime, self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose)
 
 class ResampledBarDataSeries(bards.BarDataSeries):
-	"""A :class:`pyalgotrade.dataseries.bards.BarDataSeries` that will build on top of another higher frequency :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
+	"""A BarDataSeries that will build on top of another, higher frequency, BarDataSeries.
 
 	:param dataSeries: The DataSeries instance being resampled.
 	:type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.

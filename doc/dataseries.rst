@@ -1,6 +1,8 @@
 dataseries -- Basic dataseries classes
 ======================================
 
+Data series are abstractions used to manage time-series data.
+
 .. automodule:: pyalgotrade.dataseries
     :members: DataSeries, SequenceDataSeries
     :special-members:
@@ -21,11 +23,3 @@ dataseries -- Basic dataseries classes
     :special-members:
     :show-inheritance:
 
-Example
--------
-
-.. literalinclude:: ../samples/dataseries-1.py
-
-The output should be:
-
-.. literalinclude:: ../samples/dataseries-1.output
