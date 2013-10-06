@@ -60,8 +60,8 @@ class MyStrategy(strategy.BacktestingStrategy):
         # We will allow buying more shares than cash allows.
         self.getBroker().setAllowNegativeCash(True)
 
-    def __onBarsBeforeBroker(self, bars):
-        for instrument, action, quantity in self.__ordersFile.getOrders(bars.getDateTime()):
+    def __onBarsBeforeBroker(self, dateTime, bars):
+        for instrument, action, quantity in self.__ordersFile.getOrders(dateTime):
             if action.lower() == "buy":
                 self.order(instrument, quantity, onClose=True)
             else:
