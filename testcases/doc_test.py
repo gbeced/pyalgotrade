@@ -21,7 +21,6 @@
 import unittest
 import subprocess
 import os
-import shutil
 
 from testcases import common
 
@@ -192,6 +191,24 @@ eventstudy.main(False)
 			lines = run_python_code(code).split("\n")
 			self.assertTrue(compare_tail("eventstudy.output", lines[-2:-1]))
 
+	def testQuandl(self):
+		files = []
+		for year in range(2006, 2013):
+			for symbol in ["gld"]:
+				fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+				files.append(os.path.join("samples", "data", fileName))
+		files.append(os.path.join("testcases", "data", "quandl_gold_2.csv"))
+
+		with common.CopyFiles(files, "."):
+			code = """import sys
+sys.path.append('samples')
+import quandl_sample
+quandl_sample.main(False)
+"""
+			lines = run_python_code(code).split("\n")
+			self.assertTrue(compare_head("quandl_sample.output", lines[0:10]))
+			self.assertTrue(compare_tail("quandl_sample.output", lines[-10:-1]))
+
 def getTestCases():
 	ret = []
 
@@ -212,6 +229,7 @@ def getTestCases():
 	ret.append(SampleStratTestCase("testVWAPMomentum"))
 	ret.append(SampleStratTestCase("testBBands"))
 	ret.append(SampleStratTestCase("testEventStudy"))
+	ret.append(SampleStratTestCase("testQuandl"))
 
 	return ret
 

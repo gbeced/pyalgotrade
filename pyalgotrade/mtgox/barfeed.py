@@ -171,7 +171,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 	"""
 
 	def __init__(self, client, maxLen=dataseries.DEFAULT_MAX_LEN):
-		barfeed.BarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
+		barfeed.BaseBarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
 		self.__barDicts = []
 		self.__currency = client.getCurrency()
 		self.registerInstrument("BTC")

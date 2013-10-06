@@ -46,6 +46,18 @@ class RowFilter:
 	def includeRow(self, dateTime, values):
 		raise NotImplementedError()
 
+class DateRangeFilter(RowFilter):
+	def __init__(self, fromDate = None, toDate = None):
+		self.__fromDate = fromDate
+		self.__toDate = toDate
+
+	def includeRow(self, dateTime, values):
+		if self.__toDate and dateTime > self.__toDate:
+			return False
+		if self.__fromDate and dateTime < self.__fromDate:
+			return False
+		return True
+
 class BaseFeed(memfeed.MemFeed):
 	def __init__(self, rowParser, maxLen=dataseries.DEFAULT_MAX_LEN):
 		memfeed.MemFeed.__init__(self, maxLen)
@@ -71,14 +83,17 @@ class BasicRowParser(RowParser):
 	def __init__(self, dateTimeColumn, dateTimeFormat, converter, delimiter=",", timezone=None):
 		self.__dateTimeColumn = dateTimeColumn
 		self.__dateTimeFormat = dateTimeFormat
-		self.__converter=converter
+		self.__converter = converter
 		self.__delimiter = delimiter
 		self.__timezone = timezone
+		self.__timeDelta = None
 
 	def parseRow(self, csvRowDict):
 		dateTime = datetime.datetime.strptime(csvRowDict[self.__dateTimeColumn], self.__dateTimeFormat)
 		# Localize the datetime if a timezone was given.
 		if self.__timezone != None:
+			if self.__timeDelta != None:
+				dateTime += self.__timeDelta
 			dateTime = dt.localize(dateTime, self.__timezone)
 		# Convert the values
 		values = {}
@@ -92,6 +107,9 @@ class BasicRowParser(RowParser):
 
 	def getDelimiter(self):
 		return self.__delimiter
+
+	def setTimeDelta(self, timeDelta):
+		self.__timeDelta = timeDelta
 
 def float_or_string(column, value):
 	try:
@@ -110,7 +128,7 @@ class Feed(BaseFeed):
 	:param converter: A function with two parameters (column name and value) used to convert the string
 		value to something else. The default coverter will try to convert the value to a float. If that fails
 		the original string is returned.
-	:type converter: callable.
+	:type converter: function.
 	:param delimiter: The string used to separate values.
 	:type delimiter: string.
 	:param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
@@ -124,8 +142,8 @@ class Feed(BaseFeed):
 	def __init__(self, dateTimeColumn, dateTimeFormat, converter=None, delimiter=",", timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
 		if converter == None:
 			converter = float_or_string
-		rowParser = BasicRowParser(dateTimeColumn, dateTimeFormat, converter, delimiter, timezone)
-		BaseFeed.__init__(self, rowParser, maxLen)
+		self.__rowParser = BasicRowParser(dateTimeColumn, dateTimeFormat, converter, delimiter, timezone)
+		BaseFeed.__init__(self, self.__rowParser, maxLen)
 
 	def addValuesFromCSV(self, path):
 		"""Loads values from a file.
@@ -135,3 +153,8 @@ class Feed(BaseFeed):
 		"""
 		return BaseFeed.addValuesFromCSV(self, path)
 
+	def setDateRange(self, fromDateTime, toDateTime):
+		self.setRowFilter(DateRangeFilter(fromDateTime, toDateTime))
+
+	def setTimeDelta(self, timeDelta):
+		self.__rowParser.setTimeDelta(timeDelta)

@@ -5,3 +5,4 @@ Sample strategies
     sample_statarb_erniechan
     sample_vwap_momentum
     sample_bbands
+    sample_quandl
