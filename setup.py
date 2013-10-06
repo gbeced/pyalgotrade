@@ -17,7 +17,10 @@
 # limitations under the License.
 
 
-from distutils.core import setup
+try:
+	from setuptools import setup
+except ImportError:
+	from distutils.core import setup
 
 setup(name='PyAlgoTrade',
 	version='0.13',
@@ -41,4 +44,8 @@ setup(name='PyAlgoTrade',
 		'pyalgotrade.tools',
 		'pyalgotrade.twitter',
 		'pyalgotrade.utils',],
+	install_requires=[
+		'numpy',
+		'pytz',
+		]
 )
