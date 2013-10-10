@@ -25,7 +25,7 @@ import subprocess
 uploadBarsPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(uploadBarsPath, "..", ".."))
 
-from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import yahoofeed
 
 def get_md5(value):
 	m = hashlib.md5()
@@ -67,14 +67,14 @@ def write_intermediate_csv(instrument, csvFiles, csvToUpload):
 	instrument = instrument.upper()
 	barType = 1
 
-	feed = csvfeed.YahooFeed()
+	feed = yahoofeed.Feed()
 	for csvFile in csvFiles:
 		print "Loading bars from %s" % csvFile
 		feed.addBarsFromCSV(instrument, csvFile)
 
 	print "Writing intermediate csv into %s" % csvToUpload.name
-	for bars in feed:
-		bar = bars.getBar(instrument)
+	for dateTime, bars in feed:
+		bar = bars[instrument]
 		csvToUpload.write("%s,%s,%d,%s,%s,%s,%s,%s,%s,%s\n" % (
 			gen_bar_key(instrument, barType, bar),
 			instrument,
@@ -101,7 +101,7 @@ def upload_intermediate_csv(options, csvPath):
 	cmd.append("--filename=%s" % csvPath)
 	cmd.append("--config_file=%s" % os.path.join(uploadBarsPath, "bulkloader.yaml"))
 	cmd.append("--url=%s" % options.url)
-	cmd.append("--num_threads=%d" % 1)
+	cmd.append("--num_threads=1")
 
 	popenObj = subprocess.Popen(args=cmd)
 	popenObj.communicate()

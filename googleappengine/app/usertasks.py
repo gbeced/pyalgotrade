@@ -89,7 +89,7 @@ class WorkerTask(chanchero.tasks.WorkerTask):
 		tmr = timer.Timer()
 		stratExecConfig = persistence.StratExecConfig.getByKey(self.__stratExecConfigKey)
 
-		bestResult = 0
+		bestResult = 0.0
 		bestResultParams = []
 		errors = 0 
 		executions = 0
