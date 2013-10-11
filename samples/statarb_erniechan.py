@@ -1,12 +1,10 @@
 from pyalgotrade import strategy
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
-from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade import plotter
 from pyalgotrade.tools import yahoofinance
 
 import numpy as np
-import os
 import statsmodels.api as sm
 
 def get_beta(values1, values2):
