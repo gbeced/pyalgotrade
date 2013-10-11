@@ -131,6 +131,10 @@ class Database(dbfeed.Database):
 		cursor.close()
 		return ret
 
+	def disconnect(self):
+		self.__connection.close()
+		self.__connection = None
+
 class Feed(membf.BarFeed):
 	def __init__(self, dbFilePath, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
 		membf.BarFeed.__init__(self, frequency, maxLen)

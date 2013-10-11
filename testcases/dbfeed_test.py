@@ -43,6 +43,7 @@ class TemporarySQLiteFeed:
 		self.__feed = sqlitefeed.Feed(self.__dbFilePath, self.__frequency, maxLen=self.__maxLen)
 
 	def __exit__(self, exc_type, exc_val, exc_tb):
+		self.__feed.getDatabase().disconnect() # This is for the feed to release the file and get it deleted.
 		self.__feed = None
 		os.remove(self.__dbFilePath)
 
