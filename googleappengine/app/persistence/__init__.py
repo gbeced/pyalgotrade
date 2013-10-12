@@ -46,7 +46,7 @@ class StratExecConfig(db.Model):
 	errors = db.IntegerProperty(default=0) # Number of errors hit.
 	totalExecutions = db.IntegerProperty(required=True)
 	executionsFinished = db.IntegerProperty(default=0)
-	bestResult = db.FloatProperty(required=False)
+	bestResult = db.FloatProperty(required=False, default=0.0)
 	bestResultParameters = db.ListProperty(item_type=int, default=None)
 
 	@staticmethod

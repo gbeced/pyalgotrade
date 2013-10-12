@@ -102,6 +102,7 @@ class StrategyExecutor:
 			self.__logger.info("Loading '%s' bars from %s to %s" % (stratExecConfig.instrument, stratExecConfig.firstDate, stratExecConfig.lastDate))
 			ret = load_pyalgotrade_daily_bars(stratExecConfig.instrument, stratExecConfig.barType, stratExecConfig.firstDate, stratExecConfig.lastDate)
 			self.__barCache.add(stratExecConfig.key(), ret)
+			self.__logger.info("Finished loading '%s' bars from %s to %s" % (stratExecConfig.instrument, stratExecConfig.firstDate, stratExecConfig.lastDate))
 		return ret
 
 	def getLogger(self):

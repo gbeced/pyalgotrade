@@ -62,7 +62,7 @@ class MasterTask(chanchero.tasks.MasterTask):
 				logger.Logger().error("Dropping execution of '%s' due to too many errors" % (stratExecConfig.className))
 				return None
 
-		chunkSize = 200
+		chunkSize = 1000 # Max executions per task.
 		ret = None
 		if not self.isFinished():
 			# Clone self.__paramsIt before building WorkerTask because we'll modify it immediately.
@@ -84,24 +84,28 @@ class WorkerTask(chanchero.tasks.WorkerTask):
 
 	def run(self):
 		global strategyExecutor
-		# logger.Logger().info("WorkerTask running %s" % (str(self.__paramsIt.getCurrent())))
 
-		tmr = timer.Timer()
+		taskTimer = timer.Timer()
 		stratExecConfig = persistence.StratExecConfig.getByKey(self.__stratExecConfigKey)
+		# logger.Logger().info("WorkerTask for '%s' starting from %s" % (stratExecConfig.className, str(self.__paramsIt.getCurrent())))
 
+		maxTaskRunTime = 9 * 60 # Stop the task after 9 minutes to avoid getting interrupted after 10 minutes.
 		bestResult = 0.0
 		bestResultParams = []
 		errors = 0 
 		executions = 0
+		maxStratTime = 0
+
 		while self.__chunkSize > 0:
+			stratExecTimer = timer.Timer()
 			try:
 				paramValues = self.__paramsIt.getCurrent()
+				# logger.Logger().info("WorkerTask running '%s' with parameters: %s" % (stratExecConfig.className, paramValues))
 
 				# If there are no more parameters, just stop.
 				if paramValues == None:
 					break
 
-				# strategyExecutor.getLogger().info("WorkerTask running '%s' with parameters: %s" % (stratExecConfig.className, paramValues))
 				result = strategyExecutor.runStrategy(stratExecConfig, paramValues)
 				if result > bestResult:
 					bestResult = result
@@ -111,12 +115,13 @@ class WorkerTask(chanchero.tasks.WorkerTask):
 				strategyExecutor.getLogger().error("Error executing strategy '%s' with parameters %s: %s" % (stratExecConfig.className, paramValues, e))
 				strategyExecutor.getLogger().error(traceback.format_exc())
 
+			maxStratTime = max(maxStratTime, stratExecTimer.secondsElapsed())
 			executions += 1
 			self.__chunkSize -= 1
 			self.__paramsIt.moveNext()
 
-			# Stop executing before we ran out of time. I'm assuming that strategies take less than 1 minute to execute.
-			if tmr.minutesElapsed() > 9 and self.__chunkSize > 0:
+			# Stop executing if we'll ran out of time with the next execution.
+			if self.__chunkSize > 0 and taskTimer.secondsElapsed() + maxStratTime > maxTaskRunTime:
 				break
 
 		# Save the (potentially partial) results.
@@ -124,8 +129,10 @@ class WorkerTask(chanchero.tasks.WorkerTask):
 
 		# Reschedule ourselves if there is work left to do.
 		if self.__chunkSize > 0 and self.__paramsIt.getCurrent() != None:
-			strategyExecutor.getLogger().info("Rescheduling '%s'. %d executions left." % (stratExecConfig.className, self.__chunkSize))
+			logger.Logger().info("Rescheduling WorkerTask for '%s'. %d executions completed. Continuing from %s." % (stratExecConfig.className, executions, self.__paramsIt.getCurrent()))
 			self.queue()
+		else:
+			logger.Logger().info("WorkerTask for '%s' finished after %d minutes. %d executions completed. Max strat runtime %d seconds." % (stratExecConfig.className, taskTimer.minutesElapsed(), executions, maxStratTime))
 
 class ResultTask(chanchero.tasks.ResultTask):
 	def __init__(self, taskId, stratExecConfigKey, result, paramValues, executions, errors):
