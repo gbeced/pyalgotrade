@@ -1,26 +1,26 @@
 Release checklist
 
-[ ] Run testcases on Mac and Windows.
-[ ] Update CHANGELOG.
-[ ] Update version in __init__.py.
-[ ] Update version in setup.py.
-[ ] Update directories in setup.py.
-[ ] Update version doc/conf.py.
-[ ] Rebuild and review documentation.
-[ ] Test GoogleApp Engine support. Look for errors in the logs.
-[ ] Run testcases using the installed lib.
-[ ] Run tutorial examples from the Optimizing section using the installed lib.
-[ ] Run samples/tutorial-5.py using the installed lib.
-[ ] Run samples/compinv-3.py using the installed lib.
-[ ] Run samples/tutorial_mtgox_2.py using the installed lib. Check disconnection detection.
-[ ] Run samples/tutorial_twitter_mtgox.py using the installed lib.
-[ ] Run samples/eventstudy.py using the installed lib.
+[x] Run testcases on Mac and Windows.
+[x] Update CHANGELOG.
+[x] Update version in __init__.py.
+[x] Update version in setup.py.
+[x] Update directories in setup.py.
+[x] Update version doc/conf.py.
+[x] Rebuild and review documentation.
+[x] Test GoogleApp Engine support. Look for errors in the logs.
+[x] Run testcases using the installed lib.
+[x] Run tutorial examples from the Optimizing section using the installed lib.
+[x] Run samples/tutorial-5.py using the installed lib.
+[x] Run samples/compinv-3.py using the installed lib.
+[x] Run samples/tutorial_mtgox_2.py using the installed lib. Check disconnection detection.
+[x] Run samples/tutorial_twitter_mtgox.py using the installed lib.
+[x] Run samples/eventstudy.py using the installed lib.
 
-[ ] Update the website (doc + package).
-[ ] Build package and upload to sourceforge.
-[ ] Update PyPi (both PKG-INFO and upload file using https://pypi.python.org/pypi?%3Aaction=submit_form).
-[ ] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
-[ ] Run testcases using the installed lib.
+[x] Update the website (doc + package).
+[x] Build package and upload to sourceforge.
+[x] Update PyPi (both PKG-INFO and upload file using https://pypi.python.org/pypi?%3Aaction=submit_form).
+[x] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
+[x] Run testcases using the installed lib.
 
 [ ] Commit and tag (git tag v0.x-rtm -m "Version 0.x").
 [ ] Push (git push; git push --tags).

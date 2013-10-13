@@ -1,4 +1,4 @@
-Version 0.14 (TBD)
+Version 0.14 (12/Oct/2013)
 . [NEW] Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
 . [NEW] Cumulative returns filter (pyalgotrade.technical.cumret.CumulativeReturn).
 . [NEW] Z-Score filter (pyalgotrade.technical.stats.ZScore).
@@ -6,8 +6,9 @@ Version 0.14 (TBD)
 . [FIX] Fixed a bug with loggers when using the optimizer: https://github.com/gbeced/pyalgotrade/issues/10. 
 . [FIX] Fixed a bug in the trades analyzer. Proportional commissions when switching from long to short or viceversa were not properly calculated. Thanks Sam Jackson for reporting this and providing a patch.
 . [FIX] Fixed a bug when using the optimizer and a broker with adjusted values.
+. [CHANGE] Google App Engine: Increased task granularity to improve performance.
 . [CHANGE] broker.backtesting.FillStrategy was changed to return a broker.backtesting.FillInfo instance.
-. [CHANGE] broker.backtesting.FillStrategy now takes bar volume into account to fill an order.
+. [CHANGE] broker.backtesting.DefaultStrategy now takes bar volume into account to fill an order.
 . [CHANGE] pyalgotrade.barfeed.BarFeed was renamed to pyalgotrade.barfeed.BaseBarFeed and pyalgotrade.barfeed.BasicBarFeed was removed.
 . [CHANGE] Event handlers for pyalgotrade.barfeed.BaseBarFeed.getNewBarsEvent should expect two parameters: datetime and bars.
 
