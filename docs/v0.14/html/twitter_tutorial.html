@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial for using Twitter events in your trading strategies &mdash; PyAlgoTrade 0.14 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.14 documentation" href="index.html" />
+    <link rel="up" title="Trading based on Twitter events" href="twitter.html" />
+    <link rel="next" title="twitter – Twitter feed reference" href="twitter_ref.html" />
+    <link rel="prev" title="Trading based on Twitter events" href="twitter.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter_ref.html" title="twitter – Twitter feed reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Trading based on Twitter events"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li>
+          <li><a href="twitter.html" accesskey="U">Trading based on Twitter events</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-for-using-twitter-events-in-your-trading-strategies">
+<h1>Tutorial for using Twitter events in your trading strategies<a class="headerlink" href="#tutorial-for-using-twitter-events-in-your-trading-strategies" title="Permalink to this headline">¶</a></h1>
+<p>Twitter support depends on <strong>tweepy</strong> (<a class="reference external" href="https://github.com/tweepy/tweepy">https://github.com/tweepy/tweepy</a>) so be sure
+to have it installed before moving forward.</p>
+<p>The goal of this short tutorial is to illustrate how to connect to Twitter to process events.
+We will also be using a live BarFeed since backtesting on Twitter is not supported.</p>
+<dl class="docutils">
+<dt>In order to connect to Twitter&#8217;s API you&#8217;ll need:</dt>
+<dd><ul class="first last simple">
+<li>Consumer key</li>
+<li>Consumer secret</li>
+<li>Access token</li>
+<li>Access token secret</li>
+</ul>
+</dd>
+</dl>
+<p>Go to <a class="reference external" href="http://dev.twitter.com">http://dev.twitter.com</a> and create an app.  The consumer key and secret will be generated for you after that.
+Then you&#8217;ll need to create an access token under the &#8220;Your access token&#8221; section.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">client</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">barfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">broker</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.twitter</span> <span class="kn">import</span> <span class="n">feed</span> <span class="k">as</span> <span class="n">twitterfeed</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">class</span> <span class="nc">Strategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">,</span> <span class="n">mtgoxClient</span><span class="p">,</span> <span class="n">twitterFeed</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+
+        <span class="c"># Subscribe to Twitter events.</span>
+        <span class="n">twitterFeed</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onTweet</span><span class="p">)</span>
+
+        <span class="c"># It is VERY important to add the these to the event dispatch loop before running the strategy.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getDispatcher</span><span class="p">()</span><span class="o">.</span><span class="n">addSubject</span><span class="p">(</span><span class="n">mtgoxClient</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getDispatcher</span><span class="p">()</span><span class="o">.</span><span class="n">addSubject</span><span class="p">(</span><span class="n">twitterFeed</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onTweet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c"># Refer to https://dev.twitter.com/docs/streaming-apis/messages#Public_stream_messages for</span>
+        <span class="c"># the information available in data.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s">&quot;Twitter:&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;text&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;Price:&quot;</span><span class="p">,</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="s">&quot;Volume:&quot;</span><span class="p">,</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c"># Go to http://dev.twitter.com and create an app.</span>
+    <span class="c"># The consumer key and secret will be generated for you after that.</span>
+    <span class="n">consumer_key</span><span class="o">=</span><span class="s">&quot;&lt;YOUR-CONSUMER-KEY-HERE&gt;&quot;</span>
+    <span class="n">consumer_secret</span><span class="o">=</span><span class="s">&quot;&lt;YOUR-CONSUMER-SECRET-HERE&gt;&quot;</span>
+
+    <span class="c"># After the step above, you will be redirected to your app&#39;s page.</span>
+    <span class="c"># Create an access token under the the &quot;Your access token&quot; section</span>
+    <span class="n">access_token</span><span class="o">=</span><span class="s">&quot;&lt;YOUR-ACCESS-TOKEN-HERE&gt;&quot;</span>
+    <span class="n">access_token_secret</span><span class="o">=</span><span class="s">&quot;&lt;YOUR-ACCESS-TOKEN-SECRET-HERE&gt;&quot;</span>
+
+    <span class="c"># Create a twitter feed to track BitCoin related events.</span>
+    <span class="n">track</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;bitcoin&quot;</span><span class="p">,</span> <span class="s">&quot;btc&quot;</span><span class="p">,</span> <span class="s">&quot;mtgox&quot;</span><span class="p">]</span>
+    <span class="n">follow</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">languages</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;en&quot;</span><span class="p">]</span>
+    <span class="n">twitterFeed</span> <span class="o">=</span> <span class="n">twitterfeed</span><span class="o">.</span><span class="n">TwitterFeed</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">,</span> <span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">,</span> <span class="n">track</span><span class="p">,</span> <span class="n">follow</span><span class="p">,</span> <span class="n">languages</span><span class="p">)</span>
+
+    <span class="c"># Create a client responsible for all the interaction with MtGox</span>
+    <span class="n">mtgoxClient</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s">&quot;USD&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">mtgoxClient</span><span class="o">.</span><span class="n">setEnableReconnection</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c"># Create a real-time feed that will build bars from live trades.</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">barfeed</span><span class="o">.</span><span class="n">LiveTradeFeed</span><span class="p">(</span><span class="n">mtgoxClient</span><span class="p">)</span>
+
+    <span class="c"># Create a backtesting broker.</span>
+    <span class="n">brk</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">BacktestingBroker</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+
+    <span class="c"># Run the strategy with the feed and the broker.</span>
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">Strategy</span><span class="p">(</span><span class="s">&quot;BTC&quot;</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">,</span> <span class="n">mtgoxClient</span><span class="p">,</span> <span class="n">twitterFeed</span><span class="p">)</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>The code is doing 5 things:</dt>
+<dd><ol class="first last arabic simple">
+<li>Creating a feed to connect to Twitter&#8217;s public stream API and setting the proper filtering parameters.</li>
+<li>Creating a client to connect to MtGox. For papertrading purposes we only need to specify the currency to use.</li>
+<li>Creating a live feed that will build bars from the trades received through the client.</li>
+<li>Creating a broker for backtesting. The broker will charge a 0.6 % fee for each order.</li>
+<li>Running the strategy with the bars supplied by the feed and the backtesting broker. <strong>Note that the strategy adds MtGox client and Twitter feed to the event dispatch loop</strong>.</li>
+</ol>
+</dd>
+</dl>
+<p>If you run this example you should see something like this:</p>
+<div class="highlight-python"><pre>2013-08-25 00:09:15,137 mtgox [INFO] Initializing MtGox client.
+2013-08-25 00:09:15,679 mtgox [INFO] Connection opened.
+2013-08-25 00:09:15,679 mtgox [INFO] Initialization ok.
+2013-08-25 00:09:15,680 twitter [INFO] Initializing Twitter client.
+2013-08-25 00:09:16,599 twitter [INFO] Connected.
+2013-08-25 00:09:31.480728 Twitter: Profit: $165.84 (10.3%). BUY B15.02 @ $106.97 (#BTCe). SELL @ $119.30 (#MtGox) #bitcoinarbitrage
+2013-08-25 00:09:35.153556 Price: 120.17807 Volume: 0.01404198
+2013-08-25 00:09:38.507910 Price: 119.30693 Volume: 0.1
+2013-08-25 00:09:39.746267 Twitter: I smile and make that btc mad
+2013-08-25 00:09:54.934998 Price: 119.30696 Volume: 0.01076
+2013-08-25 00:10:04.020095 Twitter: Grease Payments to Miners https://t.co/yFqCM6ASLN #bitcoin
+2013-08-25 00:10:06.902383 Twitter: Profit: $95.59 (8.7%). BUY B10.13 @ $108.50 (#CampBX). SELL @ $119.31 (#MtGox) #bitcoinarbitrage
+2013-08-25 00:10:13.842662 Twitter: No sex btc i only want the neck btc
+2013-08-25 00:10:20.092048 Twitter: Btc ain wan let me win that iphone 5 tho
+2013-08-25 00:10:28.564280 Price: 119.30845 Volume: 0.01
+2013-08-25 00:10:38.542615 Twitter: Profit: $111.29 (10.3%). BUY B10.13 @ $106.97 (#BTCe). SELL @ $119.31 (#MtGox) #bitcoinarbitrage
+2013-08-25 00:10:41.299799 Price: 119.30921 Volume: 0.01
+2013-08-25 00:10:46.162057 Twitter: RT @BitcoinASIA: Hash for Money is the only medication to #bitcoin Hash Addiction !
+2013-08-25 00:10:45.987947 Price: 119.30921 Volume: 0.01063
+2013-08-25 00:10:46.297285 Twitter: RT @BitcoinASIA: Cure yourself of #bitcoin Hash Addiction, its Very Very Dangerous !
+2013-08-25 00:10:46.443162 Twitter: RT @bitcoininfo: Grease Payments to Miners https://t.co/yFqCM6ASLN #bitcoin
+2013-08-25 00:10:47.486786 Price: 119.30922 Volume: 0.01
+.
+.
+.
+</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="twitter.html"
+                        title="previous chapter">Trading based on Twitter events</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="twitter_ref.html"
+                        title="next chapter">twitter &#8211; Twitter feed reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/twitter_tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter_ref.html" title="twitter – Twitter feed reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Trading based on Twitter events"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li>
+          <li><a href="twitter.html" >Trading based on Twitter events</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

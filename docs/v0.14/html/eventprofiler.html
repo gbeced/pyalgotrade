@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Event profiler &mdash; PyAlgoTrade 0.14 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.14 documentation" href="index.html" />
+    <link rel="next" title="TA-Lib integration" href="talib.html" />
+    <link rel="prev" title="Tools" href="tools.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="Tools"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="event-profiler">
+<h1>Event profiler<a class="headerlink" href="#event-profiler" title="Permalink to this headline">¶</a></h1>
+<p>Inspired in QSTK (<a class="reference external" href="http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9">http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9</a>), the <strong>eventprofiler</strong> module is a tool to analyze,
+statistically, how events affect future equity prices.
+The event profiler scans over historical data for a specified event and then calculates the impact of that event on the equity prices in the past
+and the future over a certain lookback period.</p>
+<p><strong>The goal of this tool is to help you quickly validate an idea, before moving forward with the backtesting process.</strong></p>
+<span class="target" id="module-pyalgotrade.eventprofiler"></span><dl class="class">
+<dt id="pyalgotrade.eventprofiler.Results">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.eventprofiler.</tt><tt class="descname">Results</tt><big>(</big><em>eventsDict</em>, <em>lookBack</em>, <em>lookForward</em><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.Results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Results from the profiler.</p>
+<dl class="method">
+<dt id="pyalgotrade.eventprofiler.Results.getEventCount">
+<tt class="descname">getEventCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.Results.getEventCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of events occurred. Events that are on the boundary are skipped.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.eventprofiler.Predicate">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.eventprofiler.</tt><tt class="descname">Predicate</tt><a class="headerlink" href="#pyalgotrade.eventprofiler.Predicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for event identification. You should subclass this to implement
+the event identification logic.</p>
+<dl class="method">
+<dt id="pyalgotrade.eventprofiler.Predicate.eventOccurred">
+<tt class="descname">eventOccurred</tt><big>(</big><em>instrument</em>, <em>bards</em><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.Predicate.eventOccurred" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override (<strong>mandatory</strong>) to determine if an event took place in the last bar (bards[-1]).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>bards</strong> (<a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a>.) &#8211; The BarDataSeries for the given instrument.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">boolean.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.eventprofiler.Profiler">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.eventprofiler.</tt><tt class="descname">Profiler</tt><big>(</big><em>predicate</em>, <em>lookBack</em>, <em>lookForward</em><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.Profiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is responsible for scanning over historical data and analyzing returns before
+and after the events.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>predicate</strong> (<a class="reference internal" href="#pyalgotrade.eventprofiler.Predicate" title="pyalgotrade.eventprofiler.Predicate"><tt class="xref py py-class docutils literal"><span class="pre">Predicate</span></tt></a>.) &#8211; A <a class="reference internal" href="#pyalgotrade.eventprofiler.Predicate" title="pyalgotrade.eventprofiler.Predicate"><tt class="xref py py-class docutils literal"><span class="pre">Predicate</span></tt></a> subclass responsible for identifying events.</li>
+<li><strong>lookBack</strong> (<em>int.</em>) &#8211; The number of bars before the event to analyze. Must be &gt; 0.</li>
+<li><strong>lookForward</strong> (<em>int.</em>) &#8211; The number of bars after the event to analyze. Must be &gt; 0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.eventprofiler.Profiler.getResults">
+<tt class="descname">getResults</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.Profiler.getResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the results of the analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyalgotrade.eventprofiler.Results" title="pyalgotrade.eventprofiler.Results"><tt class="xref py py-class docutils literal"><span class="pre">Results</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.eventprofiler.Profiler.run">
+<tt class="descname">run</tt><big>(</big><em>feed</em>, <em>useAdjustedCloseForReturns=True</em><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.Profiler.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the analysis using the bars supplied by the feed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>barFeed</strong> (<tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt>.) &#8211; The bar feed to use to run the analysis.</li>
+<li><strong>useAdjustedCloseForReturns</strong> (<em>boolean.</em>) &#8211; True if adjusted close values should be used to calculate returns.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.eventprofiler.plot">
+<tt class="descclassname">pyalgotrade.eventprofiler.</tt><tt class="descname">plot</tt><big>(</big><em>profilerResults</em><big>)</big><a class="headerlink" href="#pyalgotrade.eventprofiler.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the result of the analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilerResults</strong> (<a class="reference internal" href="#pyalgotrade.eventprofiler.Results" title="pyalgotrade.eventprofiler.Results"><tt class="xref py py-class docutils literal"><span class="pre">Results</span></tt></a>.) &#8211; The result of the analysis</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>The following example is inspired on the &#8216;Buy-on-Gap Model&#8217; from Ernie Chan&#8217;s book:
+&#8216;Algorithmic Trading: Winning Strategies and Their Rationale&#8217;:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The idea is to select a stock near the market open whose returns from their previous day&#8217;s lows
+to today&#8217;s open are lower that one standard deviation. The standard deviation is computed using
+the daily close-to-close returns of the last 90 days. These are the stocks that &#8220;gapped down&#8221;.</li>
+<li>This is narrowed down by requiring the open price to be higher than the 20-day moving average
+of the closing price.</li>
+</ul>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">eventprofiler</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">roc</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">yahoofinance</span>
+
+<span class="c"># Event inspired on an example from Ernie Chan&#39;s book:</span>
+<span class="c"># &#39;Algorithmic Trading: Winning Strategies and Their Rationale&#39;</span>
+<span class="k">class</span> <span class="nc">BuyOnGap</span><span class="p">(</span><span class="n">eventprofiler</span><span class="o">.</span><span class="n">Predicate</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
+        <span class="n">stdDevPeriod</span> <span class="o">=</span> <span class="mi">90</span>
+        <span class="n">smaPeriod</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__returns</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stdDev</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__ma</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">feed</span><span class="o">.</span><span class="n">getRegisteredInstruments</span><span class="p">():</span>
+            <span class="n">priceDS</span> <span class="o">=</span> <span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjCloseDataSeries</span><span class="p">()</span>
+            <span class="c"># Returns over the adjusted close values.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__returns</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span> <span class="o">=</span> <span class="n">roc</span><span class="o">.</span><span class="n">RateOfChange</span><span class="p">(</span><span class="n">priceDS</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c"># StdDev over those returns.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__stdDev</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">StdDev</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__returns</span><span class="p">[</span><span class="n">instrument</span><span class="p">],</span> <span class="n">stdDevPeriod</span><span class="p">)</span>
+            <span class="c"># MA over the adjusted close values.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__ma</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">priceDS</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__gappedDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">bards</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stdDev</span><span class="p">[</span><span class="n">instrument</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">prevBar</span> <span class="o">=</span> <span class="n">bards</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">currBar</span> <span class="o">=</span> <span class="n">bards</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">low2OpenRet</span> <span class="o">=</span> <span class="p">(</span><span class="n">currBar</span><span class="o">.</span><span class="n">getAdjOpen</span><span class="p">()</span> <span class="o">-</span> <span class="n">prevBar</span><span class="o">.</span><span class="n">getAdjLow</span><span class="p">())</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">prevBar</span><span class="o">.</span><span class="n">getAdjLow</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">low2OpenRet</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__returns</span><span class="p">[</span><span class="n">instrument</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stdDev</span><span class="p">[</span><span class="n">instrument</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">__aboveSMA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">bards</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ma</span><span class="p">[</span><span class="n">instrument</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">bards</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjOpen</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ma</span><span class="p">[</span><span class="n">instrument</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">eventOccurred</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">bards</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gappedDown</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">bards</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aboveSMA</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">bards</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+    <span class="n">instruments</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;AA&quot;</span><span class="p">,</span> <span class="s">&quot;AES&quot;</span><span class="p">,</span> <span class="s">&quot;AIG&quot;</span><span class="p">]</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofinance</span><span class="o">.</span><span class="n">build_feed</span><span class="p">(</span><span class="n">instruments</span><span class="p">,</span> <span class="mi">2008</span><span class="p">,</span> <span class="mi">2009</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="n">predicate</span> <span class="o">=</span> <span class="n">BuyOnGap</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+    <span class="n">eventProfiler</span> <span class="o">=</span> <span class="n">eventprofiler</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">eventProfiler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">eventProfiler</span><span class="o">.</span><span class="n">getResults</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="si">%d</span><span class="s"> events found&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">getEventCount</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">eventprofiler</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The code is doing 4 things:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Declaring a <a class="reference internal" href="#pyalgotrade.eventprofiler.Predicate" title="pyalgotrade.eventprofiler.Predicate"><tt class="xref py py-class docutils literal"><span class="pre">Predicate</span></tt></a> that implements the &#8216;Buy-on-Gap Model&#8217; event identification.</li>
+<li>Loading bars for some stocks.</li>
+<li>Running the analysis.</li>
+<li>Plotting the results.</li>
+</ol>
+</div></blockquote>
+<p>This is what the output should look like:</p>
+<img alt="_images/eventstudy.png" src="_images/eventstudy.png" />
+<div class="highlight-python"><pre>2013-09-20 23:30:45,340 yahoofinance [INFO] Creating data directory
+2013-09-20 23:30:45,341 yahoofinance [INFO] Downloading AA 2008 to data/AA-2008-yahoofinance.csv
+2013-09-20 23:30:46,092 yahoofinance [INFO] Downloading AES 2008 to data/AES-2008-yahoofinance.csv
+2013-09-20 23:30:46,683 yahoofinance [INFO] Downloading AIG 2008 to data/AIG-2008-yahoofinance.csv
+2013-09-20 23:30:47,260 yahoofinance [INFO] Downloading AA 2009 to data/AA-2009-yahoofinance.csv
+2013-09-20 23:30:48,019 yahoofinance [INFO] Downloading AES 2009 to data/AES-2009-yahoofinance.csv
+2013-09-20 23:30:48,761 yahoofinance [INFO] Downloading AIG 2009 to data/AIG-2009-yahoofinance.csv
+14 events found
+</pre>
+</div>
+<p>Note that <strong>Cummulative returns are normalized to the time of the event</strong>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Event profiler</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tools.html"
+                        title="previous chapter">Tools</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="talib.html"
+                        title="next chapter">TA-Lib integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/eventprofiler.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="Tools"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

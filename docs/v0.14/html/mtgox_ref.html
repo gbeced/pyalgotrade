@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mtgox – Mt. Gox reference &mdash; PyAlgoTrade 0.14 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.14 documentation" href="index.html" />
+    <link rel="up" title="Bitcoin trading through Mt. Gox" href="mtgox.html" />
+    <link rel="next" title="Trading based on Twitter events" href="twitter.html" />
+    <link rel="prev" title="Tutorial for Bitcoin trading through Mt. Gox" href="mtgox_tutorial.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Trading based on Twitter events"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mtgox_tutorial.html" title="Tutorial for Bitcoin trading through Mt. Gox"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li>
+          <li><a href="mtgox.html" accesskey="U">Bitcoin trading through Mt. Gox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mtgox-mt-gox-reference">
+<h1>mtgox &#8211; Mt. Gox reference<a class="headerlink" href="#mtgox-mt-gox-reference" title="Permalink to this headline">¶</a></h1>
+<p>MtGox support depends on <strong>ws4py</strong> (<a class="reference external" href="https://github.com/Lawouach/WebSocket-for-Python">https://github.com/Lawouach/WebSocket-for-Python</a>)
+and <strong>tornado</strong> (<a class="reference external" href="http://www.tornadoweb.org/en/stable/">http://www.tornadoweb.org/en/stable/</a>)
+so be sure to have those installed before moving forward.</p>
+<div class="section" id="module-pyalgotrade.mtgox.tools">
+<span id="tools"></span><h2>Tools<a class="headerlink" href="#module-pyalgotrade.mtgox.tools" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyalgotrade.mtgox.tools.download_trades_by_month">
+<tt class="descclassname">pyalgotrade.mtgox.tools.</tt><tt class="descname">download_trades_by_month</tt><big>(</big><em>currency</em>, <em>year</em>, <em>month</em>, <em>csvFile</em>, <em>ignoreMultiCurrency=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.tools.download_trades_by_month" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download trades for a given month.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>currency</strong> (<em>string.</em>) &#8211; Currency in which trade was completed.</li>
+<li><strong>year</strong> (<em>int.</em>) &#8211; The year.</li>
+<li><strong>month</strong> (<em>int.</em>) &#8211; The month.</li>
+<li><strong>csvFile</strong> (<em>string.</em>) &#8211; The path to the CSV file to write the trades.</li>
+<li><strong>ignoreMultiCurrency</strong> (<em>boolean.</em>) &#8211; Ignore multi currency trades.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will take some time since Mt. Gox API returns no more than 1000 trades on each request</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.mtgox.tools.download_trades_by_year">
+<tt class="descclassname">pyalgotrade.mtgox.tools.</tt><tt class="descname">download_trades_by_year</tt><big>(</big><em>currency</em>, <em>year</em>, <em>csvFile</em>, <em>ignoreMultiCurrency=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.tools.download_trades_by_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download trades for a given year.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>currency</strong> (<em>string.</em>) &#8211; Currency in which trade was completed.</li>
+<li><strong>year</strong> (<em>int.</em>) &#8211; The year.</li>
+<li><strong>csvFile</strong> (<em>string.</em>) &#8211; The path to the CSV file to write the trades.</li>
+<li><strong>ignoreMultiCurrency</strong> (<em>boolean.</em>) &#8211; Ignore multi currency trades.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will take some time since Mt. Gox API returns no more than 1000 trades on each request</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.mtgox.client">
+<span id="client"></span><h2>Client<a class="headerlink" href="#module-pyalgotrade.mtgox.client" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.mtgox.client.Client">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.mtgox.client.</tt><tt class="descname">Client</tt><big>(</big><em>currency</em>, <em>apiKey</em>, <em>apiSecret</em>, <em>ignoreMultiCurrency=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.client.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.observer.Subject</span></tt></p>
+<p>This class is responsible for all trading interaction with MtGox.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>currency</strong> (<em>string.</em>) &#8211; The account&#8217;s currency. Valid values are: USD, AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NZD, PLN, RUB, SEK, SGD, THB, NOK or CZK.</li>
+<li><strong>apiKey</strong> (<em>string.</em>) &#8211; Your API key. Set this to None for paper trading.</li>
+<li><strong>apiSecret</strong> (<em>string.</em>) &#8211; Your API secret. Set this to None for paper trading.</li>
+<li><strong>ignoreMultiCurrency</strong> (<em>boolean.</em>) &#8211; Ignore multi currency trades.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For apiKey and apiSecret check the <strong>Application and API access</strong> section in mtgox.com.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.mtgox.barfeed">
+<span id="feeds"></span><h2>Feeds<a class="headerlink" href="#module-pyalgotrade.mtgox.barfeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.mtgox.barfeed.CSVTradeFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.mtgox.barfeed.</tt><tt class="descname">CSVTradeFeed</tt><big>(</big><em>timezone=None</em>, <em>frequency=None</em>, <em>maxLen=1024</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.barfeed.CSVTradeFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a></p>
+<p>A BarFeed that builds bars from a trades CSV file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>frequency</strong> &#8211; Reserved for future use. Currently ignored.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+If not None, it must be greater than 0.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Note that a <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> instance will be created for every trade, so
+open, high, low and close values will all be the same.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.mtgox.barfeed.CSVTradeFeed.addBarsFromCSV">
+<tt class="descname">addBarsFromCSV</tt><big>(</big><em>path</em>, <em>timezone=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.barfeed.CSVTradeFeed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads bars from a trades CSV formatted file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the file.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Every file that you load bars from must have trades in the same currency.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.mtgox.barfeed.LiveTradeFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.mtgox.barfeed.</tt><tt class="descname">LiveTradeFeed</tt><big>(</big><em>client</em>, <em>maxLen=1024</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.barfeed.LiveTradeFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.BaseBarFeed" title="pyalgotrade.barfeed.BaseBarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BaseBarFeed</span></tt></a></p>
+<p>A real-time BarFeed that builds bars from live trades.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>client</strong> (<a class="reference internal" href="#pyalgotrade.mtgox.client.Client" title="pyalgotrade.mtgox.client.Client"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.mtgox.client.Client</span></tt></a>.) &#8211; A MtGox client.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+If not None, it must be greater than 0.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Note that a <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> instance will be created for every trade, so
+open, high, low and close values will all be the same.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.mtgox.broker">
+<span id="brokers"></span><h2>Brokers<a class="headerlink" href="#module-pyalgotrade.mtgox.broker" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.mtgox.broker.BacktestingBroker">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.mtgox.broker.</tt><tt class="descname">BacktestingBroker</tt><big>(</big><em>cash</em>, <em>barFeed</em>, <em>commission=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.mtgox.broker.BacktestingBroker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="broker.html#pyalgotrade.broker.backtesting.Broker" title="pyalgotrade.broker.backtesting.Broker"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.backtesting.Broker</span></tt></a></p>
+<p>A backtesting broker.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cash</strong> (<em>int/float.</em>) &#8211; The initial amount of cash.</li>
+<li><strong>barFeed</strong> (<tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt>) &#8211; The bar feed that will provide the bars.</li>
+<li><strong>commission</strong> (<a class="reference internal" href="broker.html#pyalgotrade.broker.backtesting.Commission" title="pyalgotrade.broker.backtesting.Commission"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.broker.backtesting.Commission</span></tt></a>) &#8211; An object responsible for calculating order commissions. <strong>If None, a 0.6% trade commision will be used</strong>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Neither stop nor stop limit orders are supported.</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mtgox &#8211; Mt. Gox reference</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.mtgox.tools">Tools</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.mtgox.client">Client</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.mtgox.barfeed">Feeds</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.mtgox.broker">Brokers</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mtgox_tutorial.html"
+                        title="previous chapter">Tutorial for Bitcoin trading through Mt. Gox</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="twitter.html"
+                        title="next chapter">Trading based on Twitter events</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mtgox_ref.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Trading based on Twitter events"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mtgox_tutorial.html" title="Tutorial for Bitcoin trading through Mt. Gox"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li>
+          <li><a href="mtgox.html" >Bitcoin trading through Mt. Gox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

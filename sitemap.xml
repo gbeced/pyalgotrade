@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url>
-		<loc>http://gbeced.github.com/pyalgotrade/index.html</loc>
+		<loc>http://gbeced.github.io/pyalgotrade/index.html</loc>
 	</url>
 	<url>
-		<loc>http://gbeced.github.com/pyalgotrade/downloads/index.html</loc>
+		<loc>http://gbeced.github.io/pyalgotrade/downloads/index.html</loc>
 	</url>
 	<url>
-		<loc>http://gbeced.github.com/pyalgotrade/contact/index.html</loc>
+		<loc>http://gbeced.github.io/pyalgotrade/contact/index.html</loc>
 	</url>
 	<url>
-		<loc>http://gbeced.github.com/pyalgotrade/docs/index.html</loc>
+		<loc>http://gbeced.github.io/pyalgotrade/docs/index.html</loc>
 	</url>
 </urlset>

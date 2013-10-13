@@ -102,7 +102,31 @@
 			</div><!-- /.navbar -->
 		</div>
 
-		<h2>Current version: 0.13 (26/Aug/2013)</h2>
+		<h2>Current version: 0.14 (12/Oct/2013)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.14/PyAlgoTrade-0.14.tar.gz/download">PyAlgoTrade-0.14.tar.gz</a>
+		<ul>
+			<li>Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
+			Example <a href="http://gbeced.github.io/pyalgotrade/docs/v0.14/html/eventprofiler.html#example">here</a>.</li>
+			<li>Cumulative returns filter (pyalgotrade.technical.cumret.CumulativeReturn).</li>
+			<li>Z-Score filter (pyalgotrade.technical.stats.ZScore).</li>
+			<li>Added support for other types of time-series data in CSV format (pyalgotrade.feed.csvfeed.Feed).
+			Example <a href="http://gbeced.github.io/pyalgotrade/docs/v0.14/html/sample_quandl.html">here</a>.</li>
+			<li>Fixed a bug with loggers when using the optimizer: https://github.com/gbeced/pyalgotrade/issues/10.</li>
+			<li>Fixed a bug in the trades analyzer.
+			Proportional commissions when switching from long to short or viceversa were not properly calculated.
+			Thanks Sam Jackson for reporting this and providing a patch.</li>
+			<li>Fixed a bug when using the optimizer and a broker with adjusted values.</li>
+			<li>Decreased task granularity in Google App Engine to improve performance.</li>
+			<li>broker.backtesting.FillStrategy was changed to return a broker.backtesting.FillInfo instance.</li>
+			<li>broker.backtesting.DefaultStrategy now takes bar volume into account to fill an order.</li>
+			<li>pyalgotrade.barfeed.BarFeed was renamed to pyalgotrade.barfeed.BaseBarFeed and pyalgotrade.barfeed.BasicBarFeed was removed.</li>
+			<li>Event handlers for pyalgotrade.barfeed.BaseBarFeed.getNewBarsEvent should expect two parameters: datetime and bars.
+			<b>This change may break existing strategies that were manually subscribing to BarFeed events.</b></li>
+		</ul>
+
+		<hr>
+
+		<h2>Version 0.13 (26/Aug/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.13/PyAlgoTrade-0.13.tar.gz/download">PyAlgoTrade-0.13.tar.gz</a>
 		<ul>
 			<li>Added support for handling <b>realtime Twitter events</b> (pyalgotrade.twitter.feed).
@@ -135,9 +159,7 @@
 			<li>pyalgotrade.dataseries.datetime_aligned was moved to pyalgotrade.dataseries.aligned.datetime_aligned.</li>
 		</ul>
 
-		<hr>
-
-		<h2>Version: 0.12 (20/Apr/2013)</h2>
+		<h2>Version 0.12 (20/Apr/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.12/PyAlgoTrade-0.12.tar.gz/download">PyAlgoTrade-0.12.tar.gz</a>
 		<ul>
 			<li>pyalgotrade.optimizer now has worker names associated with each worker. Thanks Matthieu Locas for implementing this.</li>
@@ -149,7 +171,7 @@
 			<li>Fixed a bug in the Strategy class that had a big impact on execution time. Bookkeeping for active positions and orders was not handled properly.</li>
 		</ul>
 
-		<h2>Version: 0.11 (17/Mar/2013)</h2>
+		<h2>Version 0.11 (17/Mar/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.11/PyAlgoTrade-0.11.tar.gz/download">PyAlgoTrade-0.11.tar.gz</a>
 		<ul>
 			<li>DataSeries now provide the datetime associated with each value (getDateTimes), making it easier to plot using matplotlib.</li>

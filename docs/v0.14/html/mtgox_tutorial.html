@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial for Bitcoin trading through Mt. Gox &mdash; PyAlgoTrade 0.14 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.14 documentation" href="index.html" />
+    <link rel="up" title="Bitcoin trading through Mt. Gox" href="mtgox.html" />
+    <link rel="next" title="mtgox – Mt. Gox reference" href="mtgox_ref.html" />
+    <link rel="prev" title="Bitcoin trading through Mt. Gox" href="mtgox.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mtgox_ref.html" title="mtgox – Mt. Gox reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mtgox.html" title="Bitcoin trading through Mt. Gox"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li>
+          <li><a href="mtgox.html" accesskey="U">Bitcoin trading through Mt. Gox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-for-bitcoin-trading-through-mt-gox">
+<h1>Tutorial for Bitcoin trading through Mt. Gox<a class="headerlink" href="#tutorial-for-bitcoin-trading-through-mt-gox" title="Permalink to this headline">¶</a></h1>
+<p>MtGox support depends on <strong>ws4py</strong> (<a class="reference external" href="https://github.com/Lawouach/WebSocket-for-Python">https://github.com/Lawouach/WebSocket-for-Python</a>)
+and <strong>tornado</strong> (<a class="reference external" href="http://www.tornadoweb.org/en/stable/">http://www.tornadoweb.org/en/stable/</a>)
+so be sure to have those installed before moving forward.</p>
+<p>PyAlgoTrade allows you to backtest and paper trade (backtest using a realtime feed) Bitcoin trading
+strategies through Mt. Gox (<a class="reference external" href="https://mtgox.com/">https://mtgox.com/</a>).</p>
+<p>In this tutorial we&#8217;ll first backtest a trading strategy using historical data, and later on we&#8217;ll
+test it using a realtime feed.
+Before we move on, this tutorial assumes that you&#8217;re already familiar with the basic concepts presented
+in the <a class="reference internal" href="tutorial.html#tutorial-label"><em>Tutorial</em></a> section.</p>
+<div class="section" id="backtesting">
+<h2>Backtesting<a class="headerlink" href="#backtesting" title="Permalink to this headline">¶</a></h2>
+<p>The first thing that we&#8217;ll need to test our strategy is some data.
+Let&#8217;s start by downloading trades for March 2013 using the following command:</p>
+<div class="highlight-python"><pre>python -c "from pyalgotrade.mtgox import tools; tools.download_trades_by_month('USD', 2013, 3, 'trades-mtgox-usd-2013-03.csv')"</pre>
+</div>
+<p>The output should look like this:</p>
+<div class="highlight-python"><pre>2013-08-12 22:34:22,260 mtgox [INFO] Downloading trades since 2013-03-01 00:00:00+00:00.
+2013-08-12 22:34:25,728 mtgox [INFO] Got 1000 trades.
+2013-08-12 22:34:25,739 mtgox [INFO] Downloading trades since 2013-03-01 05:06:22.262840+00:00.
+2013-08-12 22:34:27,581 mtgox [INFO] Got 1000 trades.
+2013-08-12 22:34:27,594 mtgox [INFO] Downloading trades since 2013-03-01 09:03:12.939311+00:00.
+2013-08-12 22:34:29,307 mtgox [INFO] Got 1000 trades.
+2013-08-12 22:34:29,319 mtgox [INFO] Downloading trades since 2013-03-01 11:35:16.695161+00:00.
+2013-08-12 22:34:30,954 mtgox [INFO] Got 1000 trades.
+2013-08-12 22:34:30,966 mtgox [INFO] Downloading trades since 2013-03-01 15:55:48.855317+00:00.
+2013-08-12 22:34:32,679 mtgox [INFO] Got 1000 trades.
+2013-08-12 22:34:32,691 mtgox [INFO] Downloading trades since 2013-03-01 18:19:12.283606+00:00.
+.
+.</pre>
+</div>
+<p>and it will take some time since Mt. Gox API returns no more than 1000 trades on each request and there
+are about 324878 trades.
+The CSV file will have 4 columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The trade identifier (which is in fact the trade timestamp in microseconds).</li>
+<li>The price.</li>
+<li>The amount of bitcoin traded.</li>
+<li>If the trade is the result of the execution of a bid or an ask.</li>
+</ul>
+</div></blockquote>
+<p>For this tutorial we&#8217;ll use a Bitcoin Scalper strategy inspired in <a class="reference external" href="http://nobulart.com/bitcoin/blog/bitcoin-scalper-part-1/">http://nobulart.com/bitcoin/blog/bitcoin-scalper-part-1/</a> .
+As explained in that webpage, the general idea is to place a bid order a fixed percentage below the current market price.
+Once a bid order is filled, it is transitioned to the held state. It will remain held until any one of the following three conditions are met:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The commit price is met</li>
+<li>The stop loss is triggered</li>
+<li>The maximum hold period is exceeded</li>
+</ul>
+</div></blockquote>
+<p>Depending on which condition was met, we&#8217;ll exit with a Market or a Limit order.</p>
+<p>Save the following code as <strong>mtgox_scalper.py</strong>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">roc</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">stats</span>
+
+<span class="c"># This strategy is inspired on: http://nobulart.com/bitcoin/blog/bitcoin-scalper-part-1/</span>
+<span class="c"># </span>
+<span class="c"># Possible states and transitions:</span>
+<span class="c">#   NoPos -&gt; WaitEntry</span>
+<span class="c">#   WaitEntry -&gt; LongPos | NoPos</span>
+<span class="c">#   LongPos -&gt; WaitExitLimit | WaitExitMarket</span>
+<span class="c">#   WaitExitLimit -&gt; WaitExitMarket | NoPos</span>
+<span class="c">#   WaitExitMarket -&gt; NoPos</span>
+
+<span class="k">class</span> <span class="nc">Strategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__verbosityLevel</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__orderSize</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__targetPricePct</span> <span class="o">=</span> <span class="mf">0.015</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__commitPricePct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__targetPricePct</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stopLossPct</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.02</span>
+        <span class="c"># Time to wait for BUY order to get filled.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__maxWaitEntry</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="c"># Maximum holding period.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__maxHoldPeriod</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">volatilityPeriod</span> <span class="o">=</span> <span class="mi">5</span> <span class="c"># How many returns to use to calculate volatility.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">returnsVolatility</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">StdDev</span><span class="p">(</span><span class="n">roc</span><span class="o">.</span><span class="n">RateOfChange</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">1</span><span class="p">),</span> <span class="n">volatilityPeriod</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__switchNoPos</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">setVerbosityLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__verbosityLevel</span> <span class="o">=</span> <span class="n">level</span>
+
+    <span class="k">def</span> <span class="nf">__log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="o">*</span><span class="n">elements</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__verbosityLevel</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__switchNoPos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onNoPos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__commitPrice</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__deadline</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__exitWithMarketOrder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="c"># Exit with a market order at the target price and switch to WaitExitMarket</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;SELL (Market order)&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitMarket</span>
+
+    <span class="c"># Calculate the bid price based on the current price and the volatility.</span>
+    <span class="k">def</span> <span class="nf">__getBidPrice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">currentPrice</span><span class="p">):</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">returnsVolatility</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">vol</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">vol</span> <span class="o">&gt;</span> <span class="mf">0.006</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">currentPrice</span> <span class="o">*</span> <span class="mf">0.98</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">onEnterOk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">==</span> <span class="n">position</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitEntry</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">getEntryOrder</span><span class="p">()</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;BUY filled at&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">getEntryOrder</span><span class="p">()</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getPrice</span><span class="p">())</span>
+
+        <span class="c"># Switch to LongPos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__deadline</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">getEntryOrder</span><span class="p">()</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__maxHoldPeriod</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onLongPos</span>
+
+    <span class="k">def</span> <span class="nf">onEnterCanceled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">==</span> <span class="n">position</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitEntry</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;BUY canceled.&quot;</span><span class="p">)</span>
+
+        <span class="c"># Switch to NoPos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__switchNoPos</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">onExitOk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">==</span> <span class="n">position</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitLimit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitMarket</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">getExitOrder</span><span class="p">()</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;SELL filled. %&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">getReturn</span><span class="p">())</span>
+
+        <span class="c"># Switch to NoPos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__switchNoPos</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">onExitCanceled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">==</span> <span class="n">position</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitLimit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitMarket</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;SELL canceled. Resubmitting as market order.&quot;</span><span class="p">)</span>
+
+        <span class="c"># If the exit was canceled, re-submit it as a market order.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitMarket</span>
+
+    <span class="k">def</span> <span class="nf">__waitingPeriodExceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">currentDateTime</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__deadline</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">currentDateTime</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deadline</span>
+
+    <span class="k">def</span> <span class="nf">__stopLoss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">currentPrice</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">getUnrealizedReturn</span><span class="p">(</span><span class="n">currentPrice</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stopLossPct</span>
+
+    <span class="c"># NoPos: A position is not opened.</span>
+    <span class="k">def</span> <span class="nf">__onNoPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__commitPrice</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="n">currentPrice</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span>
+        <span class="n">bidPrice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getBidPrice</span><span class="p">(</span><span class="n">currentPrice</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bidPrice</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__commitPrice</span> <span class="o">=</span> <span class="n">bidPrice</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__commitPricePct</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span> <span class="o">=</span> <span class="n">bidPrice</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__targetPricePct</span><span class="p">)</span>
+            <span class="c"># EnterLong and switch state to WaitEntry</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;BUY (ask: </span><span class="si">%s</span><span class="s"> commit: </span><span class="si">%s</span><span class="s"> target: </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bidPrice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__commitPrice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLongLimit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="n">bidPrice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__orderSize</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitEntry</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__deadline</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__maxWaitEntry</span>
+
+    <span class="c"># WaitEntry: Waiting for the entry order to get filled.</span>
+    <span class="k">def</span> <span class="nf">__onWaitEntry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">entryFilled</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__waitingPeriodExceeded</span><span class="p">(</span><span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">()):</span>
+            <span class="c"># Cancel the entry order. This should eventually take us back to NoPos.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;Waiting period exceeded. Cancel entry&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">cancelEntry</span><span class="p">()</span>
+
+    <span class="c"># LongPos: In a long position.</span>
+    <span class="k">def</span> <span class="nf">__onLongPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__commitPrice</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="n">currentPrice</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span>
+        <span class="c"># If the holding perios is exceeded, we exit with a market order.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__waitingPeriodExceeded</span><span class="p">(</span><span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;Holding period exceeded.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__exitWithMarketOrder</span><span class="p">(</span><span class="n">bars</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stopLoss</span><span class="p">(</span><span class="n">currentPrice</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;Stop loss.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__exitWithMarketOrder</span><span class="p">(</span><span class="n">bars</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">currentPrice</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__commitPrice</span><span class="p">:</span>
+            <span class="c"># Exit with a limit order at the target price and switch to WaitExitLimit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;SELL (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetPrice</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__onWaitExitLimit</span>
+
+    <span class="c"># WaitExitLimit: Waiting for the sell limit order to get filled.</span>
+    <span class="k">def</span> <span class="nf">__onWaitExitLimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exitActive</span><span class="p">():</span>
+            <span class="n">currentPrice</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stopLoss</span><span class="p">(</span><span class="n">currentPrice</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;Stop loss. Canceling SELL (Limit order).&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">cancelExit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__exitWithMarketOrder</span><span class="p">()</span>
+
+    <span class="c"># WaitExitMarket: Waiting for the sell market order to get filled.</span>
+    <span class="k">def</span> <span class="nf">__onWaitExitMarket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">assert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bars</span><span class="o">.</span><span class="n">getDateTime</span><span class="p">(),</span> <span class="s">&quot;Price:&quot;</span><span class="p">,</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="s">&quot;Volume:&quot;</span><span class="p">,</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getVolume</span><span class="p">(),</span> <span class="s">&quot;Volatility:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">returnsVolatility</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stateFun</span><span class="p">(</span><span class="n">bars</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and use the following code to run the <strong>mtgox_scalper.py</strong> strategy with the bars we just downloaded:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">barfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">broker</span>
+
+<span class="kn">import</span> <span class="nn">mtgox_scalper</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+    <span class="c"># Load the trades from the CSV file</span>
+    <span class="k">print</span> <span class="s">&quot;Loading bars&quot;</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">barfeed</span><span class="o">.</span><span class="n">CSVTradeFeed</span><span class="p">()</span>
+    <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;trades-mtgox-usd-2013-03.csv&quot;</span><span class="p">)</span>
+
+    <span class="c"># Create a backtesting broker.</span>
+    <span class="n">brk</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">BacktestingBroker</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+
+    <span class="c"># Run the strategy with the feed and the broker.</span>
+    <span class="k">print</span> <span class="s">&quot;Running strategy&quot;</span>
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">mtgox_scalper</span><span class="o">.</span><span class="n">Strategy</span><span class="p">(</span><span class="s">&quot;BTC&quot;</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="n">plotBuySell</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getOrCreateSubplot</span><span class="p">(</span><span class="s">&quot;volatility&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;Volatility&quot;</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">returnsVolatility</span><span class="p">)</span>
+
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Result: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">strat</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>The code is doing 3 things:</dt>
+<dd><ol class="first last arabic simple">
+<li>Loading the feed from a trades CSV file. Note that a <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> instance will be created for every trade in the file.</li>
+<li>Creating a broker for backtesting. The broker will charge a 0.6 % fee for each order.</li>
+<li>Running the strategy with the bars supplied by the feed and the backtesting broker, and optionally plotting some figures.</li>
+</ol>
+</dd>
+</dl>
+<p>If you run the script you should see something like this:</p>
+<div class="highlight-python"><pre>Loading bars
+Running strategy
+2013-03-01 01:03:01.723215+00:00 BUY (ask: 32.7275508 commit: 32.973007431 target: 33.218464062)
+2013-03-01 01:07:07.577842+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-01 01:07:10.018437+00:00 BUY (ask: 32.4675176 commit: 32.711023982 target: 32.954530364)
+2013-03-01 01:10:17.828689+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-01 03:54:44.713943+00:00 BUY (ask: 32.89958 commit: 33.14632685 target: 33.3930737)
+2013-03-01 03:59:14.375401+00:00 Waiting period exceeded. Cancel entry
+.
+.
+.
+2013-03-31 19:18:18.430133+00:00 BUY (ask: 91.1302 commit: 91.8136765 target: 92.497153)
+2013-03-31 19:21:29.664933+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-31 21:47:23.413314+00:00 BUY (ask: 91.203161 commit: 91.8871847075 target: 92.571208415)
+2013-03-31 21:50:44.928156+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+2013-03-31 23:08:43.620930+00:00 BUY (ask: 90.3560294 commit: 91.0336996205 target: 91.711369841)
+2013-03-31 23:13:07.495571+00:00 Waiting period exceeded. Cancel entry
+BUY canceled.
+Result: 221.01
+</pre>
+</div>
+<img alt="_images/tutorial_mtgox_1.png" src="_images/tutorial_mtgox_1.png" />
+<p>Note that while this strategy seems profitable for March 2013, it may not be the case for other periods. The main point of this
+tutorial is to show how to build and run a strategy.</p>
+</div>
+<div class="section" id="papertrading">
+<h2>Papertrading<a class="headerlink" href="#papertrading" title="Permalink to this headline">¶</a></h2>
+<p>Now let&#8217;s run the same strategy but instead of using historical data we&#8217;ll use live data coming directly from MtGox:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">client</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">barfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.mtgox</span> <span class="kn">import</span> <span class="n">broker</span>
+
+<span class="kn">import</span> <span class="nn">mtgox_scalper</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c"># Create a client responsible for all the interaction with MtGox</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s">&quot;USD&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="c"># Create a real-time feed that will build bars from live trades.</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">barfeed</span><span class="o">.</span><span class="n">LiveTradeFeed</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span>
+
+    <span class="c"># Create a backtesting broker.</span>
+    <span class="n">brk</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">BacktestingBroker</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+
+    <span class="c"># Run the strategy with the feed and the broker.</span>
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">mtgox_scalper</span><span class="o">.</span><span class="n">Strategy</span><span class="p">(</span><span class="s">&quot;BTC&quot;</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+    <span class="c"># It is VERY important to add the client to the event dispatch loop before running the strategy.</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">getDispatcher</span><span class="p">()</span><span class="o">.</span><span class="n">addSubject</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span>
+    <span class="c"># This is just to get each bar printed.</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">setVerbosityLevel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>The code is doing 4 things:</dt>
+<dd><ol class="first last arabic simple">
+<li>Creating a client to connect to MtGox. For papertrading purposes we only need to specify the currency to use.</li>
+<li>Creating a live feed that will build bars from the trades received through the client.</li>
+<li>Creating a broker for backtesting. The broker will charge a 0.6 % fee for each order.</li>
+<li>Running the strategy with the bars supplied by the feed and the backtesting broker. Note that we had to add the client to the event dispatch loop before running the strategy.</li>
+</ol>
+</dd>
+</dl>
+<p>If you run the script you should see something like this:</p>
+<div class="highlight-python"><pre>2013-08-19 00:32:34,573 mtgox [INFO] Initializing MtGox client.
+2013-08-19 00:32:35,198 mtgox [INFO] Connection opened.
+2013-08-19 00:32:35,199 mtgox [INFO] Initialization ok.
+2013-08-19 00:32:57.063971 Price: 116.95505 Volume: 0.01079 Volatility: None
+2013-08-19 00:33:35.472846 Price: 116.95504 Volume: 0.199 Volatility: None
+2013-08-19 00:33:51.604106 Price: 116.95503 Volume: 0.01033 Volatility: None
+2013-08-19 00:33:59.452987 Price: 116.46002 Volume: 0.01 Volatility: None
+2013-08-19 00:34:02.809658 Price: 116.46003 Volume: 0.01 Volatility: None
+2013-08-19 00:34:14.537918 Price: 116.46003 Volume: 0.01 Volatility: 0.00169298408448
+2013-08-19 00:34:18.911074 Price: 116.46004 Volume: 0.01 Volatility: 0.00169300122141
+2013-08-19 00:34:48.579430 Price: 116.95506 Volume: 0.0108 Volatility: 0.00268257581563
+2013-08-19 00:34:49.821193 Price: 116.46 Volume: 0.01 Volatility: 0.00268271049486
+.
+.
+.
+</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial for Bitcoin trading through Mt. Gox</a><ul>
+<li><a class="reference internal" href="#backtesting">Backtesting</a></li>
+<li><a class="reference internal" href="#papertrading">Papertrading</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mtgox.html"
+                        title="previous chapter">Bitcoin trading through Mt. Gox</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mtgox_ref.html"
+                        title="next chapter">mtgox &#8211; Mt. Gox reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mtgox_tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mtgox_ref.html" title="mtgox – Mt. Gox reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mtgox.html" title="Bitcoin trading through Mt. Gox"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.14 documentation</a> &raquo;</li>
+          <li><a href="mtgox.html" >Bitcoin trading through Mt. Gox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
