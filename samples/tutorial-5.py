@@ -3,7 +3,6 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.stratanalyzer import returns
 import smacross_strategy
 
-
 # Load the yahoo feed from the CSV file
 feed = yahoofeed.Feed()
 feed.addBarsFromCSV("orcl", "orcl-2000.csv")
@@ -31,5 +30,3 @@ print "Final portfolio value: $%.2f" % myStrategy.getResult()
 
 # Plot the strategy.
 plt.plot()
-
-

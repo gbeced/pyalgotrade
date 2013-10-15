@@ -2,6 +2,7 @@ import itertools
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.optimizer import server
 
+
 def parameters_generator():
     entrySMA = range(150, 251)
     exitSMA = range(5, 16)
@@ -20,4 +21,3 @@ if __name__ == '__main__':
 
     # Run the server.
     server.serve(feed, parameters_generator(), "localhost", 5000)
-

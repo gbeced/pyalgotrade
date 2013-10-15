@@ -5,13 +5,14 @@ from pyalgotrade.technical import roc
 from pyalgotrade.technical import stats
 
 # This strategy is inspired on: http://nobulart.com/bitcoin/blog/bitcoin-scalper-part-1/
-# 
+#
 # Possible states and transitions:
 #   NoPos -> WaitEntry
 #   WaitEntry -> LongPos | NoPos
 #   LongPos -> WaitExitLimit | WaitExitMarket
 #   WaitExitLimit -> WaitExitMarket | NoPos
 #   WaitExitMarket -> NoPos
+
 
 class Strategy(strategy.BaseStrategy):
     def __init__(self, instrument, feed, brk):
@@ -27,7 +28,7 @@ class Strategy(strategy.BaseStrategy):
         # Maximum holding period.
         self.__maxHoldPeriod = datetime.timedelta(hours=1)
 
-        volatilityPeriod = 5 # How many returns to use to calculate volatility.
+        volatilityPeriod = 5  # How many returns to use to calculate volatility.
         self.returnsVolatility = stats.StdDev(roc.RateOfChange(feed[self.__instrument].getCloseDataSeries(), 1), volatilityPeriod)
 
         self.__switchNoPos()
@@ -55,7 +56,7 @@ class Strategy(strategy.BaseStrategy):
     # Calculate the bid price based on the current price and the volatility.
     def __getBidPrice(self, currentPrice):
         vol = self.returnsVolatility[-1]
-        if vol != None and vol > 0.006:
+        if vol is not None and vol > 0.006:
             return currentPrice * 0.98
         return None
 
@@ -98,22 +99,22 @@ class Strategy(strategy.BaseStrategy):
         self.__stateFun = self.__onWaitExitMarket
 
     def __waitingPeriodExceeded(self, currentDateTime):
-        assert(self.__deadline != None)
+        assert(self.__deadline is not None)
         return currentDateTime >= self.__deadline
 
     def __stopLoss(self, currentPrice):
-        assert(self.__position != None)
+        assert(self.__position is not None)
         return self.__position.getUnrealizedReturn(currentPrice) <= self.__stopLossPct
 
     # NoPos: A position is not opened.
     def __onNoPos(self, bars):
-        assert(self.__position == None)
-        assert(self.__commitPrice == None)
-        assert(self.__targetPrice == None)
+        assert(self.__position is None)
+        assert(self.__commitPrice is None)
+        assert(self.__targetPrice is None)
 
         currentPrice = bars[self.__instrument].getClose()
         bidPrice = self.__getBidPrice(currentPrice)
-        if bidPrice != None:
+        if bidPrice is not None:
             self.__commitPrice = bidPrice * (1 + self.__commitPricePct)
             self.__targetPrice = bidPrice * (1 + self.__targetPricePct)
             # EnterLong and switch state to WaitEntry
@@ -124,7 +125,7 @@ class Strategy(strategy.BaseStrategy):
 
     # WaitEntry: Waiting for the entry order to get filled.
     def __onWaitEntry(self, bars):
-        assert(self.__position != None)
+        assert(self.__position is not None)
         assert(not self.__position.entryFilled())
 
         if self.__waitingPeriodExceeded(bars.getDateTime()):
@@ -134,9 +135,9 @@ class Strategy(strategy.BaseStrategy):
 
     # LongPos: In a long position.
     def __onLongPos(self, bars):
-        assert(self.__position != None)
-        assert(self.__commitPrice != None)
-        assert(self.__targetPrice != None)
+        assert(self.__position is not None)
+        assert(self.__commitPrice is not None)
+        assert(self.__targetPrice is not None)
 
         currentPrice = bars[self.__instrument].getClose()
         # If the holding perios is exceeded, we exit with a market order.
@@ -154,7 +155,7 @@ class Strategy(strategy.BaseStrategy):
 
     # WaitExitLimit: Waiting for the sell limit order to get filled.
     def __onWaitExitLimit(self, bars):
-        assert(self.__position != None)
+        assert(self.__position is not None)
 
         if self.__position.exitActive():
             currentPrice = bars[self.__instrument].getClose()
@@ -166,9 +167,8 @@ class Strategy(strategy.BaseStrategy):
 
     # WaitExitMarket: Waiting for the sell market order to get filled.
     def __onWaitExitMarket(self, bars):
-        assert(self.__position != None)
+        assert(self.__position is not None)
 
     def onBars(self, bars):
         self.__log(0, bars.getDateTime(), "Price:", bars[self.__instrument].getClose(), "Volume:", bars[self.__instrument].getVolume(), "Volatility:", self.returnsVolatility[-1])
         self.__stateFun(bars)
-

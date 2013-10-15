@@ -6,6 +6,8 @@ from pyalgotrade.tools import yahoofinance
 
 # Event inspired on an example from Ernie Chan's book:
 # 'Algorithmic Trading: Winning Strategies and Their Rationale'
+
+
 class BuyOnGap(eventprofiler.Predicate):
     def __init__(self, feed):
         stdDevPeriod = 90
@@ -24,7 +26,7 @@ class BuyOnGap(eventprofiler.Predicate):
 
     def __gappedDown(self, instrument, bards):
         ret = False
-        if self.__stdDev[instrument][-1] != None:
+        if self.__stdDev[instrument][-1] is not None:
             prevBar = bards[-2]
             currBar = bards[-1]
             low2OpenRet = (currBar.getAdjOpen() - prevBar.getAdjLow()) / float(prevBar.getAdjLow())
@@ -34,7 +36,7 @@ class BuyOnGap(eventprofiler.Predicate):
 
     def __aboveSMA(self, instrument, bards):
         ret = False
-        if self.__ma[instrument][-1] != None and bards[-1].getAdjOpen() > self.__ma[instrument][-1]:
+        if self.__ma[instrument][-1] is not None and bards[-1].getAdjOpen() > self.__ma[instrument][-1]:
             ret = True
         return ret
 
@@ -43,6 +45,7 @@ class BuyOnGap(eventprofiler.Predicate):
         if self.__gappedDown(instrument, bards) and self.__aboveSMA(instrument, bards):
             ret = True
         return ret
+
 
 def main(plot):
     instruments = ["AA", "AES", "AIG"]
@@ -59,4 +62,3 @@ def main(plot):
 
 if __name__ == "__main__":
     main(True)
-

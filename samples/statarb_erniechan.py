@@ -7,11 +7,13 @@ from pyalgotrade.tools import yahoofinance
 import numpy as np
 import statsmodels.api as sm
 
+
 def get_beta(values1, values2):
     # http://statsmodels.sourceforge.net/stable/regression.html
     model = sm.OLS(values1, values2)
     results = model.fit()
     return results.params[0]
+
 
 class StatArbHelper:
     def __init__(self, ds1, ds2, windowSize):
@@ -43,17 +45,17 @@ class StatArbHelper:
         self.__hedgeRatio = get_beta(values1, values2)
 
     def __updateSpreadMeanAndStd(self, values1, values2):
-        if self.__hedgeRatio != None:
+        if self.__hedgeRatio is not None:
             spread = values1 - values2 * self.__hedgeRatio
             self.__spreadMean = spread.mean()
             self.__spreadStd = spread.std(ddof=1)
 
     def __updateSpread(self):
-        if self.__hedgeRatio != None:
+        if self.__hedgeRatio is not None:
             self.__spread = self.__ds1[-1] - self.__hedgeRatio * self.__ds2[-1]
 
     def __updateZScore(self):
-        if  self.__spread != None and self.__spreadMean != None and self.__spreadStd != None:
+        if self.__spread is not None and self.__spreadMean is not None and self.__spreadStd is not None:
             self.__zScore = (self.__spread - self.__spreadMean) / float(self.__spreadStd)
 
     def update(self):
@@ -64,6 +66,7 @@ class StatArbHelper:
             self.__updateSpread()
             self.__updateSpreadMeanAndStd(values1, values2)
             self.__updateZScore()
+
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument1, instrument2, windowSize):
@@ -118,15 +121,16 @@ class MyStrategy(strategy.BacktestingStrategy):
         if bars.getBar(self.__i1) and bars.getBar(self.__i2):
             hedgeRatio = self.__statArbHelper.getHedgeRatio()
             zScore = self.__statArbHelper.getZScore()
-            if zScore != None:
-                currentPos =  abs(self.getBroker().getShares(self.__i1)) + abs(self.getBroker().getShares(self.__i2))
+            if zScore is not None:
+                currentPos = abs(self.getBroker().getShares(self.__i1)) + abs(self.getBroker().getShares(self.__i2))
                 if abs(zScore) <= 1 and currentPos != 0:
                     self.reducePosition(self.__i1)
                     self.reducePosition(self.__i2)
-                elif zScore <= -2 and currentPos == 0: # Buy spread when its value drops below 2 standard deviations.
+                elif zScore <= -2 and currentPos == 0:  # Buy spread when its value drops below 2 standard deviations.
                     self.buySpread(bars, hedgeRatio)
-                elif zScore >= 2 and currentPos == 0: # Short spread when its value rises above 2 standard deviations.
+                elif zScore >= 2 and currentPos == 0:  # Short spread when its value rises above 2 standard deviations.
                     self.sellSpread(bars, hedgeRatio)
+
 
 def main(plot):
     instruments = ["gld", "gdx"]
@@ -150,4 +154,3 @@ def main(plot):
 
 if __name__ == "__main__":
     main(True)
-

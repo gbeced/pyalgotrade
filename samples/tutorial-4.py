@@ -2,6 +2,7 @@ from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod):
         strategy.BacktestingStrategy.__init__(self, feed, 1000)
@@ -37,16 +38,17 @@ class MyStrategy(strategy.BacktestingStrategy):
 
         bar = bars[self.__instrument]
         # If a position was not opened, check if we should enter a long position.
-        if self.__position == None:
+        if self.__position is None:
             if bar.getAdjClose() > self.__sma[-1]:
                 # Enter a buy market order for 10 shares. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, 10, True)
         # Check if we have to exit the position.
         elif bar.getAdjClose() < self.__sma[-1]:
-             self.__position.exit()
+            self.__position.exit()
 
     def onFinish(self, bars):
         print "Final portfolio value: $%.2f" % self.getBroker().getEquity()
+
 
 def run_strategy(smaPeriod):
     # Load the yahoo feed from the CSV file

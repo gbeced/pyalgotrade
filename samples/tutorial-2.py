@@ -2,6 +2,7 @@ from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
         strategy.BacktestingStrategy.__init__(self, feed)
@@ -20,4 +21,3 @@ feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 # Evaluate the strategy with the feed's bars.
 myStrategy = MyStrategy(feed, "orcl")
 myStrategy.run()
-

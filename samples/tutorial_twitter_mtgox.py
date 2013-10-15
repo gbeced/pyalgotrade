@@ -6,6 +6,7 @@ from pyalgotrade.twitter import feed as twitterfeed
 
 import datetime
 
+
 class Strategy(strategy.BaseStrategy):
     def __init__(self, instrument, feed, brk, mtgoxClient, twitterFeed):
         strategy.BaseStrategy.__init__(self, feed, brk)
@@ -29,16 +30,17 @@ class Strategy(strategy.BaseStrategy):
     def onBars(self, bars):
         print bars.getDateTime(), "Price:", bars[self.__instrument].getClose(), "Volume:", bars[self.__instrument].getVolume()
 
+
 def main():
     # Go to http://dev.twitter.com and create an app.
     # The consumer key and secret will be generated for you after that.
-    consumer_key="<YOUR-CONSUMER-KEY-HERE>"
-    consumer_secret="<YOUR-CONSUMER-SECRET-HERE>"
+    consumer_key = "<YOUR-CONSUMER-KEY-HERE>"
+    consumer_secret = "<YOUR-CONSUMER-SECRET-HERE>"
 
     # After the step above, you will be redirected to your app's page.
     # Create an access token under the the "Your access token" section
-    access_token="<YOUR-ACCESS-TOKEN-HERE>"
-    access_token_secret="<YOUR-ACCESS-TOKEN-SECRET-HERE>"
+    access_token = "<YOUR-ACCESS-TOKEN-HERE>"
+    access_token_secret = "<YOUR-ACCESS-TOKEN-SECRET-HERE>"
 
     # Create a twitter feed to track BitCoin related events.
     track = ["bitcoin", "btc", "mtgox"]

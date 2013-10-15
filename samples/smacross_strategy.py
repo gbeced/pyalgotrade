@@ -2,6 +2,7 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 
+
 class Strategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod, cash=1000):
         strategy.BacktestingStrategy.__init__(self, feed, cash)
@@ -27,11 +28,10 @@ class Strategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         # If a position was not opened, check if we should enter a long position.
-        if self.__position == None:
+        if self.__position is None:
             if cross.cross_above(self.__adjClose, self.__sma) > 0:
                 # Enter a buy market order for 10 shares. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, 10, True)
         # Check if we have to exit the position.
         elif cross.cross_below(self.__adjClose, self.__sma) > 0:
-             self.__position.exit()
-
+            self.__position.exit()

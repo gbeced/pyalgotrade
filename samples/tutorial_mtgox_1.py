@@ -4,6 +4,7 @@ from pyalgotrade.mtgox import broker
 
 import mtgox_scalper
 
+
 def main(plot):
     # Load the trades from the CSV file
     print "Loading bars"

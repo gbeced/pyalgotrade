@@ -9,6 +9,7 @@ from pyalgotrade.utils import stats
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
 
+
 class OrdersFile:
     def __init__(self, ordersFile):
         self.__orders = {}
@@ -28,12 +29,12 @@ class OrdersFile:
             if row["symbol"] not in self.__instruments:
                 self.__instruments.append(row["symbol"])
 
-            if self.__firstDate == None:
+            if self.__firstDate is None:
                 self.__firstDate = dateTime
             else:
                 self.__firstDate = min(self.__firstDate, dateTime)
 
-            if self.__lastDate == None:
+            if self.__lastDate is None:
                 self.__lastDate = dateTime
             else:
                 self.__lastDate = max(self.__lastDate, dateTime)
@@ -49,6 +50,7 @@ class OrdersFile:
 
     def getOrders(self, dateTime):
         return self.__orders.get(dateTime, [])
+
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, cash, ordersFile, useAdjustedClose):
@@ -75,6 +77,7 @@ class MyStrategy(strategy.BacktestingStrategy):
         portfolioValue = self.getBroker().getEquity()
         print "%s: Portfolio value: $%.2f" % (bars.getDateTime(), portfolioValue)
 
+
 def main():
     # Load the orders file.
     ordersFile = OrdersFile("orders.csv")
@@ -83,11 +86,11 @@ def main():
     print "Symbols", ordersFile.getInstruments()
 
     # Load the data from QSTK storage. QS environment variable has to be defined.
-    if os.getenv("QS") == None:
+    if os.getenv("QS") is None:
         raise Exception("QS environment variable not defined")
     feed = yahoofeed.Feed()
     feed.setBarFilter(csvfeed.DateRangeFilter(ordersFile.getFirstDate(), ordersFile.getLastDate()))
-    feed.setDailyBarTime(datetime.time(0, 0, 0)) # This is to match the dates loaded with the ones in the orders file.
+    feed.setDailyBarTime(datetime.time(0, 0, 0))  # This is to match the dates loaded with the ones in the orders file.
     for symbol in ordersFile.getInstruments():
         feed.addBarsFromCSV(symbol, os.path.join(os.getenv("QS"), "QSData", "Yahoo", symbol + ".csv"))
 
@@ -112,4 +115,3 @@ def main():
     print "Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0))
 
 main()
-

@@ -3,6 +3,7 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
         strategy.BacktestingStrategy.__init__(self, feed, 2000)
@@ -44,10 +45,10 @@ class MyStrategy(strategy.BacktestingStrategy):
             return
 
         bar = bars["dia"]
-        if self.__longPos != None:
+        if self.__longPos is not None:
             if self.exitLongSignal(bar):
                 self.__longPos.exit()
-        elif self.__shortPos != None:
+        elif self.__shortPos is not None:
             if self.exitShortSignal(bar):
                 self.__shortPos.exit()
         else:
@@ -71,4 +72,3 @@ class MyStrategy(strategy.BacktestingStrategy):
 # The if __name__ == '__main__' part is necessary if running on Windows.
 if __name__ == '__main__':
     worker.run(MyStrategy, "localhost", 5000, workerName="localworker")
-

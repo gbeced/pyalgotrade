@@ -4,6 +4,7 @@ from pyalgotrade.tools import yahoofinance
 from pyalgotrade.feed import csvfeed
 import datetime
 
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, quandlFeed, instrument):
         strategy.BacktestingStrategy.__init__(self, feed)
@@ -22,6 +23,7 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         print bars.getDateTime(), bars[self.__instrument].getAdjClose()
+
 
 def main(plot):
     instruments = ["gld"]
@@ -49,4 +51,3 @@ def main(plot):
 
 if __name__ == "__main__":
     main(True)
-

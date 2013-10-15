@@ -5,6 +5,7 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
         strategy.BacktestingStrategy.__init__(self, feed, 2000)
@@ -46,10 +47,10 @@ class MyStrategy(strategy.BacktestingStrategy):
             return
 
         bar = bars["dia"]
-        if self.__longPos != None:
+        if self.__longPos is not None:
             if self.exitLongSignal(bar):
                 self.__longPos.exit()
-        elif self.__shortPos != None:
+        elif self.__shortPos is not None:
             if self.exitShortSignal(bar):
                 self.__shortPos.exit()
         else:
@@ -70,6 +71,7 @@ class MyStrategy(strategy.BacktestingStrategy):
     def exitShortSignal(self, bar):
         return bar.getClose() < self.__exitSMA[-1]
 
+
 def parameters_generator():
     entrySMA = range(150, 251)
     exitSMA = range(5, 16)
@@ -87,4 +89,3 @@ if __name__ == '__main__':
     feed.addBarsFromCSV("dia", "dia-2011.csv")
 
     local.run(MyStrategy, feed, parameters_generator())
-

@@ -4,6 +4,7 @@ from pyalgotrade.mtgox import broker
 
 import mtgox_scalper
 
+
 def main():
     # Create a client responsible for all the interaction with MtGox
     cl = client.Client("USD", None, None)

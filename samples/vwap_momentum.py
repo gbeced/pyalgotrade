@@ -6,6 +6,7 @@ from pyalgotrade.technical import vwap
 
 import os
 
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, vwapWindowSize):
         strategy.BacktestingStrategy.__init__(self, feed)
@@ -17,7 +18,7 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         vwap = self.__vwap[-1]
-        if vwap == None:
+        if vwap is None:
             return
 
         shares = self.getBroker().getShares(self.__instrument)
@@ -26,7 +27,8 @@ class MyStrategy(strategy.BacktestingStrategy):
         if price < vwap * 0.995 and notional > 0:
             self.order(self.__instrument, -100)
         elif price > vwap * 1.005 and notional < 1000000:
-            self.order(self.__instrument, 100) 
+            self.order(self.__instrument, 100)
+
 
 def build_feed(instruments, fromYear, toYear):
     feed = yahoofeed.Feed()
@@ -39,6 +41,7 @@ def build_feed(instruments, fromYear, toYear):
                 yahoofinance.download_daily_bars(symbol, year, fileName)
             feed.addBarsFromCSV(symbol, fileName)
     return feed
+
 
 def main(plot):
     instrument = "aapl"
@@ -61,4 +64,3 @@ def main(plot):
 
 if __name__ == "__main__":
     main(True)
-
