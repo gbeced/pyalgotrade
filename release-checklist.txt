@@ -1,6 +1,6 @@
 Release checklist
 
-[ ] Run flake8 (flake8 . | grep -v "line too long")
+[ ] Run flake8 (flake8 --exclude=doc . | grep -v "line too long")
 [ ] Run testcases on Mac and Windows.
 [ ] Update CHANGELOG.
 [ ] Update version in __init__.py.
