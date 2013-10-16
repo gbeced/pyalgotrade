@@ -1,13 +1,13 @@
 # PyAlgoTrade
-# 
+#
 # Copyright 2013 Gabriel Martin Becedillas Ruiz
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,30 +20,30 @@
 
 import csv
 
+
 # A faster (but limited) version of csv.DictReader
 class FastDictReader:
-	def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
-		self.__fieldNames = fieldnames
-		self.reader = csv.reader(f, dialect, *args, **kwds)
-		if self.__fieldNames is None:
-			self.__fieldNames = self.reader.next()
-		self.__dict = {}
+    def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
+        self.__fieldNames = fieldnames
+        self.reader = csv.reader(f, dialect, *args, **kwds)
+        if self.__fieldNames is None:
+            self.__fieldNames = self.reader.next()
+        self.__dict = {}
 
-	def __iter__(self):
-		return self
+    def __iter__(self):
+        return self
 
-	def next(self):
-		# Skip empty rows.
-		row = self.reader.next()
-		while row == []:
-			row = self.reader.next()
+    def next(self):
+        # Skip empty rows.
+        row = self.reader.next()
+        while row == []:
+            row = self.reader.next()
 
-		# Check that the row has the right number of columns.
-		assert(len(self.__fieldNames) == len(row))
+        # Check that the row has the right number of columns.
+        assert(len(self.__fieldNames) == len(row))
 
-		# Copy the row values into the dict.
-		for i in xrange(len(self.__fieldNames)):
-			self.__dict[self.__fieldNames[i]] = row[i]
+        # Copy the row values into the dict.
+        for i in xrange(len(self.__fieldNames)):
+            self.__dict[self.__fieldNames[i]] = row[i]
 
-		return self.__dict
-
+        return self.__dict

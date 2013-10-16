@@ -1,13 +1,13 @@
 # PyAlgoTrade
-# 
+#
 # Copyright 2012 Gabriel Martin Becedillas Ruiz
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,35 +18,38 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+
 def compute_diff(values1, values2):
-	assert(len(values1) == len(values2))
-	ret = []
-	for i in range(len(values1)):
-		v1 = values1[i]
-		v2 = values2[i]
-		if v1 != None and v2 != None:
-			diff = v1 - v2
-		else:
-			diff = None
-		ret.append(diff)
-	return ret
+    assert(len(values1) == len(values2))
+    ret = []
+    for i in range(len(values1)):
+        v1 = values1[i]
+        v2 = values2[i]
+        if v1 is not None and v2 is not None:
+            diff = v1 - v2
+        else:
+            diff = None
+        ret.append(diff)
+    return ret
+
 
 def _cross_impl(values1, values2, start, end, signCheck):
-	# Get both set of values.
-	values1 = values1[start:end]
-	values2 = values2[start:end]
+    # Get both set of values.
+    values1 = values1[start:end]
+    values2 = values2[start:end]
 
-	# Compute differences and check sign changes.
-	ret = 0
-	diffs = compute_diff(values1, values2)
-	prevDiff = None
-	for diff in diffs:
-		if prevDiff != None and not signCheck(prevDiff) and signCheck(diff):
-			ret += 1
-		prevDiff = diff
-	return ret
+    # Compute differences and check sign changes.
+    ret = 0
+    diffs = compute_diff(values1, values2)
+    prevDiff = None
+    for diff in diffs:
+        if prevDiff is not None and not signCheck(prevDiff) and signCheck(diff):
+            ret += 1
+        prevDiff = diff
+    return ret
 
-# Note: 
+
+# Note:
 # Up to version 0.12 CrossAbove and CrossBelow were DataSeries.
 # In version 0.13 SequenceDataSeries was refactored to support specifying a limit to the amount
 # of values to hold. This was introduced mainly to reduce memory footprint.
@@ -61,40 +64,40 @@ def _cross_impl(values1, values2, start, end, signCheck):
 # another) I decided to turn those into functions, cross_above and cross_below.
 
 def cross_above(values1, values2, start=-2, end=None):
-	"""Checks for a cross above conditions over the specified period between two DataSeries objects.
+    """Checks for a cross above conditions over the specified period between two DataSeries objects.
 
-	It returns the number of times values1 crossed above values2 during the given period.
+    It returns the number of times values1 crossed above values2 during the given period.
 
-	:param values1: The DataSeries that crosses.
-	:type values1: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param values2: The DataSeries being crossed.
-	:type values2: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param start: The start of the range.
-	:type start: int.
-	:param end: The end of the range.
-	:type end: int.
+    :param values1: The DataSeries that crosses.
+    :type values1: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param values2: The DataSeries being crossed.
+    :type values2: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param start: The start of the range.
+    :type start: int.
+    :param end: The end of the range.
+    :type end: int.
 
-	.. note::
-		The default start and end values check for cross above conditions over the last 2 values.
-	"""
-	return _cross_impl(values1, values2, start, end, lambda x: x > 0)
+    .. note::
+        The default start and end values check for cross above conditions over the last 2 values.
+    """
+    return _cross_impl(values1, values2, start, end, lambda x: x > 0)
+
 
 def cross_below(values1, values2, start=-2, end=None):
-	"""Checks for a cross below conditions over the specified period between two DataSeries objects.
+    """Checks for a cross below conditions over the specified period between two DataSeries objects.
 
-	It returns the number of times values1 crossed below values2 during the given period.
+    It returns the number of times values1 crossed below values2 during the given period.
 
-	:param values1: The DataSeries that crosses.
-	:type values1: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param values2: The DataSeries being crossed.
-	:type values2: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param start: The start of the range.
-	:type start: int.
-	:param end: The end of the range.
-	:type end: int.
+    :param values1: The DataSeries that crosses.
+    :type values1: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param values2: The DataSeries being crossed.
+    :type values2: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param start: The start of the range.
+    :type start: int.
+    :param end: The end of the range.
+    :type end: int.
 
-	.. note::
-		The default start and end values check for cross below conditions over the last 2 values.
-	"""
-	return _cross_impl(values1, values2, start, end, lambda x: x < 0)
-
+    .. note::
+        The default start and end values check for cross below conditions over the last 2 values.
+    """
+    return _cross_impl(values1, values2, start, end, lambda x: x < 0)

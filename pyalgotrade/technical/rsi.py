@@ -1,13 +1,13 @@
 # PyAlgoTrade
-# 
+#
 # Copyright 2011 Gabriel Martin Becedillas Ruiz
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
+
 
 # RSI = 100 - 100 / (1 + RS)
 # RS = Average gain / Average loss
@@ -42,96 +43,99 @@ from pyalgotrade import dataseries
 # Short-term traders sometimes use 2-period RSI to look for overbought readings above 80 and oversold readings below 20.
 
 def gain_loss_one(prevValue, nextValue):
-	change = nextValue - prevValue  
-	if change < 0:
-		gain = 0
-		loss = abs(change)
-	else:
-		gain = change
-		loss = 0
-	return gain, loss
+    change = nextValue - prevValue
+    if change < 0:
+        gain = 0
+        loss = abs(change)
+    else:
+        gain = change
+        loss = 0
+    return gain, loss
+
 
 # [begin, end)
 def avg_gain_loss(values, begin, end):
-	rangeLen = end - begin
-	if rangeLen < 2:
-		return None
+    rangeLen = end - begin
+    if rangeLen < 2:
+        return None
 
-	gain = 0
-	loss = 0
-	for i in xrange(begin+1, end):
-		currGain, currLoss = gain_loss_one(values[i-1], values[i])
-		gain += currGain
-		loss += currLoss
-	return (gain/float(rangeLen-1), loss/float(rangeLen-1))
+    gain = 0
+    loss = 0
+    for i in xrange(begin+1, end):
+        currGain, currLoss = gain_loss_one(values[i-1], values[i])
+        gain += currGain
+        loss += currLoss
+    return (gain/float(rangeLen-1), loss/float(rangeLen-1))
+
 
 def rsi(values, period):
-	assert(period > 1)
-	if len(values) < period + 1:
-		return None
+    assert(period > 1)
+    if len(values) < period + 1:
+        return None
 
-	avgGain, avgLoss = avg_gain_loss(values, 0, period)
-	for i in xrange(period, len(values)):
-		gain, loss = gain_loss_one(values[i-1], values[i])
-		avgGain = (avgGain * (period - 1) + gain) / float(period)
-		avgLoss = (avgLoss * (period - 1) + loss) / float(period)
+    avgGain, avgLoss = avg_gain_loss(values, 0, period)
+    for i in xrange(period, len(values)):
+        gain, loss = gain_loss_one(values[i-1], values[i])
+        avgGain = (avgGain * (period - 1) + gain) / float(period)
+        avgLoss = (avgLoss * (period - 1) + loss) / float(period)
 
-	if avgLoss == 0:
-		return 100
-	rs = avgGain / avgLoss
-	return 100 - 100 / (1 + rs)
+    if avgLoss == 0:
+        return 100
+    rs = avgGain / avgLoss
+    return 100 - 100 / (1 + rs)
+
 
 class RSIEventWindow(technical.EventWindow):
-	def __init__(self, period):
-		assert(period > 1)
-		# We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
-		technical.EventWindow.__init__(self, period + 1)
-		self.__value = None
-		self.__prevGain = None
-		self.__prevLoss = None
-		self.__period = period
+    def __init__(self, period):
+        assert(period > 1)
+        # We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
+        technical.EventWindow.__init__(self, period + 1)
+        self.__value = None
+        self.__prevGain = None
+        self.__prevLoss = None
+        self.__period = period
 
-	def onNewValue(self, dateTime, value):
-		technical.EventWindow.onNewValue(self, dateTime, value)
+    def onNewValue(self, dateTime, value):
+        technical.EventWindow.onNewValue(self, dateTime, value)
 
-		# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-		if value != None and self.windowFull():
-			if self.__prevGain == None:
-				assert(self.__prevLoss == None)
-				avgGain, avgLoss = avg_gain_loss(self.getValues(), 0, len(self.getValues()))
-			else:
-				# Rest of averages are smoothed
-				assert(self.__prevLoss != None)
-				prevValue = self.getValues()[-2]
-				currValue = self.getValues()[-1]
-				currGain, currLoss = gain_loss_one(prevValue, currValue)
-				avgGain = (self.__prevGain * (self.__period-1) + currGain) / float(self.__period)
-				avgLoss = (self.__prevLoss * (self.__period-1) + currLoss) / float(self.__period)
-					
-			if avgLoss == 0:
-				self.__value = 100
-			else:
-				rs = avgGain / avgLoss
-				self.__value = 100 - 100 / (1 + rs)
+        # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+        if value is not None and self.windowFull():
+            if self.__prevGain is None:
+                assert(self.__prevLoss is None)
+                avgGain, avgLoss = avg_gain_loss(self.getValues(), 0, len(self.getValues()))
+            else:
+                # Rest of averages are smoothed
+                assert(self.__prevLoss is not None)
+                prevValue = self.getValues()[-2]
+                currValue = self.getValues()[-1]
+                currGain, currLoss = gain_loss_one(prevValue, currValue)
+                avgGain = (self.__prevGain * (self.__period-1) + currGain) / float(self.__period)
+                avgLoss = (self.__prevLoss * (self.__period-1) + currLoss) / float(self.__period)
 
-			self.__prevGain = avgGain
-			self.__prevLoss = avgLoss
+            if avgLoss == 0:
+                self.__value = 100
+            else:
+                rs = avgGain / avgLoss
+                self.__value = 100 - 100 / (1 + rs)
 
-	def getValue(self):
-		return self.__value
+            self.__prevGain = avgGain
+            self.__prevLoss = avgLoss
+
+    def getValue(self):
+        return self.__value
+
 
 class RSI(technical.EventBasedFilter):
-	"""Relative Strength Index filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
+    """Relative Strength Index filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
 
-	:param dataSeries: The DataSeries instance being filtered.
-	:type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-	:param period: The period. Note that if period is **n**, then **n+1** values are used. Must be > 1.
-	:type period: int.
-	:param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
-		Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
-	:type maxLen: int.
-	"""
+    :param dataSeries: The DataSeries instance being filtered.
+    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param period: The period. Note that if period is **n**, then **n+1** values are used. Must be > 1.
+    :type period: int.
+    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+    :type maxLen: int.
+    """
 
-	def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
-		technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)
-
+    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
+        technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)
