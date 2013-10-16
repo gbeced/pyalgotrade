@@ -220,28 +220,3 @@ quandl_sample.main(False)
             lines = run_python_code(code).split("\n")
             self.assertTrue(compare_head("quandl_sample.output", lines[0:10]))
             self.assertTrue(compare_tail("quandl_sample.output", lines[-10:-1]))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(DocCodeTest("testTutorial1"))
-    ret.append(DocCodeTest("testTutorial2"))
-    ret.append(DocCodeTest("testTutorial3"))
-    ret.append(DocCodeTest("testTutorial4"))
-    ret.append(DocCodeTest("testTutorial1MtGox"))
-    ret.append(DocCodeTest("testCSVFeed"))
-
-    ret.append(CompInvTestCase("testCompInv_1"))
-
-    ret.append(StratAnalyzerTestCase("testSampleStrategyAnalyzer"))
-
-    ret.append(TechnicalTestCase("testTechnical_1"))
-
-    ret.append(SampleStratTestCase("testErnieChanGldVsGdx"))
-    ret.append(SampleStratTestCase("testVWAPMomentum"))
-    ret.append(SampleStratTestCase("testBBands"))
-    ret.append(SampleStratTestCase("testEventStudy"))
-    ret.append(SampleStratTestCase("testQuandl"))
-
-    return ret

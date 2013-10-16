@@ -82,16 +82,3 @@ class TrendTest(unittest.TestCase):
         self.assertEqual(trend[0], True)
         self.assertEqual(trend[1], False)
         self.assertEqual(len(trend), 2)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(SlopeTest("testSlope"))
-    ret.append(SlopeTest("testSlopeBounded"))
-
-    ret.append(TrendTest("testTrend"))
-    ret.append(TrendTest("testTrendWithCustomThresholds"))
-    ret.append(TrendTest("testTrendWithCustomThresholds_Bounded"))
-
-    return ret

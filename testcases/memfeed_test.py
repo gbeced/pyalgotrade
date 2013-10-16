@@ -31,7 +31,7 @@ class MemFeedTestCase(unittest.TestCase):
         values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in xrange(100)]
         feed = memfeed.MemFeed()
         feed.addValues(values)
-        feed_test.testBaseFeedInterface(self, feed)
+        feed_test.tstBaseFeedInterface(self, feed)
 
     def testFeed(self):
         values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in xrange(100)]
@@ -52,12 +52,3 @@ class MemFeedTestCase(unittest.TestCase):
         self.assertFalse("dt" in feed)
         self.assertEqual(feed["i"][0], 0)
         self.assertEqual(feed["i"][-1], 99)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(MemFeedTestCase("testBaseFeedInterface"))
-    ret.append(MemFeedTestCase("testFeed"))
-
-    return ret

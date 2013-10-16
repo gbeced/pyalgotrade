@@ -141,16 +141,3 @@ class SharpeRatioTestCase(unittest.TestCase):
         # when useDailyReturns is set to False.
         self.assertEqual(round(analyzerAnnualized, 1), round(manualAnnualized, 1))
         self.assertEqual(round(analyzerNotAnnualized, 3), round(manualNotAnnualized, 3))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(SharpeRatioTestCase("testDateTimeDiffs"))
-    ret.append(SharpeRatioTestCase("testNoTrades"))
-    ret.append(SharpeRatioTestCase("testIGE_Broker"))
-    ret.append(SharpeRatioTestCase("testIGE_Broker2"))
-    ret.append(SharpeRatioTestCase("testIGE_BrokerWithCommission"))
-    ret.append(SharpeRatioTestCase("testIntraDay"))
-
-    return ret

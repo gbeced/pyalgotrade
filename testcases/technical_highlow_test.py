@@ -32,11 +32,3 @@ class HighLowTestCase(unittest.TestCase):
             values.append(value)
         self.assertEqual(high[-1], 5)
         self.assertEqual(low[-1], 3)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(HighLowTestCase("testHighLow"))
-
-    return ret

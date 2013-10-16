@@ -352,30 +352,3 @@ class ReturnsTestCase(unittest.TestCase):
         strat.run()
         # The cumulative return should be the same if we load nikkei or not.
         self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 5), 0.01338)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(PosTrackerTestCase("testBuyAndSellBreakEven"))
-    ret.append(PosTrackerTestCase("testBuyAndSellBreakEvenWithCommission"))
-    ret.append(PosTrackerTestCase("testBuyAndSellWin"))
-    ret.append(PosTrackerTestCase("testBuyAndSellMultipleEvals"))
-    ret.append(PosTrackerTestCase("testSellAndBuyWin"))
-    ret.append(PosTrackerTestCase("testSellAndBuyMultipleEvals"))
-    ret.append(PosTrackerTestCase("testBuySellBuy"))
-    ret.append(PosTrackerTestCase("testBuyAndUpdate"))
-    ret.append(PosTrackerTestCase("testBuyUpdateAndSell"))
-    ret.append(PosTrackerTestCase("testBuyAndSellBreakEvenWithCommision"))
-    ret.append(PosTrackerTestCase("testLongShortEqualAmount"))
-
-    ret.append(ReturnsTestCase("testOneBarReturn"))
-    ret.append(ReturnsTestCase("testTwoBarReturns_OpenOpen"))
-    ret.append(ReturnsTestCase("testTwoBarReturns_OpenClose"))
-    ret.append(ReturnsTestCase("testTwoBarReturns_CloseOpen"))
-    ret.append(ReturnsTestCase("testTwoBarReturns_CloseClose"))
-    ret.append(ReturnsTestCase("testCumulativeReturn"))
-    ret.append(ReturnsTestCase("testGoogle2011"))
-    ret.append(ReturnsTestCase("testMultipleInstrumentsInterleaved"))
-
-    return ret

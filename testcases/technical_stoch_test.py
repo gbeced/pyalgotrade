@@ -111,11 +111,3 @@ class TestCase(unittest.TestCase):
         for i in xrange(3):
             self.assertEqual(round(stochFilter[i], 4), kValues[i])
             self.assertEqual(round(stochFilter.getD()[i], 4), dValues[i])
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestCase("testShortPeriod"))
-    ret.append(TestCase("testStockChartsStoch"))
-    ret.append(TestCase("testStockChartsStoch_Bounded"))
-    return ret

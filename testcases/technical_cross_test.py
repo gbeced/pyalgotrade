@@ -144,15 +144,3 @@ class TestCase(unittest.TestCase):
                 self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 1)
             else:
                 self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 0)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(TestCase("testCrossAboveOnce"))
-    ret.append(TestCase("testCrossAboveMany"))
-    ret.append(TestCase("testCrossBelowOnce"))
-    ret.append(TestCase("testCrossBelowMany"))
-    ret.append(TestCase("testCrossAboveWithSMA"))
-
-    return ret

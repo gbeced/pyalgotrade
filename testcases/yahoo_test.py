@@ -38,11 +38,3 @@ class ToolsTestCase(unittest.TestCase):
         bf.loadAll()
         self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
         self.assertEqual(bf[instrument][-1].getClose(), 31.30)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(ToolsTestCase("testDownloadAndParse"))
-
-    return ret

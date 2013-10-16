@@ -22,7 +22,7 @@ from pyalgotrade import observer
 
 
 # This will test both the feed and subject interface.
-def testBaseFeedInterface(testCase, feed):
+def tstBaseFeedInterface(testCase, feed):
     # This tests the observer.Subject interface.
     dispatcher = observer.Dispatcher()
     dispatcher.addSubject(feed)

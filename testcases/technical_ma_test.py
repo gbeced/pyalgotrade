@@ -228,29 +228,3 @@ class EMATestCase(unittest.TestCase):
         self.assertEqual(len(ema), 2)
         self.assertEqual(len(ema.getValues()), 2)
         self.assertEqual(len(ema.getDateTimes()), 2)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(SMATestCase("testPeriod1"))
-    ret.append(SMATestCase("testPeriod2"))
-    ret.append(SMATestCase("testPeriod2_BoundedFilter"))
-    ret.append(SMATestCase("testMultipleValues"))
-    ret.append(SMATestCase("testStockChartsSMA"))
-    ret.append(SMATestCase("testMultipleValuesSkippingOne"))
-    ret.append(SMATestCase("testNinjaTraderSMA"))
-    ret.append(SMATestCase("testSeqLikeOps"))
-    ret.append(SMATestCase("testEventWindow"))
-    ret.append(SMATestCase("testStockChartsSMA_BoundedSeq"))
-
-    ret.append(WMATestCase("testPeriod1"))
-    ret.append(WMATestCase("testPeriod2"))
-    ret.append(WMATestCase("testPeriod2_BoundedSeq"))
-    ret.append(WMATestCase("testPeriod2_BoundedFilter"))
-
-    ret.append(EMATestCase("testStockChartsEMA"))
-    ret.append(EMATestCase("testMaxRecursion"))
-    ret.append(EMATestCase("testBoundedFilter"))
-
-    return ret

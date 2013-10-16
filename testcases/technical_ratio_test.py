@@ -68,11 +68,3 @@ class TestCase(unittest.TestCase):
         self.assertEqual(ratio[0], -1)
         self.assertEqual(ratio[1], 0.5)
         self.assertEqual(len(ratio), 2)
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestCase("testSimple"))
-    ret.append(TestCase("testNegativeValues"))
-    ret.append(TestCase("testBounded"))
-    return ret

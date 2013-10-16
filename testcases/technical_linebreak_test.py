@@ -85,13 +85,3 @@ class VWAPTestCase(unittest.TestCase):
         self.assertEqual(lineBreak[-1].getHigh(), 10.92)
         self.assertEqual(lineBreak[-1].isWhite(), False)
         self.assertEqual(lineBreak[-1].isBlack(), True)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(VWAPTestCase("test2LineBreak"))
-    ret.append(VWAPTestCase("test3LineBreak"))
-    ret.append(VWAPTestCase("testLineBreakBounded"))
-
-    return ret

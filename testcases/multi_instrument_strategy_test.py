@@ -98,11 +98,3 @@ class TestCase(unittest.TestCase):
         feed.loadBars("^n225", marketsession.TSE.getTimezone())
         feed.loadBars("spy", marketsession.USEquities.getTimezone())
         self.__testDifferentTimezonesImpl(feed)
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestCase("testDifferentTimezones"))
-    ret.append(TestCase("testDifferentTimezones_DBFeed"))
-    ret.append(TestCase("testDifferentTimezones_DBFeed_LocalizedBars"))
-    return ret

@@ -33,7 +33,7 @@ class TestCase(unittest.TestCase):
     def testBaseFeedInterface(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")
         feed.addValuesFromCSV(common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        feed_test.testBaseFeedInterface(self, feed)
+        feed_test.tstBaseFeedInterface(self, feed)
 
     def testFeedWithBars(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")
@@ -82,13 +82,3 @@ class TestCase(unittest.TestCase):
         self.assertEqual(feed["EUR"][-1], 986.75)
         self.assertFalse(dt.datetime_is_naive(feed["USD"].getDateTimes()[-1]))
         self.assertEqual(feed["USD"].getDateTimes()[-1], dt.localize(datetime.datetime(2013, 9, 29, 23, 59, 59), marketsession.USEquities.timezone))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(TestCase("testBaseFeedInterface"))
-    ret.append(TestCase("testFeedWithBars"))
-    ret.append(TestCase("testFeedWithQuandl"))
-
-    return ret

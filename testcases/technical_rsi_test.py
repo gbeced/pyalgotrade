@@ -86,13 +86,3 @@ class TestCase(unittest.TestCase):
         self.assertEqual(len(rsi.getValues()), 1)
         self.assertEqual(len(rsi.getDateTimes()), 1)
         self.assertEqual(round(rsi.getValues()[-1], 8), 70.53278948)
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestCase("testAvgGainLoss"))
-    ret.append(TestCase("testStockChartsRSI"))
-    ret.append(TestCase("testDateTimes"))
-    ret.append(TestCase("testRSIFunc"))
-    ret.append(TestCase("testRSI_Bounded"))
-    return ret

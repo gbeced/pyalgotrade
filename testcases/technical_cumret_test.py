@@ -37,11 +37,3 @@ class CumRetTestCase(unittest.TestCase):
         self.assertEqual(rets[5], 2)
         self.assertEqual(rets[6], 0)
         self.assertEqual(round(rets[7], 1), 0.2)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(CumRetTestCase("testCumRet"))
-
-    return ret

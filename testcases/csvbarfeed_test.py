@@ -92,7 +92,7 @@ class YahooTestCase(unittest.TestCase):
     def testBaseFeedInterface(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        feed_test.testBaseFeedInterface(self, barFeed)
+        feed_test.tstBaseFeedInterface(self, barFeed)
 
     def testParseDate_1(self):
         date = self.__parseDate("1950-01-01")
@@ -224,7 +224,7 @@ class NinjaTraderTestCase(unittest.TestCase):
     def testBaseFeedInterface(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        feed_test.testBaseFeedInterface(self, barFeed)
+        feed_test.tstBaseFeedInterface(self, barFeed)
 
     def testWithTimezone(self):
         timeZone = marketsession.USEquities.getTimezone()
@@ -292,31 +292,3 @@ class NinjaTraderTestCase(unittest.TestCase):
         self.assertEqual(len(barDS.getHighDataSeries()), 2)
         self.assertEqual(len(barDS.getLowDataSeries()), 2)
         self.assertEqual(len(barDS.getAdjCloseDataSeries()), 2)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(YahooTestCase("testBaseFeedInterface"))
-    ret.append(YahooTestCase("testParseDate_1"))
-    ret.append(YahooTestCase("testParseDate_2"))
-    ret.append(YahooTestCase("testDateCompare"))
-    ret.append(YahooTestCase("testCSVFeedLoadOrder"))
-    ret.append(YahooTestCase("testFilteredRangeFrom"))
-    ret.append(YahooTestCase("testFilteredRangeTo"))
-    ret.append(YahooTestCase("testFilteredRangeFromTo"))
-    ret.append(YahooTestCase("testWithoutTimezone"))
-    ret.append(YahooTestCase("testWithDefaultTimezone"))
-    ret.append(YahooTestCase("testWithPerFileTimezone"))
-    ret.append(YahooTestCase("testWithIntegerTimezone"))
-    ret.append(YahooTestCase("testMapTypeOperations"))
-    ret.append(YahooTestCase("testBounded"))
-
-    ret.append(NinjaTraderTestCase("testBaseFeedInterface"))
-    ret.append(NinjaTraderTestCase("testWithTimezone"))
-    ret.append(NinjaTraderTestCase("testWithoutTimezone"))
-    ret.append(NinjaTraderTestCase("testWithIntegerTimezone"))
-    ret.append(NinjaTraderTestCase("testLocalizeAndFilter"))
-    ret.append(NinjaTraderTestCase("testBounded"))
-
-    return ret

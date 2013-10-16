@@ -55,9 +55,3 @@ class DataSeriesFilterTest(unittest.TestCase):
             testFilter[20]
         ds.append(10)
         self.assertEqual(testFilter[20], 10)
-
-
-def getTestCases():
-    ret = []
-    ret.append(DataSeriesFilterTest("testInvalidPosNotCached"))
-    return ret

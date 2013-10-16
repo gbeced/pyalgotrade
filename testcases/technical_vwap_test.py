@@ -96,17 +96,3 @@ class VWAPTestCase(unittest.TestCase):
         outputValues = [14.605005665747331, 14.605416923506045]
         for i in xrange(2):
             self.assertEqual(round(vwap_[i], 4), round(outputValues[i], 4))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(VWAPTestCase("testPeriod1_ClosingPrice"))
-    ret.append(VWAPTestCase("testPeriod1_TypicalPrice"))
-    ret.append(VWAPTestCase("testPeriod2_ClosingPrice"))
-    ret.append(VWAPTestCase("testPeriod2_TypicalPrice"))
-    ret.append(VWAPTestCase("testPeriod50_ClosingPrice"))
-    ret.append(VWAPTestCase("testPeriod50_TypicalPrice"))
-    ret.append(VWAPTestCase("testBounded"))
-
-    return ret

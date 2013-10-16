@@ -60,11 +60,3 @@ class ROCTestCase(unittest.TestCase):
         roc_ = self.__buildROC(inputValues, 12, 2)
         for i in xrange(2):
             self.assertEqual(round(roc_[i], 4), round(outputValues[i] / 100, 4))
-
-
-def getTestCases():
-    ret = []
-    ret.append(ROCTestCase("testPeriod12"))
-    ret.append(ROCTestCase("testPeriod1"))
-    ret.append(ROCTestCase("testBounded"))
-    return ret

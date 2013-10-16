@@ -69,7 +69,7 @@ class SQLiteFeedTestCase(unittest.TestCase):
 
             # Load the SQLite feed and process all bars.
             sqliteFeed.loadBars("orcl")
-            feed_test.testBaseFeedInterface(self, sqliteFeed)
+            feed_test.tstBaseFeedInterface(self, sqliteFeed)
 
     def testLoadDailyBars(self):
         tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY)
@@ -128,13 +128,3 @@ class SQLiteFeedTestCase(unittest.TestCase):
             self.assertEqual(len(barDS.getHighDataSeries()), 2)
             self.assertEqual(len(barDS.getLowDataSeries()), 2)
             self.assertEqual(len(barDS.getAdjCloseDataSeries()), 2)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(SQLiteFeedTestCase("testBaseFeedInterface"))
-    ret.append(SQLiteFeedTestCase("testLoadDailyBars"))
-    ret.append(SQLiteFeedTestCase("testBounded"))
-
-    return ret

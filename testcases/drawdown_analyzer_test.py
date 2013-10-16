@@ -257,21 +257,3 @@ class AnalyzerTestCase(unittest.TestCase):
         stratAnalyzer = self.__testManualImpl([10, 9.5, 9, 8, 11, 8], 10)
         self.assertEqual(round(stratAnalyzer.getMaxDrawDown(), 2), 0.27)
         self.assertEqual(stratAnalyzer.getLongestDrawDownDuration(), datetime.timedelta(days=3))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(DDHelperCase("testNoDrawDown1"))
-    ret.append(DDHelperCase("testNoDrawDown2"))
-    ret.append(DDHelperCase("testDrawDown1"))
-    ret.append(DDHelperCase("testDrawDown2"))
-
-    ret.append(AnalyzerTestCase("testNoTrades"))
-    ret.append(AnalyzerTestCase("testIGE_Broker"))
-    ret.append(AnalyzerTestCase("testIGE_Broker2"))
-    ret.append(AnalyzerTestCase("testManual_NoDD"))
-    ret.append(AnalyzerTestCase("testManual_1DD"))
-    ret.append(AnalyzerTestCase("testManual_2DD"))
-
-    return ret

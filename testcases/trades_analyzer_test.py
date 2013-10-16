@@ -408,23 +408,3 @@ class TradesAnalyzerTestCase(unittest.TestCase):
         self.assertTrue(round(stratAnalyzer.getLosses().mean(), 2) == -0.08)
 
         self.assertTrue(stratAnalyzer.getProfitableCount() == 0)
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(TradesAnalyzerTestCase("testNoTrades"))
-    ret.append(TradesAnalyzerTestCase("testSomeTrades_Position"))
-    ret.append(TradesAnalyzerTestCase("testSomeTrades"))
-    ret.append(TradesAnalyzerTestCase("testSomeTradesWithCommissions"))
-    ret.append(TradesAnalyzerTestCase("testProportionalCommissionBug"))
-    ret.append(TradesAnalyzerTestCase("testLong2"))
-    ret.append(TradesAnalyzerTestCase("testLong3"))
-    ret.append(TradesAnalyzerTestCase("testLongShort"))
-    ret.append(TradesAnalyzerTestCase("testLongShort2"))
-    ret.append(TradesAnalyzerTestCase("testShort2"))
-    ret.append(TradesAnalyzerTestCase("testShort3"))
-    ret.append(TradesAnalyzerTestCase("testShortLong"))
-    ret.append(TradesAnalyzerTestCase("testShortLong2"))
-
-    return ret

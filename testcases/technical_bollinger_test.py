@@ -72,10 +72,3 @@ class TestCase(unittest.TestCase):
         self.assertEqual(len(bBands.getLowerBand()), 3)
         self.assertEqual(len(bBands.getLowerBand().getValues()), 3)
         self.assertEqual(len(bBands.getLowerBand().getDateTimes()), 3)
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestCase("testStockChartsBollinger"))
-    ret.append(TestCase("testStockChartsBollinger_Bounded"))
-    return ret

@@ -277,21 +277,3 @@ class EventTestCase(unittest.TestCase):
         event.unsubscribe(handler2)
         event.emit()
         self.assertTrue(handlersData == [1, 1, 2, 2])
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(EventTestCase("testEmitOrder"))
-    ret.append(EventTestCase("testDuplicateHandlers"))
-    ret.append(EventTestCase("testReentrancy"))
-
-    ret.append(DispatcherTestCase("test1NrtFeed"))
-    ret.append(DispatcherTestCase("test2NrtFeeds"))
-    ret.append(DispatcherTestCase("test1RtFeed"))
-    ret.append(DispatcherTestCase("test2RtFeeds"))
-    ret.append(DispatcherTestCase("test2Combined"))
-    ret.append(DispatcherTestCase("testPriority"))
-    ret.append(DispatcherTestCase("testDispatchOrder"))
-
-    return ret

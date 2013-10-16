@@ -405,34 +405,3 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
         self.assertEqual(ads1.getValues(), [2, 3])
         self.assertEqual(ads2.getValues(), [2, 3])
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(TestSequenceDataSeries("testEmpty"))
-    ret.append(TestSequenceDataSeries("testNonEmpty"))
-    ret.append(TestSequenceDataSeries("testSeqLikeOps"))
-    ret.append(TestSequenceDataSeries("testBounded"))
-    ret.append(TestSequenceDataSeries("testResize1"))
-    ret.append(TestSequenceDataSeries("testResize2"))
-
-    ret.append(TestBarDataSeries("testEmpty"))
-    ret.append(TestBarDataSeries("testAppendInvalidDatetime"))
-    ret.append(TestBarDataSeries("testNonEmpty"))
-    ret.append(TestBarDataSeries("testNestedDataSeries"))
-    ret.append(TestBarDataSeries("testSeqLikeOps"))
-    ret.append(TestBarDataSeries("testDateTimes"))
-
-    ret.append(TestDateAlignedDataSeries("testNotAligned"))
-    ret.append(TestDateAlignedDataSeries("testFullyAligned"))
-    ret.append(TestDateAlignedDataSeries("testPartiallyAligned"))
-    ret.append(TestDateAlignedDataSeries("testIncremental"))
-    ret.append(TestDateAlignedDataSeries("testNotAligned_Recursive"))
-    ret.append(TestDateAlignedDataSeries("testFullyAligned_Recursive"))
-    ret.append(TestDateAlignedDataSeries("testPartiallyAligned_Recursive"))
-    ret.append(TestDateAlignedDataSeries("testIncremental_Recursive"))
-    ret.append(TestDateAlignedDataSeries("testBounded"))
-    ret.append(TestDateAlignedDataSeries("testBoundedSources"))
-
-    return ret

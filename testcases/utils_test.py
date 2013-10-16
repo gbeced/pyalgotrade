@@ -55,12 +55,14 @@ class StatsTestCase(unittest.TestCase):
         self.__testMeanImpl([-1, 2, -4])
         self.__testMeanImpl([1.04, 2.07, 4.41324])
 
-    # numpy greater or equal than 1.6.2
-    def testStdDev_NumpyGE162(self):
-        self.__testStdDevImpl([1], 1)
-        self.__testStdDevImpl([1, 2, 4], 3)
-        self.__testStdDevImpl([-1, 2, -4], 3)
-        self.__testStdDevImpl([-1.034, 2.012341, -4], 3)
+    # These testcases fail with versions of numpy < 1.6.2:
+    # - numpy.std([1], ddof=1) works different in 1.6.1 and 1.6.2.
+    if version.LooseVersion(numpy.__version__) >= version.LooseVersion("1.6.2"):
+        def testStdDev_NumpyGE162(self):
+            self.__testStdDevImpl([1], 1)
+            self.__testStdDevImpl([1, 2, 4], 3)
+            self.__testStdDevImpl([-1, 2, -4], 3)
+            self.__testStdDevImpl([-1.034, 2.012341, -4], 3)
 
     def testStdDev(self):
         # Test that the numpy and the builtin versions behave the same.
@@ -194,28 +196,3 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(values, dateTimes2)
         self.assertEqual(ix1, range(size))
         self.assertEqual(ix1, ix2)
-
-
-def getTestCases():
-    ret = []
-    ret.append(StatsTestCase("testMean"))
-    ret.append(StatsTestCase("testStdDev"))
-
-    # These testcases fail with versions of numpy < 1.6.2:
-    # - numpy.std([1], ddof=1) works different in 1.6.1 and 1.6.2.
-    if version.LooseVersion(numpy.__version__) >= version.LooseVersion("1.6.2"):
-        ret.append(StatsTestCase("testStdDev_NumpyGE162"))
-
-    ret.append(CollectionsTestCase("testEmptyIntersection"))
-    ret.append(CollectionsTestCase("testFullIntersection"))
-    ret.append(CollectionsTestCase("testPartialIntersection1"))
-    ret.append(CollectionsTestCase("testPartialIntersection2"))
-    ret.append(CollectionsTestCase("testPartialIntersection3"))
-    ret.append(CollectionsTestCase("testPartialIntersection4"))
-    ret.append(CollectionsTestCase("testPartialIntersection5"))
-    ret.append(CollectionsTestCase("testPartialIntersection6"))
-    ret.append(CollectionsTestCase("testPartialIntersectionIncludeNones"))
-    ret.append(CollectionsTestCase("testPartialIntersectionSkipNones"))
-    ret.append(CollectionsTestCase("testFullIntersectionWithDateTimes"))
-
-    return ret

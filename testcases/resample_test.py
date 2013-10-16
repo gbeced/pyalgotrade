@@ -189,16 +189,3 @@ class ResampleTestCase(unittest.TestCase):
         self.assertEqual(len(resampledBarDS), len(feed["spy"]))
         self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(datetime.datetime(2011, 01, 03, 23, 59, 59)))
         self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(datetime.datetime(2011, 02, 01, 23, 59, 59)))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(ResampleTestCase("testResample"))
-    ret.append(ResampleTestCase("testResampleMtGoxMinute"))
-    ret.append(ResampleTestCase("testResampleMtGoxHour"))
-    ret.append(ResampleTestCase("testResampleMtGoxDay"))
-    ret.append(ResampleTestCase("testResampleNinjaTraderHour"))
-    ret.append(ResampleTestCase("testResampleNinjaTraderDay"))
-
-    return ret

@@ -195,15 +195,3 @@ class TestCase(unittest.TestCase):
         self.assertEqual(strat.orderUpdated, 0)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
-
-
-def getTestCases(includeExternal=True):
-    ret = []
-
-    ret.append(TestCase("testEnterAndExit"))
-    ret.append(TestCase("testCancelEntry"))
-    ret.append(TestCase("testExitEntryNotFilled"))
-    ret.append(TestCase("testDoubleExitFails"))
-    ret.append(TestCase("testResubmitExit"))
-
-    return ret

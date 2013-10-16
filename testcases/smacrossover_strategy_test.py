@@ -161,10 +161,3 @@ class TestSMACrossOver(unittest.TestCase):
     def testWithLimitOrder(self):
         # The result is different than the one we get using NinjaTrader. NinjaTrader processes Limit orders in a different way.
         self.__test(LimitOrderStrategy, 1000 + 32.7)
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestSMACrossOver("testWithMarketOrder"))
-    ret.append(TestSMACrossOver("testWithLimitOrder"))
-    return ret

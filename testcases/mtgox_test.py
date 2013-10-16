@@ -39,7 +39,7 @@ class TradesFeedTestCase(unittest.TestCase):
 
         bf = barfeed.CSVTradeFeed()
         bf.addBarsFromCSV(path)
-        feed_test.testBaseFeedInterface(self, bf)
+        feed_test.tstBaseFeedInterface(self, bf)
 
     def testDownloadAndParse(self):
         common.init_temp_path()
@@ -58,12 +58,3 @@ class TradesFeedTestCase(unittest.TestCase):
         self.assertEqual(ds[-1].getVolume(), 0.01)
         self.assertEqual(ds[-1].getTradeType(), "ask")
         self.assertEqual(ds[-1].getDateTime().date(), datetime.date(2013, 1, 1))
-
-
-def getTestCases():
-    ret = []
-
-    ret.append(TradesFeedTestCase("testBaseFeedInterface"))
-    ret.append(TradesFeedTestCase("testDownloadAndParse"))
-
-    return ret

@@ -68,12 +68,3 @@ class TestCase(unittest.TestCase):
             if i >= 4:
                 self.assertEqual(round(zscore[-1], 4), round(expected[i], 4))
             i += 1
-
-
-def getTestCases():
-    ret = []
-    ret.append(TestCase("testStdDev_1"))
-    ret.append(TestCase("testStdDev"))
-    ret.append(TestCase("testStdDev_Bounded"))
-    ret.append(TestCase("testZScore"))
-    return ret
