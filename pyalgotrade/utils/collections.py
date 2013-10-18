@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import numpy as np
 
 def lt(v1, v2):
     if v1 is None:
@@ -52,3 +53,38 @@ def intersect(values1, values2, skipNone=False):
             i2 += 1
 
     return (values, ix1, ix2)
+
+
+# Like a collections.deque but using a numpy.array.
+class Deque:
+    def __init__(self, maxLen):
+        if not maxLen > 0:
+            raise Exception("Invalid length")
+
+        self.__array = np.empty(maxLen)
+        self.__maxLen = maxLen
+        self.__lastPos = 0
+        
+    def append(self, value):
+        if self.__lastPos < self.__maxLen:
+            self.__array[self.__lastPos] = value
+            self.__lastPos += 1
+        else:
+            # Shift items to the left and put the last value.
+            # I'm not using np.roll to avoid creating a new array.
+            self.__array[0:-1] = self.__array[1:]
+            self.__array[self.__lastPos - 1] = value
+
+    def data(self):
+        # If all values are not initialized, return a portion of the array.
+        if self.__lastPos < self.__maxLen:
+            ret = self.__array[0:self.__lastPos]
+        else:
+            ret = self.__array
+        return ret
+            
+    def __len__(self):
+        return self.__lastPos
+
+    def __getitem__(self, key):
+        return self.data()[key]
