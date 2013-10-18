@@ -196,3 +196,23 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(values, dateTimes2)
         self.assertEqual(ix1, range(size))
         self.assertEqual(ix1, ix2)
+
+    def testDeque(self):
+        d = collections.Deque(10)
+        self.assertEqual(len(d), 0)
+
+        for i in range(10):
+            d.append(i)
+        self.assertEqual(d[0], 0)
+        self.assertEqual(d[9], 9)
+        self.assertEqual(d[-1], 9)
+        self.assertEqual(d[-2], 8)
+        self.assertEqual(d[0:3].sum(), 3)
+
+        for i in range(3):
+            d.append(i)
+        self.assertEqual(len(d), 10)
+        self.assertEqual(d[0], 3)
+        self.assertEqual(d[9], 2)
+        self.assertEqual(d[-1], 2)
+        self.assertEqual(d[-2], 1)
