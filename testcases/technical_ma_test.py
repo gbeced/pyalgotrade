@@ -196,7 +196,7 @@ class WMATestCase(unittest.TestCase):
         self.assertEqual(wma[0], None)
         self.assertEqual(wma[1], (1*3 + 2*2 + 3*1) / float(3+2+1))
         self.assertEqual(len(wma), 2)
-        self.assertEqual(len(wma.getValues()), 2)
+        self.assertEqual(len(wma[:]), 2)
         self.assertEqual(len(wma.getDateTimes()), 2)
 
 
@@ -226,5 +226,5 @@ class EMATestCase(unittest.TestCase):
         self.assertEqual(round(ema[0], 5), 23.08068)
         self.assertEqual(round(ema[1], 5), 22.91556)
         self.assertEqual(len(ema), 2)
-        self.assertEqual(len(ema.getValues()), 2)
+        self.assertEqual(len(ema[:]), 2)
         self.assertEqual(len(ema.getDateTimes()), 2)

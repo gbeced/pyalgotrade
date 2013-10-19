@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import warninghelpers
 from pyalgotrade import observer
 
 DEFAULT_MAX_LEN = 1024
@@ -68,55 +67,6 @@ class DataSeries(object):
     def getDateTimes(self):
         """Returns a list of :class:`datetime.datetime` associated with each value."""
         raise NotImplementedError()
-
-    # Returns a sequence of absolute values [firstPos, lastPos].
-    # if includeNone is False and at least one value is None, then None is returned.
-    def getValuesAbsolute(self, firstPos, lastPos, includeNone=False):
-        # Deprecated since 0.13
-        warninghelpers.deprecation_warning("getValuesAbsolute will be deprecated in the next version. Please use [] instead.", stacklevel=2)
-        ret = []
-        for i in xrange(firstPos, lastPos+1):
-            value = self.getValueAbsolute(i)
-            if value is None and not includeNone:
-                return None
-            ret.append(value)
-        return ret
-
-    def __mapRelativeToAbsolute(self, valuesAgo):
-        if valuesAgo < 0:
-            return None
-
-        ret = self.getLength() - valuesAgo - 1
-        if ret < self.getFirstValidPos():
-            ret = None
-        return ret
-
-    def getValues(self, count, valuesAgo=0, includeNone=False):
-        # Deprecated since 0.12
-        warninghelpers.deprecation_warning("getValues will be deprecated in the next version. Please use [] instead.", stacklevel=2)
-        if count <= 0:
-            return None
-
-        absolutePos = self.__mapRelativeToAbsolute(valuesAgo + (count - 1))
-        if absolutePos is None:
-            return None
-
-        ret = []
-        for i in xrange(count):
-            value = self.getValueAbsolute(absolutePos + i)
-            if value is None and not includeNone:
-                return None
-            ret.append(value)
-        return ret
-
-    def getValue(self, valuesAgo=0):
-        # Deprecated since 0.12
-        warninghelpers.deprecation_warning("getValue will be deprecated in the next version. Please use [] instead.", stacklevel=2)
-        ret = None
-        absolutePos = self.__mapRelativeToAbsolute(valuesAgo)
-        if absolutePos is not None:
-            ret = self.getValueAbsolute(absolutePos)
-        return ret
 
 
 class SequenceDataSeries(DataSeries):
@@ -177,11 +127,6 @@ class SequenceDataSeries(DataSeries):
         """Appends a value."""
         self.appendWithDateTime(None, value)
 
-    def appendValue(self, value):
-        # Deprecated since 0.13
-        warninghelpers.deprecation_warning("appendValue will be deprecated in the next version. Please use append instead.", stacklevel=2)
-        self.append(value)
-
     def appendWithDateTime(self, dateTime, value):
         """
         Appends a value with an associated datetime.
@@ -202,13 +147,5 @@ class SequenceDataSeries(DataSeries):
 
         self.getNewValueEvent().emit(self, dateTime, value)
 
-    def appendValueWithDatetime(self, dateTime, value):
-        # Deprecated since 0.13
-        warninghelpers.deprecation_warning("appendValueWithDatetime will be deprecated in the next version. Please use appendWithDateTime instead.", stacklevel=2)
-        self.appendWithDateTime(dateTime, value)
-
     def getDateTimes(self):
         return self.__dateTimes
-
-    def getValues(self):
-        return self.__values

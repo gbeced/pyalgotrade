@@ -91,8 +91,8 @@ class LineBreak(dataseries.SequenceDataSeries):
             self.appendWithDateTime(dateTime, line)
 
     def __isReversal(self, value, breakUp):
-        assert(len(self.getValues()))
-        lines = self.getValues()[self.__reversalLines*-1:]
+        assert(len(self))
+        lines = self[self.__reversalLines*-1:]
         if breakUp:
             breakPoint = max([line.getHigh() for line in lines])
             ret = value > breakPoint
@@ -104,8 +104,8 @@ class LineBreak(dataseries.SequenceDataSeries):
     def __getNextLine(self, bar):
         ret = None
 
-        if len(self.getValues()) > 0:
-            lastLine = self.getValues()[-1]
+        if len(self) > 0:
+            lastLine = self[-1]
             close = pyalgotrade.bar.get_close(bar, self.__useAdjustedValues)
             if lastLine.isWhite():
                 if close > lastLine.getHigh():

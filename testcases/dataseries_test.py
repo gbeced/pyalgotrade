@@ -388,8 +388,8 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
-        self.assertEqual(ads1.getValues(), [3])
-        self.assertEqual(ads2.getValues(), [3])
+        self.assertEqual(ads1[:], [3])
+        self.assertEqual(ads2[:], [3])
 
     def testBoundedSources(self):
         ds1 = dataseries.SequenceDataSeries(1)
@@ -403,5 +403,5 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
-        self.assertEqual(ads1.getValues(), [2, 3])
-        self.assertEqual(ads2.getValues(), [2, 3])
+        self.assertEqual(ads1[:], [2, 3])
+        self.assertEqual(ads2[:], [2, 3])

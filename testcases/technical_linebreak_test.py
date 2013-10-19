@@ -79,7 +79,6 @@ class VWAPTestCase(unittest.TestCase):
 
         self.assertEqual(len(lineBreak), 4)
         self.assertEqual(len(lineBreak[:]), 4)
-        self.assertEqual(len(lineBreak.getValues()), 4)
         self.assertEqual(len(lineBreak.getDateTimes()), 4)
         self.assertEqual(lineBreak[-1].getLow(), 10.76)
         self.assertEqual(lineBreak[-1].getHigh(), 10.92)

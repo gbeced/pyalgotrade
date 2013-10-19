@@ -1,3 +1,6 @@
+Version 0.15 (TBD)
+. [CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute).
+
 Version 0.14 (12/Oct/2013)
 . [NEW] Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
 . [NEW] Cumulative returns filter (pyalgotrade.technical.cumret.CumulativeReturn).
