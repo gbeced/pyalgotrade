@@ -50,7 +50,7 @@ class EventWindow:
             self.__values.append(value)
 
     def getValues(self):
-        """Returns the values in the window."""
+        """Returns a numpy.array with the values in the window."""
         return self.__values.data()
 
     def getWindowSize(self):
