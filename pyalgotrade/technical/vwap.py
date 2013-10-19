@@ -25,7 +25,7 @@ from pyalgotrade.dataseries import bards
 
 class VWAPEventWindow(technical.EventWindow):
     def __init__(self, windowSize, useTypicalPrice):
-        technical.EventWindow.__init__(self, windowSize)
+        technical.EventWindow.__init__(self, windowSize, dtype=object)
         self.__useTypicalPrice = useTypicalPrice
 
     def getValue(self):

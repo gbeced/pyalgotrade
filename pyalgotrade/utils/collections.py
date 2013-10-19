@@ -57,11 +57,11 @@ def intersect(values1, values2, skipNone=False):
 
 # Like a collections.deque but using a numpy.array.
 class Deque:
-    def __init__(self, maxLen):
+    def __init__(self, maxLen, dtype=float):
         if not maxLen > 0:
             raise Exception("Invalid length")
 
-        self.__array = np.empty(maxLen)
+        self.__array = np.empty(maxLen, dtype=dtype)
         self.__maxLen = maxLen
         self.__lastPos = 0
         

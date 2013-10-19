@@ -18,9 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import collections
 import types
 
+from pyalgotrade.utils import collections
 from pyalgotrade import dataseries
 
 
@@ -29,6 +29,8 @@ class EventWindow:
 
     :param windowSize: The size of the window. Must be greater than 0.
     :type windowSize: int.
+    :param dtype: The desired data-type for the array.
+    :type dtype: data-type.
     :param skipNone: True if None values should not be included in the window.
     :type skipNone: boolean.
 
@@ -36,10 +38,10 @@ class EventWindow:
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, windowSize, skipNone=True):
+    def __init__(self, windowSize, dtype=float, skipNone=True):
         assert(windowSize > 0)
         assert(isinstance(windowSize, types.IntType))
-        self.__values = collections.deque(maxlen=windowSize)
+        self.__values = collections.Deque(windowSize, dtype)
         self.__windowSize = windowSize
         self.__skipNone = skipNone
 
@@ -49,7 +51,7 @@ class EventWindow:
 
     def getValues(self):
         """Returns the values in the window."""
-        return self.__values
+        return self.__values.data()
 
     def getWindowSize(self):
         """Returns the window size."""

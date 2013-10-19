@@ -60,7 +60,7 @@ def get_low_high_values(barWrapper, bars):
 class SOEventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
-        technical.EventWindow.__init__(self, period)
+        technical.EventWindow.__init__(self, period, dtype=object)
         self.__barWrapper = BarWrapper(useAdjustedValues)
 
     def getValue(self):

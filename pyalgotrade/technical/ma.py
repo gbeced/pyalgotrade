@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import numpy as np
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
@@ -67,7 +68,7 @@ class SMAEventWindow(technical.EventWindow):
 
         if value is not None and self.windowFull():
             if self.__value is None:
-                self.__value = calculate_sma(self.getValues(), 0, self.getWindowSize())
+                self.__value = self.getValues().mean()
             else:
                 self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
 
@@ -103,7 +104,7 @@ class EMAEventWindow(technical.EventWindow):
         # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
         if value is not None and self.windowFull():
             if self.__value is None:
-                self.__value = calculate_sma(self.getValues(), 0, len(self.getValues()))
+                self.__value = self.getValues().mean()
             else:
                 self.__value = (value - self.__value) * self.__multiplier + self.__value
 
@@ -131,17 +132,13 @@ class WMAEventWindow(technical.EventWindow):
     def __init__(self, weights):
         assert(len(weights) > 0)
         technical.EventWindow.__init__(self, len(weights))
-        self.__weights = weights
+        self.__weights = np.array(weights)
 
     def getValue(self):
         ret = None
         if self.windowFull():
-            accum = 0
-            weightSum = 0
-            for i, value in enumerate(self.getValues()):
-                weight = self.__weights[i]
-                accum += value * weight
-                weightSum += weight
+            accum = (self.getValues() * self.__weights).sum()
+            weightSum = self.__weights.sum()
             ret = accum / float(weightSum)
         return ret
 

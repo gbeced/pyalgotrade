@@ -21,8 +21,6 @@
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
-import numpy
-
 
 class StdDevEventWindow(technical.EventWindow):
     def __init__(self, period, ddof):
@@ -33,7 +31,7 @@ class StdDevEventWindow(technical.EventWindow):
     def getValue(self):
         ret = None
         if self.windowFull():
-            ret = numpy.array(self.getValues()).std(ddof=self.__ddof)
+            ret = self.getValues().std(ddof=self.__ddof)
         return ret
 
 
@@ -64,7 +62,7 @@ class ZScoreEventWindow(technical.EventWindow):
     def getValue(self):
         ret = None
         if self.windowFull():
-            values = numpy.array(self.getValues())
+            values = self.getValues()
             lastValue = values[-1]
             mean = values.mean()
             std = values.std(ddof=self.__ddof)

@@ -25,18 +25,16 @@ from pyalgotrade import dataseries
 class HighLowEventWindow(technical.EventWindow):
     def __init__(self, windowSize, useMin):
         technical.EventWindow.__init__(self, windowSize)
-        if useMin:
-            self.__fun = min
-        else:
-            self.__fun = max
+        self.__useMin = useMin
 
     def getValue(self):
         ret = None
-        values = self.getValues()
         if self.windowFull():
-            ret = values[0]
-            for value in values:
-                ret = self.__fun(ret, value)
+            values = self.getValues()
+            if self.__useMin:
+                ret = values.min()
+            else:
+                ret = values.max()
         return ret
 
 

@@ -21,26 +21,26 @@
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
-import numpy
+import numpy as np
 
 
 def linear_regression(values):
     y = values
-    xi = numpy.arange(0, len(values))
-    A = numpy.array([xi, numpy.ones(len(values))])
-    w = numpy.linalg.lstsq(A.T, y)[0]
+    xi = np.arange(0, len(values))
+    A = np.array([xi, np.ones(len(values))])
+    w = np.linalg.lstsq(A.T, y)[0]
     return w
 
 
 class SlopeEventWindow(technical.EventWindow):
     def __init__(self, windowSize):
         technical.EventWindow.__init__(self, windowSize)
-        self.__x = numpy.array(range(windowSize))
+        self.__x = np.array(range(windowSize))
 
     def getValue(self):
         ret = None
         if self.windowFull():
-            y = numpy.array(self.getValues())
+            y = self.getValues()
             ret = linear_regression(y)[0]
         return ret
 

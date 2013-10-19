@@ -19,16 +19,20 @@
 """
 
 import unittest
+import numpy as np
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
 
 class TestEventWindow(technical.EventWindow):
     def __init__(self):
-        technical.EventWindow.__init__(self, 1, False)
+        technical.EventWindow.__init__(self, 1, skipNone=False)
 
     def getValue(self):
-        return self.getValues()[-1]
+        ret = self.getValues()[-1]
+        if np.isnan(ret):
+            ret = None
+        return ret
 
 
 class TestFilter(technical.EventBasedFilter):
