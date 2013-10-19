@@ -38,27 +38,21 @@ class DataSeries(object):
 
     def __len__(self):
         """Returns the number of elements in the data series."""
-        return self.getLength()
+        raise NotImplementedError()
 
     def __getitem__(self, key):
         """Returns the value at a given position/slice. It raises IndexError if the position is invalid,
         or TypeError if the key type is invalid."""
         if isinstance(key, slice):
-            return [self[i] for i in xrange(*key.indices(self.getLength()))]
+            return [self[i] for i in xrange(*key.indices(len(self)))]
         elif isinstance(key, int):
             if key < 0:
-                key += self.getLength()
-            if key >= self.getLength() or key < 0:
+                key += len(self)
+            if key >= len(self) or key < 0:
                 raise IndexError("Index out of range")
             return self.getValueAbsolute(key)
         else:
             raise TypeError("Invalid argument type")
-
-    def getFirstValidPos(self):
-        raise NotImplementedError()
-
-    def getLength(self):
-        raise NotImplementedError()
 
     # This is similar to __getitem__ for ints, but it shouldn't raise for invalid positions.
     def getValueAbsolute(self, pos):
@@ -110,12 +104,6 @@ class SequenceDataSeries(DataSeries):
     # 3: The new value
     def getNewValueEvent(self):
         return self.__newValueEvent
-
-    def getFirstValidPos(self):
-        return 0
-
-    def getLength(self):
-        return len(self.__values)
 
     def getValueAbsolute(self, pos):
         ret = None
