@@ -64,28 +64,36 @@ class Deque:
 
         self.__array = np.empty(maxLen, dtype=dtype)
         self.__maxLen = maxLen
-        self.__lastPos = 0
+        self.__nextPos = 0
 
     def append(self, value):
-        if self.__lastPos < self.__maxLen:
-            self.__array[self.__lastPos] = value
-            self.__lastPos += 1
+        if self.__nextPos < self.__maxLen:
+            self.__array[self.__nextPos] = value
+            self.__nextPos += 1
         else:
             # Shift items to the left and put the last value.
             # I'm not using np.roll to avoid creating a new array.
             self.__array[0:-1] = self.__array[1:]
-            self.__array[self.__lastPos - 1] = value
+            self.__array[self.__nextPos - 1] = value
 
     def data(self):
         # If all values are not initialized, return a portion of the array.
-        if self.__lastPos < self.__maxLen:
-            ret = self.__array[0:self.__lastPos]
+        if self.__nextPos < self.__maxLen:
+            ret = self.__array[0:self.__nextPos]
         else:
             ret = self.__array
         return ret
 
+    def resize(self, maxLen):
+        if not maxLen > 0:
+            raise Exception("Invalid length")
+        self.__array = np.resize(self.__array, maxLen)
+        self.__maxLen = maxLen
+        if self.__nextPos >= self.__maxLen:
+            self.__nextPos = self.__maxLen
+
     def __len__(self):
-        return self.__lastPos
+        return self.__nextPos
 
     def __getitem__(self, key):
         return self.data()[key]
