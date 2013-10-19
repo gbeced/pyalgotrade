@@ -15,6 +15,13 @@ For this assignment I had to pick 4 stocks, invest a total of $100000 during 201
  * Std. dev. of daily returns
  * Sharpe ratio
 
+Download the data with the following commands: ::
+
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('aeti', 2011, 'aeti-2011-yahoofinance.csv')"
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('egan', 2011, 'egan-2011-yahoofinance.csv')"
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('glng', 2011, 'glng-2011-yahoofinance.csv')"
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('simo', 2011, 'simo-2011-yahoofinance.csv')"
+
 Although the deliverable was an Excel spreadsheet, I validated the results using this piece of code:
 
 .. literalinclude:: ../samples/compinv-1.py
