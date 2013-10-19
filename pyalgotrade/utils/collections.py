@@ -20,6 +20,7 @@
 
 import numpy as np
 
+
 def lt(v1, v2):
     if v1 is None:
         return True
@@ -64,7 +65,7 @@ class Deque:
         self.__array = np.empty(maxLen, dtype=dtype)
         self.__maxLen = maxLen
         self.__lastPos = 0
-        
+
     def append(self, value):
         if self.__lastPos < self.__maxLen:
             self.__array[self.__lastPos] = value
@@ -82,7 +83,7 @@ class Deque:
         else:
             ret = self.__array
         return ret
-            
+
     def __len__(self):
         return self.__lastPos
 
