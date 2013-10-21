@@ -24,10 +24,6 @@ from pyalgotrade.utils import collections
 DEFAULT_MAX_LEN = 1024
 
 
-def resize_list(list_, size):
-    return list_[-1*size:]
-
-
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
 class DataSeries(object):
