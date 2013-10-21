@@ -20,6 +20,7 @@
 
 import numpy as np
 
+
 def lt(v1, v2):
     if v1 is None:
         return True
@@ -56,35 +57,85 @@ def intersect(values1, values2, skipNone=False):
 
 
 # Like a collections.deque but using a numpy.array.
-class Deque:
-    def __init__(self, maxLen):
+class NumPyDeque:
+    def __init__(self, maxLen, dtype=float):
         if not maxLen > 0:
-            raise Exception("Invalid length")
+            raise Exception("Invalid maximum length")
 
-        self.__array = np.empty(maxLen)
+        self.__values = np.empty(maxLen, dtype=dtype)
         self.__maxLen = maxLen
-        self.__lastPos = 0
-        
+        self.__nextPos = 0
+
+    def getMaxLen(self):
+        return self.__maxLen
+
     def append(self, value):
-        if self.__lastPos < self.__maxLen:
-            self.__array[self.__lastPos] = value
-            self.__lastPos += 1
+        if self.__nextPos < self.__maxLen:
+            self.__values[self.__nextPos] = value
+            self.__nextPos += 1
         else:
             # Shift items to the left and put the last value.
             # I'm not using np.roll to avoid creating a new array.
-            self.__array[0:-1] = self.__array[1:]
-            self.__array[self.__lastPos - 1] = value
+            self.__values[0:-1] = self.__values[1:]
+            self.__values[self.__nextPos - 1] = value
 
     def data(self):
         # If all values are not initialized, return a portion of the array.
-        if self.__lastPos < self.__maxLen:
-            ret = self.__array[0:self.__lastPos]
+        if self.__nextPos < self.__maxLen:
+            ret = self.__values[0:self.__nextPos]
         else:
-            ret = self.__array
+            ret = self.__values
         return ret
-            
+
+    def resize(self, maxLen):
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
+
+        self.__values = np.resize(self.__values, maxLen)
+        self.__maxLen = maxLen
+        if self.__nextPos >= self.__maxLen:
+            self.__nextPos = self.__maxLen
+
     def __len__(self):
-        return self.__lastPos
+        return self.__nextPos
 
     def __getitem__(self, key):
         return self.data()[key]
+
+
+# I'm not using collections.deque because:
+# 1: Random access is slower.
+# 2: Slicing is not supported.
+class ListDeque:
+    def __init__(self, maxLen, dtype=float):
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
+
+        self.__values = []
+        self.__maxLen = maxLen
+
+    def getMaxLen(self):
+        return self.__maxLen
+
+    def append(self, value):
+        self.__values.append(value)
+        # Check bounds
+        if len(self.__values) > self.__maxLen:
+            self.__values.pop(0)
+
+    def data(self):
+        return self.__values
+
+    def resize(self, maxLen):
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
+
+        self.__maxLen = maxLen
+        if len(self.__values) > maxLen:
+            self.__values = self.__values[-1*maxLen:]
+
+    def __len__(self):
+        return len(self.__values)
+
+    def __getitem__(self, key):
+        return self.__values[key]

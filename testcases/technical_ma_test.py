@@ -180,9 +180,6 @@ class WMATestCase(unittest.TestCase):
         for i in range(len(wma)):
             self.assertEqual(wma.getDateTimes()[i], None)
 
-    def testPeriod2(self):
-        self.__testPeriod2Impl(None)
-
     def testPeriod2_BoundedSeq(self):
         self.__testPeriod2Impl(1)
         self.__testPeriod2Impl(2)
@@ -196,7 +193,7 @@ class WMATestCase(unittest.TestCase):
         self.assertEqual(wma[0], None)
         self.assertEqual(wma[1], (1*3 + 2*2 + 3*1) / float(3+2+1))
         self.assertEqual(len(wma), 2)
-        self.assertEqual(len(wma.getValues()), 2)
+        self.assertEqual(len(wma[:]), 2)
         self.assertEqual(len(wma.getDateTimes()), 2)
 
 
@@ -226,5 +223,5 @@ class EMATestCase(unittest.TestCase):
         self.assertEqual(round(ema[0], 5), 23.08068)
         self.assertEqual(round(ema[1], 5), 22.91556)
         self.assertEqual(len(ema), 2)
-        self.assertEqual(len(ema.getValues()), 2)
+        self.assertEqual(len(ema[:]), 2)
         self.assertEqual(len(ema.getDateTimes()), 2)

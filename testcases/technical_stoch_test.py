@@ -103,7 +103,7 @@ class TestCase(unittest.TestCase):
         self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
 
         self.assertEqual(len(stochFilter), 3)
-        self.assertEqual(len(stochFilter.getValues()), 3)
+        self.assertEqual(len(stochFilter[:]), 3)
         self.assertEqual(len(stochFilter.getDateTimes()), 3)
         self.assertEqual(len(stochFilter.getD()), 3)
         self.assertEqual(len(stochFilter.getD().getDateTimes()), 3)

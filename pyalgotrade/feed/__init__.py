@@ -35,7 +35,6 @@ class BaseFeed(observer.Subject):
     """Base class for feeds.
 
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
-        If not None, it must be greater than 0.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
 
@@ -44,7 +43,8 @@ class BaseFeed(observer.Subject):
     """
 
     def __init__(self, maxLen):
-        assert(maxLen is None or maxLen > 0)
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
         self.__ds = {}
         self.__event = observer.Event()
         self.__maxLen = maxLen

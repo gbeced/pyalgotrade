@@ -30,8 +30,7 @@ from pyalgotrade import bar
 class TestSequenceDataSeries(unittest.TestCase):
     def testEmpty(self):
         ds = dataseries.SequenceDataSeries()
-        self.assertTrue(ds.getFirstValidPos() == 0)
-        self.assertTrue(ds.getLength() == 0)
+        self.assertTrue(len(ds) == 0)
         with self.assertRaises(IndexError):
             ds[-1]
         with self.assertRaises(IndexError):
@@ -45,8 +44,7 @@ class TestSequenceDataSeries(unittest.TestCase):
         ds = dataseries.SequenceDataSeries()
         for value in range(10):
             ds.append(value)
-        self.assertTrue(ds.getFirstValidPos() == 0)
-        self.assertTrue(ds.getLength() == 10)
+        self.assertTrue(len(ds) == 10)
         self.assertTrue(ds[-1] == 9)
         self.assertTrue(ds[-2] == 8)
         self.assertTrue(ds[0] == 0)
@@ -129,7 +127,7 @@ class TestSequenceDataSeries(unittest.TestCase):
         self.assertEqual(ds[0], 0)
         self.assertEqual(ds[-1], 99)
 
-        ds.setMaxLen(None)
+        ds.setMaxLen(10000)
         self.assertEqual(len(ds), 100)
         self.assertEqual(len(ds.getDateTimes()), 100)
         self.assertEqual(ds[0], 0)
@@ -228,8 +226,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         self.assertEqual(len(ds1), len(ds2))
 
         for ads in [ads1, ads2]:
-            self.assertEqual(ads.getLength(), 0)
-            self.assertEqual(ads.getFirstValidPos(), 0)
+            self.assertEqual(len(ads), 0)
             self.assertEqual(ads.getValueAbsolute(0), None)
             self.assertEqual(ads.getDateTimes(), [])
 
@@ -247,8 +244,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         self.assertEqual(len(ds1), len(ds2))
 
         for ads in [ads1, ads2]:
-            self.assertEqual(ads.getLength(), size)
-            self.assertEqual(ads.getFirstValidPos(), 0)
+            self.assertEqual(len(ads), size)
             for i in range(size):
                 self.assertEqual(ads.getValueAbsolute(i), i)
                 self.assertEqual(ads.getDateTimes()[i], now + datetime.timedelta(seconds=i))
@@ -271,7 +267,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
             else:
                 ds2.appendWithDateTime(now + datetime.timedelta(seconds=i), i)
 
-        self.assertEqual(ads1.getLength(), ads2.getLength())
+        self.assertEqual(len(ads1), len(ads2))
         self.assertEqual(ads1[:], ads2[:])
         self.assertEqual(ads1.getDateTimes(), commonDateTimes)
         self.assertEqual(ads2.getDateTimes(), commonDateTimes)
@@ -286,7 +282,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         for i in range(size):
             ds1.appendWithDateTime(now + datetime.timedelta(seconds=i), i)
             ds2.appendWithDateTime(now + datetime.timedelta(seconds=i), i)
-            self.assertEqual(ads1.getLength(), ads2.getLength())
+            self.assertEqual(len(ads1), len(ads2))
             self.assertEqual(ads1[:], ads2[:])
             self.assertEqual(ads1.getDateTimes()[:], ads2.getDateTimes()[:])
 
@@ -308,8 +304,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         self.assertEqual(len(ds1), len(ds2))
 
         for ads in [ads1, ads2]:
-            self.assertEqual(ads.getLength(), 0)
-            self.assertEqual(ads.getFirstValidPos(), 0)
+            self.assertEqual(len(ads), 0)
             self.assertEqual(ads.getValueAbsolute(0), None)
             self.assertEqual(ads.getDateTimes(), [])
 
@@ -329,8 +324,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         self.assertEqual(len(ds1), len(ds2))
 
         for ads in [ads1, ads2]:
-            self.assertEqual(ads.getLength(), size)
-            self.assertEqual(ads.getFirstValidPos(), 0)
+            self.assertEqual(len(ads), size)
             for i in range(size):
                 self.assertEqual(ads.getValueAbsolute(i), i)
                 self.assertEqual(ads.getDateTimes()[i], now + datetime.timedelta(seconds=i))
@@ -355,7 +349,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
             else:
                 ds2.appendWithDateTime(now + datetime.timedelta(seconds=i), i)
 
-        self.assertEqual(ads1.getLength(), ads2.getLength())
+        self.assertEqual(len(ads1), len(ads2))
         self.assertEqual(ads1[:], ads2[:])
         self.assertEqual(ads1.getDateTimes(), commonDateTimes)
         self.assertEqual(ads2.getDateTimes(), commonDateTimes)
@@ -372,7 +366,7 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         for i in range(size):
             ds1.appendWithDateTime(now + datetime.timedelta(seconds=i), i)
             ds2.appendWithDateTime(now + datetime.timedelta(seconds=i), i)
-            self.assertEqual(ads1.getLength(), ads2.getLength())
+            self.assertEqual(len(ads1), len(ads2))
             self.assertEqual(ads1[:], ads2[:])
             self.assertEqual(ads1.getDateTimes()[:], ads2.getDateTimes()[:])
 
@@ -388,8 +382,8 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
-        self.assertEqual(ads1.getValues(), [3])
-        self.assertEqual(ads2.getValues(), [3])
+        self.assertEqual(ads1[:], [3])
+        self.assertEqual(ads2[:], [3])
 
     def testBoundedSources(self):
         ds1 = dataseries.SequenceDataSeries(1)
@@ -403,5 +397,5 @@ class TestDateAlignedDataSeries(unittest.TestCase):
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=2), 2)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=3), 3)
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
-        self.assertEqual(ads1.getValues(), [2, 3])
-        self.assertEqual(ads2.getValues(), [2, 3])
+        self.assertEqual(ads1[:], [2, 3])
+        self.assertEqual(ads2[:], [2, 3])

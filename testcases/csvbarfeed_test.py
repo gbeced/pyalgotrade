@@ -231,8 +231,7 @@ class NinjaTraderTestCase(unittest.TestCase):
         barFeed = self.__loadIntradayBarFeed(timeZone)
         ds = barFeed.getDataSeries()
 
-        for i in xrange(ds.getLength()):
-            currentBar = ds[i]
+        for i, currentBar in enumerate(ds):
             self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
             self.assertEqual(ds[i].getDateTime(), ds.getDateTimes()[i])
 
@@ -240,8 +239,7 @@ class NinjaTraderTestCase(unittest.TestCase):
         barFeed = self.__loadIntradayBarFeed(None)
         ds = barFeed.getDataSeries()
 
-        for i in xrange(ds.getLength()):
-            currentBar = ds[i]
+        for i, currentBar in enumerate(ds):
             # Datetime must be set to UTC.
             self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
             self.assertEqual(ds[i].getDateTime(), ds.getDateTimes()[i])

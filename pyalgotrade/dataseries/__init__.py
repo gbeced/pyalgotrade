@@ -18,14 +18,10 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import warninghelpers
 from pyalgotrade import observer
+from pyalgotrade.utils import collections
 
 DEFAULT_MAX_LEN = 1024
-
-
-def resize_list(list_, size):
-    return list_[-1*size:]
 
 
 # It is important to inherit object to get __getitem__ to work properly.
@@ -39,27 +35,21 @@ class DataSeries(object):
 
     def __len__(self):
         """Returns the number of elements in the data series."""
-        return self.getLength()
+        raise NotImplementedError()
 
     def __getitem__(self, key):
         """Returns the value at a given position/slice. It raises IndexError if the position is invalid,
         or TypeError if the key type is invalid."""
         if isinstance(key, slice):
-            return [self[i] for i in xrange(*key.indices(self.getLength()))]
+            return [self[i] for i in xrange(*key.indices(len(self)))]
         elif isinstance(key, int):
             if key < 0:
-                key += self.getLength()
-            if key >= self.getLength() or key < 0:
+                key += len(self)
+            if key >= len(self) or key < 0:
                 raise IndexError("Index out of range")
             return self.getValueAbsolute(key)
         else:
             raise TypeError("Invalid argument type")
-
-    def getFirstValidPos(self):
-        raise NotImplementedError()
-
-    def getLength(self):
-        raise NotImplementedError()
 
     # This is similar to __getitem__ for ints, but it shouldn't raise for invalid positions.
     def getValueAbsolute(self, pos):
@@ -69,72 +59,22 @@ class DataSeries(object):
         """Returns a list of :class:`datetime.datetime` associated with each value."""
         raise NotImplementedError()
 
-    # Returns a sequence of absolute values [firstPos, lastPos].
-    # if includeNone is False and at least one value is None, then None is returned.
-    def getValuesAbsolute(self, firstPos, lastPos, includeNone=False):
-        # Deprecated since 0.13
-        warninghelpers.deprecation_warning("getValuesAbsolute will be deprecated in the next version. Please use [] instead.", stacklevel=2)
-        ret = []
-        for i in xrange(firstPos, lastPos+1):
-            value = self.getValueAbsolute(i)
-            if value is None and not includeNone:
-                return None
-            ret.append(value)
-        return ret
-
-    def __mapRelativeToAbsolute(self, valuesAgo):
-        if valuesAgo < 0:
-            return None
-
-        ret = self.getLength() - valuesAgo - 1
-        if ret < self.getFirstValidPos():
-            ret = None
-        return ret
-
-    def getValues(self, count, valuesAgo=0, includeNone=False):
-        # Deprecated since 0.12
-        warninghelpers.deprecation_warning("getValues will be deprecated in the next version. Please use [] instead.", stacklevel=2)
-        if count <= 0:
-            return None
-
-        absolutePos = self.__mapRelativeToAbsolute(valuesAgo + (count - 1))
-        if absolutePos is None:
-            return None
-
-        ret = []
-        for i in xrange(count):
-            value = self.getValueAbsolute(absolutePos + i)
-            if value is None and not includeNone:
-                return None
-            ret.append(value)
-        return ret
-
-    def getValue(self, valuesAgo=0):
-        # Deprecated since 0.12
-        warninghelpers.deprecation_warning("getValue will be deprecated in the next version. Please use [] instead.", stacklevel=2)
-        ret = None
-        absolutePos = self.__mapRelativeToAbsolute(valuesAgo)
-        if absolutePos is not None:
-            ret = self.getValueAbsolute(absolutePos)
-        return ret
-
 
 class SequenceDataSeries(DataSeries):
     """A DataSeries that holds values in a sequence in memory.
 
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
 
     def __init__(self, maxLen=DEFAULT_MAX_LEN):
-        assert(maxLen is None or maxLen > 0)
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
+
         self.__newValueEvent = observer.Event()
-        # I'm not using collections.deque because:
-        # 1: Random access is slower.
-        # 2: Slicing is not supported.
-        self.__values = []
-        self.__dateTimes = []
+        self.__values = collections.ListDeque(maxLen)
+        self.__dateTimes = collections.ListDeque(maxLen)
         self.__maxLen = maxLen
 
     def __len__(self):
@@ -145,14 +85,12 @@ class SequenceDataSeries(DataSeries):
 
     def setMaxLen(self, maxLen):
         """Sets the maximum number of values to hold and resizes accordingly if necessary."""
-        self.__maxLen = maxLen
-        if maxLen is not None and len(self.__values) > maxLen:
-            self.__values = resize_list(self.__values, maxLen)
-            self.__dateTimes = resize_list(self.__dateTimes, maxLen)
+        self.__values.resize(maxLen)
+        self.__dateTimes.resize(maxLen)
 
     def getMaxLen(self):
         """Returns the maximum number of values to hold."""
-        return self.__maxLen
+        return self.__values.getMaxLen()
 
     # Event handler receives:
     # 1: Dataseries generating the event
@@ -160,12 +98,6 @@ class SequenceDataSeries(DataSeries):
     # 3: The new value
     def getNewValueEvent(self):
         return self.__newValueEvent
-
-    def getFirstValidPos(self):
-        return 0
-
-    def getLength(self):
-        return len(self.__values)
 
     def getValueAbsolute(self, pos):
         ret = None
@@ -177,11 +109,6 @@ class SequenceDataSeries(DataSeries):
         """Appends a value."""
         self.appendWithDateTime(None, value)
 
-    def appendValue(self, value):
-        # Deprecated since 0.13
-        warninghelpers.deprecation_warning("appendValue will be deprecated in the next version. Please use append instead.", stacklevel=2)
-        self.append(value)
-
     def appendWithDateTime(self, dateTime, value):
         """
         Appends a value with an associated datetime.
@@ -189,26 +116,15 @@ class SequenceDataSeries(DataSeries):
         .. note::
             If dateTime is not None, it must be greater than the last one.
         """
+
         if dateTime is not None and len(self.__dateTimes) != 0 and self.__dateTimes[-1] >= dateTime:
             raise Exception("Invalid datetime. It must be bigger than that last one")
+
+        assert(len(self.__values) == len(self.__dateTimes))
         self.__dateTimes.append(dateTime)
         self.__values.append(value)
-        assert(len(self.__values) == len(self.__dateTimes))
-
-        # Check bounds
-        if self.__maxLen is not None and len(self.__values) > self.__maxLen:
-            self.__dateTimes.pop(0)
-            self.__values.pop(0)
 
         self.getNewValueEvent().emit(self, dateTime, value)
 
-    def appendValueWithDatetime(self, dateTime, value):
-        # Deprecated since 0.13
-        warninghelpers.deprecation_warning("appendValueWithDatetime will be deprecated in the next version. Please use appendWithDateTime instead.", stacklevel=2)
-        self.appendWithDateTime(dateTime, value)
-
     def getDateTimes(self):
-        return self.__dateTimes
-
-    def getValues(self):
-        return self.__values
+        return self.__dateTimes.data()

@@ -83,6 +83,6 @@ class TestCase(unittest.TestCase):
         rsi = self.__buildRSI(values, 14, 1)
         self.assertEqual(round(rsi[0], 8), 70.53278948)
         self.assertEqual(len(rsi), 1)
-        self.assertEqual(len(rsi.getValues()), 1)
+        self.assertEqual(len(rsi[:]), 1)
         self.assertEqual(len(rsi.getDateTimes()), 1)
-        self.assertEqual(round(rsi.getValues()[-1], 8), 70.53278948)
+        self.assertEqual(round(rsi[-1], 8), 70.53278948)

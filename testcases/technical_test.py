@@ -25,7 +25,7 @@ from pyalgotrade import dataseries
 
 class TestEventWindow(technical.EventWindow):
     def __init__(self):
-        technical.EventWindow.__init__(self, 1, False)
+        technical.EventWindow.__init__(self, 1, skipNone=False, dtype=object)
 
     def getValue(self):
         return self.getValues()[-1]

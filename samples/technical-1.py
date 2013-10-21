@@ -5,10 +5,9 @@ from pyalgotrade import technical
 # An EventWindow is responsible for making calculations using a window of values.
 class Accumulator(technical.EventWindow):
     def getValue(self):
-        ret = 0
-        for value in self.getValues():
-            if value is not None:
-                ret += value
+        ret = None
+        if self.windowFull():
+            ret = self.getValues().sum()
         return ret
 
 # Build a sequence based DataSeries.

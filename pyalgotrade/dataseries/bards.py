@@ -24,7 +24,7 @@ from pyalgotrade import dataseries
 class BarDataSeries(dataseries.SequenceDataSeries):
     """A DataSeries of :class:`pyalgotrade.bar.Bar` instances.
 
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
