@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import observer
+from pyalgotrade.utils import collections
 
 DEFAULT_MAX_LEN = 1024
 
@@ -66,19 +67,18 @@ class DataSeries(object):
 class SequenceDataSeries(DataSeries):
     """A DataSeries that holds values in a sequence in memory.
 
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
 
     def __init__(self, maxLen=DEFAULT_MAX_LEN):
-        assert(maxLen is None or maxLen > 0)
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
+
         self.__newValueEvent = observer.Event()
-        # I'm not using collections.deque because:
-        # 1: Random access is slower.
-        # 2: Slicing is not supported.
-        self.__values = []
-        self.__dateTimes = []
+        self.__values = collections.ListDeque(maxLen)
+        self.__dateTimes = collections.ListDeque(maxLen)
         self.__maxLen = maxLen
 
     def __len__(self):
@@ -89,14 +89,12 @@ class SequenceDataSeries(DataSeries):
 
     def setMaxLen(self, maxLen):
         """Sets the maximum number of values to hold and resizes accordingly if necessary."""
-        self.__maxLen = maxLen
-        if maxLen is not None and len(self.__values) > maxLen:
-            self.__values = resize_list(self.__values, maxLen)
-            self.__dateTimes = resize_list(self.__dateTimes, maxLen)
+        self.__values.resize(maxLen)
+        self.__dateTimes.resize(maxLen)
 
     def getMaxLen(self):
         """Returns the maximum number of values to hold."""
-        return self.__maxLen
+        return self.__values.getMaxLen()
 
     # Event handler receives:
     # 1: Dataseries generating the event
@@ -122,18 +120,15 @@ class SequenceDataSeries(DataSeries):
         .. note::
             If dateTime is not None, it must be greater than the last one.
         """
+
         if dateTime is not None and len(self.__dateTimes) != 0 and self.__dateTimes[-1] >= dateTime:
             raise Exception("Invalid datetime. It must be bigger than that last one")
+
+        assert(len(self.__values) == len(self.__dateTimes))
         self.__dateTimes.append(dateTime)
         self.__values.append(value)
-        assert(len(self.__values) == len(self.__dateTimes))
-
-        # Check bounds
-        if self.__maxLen is not None and len(self.__values) > self.__maxLen:
-            self.__dateTimes.pop(0)
-            self.__values.pop(0)
 
         self.getNewValueEvent().emit(self, dateTime, value)
 
     def getDateTimes(self):
-        return self.__dateTimes
+        return self.__dateTimes.data()

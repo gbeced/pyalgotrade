@@ -64,7 +64,7 @@ class LineBreak(dataseries.SequenceDataSeries):
     :type reversalLines: int.
     :param useAdjustedValues: True to use adjusted high/low/close values.
     :type useAdjustedValues: boolean.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
         This value can't be smaller than reversalLines.
     :type maxLen: int.
@@ -75,7 +75,7 @@ class LineBreak(dataseries.SequenceDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         if reversalLines < 2:
             raise Exception("reversalLines must be greater than 1")
-        if maxLen is not None and maxLen < reversalLines:
+        if maxLen < reversalLines:
             raise Exception("maxLen can't be smaller than reversalLines")
 
         dataseries.SequenceDataSeries.__init__(self, maxLen)
@@ -129,6 +129,6 @@ class LineBreak(dataseries.SequenceDataSeries):
         return ret
 
     def setMaxLen(self, maxLen):
-        if maxLen is not None and maxLen < self.__reversalLines:
+        if maxLen < self.__reversalLines:
             raise Exception("maxLen can't be smaller than reversalLines")
         dataseries.SequenceDataSeries.setMaxLen(self, maxLen)

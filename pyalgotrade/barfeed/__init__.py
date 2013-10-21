@@ -51,7 +51,6 @@ class BaseBarFeed(feed.BaseFeed):
         * barfeed.Frequency.DAY
 
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        If not None, it must be greater than 0.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
 
@@ -61,7 +60,8 @@ class BaseBarFeed(feed.BaseFeed):
 
     def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         feed.BaseFeed.__init__(self, maxLen)
-        assert(maxLen is None or maxLen > 0)
+        if not maxLen > 0:
+            raise Exception("Invalid maximum length")
         self.__defaultInstrument = None
         self.__currentBars = None
         self.__lastBars = {}

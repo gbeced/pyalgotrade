@@ -197,8 +197,8 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(ix1, range(size))
         self.assertEqual(ix1, ix2)
 
-    def testDeque(self):
-        d = collections.Deque(10)
+    def testNumPyDeque(self):
+        d = collections.NumPyDeque(10)
         self.assertEqual(len(d), 0)
 
         for i in range(10):
@@ -217,8 +217,8 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(d[-1], 2)
         self.assertEqual(d[-2], 1)
 
-    def testDequeResize(self):
-        d = collections.Deque(10)
+    def testNumPyDequeResize(self):
+        d = collections.NumPyDeque(10)
 
         self.assertEqual(len(d), 0)
         for i in range(20):

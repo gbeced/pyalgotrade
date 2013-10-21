@@ -43,7 +43,7 @@ class RateOfChange(technical.EventBasedFilter):
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param valuesAgo: The number of values back that a given value will compare to. Must be > 0.
     :type valuesAgo: int.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """

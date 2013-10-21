@@ -83,7 +83,7 @@ class SMA(technical.EventBasedFilter):
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param period: The number of values to use to calculate the SMA.
     :type period: int.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
@@ -119,7 +119,7 @@ class EMA(technical.EventBasedFilter):
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param period: The number of values to use to calculate the EMA. Must be an integer greater than 1.
     :type period: int.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
@@ -150,7 +150,7 @@ class WMA(technical.EventBasedFilter):
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param weights: A list of int/float with the weights.
     :type weights: list.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """

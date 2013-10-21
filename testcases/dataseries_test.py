@@ -127,7 +127,7 @@ class TestSequenceDataSeries(unittest.TestCase):
         self.assertEqual(ds[0], 0)
         self.assertEqual(ds[-1], 99)
 
-        ds.setMaxLen(None)
+        ds.setMaxLen(10000)
         self.assertEqual(len(ds), 100)
         self.assertEqual(len(ds.getDateTimes()), 100)
         self.assertEqual(ds[0], 0)

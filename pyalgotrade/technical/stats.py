@@ -44,7 +44,7 @@ class StdDev(technical.EventBasedFilter):
     :type period: int.
     :param ddof: Delta degrees of freedom.
     :type ddof: int.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
@@ -79,7 +79,7 @@ class ZScore(technical.EventBasedFilter):
     :type period: int.
     :param ddof: Delta degrees of freedom to use for the standard deviation.
     :type ddof: int.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """

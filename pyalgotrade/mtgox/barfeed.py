@@ -128,7 +128,6 @@ class CSVTradeFeed(csvfeed.BarFeed):
     :type timezone: A pytz timezone.
     :param frequency: Reserved for future use. Currently ignored.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        If not None, it must be greater than 0.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
 
@@ -165,7 +164,6 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     :param client: A MtGox client.
     :type client: :class:`pyalgotrade.mtgox.client.Client`.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        If not None, it must be greater than 0.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
 

@@ -180,9 +180,6 @@ class WMATestCase(unittest.TestCase):
         for i in range(len(wma)):
             self.assertEqual(wma.getDateTimes()[i], None)
 
-    def testPeriod2(self):
-        self.__testPeriod2Impl(None)
-
     def testPeriod2_BoundedSeq(self):
         self.__testPeriod2Impl(1)
         self.__testPeriod2Impl(2)

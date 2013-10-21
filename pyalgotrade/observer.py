@@ -27,14 +27,16 @@ class Event:
         self.__emitting = False
 
     def __applyChanges(self):
-        for handler in self.__toSubscribe:
-            if handler not in self.__handlers:
-                self.__handlers.append(handler)
-        for handler in self.__toUnsubscribe:
-            self.__handlers.remove(handler)
+        if len(self.__toSubscribe):
+            for handler in self.__toSubscribe:
+                if handler not in self.__handlers:
+                    self.__handlers.append(handler)
+            self.__toSubscribe = []
 
-        self.__toSubscribe = []
-        self.__toUnsubscribe = []
+        if len(self.__toUnsubscribe):
+            for handler in self.__toUnsubscribe:
+                self.__handlers.remove(handler)
+            self.__toUnsubscribe = []
 
     def subscribe(self, handler):
         if self.__emitting:
@@ -49,11 +51,13 @@ class Event:
             self.__handlers.remove(handler)
 
     def emit(self, *parameters):
-        self.__emitting = True
-        for handler in self.__handlers:
-            handler(*parameters)
-        self.__emitting = False
-        self.__applyChanges()
+        try:
+            self.__emitting = True
+            for handler in self.__handlers:
+                handler(*parameters)
+        finally:
+            self.__emitting = False
+            self.__applyChanges()
 
 
 class Subject:

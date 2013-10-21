@@ -41,7 +41,7 @@ class EventWindow:
     def __init__(self, windowSize, dtype=float, skipNone=True):
         assert(windowSize > 0)
         assert(isinstance(windowSize, types.IntType))
-        self.__values = collections.Deque(windowSize, dtype)
+        self.__values = collections.NumPyDeque(windowSize, dtype)
         self.__windowSize = windowSize
         self.__skipNone = skipNone
 
@@ -73,7 +73,7 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param eventWindow: The EventWindow instance to use to calculate new values.
     :type eventWindow: :class:`EventWindow`.
-    :param maxLen: The maximum number of values to hold. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """

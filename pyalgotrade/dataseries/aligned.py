@@ -29,7 +29,7 @@ def datetime_aligned(ds1, ds2, maxLen=dataseries.DEFAULT_MAX_LEN):
     :type ds1: :class:`DataSeries`.
     :param ds2: A DataSeries instance.
     :type ds2: :class:`DataSeries`.
-    :param maxLen: The maximum number of values to hold for the returned :class:`DataSeries`. If not None, it must be greater than 0.
+    :param maxLen: The maximum number of values to hold for the returned :class:`DataSeries`.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
     """
