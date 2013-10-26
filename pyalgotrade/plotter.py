@@ -308,6 +308,7 @@ class StrategyPlotter:
     def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True):
         self.__dateTimes = set()
 
+        self.__useAdjustedValues = strat.getBroker().getUseAdjustedValues()
         self.__plotAllInstruments = plotAllInstruments
         self.__plotBuySell = plotBuySell
         self.__barSubplots = {}
@@ -359,6 +360,7 @@ class StrategyPlotter:
             ret = self.__barSubplots[instrument]
         except KeyError:
             ret = InstrumentSubplot(instrument, self.__plotBuySell)
+            ret.setUseAdjClose(self.__useAdjustedValues)
             self.__barSubplots[instrument] = ret
         return ret
 
