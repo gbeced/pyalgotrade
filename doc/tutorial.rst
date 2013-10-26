@@ -88,7 +88,7 @@ That is because we need at least 15 values to get something out of the SMA:
 
 All the technicals will return None when the value can't be calculated at a given time.
 
-One important thing about technicals is that they can be stacked. That is because they're modeled as data series as well.
+One important thing about technicals is that they can be combined. That is because they're modeled as data series as well.
 For example, getting an SMA over the RSI over the closing prices is as simple as this:
 
 .. literalinclude:: ../samples/tutorial-3.py
