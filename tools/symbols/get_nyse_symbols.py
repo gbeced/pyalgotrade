@@ -28,24 +28,24 @@ import csv
 import symbolsxml
 
 
-logger = pyalgotrade.logger.getLogger("get_nasdaq_symbols")
+logger = pyalgotrade.logger.getLogger("get_nyse_symbols")
 
 def main():
     try:
-        logger.info("Getting NASDAQ symbols from http://www.nasdaq.com/")
-        url = "http://www.nasdaq.com/screening/companies-by-name.aspx?exchange=NASDAQ&render=download"
+        logger.info("Getting NYSE symbols from http://www.nasdaq.com/")
+        url = "http://www.nasdaq.com/screening/companies-by-name.aspx?exchange=NYSE&render=download"
         buff = urllib.urlopen(url).read()
 
         tmpFile = tempfile.NamedTemporaryFile()
         tmpFile.write(buff)
         tmpFile.flush()
         with open(tmpFile.name, 'rb') as csvfile:
-            symbolsXML = symbolsxml.SymbolsXML()
+            symbolsXML = symbolsxml.Writer()
             for row in csv.DictReader(csvfile):
                 symbolsXML.add(row["Symbol"], row["Name"], row["Sector"], row["industry"])
 
-        logger.info("Writing nasdaq.xml")
-        symbolsXML.write("nasdaq.xml")
+        logger.info("Writing nyse.xml")
+        symbolsXML.write("nyse.xml")
     except Exception, e:
         logger.error(str(e))
 

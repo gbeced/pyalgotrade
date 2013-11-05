@@ -21,7 +21,7 @@
 from lxml import etree
 
 
-class SymbolsXML:
+class Writer:
     def __init__(self):
         self.__root = etree.Element('symbols')
 

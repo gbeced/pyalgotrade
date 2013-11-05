@@ -58,7 +58,7 @@ def findTable(htmlTree):
     return ret
 
 def parseResults(table):
-    ret = symbolsxml.SymbolsXML()
+    ret = symbolsxml.Writer()
     logger.info("Parsing table")
     rows = table.xpath("tr")
     for row in rows[1:]:
