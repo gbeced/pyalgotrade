@@ -23,7 +23,7 @@ sys.path.append("../..")
 
 import pyalgotrade.logger
 import lxml.html
-from lxml import etree
+import symbolsxml
 
 # pyalgotrade.logger.file_log = "get_sp500_symbols.log"
 logger = pyalgotrade.logger.getLogger("get_sp500_symbols")
@@ -58,7 +58,7 @@ def findTable(htmlTree):
     return ret
 
 def parseResults(table):
-    ret = etree.Element('symbols')
+    ret = symbolsxml.SymbolsXML()
     logger.info("Parsing table")
     rows = table.xpath("tr")
     for row in rows[1:]:
@@ -70,13 +70,7 @@ def parseResults(table):
         if gicsSubIndustry is None:
             gicsSubIndustry = ""
 
-        # Build xml element.
-        symbolElement = etree.Element("symbol")
-        symbolElement.set("ticker", tickerSymbol)
-        symbolElement.set("company", company)
-        symbolElement.set("sector", gics)
-        symbolElement.set("subindustry", gicsSubIndustry)
-        ret.append(symbolElement)
+        ret.add(tickerSymbol, company, gics, gicsSubIndustry)
     return ret
 
 def main():
@@ -85,10 +79,10 @@ def main():
         table = findTable(htmlTree)
         if table is None:
             raise Exception("S&P 500 Component Stocks table not found")
-        root = parseResults(table)
+        symbolsXML = parseResults(table)
 
         logger.info("Writing sp500.xml")
-        etree.ElementTree(root).write("sp500.xml", xml_declaration=True, encoding="utf-8", pretty_print=True)
+        symbolsXML.write("sp500.xml")
     except Exception, e:
         logger.error(str(e))
 
