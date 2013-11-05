@@ -39,10 +39,10 @@ class TradeBar(bar.Bar):
         self.__barsTillSessionClose = None
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__price, self.__amount, self.__amount, self.__sessionClose, self.__barsTillSessionClose) = state
+        (self.__dateTime, self.__price, self.__amount, self.__tradeType, self.__sessionClose, self.__barsTillSessionClose) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__price, self.__amount, self.__amount, self.__sessionClose, self.__barsTillSessionClose)
+        return (self.__dateTime, self.__price, self.__amount, self.__tradeType, self.__sessionClose, self.__barsTillSessionClose)
 
     def getDateTime(self):
         return self.__dateTime
