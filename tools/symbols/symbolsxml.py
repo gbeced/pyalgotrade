@@ -21,14 +21,31 @@
 from lxml import etree
 
 
+class Stock:
+    def __init__(self, symbolElement):
+        self.__symbolElement = symbolElement
+
+    def getTicker(self):
+        return self.__symbolElement.attrib["ticker"]
+
+    def getCompany(self):
+        return self.__symbolElement.attrib["company"]
+
+    def getSector(self):
+        return self.__symbolElement.attrib["sector"]
+
+    def getIndustry(self):
+        return self.__symbolElement.attrib["industry"]
+
 class Writer:
     def __init__(self):
         self.__root = etree.Element('symbols')
 
-    def add(self, ticker, company, sector, industry):
+    def addStock(self, ticker, company, sector, industry):
         symbolElement = etree.Element("symbol")
         symbolElement.set("ticker", ticker)
         symbolElement.set("company", company)
+        symbolElement.set("type", "stock")
         if sector is None:
             sector = ""
         symbolElement.set("sector", sector)
@@ -39,3 +56,8 @@ class Writer:
 
     def write(self, fileName):
         etree.ElementTree(self.__root).write(fileName, xml_declaration=True, encoding="utf-8", pretty_print=True)
+
+def parse(fileName, callback):
+    root = etree.parse(open(fileName, "r"))
+    for symbol in root.xpath("//symbols/symbol[@type='stock']"):
+        callback(Stock(symbol))

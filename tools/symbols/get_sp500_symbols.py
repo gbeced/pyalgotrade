@@ -33,12 +33,12 @@ COMPANY_COL = 1
 GICS_COL = 3
 GICS_SUB_INDUSTRY_COL = 4
 
-def getHTML():
+def get_html():
     logger.info("Getting S&P 500 Component Stocks from Wikipedia")
     ret = lxml.html.parse("http://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
     return ret
 
-def findTable(htmlTree):
+def find_table(htmlTree):
     logger.info("Finding the right table")
     ret = None
     tables = htmlTree.xpath("//table[@class='wikitable sortable']")
@@ -57,7 +57,7 @@ def findTable(htmlTree):
             break
     return ret
 
-def parseResults(table):
+def parse_results(table):
     ret = symbolsxml.Writer()
     logger.info("Parsing table")
     rows = table.xpath("tr")
@@ -70,16 +70,16 @@ def parseResults(table):
         if gicsSubIndustry is None:
             gicsSubIndustry = ""
 
-        ret.add(tickerSymbol, company, gics, gicsSubIndustry)
+        ret.addStock(tickerSymbol, company, gics, gicsSubIndustry)
     return ret
 
 def main():
     try:
-        htmlTree = getHTML()
-        table = findTable(htmlTree)
+        htmlTree = get_html()
+        table = find_table(htmlTree)
         if table is None:
             raise Exception("S&P 500 Component Stocks table not found")
-        symbolsXML = parseResults(table)
+        symbolsXML = parse_results(table)
 
         logger.info("Writing sp500.xml")
         symbolsXML.write("sp500.xml")
