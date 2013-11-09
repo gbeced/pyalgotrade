@@ -31,8 +31,12 @@ class ROCEventWindow(technical.EventWindow):
         if self.windowFull():
             prev = self.getValues()[0]
             actual = self.getValues()[-1]
-            if actual is not None and prev is not None and prev != 0:
-                ret = (actual - prev) / float(prev)
+            if actual is not None and prev is not None:
+                diff = float(actual - prev)
+                if diff == 0:
+                    ret = float(0)
+                elif prev != 0:
+                    ret = diff / prev
         return ret
 
 

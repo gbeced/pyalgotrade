@@ -60,3 +60,10 @@ class ROCTestCase(unittest.TestCase):
         roc_ = self.__buildROC(inputValues, 12, 2)
         for i in xrange(2):
             self.assertEqual(round(roc_[i], 4), round(outputValues[i] / 100, 4))
+
+    def testZeroes(self):
+        inputValues = [0, 0, 0]
+        outputValues = [None, 0, 0]
+        roc_ = self.__buildROC(inputValues, 1)
+        for i in xrange(len(inputValues)):
+            self.assertEqual(roc_[i], outputValues[i])
