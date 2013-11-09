@@ -63,12 +63,6 @@ def download_files_for_symbol(symbol, fromYear, toYear):
     elif status.lstrip("0").find("0") != -1:
         logger.fatal("Some bars are missing for %s" % (symbol))
 
-
-def download_files(symbolsFile, fromYear, toYear):
-    for symbol in open(symbolsFile, "r"):
-        symbol = symbol.strip()
-        download_files_for_symbol(symbol, fromYear, toYear)
-
 def main():
     fromYear = 2000
     toYear = 2012
