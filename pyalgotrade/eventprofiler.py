@@ -38,8 +38,8 @@ class Results:
         # Process events.
         for instrument, events in eventsDict.items():
             for event in events:
-                # Skip events which are on the boundary.
-                if not event.onBoundary():
+                # Skip events which are on the boundary or for some reason are not complete.
+                if event.isComplete():
                     self.__eventCount += 1
                     # Compute cumulative returns: (1 + R1)*(1 + R2)*...*(1 + Rn)
                     values = np.cumprod(event.getValues() + 1)
@@ -102,8 +102,8 @@ class Event:
         assert(t >= -1*self.__lookBack and t <= self.__lookForward)
         return t + self.__lookBack
 
-    def onBoundary(self):
-        return any(np.isnan(self.__values))
+    def isComplete(self):
+        return not any(np.isnan(self.__values))
 
     def getLookBack(self):
         return self.__lookBack
@@ -112,10 +112,9 @@ class Event:
         return self.__lookForward
 
     def setValue(self, t, value):
-        if value is None:
-            raise Exception("Invalid value at time %d" % (t))
-        pos = self.__mapPos(t)
-        self.__values[pos] = value
+        if value is not None:
+            pos = self.__mapPos(t)
+            self.__values[pos] = value
 
     def getValue(self, t):
         pos = self.__mapPos(t)

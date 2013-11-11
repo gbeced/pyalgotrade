@@ -1,5 +1,6 @@
 Version 0.15 (TBD)
 . [CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
+. [FIX] Fixed a bug in pyalgotrade.technical.roc.RateOfChange when there was no change and the current value was 0.
 
 Version 0.14 (12/Oct/2013)
 . [NEW] Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
