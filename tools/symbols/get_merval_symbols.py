@@ -78,6 +78,10 @@ def main():
         for symbol in open("merval-symbols.txt", "r"):
             symbol = symbol.strip()
             process_symbol(writer, symbol)
+
+        # Index
+        writer.addIndex("^MERV", "Merval")
+
         logger.info("Writing merval.xml")
         writer.write("merval.xml")
     except Exception, e:

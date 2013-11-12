@@ -1,503 +1,503 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <symbols>
-  <symbol ticker="MMM" company="3M Company" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="ABT" company="Abbott Laboratories" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="ABBV" company="AbbVie" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="ANF" company="Abercrombie &amp; Fitch Company A" type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="ACE" company="ACE Limited" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="ACN" company="Accenture plc" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="ACT" company="Actavis plc" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="ADBE" company="Adobe Systems Inc" type="stock" sector="Information Technology" industry="Application Software"/>
-  <symbol ticker="ADT" company="ADT Corp" type="stock" sector="Industrials" industry="Diversified Commercial Services"/>
-  <symbol ticker="AES" company="AES Corp" type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="AET" company="Aetna Inc" type="stock" sector="Health Care" industry="Managed Health Care"/>
-  <symbol ticker="AFL" company="AFLAC Inc" type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
-  <symbol ticker="A" company="Agilent Technologies Inc" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="GAS" company="AGL Resources Inc." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="APD" company="Air Products &amp; Chemicals Inc" type="stock" sector="Materials" industry="Industrial Gases"/>
-  <symbol ticker="ARG" company="Airgas Inc" type="stock" sector="Materials" industry="Industrial Gases"/>
-  <symbol ticker="AKAM" company="Akamai Technologies Inc" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="AA" company="Alcoa Inc" type="stock" sector="Materials" industry="Aluminum"/>
-  <symbol ticker="ALXN" company="Alexion Pharmaceuticals" type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="ATI" company="Allegheny Technologies Inc" type="stock" sector="Materials" industry="Diversified Metals &amp; Mining"/>
-  <symbol ticker="AGN" company="Allergan Inc" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="ALL" company="Allstate Corp" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="ALTR" company="Altera Corp" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="MO" company="Altria Group Inc" type="stock" sector="Consumer Staples" industry="Tobacco"/>
-  <symbol ticker="AMZN" company="Amazon.com Inc" type="stock" sector="Consumer Discretionary" industry="Internet Retail"/>
-  <symbol ticker="AEE" company="Ameren Corp" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="AEP" company="American Electric Power" type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="AXP" company="American Express Co" type="stock" sector="Financials" industry="Consumer Finance"/>
-  <symbol ticker="AIG" company="American Intl Group Inc" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="AMT" company="American Tower Corp A" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="AMP" company="Ameriprise Financial" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="ABC" company="AmerisourceBergen Corp" type="stock" sector="Health Care" industry="Health Care Distribution &amp; Services"/>
-  <symbol ticker="AME" company="Ametek" type="stock" sector="Industrials" industry="Electrical Components and Equipment"/>
-  <symbol ticker="AMGN" company="Amgen Inc" type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="APH" company="Amphenol Corp A" type="stock" sector="Industrials" industry="Electrical Components &amp; Equipment"/>
-  <symbol ticker="APC" company="Anadarko Petroleum Corp" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="ADI" company="Analog Devices, Inc." type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="AON" company="Aon plc" type="stock" sector="Financials" industry="Insurance Brokers"/>
-  <symbol ticker="APA" company="Apache Corporation" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="AIV" company="Apartment Investment &amp; Mgmt" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="AAPL" company="Apple Inc." type="stock" sector="Information Technology" industry="Computer Hardware"/>
-  <symbol ticker="AMAT" company="Applied Materials Inc" type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
-  <symbol ticker="ADM" company="Archer-Daniels-Midland Co" type="stock" sector="Consumer Staples" industry="Agricultural Products"/>
-  <symbol ticker="AIZ" company="Assurant Inc" type="stock" sector="Financials" industry="Multi-line Insurance"/>
-  <symbol ticker="T" company="AT&amp;T Inc" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
-  <symbol ticker="ADSK" company="Autodesk Inc" type="stock" sector="Information Technology" industry="Application Software"/>
-  <symbol ticker="ADP" company="Automatic Data Processing" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="AN" company="AutoNation Inc" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="AZO" company="AutoZone Inc" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="AVB" company="AvalonBay Communities, Inc." type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="AVY" company="Avery Dennison Corp" type="stock" sector="Materials" industry=""/>
-  <symbol ticker="AVP" company="Avon Products" type="stock" sector="Consumer Staples" industry="Personal Products"/>
-  <symbol ticker="BHI" company="Baker Hughes Inc" type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="BLL" company="Ball Corp" type="stock" sector="Materials" industry="Metal &amp; Glass Containers"/>
-  <symbol ticker="BAC" company="Bank of America Corp" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="BK" company="The Bank of New York Mellon Corp." type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="BCR" company="Bard (C.R.) Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="BAX" company="Baxter International Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="BBT" company="BB&amp;T Corporation" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="BEAM" company="Beam Inc." type="stock" sector="Consumer Staples" industry="Distillers &amp; Vintners"/>
-  <symbol ticker="BDX" company="Becton Dickinson" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="BBBY" company="Bed Bath &amp; Beyond" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="BMS" company="Bemis Company" type="stock" sector="Materials" industry="Paper Packaging"/>
-  <symbol ticker="BRK.B" company="Berkshire Hathaway" type="stock" sector="Financials" industry="Multi-Sector Holdings"/>
-  <symbol ticker="BBY" company="Best Buy Co. Inc." type="stock" sector="Consumer Discretionary" industry="Computer &amp; Electronics Retail"/>
-  <symbol ticker="BIIB" company="BIOGEN IDEC Inc." type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="BLK" company="BlackRock" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="HRB" company="Block H&amp;R" type="stock" sector="Financials" industry="Consumer Finance"/>
-  <symbol ticker="BA" company="Boeing Company" type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
-  <symbol ticker="BWA" company="BorgWarner" type="stock" sector="Consumer Discretionary" industry="Auto Parts &amp; Equipment"/>
-  <symbol ticker="BXP" company="Boston Properties" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="BSX" company="Boston Scientific" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="BMY" company="Bristol-Myers Squibb" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
-  <symbol ticker="BRCM" company="Broadcom Corporation" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="BF.B" company="Brown-Forman Corporation" type="stock" sector="Consumer Staples" industry="Distillers &amp; Vintners"/>
-  <symbol ticker="CHRW" company="C. H. Robinson Worldwide" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
-  <symbol ticker="CA" company="CA, Inc." type="stock" sector="Information Technology" industry="Systems Software"/>
-  <symbol ticker="CVC" company="Cablevision Systems Corp." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="COG" company="Cabot Oil &amp; Gas" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="CAM" company="Cameron International Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="CPB" company="Campbell Soup" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="COF" company="Capital One Financial" type="stock" sector="Financials" industry="Consumer Finance"/>
-  <symbol ticker="CAH" company="Cardinal Health Inc." type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
-  <symbol ticker="CFN" company="Carefusion" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="KMX" company="Carmax Inc" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="CCL" company="Carnival Corp." type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="CAT" company="Caterpillar Inc." type="stock" sector="Industrials" industry="Construction &amp; Farm Machinery &amp; Heavy Trucks"/>
-  <symbol ticker="CBG" company="CBRE Group" type="stock" sector="Financials" industry="Real Estate Management &amp; Development"/>
-  <symbol ticker="CBS" company="CBS Corp." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="CELG" company="Celgene Corp." type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="CNP" company="CenterPoint Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="CTL" company="CenturyLink Inc" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
-  <symbol ticker="CERN" company="Cerner" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
-  <symbol ticker="CF" company="CF Industries Holdings Inc" type="stock" sector="Materials" industry="Fertilizers &amp; Agricultural Chemicals"/>
-  <symbol ticker="SCHW" company="Charles Schwab" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="CHK" company="Chesapeake Energy" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="CVX" company="Chevron Corp." type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="CMG" company="Chipotle Mexican Grill" type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
-  <symbol ticker="CB" company="Chubb Corp." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="CI" company="CIGNA Corp." type="stock" sector="Health Care" industry="Managed Health Care"/>
-  <symbol ticker="CINF" company="Cincinnati Financial" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="CTAS" company="Cintas Corporation" type="stock" sector="Industrials" industry="Diversified Commercial Services"/>
-  <symbol ticker="CSCO" company="Cisco Systems" type="stock" sector="Information Technology" industry="Networking Equipment"/>
-  <symbol ticker="C" company="Citigroup Inc." type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="CTXS" company="Citrix Systems" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="CLF" company="Cliffs Natural Resources" type="stock" sector="Materials" industry="Diversified Metals &amp; Mining"/>
-  <symbol ticker="CLX" company="The Clorox Company" type="stock" sector="Consumer Staples" industry="Household Products"/>
-  <symbol ticker="CME" company="CME Group Inc." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="CMS" company="CMS Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="COH" company="Coach Inc." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="KO" company="The Coca Cola Company" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
-  <symbol ticker="CCE" company="Coca-Cola Enterprises" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
-  <symbol ticker="CTSH" company="Cognizant Technology Solutions" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="CL" company="Colgate-Palmolive" type="stock" sector="Consumer Staples" industry="Household Products"/>
-  <symbol ticker="CMCSA" company="Comcast Corp." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="CMA" company="Comerica Inc." type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="CSC" company="Computer Sciences Corp." type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="CAG" company="ConAgra Foods Inc." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="COP" company="ConocoPhillips" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="CNX" company="CONSOL Energy Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="ED" company="Consolidated Edison" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="STZ" company="Constellation Brands" type="stock" sector="Consumer Staples" industry="Distillers &amp; Vintners"/>
-  <symbol ticker="GLW" company="Corning Inc." type="stock" sector="Industrials" industry="Construction &amp; Engineering"/>
-  <symbol ticker="COST" company="Costco Co." type="stock" sector="Consumer Staples" industry="Hypermarkets &amp; Super Centers"/>
-  <symbol ticker="COV" company="Covidien plc" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="CCI" company="Crown Castle International Corp." type="stock" sector="Telecommunications Services" industry="Wireless Telecommunications Services"/>
-  <symbol ticker="CSX" company="CSX Corp." type="stock" sector="Industrials" industry="Railroads"/>
-  <symbol ticker="CMI" company="Cummins Inc." type="stock" sector="Industrials" industry="Industrial Machinery"/>
-  <symbol ticker="CVS" company="CVS Caremark Corp." type="stock" sector="Consumer Staples" industry="Drug Retail"/>
-  <symbol ticker="DHI" company="D. R. Horton" type="stock" sector="Consumer Discretionary" industry="Construction"/>
-  <symbol ticker="DHR" company="Danaher Corp." type="stock" sector="Industrials" industry="Industrial Machinery"/>
-  <symbol ticker="DRI" company="Darden Restaurants" type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
-  <symbol ticker="DVA" company="DaVita Inc." type="stock" sector="Health Care" industry="Health Care Facilities"/>
-  <symbol ticker="DE" company="Deere &amp; Co." type="stock" sector="Industrials" industry="Construction &amp; Farm Machinery &amp; Heavy Trucks"/>
-  <symbol ticker="DELL" company="Dell Inc." type="stock" sector="Information Technology" industry="Computer Hardware"/>
-  <symbol ticker="DLPH" company="Delphi Automotive" type="stock" sector="Consumer Discretionary" industry="Auto Parts &amp; Equipment"/>
-  <symbol ticker="DAL" company="Delta Air Lines" type="stock" sector="Industrials" industry="Airlines"/>
-  <symbol ticker="DNR" company="Denbury Resources Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="XRAY" company="Dentsply International" type="stock" sector="Health Care" industry="Health Care Supplies"/>
-  <symbol ticker="DVN" company="Devon Energy Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="DO" company="Diamond Offshore Drilling" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
-  <symbol ticker="DTV" company="DirecTV" type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="DFS" company="Discover Financial Services" type="stock" sector="Financials" industry="Consumer Finance"/>
-  <symbol ticker="DISCA" company="Discovery Communications" type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="DG" company="Dollar General" type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
-  <symbol ticker="DLTR" company="Dollar Tree" type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
-  <symbol ticker="D" company="Dominion Resources" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="DOV" company="Dover Corp." type="stock" sector="Industrials" industry="Industrial Machinery"/>
-  <symbol ticker="DOW" company="Dow Chemical" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="DPS" company="Dr Pepper Snapple Group" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
-  <symbol ticker="DTE" company="DTE Energy Co." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="DD" company="Du Pont (E.I.)" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="DUK" company="Duke Energy" type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="DNB" company="Dun &amp; Bradstreet" type="stock" sector="Industrials" industry="Data Processing Services"/>
-  <symbol ticker="ETFC" company="E-Trade" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="EMN" company="Eastman Chemical" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="ETN" company="Eaton Corp." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="EBAY" company="eBay Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="ECL" company="Ecolab Inc." type="stock" sector="Materials" industry="Specialty Chemicals"/>
-  <symbol ticker="EIX" company="Edison Int'l" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="EW" company="Edwards Lifesciences" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="EA" company="Electronic Arts" type="stock" sector="Information Technology" industry="Application Software"/>
-  <symbol ticker="EMC" company="EMC Corp." type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="EMR" company="Emerson Electric" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="ESV" company="Ensco plc" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
-  <symbol ticker="ETR" company="Entergy Corp." type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="EOG" company="EOG Resources" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="EQT" company="EQT Corporation" type="stock" sector="Energy" industry=""/>
-  <symbol ticker="EFX" company="Equifax Inc." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="EQR" company="Equity Residential" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="EL" company="Estee Lauder Cos." type="stock" sector="Consumer Staples" industry="Personal Products"/>
-  <symbol ticker="EXC" company="Exelon Corp." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="EXPE" company="Expedia Inc." type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="EXPD" company="Expeditors Int'l" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
-  <symbol ticker="ESRX" company="Express Scripts" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
-  <symbol ticker="XOM" company="Exxon Mobil Corp." type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="FFIV" company="F5 Networks" type="stock" sector="Information Technology" industry="Networking Equipment"/>
-  <symbol ticker="FDO" company="Family Dollar Stores" type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
-  <symbol ticker="FAST" company="Fastenal Co" type="stock" sector="Industrials" industry="Building Products"/>
-  <symbol ticker="FDX" company="FedEx Corporation" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
-  <symbol ticker="FIS" company="Fidelity National Information Services" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="FITB" company="Fifth Third Bancorp" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="FSLR" company="First Solar Inc" type="stock" sector="Industrials" industry="Heavy Electrical Equipment"/>
-  <symbol ticker="FE" company="FirstEnergy Corp" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="FISV" company="Fiserv Inc" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="FLIR" company="FLIR Systems" type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
-  <symbol ticker="FLS" company="Flowserve Corporation" type="stock" sector="Industrials" industry="Industrial Machinery"/>
-  <symbol ticker="FLR" company="Fluor Corp." type="stock" sector="Industrials" industry="Diversified Commercial Services"/>
-  <symbol ticker="FMC" company="FMC Corporation" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="FTI" company="FMC Technologies Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="F" company="Ford Motor" type="stock" sector="Consumer Discretionary" industry="Automobile Manufacturers"/>
-  <symbol ticker="FRX" company="Forest Laboratories" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="FOSL" company="Fossil, Inc." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="BEN" company="Franklin Resources" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="FCX" company="Freeport-McMoran Cp &amp; Gld" type="stock" sector="Materials" industry="Diversified Metals &amp; Mining"/>
-  <symbol ticker="FTR" company="Frontier Communications" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
-  <symbol ticker="GME" company="GameStop Corp." type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="GCI" company="Gannett Co." type="stock" sector="Consumer Discretionary" industry="Publishing"/>
-  <symbol ticker="GPS" company="Gap (The)" type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
-  <symbol ticker="GRMN" company="Garmin Ltd." type="stock" sector="Consumer Discretionary" industry="Consumer Electronics"/>
-  <symbol ticker="GD" company="General Dynamics" type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
-  <symbol ticker="GE" company="General Electric" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="GIS" company="General Mills" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="GM" company="General Motors" type="stock" sector="Consumer Discretionary" industry="Automobile Manufacturers"/>
-  <symbol ticker="GPC" company="Genuine Parts" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="GNW" company="Genworth Financial Inc." type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
-  <symbol ticker="GILD" company="Gilead Sciences" type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="GS" company="Goldman Sachs Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="GT" company="Goodyear Tire &amp; Rubber" type="stock" sector="Consumer Discretionary" industry="Tires &amp; Rubber"/>
-  <symbol ticker="GOOG" company="Google Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="GWW" company="Grainger (W.W.) Inc." type="stock" sector="Industrials" industry="Industrial Materials"/>
-  <symbol ticker="HAL" company="Halliburton Co." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="HOG" company="Harley-Davidson" type="stock" sector="Consumer Discretionary" industry="Motorcycle Manufacturers"/>
-  <symbol ticker="HAR" company="Harman Int'l Industries" type="stock" sector="Consumer Discretionary" industry="Consumer Electronics"/>
-  <symbol ticker="HRS" company="Harris Corporation" type="stock" sector="Information Technology" industry="Telecommunications Equipment"/>
-  <symbol ticker="HIG" company="Hartford Financial Svc.Gp." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="HAS" company="Hasbro Inc." type="stock" sector="Consumer Discretionary" industry="Leisure Products"/>
-  <symbol ticker="HCP" company="HCP Inc." type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="HCN" company="Health Care REIT" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="HP" company="Helmerich &amp; Payne" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
-  <symbol ticker="HES" company="Hess Corporation" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="HPQ" company="Hewlett-Packard" type="stock" sector="Information Technology" industry="Computer Hardware"/>
-  <symbol ticker="HD" company="Home Depot" type="stock" sector="Consumer Discretionary" industry="Home Improvement Retail"/>
-  <symbol ticker="HON" company="Honeywell Int'l Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="HRL" company="Hormel Foods Corp." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="HSP" company="Hospira Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="HST" company="Host Hotels &amp; Resorts" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="HCBK" company="Hudson City Bancorp" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="HUM" company="Humana Inc." type="stock" sector="Health Care" industry="Managed Health Care"/>
-  <symbol ticker="HBAN" company="Huntington Bancshares" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="ITW" company="Illinois Tool Works" type="stock" sector="Industrials" industry="Industrial Machinery"/>
-  <symbol ticker="IR" company="Ingersoll-Rand PLC" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="TEG" company="Integrys Energy Group Inc." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="INTC" company="Intel Corp." type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="ICE" company="IntercontinentalExchange Inc." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="IBM" company="International Bus. Machines" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="IGT" company="International Game Technology" type="stock" sector="Consumer Discretionary" industry="Leisure Products"/>
-  <symbol ticker="IP" company="International Paper" type="stock" sector="Materials" industry="Paper Products"/>
-  <symbol ticker="IPG" company="Interpublic Group" type="stock" sector="Consumer Discretionary" industry="Advertising"/>
-  <symbol ticker="IFF" company="Intl Flavors &amp; Fragrances" type="stock" sector="Materials" industry="Specialty Chemicals"/>
-  <symbol ticker="INTU" company="Intuit Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="ISRG" company="Intuitive Surgical Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="IVZ" company="Invesco Ltd." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="IRM" company="Iron Mountain Incorporated" type="stock" sector="Industrials" industry="Data Processing Services"/>
-  <symbol ticker="JBL" company="Jabil Circuit" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="JEC" company="Jacobs Engineering Group" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="JDSU" company="JDS Uniphase Corp." type="stock" sector="Information Technology" industry="Telecommunications Equipment"/>
-  <symbol ticker="JNJ" company="Johnson &amp; Johnson" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="JCI" company="Johnson Controls" type="stock" sector="Consumer Discretionary" industry="Auto Parts &amp; Equipment"/>
-  <symbol ticker="JOY" company="Joy Global Inc." type="stock" sector="Industrials" industry="Industrial Machinery"/>
-  <symbol ticker="JPM" company="JPMorgan Chase &amp; Co." type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="JNPR" company="Juniper Networks" type="stock" sector="Information Technology" industry="Networking Equipment"/>
-  <symbol ticker="KSU" company="Kansas City Southern" type="stock" sector="Industrials" industry="Railroads"/>
-  <symbol ticker="K" company="Kellogg Co." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="KEY" company="KeyCorp" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="KMB" company="Kimberly-Clark" type="stock" sector="Consumer Staples" industry="Household Products"/>
-  <symbol ticker="KIM" company="Kimco Realty" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="KMI" company="Kinder Morgan" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
-  <symbol ticker="KLAC" company="KLA-Tencor Corp." type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
-  <symbol ticker="KSS" company="Kohl's Corp." type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
-  <symbol ticker="KRFT" company="Kraft Foods Group" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="KR" company="Kroger Co." type="stock" sector="Consumer Staples" industry="Food Retail"/>
-  <symbol ticker="LTD" company="L Brands Inc." type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
-  <symbol ticker="LLL" company="L-3 Communications Holdings" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="LH" company="Laboratory Corp. of America Holding" type="stock" sector="Health Care" industry="Health Care Facilities"/>
-  <symbol ticker="LRCX" company="Lam Research" type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
-  <symbol ticker="LM" company="Legg Mason" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="LEG" company="Leggett &amp; Platt" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="LEN" company="Lennar Corp." type="stock" sector="Consumer Discretionary" industry="Homebuilding"/>
-  <symbol ticker="LUK" company="Leucadia National Corp." type="stock" sector="Financials" industry="Multi-Sector Holdings"/>
-  <symbol ticker="LIFE" company="Life Technologies" type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="LLY" company="Lilly (Eli) &amp; Co." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="LNC" company="Lincoln National" type="stock" sector="Financials" industry="Multi-line Insurance"/>
-  <symbol ticker="LLTC" company="Linear Technology Corp." type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="LMT" company="Lockheed Martin Corp." type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
-  <symbol ticker="L" company="Loews Corp." type="stock" sector="Financials" industry="Multi-Sector Holdings"/>
-  <symbol ticker="LO" company="Lorillard Inc." type="stock" sector="Consumer Staples" industry="Tobacco"/>
-  <symbol ticker="LOW" company="Lowe's Cos." type="stock" sector="Consumer Discretionary" industry="Home Improvement Retail"/>
-  <symbol ticker="LSI" company="LSI Corporation" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="LYB" company="LyondellBasell" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="MTB" company="M&amp;T Bank Corp." type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="MAC" company="Macerich" type="stock" sector="Financials" industry="Retail REITs"/>
-  <symbol ticker="M" company="Macy's Inc." type="stock" sector="Consumer Discretionary" industry="Department Stores"/>
-  <symbol ticker="MRO" company="Marathon Oil Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="MPC" company="Marathon Petroleum" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
-  <symbol ticker="MAR" company="Marriott Int'l." type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="MMC" company="Marsh &amp; McLennan" type="stock" sector="Financials" industry="Insurance Brokers"/>
-  <symbol ticker="MAS" company="Masco Corp." type="stock" sector="Industrials" industry="Building Products"/>
-  <symbol ticker="MA" company="Mastercard Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="MAT" company="Mattel Inc." type="stock" sector="Consumer Discretionary" industry="Leisure Products"/>
-  <symbol ticker="MKC" company="McCormick &amp; Co." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="MCD" company="McDonald's Corp." type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
-  <symbol ticker="MHFI" company="McGraw Hill Financial" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="MCK" company="McKesson Corp." type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
-  <symbol ticker="MJN" company="Mead Johnson" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="MWV" company="MeadWestvaco Corporation" type="stock" sector="Materials" industry="Paper Packaging"/>
-  <symbol ticker="MDT" company="Medtronic Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="MRK" company="Merck &amp; Co." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="MET" company="MetLife Inc." type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
-  <symbol ticker="MCHP" company="Microchip Technology" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="MU" company="Micron Technology" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="MSFT" company="Microsoft Corp." type="stock" sector="Information Technology" industry="Systems Software"/>
-  <symbol ticker="MOLX" company="Molex Inc." type="stock" sector="Information Technology" industry="Electronic Equipment &amp; Instruments"/>
-  <symbol ticker="TAP" company="Molson Coors Brewing Company" type="stock" sector="Consumer Staples" industry="Brewers"/>
-  <symbol ticker="MDLZ" company="Mondelez International" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="MON" company="Monsanto Co." type="stock" sector="Materials" industry="Fertilizers &amp; Agricultural Chemicals"/>
-  <symbol ticker="MNST" company="Monster Beverage" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
-  <symbol ticker="MCO" company="Moody's Corp" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="MS" company="Morgan Stanley" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="MOS" company="The Mosaic Company" type="stock" sector="Materials" industry="Fertilizers &amp; Agricultural Chemicals"/>
-  <symbol ticker="MSI" company="Motorola Solutions Inc." type="stock" sector="Information Technology" industry="Telecommunications Equipment"/>
-  <symbol ticker="MUR" company="Murphy Oil" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="MYL" company="Mylan Inc." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="NBR" company="Nabors Industries Ltd." type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
-  <symbol ticker="NDAQ" company="NASDAQ OMX Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="NOV" company="National Oilwell Varco Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="NTAP" company="NetApp" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="NFLX" company="NetFlix Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="NWL" company="Newell Rubbermaid Co." type="stock" sector="Consumer Discretionary" industry="Housewares &amp; Specialties"/>
-  <symbol ticker="NFX" company="Newfield Exploration Co" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="NEM" company="Newmont Mining Corp. (Hldg. Co.)" type="stock" sector="Materials" industry="Gold"/>
-  <symbol ticker="NWSA" company="News Corporation" type="stock" sector="Consumer Discretionary" industry="Publishing"/>
-  <symbol ticker="NEE" company="NextEra Energy Resources" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="NLSN" company="Nielsen Holdings" type="stock" sector="Industrials" industry="Research &amp; Consulting Services"/>
-  <symbol ticker="NKE" company="NIKE Inc." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="NI" company="NiSource Inc." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="NE" company="Noble Corp" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
-  <symbol ticker="NBL" company="Noble Energy Inc" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="JWN" company="Nordstrom" type="stock" sector="Consumer Discretionary" industry="Department Stores"/>
-  <symbol ticker="NSC" company="Norfolk Southern Corp." type="stock" sector="Industrials" industry="Railroads"/>
-  <symbol ticker="NTRS" company="Northern Trust Corp." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="NOC" company="Northrop Grumman Corp." type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
-  <symbol ticker="NU" company="Northeast Utilities" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="NRG" company="NRG Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="NUE" company="Nucor Corp." type="stock" sector="Materials" industry="Steel"/>
-  <symbol ticker="NVDA" company="Nvidia Corporation" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="NYX" company="NYSE Euronext" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="ORLY" company="O'Reilly Automotive" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="OXY" company="Occidental Petroleum" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="OMC" company="Omnicom Group" type="stock" sector="Consumer Discretionary" industry="Advertising"/>
-  <symbol ticker="OKE" company="ONEOK" type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="ORCL" company="Oracle Corp." type="stock" sector="Information Technology" industry="Application Software"/>
-  <symbol ticker="OI" company="Owens-Illinois Inc" type="stock" sector="Materials" industry="Metal &amp; Glass Containers"/>
-  <symbol ticker="PCG" company="P G &amp; E Corp." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="PCAR" company="PACCAR Inc." type="stock" sector="Industrials" industry="Construction &amp; Farm Machinery &amp; Heavy Trucks"/>
-  <symbol ticker="PLL" company="Pall Corp." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="PH" company="Parker-Hannifin" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="PDCO" company="Patterson Companies" type="stock" sector="Health Care" industry="Health Care Supplies"/>
-  <symbol ticker="PAYX" company="Paychex Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="BTU" company="Peabody Energy" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="JCP" company="Penney (J.C.)" type="stock" sector="Consumer Discretionary" industry="Department Stores"/>
-  <symbol ticker="PNR" company="Pentair Ltd." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="PBCT" company="People's United Bank" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="POM" company="Pepco Holdings Inc." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="PEP" company="PepsiCo Inc." type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
-  <symbol ticker="PKI" company="PerkinElmer" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="PRGO" company="Perrigo" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="PETM" company="PetSmart, Inc." type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="PFE" company="Pfizer Inc." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
-  <symbol ticker="PM" company="Philip Morris International" type="stock" sector="Consumer Staples" industry="Tobacco"/>
-  <symbol ticker="PSX" company="Phillips 66" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
-  <symbol ticker="PNW" company="Pinnacle West Capital" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="PXD" company="Pioneer Natural Resources" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="PBI" company="Pitney-Bowes" type="stock" sector="Industrials" industry="Data Processing Services"/>
-  <symbol ticker="PCL" company="Plum Creek Timber Co." type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="PNC" company="PNC Financial Services" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="RL" company="Polo Ralph Lauren Corp." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="PPG" company="PPG Industries" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="PPL" company="PPL Corp." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="PX" company="Praxair Inc." type="stock" sector="Materials" industry="Industrial Gases"/>
-  <symbol ticker="PCP" company="Precision Castparts" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="PCLN" company="Priceline.com Inc" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="PFG" company="Principal Financial Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="PG" company="Procter &amp; Gamble" type="stock" sector="Consumer Staples" industry="Personal Products"/>
-  <symbol ticker="PGR" company="Progressive Corp." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="PLD" company="Prologis" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="PRU" company="Prudential Financial" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="PEG" company="Public Serv. Enterprise Inc." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="PSA" company="Public Storage" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="PHM" company="Pulte Homes Inc." type="stock" sector="Consumer Discretionary" industry="Homebuilding"/>
-  <symbol ticker="PVH" company="PVH Corp." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="QEP" company="QEP Resources" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="PWR" company="Quanta Services Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="QCOM" company="QUALCOMM Inc." type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="DGX" company="Quest Diagnostics" type="stock" sector="Health Care" industry="Health Care Facilities"/>
-  <symbol ticker="RRC" company="Range Resources Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="RTN" company="Raytheon Co." type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
-  <symbol ticker="RHT" company="Red Hat Inc." type="stock" sector="Information Technology" industry="Systems Software"/>
-  <symbol ticker="REGN" company="Regeneron" type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="RF" company="Regions Financial Corp." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="RSG" company="Republic Services Inc" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="RAI" company="Reynolds American Inc." type="stock" sector="Consumer Staples" industry="Tobacco"/>
-  <symbol ticker="RHI" company="Robert Half International" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="ROK" company="Rockwell Automation Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="COL" company="Rockwell Collins" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="ROP" company="Roper Industries" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="ROST" company="Ross Stores" type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
-  <symbol ticker="RDC" company="Rowan Cos." type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
-  <symbol ticker="R" company="Ryder System" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="SWY" company="Safeway Inc." type="stock" sector="Consumer Staples" industry="Food Retail"/>
-  <symbol ticker="CRM" company="Salesforce.com" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="SNDK" company="SanDisk Corporation" type="stock" sector="Information Technology" industry="Computer Storage &amp; Peripherals"/>
-  <symbol ticker="SCG" company="SCANA Corp" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="SLB" company="Schlumberger Ltd." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="SNI" company="Scripps Networks Interactive Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="STX" company="Seagate Technology" type="stock" sector="Information Technology" industry="Computer Storage &amp; Peripherals"/>
-  <symbol ticker="SEE" company="Sealed Air Corp.(New)" type="stock" sector="Materials" industry="Paper Packaging"/>
-  <symbol ticker="SRE" company="Sempra Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="SHW" company="Sherwin-Williams" type="stock" sector="Materials" industry=""/>
-  <symbol ticker="SIAL" company="Sigma-Aldrich" type="stock" sector="Materials" industry="Diversified Chemicals"/>
-  <symbol ticker="SPG" company="Simon Property Group Inc" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="SLM" company="SLM Corporation" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="SJM" company="Smucker (J.M.)" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="SNA" company="Snap-On Inc." type="stock" sector="Consumer Discretionary" industry="Household Appliances"/>
-  <symbol ticker="SO" company="Southern Co." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="LUV" company="Southwest Airlines" type="stock" sector="Industrials" industry="Airlines"/>
-  <symbol ticker="SWN" company="Southwestern Energy" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="SE" company="Spectra Energy Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
-  <symbol ticker="STJ" company="St Jude Medical" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="SWK" company="Stanley Black &amp; Decker" type="stock" sector="Consumer Discretionary" industry="Household Appliances"/>
-  <symbol ticker="SPLS" company="Staples Inc." type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
-  <symbol ticker="SBUX" company="Starbucks Corp." type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
-  <symbol ticker="HOT" company="Starwood Hotels &amp; Resorts" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="STT" company="State Street Corp." type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="SRCL" company="Stericycle Inc" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="SYK" company="Stryker Corp." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="STI" company="SunTrust Banks" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="SYMC" company="Symantec Corp." type="stock" sector="Information Technology" industry="Application Software"/>
-  <symbol ticker="SYY" company="Sysco Corp." type="stock" sector="Consumer Staples" industry="Food Distributors"/>
-  <symbol ticker="TROW" company="T. Rowe Price Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="TGT" company="Target Corp." type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
-  <symbol ticker="TEL" company="TE Connectivity Ltd." type="stock" sector="Information Technology" industry="Electronic Equipment &amp; Instruments"/>
-  <symbol ticker="TE" company="TECO Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="THC" company="Tenet Healthcare Corp." type="stock" sector="Health Care" industry="Health Care Facilities"/>
-  <symbol ticker="TDC" company="Teradata Corp." type="stock" sector="Information Technology" industry="Application Software"/>
-  <symbol ticker="TER" company="Teradyne Inc." type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
-  <symbol ticker="TSO" company="Tesoro Petroleum Co." type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
-  <symbol ticker="TXN" company="Texas Instruments" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="TXT" company="Textron Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="HSY" company="The Hershey Company" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="TRV" company="The Travelers Companies Inc." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="TMO" company="Thermo Fisher Scientific" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="TIF" company="Tiffany &amp; Co." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="TWX" company="Time Warner Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="TWC" company="Time Warner Cable Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="TJX" company="TJX Companies Inc." type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
-  <symbol ticker="TMK" company="Torchmark Corp." type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
-  <symbol ticker="TSS" company="Total System Services" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="TRIP" company="TripAdvisor" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="FOXA" company="Twenty-First Century Fox" type="stock" sector="Consumer Discretionary" industry="Publishing"/>
-  <symbol ticker="TSN" company="Tyson Foods" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
-  <symbol ticker="TYC" company="Tyco International" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="USB" company="U.S. Bancorp" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="UNP" company="Union Pacific" type="stock" sector="Industrials" industry="Railroads"/>
-  <symbol ticker="UNH" company="United Health Group Inc." type="stock" sector="Health Care" industry="Managed Health Care"/>
-  <symbol ticker="UPS" company="United Parcel Service" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
-  <symbol ticker="X" company="United States Steel Corp." type="stock" sector="Materials" industry="Steel"/>
-  <symbol ticker="UTX" company="United Technologies" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="UNM" company="Unum Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="URBN" company="Urban Outfitters" type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
-  <symbol ticker="VFC" company="V.F. Corp." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
-  <symbol ticker="VLO" company="Valero Energy" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
-  <symbol ticker="VAR" company="Varian Medical Systems" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="VTR" company="Ventas Inc" type="stock" sector="Financials" industry="Diversified Financial Services"/>
-  <symbol ticker="VRSN" company="Verisign Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="VZ" company="Verizon Communications" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
-  <symbol ticker="VRTX" company="Vertex Pharmaceuticals Inc" type="stock" sector="Health Care" industry="Biotechnology"/>
-  <symbol ticker="VIAB" company="Viacom Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="V" company="Visa Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="VNO" company="Vornado Realty Trust" type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="VMC" company="Vulcan Materials" type="stock" sector="Materials" industry="Construction Materials"/>
-  <symbol ticker="WMT" company="Wal-Mart Stores" type="stock" sector="Consumer Staples" industry="Hypermarkets &amp; Super Centers"/>
-  <symbol ticker="WAG" company="Walgreen Co." type="stock" sector="Consumer Staples" industry="Drug Retail"/>
-  <symbol ticker="DIS" company="The Walt Disney Company" type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
-  <symbol ticker="WPO" company="Washington Post Co B" type="stock" sector="Consumer Discretionary" industry="Publishing"/>
-  <symbol ticker="WM" company="Waste Management Inc." type="stock" sector="Industrials" industry="Environmental Services"/>
-  <symbol ticker="WAT" company="Waters Corporation" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
-  <symbol ticker="WLP" company="WellPoint Inc." type="stock" sector="Health Care" industry="Managed Health Care"/>
-  <symbol ticker="WFC" company="Wells Fargo" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="WDC" company="Western Digital" type="stock" sector="Information Technology" industry="Computer Storage &amp; Peripherals"/>
-  <symbol ticker="WU" company="Western Union Co" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="WY" company="Weyerhaeuser Corp." type="stock" sector="Financials" industry="REITs"/>
-  <symbol ticker="WHR" company="Whirlpool Corp." type="stock" sector="Consumer Discretionary" industry="Household Appliances"/>
-  <symbol ticker="WFM" company="Whole Foods Market" type="stock" sector="Consumer Staples" industry="Food Retail"/>
-  <symbol ticker="WMB" company="Williams Cos." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
-  <symbol ticker="WIN" company="Windstream Communications" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
-  <symbol ticker="WEC" company="Wisconsin Energy Corporation" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="WPX" company="WPX Energy, Inc." type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
-  <symbol ticker="WYN" company="Wyndham Worldwide" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
-  <symbol ticker="WYNN" company="Wynn Resorts Ltd" type="stock" sector="Consumer Discretionary" industry="Casinos &amp; Gaming"/>
-  <symbol ticker="XEL" company="Xcel Energy Inc" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
-  <symbol ticker="XRX" company="Xerox Corp." type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
-  <symbol ticker="XLNX" company="Xilinx Inc" type="stock" sector="Information Technology" industry="Semiconductors"/>
-  <symbol ticker="XL" company="XL Capital" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
-  <symbol ticker="XYL" company="Xylem Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
-  <symbol ticker="YHOO" company="Yahoo Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
-  <symbol ticker="YUM" company="Yum! Brands Inc" type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
-  <symbol ticker="ZMH" company="Zimmer Holdings" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
-  <symbol ticker="ZION" company="Zions Bancorp" type="stock" sector="Financials" industry="Banks"/>
-  <symbol ticker="ZTS" company="Zoetis" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="MMM" name="3M Company" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="ABT" name="Abbott Laboratories" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="ABBV" name="AbbVie" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="ANF" name="Abercrombie &amp; Fitch Company A" type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="ACE" name="ACE Limited" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="ACN" name="Accenture plc" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="ACT" name="Actavis plc" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="ADBE" name="Adobe Systems Inc" type="stock" sector="Information Technology" industry="Application Software"/>
+  <symbol ticker="ADT" name="ADT Corp" type="stock" sector="Industrials" industry="Diversified Commercial Services"/>
+  <symbol ticker="AES" name="AES Corp" type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="AET" name="Aetna Inc" type="stock" sector="Health Care" industry="Managed Health Care"/>
+  <symbol ticker="AFL" name="AFLAC Inc" type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
+  <symbol ticker="A" name="Agilent Technologies Inc" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="GAS" name="AGL Resources Inc." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="APD" name="Air Products &amp; Chemicals Inc" type="stock" sector="Materials" industry="Industrial Gases"/>
+  <symbol ticker="ARG" name="Airgas Inc" type="stock" sector="Materials" industry="Industrial Gases"/>
+  <symbol ticker="AKAM" name="Akamai Technologies Inc" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="AA" name="Alcoa Inc" type="stock" sector="Materials" industry="Aluminum"/>
+  <symbol ticker="ALXN" name="Alexion Pharmaceuticals" type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="ATI" name="Allegheny Technologies Inc" type="stock" sector="Materials" industry="Diversified Metals &amp; Mining"/>
+  <symbol ticker="AGN" name="Allergan Inc" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="ALL" name="Allstate Corp" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="ALTR" name="Altera Corp" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="MO" name="Altria Group Inc" type="stock" sector="Consumer Staples" industry="Tobacco"/>
+  <symbol ticker="AMZN" name="Amazon.com Inc" type="stock" sector="Consumer Discretionary" industry="Internet Retail"/>
+  <symbol ticker="AEE" name="Ameren Corp" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="AEP" name="American Electric Power" type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="AXP" name="American Express Co" type="stock" sector="Financials" industry="Consumer Finance"/>
+  <symbol ticker="AIG" name="American Intl Group Inc" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="AMT" name="American Tower Corp A" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="AMP" name="Ameriprise Financial" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="ABC" name="AmerisourceBergen Corp" type="stock" sector="Health Care" industry="Health Care Distribution &amp; Services"/>
+  <symbol ticker="AME" name="Ametek" type="stock" sector="Industrials" industry="Electrical Components and Equipment"/>
+  <symbol ticker="AMGN" name="Amgen Inc" type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="APH" name="Amphenol Corp A" type="stock" sector="Industrials" industry="Electrical Components &amp; Equipment"/>
+  <symbol ticker="APC" name="Anadarko Petroleum Corp" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="ADI" name="Analog Devices, Inc." type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="AON" name="Aon plc" type="stock" sector="Financials" industry="Insurance Brokers"/>
+  <symbol ticker="APA" name="Apache Corporation" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="AIV" name="Apartment Investment &amp; Mgmt" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="AAPL" name="Apple Inc." type="stock" sector="Information Technology" industry="Computer Hardware"/>
+  <symbol ticker="AMAT" name="Applied Materials Inc" type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
+  <symbol ticker="ADM" name="Archer-Daniels-Midland Co" type="stock" sector="Consumer Staples" industry="Agricultural Products"/>
+  <symbol ticker="AIZ" name="Assurant Inc" type="stock" sector="Financials" industry="Multi-line Insurance"/>
+  <symbol ticker="T" name="AT&amp;T Inc" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
+  <symbol ticker="ADSK" name="Autodesk Inc" type="stock" sector="Information Technology" industry="Application Software"/>
+  <symbol ticker="ADP" name="Automatic Data Processing" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="AN" name="AutoNation Inc" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="AZO" name="AutoZone Inc" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="AVB" name="AvalonBay Communities, Inc." type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="AVY" name="Avery Dennison Corp" type="stock" sector="Materials" industry=""/>
+  <symbol ticker="AVP" name="Avon Products" type="stock" sector="Consumer Staples" industry="Personal Products"/>
+  <symbol ticker="BHI" name="Baker Hughes Inc" type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="BLL" name="Ball Corp" type="stock" sector="Materials" industry="Metal &amp; Glass Containers"/>
+  <symbol ticker="BAC" name="Bank of America Corp" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="BK" name="The Bank of New York Mellon Corp." type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="BCR" name="Bard (C.R.) Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="BAX" name="Baxter International Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="BBT" name="BB&amp;T Corporation" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="BEAM" name="Beam Inc." type="stock" sector="Consumer Staples" industry="Distillers &amp; Vintners"/>
+  <symbol ticker="BDX" name="Becton Dickinson" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="BBBY" name="Bed Bath &amp; Beyond" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="BMS" name="Bemis Company" type="stock" sector="Materials" industry="Paper Packaging"/>
+  <symbol ticker="BRK.B" name="Berkshire Hathaway" type="stock" sector="Financials" industry="Multi-Sector Holdings"/>
+  <symbol ticker="BBY" name="Best Buy Co. Inc." type="stock" sector="Consumer Discretionary" industry="Computer &amp; Electronics Retail"/>
+  <symbol ticker="BIIB" name="BIOGEN IDEC Inc." type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="BLK" name="BlackRock" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="HRB" name="Block H&amp;R" type="stock" sector="Financials" industry="Consumer Finance"/>
+  <symbol ticker="BA" name="Boeing Company" type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
+  <symbol ticker="BWA" name="BorgWarner" type="stock" sector="Consumer Discretionary" industry="Auto Parts &amp; Equipment"/>
+  <symbol ticker="BXP" name="Boston Properties" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="BSX" name="Boston Scientific" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="BMY" name="Bristol-Myers Squibb" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
+  <symbol ticker="BRCM" name="Broadcom Corporation" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="BF.B" name="Brown-Forman Corporation" type="stock" sector="Consumer Staples" industry="Distillers &amp; Vintners"/>
+  <symbol ticker="CHRW" name="C. H. Robinson Worldwide" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
+  <symbol ticker="CA" name="CA, Inc." type="stock" sector="Information Technology" industry="Systems Software"/>
+  <symbol ticker="CVC" name="Cablevision Systems Corp." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="COG" name="Cabot Oil &amp; Gas" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="CAM" name="Cameron International Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="CPB" name="Campbell Soup" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="COF" name="Capital One Financial" type="stock" sector="Financials" industry="Consumer Finance"/>
+  <symbol ticker="CAH" name="Cardinal Health Inc." type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
+  <symbol ticker="CFN" name="Carefusion" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="KMX" name="Carmax Inc" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="CCL" name="Carnival Corp." type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="CAT" name="Caterpillar Inc." type="stock" sector="Industrials" industry="Construction &amp; Farm Machinery &amp; Heavy Trucks"/>
+  <symbol ticker="CBG" name="CBRE Group" type="stock" sector="Financials" industry="Real Estate Management &amp; Development"/>
+  <symbol ticker="CBS" name="CBS Corp." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="CELG" name="Celgene Corp." type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="CNP" name="CenterPoint Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="CTL" name="CenturyLink Inc" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
+  <symbol ticker="CERN" name="Cerner" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
+  <symbol ticker="CF" name="CF Industries Holdings Inc" type="stock" sector="Materials" industry="Fertilizers &amp; Agricultural Chemicals"/>
+  <symbol ticker="SCHW" name="Charles Schwab" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="CHK" name="Chesapeake Energy" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="CVX" name="Chevron Corp." type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="CMG" name="Chipotle Mexican Grill" type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
+  <symbol ticker="CB" name="Chubb Corp." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="CI" name="CIGNA Corp." type="stock" sector="Health Care" industry="Managed Health Care"/>
+  <symbol ticker="CINF" name="Cincinnati Financial" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="CTAS" name="Cintas Corporation" type="stock" sector="Industrials" industry="Diversified Commercial Services"/>
+  <symbol ticker="CSCO" name="Cisco Systems" type="stock" sector="Information Technology" industry="Networking Equipment"/>
+  <symbol ticker="C" name="Citigroup Inc." type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="CTXS" name="Citrix Systems" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="CLF" name="Cliffs Natural Resources" type="stock" sector="Materials" industry="Diversified Metals &amp; Mining"/>
+  <symbol ticker="CLX" name="The Clorox Company" type="stock" sector="Consumer Staples" industry="Household Products"/>
+  <symbol ticker="CME" name="CME Group Inc." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="CMS" name="CMS Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="COH" name="Coach Inc." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="KO" name="The Coca Cola Company" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
+  <symbol ticker="CCE" name="Coca-Cola Enterprises" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
+  <symbol ticker="CTSH" name="Cognizant Technology Solutions" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="CL" name="Colgate-Palmolive" type="stock" sector="Consumer Staples" industry="Household Products"/>
+  <symbol ticker="CMCSA" name="Comcast Corp." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="CMA" name="Comerica Inc." type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="CSC" name="Computer Sciences Corp." type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="CAG" name="ConAgra Foods Inc." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="COP" name="ConocoPhillips" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="CNX" name="CONSOL Energy Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="ED" name="Consolidated Edison" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="STZ" name="Constellation Brands" type="stock" sector="Consumer Staples" industry="Distillers &amp; Vintners"/>
+  <symbol ticker="GLW" name="Corning Inc." type="stock" sector="Industrials" industry="Construction &amp; Engineering"/>
+  <symbol ticker="COST" name="Costco Co." type="stock" sector="Consumer Staples" industry="Hypermarkets &amp; Super Centers"/>
+  <symbol ticker="COV" name="Covidien plc" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="CCI" name="Crown Castle International Corp." type="stock" sector="Telecommunications Services" industry="Wireless Telecommunications Services"/>
+  <symbol ticker="CSX" name="CSX Corp." type="stock" sector="Industrials" industry="Railroads"/>
+  <symbol ticker="CMI" name="Cummins Inc." type="stock" sector="Industrials" industry="Industrial Machinery"/>
+  <symbol ticker="CVS" name="CVS Caremark Corp." type="stock" sector="Consumer Staples" industry="Drug Retail"/>
+  <symbol ticker="DHI" name="D. R. Horton" type="stock" sector="Consumer Discretionary" industry="Construction"/>
+  <symbol ticker="DHR" name="Danaher Corp." type="stock" sector="Industrials" industry="Industrial Machinery"/>
+  <symbol ticker="DRI" name="Darden Restaurants" type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
+  <symbol ticker="DVA" name="DaVita Inc." type="stock" sector="Health Care" industry="Health Care Facilities"/>
+  <symbol ticker="DE" name="Deere &amp; Co." type="stock" sector="Industrials" industry="Construction &amp; Farm Machinery &amp; Heavy Trucks"/>
+  <symbol ticker="DELL" name="Dell Inc." type="stock" sector="Information Technology" industry="Computer Hardware"/>
+  <symbol ticker="DLPH" name="Delphi Automotive" type="stock" sector="Consumer Discretionary" industry="Auto Parts &amp; Equipment"/>
+  <symbol ticker="DAL" name="Delta Air Lines" type="stock" sector="Industrials" industry="Airlines"/>
+  <symbol ticker="DNR" name="Denbury Resources Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="XRAY" name="Dentsply International" type="stock" sector="Health Care" industry="Health Care Supplies"/>
+  <symbol ticker="DVN" name="Devon Energy Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="DO" name="Diamond Offshore Drilling" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
+  <symbol ticker="DTV" name="DirecTV" type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="DFS" name="Discover Financial Services" type="stock" sector="Financials" industry="Consumer Finance"/>
+  <symbol ticker="DISCA" name="Discovery Communications" type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="DG" name="Dollar General" type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
+  <symbol ticker="DLTR" name="Dollar Tree" type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
+  <symbol ticker="D" name="Dominion Resources" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="DOV" name="Dover Corp." type="stock" sector="Industrials" industry="Industrial Machinery"/>
+  <symbol ticker="DOW" name="Dow Chemical" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="DPS" name="Dr Pepper Snapple Group" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
+  <symbol ticker="DTE" name="DTE Energy Co." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="DD" name="Du Pont (E.I.)" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="DUK" name="Duke Energy" type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="DNB" name="Dun &amp; Bradstreet" type="stock" sector="Industrials" industry="Data Processing Services"/>
+  <symbol ticker="ETFC" name="E-Trade" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="EMN" name="Eastman Chemical" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="ETN" name="Eaton Corp." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="EBAY" name="eBay Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="ECL" name="Ecolab Inc." type="stock" sector="Materials" industry="Specialty Chemicals"/>
+  <symbol ticker="EIX" name="Edison Int'l" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="EW" name="Edwards Lifesciences" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="EA" name="Electronic Arts" type="stock" sector="Information Technology" industry="Application Software"/>
+  <symbol ticker="EMC" name="EMC Corp." type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="EMR" name="Emerson Electric" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="ESV" name="Ensco plc" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
+  <symbol ticker="ETR" name="Entergy Corp." type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="EOG" name="EOG Resources" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="EQT" name="EQT Corporation" type="stock" sector="Energy" industry=""/>
+  <symbol ticker="EFX" name="Equifax Inc." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="EQR" name="Equity Residential" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="EL" name="Estee Lauder Cos." type="stock" sector="Consumer Staples" industry="Personal Products"/>
+  <symbol ticker="EXC" name="Exelon Corp." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="EXPE" name="Expedia Inc." type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="EXPD" name="Expeditors Int'l" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
+  <symbol ticker="ESRX" name="Express Scripts" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
+  <symbol ticker="XOM" name="Exxon Mobil Corp." type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="FFIV" name="F5 Networks" type="stock" sector="Information Technology" industry="Networking Equipment"/>
+  <symbol ticker="FDO" name="Family Dollar Stores" type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
+  <symbol ticker="FAST" name="Fastenal Co" type="stock" sector="Industrials" industry="Building Products"/>
+  <symbol ticker="FDX" name="FedEx Corporation" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
+  <symbol ticker="FIS" name="Fidelity National Information Services" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="FITB" name="Fifth Third Bancorp" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="FSLR" name="First Solar Inc" type="stock" sector="Industrials" industry="Heavy Electrical Equipment"/>
+  <symbol ticker="FE" name="FirstEnergy Corp" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="FISV" name="Fiserv Inc" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="FLIR" name="FLIR Systems" type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
+  <symbol ticker="FLS" name="Flowserve Corporation" type="stock" sector="Industrials" industry="Industrial Machinery"/>
+  <symbol ticker="FLR" name="Fluor Corp." type="stock" sector="Industrials" industry="Diversified Commercial Services"/>
+  <symbol ticker="FMC" name="FMC Corporation" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="FTI" name="FMC Technologies Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="F" name="Ford Motor" type="stock" sector="Consumer Discretionary" industry="Automobile Manufacturers"/>
+  <symbol ticker="FRX" name="Forest Laboratories" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="FOSL" name="Fossil, Inc." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="BEN" name="Franklin Resources" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="FCX" name="Freeport-McMoran Cp &amp; Gld" type="stock" sector="Materials" industry="Diversified Metals &amp; Mining"/>
+  <symbol ticker="FTR" name="Frontier Communications" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
+  <symbol ticker="GME" name="GameStop Corp." type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="GCI" name="Gannett Co." type="stock" sector="Consumer Discretionary" industry="Publishing"/>
+  <symbol ticker="GPS" name="Gap (The)" type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
+  <symbol ticker="GRMN" name="Garmin Ltd." type="stock" sector="Consumer Discretionary" industry="Consumer Electronics"/>
+  <symbol ticker="GD" name="General Dynamics" type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
+  <symbol ticker="GE" name="General Electric" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="GIS" name="General Mills" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="GM" name="General Motors" type="stock" sector="Consumer Discretionary" industry="Automobile Manufacturers"/>
+  <symbol ticker="GPC" name="Genuine Parts" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="GNW" name="Genworth Financial Inc." type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
+  <symbol ticker="GILD" name="Gilead Sciences" type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="GS" name="Goldman Sachs Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="GT" name="Goodyear Tire &amp; Rubber" type="stock" sector="Consumer Discretionary" industry="Tires &amp; Rubber"/>
+  <symbol ticker="GOOG" name="Google Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="GWW" name="Grainger (W.W.) Inc." type="stock" sector="Industrials" industry="Industrial Materials"/>
+  <symbol ticker="HAL" name="Halliburton Co." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="HOG" name="Harley-Davidson" type="stock" sector="Consumer Discretionary" industry="Motorcycle Manufacturers"/>
+  <symbol ticker="HAR" name="Harman Int'l Industries" type="stock" sector="Consumer Discretionary" industry="Consumer Electronics"/>
+  <symbol ticker="HRS" name="Harris Corporation" type="stock" sector="Information Technology" industry="Telecommunications Equipment"/>
+  <symbol ticker="HIG" name="Hartford Financial Svc.Gp." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="HAS" name="Hasbro Inc." type="stock" sector="Consumer Discretionary" industry="Leisure Products"/>
+  <symbol ticker="HCP" name="HCP Inc." type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="HCN" name="Health Care REIT" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="HP" name="Helmerich &amp; Payne" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
+  <symbol ticker="HES" name="Hess Corporation" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="HPQ" name="Hewlett-Packard" type="stock" sector="Information Technology" industry="Computer Hardware"/>
+  <symbol ticker="HD" name="Home Depot" type="stock" sector="Consumer Discretionary" industry="Home Improvement Retail"/>
+  <symbol ticker="HON" name="Honeywell Int'l Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="HRL" name="Hormel Foods Corp." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="HSP" name="Hospira Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="HST" name="Host Hotels &amp; Resorts" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="HCBK" name="Hudson City Bancorp" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="HUM" name="Humana Inc." type="stock" sector="Health Care" industry="Managed Health Care"/>
+  <symbol ticker="HBAN" name="Huntington Bancshares" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="ITW" name="Illinois Tool Works" type="stock" sector="Industrials" industry="Industrial Machinery"/>
+  <symbol ticker="IR" name="Ingersoll-Rand PLC" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="TEG" name="Integrys Energy Group Inc." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="INTC" name="Intel Corp." type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="ICE" name="IntercontinentalExchange Inc." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="IBM" name="International Bus. Machines" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="IGT" name="International Game Technology" type="stock" sector="Consumer Discretionary" industry="Leisure Products"/>
+  <symbol ticker="IP" name="International Paper" type="stock" sector="Materials" industry="Paper Products"/>
+  <symbol ticker="IPG" name="Interpublic Group" type="stock" sector="Consumer Discretionary" industry="Advertising"/>
+  <symbol ticker="IFF" name="Intl Flavors &amp; Fragrances" type="stock" sector="Materials" industry="Specialty Chemicals"/>
+  <symbol ticker="INTU" name="Intuit Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="ISRG" name="Intuitive Surgical Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="IVZ" name="Invesco Ltd." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="IRM" name="Iron Mountain Incorporated" type="stock" sector="Industrials" industry="Data Processing Services"/>
+  <symbol ticker="JBL" name="Jabil Circuit" type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="JEC" name="Jacobs Engineering Group" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="JDSU" name="JDS Uniphase Corp." type="stock" sector="Information Technology" industry="Telecommunications Equipment"/>
+  <symbol ticker="JNJ" name="Johnson &amp; Johnson" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="JCI" name="Johnson Controls" type="stock" sector="Consumer Discretionary" industry="Auto Parts &amp; Equipment"/>
+  <symbol ticker="JOY" name="Joy Global Inc." type="stock" sector="Industrials" industry="Industrial Machinery"/>
+  <symbol ticker="JPM" name="JPMorgan Chase &amp; Co." type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="JNPR" name="Juniper Networks" type="stock" sector="Information Technology" industry="Networking Equipment"/>
+  <symbol ticker="KSU" name="Kansas City Southern" type="stock" sector="Industrials" industry="Railroads"/>
+  <symbol ticker="K" name="Kellogg Co." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="KEY" name="KeyCorp" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="KMB" name="Kimberly-Clark" type="stock" sector="Consumer Staples" industry="Household Products"/>
+  <symbol ticker="KIM" name="Kimco Realty" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="KMI" name="Kinder Morgan" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
+  <symbol ticker="KLAC" name="KLA-Tencor Corp." type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
+  <symbol ticker="KSS" name="Kohl's Corp." type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
+  <symbol ticker="KRFT" name="Kraft Foods Group" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="KR" name="Kroger Co." type="stock" sector="Consumer Staples" industry="Food Retail"/>
+  <symbol ticker="LTD" name="L Brands Inc." type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
+  <symbol ticker="LLL" name="L-3 Communications Holdings" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="LH" name="Laboratory Corp. of America Holding" type="stock" sector="Health Care" industry="Health Care Facilities"/>
+  <symbol ticker="LRCX" name="Lam Research" type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
+  <symbol ticker="LM" name="Legg Mason" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="LEG" name="Leggett &amp; Platt" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="LEN" name="Lennar Corp." type="stock" sector="Consumer Discretionary" industry="Homebuilding"/>
+  <symbol ticker="LUK" name="Leucadia National Corp." type="stock" sector="Financials" industry="Multi-Sector Holdings"/>
+  <symbol ticker="LIFE" name="Life Technologies" type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="LLY" name="Lilly (Eli) &amp; Co." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="LNC" name="Lincoln National" type="stock" sector="Financials" industry="Multi-line Insurance"/>
+  <symbol ticker="LLTC" name="Linear Technology Corp." type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="LMT" name="Lockheed Martin Corp." type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
+  <symbol ticker="L" name="Loews Corp." type="stock" sector="Financials" industry="Multi-Sector Holdings"/>
+  <symbol ticker="LO" name="Lorillard Inc." type="stock" sector="Consumer Staples" industry="Tobacco"/>
+  <symbol ticker="LOW" name="Lowe's Cos." type="stock" sector="Consumer Discretionary" industry="Home Improvement Retail"/>
+  <symbol ticker="LSI" name="LSI Corporation" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="LYB" name="LyondellBasell" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="MTB" name="M&amp;T Bank Corp." type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="MAC" name="Macerich" type="stock" sector="Financials" industry="Retail REITs"/>
+  <symbol ticker="M" name="Macy's Inc." type="stock" sector="Consumer Discretionary" industry="Department Stores"/>
+  <symbol ticker="MRO" name="Marathon Oil Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="MPC" name="Marathon Petroleum" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
+  <symbol ticker="MAR" name="Marriott Int'l." type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="MMC" name="Marsh &amp; McLennan" type="stock" sector="Financials" industry="Insurance Brokers"/>
+  <symbol ticker="MAS" name="Masco Corp." type="stock" sector="Industrials" industry="Building Products"/>
+  <symbol ticker="MA" name="Mastercard Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="MAT" name="Mattel Inc." type="stock" sector="Consumer Discretionary" industry="Leisure Products"/>
+  <symbol ticker="MKC" name="McCormick &amp; Co." type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="MCD" name="McDonald's Corp." type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
+  <symbol ticker="MHFI" name="McGraw Hill Financial" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="MCK" name="McKesson Corp." type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
+  <symbol ticker="MJN" name="Mead Johnson" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="MWV" name="MeadWestvaco Corporation" type="stock" sector="Materials" industry="Paper Packaging"/>
+  <symbol ticker="MDT" name="Medtronic Inc." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="MRK" name="Merck &amp; Co." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="MET" name="MetLife Inc." type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
+  <symbol ticker="MCHP" name="Microchip Technology" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="MU" name="Micron Technology" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="MSFT" name="Microsoft Corp." type="stock" sector="Information Technology" industry="Systems Software"/>
+  <symbol ticker="MOLX" name="Molex Inc." type="stock" sector="Information Technology" industry="Electronic Equipment &amp; Instruments"/>
+  <symbol ticker="TAP" name="Molson Coors Brewing Company" type="stock" sector="Consumer Staples" industry="Brewers"/>
+  <symbol ticker="MDLZ" name="Mondelez International" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="MON" name="Monsanto Co." type="stock" sector="Materials" industry="Fertilizers &amp; Agricultural Chemicals"/>
+  <symbol ticker="MNST" name="Monster Beverage" type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
+  <symbol ticker="MCO" name="Moody's Corp" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="MS" name="Morgan Stanley" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="MOS" name="The Mosaic Company" type="stock" sector="Materials" industry="Fertilizers &amp; Agricultural Chemicals"/>
+  <symbol ticker="MSI" name="Motorola Solutions Inc." type="stock" sector="Information Technology" industry="Telecommunications Equipment"/>
+  <symbol ticker="MUR" name="Murphy Oil" type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="MYL" name="Mylan Inc." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="NBR" name="Nabors Industries Ltd." type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
+  <symbol ticker="NDAQ" name="NASDAQ OMX Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="NOV" name="National Oilwell Varco Inc." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="NTAP" name="NetApp" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="NFLX" name="NetFlix Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="NWL" name="Newell Rubbermaid Co." type="stock" sector="Consumer Discretionary" industry="Housewares &amp; Specialties"/>
+  <symbol ticker="NFX" name="Newfield Exploration Co" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="NEM" name="Newmont Mining Corp. (Hldg. Co.)" type="stock" sector="Materials" industry="Gold"/>
+  <symbol ticker="NWSA" name="News Corporation" type="stock" sector="Consumer Discretionary" industry="Publishing"/>
+  <symbol ticker="NEE" name="NextEra Energy Resources" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="NLSN" name="Nielsen Holdings" type="stock" sector="Industrials" industry="Research &amp; Consulting Services"/>
+  <symbol ticker="NKE" name="NIKE Inc." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="NI" name="NiSource Inc." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="NE" name="Noble Corp" type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
+  <symbol ticker="NBL" name="Noble Energy Inc" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="JWN" name="Nordstrom" type="stock" sector="Consumer Discretionary" industry="Department Stores"/>
+  <symbol ticker="NSC" name="Norfolk Southern Corp." type="stock" sector="Industrials" industry="Railroads"/>
+  <symbol ticker="NTRS" name="Northern Trust Corp." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="NOC" name="Northrop Grumman Corp." type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
+  <symbol ticker="NU" name="Northeast Utilities" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="NRG" name="NRG Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="NUE" name="Nucor Corp." type="stock" sector="Materials" industry="Steel"/>
+  <symbol ticker="NVDA" name="Nvidia Corporation" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="NYX" name="NYSE Euronext" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="ORLY" name="O'Reilly Automotive" type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="OXY" name="Occidental Petroleum" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="OMC" name="Omnicom Group" type="stock" sector="Consumer Discretionary" industry="Advertising"/>
+  <symbol ticker="OKE" name="ONEOK" type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="ORCL" name="Oracle Corp." type="stock" sector="Information Technology" industry="Application Software"/>
+  <symbol ticker="OI" name="Owens-Illinois Inc" type="stock" sector="Materials" industry="Metal &amp; Glass Containers"/>
+  <symbol ticker="PCG" name="P G &amp; E Corp." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="PCAR" name="PACCAR Inc." type="stock" sector="Industrials" industry="Construction &amp; Farm Machinery &amp; Heavy Trucks"/>
+  <symbol ticker="PLL" name="Pall Corp." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="PH" name="Parker-Hannifin" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="PDCO" name="Patterson Companies" type="stock" sector="Health Care" industry="Health Care Supplies"/>
+  <symbol ticker="PAYX" name="Paychex Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="BTU" name="Peabody Energy" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="JCP" name="Penney (J.C.)" type="stock" sector="Consumer Discretionary" industry="Department Stores"/>
+  <symbol ticker="PNR" name="Pentair Ltd." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="PBCT" name="People's United Bank" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="POM" name="Pepco Holdings Inc." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="PEP" name="PepsiCo Inc." type="stock" sector="Consumer Staples" industry="Soft Drinks"/>
+  <symbol ticker="PKI" name="PerkinElmer" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="PRGO" name="Perrigo" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="PETM" name="PetSmart, Inc." type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="PFE" name="Pfizer Inc." type="stock" sector="Health Care" industry="Pharmaceuticals"/>
+  <symbol ticker="PM" name="Philip Morris International" type="stock" sector="Consumer Staples" industry="Tobacco"/>
+  <symbol ticker="PSX" name="Phillips 66" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
+  <symbol ticker="PNW" name="Pinnacle West Capital" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="PXD" name="Pioneer Natural Resources" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="PBI" name="Pitney-Bowes" type="stock" sector="Industrials" industry="Data Processing Services"/>
+  <symbol ticker="PCL" name="Plum Creek Timber Co." type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="PNC" name="PNC Financial Services" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="RL" name="Polo Ralph Lauren Corp." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="PPG" name="PPG Industries" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="PPL" name="PPL Corp." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="PX" name="Praxair Inc." type="stock" sector="Materials" industry="Industrial Gases"/>
+  <symbol ticker="PCP" name="Precision Castparts" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="PCLN" name="Priceline.com Inc" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="PFG" name="Principal Financial Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="PG" name="Procter &amp; Gamble" type="stock" sector="Consumer Staples" industry="Personal Products"/>
+  <symbol ticker="PGR" name="Progressive Corp." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="PLD" name="Prologis" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="PRU" name="Prudential Financial" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="PEG" name="Public Serv. Enterprise Inc." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="PSA" name="Public Storage" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="PHM" name="Pulte Homes Inc." type="stock" sector="Consumer Discretionary" industry="Homebuilding"/>
+  <symbol ticker="PVH" name="PVH Corp." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="QEP" name="QEP Resources" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="PWR" name="Quanta Services Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="QCOM" name="QUALCOMM Inc." type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="DGX" name="Quest Diagnostics" type="stock" sector="Health Care" industry="Health Care Facilities"/>
+  <symbol ticker="RRC" name="Range Resources Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="RTN" name="Raytheon Co." type="stock" sector="Industrials" industry="Aerospace &amp; Defense"/>
+  <symbol ticker="RHT" name="Red Hat Inc." type="stock" sector="Information Technology" industry="Systems Software"/>
+  <symbol ticker="REGN" name="Regeneron" type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="RF" name="Regions Financial Corp." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="RSG" name="Republic Services Inc" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="RAI" name="Reynolds American Inc." type="stock" sector="Consumer Staples" industry="Tobacco"/>
+  <symbol ticker="RHI" name="Robert Half International" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="ROK" name="Rockwell Automation Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="COL" name="Rockwell Collins" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="ROP" name="Roper Industries" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="ROST" name="Ross Stores" type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
+  <symbol ticker="RDC" name="Rowan Cos." type="stock" sector="Energy" industry="Oil &amp; Gas Drilling"/>
+  <symbol ticker="R" name="Ryder System" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="SWY" name="Safeway Inc." type="stock" sector="Consumer Staples" industry="Food Retail"/>
+  <symbol ticker="CRM" name="Salesforce.com" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="SNDK" name="SanDisk Corporation" type="stock" sector="Information Technology" industry="Computer Storage &amp; Peripherals"/>
+  <symbol ticker="SCG" name="SCANA Corp" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="SLB" name="Schlumberger Ltd." type="stock" sector="Energy" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="SNI" name="Scripps Networks Interactive Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="STX" name="Seagate Technology" type="stock" sector="Information Technology" industry="Computer Storage &amp; Peripherals"/>
+  <symbol ticker="SEE" name="Sealed Air Corp.(New)" type="stock" sector="Materials" industry="Paper Packaging"/>
+  <symbol ticker="SRE" name="Sempra Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="SHW" name="Sherwin-Williams" type="stock" sector="Materials" industry=""/>
+  <symbol ticker="SIAL" name="Sigma-Aldrich" type="stock" sector="Materials" industry="Diversified Chemicals"/>
+  <symbol ticker="SPG" name="Simon Property Group Inc" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="SLM" name="SLM Corporation" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="SJM" name="Smucker (J.M.)" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="SNA" name="Snap-On Inc." type="stock" sector="Consumer Discretionary" industry="Household Appliances"/>
+  <symbol ticker="SO" name="Southern Co." type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="LUV" name="Southwest Airlines" type="stock" sector="Industrials" industry="Airlines"/>
+  <symbol ticker="SWN" name="Southwestern Energy" type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="SE" name="Spectra Energy Corp." type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
+  <symbol ticker="STJ" name="St Jude Medical" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="SWK" name="Stanley Black &amp; Decker" type="stock" sector="Consumer Discretionary" industry="Household Appliances"/>
+  <symbol ticker="SPLS" name="Staples Inc." type="stock" sector="Consumer Discretionary" industry="Specialty Stores"/>
+  <symbol ticker="SBUX" name="Starbucks Corp." type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
+  <symbol ticker="HOT" name="Starwood Hotels &amp; Resorts" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="STT" name="State Street Corp." type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="SRCL" name="Stericycle Inc" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="SYK" name="Stryker Corp." type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="STI" name="SunTrust Banks" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="SYMC" name="Symantec Corp." type="stock" sector="Information Technology" industry="Application Software"/>
+  <symbol ticker="SYY" name="Sysco Corp." type="stock" sector="Consumer Staples" industry="Food Distributors"/>
+  <symbol ticker="TROW" name="T. Rowe Price Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="TGT" name="Target Corp." type="stock" sector="Consumer Discretionary" industry="General Merchandise Stores"/>
+  <symbol ticker="TEL" name="TE Connectivity Ltd." type="stock" sector="Information Technology" industry="Electronic Equipment &amp; Instruments"/>
+  <symbol ticker="TE" name="TECO Energy" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="THC" name="Tenet Healthcare Corp." type="stock" sector="Health Care" industry="Health Care Facilities"/>
+  <symbol ticker="TDC" name="Teradata Corp." type="stock" sector="Information Technology" industry="Application Software"/>
+  <symbol ticker="TER" name="Teradyne Inc." type="stock" sector="Information Technology" industry="Semiconductor Equipment"/>
+  <symbol ticker="TSO" name="Tesoro Petroleum Co." type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
+  <symbol ticker="TXN" name="Texas Instruments" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="TXT" name="Textron Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="HSY" name="The Hershey Company" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="TRV" name="The Travelers Companies Inc." type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="TMO" name="Thermo Fisher Scientific" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="TIF" name="Tiffany &amp; Co." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="TWX" name="Time Warner Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="TWC" name="Time Warner Cable Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="TJX" name="TJX Companies Inc." type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
+  <symbol ticker="TMK" name="Torchmark Corp." type="stock" sector="Financials" industry="Life &amp; Health Insurance"/>
+  <symbol ticker="TSS" name="Total System Services" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="TRIP" name="TripAdvisor" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="FOXA" name="Twenty-First Century Fox" type="stock" sector="Consumer Discretionary" industry="Publishing"/>
+  <symbol ticker="TSN" name="Tyson Foods" type="stock" sector="Consumer Staples" industry="Packaged Foods &amp; Meats"/>
+  <symbol ticker="TYC" name="Tyco International" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="USB" name="U.S. Bancorp" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="UNP" name="Union Pacific" type="stock" sector="Industrials" industry="Railroads"/>
+  <symbol ticker="UNH" name="United Health Group Inc." type="stock" sector="Health Care" industry="Managed Health Care"/>
+  <symbol ticker="UPS" name="United Parcel Service" type="stock" sector="Industrials" industry="Air Freight &amp; Logistics"/>
+  <symbol ticker="X" name="United States Steel Corp." type="stock" sector="Materials" industry="Steel"/>
+  <symbol ticker="UTX" name="United Technologies" type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="UNM" name="Unum Group" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="URBN" name="Urban Outfitters" type="stock" sector="Consumer Discretionary" industry="Apparel Retail"/>
+  <symbol ticker="VFC" name="V.F. Corp." type="stock" sector="Consumer Discretionary" industry="Apparel, Accessories &amp; Luxury Goods"/>
+  <symbol ticker="VLO" name="Valero Energy" type="stock" sector="Energy" industry="Oil &amp; Gas Refining &amp; Marketing &amp; Transportation"/>
+  <symbol ticker="VAR" name="Varian Medical Systems" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="VTR" name="Ventas Inc" type="stock" sector="Financials" industry="Diversified Financial Services"/>
+  <symbol ticker="VRSN" name="Verisign Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="VZ" name="Verizon Communications" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
+  <symbol ticker="VRTX" name="Vertex Pharmaceuticals Inc" type="stock" sector="Health Care" industry="Biotechnology"/>
+  <symbol ticker="VIAB" name="Viacom Inc." type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="V" name="Visa Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="VNO" name="Vornado Realty Trust" type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="VMC" name="Vulcan Materials" type="stock" sector="Materials" industry="Construction Materials"/>
+  <symbol ticker="WMT" name="Wal-Mart Stores" type="stock" sector="Consumer Staples" industry="Hypermarkets &amp; Super Centers"/>
+  <symbol ticker="WAG" name="Walgreen Co." type="stock" sector="Consumer Staples" industry="Drug Retail"/>
+  <symbol ticker="DIS" name="The Walt Disney Company" type="stock" sector="Consumer Discretionary" industry="Broadcasting &amp; Cable TV"/>
+  <symbol ticker="WPO" name="Washington Post Co B" type="stock" sector="Consumer Discretionary" industry="Publishing"/>
+  <symbol ticker="WM" name="Waste Management Inc." type="stock" sector="Industrials" industry="Environmental Services"/>
+  <symbol ticker="WAT" name="Waters Corporation" type="stock" sector="Health Care" industry="Health Care Distributors &amp; Services"/>
+  <symbol ticker="WLP" name="WellPoint Inc." type="stock" sector="Health Care" industry="Managed Health Care"/>
+  <symbol ticker="WFC" name="Wells Fargo" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="WDC" name="Western Digital" type="stock" sector="Information Technology" industry="Computer Storage &amp; Peripherals"/>
+  <symbol ticker="WU" name="Western Union Co" type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="WY" name="Weyerhaeuser Corp." type="stock" sector="Financials" industry="REITs"/>
+  <symbol ticker="WHR" name="Whirlpool Corp." type="stock" sector="Consumer Discretionary" industry="Household Appliances"/>
+  <symbol ticker="WFM" name="Whole Foods Market" type="stock" sector="Consumer Staples" industry="Food Retail"/>
+  <symbol ticker="WMB" name="Williams Cos." type="stock" sector="Energy" industry="Oil &amp; Gas Exploration &amp; Production"/>
+  <symbol ticker="WIN" name="Windstream Communications" type="stock" sector="Telecommunications Services" industry="Integrated Telecommunications Services"/>
+  <symbol ticker="WEC" name="Wisconsin Energy Corporation" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="WPX" name="WPX Energy, Inc." type="stock" sector="Energy" industry="Integrated Oil &amp; Gas"/>
+  <symbol ticker="WYN" name="Wyndham Worldwide" type="stock" sector="Consumer Discretionary" industry="Hotels, Resorts &amp; Cruise Lines"/>
+  <symbol ticker="WYNN" name="Wynn Resorts Ltd" type="stock" sector="Consumer Discretionary" industry="Casinos &amp; Gaming"/>
+  <symbol ticker="XEL" name="Xcel Energy Inc" type="stock" sector="Utilities" industry="Multi-Utilities &amp; Unregulated Power"/>
+  <symbol ticker="XRX" name="Xerox Corp." type="stock" sector="Information Technology" industry="IT Consulting &amp; Services"/>
+  <symbol ticker="XLNX" name="Xilinx Inc" type="stock" sector="Information Technology" industry="Semiconductors"/>
+  <symbol ticker="XL" name="XL Capital" type="stock" sector="Financials" industry="Property &amp; Casualty Insurance"/>
+  <symbol ticker="XYL" name="Xylem Inc." type="stock" sector="Industrials" industry="Industrial Conglomerates"/>
+  <symbol ticker="YHOO" name="Yahoo Inc." type="stock" sector="Information Technology" industry="Internet Software &amp; Services"/>
+  <symbol ticker="YUM" name="Yum! Brands Inc" type="stock" sector="Consumer Discretionary" industry="Restaurants"/>
+  <symbol ticker="ZMH" name="Zimmer Holdings" type="stock" sector="Health Care" industry="Health Care Equipment &amp; Services"/>
+  <symbol ticker="ZION" name="Zions Bancorp" type="stock" sector="Financials" industry="Banks"/>
+  <symbol ticker="ZTS" name="Zoetis" type="stock" sector="Health Care" industry="Pharmaceuticals"/>
 </symbols>

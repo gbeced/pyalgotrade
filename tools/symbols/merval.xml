@@ -1,66 +1,67 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <symbols>
-  <symbol ticker="AGRO.BA" company="Agrometal S.A.I." type="stock" sector="Industrial Goods" industry="Farm &amp; Construction Machinery"/>
-  <symbol ticker="ALUA.BA" company="Aluar Aluminio Argentino S.A.I.C." type="stock" sector="Basic Materials" industry="Aluminum"/>
-  <symbol ticker="APBR.BA" company="Petr" type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
-  <symbol ticker="APSA.BA" company="Alto Palermo S.A." type="stock" sector="Financial" industry="Property Management"/>
-  <symbol ticker="AUSO.BA" company="Autopistas Del Sol SA" type="stock" sector="Industrial Goods" industry="Heavy Construction"/>
-  <symbol ticker="BHIP.BA" company="Banco Hipotecario SA" type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="BMA.BA" company="Banco Macro S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="BPAT.BA" company="Banco Patagonia S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="BRIO.BA" company="Banco Santander Rio S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="BRIO6.BA" company="Banco Santander Rio S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="CADO.BA" company="Carlos Casado S.A." type="stock" sector="Conglomerates" industry="Conglomerates"/>
-  <symbol ticker="CAPU.BA" company="Caputo S.A.I.C. y F." type="stock" sector="Industrial Goods" industry="General Contractors"/>
-  <symbol ticker="CAPX.BA" company="Capex S.A." type="stock" sector="Utilities" industry="Diversified Utilities"/>
-  <symbol ticker="CARC.BA" company="Carboclor S.A." type="stock" sector="Basic Materials" industry="Chemicals - Major Diversified"/>
-  <symbol ticker="CECO2.BA" company="Endesa Costanera SA" type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="CEPU2.BA" company="Central Puerto S.A." type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="CGPA2.BA" company="Camuzzi Gas Pampeana S.A." type="stock" sector="Basic Materials" industry="Oil &amp; Gas Equipment &amp; Services"/>
-  <symbol ticker="COME.BA" company="Sociedad Comercial del Plata S.A." type="stock" sector="Conglomerates" industry="Conglomerates"/>
-  <symbol ticker="CRES.BA" company="Cresud Sociedad An" type="stock" sector="Consumer Goods" industry="Farm Products"/>
-  <symbol ticker="CTIO.BA" company="Consultatio S.A." type="stock" sector="Financial" industry="Property Management"/>
-  <symbol ticker="DGCU2.BA" company="Distribuidora de Gas Cuyana S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="DYCA.BA" company="Dycasa SA" type="stock" sector="Industrial Goods" industry="General Contractors"/>
-  <symbol ticker="ERAR.BA" company="Ternium Siderar" type="stock" sector="Basic Materials" industry="Steel &amp; Iron"/>
-  <symbol ticker="ESTR.BA" company="Angel Estrada y Compania S.A." type="stock" sector="Services" industry="Publishing - Newspapers"/>
-  <symbol ticker="FERR.BA" company="Ferrum Sociedad Anonima de Ceramica y Metalurgia" type="stock" sector="Industrial Goods" industry="General Building Materials"/>
-  <symbol ticker="FIPL.BA" company="Fiplasto S.A." type="stock" sector="Consumer Goods" industry="Home Furnishings &amp; Fixtures"/>
-  <symbol ticker="FRAN.BA" company="BBVA Banco Franc" type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="GALI.BA" company="Banco de Galicia &amp; Buenos Aires S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="GARO.BA" company="S.A. Garovaglio y Zorraquin" type="stock" sector="Conglomerates" industry="Conglomerates"/>
-  <symbol ticker="GBAN.BA" company="Gas Natural Ban, S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="GCLA.BA" company="Grupo Clar" type="stock" sector="Services" industry="Entertainment - Diversified"/>
-  <symbol ticker="GGAL.BA" company="Grupo Financiero Galicia S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="GRIM.BA" company="Grimoldi S.A." type="stock" sector="Consumer Goods" industry="Textile - Apparel Footwear &amp; Accessories"/>
-  <symbol ticker="INDU.BA" company="Solvay Indupa S.A.I.C." type="stock" sector="Basic Materials" industry="Chemicals - Major Diversified"/>
-  <symbol ticker="INTR.BA" company="Compania Introductora de Buenos Aires Sociedad Anonima" type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
-  <symbol ticker="IRSA.BA" company="IRSA Investments and Representations Inc." type="stock" sector="Financial" industry="Real Estate Development"/>
-  <symbol ticker="JMIN.BA" company="Holcim (Argentina) SA" type="stock" sector="Industrial Goods" industry="General Building Materials"/>
-  <symbol ticker="LEDE.BA" company="Ledesma SA" type="stock" sector="Consumer Goods" industry="Farm Products"/>
-  <symbol ticker="LONG.BA" company="Longvie S.A." type="stock" sector="Consumer Goods" industry="Home Furnishings &amp; Fixtures"/>
-  <symbol ticker="METR.BA" company="MetroGAS S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="MIRG.BA" company="Mirgor Sociedad An" type="stock" sector="Consumer Goods" industry="Auto Parts"/>
-  <symbol ticker="MOLI.BA" company="Molinos Rio de la Plata S.A." type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
-  <symbol ticker="MORI.BA" company="Morixe Hermanos S.A.C. e I." type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
-  <symbol ticker="OEST.BA" company="Grupo Concesionario del Oeste S.A." type="stock" sector="Industrial Goods" industry="Heavy Construction"/>
-  <symbol ticker="PAMP.BA" company="Pampa Energia SA" type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="PATA.BA" company="Sociedad Anonima Importadora y Exportadora de la Patagonia" type="stock" sector="Services" industry="Department Stores"/>
-  <symbol ticker="PATY.BA" company="Quickfood Sociedad Anonima" type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
-  <symbol ticker="PESA.BA" company="Petrobras Argentina SA" type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
-  <symbol ticker="POLL.BA" company="Polledo S.A.I.C. y F." type="stock" sector="Industrial Goods" industry="General Contractors"/>
-  <symbol ticker="PSUR.BA" company="Petrolera del Conosur S.A." type="stock" sector="Basic Materials" industry="Oil &amp; Gas Drilling &amp; Exploration"/>
-  <symbol ticker="REP.BA" company="Repsol, S.A." type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
-  <symbol ticker="RIGO.BA" company="Rigolleau S.A." type="stock" sector="Consumer Goods" industry="Personal Products"/>
-  <symbol ticker="ROSE.BA" company="Instituto Rosenbusch S.A." type="stock" sector="Healthcare" industry="Drugs - Generic"/>
-  <symbol ticker="SAMI.BA" company="S.A. San Miguel A.G.I.C.I. y F." type="stock" sector="Consumer Goods" industry="Farm Products"/>
-  <symbol ticker="SEMI.BA" company="Molinos Juan Semino S.A." type="stock" sector="Consumer Goods" industry="Farm Products"/>
-  <symbol ticker="STD.BA" company="Banco Santander, S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
-  <symbol ticker="TECO2.BA" company="Telecom Argentina S.A." type="stock" sector="Technology" industry="Wireless Communications"/>
-  <symbol ticker="TEF.BA" company="Telef" type="stock" sector="Technology" industry="Wireless Communications"/>
-  <symbol ticker="TGNO4.BA" company="Transportadora de Gas del Norte S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="TGSU2.BA" company="Transportadora de Gas Del Sur S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
-  <symbol ticker="TRAN.BA" company="Compania de Transporte de Energia Electrica en Alta Tension Transener" type="stock" sector="Utilities" industry="Electric Utilities"/>
-  <symbol ticker="TS.BA" company="Tenaris SA" type="stock" sector="Industrial Goods" industry="Metal Fabrication"/>
-  <symbol ticker="YPFD.BA" company="YPF S.A." type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
+  <symbol ticker="AGRO.BA" name="Agrometal S.A.I." type="stock" sector="Industrial Goods" industry="Farm &amp; Construction Machinery"/>
+  <symbol ticker="ALUA.BA" name="Aluar Aluminio Argentino S.A.I.C." type="stock" sector="Basic Materials" industry="Aluminum"/>
+  <symbol ticker="APBR.BA" name="Petr" type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
+  <symbol ticker="APSA.BA" name="Alto Palermo S.A." type="stock" sector="Financial" industry="Property Management"/>
+  <symbol ticker="AUSO.BA" name="Autopistas Del Sol SA" type="stock" sector="Industrial Goods" industry="Heavy Construction"/>
+  <symbol ticker="BHIP.BA" name="Banco Hipotecario SA" type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="BMA.BA" name="Banco Macro S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="BPAT.BA" name="Banco Patagonia S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="BRIO.BA" name="Banco Santander Rio S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="BRIO6.BA" name="Banco Santander Rio S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="CADO.BA" name="Carlos Casado S.A." type="stock" sector="Conglomerates" industry="Conglomerates"/>
+  <symbol ticker="CAPU.BA" name="Caputo S.A.I.C. y F." type="stock" sector="Industrial Goods" industry="General Contractors"/>
+  <symbol ticker="CAPX.BA" name="Capex S.A." type="stock" sector="Utilities" industry="Diversified Utilities"/>
+  <symbol ticker="CARC.BA" name="Carboclor S.A." type="stock" sector="Basic Materials" industry="Chemicals - Major Diversified"/>
+  <symbol ticker="CECO2.BA" name="Endesa Costanera SA" type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="CEPU2.BA" name="Central Puerto S.A." type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="CGPA2.BA" name="Camuzzi Gas Pampeana S.A." type="stock" sector="Basic Materials" industry="Oil &amp; Gas Equipment &amp; Services"/>
+  <symbol ticker="COME.BA" name="Sociedad Comercial del Plata S.A." type="stock" sector="Conglomerates" industry="Conglomerates"/>
+  <symbol ticker="CRES.BA" name="Cresud Sociedad An" type="stock" sector="Consumer Goods" industry="Farm Products"/>
+  <symbol ticker="CTIO.BA" name="Consultatio S.A." type="stock" sector="Financial" industry="Property Management"/>
+  <symbol ticker="DGCU2.BA" name="Distribuidora de Gas Cuyana S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="DYCA.BA" name="Dycasa SA" type="stock" sector="Industrial Goods" industry="General Contractors"/>
+  <symbol ticker="ERAR.BA" name="Ternium Siderar" type="stock" sector="Basic Materials" industry="Steel &amp; Iron"/>
+  <symbol ticker="ESTR.BA" name="Angel Estrada y Compania S.A." type="stock" sector="Services" industry="Publishing - Newspapers"/>
+  <symbol ticker="FERR.BA" name="Ferrum Sociedad Anonima de Ceramica y Metalurgia" type="stock" sector="Industrial Goods" industry="General Building Materials"/>
+  <symbol ticker="FIPL.BA" name="Fiplasto S.A." type="stock" sector="Consumer Goods" industry="Home Furnishings &amp; Fixtures"/>
+  <symbol ticker="FRAN.BA" name="BBVA Banco Franc" type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="GALI.BA" name="Banco de Galicia &amp; Buenos Aires S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="GARO.BA" name="S.A. Garovaglio y Zorraquin" type="stock" sector="Conglomerates" industry="Conglomerates"/>
+  <symbol ticker="GBAN.BA" name="Gas Natural Ban, S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="GCLA.BA" name="Grupo Clar" type="stock" sector="Services" industry="Entertainment - Diversified"/>
+  <symbol ticker="GGAL.BA" name="Grupo Financiero Galicia S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="GRIM.BA" name="Grimoldi S.A." type="stock" sector="Consumer Goods" industry="Textile - Apparel Footwear &amp; Accessories"/>
+  <symbol ticker="INDU.BA" name="Solvay Indupa S.A.I.C." type="stock" sector="Basic Materials" industry="Chemicals - Major Diversified"/>
+  <symbol ticker="INTR.BA" name="Compania Introductora de Buenos Aires Sociedad Anonima" type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
+  <symbol ticker="IRSA.BA" name="IRSA Investments and Representations Inc." type="stock" sector="Financial" industry="Real Estate Development"/>
+  <symbol ticker="JMIN.BA" name="Holcim (Argentina) SA" type="stock" sector="Industrial Goods" industry="General Building Materials"/>
+  <symbol ticker="LEDE.BA" name="Ledesma SA" type="stock" sector="Consumer Goods" industry="Farm Products"/>
+  <symbol ticker="LONG.BA" name="Longvie S.A." type="stock" sector="Consumer Goods" industry="Home Furnishings &amp; Fixtures"/>
+  <symbol ticker="METR.BA" name="MetroGAS S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="MIRG.BA" name="Mirgor Sociedad An" type="stock" sector="Consumer Goods" industry="Auto Parts"/>
+  <symbol ticker="MOLI.BA" name="Molinos Rio de la Plata S.A." type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
+  <symbol ticker="MORI.BA" name="Morixe Hermanos S.A.C. e I." type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
+  <symbol ticker="OEST.BA" name="Grupo Concesionario del Oeste S.A." type="stock" sector="Industrial Goods" industry="Heavy Construction"/>
+  <symbol ticker="PAMP.BA" name="Pampa Energia SA" type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="PATA.BA" name="Sociedad Anonima Importadora y Exportadora de la Patagonia" type="stock" sector="Services" industry="Department Stores"/>
+  <symbol ticker="PATY.BA" name="Quickfood Sociedad Anonima" type="stock" sector="Consumer Goods" industry="Food - Major Diversified"/>
+  <symbol ticker="PESA.BA" name="Petrobras Argentina SA" type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
+  <symbol ticker="POLL.BA" name="Polledo S.A.I.C. y F." type="stock" sector="Industrial Goods" industry="General Contractors"/>
+  <symbol ticker="PSUR.BA" name="Petrolera del Conosur S.A." type="stock" sector="Basic Materials" industry="Oil &amp; Gas Drilling &amp; Exploration"/>
+  <symbol ticker="REP.BA" name="Repsol, S.A." type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
+  <symbol ticker="RIGO.BA" name="Rigolleau S.A." type="stock" sector="Consumer Goods" industry="Personal Products"/>
+  <symbol ticker="ROSE.BA" name="Instituto Rosenbusch S.A." type="stock" sector="Healthcare" industry="Drugs - Generic"/>
+  <symbol ticker="SAMI.BA" name="S.A. San Miguel A.G.I.C.I. y F." type="stock" sector="Consumer Goods" industry="Farm Products"/>
+  <symbol ticker="SEMI.BA" name="Molinos Juan Semino S.A." type="stock" sector="Consumer Goods" industry="Farm Products"/>
+  <symbol ticker="STD.BA" name="Banco Santander, S.A." type="stock" sector="Financial" industry="Money Center Banks"/>
+  <symbol ticker="TECO2.BA" name="Telecom Argentina S.A." type="stock" sector="Technology" industry="Wireless Communications"/>
+  <symbol ticker="TEF.BA" name="Telef" type="stock" sector="Technology" industry="Wireless Communications"/>
+  <symbol ticker="TGNO4.BA" name="Transportadora de Gas del Norte S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="TGSU2.BA" name="Transportadora de Gas Del Sur S.A." type="stock" sector="Utilities" industry="Gas Utilities"/>
+  <symbol ticker="TRAN.BA" name="Compania de Transporte de Energia Electrica en Alta Tension Transener" type="stock" sector="Utilities" industry="Electric Utilities"/>
+  <symbol ticker="TS.BA" name="Tenaris SA" type="stock" sector="Industrial Goods" industry="Metal Fabrication"/>
+  <symbol ticker="YPFD.BA" name="YPF S.A." type="stock" sector="Basic Materials" industry="Major Integrated Oil &amp; Gas"/>
+  <symbol ticker="^MERV" name="Merval" type="index"/>
 </symbols>

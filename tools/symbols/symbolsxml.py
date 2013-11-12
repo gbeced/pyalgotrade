@@ -29,7 +29,7 @@ class Stock:
         return self.__symbolElement.attrib["ticker"]
 
     def getCompany(self):
-        return self.__symbolElement.attrib["company"]
+        return self.__symbolElement.attrib["name"]
 
     def getSector(self):
         return self.__symbolElement.attrib["sector"]
@@ -44,7 +44,7 @@ class Writer:
     def addStock(self, ticker, company, sector, industry):
         symbolElement = etree.Element("symbol")
         symbolElement.set("ticker", ticker)
-        symbolElement.set("company", company)
+        symbolElement.set("name", company)
         symbolElement.set("type", "stock")
         if sector is None:
             sector = ""
@@ -52,6 +52,13 @@ class Writer:
         if industry is None:
             industry = ""
         symbolElement.set("industry", industry)
+        self.__root.append(symbolElement)
+
+    def addIndex(self, ticker, name):
+        symbolElement = etree.Element("symbol")
+        symbolElement.set("ticker", ticker)
+        symbolElement.set("name", name)
+        symbolElement.set("type", "index")
         self.__root.append(symbolElement)
 
     def write(self, fileName):
