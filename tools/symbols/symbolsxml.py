@@ -37,6 +37,16 @@ class Stock:
     def getIndustry(self):
         return self.__symbolElement.attrib["industry"]
 
+class Index:
+    def __init__(self, symbolElement):
+        self.__symbolElement = symbolElement
+
+    def getTicker(self):
+        return self.__symbolElement.attrib["ticker"]
+
+    def getName(self):
+        return self.__symbolElement.attrib["name"]
+
 class Writer:
     def __init__(self):
         self.__root = etree.Element('symbols')
@@ -64,7 +74,11 @@ class Writer:
     def write(self, fileName):
         etree.ElementTree(self.__root).write(fileName, xml_declaration=True, encoding="utf-8", pretty_print=True)
 
-def parse(fileName, callback):
+def parse(fileName, stockCallback, indexCallback):
     root = etree.parse(open(fileName, "r"))
-    for symbol in root.xpath("//symbols/symbol[@type='stock']"):
-        callback(Stock(symbol))
+    if stockCallback is not None:
+        for symbol in root.xpath("//symbols/symbol[@type='stock']"):
+            stockCallback(Stock(symbol))
+    if indexCallback is not None:
+        for symbol in root.xpath("//symbols/symbol[@type='index']"):
+            indexCallback(Index(symbol))

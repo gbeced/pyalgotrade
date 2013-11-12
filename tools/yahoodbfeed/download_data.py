@@ -65,11 +65,12 @@ def download_files_for_symbol(symbol, fromYear, toYear):
 
 def main():
     fromYear = 2000
-    toYear = 2012
+    toYear = 2013
 
     try:
         symbolsFile = os.path.join("..", "symbols", "merval.xml")
-        symbolsxml.parse(symbolsFile, lambda stock: download_files_for_symbol(stock.getTicker(), fromYear, toYear))
+        callback = lambda stock: download_files_for_symbol(stock.getTicker(), fromYear, toYear)
+        symbolsxml.parse(symbolsFile, callback, callback)
     except Exception, e:
         logger.error(str(e))
 
