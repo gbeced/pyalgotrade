@@ -102,9 +102,9 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__deadline is not None)
         return currentDateTime >= self.__deadline
 
-    def __stopLoss(self, currentPrice):
+    def __stopLoss(self):
         assert(self.__position is not None)
-        return self.__position.getUnrealizedReturn(currentPrice) <= self.__stopLossPct
+        return self.__position.getUnrealizedReturn() <= self.__stopLossPct
 
     # NoPos: A position is not opened.
     def __onNoPos(self, bars):
@@ -144,7 +144,7 @@ class Strategy(strategy.BaseStrategy):
         if self.__waitingPeriodExceeded(bars.getDateTime()):
             self.__log(1, bars.getDateTime(), "Holding period exceeded.")
             self.__exitWithMarketOrder(bars)
-        elif self.__stopLoss(currentPrice):
+        elif self.__stopLoss():
             self.__log(1, bars.getDateTime(), "Stop loss.")
             self.__exitWithMarketOrder(bars)
         elif currentPrice >= self.__commitPrice:
@@ -158,8 +158,7 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__position is not None)
 
         if self.__position.exitActive():
-            currentPrice = bars[self.__instrument].getClose()
-            if self.__stopLoss(currentPrice):
+            if self.__stopLoss():
                 self.__log(1, bars.getDateTime(), "Stop loss. Canceling SELL (Limit order).")
                 self.__position.cancelExit()
         else:
