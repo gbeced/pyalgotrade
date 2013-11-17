@@ -308,7 +308,7 @@ class StrategyPlotter:
     def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True):
         self.__dateTimes = set()
 
-        self.__useAdjustedValues = strat.getBroker().getUseAdjustedValues()
+        self.__useAdjustedValues = strat.getUseAdjustedValues()
         self.__plotAllInstruments = plotAllInstruments
         self.__plotBuySell = plotBuySell
         self.__barSubplots = {}

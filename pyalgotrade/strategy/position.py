@@ -47,6 +47,16 @@ class Position:
         self.__exitDateTime = None
         self.getStrategy().registerPositionOrder(self, entryOrder)
 
+    def getLastPrice(self):
+        ret = None
+        bar = self.__strategy.getFeed().getLastBar(self.getInstrument())
+        if bar is not None:
+            if self.__strategy.getUseAdjustedValues():
+                ret = bar.getAdjClose()
+            else:
+                ret = bar.getClose()
+        return ret
+
     def getStrategy(self):
         return self.__strategy
 
@@ -169,11 +179,16 @@ class Position:
                     self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
         return ret
 
-    def getUnrealizedReturn(self, marketPrice):
+    def onBar(self, bar):
+        pass
+
+    def getUnrealizedReturn(self, price=None):
         """Calculates the unrealized returns for the position.
 
-        :param marketPrice: Price used to calculate the return. This value is used as the current price and compared against your entry price.
-        :type marketPrice: float.
+        :param price: Price used to calculate the returns.
+            This value is used as the current price and compared against your entry price.
+            If None then the last available price will be used.
+        :type price: float.
         :rtype: A float between 0 and 1.
 
         .. note::
@@ -183,7 +198,10 @@ class Position:
             raise Exception("Position not opened yet")
         elif self.exitFilled():
             raise Exception("Position already closed")
-        return self.getReturnImpl(marketPrice, False)
+
+        if price is None:
+            price = self.getLastPrice()
+        return self.getReturnImpl(price, False)
 
     def getReturn(self, includeCommissions=True):
         """Calculates the returns for the position.
@@ -221,11 +239,13 @@ class Position:
             raise Exception("Position not closed yet")
         return self.getNetProfitImpl(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
 
-    def getUnrealizedNetProfit(self, marketPrice):
+    def getUnrealizedNetProfit(self, price=None):
         """Calculates the unrealized PnL for the position.
 
-        :param marketPrice: Price used to calculate the PnL. This value is used as the current price and compared against your entry price.
-        :type marketPrice: float.
+        :param price: Price used to calculate the PnL.
+            This value is used as the current price and compared against the entry price.
+            If None then the last available price will be used.
+        :type price: float.
         :rtype: A float with the unrealized PnL.
 
         .. note::
@@ -236,7 +256,10 @@ class Position:
             raise Exception("Position not opened yet")
         elif self.exitFilled():
             raise Exception("Position already closed")
-        return self.getNetProfitImpl(marketPrice, False)
+
+        if price is None:
+            price = self.getLastPrice()
+        return self.getNetProfitImpl(price, False)
 
     def getReturnImpl(self, price, includeCommissions):
         raise NotImplementedError()

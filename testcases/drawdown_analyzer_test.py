@@ -182,7 +182,7 @@ class AnalyzerTestCase(unittest.TestCase):
         barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
         strat = strategy_test.TestStrategy(barFeed, 1000)
         strat.setBrokerOrdersGTC(True)
-        strat.getBroker().setUseAdjustedValues(True)
+        strat.setUseAdjustedValues(True)
         stratAnalyzer = drawdown.DrawDown()
         strat.attachAnalyzer(stratAnalyzer)
 
@@ -199,7 +199,7 @@ class AnalyzerTestCase(unittest.TestCase):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
-        strat.getBroker().setUseAdjustedValues(True)
+        strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
         stratAnalyzer = drawdown.DrawDown()
         strat.attachAnalyzer(stratAnalyzer)

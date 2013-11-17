@@ -519,9 +519,11 @@ class Broker(broker.Broker):
     def getUseAdjustedValues(self):
         return self.__useAdjustedValues
 
-    def setUseAdjustedValues(self, useAdjusted):
+    def setUseAdjustedValues(self, useAdjusted, deprecationCheck=None):
         if not self.__barFeed.barsHaveAdjClose():
             raise Exception("The barfeed doesn't support adjusted close values")
+        if deprecationCheck is None:
+            warninghelpers.deprecation_warning("setUseAdjustedValues will be deprecated in the next version. Please use setUseAdjustedValues on the strategy instead.", stacklevel=2)
         self.__useAdjustedValues = useAdjusted
 
     def getActiveOrders(self):

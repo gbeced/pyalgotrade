@@ -19,10 +19,12 @@
 """
 
 import unittest
+import datetime
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 import common
+import strategy_test
 
 
 def load_daily_barfeed(instrument):
@@ -195,3 +197,38 @@ class TestCase(unittest.TestCase):
         self.assertEqual(strat.orderUpdated, 0)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
+
+    def testUnrealized(self):
+        instrument = "orcl"
+        barFeed = load_daily_barfeed(instrument)
+        strat = strategy_test.TestStrategy(barFeed, 1000)
+        strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 29.25.
+        strat.run()
+
+        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), 29.06 - 29.25)
+        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (29.06 - 29.25) / 29.25)
+
+    def testUnrealizedAdjusted(self):
+        instrument = "orcl"
+        barFeed = load_daily_barfeed(instrument)
+        strat = strategy_test.TestStrategy(barFeed, 1000)
+        strat.setUseAdjustedValues(True)
+        strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 28.60
+        strat.run()
+
+        self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(), 2), round(28.41 - 28.60, 2))
+        self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(), 2), round((28.41 - 28.60) / 28.60, 2))
+
+    def testInvalidUnrealized(self):
+        instrument = "orcl"
+        barFeed = load_daily_barfeed(instrument)
+        strat = strategy_test.TestStrategy(barFeed, 1000)
+        strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 29.25.
+        strat.addPosExit(datetime.date(2000, 12, 19))
+        strat.run()
+
+        with self.assertRaises(Exception):
+            strat.getActivePosition().getUnrealizedNetProfit()
+
+        with self.assertRaises(Exception):
+            strat.getActivePosition().getUnrealizedReturn()

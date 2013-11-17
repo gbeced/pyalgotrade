@@ -58,7 +58,7 @@ class MyStrategy(strategy.BacktestingStrategy):
         feed.getNewBarsEvent().subscribe(self.__onBarsBeforeBroker)
         strategy.BacktestingStrategy.__init__(self, feed, cash)
         self.__ordersFile = ordersFile
-        self.getBroker().setUseAdjustedValues(useAdjustedClose)
+        self.setUseAdjustedValues(useAdjustedClose)
         # We will allow buying more shares than cash allows.
         self.getBroker().setAllowNegativeCash(True)
 

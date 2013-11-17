@@ -1,4 +1,6 @@
 Version 0.15 (TBD)
+. [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
+. [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.
 . [CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [FIX] Fixed a bug in pyalgotrade.technical.roc.RateOfChange when there was no change and the current value was 0.
 

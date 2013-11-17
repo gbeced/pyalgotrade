@@ -8,7 +8,7 @@ import datetime
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, quandlFeed, instrument):
         strategy.BacktestingStrategy.__init__(self, feed)
-        self.getBroker().setUseAdjustedValues(True)
+        self.setUseAdjustedValues(True)
         self.__instrument = instrument
 
         # It is VERY important to add the the extra feed to the event dispatch loop before

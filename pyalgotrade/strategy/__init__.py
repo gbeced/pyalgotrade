@@ -68,6 +68,9 @@ class BaseStrategy:
     def getBarsProcessedEvent(self):
         return self.__barsProcessedEvent
 
+    def getUseAdjustedValues(self):
+        return False
+
     def registerPositionOrder(self, position, order):
         assert(position.isOpen())  # Why register an order for a closed position ?
         self.__activePositions.add(position)
@@ -380,18 +383,29 @@ class BaseStrategy:
             if order:
                 self.registerPositionOrder(position, order)
 
+    def __notifyPositions(self, dateTime, bars):
+        for position in self.__activePositions:
+            try:
+                position.onBar(bars[position.getInstrument()])
+            except KeyError:
+                pass
+
     def __onBars(self, dateTime, bars):
         # THE ORDER HERE IS VERY IMPORTANT
 
+        # 1: Let analyzers process bars.
         self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
-        # 1: Let the strategy process current bars and place orders.
+        # 2: Let positions process bars.
+        self.__notifyPositions(dateTime, bars)
+
+        # 3: Let the strategy process current bars and place orders.
         self.onBars(bars)
 
-        # 2: Place the necessary orders for positions marked to exit on session close.
+        # 4: Place the necessary orders for positions marked to exit on session close.
         self.__checkExitOnSessionClose(bars)
 
-        # 3: Notify that the bars were processed.
+        # 5: Notify that the bars were processed.
         self.__barsProcessedEvent.emit(self, bars)
 
     def run(self):
@@ -427,6 +441,16 @@ class BacktestingStrategy(BaseStrategy):
         # This is to avoid executing orders placed in the current tick.
         broker = pyalgotrade.broker.backtesting.Broker(cash, barFeed)
         BaseStrategy.__init__(self, barFeed, broker)
+        self.__useAdjustedValues = False
+
+    def getUseAdjustedValues(self):
+        return self.__useAdjustedValues
+
+    def setUseAdjustedValues(self, useAdjusted):
+        if not self.getFeed().barsHaveAdjClose():
+            raise Exception("The barfeed doesn't support adjusted close values")
+        self.getBroker().setUseAdjustedValues(useAdjusted, True)
+        self.__useAdjustedValues = useAdjusted
 
 
 class Strategy(BacktestingStrategy):

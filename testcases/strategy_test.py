@@ -38,10 +38,15 @@ def us_equities_datetime(*params):
     ret = dt.localize(ret, marketsession.USEquities.getTimezone())
     return ret
 
-
 def datetime_from_date(year, month, day):
     ret = datetime.datetime(year, month, day)
     ret = datetime.datetime.combine(ret, datetime.time(23, 59, 59))
+    return ret
+
+def get_by_datetime_or_date(dict_, dateTimeOrDate):
+    ret = dict_.get(dateTimeOrDate, [])
+    if len(ret) == 0 and isinstance(dateTimeOrDate, datetime.datetime):
+        ret = dict_.get(dateTimeOrDate.date(), [])
     return ret
 
 
@@ -65,10 +70,6 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__exitCanceledEvents = 0
         self.__exitOnSessionClose = False
         self.__brokerOrdersGTC = False
-        self.__onBarsHander = None
-
-    def setOnBarsHandler(self, handler):
-        self.__onBarsHander = handler
 
     def addOrder(self, dateTime, method, *methodParams):
         self.__orderEntry.setdefault(dateTime, [])
@@ -142,26 +143,23 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__exitCanceledEvents += 1
 
     def onBars(self, bars):
-        if self.__onBarsHander:
-            self.__onBarsHander(self, bars)
-
         dateTime = bars.getDateTime()
 
         # Check position entry.
-        for meth, params in self.__posEntry.get(dateTime, []):
+        for meth, params in get_by_datetime_or_date(self.__posEntry, dateTime):
             if self.__activePosition is not None:
                 raise Exception("Only one position allowed at a time")
             self.__activePosition = meth(*params)
             self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
 
         # Check position exit.
-        for params in self.__posExit.get(dateTime, []):
+        for params in get_by_datetime_or_date(self.__posExit, dateTime):
             if self.__activePosition is None:
                 raise Exception("A position was not entered")
             self.__activePosition.exit(*params)
 
         # Check order entry.
-        for meth, params in self.__orderEntry.get(dateTime, []):
+        for meth, params in get_by_datetime_or_date(self.__orderEntry, dateTime):
             order = meth(*params)
             order.setGoodTillCanceled(self.__brokerOrdersGTC)
             self.getBroker().placeOrder(order)
@@ -240,7 +238,7 @@ class LongPosTestCase(StrategyTestCase):
 
     def testLongPositionAdjClose(self):
         strat = self.createStrategy()
-        strat.getBroker().setUseAdjustedValues(True)
+        strat.setUseAdjustedValues(True)
 
         # Date,Open,High,Low,Close,Volume,Adj Close
         # 2000-10-13,31.00,35.75,31.00,35.63,38516200,34.84
@@ -417,7 +415,7 @@ class ShortPosTestCase(StrategyTestCase):
 
     def testShortPositionAdjClose(self):
         strat = self.createStrategy()
-        strat.getBroker().setUseAdjustedValues(True)
+        strat.setUseAdjustedValues(True)
 
         # Date,Open,High,Low,Close,Volume,Adj Close
         # 2000-10-13,31.00,35.75,31.00,35.63,38516200,34.84

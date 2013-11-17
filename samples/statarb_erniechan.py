@@ -71,7 +71,7 @@ class StatArbHelper:
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument1, instrument2, windowSize):
         strategy.BacktestingStrategy.__init__(self, feed)
-        self.getBroker().setUseAdjustedValues(True)
+        self.setUseAdjustedValues(True)
         self.__statArbHelper = StatArbHelper(feed[instrument1].getAdjCloseDataSeries(), feed[instrument2].getAdjCloseDataSeries(), windowSize)
         self.__i1 = instrument1
         self.__i2 = instrument2

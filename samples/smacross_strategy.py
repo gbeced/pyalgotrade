@@ -9,7 +9,7 @@ class Strategy(strategy.BacktestingStrategy):
         self.__instrument = instrument
         self.__position = None
         # We'll use adjusted close values instead of regular close values.
-        self.getBroker().setUseAdjustedValues(True)
+        self.setUseAdjustedValues(True)
         self.__adjClose = feed[instrument].getAdjCloseDataSeries()
         self.__sma = ma.SMA(self.__adjClose, smaPeriod)
 

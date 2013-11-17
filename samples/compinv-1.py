@@ -10,7 +10,7 @@ class MyStrategy(strategy.BacktestingStrategy):
         strategy.BacktestingStrategy.__init__(self, feed, 1000000)
 
         # We wan't to use adjusted close prices instead of close.
-        self.getBroker().setUseAdjustedValues(True)
+        self.setUseAdjustedValues(True)
 
         # Place the orders to get them processed on the first bar.
         orders = {
