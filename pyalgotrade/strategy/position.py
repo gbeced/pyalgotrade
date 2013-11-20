@@ -156,10 +156,12 @@ class Position:
         """
 
         if self.getEntryOrder().isActive():
+            assert(self.__shares == 0)
             self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
             return
 
         if self.exitFilled():
+            assert(self.__shares == 0)
             return
 
         # Fail if a previous exit order is active.
