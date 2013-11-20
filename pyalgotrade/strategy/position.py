@@ -39,6 +39,9 @@ class Position:
 
     def __init__(self, strategy, entryOrder, goodTillCanceled):
         assert(entryOrder.isSubmitted())
+
+        self.__activeOrders = [entryOrder]
+        self.__shares = 0
         self.__strategy = strategy
         self.__entryOrder = entryOrder
         self.__exitOrder = None
@@ -59,6 +62,14 @@ class Position:
 
     def getStrategy(self):
         return self.__strategy
+
+    def getActiveOrders(self):
+        """Returns a list with the active orders."""
+        return self.__activeOrders
+
+    def getShares(self):
+        """Returns the number of shares."""
+        return self.__shares
 
     def entryActive(self):
         """Returns True if the entry order is active."""
@@ -97,6 +108,8 @@ class Position:
 
     def setExitOrder(self, exitOrder):
         assert(self.__exitOrder is None or not self.__exitOrder.isActive())
+        assert(exitOrder.isSubmitted())
+        self.__activeOrders.append(exitOrder)
         self.__exitOrder = exitOrder
         self.getStrategy().registerPositionOrder(self, exitOrder)
 
@@ -181,6 +194,16 @@ class Position:
 
     def onBar(self, bar):
         pass
+
+    def onOrderUpdated(self, broker, order):
+        if not order.isActive():
+            self.__activeOrders.remove(order)
+        # Update the number of shares.
+        if order.isFilled():
+            if order.isBuy():
+                self.__shares += order.getExecutionInfo().getQuantity()
+            else:
+                self.__shares -= order.getExecutionInfo().getQuantity()
 
     def getUnrealizedReturn(self, price=None):
         """Calculates the unrealized returns for the position.

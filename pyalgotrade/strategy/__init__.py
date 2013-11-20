@@ -77,7 +77,7 @@ class BaseStrategy:
         assert(order.isActive())  # Why register an inactive order ?
         self.__orderToPosition[order.getId()] = position
 
-    def __unregisterOrder(self, position, order):
+    def unregisterPositionOrder(self, position, order):
         del self.__orderToPosition[order.getId()]
         if not position.isOpen():
             self.__activePositions.remove(position)
@@ -351,31 +351,35 @@ class BaseStrategy:
         pass
 
     def __onOrderUpdated(self, broker, order):
-        position = self.__orderToPosition.get(order.getId(), None)
-        if position is None:
+        pos = self.__orderToPosition.get(order.getId(), None)
+        if pos is None:
             self.onOrderUpdated(order)
-        elif position.getEntryOrder().getId() == order.getId():
-            if order.isFilled():
-                self.__unregisterOrder(position, order)
-                self.onEnterOk(position)
-            elif order.isCanceled():
-                self.__unregisterOrder(position, order)
-                self.onEnterCanceled(position)
-            else:
-                assert(order.isAccepted())
-        elif position.getExitOrder().getId() == order.getId():
-            if order.isFilled():
-                self.__unregisterOrder(position, order)
-                self.onExitOk(position)
-            elif order.isCanceled():
-                self.__unregisterOrder(position, order)
-                self.onExitCanceled(position)
-            else:
-                assert(order.isAccepted())
         else:
-            # The order used to belong to a position but it was ovewritten with a new one
-            # and the previous order should have been canceled.
-            assert(order.isCanceled())
+            # Notify the position that an order was updated.
+            pos.onOrderUpdated(broker, order)
+            
+            if pos.getEntryOrder().getId() == order.getId():
+                if order.isFilled():
+                    self.unregisterPositionOrder(pos, order)
+                    self.onEnterOk(pos)
+                elif order.isCanceled():
+                    self.unregisterPositionOrder(pos, order)
+                    self.onEnterCanceled(pos)
+                else:
+                    assert(order.isAccepted())
+            elif pos.getExitOrder().getId() == order.getId():
+                if order.isFilled():
+                    self.unregisterPositionOrder(pos, order)
+                    self.onExitOk(pos)
+                elif order.isCanceled():
+                    self.unregisterPositionOrder(pos, order)
+                    self.onExitCanceled(pos)
+                else:
+                    assert(order.isAccepted())
+            else:
+                # The order used to belong to a position but it was ovewritten with a new one
+                # and the previous order should have been canceled.
+                assert(order.isCanceled())
 
     def __checkExitOnSessionClose(self, bars):
         for position in self.__activePositions:

@@ -125,11 +125,17 @@ class TestStrategy(strategy.BacktestingStrategy):
         if self.__activePosition is None:
             self.__activePosition = position
             self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
+            assert(position.isOpen())
+            assert(len(position.getActiveOrders()) != 0)
+            assert(position.getShares() != 0)
 
     def onEnterCanceled(self, position):
         # print "Enter canceled", position.getEntryOrder().getExecutionInfo().getDateTime()
         self.__enterCanceledEvents += 1
         self.__activePosition = None
+        assert(not position.isOpen())
+        assert(len(position.getActiveOrders()) == 0)
+        assert(position.getShares() == 0)
 
     def onExitOk(self, position):
         # print "Exit ok", position.getExitOrder().getExecutionInfo().getDateTime()
@@ -137,10 +143,16 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__netProfit += position.getNetProfit()
         self.__exitOkEvents += 1
         self.__activePosition = None
+        assert(not position.isOpen())
+        assert(len(position.getActiveOrders()) == 0)
+        assert(position.getShares() == 0)
 
     def onExitCanceled(self, position):
         # print "Exit canceled", position.getExitOrder().getExecutionInfo().getDateTime()
         self.__exitCanceledEvents += 1
+        assert(position.isOpen())
+        assert(len(position.getActiveOrders()) == 0)
+        assert(position.getShares() != 0)
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()

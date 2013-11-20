@@ -201,6 +201,14 @@ class Order:
         """
         return self.__executionInfo
 
+    # Returns True if this is a BUY or BUY_TO_COVER order.
+    def isBuy(self):
+        return self.__action in [Order.Action.BUY, Order.Action.BUY_TO_COVER]
+
+    # Returns True if this is a SELL or SELL_SHORT order.
+    def isSell(self):
+        return self.__action in [Order.Action.SELL, Order.Action.SELL_SHORT]
+
 
 class MarketOrder(Order):
     """Base class for market orders.
