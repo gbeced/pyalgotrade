@@ -97,6 +97,16 @@ class BaseStrategy:
             self.__analyzers.append(strategyAnalyzer)
             strategyAnalyzer.attached(self)
 
+    def getLastPrice(self, instrument):
+        ret = None
+        bar = self.getFeed().getLastBar(instrument)
+        if bar is not None:
+            if self.getUseAdjustedValues():
+                ret = bar.getAdjClose()
+            else:
+                ret = bar.getClose()
+        return ret
+
     def attachAnalyzer(self, strategyAnalyzer):
         """Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
         self.attachAnalyzerEx(strategyAnalyzer)
@@ -208,74 +218,22 @@ class BaseStrategy:
         return ret
 
     def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a buy :class:`pyalgotrade.broker.StopOrder` to enter a long position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param stopPrice: Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.LongPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
         return ret
 
     def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a sell short :class:`pyalgotrade.broker.StopOrder` to enter a short position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param stopPrice: Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
         return ret
 
     def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a buy :class:`pyalgotrade.broker.StopLimitOrder` order to enter a long position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param limitPrice: Limit price.
-        :type limitPrice: float.
-        :param stopPrice: Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
         return ret
 
     def enterShortStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a sell short :class:`pyalgotrade.broker.StopLimitOrder` order to enter a short position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param limitPrice: Limit price.
-        :type limitPrice: float.
-        :param stopPrice: The Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
         return ret
 
@@ -357,22 +315,21 @@ class BaseStrategy:
         else:
             # Notify the position that an order was updated.
             pos.onOrderUpdated(broker, order)
-            
+            # Unlink the order to the position if its not active anymore.
+            if not order.isActive():
+                self.unregisterPositionOrder(pos, order)
+
             if pos.getEntryOrder().getId() == order.getId():
                 if order.isFilled():
-                    self.unregisterPositionOrder(pos, order)
                     self.onEnterOk(pos)
                 elif order.isCanceled():
-                    self.unregisterPositionOrder(pos, order)
                     self.onEnterCanceled(pos)
                 else:
                     assert(order.isAccepted())
             elif pos.getExitOrder().getId() == order.getId():
                 if order.isFilled():
-                    self.unregisterPositionOrder(pos, order)
                     self.onExitOk(pos)
                 elif order.isCanceled():
-                    self.unregisterPositionOrder(pos, order)
                     self.onExitCanceled(pos)
                 else:
                     assert(order.isAccepted())
