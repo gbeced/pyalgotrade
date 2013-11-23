@@ -40,7 +40,7 @@ class Position:
     def __init__(self, strategy, entryOrder, goodTillCanceled):
         assert(entryOrder.isSubmitted())
 
-        self.__activeOrders = [entryOrder]
+        self.__activeOrders = {entryOrder.getId() : entryOrder}
         self.__shares = 0
         self.__strategy = strategy
         self.__entryOrder = entryOrder
@@ -57,12 +57,16 @@ class Position:
 
     def getActiveOrders(self):
         """Returns a list with the active orders."""
-        return self.__activeOrders
+        return self.__activeOrders.values()
 
     def getShares(self):
         """Returns the number of shares.
-            This will be a possitive number for a long position,
-            and a negative number for a short position."""
+        This will be a possitive number for a long position,
+        and a negative number for a short position.
+
+        .. note::
+            If the entry order was not filled, or if the position is closed, then the number of shares will be 0.
+        """
         return self.__shares
 
     def entryActive(self):
@@ -103,7 +107,7 @@ class Position:
     def setExitOrder(self, exitOrder):
         assert(self.__exitOrder is None or not self.__exitOrder.isActive())
         assert(exitOrder.isSubmitted())
-        self.__activeOrders.append(exitOrder)
+        self.__activeOrders[exitOrder.getId()] = exitOrder
         self.__exitOrder = exitOrder
         self.getStrategy().registerPositionOrder(self, exitOrder)
 
@@ -193,7 +197,7 @@ class Position:
 
     def onOrderUpdated(self, broker, order):
         if not order.isActive():
-            self.__activeOrders.remove(order)
+            del self.__activeOrders[order.getId()]
 
         # Update the number of shares.
         if order.isFilled():
@@ -201,7 +205,6 @@ class Position:
                 self.__shares += order.getExecutionInfo().getQuantity()
             else:
                 self.__shares -= order.getExecutionInfo().getQuantity()
-
 
     def getUnrealizedReturn(self, price=None):
         """Calculates the unrealized returns for the position.
