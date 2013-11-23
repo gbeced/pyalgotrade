@@ -27,9 +27,9 @@ from pyalgotrade import warninghelpers
 class Frequency:
     TRADE = -1  # A bar is created for each trade.
     SECOND = 1
-    MINUTE = 2
-    HOUR = 3
-    DAY = 4
+    MINUTE = 60
+    HOUR = 60*60
+    DAY = 24*60*60
 
 
 # Subclasses should implement:

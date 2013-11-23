@@ -21,7 +21,6 @@
 import os
 
 from pyalgotrade import observer
-from pyalgotrade import barfeed
 from pyalgotrade.dataseries import resampled
 
 datetime_format = "%Y-%m-%d %H:%M:%S"
@@ -101,25 +100,16 @@ def resample_to_csv(barFeed, frequency, csvFile):
 
     :param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.
     :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
-    :param frequency: The output frequency.
+    :param frequency: The grouping frequency in seconds. Must be > 0.
     :param csvFile: The path to the CSV file to write.
     :type csvFile: string.
 
     .. note::
         * Datetimes are stored without timezone information.
         * **Adj Close** column may be empty if the input bar feed doesn't have that info.
-        * Valid **frequency** parameter values are:
-
-         * pyalgotrade.barfeed.Frequency.MINUTE
-         * pyalgotrade.barfeed.Frequency.HOUR
-         * pyalgotrade.barfeed.Frequency.DAY
     """
 
-    if frequency == barfeed.Frequency.MINUTE:
-        resample_impl(barFeed, resampled.minute, csvFile)
-    elif frequency == barfeed.Frequency.HOUR:
-        resample_impl(barFeed, resampled.hour, csvFile)
-    elif frequency == barfeed.Frequency.DAY:
-        resample_impl(barFeed, resampled.day, csvFile)
+    if frequency > 0:
+        resample_impl(barFeed, frequency, csvFile)
     else:
         raise Exception("Invalid frequency")

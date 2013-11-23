@@ -16,13 +16,8 @@
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
-from pyalgotrade import barfeed
 from pyalgotrade import bar
 from pyalgotrade.utils import dt
-
-minute = 60
-hour = minute*60
-day = hour*24
 
 
 # frequency in seconds
@@ -83,17 +78,10 @@ class ResampledBarDataSeries(bards.BarDataSeries):
 
     :param dataSeries: The DataSeries instance being resampled.
     :type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
-    :param frequency: The grouping frequency.
+    :param frequency: The grouping frequency in seconds. Must be > 0.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.
-
-    .. note::
-        * Valid **frequency** parameter values are:
-
-         * pyalgotrade.barfeed.Frequency.MINUTE
-         * pyalgotrade.barfeed.Frequency.HOUR
-         * pyalgotrade.barfeed.Frequency.DAY
     """
 
     def __init__(self, dataSeries, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
@@ -102,12 +90,8 @@ class ResampledBarDataSeries(bards.BarDataSeries):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        if frequency == barfeed.Frequency.MINUTE:
-            self.__frequency = minute
-        elif frequency == barfeed.Frequency.HOUR:
-            self.__frequency = hour
-        elif frequency == barfeed.Frequency.DAY:
-            self.__frequency = day
+        if frequency > 0:
+            self.__frequency = frequency
         else:
             raise Exception("Invalid frequency")
 
