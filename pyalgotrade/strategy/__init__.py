@@ -340,16 +340,7 @@ class BaseStrategy:
 
     def __checkExitOnSessionClose(self, bars):
         for position in self.__activePositions:
-            order = position.checkExitOnSessionClose(bars)
-            if order:
-                self.registerPositionOrder(position, order)
-
-    def __notifyPositions(self, dateTime, bars):
-        for position in self.__activePositions:
-            try:
-                position.onBar(bars[position.getInstrument()])
-            except KeyError:
-                pass
+            position.checkExitOnSessionClose(bars)
 
     def __onBars(self, dateTime, bars):
         # THE ORDER HERE IS VERY IMPORTANT
@@ -357,16 +348,13 @@ class BaseStrategy:
         # 1: Let analyzers process bars.
         self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
-        # 2: Let positions process bars.
-        self.__notifyPositions(dateTime, bars)
-
-        # 3: Let the strategy process current bars and place orders.
+        # 2: Let the strategy process current bars and place orders.
         self.onBars(bars)
 
-        # 4: Place the necessary orders for positions marked to exit on session close.
+        # 3: Place the necessary orders for positions marked to exit on session close.
         self.__checkExitOnSessionClose(bars)
 
-        # 5: Notify that the bars were processed.
+        # 4: Notify that the bars were processed.
         self.__barsProcessedEvent.emit(self, bars)
 
     def run(self):

@@ -188,12 +188,10 @@ class Position:
                     ret = self.buildExitOnSessionCloseOrder()
                     self.getStrategy().getBroker().placeOrder(ret)
                     self.setExitOrder(ret)
+                    self.getStrategy().registerPositionOrder(self, ret)
                 else:
                     self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
         return ret
-
-    def onBar(self, bar):
-        pass
 
     def onOrderUpdated(self, broker, order):
         if not order.isActive():
