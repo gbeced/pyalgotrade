@@ -232,3 +232,77 @@ class TestCase(unittest.TestCase):
 
         with self.assertRaises(Exception):
             strat.getActivePosition().getUnrealizedReturn()
+
+    def testActiveOrdersAndSharesLong(self):
+        instrument = "orcl"
+        testCase = self
+
+        class Strategy(strategy.BacktestingStrategy):
+            def __init__(self, barFeed, cash):
+                strategy.BacktestingStrategy.__init__(self, barFeed, cash)
+                self.pos = None
+
+            def onBars(self, bars):
+                if self.pos is None:
+                    self.pos = self.enterLong(instrument, 1, True)
+                    # The entry order should be active.
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 1)
+                    testCase.assertEqual(self.pos.getShares(), 0)
+                elif self.pos.isOpen():
+                    # At this point the entry order should have been filled.
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 0)
+                    testCase.assertEqual(self.pos.getShares(), 1)
+                    self.pos.exit()
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 1)
+                    testCase.assertEqual(self.pos.getShares(), 1)
+                else:
+                    # The position was closed.
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 0)
+                    testCase.assertEqual(self.pos.getShares(), 0)
+
+        barFeed = load_daily_barfeed(instrument)
+        strat = Strategy(barFeed, 1000)
+        strat.run()
+
+        self.assertNotEqual(strat.pos, None)
+        self.assertEqual(strat.pos.isOpen(), False)
+        # Entered on 2000-01-04 at 115.50
+        # Exit on 2000-01-05 at 101.62
+        self.assertEqual(strat.pos.getNetProfit(),  101.62 - 115.50)
+
+    def testActiveOrdersAndSharesShort(self):
+        instrument = "orcl"
+        testCase = self
+
+        class Strategy(strategy.BacktestingStrategy):
+            def __init__(self, barFeed, cash):
+                strategy.BacktestingStrategy.__init__(self, barFeed, cash)
+                self.pos = None
+
+            def onBars(self, bars):
+                if self.pos is None:
+                    self.pos = self.enterShort(instrument, 1, True)
+                    # The entry order should be active.
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 1)
+                    testCase.assertEqual(self.pos.getShares(), 0)
+                elif self.pos.isOpen():
+                    # At this point the entry order should have been filled.
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 0)
+                    testCase.assertEqual(self.pos.getShares(), -1)
+                    self.pos.exit()
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 1)
+                    testCase.assertEqual(self.pos.getShares(), -1)
+                else:
+                    # The position was closed.
+                    testCase.assertEqual(len(self.pos.getActiveOrders()), 0)
+                    testCase.assertEqual(self.pos.getShares(), 0)
+
+        barFeed = load_daily_barfeed(instrument)
+        strat = Strategy(barFeed, 1000)
+        strat.run()
+
+        self.assertNotEqual(strat.pos, None)
+        self.assertEqual(strat.pos.isOpen(), False)
+        # Entered on 2000-01-04 at 115.50
+        # Exit on 2000-01-05 at 101.62
+        self.assertEqual(strat.pos.getNetProfit(),  115.50 - 101.62)

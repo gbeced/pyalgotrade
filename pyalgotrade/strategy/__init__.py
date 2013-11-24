@@ -77,7 +77,7 @@ class BaseStrategy:
         assert(order.isActive())  # Why register an inactive order ?
         self.__orderToPosition[order.getId()] = position
 
-    def __unregisterOrder(self, position, order):
+    def unregisterPositionOrder(self, position, order):
         del self.__orderToPosition[order.getId()]
         if not position.isOpen():
             self.__activePositions.remove(position)
@@ -96,6 +96,16 @@ class BaseStrategy:
             strategyAnalyzer.beforeAttach(self)
             self.__analyzers.append(strategyAnalyzer)
             strategyAnalyzer.attached(self)
+
+    def getLastPrice(self, instrument):
+        ret = None
+        bar = self.getFeed().getLastBar(instrument)
+        if bar is not None:
+            if self.getUseAdjustedValues():
+                ret = bar.getAdjClose()
+            else:
+                ret = bar.getClose()
+        return ret
 
     def attachAnalyzer(self, strategyAnalyzer):
         """Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
@@ -208,74 +218,22 @@ class BaseStrategy:
         return ret
 
     def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a buy :class:`pyalgotrade.broker.StopOrder` to enter a long position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param stopPrice: Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.LongPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
         return ret
 
     def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a sell short :class:`pyalgotrade.broker.StopOrder` to enter a short position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param stopPrice: Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
         return ret
 
     def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a buy :class:`pyalgotrade.broker.StopLimitOrder` order to enter a long position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param limitPrice: Limit price.
-        :type limitPrice: float.
-        :param stopPrice: Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
         return ret
 
     def enterShortStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):
-        """Generates a sell short :class:`pyalgotrade.broker.StopLimitOrder` order to enter a short position.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param limitPrice: Limit price.
-        :type limitPrice: float.
-        :param stopPrice: The Stop price.
-        :type stopPrice: float.
-        :param quantity: Entry order quantity.
-        :type quantity: int.
-        :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
-        :type goodTillCanceled: boolean.
-        :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
-        """
-
+        # TODO: Deprecate this since it doesn't make any sence to open a position with a StopOrder.
         ret = pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
         return ret
 
@@ -351,44 +309,38 @@ class BaseStrategy:
         pass
 
     def __onOrderUpdated(self, broker, order):
-        position = self.__orderToPosition.get(order.getId(), None)
-        if position is None:
+        pos = self.__orderToPosition.get(order.getId(), None)
+        if pos is None:
             self.onOrderUpdated(order)
-        elif position.getEntryOrder().getId() == order.getId():
-            if order.isFilled():
-                self.__unregisterOrder(position, order)
-                self.onEnterOk(position)
-            elif order.isCanceled():
-                self.__unregisterOrder(position, order)
-                self.onEnterCanceled(position)
-            else:
-                assert(order.isAccepted())
-        elif position.getExitOrder().getId() == order.getId():
-            if order.isFilled():
-                self.__unregisterOrder(position, order)
-                self.onExitOk(position)
-            elif order.isCanceled():
-                self.__unregisterOrder(position, order)
-                self.onExitCanceled(position)
-            else:
-                assert(order.isAccepted())
         else:
-            # The order used to belong to a position but it was ovewritten with a new one
-            # and the previous order should have been canceled.
-            assert(order.isCanceled())
+            # Notify the position that an order was updated.
+            pos.onOrderUpdated(broker, order)
+            # Unlink the order to the position if its not active anymore.
+            if not order.isActive():
+                self.unregisterPositionOrder(pos, order)
+
+            if pos.getEntryOrder().getId() == order.getId():
+                if order.isFilled():
+                    self.onEnterOk(pos)
+                elif order.isCanceled():
+                    self.onEnterCanceled(pos)
+                else:
+                    assert(order.isAccepted())
+            elif pos.getExitOrder().getId() == order.getId():
+                if order.isFilled():
+                    self.onExitOk(pos)
+                elif order.isCanceled():
+                    self.onExitCanceled(pos)
+                else:
+                    assert(order.isAccepted())
+            else:
+                # The order used to belong to a position but it was ovewritten with a new one
+                # and the previous order should have been canceled.
+                assert(order.isCanceled())
 
     def __checkExitOnSessionClose(self, bars):
         for position in self.__activePositions:
-            order = position.checkExitOnSessionClose(bars)
-            if order:
-                self.registerPositionOrder(position, order)
-
-    def __notifyPositions(self, dateTime, bars):
-        for position in self.__activePositions:
-            try:
-                position.onBar(bars[position.getInstrument()])
-            except KeyError:
-                pass
+            position.checkExitOnSessionClose(bars)
 
     def __onBars(self, dateTime, bars):
         # THE ORDER HERE IS VERY IMPORTANT
@@ -396,16 +348,13 @@ class BaseStrategy:
         # 1: Let analyzers process bars.
         self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
-        # 2: Let positions process bars.
-        self.__notifyPositions(dateTime, bars)
-
-        # 3: Let the strategy process current bars and place orders.
+        # 2: Let the strategy process current bars and place orders.
         self.onBars(bars)
 
-        # 4: Place the necessary orders for positions marked to exit on session close.
+        # 3: Place the necessary orders for positions marked to exit on session close.
         self.__checkExitOnSessionClose(bars)
 
-        # 5: Notify that the bars were processed.
+        # 4: Notify that the bars were processed.
         self.__barsProcessedEvent.emit(self, bars)
 
     def run(self):

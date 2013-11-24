@@ -39,26 +39,35 @@ class Position:
 
     def __init__(self, strategy, entryOrder, goodTillCanceled):
         assert(entryOrder.isSubmitted())
+
+        self.__activeOrders = {entryOrder.getId() : entryOrder}
+        self.__shares = 0
         self.__strategy = strategy
         self.__entryOrder = entryOrder
         self.__exitOrder = None
         self.__exitOnSessionClose = False
         entryOrder.setGoodTillCanceled(goodTillCanceled)
-        self.__exitDateTime = None
         self.getStrategy().registerPositionOrder(self, entryOrder)
-
-    def getLastPrice(self):
-        ret = None
-        bar = self.__strategy.getFeed().getLastBar(self.getInstrument())
-        if bar is not None:
-            if self.__strategy.getUseAdjustedValues():
-                ret = bar.getAdjClose()
-            else:
-                ret = bar.getClose()
-        return ret
 
     def getStrategy(self):
         return self.__strategy
+
+    def getLastPrice(self):
+        return self.__strategy.getLastPrice(self.getInstrument())
+
+    def getActiveOrders(self):
+        """Returns a list with the active orders."""
+        return self.__activeOrders.values()
+
+    def getShares(self):
+        """Returns the number of shares.
+        This will be a possitive number for a long position,
+        and a negative number for a short position.
+
+        .. note::
+            If the entry order was not filled, or if the position is closed, then the number of shares will be 0.
+        """
+        return self.__shares
 
     def entryActive(self):
         """Returns True if the entry order is active."""
@@ -80,15 +89,11 @@ class Position:
         return self.__entryOrder.getGoodTillCanceled()
 
     def setExitOnSessionClose(self, exitOnSessionClose):
-        """Set to True to automatically place an exit order when the session is about to close. Only useful for intraday trading.
-
-        .. note::
-            If the entry order was not filled by the time the session is about to close, it will get canceled.
-        """
+        # Deprecated since v0.15
+        warninghelpers.deprecation_warning("Auto exit on session close will be deprecated in the next version.", stacklevel=2)
         self.__exitOnSessionClose = exitOnSessionClose
 
     def getExitOnSessionClose(self):
-        """Returns True if an order to exit the position should be automatically submitted when the session is about to close."""
         return self.__exitOnSessionClose
 
     def getEntryOrder(self):
@@ -97,6 +102,8 @@ class Position:
 
     def setExitOrder(self, exitOrder):
         assert(self.__exitOrder is None or not self.__exitOrder.isActive())
+        assert(exitOrder.isSubmitted())
+        self.__activeOrders[exitOrder.getId()] = exitOrder
         self.__exitOrder = exitOrder
         self.getStrategy().registerPositionOrder(self, exitOrder)
 
@@ -109,7 +116,7 @@ class Position:
         return self.__entryOrder.getInstrument()
 
     def getQuantity(self):
-        """Returns the number of shares used to enter this position."""
+        # TODO: Deprecate this and use abs(getShares()) instead.
         return self.__entryOrder.getQuantity()
 
     def cancelEntry(self):
@@ -143,10 +150,12 @@ class Position:
         """
 
         if self.getEntryOrder().isActive():
+            assert(self.__shares == 0)
             self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
             return
 
         if self.exitFilled():
+            assert(self.__shares == 0)
             return
 
         # Fail if a previous exit order is active.
@@ -175,12 +184,21 @@ class Position:
                     ret = self.buildExitOnSessionCloseOrder()
                     self.getStrategy().getBroker().placeOrder(ret)
                     self.setExitOrder(ret)
+                    self.getStrategy().registerPositionOrder(self, ret)
                 else:
                     self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
         return ret
 
-    def onBar(self, bar):
-        pass
+    def onOrderUpdated(self, broker, order):
+        if not order.isActive():
+            del self.__activeOrders[order.getId()]
+
+        # Update the number of shares.
+        if order.isFilled():
+            if order.isBuy():
+                self.__shares += order.getExecutionInfo().getQuantity()
+            else:
+                self.__shares -= order.getExecutionInfo().getQuantity()
 
     def getUnrealizedReturn(self, price=None):
         """Calculates the unrealized returns for the position.
@@ -333,21 +351,23 @@ class LongPosition(Position):
         return self.__getPosTracker().getNetProfit(price, includeCommissions)
 
     def buildExitOrder(self, limitPrice, stopPrice):
+        quantity = self.getShares()
         if limitPrice is None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), False)
+            ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), quantity, False)
         elif limitPrice is not None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createLimitOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), limitPrice, self.getQuantity())
+            ret = self.getStrategy().getBroker().createLimitOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), limitPrice, quantity)
         elif limitPrice is None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), stopPrice, self.getQuantity())
+            ret = self.getStrategy().getBroker().createStopOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), stopPrice, quantity)
         elif limitPrice is not None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopLimitOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), stopPrice, limitPrice, self.getQuantity())
+            ret = self.getStrategy().getBroker().createStopLimitOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), stopPrice, limitPrice, quantity)
         else:
             assert(False)
 
         return ret
 
     def buildExitOnSessionCloseOrder(self):
-        ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), self.getQuantity(), True)
+        quantity = self.getShares()
+        ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.SELL, self.getInstrument(), quantity, True)
         ret.setGoodTillCanceled(True)  # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
         return ret
 
@@ -390,21 +410,23 @@ class ShortPosition(Position):
         return self.__getPosTracker().getNetProfit(price, includeCommissions)
 
     def buildExitOrder(self, limitPrice, stopPrice):
+        quantity = self.getShares() * -1
         if limitPrice is None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), self.getQuantity(), False)
+            ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), quantity, False)
         elif limitPrice is not None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createLimitOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), limitPrice, self.getQuantity())
+            ret = self.getStrategy().getBroker().createLimitOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), limitPrice, quantity)
         elif limitPrice is None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, self.getQuantity())
+            ret = self.getStrategy().getBroker().createStopOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, quantity)
         elif limitPrice is not None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopLimitOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, limitPrice, self.getQuantity())
+            ret = self.getStrategy().getBroker().createStopLimitOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, limitPrice, quantity)
         else:
             assert(False)
 
         return ret
 
     def buildExitOnSessionCloseOrder(self):
-        ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), self.getQuantity(), True)
+        quantity = self.getShares() * -1
+        ret = self.getStrategy().getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.BUY_TO_COVER, self.getInstrument(), quantity, True)
         ret.setGoodTillCanceled(True)  # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
         return ret
 
