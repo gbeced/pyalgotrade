@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import urllib
+import urllib2
 import datetime
 import json
 
@@ -100,7 +100,7 @@ class TradesFile:
 def download_trades_impl(currency, tid):
     url = "https://data.mtgox.com/api/1/BTC%s/trades?since=%d" % (currency.upper(), tid)
 
-    f = urllib.urlopen(url)
+    f = urllib2.urlopen(url)
     buff = f.read()
     if f.headers["Content-Type"].find("application/json") != 0:
         logger.error(buff)
