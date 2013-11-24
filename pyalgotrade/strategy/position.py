@@ -89,15 +89,11 @@ class Position:
         return self.__entryOrder.getGoodTillCanceled()
 
     def setExitOnSessionClose(self, exitOnSessionClose):
-        """Set to True to automatically place an exit order when the session is about to close. Only useful for intraday trading.
-
-        .. note::
-            If the entry order was not filled by the time the session is about to close, it will get canceled.
-        """
+        # Deprecated since v0.15
+        warninghelpers.deprecation_warning("Auto exit on session close will be deprecated in the next version.", stacklevel=2)
         self.__exitOnSessionClose = exitOnSessionClose
 
     def getExitOnSessionClose(self):
-        """Returns True if an order to exit the position should be automatically submitted when the session is about to close."""
         return self.__exitOnSessionClose
 
     def getEntryOrder(self):
