@@ -113,7 +113,9 @@ def main():
         symbolsFile = os.path.join("..", "symbols", "merval.xml")
         missingDataVerifierClass = MervalMissingDataVerifier
 
-        symbolsxml.parse(symbolsFile, lambda stock: process_symbol(stock.getTicker(), fromYear, toYear, missingDataVerifierClass))
+        stockCallback = lambda stock: process_symbol(stock.getTicker(), fromYear, toYear, missingDataVerifierClass)
+        indexCallback = stockCallback
+        symbolsxml.parse(symbolsFile, stockCallback, indexCallback)
     except Exception, e:
         logger.error(str(e))
 
