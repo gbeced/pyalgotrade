@@ -140,7 +140,7 @@ class Strategy(strategy.BaseStrategy):
         assert(self.__targetPrice is not None)
 
         currentPrice = bars[self.__instrument].getClose()
-        # If the holding perios is exceeded, we exit with a market order.
+        # If the holding period is exceeded, we exit with a market order.
         if self.__waitingPeriodExceeded(bars.getDateTime()):
             self.__log(1, bars.getDateTime(), "Holding period exceeded.")
             self.__exitWithMarketOrder(bars)
