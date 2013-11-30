@@ -18,37 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import math
 import numpy
-
-
-def py_mean(values):
-    ret = None
-    if len(values):
-        accum = 0
-        for value in values:
-            if value is None:
-                return None
-            accum += value
-        ret = accum / float(len(values))
-    return ret
-
-
-def py_stddev(values, ddof=1):
-    ret = None
-    if len(values):
-        mn = mean(values)
-        accum = 0
-        for value in values:
-            if value is None:
-                return None
-            accum += (value - mn)**2
-
-        denom = len(values) - ddof
-        if denom <= 0:
-            return float('nan')
-        ret = math.sqrt(accum / float(denom))
-    return ret
 
 
 def mean(values):
