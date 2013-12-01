@@ -90,12 +90,13 @@ def resample_impl(barFeed, frequency, csvFile):
 
 
 def resample_to_csv(barFeed, frequency, csvFile):
-    """Resample a BarFeed into a CSV file grouping bars by a certain frequency. The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
+    """Resample a BarFeed into a CSV file grouping bars by a certain frequency.
+    The resulting file can be loaded using :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`.
     The CSV file will have the following format:
     ::
 
         Date Time,Open,High,Low,Close,Volume,Adj Close
-        2013-01-01 00:59:59,13.51001,13.56,13.51,13.56,273.88014126,13.51001
+        2013-01-01 00:00:00,13.51001,13.56,13.51,13.56,273.88014126,13.51001
 
 
     :param barFeed: The bar feed that will provide the bars. It should only hold bars from a single instrument.

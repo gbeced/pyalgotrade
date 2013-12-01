@@ -24,7 +24,7 @@ from pyalgotrade.utils import dt
 def get_slot_datetime(dateTime, frequency):
     ts = dt.datetime_to_timestamp(dateTime)
     slot = ts / frequency
-    slotTs = (slot + 1) * frequency - 1
+    slotTs = slot * frequency
     ret = dt.timestamp_to_datetime(slotTs, False)
     if not dt.datetime_is_naive(dateTime):
         ret = dt.localize(ret, dateTime.tzinfo)

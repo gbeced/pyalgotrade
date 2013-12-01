@@ -178,7 +178,7 @@ class GenericBarFeed(BarFeed):
     ::
 
         Date Time,Open,High,Low,Close,Volume,Adj Close
-        2013-01-01 00:59:59,13.51001,13.56,13.51,13.56,273.88014126,13.51001
+        2013-01-01 13:59:00,13.51001,13.56,13.51,13.56,273.88014126,13.51001
 
     :param frequency: The frequency of the bars.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
