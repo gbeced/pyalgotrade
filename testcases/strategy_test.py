@@ -38,11 +38,6 @@ def us_equities_datetime(*params):
     ret = dt.localize(ret, marketsession.USEquities.getTimezone())
     return ret
 
-def datetime_from_date(year, month, day):
-    ret = datetime.datetime(year, month, day)
-    ret = datetime.datetime.combine(ret, datetime.time(23, 59, 59))
-    return ret
-
 def get_by_datetime_or_date(dict_, dateTimeOrDate):
     ret = dict_.get(dateTimeOrDate, [])
     if len(ret) == 0 and isinstance(dateTimeOrDate, datetime.datetime):
@@ -237,8 +232,8 @@ class LongPosTestCase(StrategyTestCase):
         # 2000-11-06,30.69,30.69,27.50,27.94,75552300,27.32 - Buy
         # 2000-11-03,31.50,31.75,29.50,30.31,65020900,29.64 - Enter long
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime_from_date(2000, 11, 7))
+        strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosExit(datetime.datetime(2000, 11, 7))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -258,8 +253,8 @@ class LongPosTestCase(StrategyTestCase):
         # 2000-01-19,56.13,58.25,54.00,57.13,49208800,27.93
         # 2000-01-18,107.87,114.50,105.62,111.25,66791200,27.19
 
-        strat.addPosEntry(datetime_from_date(2000, 1, 18), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime_from_date(2000, 10, 12))
+        strat.addPosEntry(datetime.datetime(2000, 1, 18), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosExit(datetime.datetime(2000, 10, 12))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -282,8 +277,8 @@ class LongPosTestCase(StrategyTestCase):
         # 2000-01-28,51.50,51.94,46.63,47.38,86400600,23.16 - buy fails
         # 2000-01-27,55.81,56.69,50.00,51.81,61061800,25.33 - enterLong
 
-        strat.addPosEntry(datetime_from_date(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
-        strat.addPosExit(datetime_from_date(2000, 2, 3))
+        strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
+        strat.addPosExit(datetime.datetime(2000, 2, 3))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -299,7 +294,7 @@ class LongPosTestCase(StrategyTestCase):
         # 2000-01-28,51.50,51.94,46.63,47.38,86400600,23.16 - buy fails
         # 2000-01-27,55.81,56.69,50.00,51.81,61061800,25.33 - enterLong
 
-        strat.addPosEntry(datetime_from_date(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 0)
@@ -400,7 +395,7 @@ class LongPosTestCase(StrategyTestCase):
 
     def testIsOpen_NotClosed(self):
         strat = self.createStrategy()
-        strat.addPosEntry(datetime_from_date(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
         strat.run()
         self.assertTrue(strat.getActivePosition().isOpen())
 
@@ -415,8 +410,8 @@ class ShortPosTestCase(StrategyTestCase):
         # 2000-11-06,30.69,30.69,27.50,27.94,75552300,27.32
         # 2000-11-03,31.50,31.75,29.50,30.31,65020900,29.64
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 3), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime_from_date(2000, 11, 7))
+        strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosExit(datetime.datetime(2000, 11, 7))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -435,8 +430,8 @@ class ShortPosTestCase(StrategyTestCase):
         # 2000-01-19,56.13,58.25,54.00,57.13,49208800,27.93
         # 2000-01-18,107.87,114.50,105.62,111.25,66791200,27.19
 
-        strat.addPosEntry(datetime_from_date(2000, 1, 18), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime_from_date(2000, 10, 12))
+        strat.addPosEntry(datetime.datetime(2000, 1, 18), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosExit(datetime.datetime(2000, 10, 12))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -456,8 +451,8 @@ class ShortPosTestCase(StrategyTestCase):
         # 2000-11-29,23.19,23.62,21.81,22.87,75408100,22.36
         # 2000-11-28,23.50,23.81,22.25,22.66,43078300,22.16
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 28), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime_from_date(2000, 12, 7))
+        strat.addPosEntry(datetime.datetime(2000, 11, 28), strat.enterShort, StrategyTestCase.TestInstrument, 1, False)
+        strat.addPosExit(datetime.datetime(2000, 12, 7))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -481,9 +476,9 @@ class ShortPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterShort
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterShort, StrategyTestCase.TestInstrument, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 14))
-        strat.addPosExit(datetime_from_date(2000, 11, 22))
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterShort, StrategyTestCase.TestInstrument, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 14))
+        strat.addPosExit(datetime.datetime(2000, 11, 22))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -550,8 +545,8 @@ class LimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 16), 29)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), 29)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -571,8 +566,8 @@ class LimitPosTestCase(StrategyTestCase):
         # 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - entry filled
         # 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - enterShortLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 16), strat.enterShortLimit, StrategyTestCase.TestInstrument, 29, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 22), 24)
+        strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortLimit, StrategyTestCase.TestInstrument, 29, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 22), 24)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -592,8 +587,8 @@ class LimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 5, 1, True)
-        strat.addPosExit(datetime_from_date(2000, 11, 16), 29)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 5, 1, True)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), 29)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 0)
@@ -613,9 +608,9 @@ class LimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 14), 100)
-        strat.addPosExit(datetime_from_date(2000, 11, 16))
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 14), 100)
+        strat.addPosExit(datetime.datetime(2000, 11, 16))
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -632,8 +627,8 @@ class LimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 -
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 5, 1, True)
-        strat.addPosExit(datetime_from_date(2000, 11, 14), 100)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 5, 1, True)
+        strat.addPosExit(datetime.datetime(2000, 11, 14), 100)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 0)
@@ -651,8 +646,8 @@ class LimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1, True)
-        strat.addPosExit(datetime_from_date(2000, 11, 15), 100, None, False)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, StrategyTestCase.TestInstrument, 25, 1, True)
+        strat.addPosExit(datetime.datetime(2000, 11, 15), 100, None, False)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -674,8 +669,8 @@ class StopPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStop
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongStop, StrategyTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 16), None, 26)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStop, StrategyTestCase.TestInstrument, 25, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), None, 26)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -695,8 +690,8 @@ class StopPosTestCase(StrategyTestCase):
         # 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - entry filled
         # 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - enterShortStop
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 16), strat.enterShortStop, StrategyTestCase.TestInstrument, 27, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 22), None, 23)
+        strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStop, StrategyTestCase.TestInstrument, 27, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 22), None, 23)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -718,8 +713,8 @@ class StopLimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStopLimit
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 10), strat.enterLongStopLimit, StrategyTestCase.TestInstrument, 24, 25.5, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 16), 28, 27)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, StrategyTestCase.TestInstrument, 24, 25.5, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), 28, 27)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)
@@ -743,8 +738,8 @@ class StopLimitPosTestCase(StrategyTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87
 
-        strat.addPosEntry(datetime_from_date(2000, 11, 16), strat.enterShortStopLimit, StrategyTestCase.TestInstrument, 29, 27, 1)
-        strat.addPosExit(datetime_from_date(2000, 11, 22), 25, 24)
+        strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStopLimit, StrategyTestCase.TestInstrument, 29, 27, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 22), 25, 24)
         strat.run()
 
         self.assertTrue(strat.getEnterOkEvents() == 1)

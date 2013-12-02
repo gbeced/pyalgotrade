@@ -98,7 +98,7 @@ class BarFeed(membf.BarFeed):
     def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         membf.BarFeed.__init__(self, frequency, maxLen)
         self.__barFilter = None
-        self.__dailyTime = datetime.time(23, 59, 59)
+        self.__dailyTime = datetime.time(0, 0, 0)
 
     def getDailyBarTime(self):
         """Returns the time to set to daily bars when that information is not present in CSV files. Defaults to 23:59:59.
