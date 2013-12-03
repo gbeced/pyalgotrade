@@ -23,7 +23,6 @@ from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.utils import stats
 
 import math
-import types
 
 
 def days_traded(begin, end):
@@ -132,7 +131,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
         :type annualized: boolean.
         """
 
-        if not isinstance(annualized, types.BooleanType):
+        if not isinstance(annualized, bool):
             raise Exception("tradingPeriods parameter is not supported anymore.")
 
         if self.__useDailyReturns:

@@ -21,7 +21,6 @@
 import Queue
 import threading
 import json
-import types
 
 from pyalgotrade import observer
 import pyalgotrade.logger
@@ -86,11 +85,11 @@ class TwitterFeed(observer.Subject):
     MAX_EVENTS_PER_DISPATCH = 50
 
     def __init__(self, consumerKey, consumerSecret, accessToken, accessTokenSecret, track=[], follow=[], languages=[]):
-        if not isinstance(track, types.ListType):
+        if not isinstance(track, list):
             raise Exception("track must be a list")
-        if not isinstance(follow, types.ListType):
+        if not isinstance(follow, list):
             raise Exception("follow must be a list")
-        if not isinstance(languages, types.ListType):
+        if not isinstance(languages, list):
             raise Exception("languages must be a list")
 
         self.__event = observer.Event()

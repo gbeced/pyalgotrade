@@ -18,8 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import types
-
 from pyalgotrade.utils import collections
 from pyalgotrade import dataseries
 
@@ -40,7 +38,7 @@ class EventWindow:
 
     def __init__(self, windowSize, dtype=float, skipNone=True):
         assert(windowSize > 0)
-        assert(isinstance(windowSize, types.IntType))
+        assert(isinstance(windowSize, int))
         self.__values = collections.NumPyDeque(windowSize, dtype)
         self.__windowSize = windowSize
         self.__skipNone = skipNone
