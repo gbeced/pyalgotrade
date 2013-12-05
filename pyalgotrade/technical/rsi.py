@@ -98,7 +98,7 @@ class RSIEventWindow(technical.EventWindow):
     def onNewValue(self, dateTime, value):
         technical.EventWindow.onNewValue(self, dateTime, value)
 
-        # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+        # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
         if value is not None and self.windowFull():
             if self.__prevGain is None:
                 assert(self.__prevLoss is None)
