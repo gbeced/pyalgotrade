@@ -31,7 +31,7 @@ def get_slot_datetime(dateTime, frequency):
     return ret
 
 
-class Slot:
+class Slot(object):
     def __init__(self, dateTime, bar_):
         self.__dateTime = dateTime
         self.__open = bar_.getOpen()

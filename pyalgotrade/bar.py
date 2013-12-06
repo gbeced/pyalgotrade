@@ -152,7 +152,7 @@ class BasicBar(Bar):
         self.__barsTillSessionClose = barsTillSessionClose
 
 
-class Bars:
+class Bars(object):
     """A group of :class:`Bar` objects.
 
     :param barDict: A map of instrument to :class:`Bar` objects.

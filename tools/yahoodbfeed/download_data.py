@@ -22,7 +22,7 @@ import os
 import sys
 
 sys.path.append(os.path.join("..", "symbols"))
-sys.path.append(os.path.join("..", "..")) # For pyalgotrade
+sys.path.append(os.path.join("..", ".."))  # For pyalgotrade
 
 import pyalgotrade.logger
 
@@ -38,6 +38,7 @@ storage = "data"
 
 def get_csv_filename(symbol, year):
     return os.path.join(storage, "%s-%d-yahoofinance.csv" % (symbol, year))
+
 
 def download_files_for_symbol(symbol, fromYear, toYear):
     if not os.path.exists(storage):
@@ -62,6 +63,7 @@ def download_files_for_symbol(symbol, fromYear, toYear):
         logger.fatal("No data found for %s" % (symbol))
     elif status.lstrip("0").find("0") != -1:
         logger.fatal("Some bars are missing for %s" % (symbol))
+
 
 def main():
     fromYear = 2000

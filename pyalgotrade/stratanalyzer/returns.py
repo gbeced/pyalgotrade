@@ -24,7 +24,7 @@ from pyalgotrade import dataseries
 
 
 # Helper class to calculate returns and net profit.
-class PositionTracker:
+class PositionTracker(object):
     def __init__(self):
         self.__shares = 0
         self.__cash = 0

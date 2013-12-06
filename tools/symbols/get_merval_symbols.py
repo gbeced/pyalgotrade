@@ -27,12 +27,14 @@ import symbolsxml
 
 logger = pyalgotrade.logger.getLogger("get_merval_symbols")
 
+
 def find_company(htmlTree, ticker):
     ret = None
     anchor = htmlTree.xpath("//td[1]/a[@href='/q/pr?s=%s']/text()" % (ticker))
     if anchor:
         ret = anchor[0]
     return ret
+
 
 def find_sector(htmlTree):
     ret = None
@@ -41,12 +43,14 @@ def find_sector(htmlTree):
         ret = anchor[0]
     return ret
 
+
 def find_industry(htmlTree):
     ret = None
     anchor = htmlTree.xpath("//th[1][text() = 'Industry:']/../td/a[1]/text()")
     if anchor:
         ret = anchor[0]
     return ret
+
 
 def process_symbol(writer, symbol):
     try:
@@ -71,6 +75,7 @@ def process_symbol(writer, symbol):
         writer.addStock(symbol, company, sector, industry)
     except Exception, e:
         logger.error(str(e))
+
 
 def main():
     try:

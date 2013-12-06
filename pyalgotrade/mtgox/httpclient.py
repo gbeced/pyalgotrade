@@ -31,7 +31,7 @@ from pyalgotrade.mtgox import base
 
 # https://en.bitcoin.it/wiki/MtGox/API/HTTP#Python
 # https://en.bitcoin.it/wiki/MtGox/API/HTTP/v1
-class HTTPClient:
+class HTTPClient(object):
     USER_AGENT = "PyAlgoTrade"
 
     # currency is the account's currency.

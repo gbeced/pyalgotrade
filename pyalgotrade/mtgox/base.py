@@ -68,7 +68,7 @@ def from_amount_int(value_int):
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#Trade
-class Trade:
+class Trade(object):
     def __init__(self, tradeDict):
         self.__tradeDict = tradeDict
 
@@ -97,7 +97,7 @@ class Trade:
         return self.__tradeDict["trade_type"]
 
 
-class Price:
+class Price(object):
     def __init__(self, priceDict):
         self.__priceDict = priceDict
 
@@ -109,7 +109,7 @@ class Price:
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#Ticker
-class Ticker:
+class Ticker(object):
     def __init__(self, tickerDict):
         self.__tickerDict = tickerDict
 
@@ -148,7 +148,7 @@ class Ticker:
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#Depth
-class Depth:
+class Depth(object):
     def __init__(self, depthDict):
         self.__depthDict = depthDict
 
@@ -177,8 +177,8 @@ class Depth:
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#user_order
-class UserOrder:
-    class Status:
+class UserOrder(object):
+    class Status(object):
         PENDING = "pending"
         POST_PENDING = "post-pending"
         OPEN = "open"

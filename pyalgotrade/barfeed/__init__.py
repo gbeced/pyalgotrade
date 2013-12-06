@@ -24,7 +24,7 @@ from pyalgotrade import feed
 from pyalgotrade import warninghelpers
 
 
-class Frequency:
+class Frequency(object):
     TRADE = -1  # A bar is created for each trade.
     SECOND = 1
     MINUTE = 60

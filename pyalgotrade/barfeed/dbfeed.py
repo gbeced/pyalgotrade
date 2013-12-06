@@ -19,7 +19,7 @@
 """
 
 
-class Database:
+class Database(object):
     def addBars(self, bars, frequency):
         for instrument in bars.getInstruments():
             bar = bars.getBar(instrument)

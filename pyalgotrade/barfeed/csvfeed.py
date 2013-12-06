@@ -29,7 +29,7 @@ import pytz
 
 
 # Interface for csv row parsers.
-class RowParser:
+class RowParser(object):
     def parseBar(self, csvRowDict):
         raise NotImplementedError()
 
@@ -41,7 +41,7 @@ class RowParser:
 
 
 # Interface for bar filters.
-class BarFilter:
+class BarFilter(object):
     def includeBar(self, bar_):
         raise NotImplementedError()
 

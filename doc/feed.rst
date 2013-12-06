@@ -11,6 +11,7 @@ with each piece of data that the feed provides.
 .. automodule:: pyalgotrade.feed
     :members: BaseFeed
     :special-members:
+    :exclude-members: __weakref__
     :show-inheritance:
 
 CSV support
@@ -19,6 +20,7 @@ CSV support
 .. automodule:: pyalgotrade.feed.csvfeed
     :members: Feed
     :special-members:
+    :exclude-members: __weakref__
     :show-inheritance:
 
 CSV support Example

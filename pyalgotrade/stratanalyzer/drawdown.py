@@ -23,7 +23,7 @@ from pyalgotrade import stratanalyzer
 import datetime
 
 
-class DrawDownHelper:
+class DrawDownHelper(object):
     def __init__(self):
         self.__highWatermark = None
         self.__lowWatermark = None

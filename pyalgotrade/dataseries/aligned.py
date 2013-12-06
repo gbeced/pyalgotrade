@@ -40,7 +40,7 @@ def datetime_aligned(ds1, ds2, maxLen=dataseries.DEFAULT_MAX_LEN):
 
 
 # This class is responsible for filling 2 dataseries when 2 other dataseries get new values.
-class Syncer:
+class Syncer(object):
     def __init__(self, sourceDS1, sourceDS2, destDS1, destDS2):
         self.__values1 = []  # (datetime, value)
         self.__values2 = []  # (datetime, value)

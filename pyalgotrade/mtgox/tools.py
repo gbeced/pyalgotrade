@@ -28,7 +28,7 @@ from pyalgotrade.mtgox import base
 logger = pyalgotrade.logger.getLogger("mtgox")
 
 
-class Trade:
+class Trade(object):
     def __init__(self, trade):
         self.__tradeId = int(trade["tid"])
         self.__dateTime = base.tid_to_datetime(trade["tid"])
@@ -53,7 +53,7 @@ class Trade:
         return self.__type
 
 
-class Trades:
+class Trades(object):
     def __init__(self, trades, ignoreMultiCurrency):
         self.__first = None
         self.__last = None
@@ -85,7 +85,7 @@ class Trades:
         return self.__trades
 
 
-class TradesFile:
+class TradesFile(object):
     def __init__(self, csvFile):
         self.__f = open(csvFile, "w")
         self.__f.write("id,price,amount,type\n")

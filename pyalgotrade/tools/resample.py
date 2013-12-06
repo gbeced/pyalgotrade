@@ -26,7 +26,7 @@ from pyalgotrade.dataseries import resampled
 datetime_format = "%Y-%m-%d %H:%M:%S"
 
 
-class CSVFileWriter:
+class CSVFileWriter(object):
     def __init__(self, csvFile):
         self.__file = open(csvFile, "w")
         self.__writeLine("Date Time", "Open", "High", "Low", "Close", "Volume", "Adj Close")
@@ -47,7 +47,7 @@ class CSVFileWriter:
         self.__file.close()
 
 
-class Sampler:
+class Sampler(object):
     def __init__(self, barFeed, frequency, csvFile):
         instruments = barFeed.getRegisteredInstruments()
         if len(instruments) != 1:

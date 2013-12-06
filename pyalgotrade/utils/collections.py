@@ -57,7 +57,7 @@ def intersect(values1, values2, skipNone=False):
 
 
 # Like a collections.deque but using a numpy.array.
-class NumPyDeque:
+class NumPyDeque(object):
     def __init__(self, maxLen, dtype=float):
         if not maxLen > 0:
             raise Exception("Invalid maximum length")
@@ -106,7 +106,7 @@ class NumPyDeque:
 # I'm not using collections.deque because:
 # 1: Random access is slower.
 # 2: Slicing is not supported.
-class ListDeque:
+class ListDeque(object):
     def __init__(self, maxLen, dtype=float):
         if not maxLen > 0:
             raise Exception("Invalid maximum length")

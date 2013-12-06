@@ -30,6 +30,7 @@ import symbolsxml
 
 logger = pyalgotrade.logger.getLogger("get_nasdaq_symbols")
 
+
 def main():
     try:
         logger.info("Getting NASDAQ symbols from http://www.nasdaq.com/")

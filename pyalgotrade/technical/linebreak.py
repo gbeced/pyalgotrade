@@ -23,7 +23,7 @@ from pyalgotrade.dataseries import bards
 import pyalgotrade.bar
 
 
-class Line:
+class Line(object):
     """A line in a line break chart."""
 
     def __init__(self, low, high, dateTime, white):

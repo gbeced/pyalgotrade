@@ -23,7 +23,7 @@ from pyalgotrade import dataseries
 from pyalgotrade.technical import ma
 
 
-class BarWrapper:
+class BarWrapper(object):
     def __init__(self, useAdjusted):
         self.__useAdjusted = useAdjusted
 

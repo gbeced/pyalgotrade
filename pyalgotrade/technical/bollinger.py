@@ -23,7 +23,7 @@ from pyalgotrade.technical import ma
 from pyalgotrade.technical import stats
 
 
-class BollingerBands:
+class BollingerBands(object):
     """Bollinger Bands filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands.
 
     :param dataSeries: The DataSeries instance being filtered.

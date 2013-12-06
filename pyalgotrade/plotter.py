@@ -72,7 +72,7 @@ def _adjustXAxis(mplSubplots):
 
 
 def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
-    class DateTimeFilter:
+    class DateTimeFilter(object):
         def __init__(self, fromDate=None, toDate=None):
             self.__fromDate = fromDate
             self.__toDate = toDate
@@ -88,7 +88,7 @@ def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
     return filter(lambda x: dateTimeFilter.includeDateTime(x), dateTimes)
 
 
-class Series:
+class Series(object):
     def __init__(self):
         self.__values = {}
 
@@ -194,7 +194,7 @@ class InstrumentMarker(Series):
             Series.plot(self, mplSubplot, dateTimes, color)
 
 
-class Subplot:
+class Subplot(object):
     """ """
     colors = ['b', 'c', 'm', 'y', 'k']
 
@@ -292,7 +292,7 @@ class InstrumentSubplot(Subplot):
                 self.getSeries("Sell", SellMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
 
 
-class StrategyPlotter:
+class StrategyPlotter(object):
     """Class responsible for plotting a strategy execution.
 
     :param strat: The strategy to plot.

@@ -27,7 +27,7 @@ from pyalgotrade import dataseries
 
 
 # Interface for csv row parsers.
-class RowParser:
+class RowParser(object):
     # Parses a row and returns a tuple with with two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
@@ -44,7 +44,7 @@ class RowParser:
 
 
 # Interface for bar filters.
-class RowFilter:
+class RowFilter(object):
     def includeRow(self, dateTime, values):
         raise NotImplementedError()
 

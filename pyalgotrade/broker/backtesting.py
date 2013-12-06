@@ -29,7 +29,7 @@ logger = pyalgotrade.logger.getLogger("broker.backtesting")
 ######################################################################
 ## Commissions
 
-class Commission:
+class Commission(object):
     """Base class for implementing different commission schemes.
 
     .. note::
@@ -87,7 +87,7 @@ class TradePercentage(Commission):
 ######################################################################
 ## Order filling strategies
 
-class FillInfo:
+class FillInfo(object):
     def __init__(self, price):
         self.__price = price
 
@@ -95,7 +95,7 @@ class FillInfo:
         return self.__price
 
 
-class FillStrategy:
+class FillStrategy(object):
     """Base class for order filling strategies."""
 
     # Return the fill price for a MarketOrder or None.
@@ -327,10 +327,7 @@ class DefaultStrategy(FillStrategy):
 ######################################################################
 ## Orders
 
-class BacktestingOrder:
-    def __init__(self):
-        pass
-
+class BacktestingOrder(object):
     def checkCanceled(self, broker, bars):
         # This check is only for accepted orders that are not GTC.
         if self.getGoodTillCanceled() or not self.isAccepted():
@@ -354,7 +351,6 @@ class BacktestingOrder:
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
     def __init__(self, orderId, action, instrument, quantity, onClose):
         broker.MarketOrder.__init__(self, orderId, action, instrument, quantity, onClose)
-        BacktestingOrder.__init__(self)
 
     def tryExecuteImpl(self, broker_, bar):
         fillInfo = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar)

@@ -23,7 +23,7 @@ from pyalgotrade import warninghelpers
 import pyalgotrade.broker
 
 
-class Position:
+class Position(object):
     """Base class for positions.
 
     :param strategy: The strategy that this position belongs to.
@@ -40,7 +40,7 @@ class Position:
     def __init__(self, strategy, entryOrder, goodTillCanceled):
         assert(entryOrder.isSubmitted())
 
-        self.__activeOrders = {entryOrder.getId() : entryOrder}
+        self.__activeOrders = {entryOrder.getId(): entryOrder}
         self.__shares = 0
         self.__strategy = strategy
         self.__entryOrder = entryOrder

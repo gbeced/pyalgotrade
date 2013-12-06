@@ -7,6 +7,7 @@ barfeed -- Bar providers
     :members: BaseBarFeed
     :member-order: bysource
     :special-members:
+    :exclude-members: __weakref__
     :show-inheritance:
 
 CSV

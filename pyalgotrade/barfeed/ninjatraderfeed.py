@@ -54,7 +54,7 @@ def parse_datetime(dateTime):
     return datetime.datetime(year, month, day, hour, minute, sec)
 
 
-class Frequency:
+class Frequency(object):
     MINUTE = pyalgotrade.barfeed.Frequency.MINUTE
     DAILY = pyalgotrade.barfeed.Frequency.DAY
 

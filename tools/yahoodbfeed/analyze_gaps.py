@@ -23,7 +23,7 @@ import os
 import datetime
 
 sys.path.append(os.path.join("..", "symbols"))
-sys.path.append(os.path.join("..", "..")) # For pyalgotrade
+sys.path.append(os.path.join("..", ".."))  # For pyalgotrade
 
 import symbolsxml
 import merval_calendar
@@ -36,6 +36,7 @@ from pyalgotrade.barfeed import yahoofeed
 
 
 storage = "data"
+
 
 class MissingDataVerifier:
     def __init__(self, barDataSeries, threshold):
@@ -71,8 +72,10 @@ class MissingDataVerifier:
                     self.__processGap(prevDateTime, currentDateTime)
             prevDateTime = currentDateTime
 
+
 def get_csv_filename(symbol, year):
     return os.path.join(storage, "%s-%d-yahoofinance.csv" % (symbol, year))
+
 
 def process_symbol(symbol, fromYear, toYear, missingDataVerifierClass):
     logger.info("Processing %s from %d to %d" % (symbol, fromYear, toYear))
@@ -97,12 +100,14 @@ def process_symbol(symbol, fromYear, toYear, missingDataVerifierClass):
     else:
         logger.error("No files found")
 
+
 class MervalMissingDataVerifier(MissingDataVerifier):
     def __init__(self, barDataSeries):
         MissingDataVerifier.__init__(self, barDataSeries, 5)
 
     def isTradingDay(self, dateTime):
         return not merval_calendar.is_trading_day(dateTime)
+
 
 def main():
     fromYear = 2000

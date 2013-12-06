@@ -25,7 +25,7 @@ import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
 
 
-class BaseStrategy:
+class BaseStrategy(object):
     """Base class for strategies.
 
     :param barFeed: The bar feed that will supply the bars.

@@ -19,7 +19,7 @@
 """
 
 
-class Event:
+class Event(object):
     def __init__(self):
         self.__handlers = []
         self.__toSubscribe = []
@@ -60,7 +60,7 @@ class Event:
             self.__applyChanges()
 
 
-class Subject:
+class Subject(object):
     # This may raise.
     def start(self):
         raise NotImplementedError()
@@ -92,7 +92,7 @@ class Subject:
 
 
 # This class is responsible for dispatching events from multiple subjects, synchronizing them if necessary.
-class Dispatcher:
+class Dispatcher(object):
     def __init__(self):
         self.__subjects = []
         self.__stopped = False

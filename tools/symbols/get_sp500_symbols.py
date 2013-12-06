@@ -33,10 +33,12 @@ COMPANY_COL = 1
 GICS_COL = 3
 GICS_SUB_INDUSTRY_COL = 4
 
+
 def get_html():
     logger.info("Getting S&P 500 Component Stocks from Wikipedia")
     ret = lxml.html.parse("http://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
     return ret
+
 
 def find_table(htmlTree):
     logger.info("Finding the right table")
@@ -57,6 +59,7 @@ def find_table(htmlTree):
             break
     return ret
 
+
 def parse_results(table):
     ret = symbolsxml.Writer()
     logger.info("Parsing table")
@@ -72,6 +75,7 @@ def parse_results(table):
 
         ret.addStock(tickerSymbol, company, gics, gicsSubIndustry)
     return ret
+
 
 def main():
     try:

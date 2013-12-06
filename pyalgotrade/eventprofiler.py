@@ -25,7 +25,7 @@ from pyalgotrade.technical import roc
 from pyalgotrade import observer
 
 
-class Results:
+class Results(object):
     """Results from the profiler."""
     def __init__(self, eventsDict, lookBack, lookForward):
         assert(lookBack > 0)
@@ -73,7 +73,7 @@ class Results:
         return self.__eventCount
 
 
-class Predicate:
+class Predicate(object):
     """Base class for event identification. You should subclass this to implement
     the event identification logic."""
 
@@ -89,7 +89,7 @@ class Predicate:
         raise NotImplementedError()
 
 
-class Event:
+class Event(object):
     def __init__(self, lookBack, lookForward):
         assert(lookBack > 0)
         assert(lookForward > 0)
@@ -124,7 +124,7 @@ class Event:
         return self.__values
 
 
-class Profiler:
+class Profiler(object):
     """This class is responsible for scanning over historical data and analyzing returns before
     and after the events.
 

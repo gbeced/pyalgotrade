@@ -22,7 +22,7 @@ import csv
 
 
 # A faster (but limited) version of csv.DictReader
-class FastDictReader:
+class FastDictReader(object):
     def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
         self.__fieldNames = fieldnames
         self.reader = csv.reader(f, dialect, *args, **kwds)

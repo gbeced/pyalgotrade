@@ -33,7 +33,7 @@ from pyalgotrade import observer
 #            -> SUBMITTED -> ACCEPTED -> CANCELED
 #            -> SUBMITTED -> ACCEPTED -> FILLED
 
-class Order:
+class Order(object):
     """Base class for orders.
 
     :param orderId: The order id.
@@ -59,20 +59,20 @@ class Order:
         This is a base class and should not be used directly.
     """
 
-    class Action:
+    class Action(object):
         BUY = 1
         BUY_TO_COVER = 2
         SELL = 3
         SELL_SHORT = 4
 
-    class State:
+    class State(object):
         INITIAL = 1  # Initial state.
         SUBMITTED = 2  # Order has been submitted.
         ACCEPTED = 3  # Order has been acknowledged by the broker.
         CANCELED = 4  # Order has been cancelled.
         FILLED = 5  # Order has been filled.
 
-    class Type:
+    class Type(object):
         MARKET = 1
         LIMIT = 2
         STOP = 3
@@ -311,7 +311,7 @@ class StopLimitOrder(Order):
         return self.__limitOrderActive
 
 
-class OrderExecutionInfo:
+class OrderExecutionInfo(object):
     """Execution information for a filled order."""
     def __init__(self, price, quantity, commission, dateTime):
         self.__price = price

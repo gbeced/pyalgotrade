@@ -38,6 +38,7 @@ def us_equities_datetime(*params):
     ret = dt.localize(ret, marketsession.USEquities.getTimezone())
     return ret
 
+
 def get_by_datetime_or_date(dict_, dateTimeOrDate):
     ret = dict_.get(dateTimeOrDate, [])
     if len(ret) == 0 and isinstance(dateTimeOrDate, datetime.datetime):

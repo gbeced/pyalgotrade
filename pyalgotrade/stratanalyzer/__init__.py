@@ -19,7 +19,7 @@
 """
 
 
-class StrategyAnalyzer:
+class StrategyAnalyzer(object):
     """Base class for strategy analyzers.
 
     .. note::

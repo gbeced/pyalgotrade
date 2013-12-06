@@ -49,7 +49,7 @@ def call_and_retry_on_network_error(function, retryCount, *parameters):
     return ret
 
 
-class Worker:
+class Worker(object):
     def __init__(self, address, port, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
         self.__server = xmlrpclib.ServerProxy(url, allow_none=True)

@@ -22,7 +22,7 @@ from pyalgotrade.utils import collections
 from pyalgotrade import dataseries
 
 
-class EventWindow:
+class EventWindow(object):
     """An EventWindow class is responsible for making calculation over a moving window of values.
 
     :param windowSize: The size of the window. Must be greater than 0.

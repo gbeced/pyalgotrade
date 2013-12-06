@@ -37,7 +37,7 @@ class AutoStopThread(threading.Thread):
         self.__server.stop()
 
 
-class Results:
+class Results(object):
     """The results of the strategy executions."""
     def __init__(self, parameters, result):
         self.__parameters = parameters
@@ -52,7 +52,7 @@ class Results:
         return self.__result
 
 
-class Job:
+class Job(object):
     def __init__(self, strategyParameters):
         self.__strategyParameters = strategyParameters
         self.__bestResult = None

@@ -47,7 +47,7 @@ def apikey_as_binary(key):
 
 # This class is responsible for sending keep alive messages and detecting disconnections
 # from the server.
-class KeepAliveMgr:
+class KeepAliveMgr(object):
     HEART_BEAT_MSG = "keep-alive-msg"
 
     def __init__(self, wsClient, ioLoop, frequency, maxMsgsWithoutResponse):

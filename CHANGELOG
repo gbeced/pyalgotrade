@@ -4,6 +4,7 @@ Version 0.15 (TBD)
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.
 . [CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [CHANGE] Daily bars from Yahoo and NinjaTrader CSV feeds are loaded with time set to 00:00:00.
+. [CHANGE] All classes now inherit from object.
 . [FIX] Fixed a bug in pyalgotrade.technical.roc.RateOfChange when there was no change and the current value was 0.
 . [FIX] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now set the datetime to that of the beggining of the bar.
 
