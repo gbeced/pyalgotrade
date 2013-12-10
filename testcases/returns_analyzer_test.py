@@ -353,3 +353,17 @@ class ReturnsTestCase(unittest.TestCase):
         strat.run()
         # The cumulative return should be the same if we load nikkei or not.
         self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 5), 0.01338)
+
+    def testFirstBar(self):
+        initialCash = 1000
+        barFeed = yahoofeed.Feed()
+        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        strat = strategy_test.TestStrategy(barFeed, initialCash)
+
+        strat.addOrder(datetime.datetime(2001, 01, 02), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, False)  # 2001-01-03 Open: 25.25 Close: 32.00
+
+        stratAnalyzer = returns.Returns()
+        strat.attachAnalyzer(stratAnalyzer)
+        strat.run()
+        self.assertEqual(stratAnalyzer.getReturns()[0], 0)
+        self.assertEqual(stratAnalyzer.getReturns()[1], (32.00 - 25.25) / 1000)
