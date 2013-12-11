@@ -29,23 +29,20 @@ import pyalgotrade.logger
 from pyalgotrade import barfeed
 
 
-def call_function(function, *parameters):
-    if len(parameters) > 0:
-        return function(*parameters)
-    else:
-        return function()
+def call_function(function, *args, **kwargs):
+    return function(*args, **kwargs)
 
 
-def call_and_retry_on_network_error(function, retryCount, *parameters):
+def call_and_retry_on_network_error(function, retryCount, *args, **kwargs):
     ret = None
     while retryCount > 0:
         retryCount -= 1
         try:
-            ret = call_function(function, *parameters)
+            ret = call_function(function, *args, **kwargs)
             return ret
         except socket.error:
             time.sleep(random.randint(1, 3))
-    ret = call_function(function, *parameters)
+    ret = call_function(function, *args, **kwargs)
     return ret
 
 
@@ -125,8 +122,8 @@ class Worker(object):
 
 def worker_process(strategyClass, address, port, workerName):
     class MyWorker(Worker):
-        def runStrategy(self, barFeed, *parameters):
-            strat = strategyClass(barFeed, *parameters)
+        def runStrategy(self, barFeed, *args, **kwargs):
+            strat = strategyClass(barFeed, *args, **kwargs)
             strat.run()
             return strat.getResult()
 

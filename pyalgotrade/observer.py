@@ -50,11 +50,11 @@ class Event(object):
         else:
             self.__handlers.remove(handler)
 
-    def emit(self, *parameters):
+    def emit(self, *args, **kwargs):
         try:
             self.__emitting = True
             for handler in self.__handlers:
-                handler(*parameters)
+                handler(*args, **kwargs)
         finally:
             self.__emitting = False
             self.__applyChanges()

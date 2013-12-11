@@ -35,8 +35,8 @@ def server_thread(srv, barFeed, strategyParameters, port):
 
 def worker_process(strategyClass, port):
     class Worker(worker.Worker):
-        def runStrategy(self, barFeed, *parameters):
-            strat = strategyClass(barFeed, *parameters)
+        def runStrategy(self, barFeed, *args, **kwargs):
+            strat = strategyClass(barFeed, *args, **kwargs)
             strat.run()
             return strat.getResult()
 

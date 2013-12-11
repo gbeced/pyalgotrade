@@ -33,8 +33,8 @@ from pyalgotrade import marketsession
 import common
 
 
-def us_equities_datetime(*params):
-    ret = datetime.datetime(*params)
+def us_equities_datetime(*args, **kwargs):
+    ret = datetime.datetime(*args, **kwargs)
     ret = dt.localize(ret, marketsession.USEquities.getTimezone())
     return ret
 
@@ -67,17 +67,17 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__exitOnSessionClose = False
         self.__brokerOrdersGTC = False
 
-    def addOrder(self, dateTime, method, *methodParams):
+    def addOrder(self, dateTime, method, *args, **kwargs):
         self.__orderEntry.setdefault(dateTime, [])
-        self.__orderEntry[dateTime].append((method, methodParams))
+        self.__orderEntry[dateTime].append((method, args, kwargs))
 
-    def addPosEntry(self, dateTime, enterMethod, *methodParams):
+    def addPosEntry(self, dateTime, enterMethod, *args, **kwargs):
         self.__posEntry.setdefault(dateTime, [])
-        self.__posEntry[dateTime].append((enterMethod, methodParams))
+        self.__posEntry[dateTime].append((enterMethod, args, kwargs))
 
-    def addPosExit(self, dateTime, *methodParams):
+    def addPosExit(self, dateTime, *args, **kwargs):
         self.__posExit.setdefault(dateTime, [])
-        self.__posExit[dateTime].append(methodParams)
+        self.__posExit[dateTime].append((args, kwargs))
 
     def setExitOnSessionClose(self, exitOnSessionClose):
         self.__exitOnSessionClose = exitOnSessionClose
@@ -154,21 +154,21 @@ class TestStrategy(strategy.BacktestingStrategy):
         dateTime = bars.getDateTime()
 
         # Check position entry.
-        for meth, params in get_by_datetime_or_date(self.__posEntry, dateTime):
+        for meth, args, kwargs in get_by_datetime_or_date(self.__posEntry, dateTime):
             if self.__activePosition is not None:
                 raise Exception("Only one position allowed at a time")
-            self.__activePosition = meth(*params)
+            self.__activePosition = meth(*args, **kwargs)
             self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
 
         # Check position exit.
-        for params in get_by_datetime_or_date(self.__posExit, dateTime):
+        for args, kwargs in get_by_datetime_or_date(self.__posExit, dateTime):
             if self.__activePosition is None:
                 raise Exception("A position was not entered")
-            self.__activePosition.exit(*params)
+            self.__activePosition.exit(*args, **kwargs)
 
         # Check order entry.
-        for meth, params in get_by_datetime_or_date(self.__orderEntry, dateTime):
-            order = meth(*params)
+        for meth, args, kwargs in get_by_datetime_or_date(self.__orderEntry, dateTime):
+            order = meth(*args, **kwargs)
             order.setGoodTillCanceled(self.__brokerOrdersGTC)
             self.getBroker().placeOrder(order)
 

@@ -23,9 +23,9 @@ import csv
 
 # A faster (but limited) version of csv.DictReader
 class FastDictReader(object):
-    def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
+    def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwargs):
         self.__fieldNames = fieldnames
-        self.reader = csv.reader(f, dialect, *args, **kwds)
+        self.reader = csv.reader(f, dialect, *args, **kwargs)
         if self.__fieldNames is None:
             self.__fieldNames = self.reader.next()
         self.__dict = {}
