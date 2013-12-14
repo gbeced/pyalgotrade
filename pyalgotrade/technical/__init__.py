@@ -91,9 +91,7 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
         self.appendWithDateTime(dateTime, newValue)
 
     def getDataSeries(self):
-        """Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
         return self.__dataSeries
 
     def getEventWindow(self):
-        """Returns the :class:`EventWindow` instance to use to calculate new values."""
         return self.__eventWindow

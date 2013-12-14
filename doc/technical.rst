@@ -30,6 +30,10 @@ Moving Averages
 Momentum Indicators
 -------------------
 
+.. automodule:: pyalgotrade.technical.macd
+    :members: MACD
+    :show-inheritance:
+
 .. automodule:: pyalgotrade.technical.rsi
     :members: RSI
     :show-inheritance:

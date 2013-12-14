@@ -1,4 +1,5 @@
 Version 0.15 (TBD)
+. [NEW] MACD technical indicator (pyalgotrade.technical.macd.MACD).
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.

@@ -73,6 +73,13 @@ def get_temp_path():
     return "data"
 
 
+def safe_round(number, ndigits):
+    ret = None
+    if number is not None:
+        ret = round(number, ndigits)
+    return ret
+
+
 class CopyFiles:
     def __init__(self, files, dst):
         self.__files = files
