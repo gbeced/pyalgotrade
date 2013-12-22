@@ -53,6 +53,10 @@ Other Indicators
     :members: Slope
     :show-inheritance:
 
+.. automodule:: pyalgotrade.technical.linreg
+    :members: LeastSquaresRegression
+    :show-inheritance:
+
 .. automodule:: pyalgotrade.technical.highlow
     :members: High, Low
     :show-inheritance:
