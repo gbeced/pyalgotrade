@@ -39,10 +39,13 @@ class ResampleTestCase(unittest.TestCase):
     def testSlotDateTime(self):
         # 1 minute
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60), datetime.datetime(2011, 1, 1, 1, 1))
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60), datetime.datetime(2011, 1, 1, 1, 1))
         # 1 hour
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60*60), datetime.datetime(2011, 1, 1, 1))
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60*60), datetime.datetime(2011, 1, 1, 1))
         # 1 day
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60*60*24), datetime.datetime(2011, 1, 1))
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60*60*24), datetime.datetime(2011, 1, 1))
 
     def testResample(self):
         barDs = bards.BarDataSeries()

@@ -22,7 +22,7 @@ from pyalgotrade.utils import dt
 
 # frequency in seconds
 def get_slot_datetime(dateTime, frequency):
-    ts = dt.datetime_to_timestamp(dateTime)
+    ts = int(dt.datetime_to_timestamp(dateTime))
     slot = ts / frequency
     slotTs = slot * frequency
     ret = dt.timestamp_to_datetime(slotTs, False)

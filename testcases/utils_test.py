@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade.utils import collections
+from pyalgotrade.utils import dt
 
 import unittest
 import datetime
@@ -190,3 +191,18 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(len(d), 6)
         self.assertEqual(d[5], 15)
         self.assertEqual(d[-1], 15)
+
+class DTTestCase(unittest.TestCase):
+    def testTimeStampConversions(self):
+        dateTime = datetime.datetime(2000, 1, 1)
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), False), dateTime)
+
+        dateTime = dt.as_utc(datetime.datetime(2000, 1, 1, 1, 1))
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), True), dateTime)
+
+    def testTimeStampConversionsWithMicroseconds(self):
+        dateTime = datetime.datetime(2000, 1, 1, 1, 1, 1, microsecond=10)
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), False), dateTime)
+
+        dateTime = dt.as_utc(datetime.datetime(2000, 1, 1, 1, 1, 1, microsecond=10))
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), True), dateTime)

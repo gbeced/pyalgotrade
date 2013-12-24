@@ -19,7 +19,6 @@
 """
 
 import datetime
-import calendar
 import pytz
 
 
@@ -48,7 +47,8 @@ def as_utc(dateTime):
 
 def datetime_to_timestamp(dateTime):
     """ Converts a datetime.datetime to a UTC timestamp."""
-    return calendar.timegm(dateTime.utctimetuple())
+    diff = as_utc(dateTime) - epoch_utc
+    return diff.total_seconds()
 
 
 def timestamp_to_datetime(timeStamp, localized=True):
@@ -57,3 +57,5 @@ def timestamp_to_datetime(timeStamp, localized=True):
     if localized:
         ret = localize(ret, pytz.utc)
     return ret
+
+epoch_utc = as_utc(datetime.datetime(1970, 1, 1))
