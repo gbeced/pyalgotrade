@@ -1,5 +1,5 @@
 Version 0.15 (TBD)
-. [NEW] LeastSquaresRegression filter (pyalgotrade.technical.linreg.LeastSquaresRegression).
+. [NEW] LeastSquaresRegression filter (pyalgotrade.technical.linreg.LeastSquaresRegression). Depends on SciPy.
 . [NEW] MACD technical indicator (pyalgotrade.technical.macd.MACD).
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.

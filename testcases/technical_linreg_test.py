@@ -21,6 +21,7 @@
 import unittest
 from pyalgotrade.technical import linreg
 from pyalgotrade import dataseries
+from pyalgotrade.utils import dt
 import datetime
 
 
@@ -50,7 +51,7 @@ class LeastSquaresRegressionTestCase(unittest.TestCase):
         seqDS = dataseries.SequenceDataSeries()
         lsReg = linreg.LeastSquaresRegression(seqDS, 3)
 
-        nextDateTime = datetime.datetime.now()
+        nextDateTime = datetime.datetime(2012, 1, 1)
         seqDS.appendWithDateTime(nextDateTime, 1)
         self.assertEqual(lsReg[-1], None)
 
@@ -64,10 +65,16 @@ class LeastSquaresRegressionTestCase(unittest.TestCase):
         self.assertEqual(round(lsReg[-1], 2), 3)
 
         # Check future values.
-        nextDateTime = nextDateTime + datetime.timedelta(hours=1)
-        self.assertEqual(round(lsReg.getValueAt(nextDateTime), 2), 4)
-        nextDateTime = nextDateTime + datetime.timedelta(minutes=30)
-        self.assertEqual(round(lsReg.getValueAt(nextDateTime), 2), 4.5)
-        nextDateTime = nextDateTime + datetime.timedelta(minutes=30)
-        self.assertEqual(round(lsReg.getValueAt(nextDateTime), 2), 5)
+        futureDateTime = nextDateTime + datetime.timedelta(hours=1)
+        self.assertEqual(round(lsReg.getValueAt(futureDateTime), 2), 4)
+        futureDateTime = futureDateTime + datetime.timedelta(minutes=30)
+        self.assertEqual(round(lsReg.getValueAt(futureDateTime), 2), 4.5)
+        futureDateTime = futureDateTime + datetime.timedelta(minutes=30)
+        self.assertEqual(round(lsReg.getValueAt(futureDateTime), 2), 5)
 
+        # Move forward in sub-second increments.
+        nextDateTime = nextDateTime + datetime.timedelta(milliseconds=50)
+        seqDS.appendWithDateTime(nextDateTime, 4)
+        nextDateTime = nextDateTime + datetime.timedelta(milliseconds=50)
+        seqDS.appendWithDateTime(nextDateTime, 5)
+        self.assertEqual(round(lsReg[-1], 2), 5)

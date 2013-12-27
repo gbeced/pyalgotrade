@@ -159,6 +159,8 @@ thus wasting resources unnecessarily.
 
 Known bugs/limitations:
 
+ * The **pyalgotrade.technical.linreg** module is currently not available when running inside the **Google App Engine**.
+   This is because it depends on external libraries (SciPy) that are not available in that environment.
  * The **pyalgotrade.talibext.indicator** module is currently not available when running inside the **Google App Engine**.
    This is because it depends on external libraries (talib) that are not available in that environment.
 

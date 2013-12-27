@@ -24,25 +24,32 @@ from pyalgotrade.utils import collections
 from pyalgotrade.utils import dt
 
 import numpy as np
+from scipy import stats
 
 
+# Using scipy.stats.linregress instead of numpy.linalg.lstsq because of this:
+# http://stackoverflow.com/questions/20736255/numpy-linalg-lstsq-with-big-values
 def lsreg(x, y):
-    x = np.array(x)
-    y = np.array(y)
-    A = np.vstack([x, np.ones(len(x))]).T
-    return np.linalg.lstsq(A, y)[0]
-
+    if not isinstance(x, np.ndarray):
+        x = np.array(x)
+    if not isinstance(y, np.ndarray):
+        y = np.array(y)
+    res = stats.linregress(x, y)
+    return res[0], res[1]
 
 class LeastSquaresRegressionWindow(technical.EventWindow):
     def __init__(self, windowSize):
         assert(windowSize > 1)
         technical.EventWindow.__init__(self, windowSize)
-        self.__timestamps = collections.ListDeque(windowSize)
+        self.__timestamps = collections.NumPyDeque(windowSize)
 
     def onNewValue(self, dateTime, value):
         technical.EventWindow.onNewValue(self, dateTime, value)
         if value is not None:
-            self.__timestamps.append(dt.datetime_to_timestamp(dateTime))
+            timestamp = dt.datetime_to_timestamp(dateTime)
+            if len(self.__timestamps):
+                assert(timestamp > self.__timestamps[-1])
+            self.__timestamps.append(timestamp)
 
     def __getValueAtImpl(self, timestamp):
         ret = None
@@ -50,6 +57,9 @@ class LeastSquaresRegressionWindow(technical.EventWindow):
             a, b = lsreg(self.__timestamps.data(), self.getValues())
             ret = a * timestamp + b
         return ret
+
+    def getTimeStamps(self):
+        return self.__timestamps
 
     def getValueAt(self, dateTime):
         return self.__getValueAtImpl(dt.datetime_to_timestamp(dateTime))

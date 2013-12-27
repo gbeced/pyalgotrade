@@ -7,7 +7,7 @@ That is, given a certain amount of historical data for one stock, I want to chec
 It should also make it easy to optimize a strategy using multiple computers.
 
 PyAlgoTrade is developed using Python 2.7 and depends on:
- * NumPy (http://numpy.scipy.org/)
+ * NumPy and SciPy (http://numpy.scipy.org/)
  * pytz (http://pytz.sourceforge.net/)
  * matplotlib (http://matplotlib.sourceforge.net/) for plotting support.
  * ws4py (https://github.com/Lawouach/WebSocket-for-Python) for MtGox support.
