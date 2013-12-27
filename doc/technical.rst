@@ -49,12 +49,8 @@ Momentum Indicators
 Other Indicators
 ----------------
 
-.. automodule:: pyalgotrade.technical.trend
-    :members: Slope
-    :show-inheritance:
-
 .. automodule:: pyalgotrade.technical.linreg
-    :members: LeastSquaresRegression
+    :members: LeastSquaresRegression, Slope
     :show-inheritance:
 
 .. automodule:: pyalgotrade.technical.highlow

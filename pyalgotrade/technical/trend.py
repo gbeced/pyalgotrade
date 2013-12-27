@@ -18,73 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import technical
-from pyalgotrade import dataseries
+from pyalgotrade.technical import linreg
+from pyalgotrade import warninghelpers
 
-import numpy as np
+class Slope(linreg.Slope):
+    def __init__(self, *args, **kwargs):
+        # Deprecated since v0.15
+        warninghelpers.deprecation_warning("Slope was moved in the pyalgotrade.technical.linreg package", stacklevel=2)
+        linreg.Slope.__init__(self, *args, **kwargs)
 
-
-def linear_regression(values):
-    y = values
-    xi = np.arange(0, len(values))
-    A = np.array([xi, np.ones(len(values))])
-    w = np.linalg.lstsq(A.T, y)[0]
-    return w
-
-
-class SlopeEventWindow(technical.EventWindow):
-    def __init__(self, windowSize):
-        technical.EventWindow.__init__(self, windowSize)
-        self.__x = np.array(range(windowSize))
-
-    def getValue(self):
-        ret = None
-        if self.windowFull():
-            y = self.getValues()
-            ret = linear_regression(y)[0]
-        return ret
-
-
-class Slope(technical.EventBasedFilter):
-    """The Slope filter calculates the slope of the least-squares regression line.
-
-    :param dataSeries: The DataSeries instance being filtered.
-    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-    :param period: The number of values to use to calculate the slope.
-    :type period: int.
-    :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
-    :type maxLen: int.
-    """
-
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period), maxLen)
-
-    def getTrendDays(self):
-        return self.getWindowSize()
-
-
-class TrendEventWindow(SlopeEventWindow):
-    def __init__(self, windowSize, positiveThreshold, negativeThreshold):
-        if negativeThreshold > positiveThreshold:
-            raise Exception("Invalid thresholds")
-
-        SlopeEventWindow.__init__(self, windowSize)
-        self.__positiveThreshold = positiveThreshold
-        self.__negativeThreshold = negativeThreshold
-
-    def getValue(self):
-        ret = SlopeEventWindow.getValue(self)
-        if ret is not None:
-            if ret > self.__positiveThreshold:
-                ret = True
-            elif ret < self.__negativeThreshold:
-                ret = False
-            else:  # Between negative and postive thresholds.
-                ret = None
-        return ret
-
-
-class Trend(technical.EventBasedFilter):
-    def __init__(self, dataSeries, trendDays, positiveThreshold=0, negativeThreshold=0, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold), maxLen)
+class Trend(linreg.Trend):
+    def __init__(self, *args, **kwargs):
+        linreg.Trend.__init__(self, *args, **kwargs)

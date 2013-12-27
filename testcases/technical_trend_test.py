@@ -19,14 +19,14 @@
 """
 
 import unittest
-from pyalgotrade.technical import trend
+from pyalgotrade.technical import linreg
 from pyalgotrade import dataseries
 
 
 class SlopeTest(unittest.TestCase):
     def __buildSlope(self, values, period, slopeMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
-        ret = trend.Slope(seqDS, period, slopeMaxLen)
+        ret = linreg.Slope(seqDS, period, slopeMaxLen)
         for value in values:
             seqDS.append(value)
         return ret
@@ -48,7 +48,7 @@ class SlopeTest(unittest.TestCase):
 class TrendTest(unittest.TestCase):
     def __buildTrend(self, values, trendDays, positiveThreshold, negativeThreshold, trendMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
-        ret = trend.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold, trendMaxLen)
+        ret = linreg.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold, trendMaxLen)
         for value in values:
             seqDS.append(value)
         return ret
