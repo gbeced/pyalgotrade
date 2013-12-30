@@ -37,40 +37,6 @@ def get_last_value(dataSeries):
     return ret
 
 
-def _min(value1, value2):
-    if value1 is None:
-        return value2
-    elif value2 is None:
-        return value1
-    else:
-        return min(value1, value2)
-
-
-def _max(value1, value2):
-    if value1 is None:
-        return value2
-    elif value2 is None:
-        return value1
-    else:
-        return max(value1, value2)
-
-
-def _adjustXAxis(mplSubplots):
-    minX = None
-    maxX = None
-
-    # Calculate min and max x values.
-    for mplSubplot in mplSubplots:
-        axis = mplSubplot.axis()
-        minX = _min(minX, axis[0])
-        maxX = _max(maxX, axis[1])
-
-    for mplSubplot in mplSubplots:
-        axis = mplSubplot.axis()
-        axis = (minX, maxX, axis[2], axis[3])
-        mplSubplot.axis(axis)
-
-
 def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
     class DateTimeFilter(object):
         def __init__(self, fromDate=None, toDate=None):
@@ -140,34 +106,50 @@ class SellMarker(Series):
 
 
 class CustomMarker(Series):
+    def __init__(self):
+        Series.__init__(self)
+        self.__marker = "o"
+
     def needColor(self):
         return True
 
+    def setMarker(self, marker):
+        self.__marker = marker
+
     def getMarker(self):
-        return "o"
+        return self.__marker
 
 
 class LineMarker(Series):
+    def __init__(self):
+        Series.__init__(self)
+        self.__marker = " "
+
     def needColor(self):
         return True
 
+    def setMarker(self, marker):
+        self.__marker = marker
+
     def getMarker(self):
-        return " "
+        return self.__marker
 
 
 class InstrumentMarker(Series):
-    marker = " "
-
     def __init__(self):
         Series.__init__(self)
         self.__useCandleSticks = False
         self.__useAdjClose = False
+        self.__marker = " "
 
     def needColor(self):
         return not self.__useCandleSticks
 
+    def setMarker(self, marker):
+        self.__marker = marker
+
     def getMarker(self):
-        return InstrumentMarker.marker
+        return self.__marker
 
     def setUseAdjClose(self, useAdjClose):
         self.__useAdjClose = useAdjClose
@@ -194,6 +176,35 @@ class InstrumentMarker(Series):
             Series.plot(self, mplSubplot, dateTimes, color)
 
 
+class HistogramMarker(Series):
+    def needColor(self):
+        return True
+
+    def getColorForValue(self, value, default):
+        return default
+
+    def plot(self, mplSubplot, dateTimes, color):
+        validDateTimes = []
+        values = []
+        colors = []
+        for dateTime in dateTimes:
+            value = self.getValue(dateTime)
+            if value is not None:
+                validDateTimes.append(dateTime)
+                values.append(value)
+                colors.append(self.getColorForValue(value, color))
+        mplSubplot.bar(validDateTimes, values, color=colors)
+
+
+class MACDMarker(HistogramMarker):
+    def getColorForValue(self, value, default):
+        ret = default
+        if value >= 0:
+            ret = "g"
+        else:
+            ret = "r"
+        return ret
+
 class Subplot(object):
     """ """
     colors = ['b', 'c', 'm', 'y', 'k']
@@ -213,7 +224,7 @@ class Subplot(object):
     def isEmpty(self):
         return len(self.__series) == 0
 
-    def addDataSeries(self, label, dataSeries):
+    def addDataSeries(self, label, dataSeries, defaultClass=LineMarker):
         """Adds a DataSeries to the subplot.
 
         :param label: A name for the DataSeries values.
@@ -221,16 +232,17 @@ class Subplot(object):
         :param dataSeries: The DataSeries to add.
         :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
         """
-        self.addCallback(label, lambda bars: get_last_value(dataSeries))
+        callback = lambda bars: get_last_value(dataSeries)
+        self.__callbacks[callback] = self.getSeries(label, defaultClass)
 
-    def addCallback(self, label, callback):
+    def addCallback(self, label, callback, defaultClass=LineMarker):
         """Adds a callback that will be called on each bar.
 
         :param label: A name for the series values.
         :type label: string.
         :param callback: A function that receives a :class:`pyalgotrade.bar.Bars` instance as a parameter and returns a number or None.
         """
-        self.__callbacks[callback] = self.getSeries(label)
+        self.__callbacks[callback] = self.getSeries(label, defaultClass)
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()
@@ -396,16 +408,14 @@ class StrategyPlotter(object):
             subplots.append(self.__portfolioSubplot)
 
         # Build each subplot.
-        fig = plt.figure()
+        fig, axes = plt.subplots(nrows=len(subplots), sharex=True, squeeze=False)
         mplSubplots = []
-        subplotIndex = 0
-        for subplot in subplots:
+        for i, subplot in enumerate(subplots):
+            axesSubplot = axes[i][0]
             if not subplot.isEmpty():
-                mplSubplot = fig.add_subplot(len(subplots), 1, subplotIndex + 1)
-                mplSubplots.append(mplSubplot)
-                subplot.plot(mplSubplot, dateTimes)
-                mplSubplot.grid(True)
-                subplotIndex += 1
+                mplSubplots.append(axesSubplot)
+                subplot.plot(axesSubplot, dateTimes)
+                axesSubplot.grid(True)
 
         return (fig, mplSubplots)
 
@@ -432,8 +442,5 @@ class StrategyPlotter(object):
         """
 
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
-        _adjustXAxis(mplSubplots)
         fig.autofmt_xdate()
-
-        # Display
         plt.show()
