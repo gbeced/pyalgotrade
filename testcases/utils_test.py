@@ -18,13 +18,24 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import utils
 from pyalgotrade.utils import collections
 from pyalgotrade.utils import dt
 
 import unittest
 import datetime
 
-
+class UtilsTestCase(unittest.TestCase):
+    def testChangePercentage(self):
+        self.assertEqual(utils.get_change_percentage(1, 1), 0)
+        self.assertEqual(round(utils.get_change_percentage(1.1, 1), 2), 0.1)
+        self.assertEqual(round(utils.get_change_percentage(2, 1), 2), 1)
+        self.assertEqual(utils.get_change_percentage(1, 2), -0.5)
+        self.assertEqual(utils.get_change_percentage(0, -1), 1)
+        self.assertEqual(utils.get_change_percentage(1, -1), 2)
+        self.assertEqual(utils.get_change_percentage(-2, -1), -1)
+        self.assertEqual(utils.get_change_percentage(-1.5, -1), -0.5)
+ 
 class CollectionsTestCase(unittest.TestCase):
     def testEmptyIntersection(self):
         values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
@@ -192,7 +203,7 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(d[5], 15)
         self.assertEqual(d[-1], 15)
 
-class DTTestCase(unittest.TestCase):
+class DateTimeTestCase(unittest.TestCase):
     def testTimeStampConversions(self):
         dateTime = datetime.datetime(2000, 1, 1)
         self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), False), dateTime)
