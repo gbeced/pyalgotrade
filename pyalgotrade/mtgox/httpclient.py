@@ -79,12 +79,13 @@ class HTTPClient(object):
         response = urllib2.urlopen(req, data)
         return json.loads(response.read())
 
-    def requestPrivateKeyId(self):
-        url = self.__baseUrl + "generic/private/idkey"
-        return self.__sendRequest(url, {})
-
     def getCurrency(self):
         return self.__currency
+
+    def requestPrivateKeyId(self):
+        url = self.__baseUrl + "generic/private/idkey"
+        response = self.__sendRequest(url, {})
+        return return_or_fail(response, "Failed to retrieve private key id")
 
     def addOrder(self, orderType, amount, price=None):
         url = self.__baseUrl + "BTC%s/private/order/add" % (self.__currency)
