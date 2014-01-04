@@ -28,6 +28,19 @@ import hashlib
 
 from pyalgotrade.mtgox import base
 
+class Error(Exception):
+    def __init__(self, error, response):
+        Exception.__init__(self, error)
+        self.__response = response
+
+    def getResponse(self):
+        return self.__response
+
+def return_or_fail(response, defaultErrorMessage):
+    if response["result"] != "success":
+        errorMessage = response.get("error", defaultErrorMessage)
+        raise Error(errorMessage, response)
+    return response["return"]
 
 # https://en.bitcoin.it/wiki/MtGox/API/HTTP#Python
 # https://en.bitcoin.it/wiki/MtGox/API/HTTP/v1
@@ -81,17 +94,21 @@ class HTTPClient(object):
 
         if price is not None:
             params["price_int"] = base.to_value_int(self.__currency, price)
-        return self.__sendRequest(url, params)
+        response = self.__sendRequest(url, params)
+        return return_or_fail(response, "Failed to add order")
 
     def cancelOrder(self, orderId):
         url = self.__baseUrl + "BTC%s/private/order/cancel" % (self.__currency)
         params = {"oid": orderId}
-        return self.__sendRequest(url, params)
+        response = self.__sendRequest(url, params)
+        return return_or_fail(response, "Failed to cancel order")
 
     def privateInfo(self):
         url = self.__baseUrl + "generic/private/info"
-        return self.__sendRequest(url, {})
+        response = self.__sendRequest(url, {})
+        return return_or_fail(response, "Failed to retrieve private info")
 
     def openOrders(self):
         url = self.__baseUrl + "generic/private/orders"
-        return self.__sendRequest(url, {})
+        response = self.__sendRequest(url, {})
+        return return_or_fail(response, "Failed to retrieve open orders")

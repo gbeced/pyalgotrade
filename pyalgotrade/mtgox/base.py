@@ -22,6 +22,7 @@ import datetime
 
 from pyalgotrade.utils import dt
 
+BTC_SYMBOL = "BTC"
 
 def timestamp_to_tid(unixTime):
     return unixTime * 1000000
@@ -42,7 +43,7 @@ def from_value_int(currency, value_int):
     ret = int(value_int)
     if currency in ["JPY", "SEK"]:
         ret = ret * 0.001
-    elif currency == "BTC":
+    elif currency == BTC_SYMBOL:
         ret = ret * 0.00000001
     else:
         ret = ret * 0.00001
@@ -52,7 +53,7 @@ def from_value_int(currency, value_int):
 def to_value_int(currency, value):
     if currency in ["JPY", "SEK"]:
         ret = value / 0.001
-    elif currency == "BTC":
+    elif currency == BTC_SYMBOL:
         ret = value / 0.00000001
     else:
         ret = value / 0.00001
@@ -165,7 +166,7 @@ class Depth(object):
 
     def getTotalVolume(self):
         """Total volume at this price, after applying the depth update, can be used as a starting point before applying subsequent updates.."""
-        return from_value_int("BTC", self.__depthDict["total_volume_int"])
+        return from_value_int(BTC_SYMBOL, self.__depthDict["total_volume_int"])
 
     def getType(self):
         """Type of order at this depth, either 'ask' or 'bid'."""
@@ -173,7 +174,7 @@ class Depth(object):
 
     def getVolume(self):
         """Volume change."""
-        return from_value_int("BTC", self.__depthDict["volume_int"])
+        return from_value_int(BTC_SYMBOL, self.__depthDict["volume_int"])
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#user_order
