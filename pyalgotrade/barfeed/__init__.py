@@ -30,6 +30,7 @@ class Frequency(object):
     MINUTE = 60
     HOUR = 60*60
     DAY = 24*60*60
+    WEEK = 24*60*60*7
 
 
 # Subclasses should implement:

@@ -95,6 +95,8 @@ class RowParser(csvfeed.RowParser):
 class Feed(csvfeed.BarFeed):
     """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
 
+    :param frequency: The frequency of the bars. Only **pyalgotrade.barfeed.Frequency.DAY** or **pyalgotrade.barfeed.Frequency.WEEK**
+        are supported.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
@@ -109,11 +111,14 @@ class Feed(csvfeed.BarFeed):
             * If any of the instruments loaded are from different timezones, then the timezone parameter must be set.
     """
 
-    def __init__(self, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency=barfeed.Frequency.DAY, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
         if isinstance(timezone, int):
             raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 
-        csvfeed.BarFeed.__init__(self, barfeed.Frequency.DAY, maxLen)
+        if frequency not in [barfeed.Frequency.DAY, barfeed.Frequency.WEEK]:
+            raise Exception("Invalid frequency.")
+
+        csvfeed.BarFeed.__init__(self, frequency, maxLen)
         self.__timezone = timezone
         self.__sanitizeBars = False
 

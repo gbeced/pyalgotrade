@@ -158,7 +158,7 @@ class YahooTestCase(unittest.TestCase):
             self.assertTrue(dt.datetime_is_naive(bar.getDateTime()))
 
     def testWithDefaultTimezone(self):
-        barFeed = yahoofeed.Feed(marketsession.USEquities.getTimezone())
+        barFeed = yahoofeed.Feed(timezone=marketsession.USEquities.getTimezone())
         barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         barFeed.addBarsFromCSV(YahooTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         for dateTime, bars in barFeed:
@@ -175,7 +175,7 @@ class YahooTestCase(unittest.TestCase):
 
     def testWithIntegerTimezone(self):
         try:
-            barFeed = yahoofeed.Feed(-5)
+            barFeed = yahoofeed.Feed(timezone=-5)
             self.assertTrue(False, "Exception expected")
         except Exception, e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)

@@ -22,12 +22,13 @@ import os
 import unittest
 
 from pyalgotrade.tools import yahoofinance
+from pyalgotrade import barfeed
 from pyalgotrade.barfeed import yahoofeed
 import common
 
 
 class ToolsTestCase(unittest.TestCase):
-    def testDownloadAndParse(self):
+    def testDownloadAndParseDaily(self):
         instrument = "orcl"
 
         common.init_temp_path()
@@ -38,3 +39,18 @@ class ToolsTestCase(unittest.TestCase):
         bf.loadAll()
         self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
         self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+
+    def testDownloadAndParseWeekly(self):
+        instrument = "aapl"
+
+        common.init_temp_path()
+        path = os.path.join(common.get_temp_path(), "aapl-weekly-2013.csv")
+        yahoofinance.download_weekly_bars(instrument, 2013, path)
+        bf = yahoofeed.Feed(frequency=barfeed.Frequency.WEEK)
+        bf.addBarsFromCSV(instrument, path)
+        bf.loadAll()
+        self.assertEqual(bf[instrument][-1].getOpen(), 557.46)
+        self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
+        self.assertEqual(bf[instrument][-1].getLow(), 540.43)
+        self.assertEqual(bf[instrument][-1].getClose(), 540.98)
+        self.assertEqual(bf[instrument][-1].getVolume(), 9852500)

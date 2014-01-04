@@ -30,19 +30,6 @@ class MyStrategy(strategy.BacktestingStrategy):
             self.order(self.__instrument, 100)
 
 
-def build_feed(instruments, fromYear, toYear):
-    feed = yahoofeed.Feed()
-
-    for year in range(fromYear, toYear+1):
-        for symbol in instruments:
-            fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
-            if not os.path.exists(fileName):
-                print "Downloading %s %d" % (symbol, year)
-                yahoofinance.download_daily_bars(symbol, year, fileName)
-            feed.addBarsFromCSV(symbol, fileName)
-    return feed
-
-
 def main(plot):
     instrument = "aapl"
     vwapWindowSize = 5
