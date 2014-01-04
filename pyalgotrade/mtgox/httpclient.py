@@ -56,6 +56,7 @@ class HTTPClient(object):
         headers = {}
         headers["User-Agent"] = HTTPClient.USER_AGENT
         headers["Rest-Key"] = self.__apiKey
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
         headers["Rest-Sign"] = base64.b64encode(str(hmac.HMAC(self.__apiSecret, post_data, hashlib.sha512).digest()))
         return (post_data, headers)
 
@@ -89,4 +90,8 @@ class HTTPClient(object):
 
     def privateInfo(self):
         url = self.__baseUrl + "generic/private/info"
+        return self.__sendRequest(url, {})
+
+    def openOrders(self):
+        url = self.__baseUrl + "generic/private/orders"
         return self.__sendRequest(url, {})
