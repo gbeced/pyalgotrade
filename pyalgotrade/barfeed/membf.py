@@ -38,6 +38,7 @@ class BarFeed(barfeed.BaseBarFeed):
         self.__nextBarIdx = {}
         self.__started = False
         self.__barsLeft = 0
+        self.__prevDateTime = None
 
     def isRealTime(self):
         return False
@@ -107,6 +108,11 @@ class BarFeed(barfeed.BaseBarFeed):
                 self.__nextBarIdx[instrument] += 1
 
         self.__barsLeft -= 1
+
+        if self.__prevDateTime == smallestDateTime:
+            raise Exception("Duplicate bars found for %s on %s" % (ret.keys(), smallestDateTime))
+
+        self.__prevDateTime = smallestDateTime
         return bar.Bars(ret)
 
     def getBarsLeft(self):
