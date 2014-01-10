@@ -127,9 +127,13 @@ class Client(observer.Subject):
         # Build papertrading/livetrading objects.
         if apiKey is None or apiSecret is None:
             self.__paperTrading = True
+            self.__httpClient = None
         else:
             self.__paperTrading = False
             self.__httpClient = httpclient.HTTPClient(apiKey, apiSecret, currency)
+
+    def getHTTPClient(self):
+        return self.__httpClient
 
     def getCurrency(self):
         return self.__currency
@@ -174,12 +178,9 @@ class Client(observer.Subject):
             if not self.__paperTrading:
                 # Request the Private Id Key and subsribe to private channel.
                 logger.info("Requesting private id key.")
-                response = self.__httpClient.requestPrivateKeyId()
-                if response.get("result") != "success":
-                    raise Exception("Invalid response %s" % (response))
-                privateIdKey = response.get("return")
-                if privateIdKey is None:
-                    raise Exception("Invalid response %s" % (response))
+                privateIdKey = self.__httpClient.requestPrivateKeyId()
+                if privateIdKey is None or privateIdKey == "":
+                    raise Exception("Invalid private key id %s" % (privateIdKey))
                 logger.info("Subscribing to private channel.")
                 self.__wsClient.subscribePrivateChannel(privateIdKey)
             self.__initializationFailed = False
@@ -266,5 +267,5 @@ class Client(observer.Subject):
         return None
 
     def getDispatchPriority(self):
-        # The number is irrelevant since the broker and barfeed will set their priorities relative to this one.
+        # The number is irrelevant since the broker and barfeed will dispatch while processing events.
         return 100

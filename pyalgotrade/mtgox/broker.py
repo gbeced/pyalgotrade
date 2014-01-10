@@ -22,8 +22,11 @@ from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
 
 
+# In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
+# It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
+
 class BacktestingBroker(backtesting.Broker):
-    """A backtesting broker.
+    """A MtGox backtesting broker.
 
     :param cash: The initial amount of cash.
     :type cash: int/float.
