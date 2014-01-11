@@ -178,6 +178,7 @@ class Depth(object):
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#user_order
+# When an order is cancelled, the "user_order" field only contains the "oid", and none of the other fields.
 class UserOrder(object):
     class Status(object):
         PENDING = "pending"
@@ -202,8 +203,12 @@ class UserOrder(object):
         return self.__userOrderDict["currency"]
 
     def isCanceled(self):
-        """Returns True if the order was canceled."""
-        return len(self.__userOrderDict) == 1 and "oid" in self.__userOrderDict
+        """Returns True if the order was canceled.
+
+        .. note::
+            When an order is cancelled, the "user_order" field only contains the "oid", and none of the other fields.
+        """
+        return "oid" in self.__userOrderDict and "status" not in self.__userOrderDict
 
     def getAmount(self):
         """The traded amount in item (BTC)."""
