@@ -49,6 +49,9 @@ class BaseStrategy(object):
         self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
         self.__feed.getNewBarsEvent().subscribe(self.__onBars)
 
+        self.__dispatcher.getStartEvent().subscribe(self.onStart)
+        self.__dispatcher.getIdleEvent().subscribe(self.onIdle)
+
         # It is important to dispatch broker events before feed events, specially if we're backtesting.
         self.__dispatcher.addSubject(self.__broker)
         self.__dispatcher.addSubject(self.__feed)
@@ -289,6 +292,14 @@ class BaseStrategy(object):
         """
         pass
 
+    def onIdle(self):
+        """Override (optional) to get notified when there are no events.
+
+       .. note::
+            In a pure backtesting scenario this will not be called.
+        """
+        pass
+
     def onBars(self, bars):
         """Override (**mandatory**) to get notified when new bars are available. The default implementation raises an Exception.
 
@@ -359,8 +370,6 @@ class BaseStrategy(object):
 
     def run(self):
         """Call once (**and only once**) to run the strategy."""
-        self.onStart()
-
         self.__dispatcher.run()
 
         if self.__feed.getCurrentBars() is not None:

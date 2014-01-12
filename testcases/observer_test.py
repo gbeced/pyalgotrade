@@ -47,7 +47,9 @@ class NonRealtimeFeed(observer.Subject):
         return len(self.__datetimes) == 0
 
     def dispatch(self):
+        ret = True
         self.__event.emit(self.__datetimes.pop(0))
+        return ret
 
     def peekDateTime(self):
         return self.__datetimes[0]
@@ -78,7 +80,9 @@ class RealtimeFeed(observer.Subject):
         return len(self.__datetimes) == 0
 
     def dispatch(self):
+        ret = True
         self.__event.emit(self.__datetimes.pop(0))
+        return ret
 
     def peekDateTime(self):
         return None

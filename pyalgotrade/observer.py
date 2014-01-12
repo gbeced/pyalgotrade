@@ -77,6 +77,7 @@ class Subject(object):
     def eof(self):
         raise NotImplementedError()
 
+    # Dispatch events. If True is returned, it means that at least one event was dispatched.
     def dispatch(self):
         raise NotImplementedError()
 
@@ -95,10 +96,18 @@ class Subject(object):
 class Dispatcher(object):
     def __init__(self):
         self.__subjects = []
-        self.__stopped = False
+        self.__stop = False
+        self.__startEvent = Event()
+        self.__idleEvent = Event()
+
+    def getStartEvent(self):
+        return self.__startEvent
+
+    def getIdleEvent(self):
+        return self.__idleEvent
 
     def stop(self):
-        self.__stopped = True
+        self.__stop = True
 
     def getSubjects(self):
         return self.__subjects
@@ -116,14 +125,26 @@ class Dispatcher(object):
                 pos += 1
             self.__subjects.insert(pos, subject)
 
+    # Return True if events were dispatched.
+    def __dispatchSubject(self, subject, currEventDateTime):
+        ret = False
+        # Dispatch if the datetime is currEventDateTime of if its a realtime subject. 
+        if not subject.eof() and subject.peekDateTime() in (None, currEventDateTime):
+            ret = subject.dispatch() == True
+        return ret
+
+    # Returns a tuple with booleans
+    # 1: True if all subjects hit eof
+    # 2: True if at least one subject dispatched events.
     def __dispatch(self):
         smallestDateTime = None
-        ret = False
+        eof = True
+        eventsDispatched = False
 
         # Scan for the lowest datetime.
         for subject in self.__subjects:
             if not subject.eof():
-                ret = True
+                eof = False
                 nextDateTime = subject.peekDateTime()
                 if nextDateTime is not None:
                     if smallestDateTime is None:
@@ -132,21 +153,25 @@ class Dispatcher(object):
                         smallestDateTime = nextDateTime
 
         # Dispatch realtime subjects and those subjects with the lowest datetime.
-        if ret:
+        if not eof:
             for subject in self.__subjects:
-                if not subject.eof():
-                    nextDateTime = subject.peekDateTime()
-                    if nextDateTime is None or nextDateTime == smallestDateTime:
-                        subject.dispatch()
-        return ret
+                if self.__dispatchSubject(subject, smallestDateTime):
+                    eventsDispatched = True
+        return eof, eventsDispatched
 
     def run(self):
         try:
             for subject in self.__subjects:
                 subject.start()
 
-            while not self.__stopped and self.__dispatch():
-                pass
+            self.__startEvent.emit()
+
+            while not self.__stop:
+                eof, eventsDispatched = self.__dispatch()
+                if eof:
+                    self.__stop = True
+                elif not eventsDispatched:
+                    self.__idleEvent.emit()
         finally:
             for subject in self.__subjects:
                 subject.stop()

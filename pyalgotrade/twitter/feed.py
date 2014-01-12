@@ -155,9 +155,12 @@ class TwitterFeed(observer.Subject):
         return not self.__running
 
     def dispatch(self):
+        ret = False
         dispatched = TwitterFeed.MAX_EVENTS_PER_DISPATCH
         while self.__dispatchImpl() and dispatched > 0:
+            ret = True
             dispatched -= 1
+        return ret
 
     def peekDateTime(self):
         return None

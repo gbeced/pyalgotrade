@@ -233,11 +233,13 @@ class Client(observer.Subject):
         return self.__stopped
 
     def dispatchImpl(self, eventFilter):
+        ret = False
         try:
             eventType, eventData = self.__queue.get(True, Client.QUEUE_TIMEOUT)
             if eventFilter is not None and eventType not in eventFilter:
-                return
+                return False
 
+            ret = True
             if eventType == WSClient.ON_TICKER:
                 self.__tickerEvent.emit(eventData)
             elif eventType == WSClient.ON_TRADE:
@@ -245,9 +247,11 @@ class Client(observer.Subject):
             elif eventType == WSClient.ON_USER_ORDER:
                 self.__userOrderEvent.emit(eventData)
             elif eventType == WSClient.ON_RESULT:
+                ret = False
                 requestId, result = eventData
                 logger.info("Result: %s - %s" % (requestId, result))
             elif eventType == WSClient.ON_REMARK:
+                ret = False
                 requestId, data = eventData
                 logger.info("Remark: %s - %s" % (requestId, data))
             elif eventType == WSClient.ON_CONNECTED:
@@ -255,12 +259,14 @@ class Client(observer.Subject):
             elif eventType == WSClient.ON_DISCONNECTED:
                 self.__onDisconnected()
             else:
+                ret = False
                 logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
         except Queue.Empty:
             pass
+        return ret
 
     def dispatch(self):
-        self.dispatchImpl(None)
+        return self.dispatchImpl(None)
 
     def peekDateTime(self):
         # Return None since this is a realtime subject.

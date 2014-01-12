@@ -96,6 +96,7 @@ class BaseFeed(observer.Subject):
         dateTime, values = self.getNextValuesAndUpdateDS()
         if dateTime is not None:
             self.__event.emit(dateTime, values)
+        return dateTime is not None
 
     def getKeys(self):
         return self.__ds.keys()

@@ -66,6 +66,9 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__exitCanceledEvents = 0
         self.__exitOnSessionClose = False
         self.__brokerOrdersGTC = False
+        self.onStartCalled = False
+        self.onIdleCalled = False
+        self.onFinishCalled = False
 
     def addOrder(self, dateTime, method, *args, **kwargs):
         self.__orderEntry.setdefault(dateTime, [])
@@ -110,7 +113,13 @@ class TestStrategy(strategy.BacktestingStrategy):
         return self.__activePosition
 
     def onStart(self):
-        pass
+        self.onStartCalled = True
+
+    def onIdle(self):
+        self.onIdleCalled = True
+
+    def onFinish(self, bars):
+        self.onFinishCalled = True
 
     def onOrderUpdated(self, order):
         self.__orderUpdatedEvents += 1
@@ -748,3 +757,11 @@ class StopLimitPosTestCase(StrategyTestCase):
         self.assertTrue(strat.getExitOkEvents() == 1)
         self.assertTrue(strat.getExitCanceledEvents() == 0)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 24), 2))
+
+class OptionalOverridesTestCase(StrategyTestCase):
+    def testOnStartIdleFinish(self):
+        strat = self.createStrategy()
+        strat.run()
+        self.assertTrue(strat.onStartCalled)
+        self.assertTrue(strat.onFinishCalled)
+        self.assertFalse(strat.onIdleCalled)
