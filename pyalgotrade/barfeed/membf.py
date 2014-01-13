@@ -22,6 +22,7 @@ from pyalgotrade import barfeed
 from pyalgotrade import dataseries
 from pyalgotrade.barfeed import helpers
 from pyalgotrade import bar
+from pyalgotrade import utils
 
 
 # A non real-time BarFeed responsible for:
@@ -86,9 +87,7 @@ class BarFeed(barfeed.BaseBarFeed):
         for instrument, bars in self.__bars.iteritems():
             nextIdx = self.__nextBarIdx[instrument]
             if nextIdx < len(bars):
-                if ret is None or bars[nextIdx].getDateTime() < ret:
-                    ret = bars[nextIdx].getDateTime()
-
+                ret = utils.safe_min(ret, bars[nextIdx].getDateTime())
         return ret
 
     def getNextBars(self):

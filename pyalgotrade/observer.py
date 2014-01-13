@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import utils
 
 class Event(object):
     def __init__(self):
@@ -145,12 +146,7 @@ class Dispatcher(object):
         for subject in self.__subjects:
             if not subject.eof():
                 eof = False
-                nextDateTime = subject.peekDateTime()
-                if nextDateTime is not None:
-                    if smallestDateTime is None:
-                        smallestDateTime = nextDateTime
-                    elif nextDateTime < smallestDateTime:
-                        smallestDateTime = nextDateTime
+                smallestDateTime = utils.safe_min(smallestDateTime, subject.peekDateTime())
 
         # Dispatch realtime subjects and those subjects with the lowest datetime.
         if not eof:

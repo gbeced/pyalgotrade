@@ -36,6 +36,18 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(utils.get_change_percentage(-2, -1), -1)
         self.assertEqual(utils.get_change_percentage(-1.5, -1), -0.5)
  
+    def testSafeMin(self):
+        self.assertEqual(utils.safe_min(None, 0), 0)
+        self.assertEqual(utils.safe_min(0, None), 0)
+        self.assertEqual(utils.safe_min(None, None), None)
+        self.assertEqual(utils.safe_min(0, 0), 0)
+        self.assertEqual(utils.safe_min(1, 0), 0)
+        self.assertEqual(utils.safe_min(0, 1), 0)
+        self.assertEqual(utils.safe_min(-1, 1), -1)
+        self.assertEqual(utils.safe_min(1, -1), -1)
+        self.assertEqual(utils.safe_min(-1, -2), -2)
+        self.assertEqual(utils.safe_min(-2, -1), -2)
+
 class CollectionsTestCase(unittest.TestCase):
     def testEmptyIntersection(self):
         values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
