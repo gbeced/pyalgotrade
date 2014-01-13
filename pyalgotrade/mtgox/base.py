@@ -180,14 +180,6 @@ class Depth(object):
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#user_order
 # When an order is cancelled, the "user_order" field only contains the "oid", and none of the other fields.
 class UserOrder(object):
-    class Status(object):
-        PENDING = "pending"
-        POST_PENDING = "post-pending"
-        OPEN = "open"
-        EXECUTING = "executing"
-        INVALID = "invalid"
-        STOP = "stop"
-
     def __init__(self, userOrderDict):
         self.__userOrderDict = userOrderDict
 
@@ -228,6 +220,7 @@ class UserOrder(object):
 
     def getStatus(self):
         """The order status."""
+        # Check https://en.bitcoin.it/wiki/MtGox/IRC_mtgox for more info on what each status means.
         return self.__userOrderDict["status"]
 
     def getDateTime(self):
