@@ -80,8 +80,14 @@ class WSClient(wsclient.WebSocketClient):
     def onTicker(self, ticker):
         self.__queue.put((WSClient.ON_TICKER, ticker))
 
-    def onTrade(self, trade):
-        self.__queue.put((WSClient.ON_TRADE, trade))
+    def onTrade(self, trade, publicChannel):
+        # As described in https://en.bitcoin.it/wiki/MtGox/API/Streaming#trade_2
+        # Trades that happen on behalf of a user whose private channel you're subscribed to issue trade
+        # messages with the same format as the public trades channel does.
+        # 
+        # We skip those trades from the private channel to avoid duplicate processing of the same trade.
+        if publicChannel:
+            self.__queue.put((WSClient.ON_TRADE, trade))
 
     def onUserOrder(self, userOrder):
         self.__queue.put((WSClient.ON_USER_ORDER, userOrder))
@@ -172,8 +178,8 @@ class Client(observer.Subject):
         logger.info("Connection opened.")
 
         try:
-            # Remove depth notifications channel.
-            self.__wsClient.unsubscribeChannel(wsclient.WebSocketClient.DEPTH_NOTIFICATIONS_CHANNEL)
+            # Remove public depth notifications channel to reduce noise.
+            self.__wsClient.unsubscribeChannel(wsclient.PublicChannels.getDepthChannel(self.__currency))
 
             if not self.__paperTrading:
                 # Request the Private Id Key and subsribe to private channel.
