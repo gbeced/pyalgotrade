@@ -37,17 +37,21 @@ class WSClient(wsclient.WebSocketClient):
 
     # Events
     ON_TICKER = 1
-    ON_TRADE = 2
-    ON_USER_ORDER = 3
-    ON_RESULT = 4
-    ON_REMARK = 5
-    ON_CONNECTED = 6
-    ON_DISCONNECTED = 7
+    ON_WALLET = 2
+    ON_TRADE = 3
+    ON_USER_ORDER = 4
+    ON_RESULT = 5
+    ON_REMARK = 6
+    ON_CONNECTED = 7
+    ON_DISCONNECTED = 8
 
     # currency is the account's currency.
-    def __init__(self, queue, currency, apiKey, apiSecret, ignoreMultiCurrency):
+    def __init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency):
         wsclient.WebSocketClient.__init__(self, currency, apiKey, apiSecret, ignoreMultiCurrency)
-        self.__queue = queue
+        self.__queue = Queue.Queue()
+
+    def getQueue(self):
+        return self.__queue
 
     def onOpened(self):
         self.__queue.put((WSClient.ON_CONNECTED, None))
@@ -89,6 +93,10 @@ class WSClient(wsclient.WebSocketClient):
         if publicChannel:
             self.__queue.put((WSClient.ON_TRADE, trade))
 
+
+    def onWallet(self, wallet):
+        self.__queue.put((WSClient.ON_WALLET, wallet))
+
     def onUserOrder(self, userOrder):
         self.__queue.put((WSClient.ON_USER_ORDER, userOrder))
 
@@ -121,14 +129,16 @@ class Client(observer.Subject):
         self.__ignoreMultiCurrency = ignoreMultiCurrency
 
         self.__thread = None
-        self.__queue = Queue.Queue()
-        self.__initializationFailed = None
+        self.__initializationOk = None
         self.__stopped = False
         self.__tickerEvent = observer.Event()
         self.__tradeEvent = observer.Event()
         self.__userOrderEvent = observer.Event()
+        self.__walletEvent = observer.Event()
         self.__wsClient = None
         self.__enableReconnection = True
+        self.__resultCB = {}
+        self.__remarkCB = {}
 
         # Build papertrading/livetrading objects.
         if apiKey is None or apiSecret is None:
@@ -137,6 +147,65 @@ class Client(observer.Subject):
         else:
             self.__paperTrading = False
             self.__httpClient = httpclient.HTTPClient(apiKey, apiSecret, currency)
+
+    def __threadMain(self):
+        self.__wsClient.startClient()
+        # logger.info("Thread finished.")
+
+    def __registerCallbacks(self, requestId, resultCB, remarkCB):
+        assert(requestId not in self.__resultCB)
+        assert(requestId not in self.__remarkCB)
+        self.__resultCB[requestId] = resultCB
+        self.__remarkCB[requestId] = remarkCB
+
+    def __unregisterCallbacks(self, requestId):
+        assert(requestId in self.__resultCB)
+        assert(requestId in self.__remarkCB)
+        del self.__remarkCB[requestId]
+        del self.__resultCB[requestId]
+
+    def __callbacksRegistered(self, requestId):
+        return requestId in self.__resultCB and requestId in self.__remarkCB
+
+    def __initializeClient(self):
+        logger.info("Initializing MtGox client.")
+
+        # We use the streaming client only to get updates and not to send requests (using authCall)
+        # because when placing orders sometimes we were receving the order update before the result
+        # with the order GUID.
+        self.__initializationOk = None
+        self.__wsClient = WSClient(self.__currency, self.__apiKey, self.__apiSecret, self.__ignoreMultiCurrency)
+        self.__wsClient.connect()
+
+        # Start the thread that will run the client.
+        self.__thread = threading.Thread(target=self.__threadMain)
+        self.__thread.start()
+
+        # Wait for initialization to complete.
+        while self.__initializationOk is None and self.__thread.is_alive():
+            self.dispatchImpl([WSClient.ON_CONNECTED])
+        if self.__initializationOk:
+            logger.info("Initialization ok.")
+        else:
+            logger.error("Initialization failed.")
+        return self.__initializationOk
+
+    def waitResponse(self, requestId, resultCB, remarkCB, timeout):
+        self.__registerCallbacks(requestId, resultCB, remarkCB)
+
+        done = False
+        start = time.time()
+        # dispatchImpl may raise if the callbacks raise, but I still want to cleanup the callback mappings.
+        try:
+            while not done and time.time() - start < timeout:
+                self.dispatchImpl([WSClient.ON_RESULT, WSClient.ON_REMARK])
+                if not self.__callbacksRegistered(requestId):
+                    done = True
+        finally:
+            # If we timed out then we need to remove the callbacks.
+            if not done:
+                self.__unregisterCallbacks()
+        return done
 
     def getHTTPClient(self):
         return self.__httpClient
@@ -147,52 +216,40 @@ class Client(observer.Subject):
     def setEnableReconnection(self, enable):
         self.__enableReconnection = enable
 
-    def __threadMain(self):
-        self.__wsClient.startClient()
-        # logger.info("Thread finished.")
+    def requestPrivateIdKey(self):
+        out = {"result":None}
+        def onResult(data):
+            out["result"] = data
 
-    def __initializeClient(self):
-        logger.info("Initializing MtGox client.")
+        def onRemark(data):
+            logger.error("Remark requesting private id key: %s" % (data))
 
-        # We use the streaming client only to get updates and not to send requests (using authCall)
-        # because when placing orders sometimes we were receving the order update before the result
-        # with the order GUID.
-        self.__wsClient = WSClient(self.__queue, self.__currency, self.__apiKey, self.__apiSecret, self.__ignoreMultiCurrency)
-        self.__initializationFailed = None
-        self.__wsClient.connect()
+        logger.info("Requesting private id key.")
+        requestId = self.__wsClient.requestPrivateIdKey()
+        self.waitResponse(requestId, onResult, onRemark, 30)
 
-        # Start the thread that will run the client.
-        self.__thread = threading.Thread(target=self.__threadMain)
-        self.__thread.start()
-
-        # Wait for initialization to complete.
-        while self.__initializationFailed is None and self.__thread.is_alive():
-            self.dispatchImpl([WSClient.ON_CONNECTED])
-        if self.__initializationFailed:
-            logger.error("Initialization failed.")
-        else:
-            logger.info("Initialization ok.")
-        return not self.__initializationFailed
+        ret = out["result"]
+        if ret in (None, ""):
+            raise Exception("Failed to get private id key")
+        return ret
 
     def __onConnected(self):
         logger.info("Connection opened.")
 
         try:
             # Remove public depth notifications channel to reduce noise.
+            logger.info("Unsubscribing from depth notifications channel.")
             self.__wsClient.unsubscribeChannel(wsclient.PublicChannels.getDepthChannel(self.__currency))
 
             if not self.__paperTrading:
                 # Request the Private Id Key and subsribe to private channel.
-                logger.info("Requesting private id key.")
-                privateIdKey = self.__httpClient.requestPrivateKeyId()
-                if privateIdKey is None or privateIdKey == "":
-                    raise Exception("Invalid private key id %s" % (privateIdKey))
+                privateIdKey = self.requestPrivateIdKey()
                 logger.info("Subscribing to private channel.")
                 self.__wsClient.subscribePrivateChannel(privateIdKey)
-            self.__initializationFailed = False
+            self.__initializationOk = True
         except Exception, e:
-            self.__initializationFailed = True
-            logger.error("Error: %s" % str(e))
+            self.__initializationOk = False
+            logger.error(str(e))
 
     def __onDisconnected(self):
         logger.error("Disconnection detected")
@@ -206,6 +263,24 @@ class Client(observer.Subject):
         else:
             self.__stopped = True
 
+    def __onRemark(self, requestId, data):
+        try:
+            cb = self.__remarkCB[requestId]
+            self.__unregisterCallbacks(requestId)
+            if cb:
+                cb(data)
+        except KeyError:
+            logger.warning("Remark for request %s: %s" % (requestId, data))
+
+    def __onResult(self, requestId, data):
+        try:
+            cb = self.__resultCB[requestId]
+            self.__unregisterCallbacks(requestId)
+            if cb:
+                cb(data)
+        except KeyError:
+            logger.warning("Result for request %s: %s" % (requestId, data))
+
     def getTickerEvent(self):
         return self.__tickerEvent
 
@@ -215,6 +290,9 @@ class Client(observer.Subject):
     def getUserOrderEvent(self):
         return self.__userOrderEvent
 
+    def getWalletEvent(self):
+        return self.__walletEvent
+ 
     def start(self):
         if self.__thread is not None:
             raise Exception("Already running")
@@ -241,25 +319,27 @@ class Client(observer.Subject):
     def dispatchImpl(self, eventFilter):
         ret = False
         try:
-            eventType, eventData = self.__queue.get(True, Client.QUEUE_TIMEOUT)
+            eventType, eventData = self.__wsClient.getQueue().get(True, Client.QUEUE_TIMEOUT)
             if eventFilter is not None and eventType not in eventFilter:
                 return False
 
             ret = True
             if eventType == WSClient.ON_TICKER:
                 self.__tickerEvent.emit(eventData)
+            elif eventType == WSClient.ON_WALLET:
+                self.__walletEvent.emit(eventData)
             elif eventType == WSClient.ON_TRADE:
                 self.__tradeEvent.emit(eventData)
             elif eventType == WSClient.ON_USER_ORDER:
                 self.__userOrderEvent.emit(eventData)
             elif eventType == WSClient.ON_RESULT:
                 ret = False
-                requestId, result = eventData
-                logger.info("Result: %s - %s" % (requestId, result))
+                requestId, data = eventData
+                self.__onResult(requestId, data)
             elif eventType == WSClient.ON_REMARK:
                 ret = False
                 requestId, data = eventData
-                logger.info("Remark: %s - %s" % (requestId, data))
+                self.__onRemark(requestId, data)
             elif eventType == WSClient.ON_CONNECTED:
                 self.__onConnected()
             elif eventType == WSClient.ON_DISCONNECTED:

@@ -52,19 +52,11 @@ class HTTPClient(object):
         self.__apiKey = apiKey
         self.__apiSecret = base64.b64decode(apiSecret)
         self.__currency = currency
-        self.__nonce = None
+        self.__nonce = base.Nonce()
         self.__baseUrl = "https://data.mtgox.com/api/1/"
 
-    def __getNonce(self):
-        # nonce must be greater than the last one.
-        ret = int(time.time()*1000000)
-        if ret == self.__nonce:
-            ret += 1
-        self.__nonce = ret
-        return ret
-
     def __buildQuery(self, req={}):
-        req["nonce"] = self.__getNonce()
+        req["nonce"] = self.__nonce.next()
         post_data = urllib.urlencode(req)
         headers = {}
         headers["User-Agent"] = HTTPClient.USER_AGENT

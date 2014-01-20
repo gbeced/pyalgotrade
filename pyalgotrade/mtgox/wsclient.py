@@ -235,19 +235,38 @@ class WebSocketClient(WebSocketClientBase):
         currencies = [currency]
         url = 'ws://websocket.mtgox.com/mtgox?Currency=%s' % (",".join(currencies))
         WebSocketClientBase.__init__(self, url)
-        self.__nonce = None
+        self.__nonce = base.Nonce()
         self.__apiKey = apiKey
         self.__apiSecret = apiSecret
         self.__ignoreMultiCurrency = ignoreMultiCurrency
         self.__publicTradeChannel = PublicChannels.getTradeChannel()
 
-    def __getNonce(self):
-        # nonce must be greater than the last one.
-        ret = int(time.time()*1000000)
-        if ret == self.__nonce:
-            ret += 1
-        self.__nonce = ret
-        return ret
+    def authCall(self, call, params={}, item="BTC", currency=""):
+        # https://en.bitcoin.it/wiki/MtGox/API/Streaming#Authenticated_commands
+        # If 'Invalid call' remark is received, this is probably due to a bad nonce.
+        nonce = self.__nonce.next()
+        requestId = get_hex_md5(str(nonce))
+        requestDict = {
+            "id": requestId,
+            "call": call,
+            "nonce": nonce,
+            "params": params,
+            "item": item,
+            "currency": currency,
+            }
+        request = json.dumps(requestDict)
+
+        # https://en.bitcoin.it/wiki/MtGox/API/HTTP
+        binaryKey = apikey_as_binary(self.__apiKey)
+        signature = sign_request(request, self.__apiSecret)
+        callDict = {
+            "op": "call",
+            "id": requestId,
+            "call": base64.b64encode(binaryKey + signature + request),
+            "context": "mtgox.com"}
+        msg = json.dumps(callDict)
+        self.send(msg, False)
+        return requestId
 
     def onMessage(self, data):
         if data["op"] == "private":
@@ -275,38 +294,11 @@ class WebSocketClient(WebSocketClientBase):
         msg = json.dumps({"op": "unsubscribe", "channel": channelId})
         self.send(msg, False)
 
-    def __authCall(self, call, params={}, item="BTC", currency=""):
-        # https://en.bitcoin.it/wiki/MtGox/API/Streaming#Authenticated_commands
-        # If 'Invalid call' remark is received, this is probably due to a bad nonce.
-        nonce = self.__getNonce()
-        requestId = get_hex_md5(str(nonce))
-        requestDict = {
-            "id": requestId,
-            "call": call,
-            "nonce": nonce,
-            "params": params,
-            "item": item,
-            "currency": currency,
-            }
-        request = json.dumps(requestDict)
+#    def createOrder(self, orderType, amount, currency):
+#        return self.authCall("order/add", {"type":orderType, "amount":amount}, currency=currency)
 
-        # https://en.bitcoin.it/wiki/MtGox/API/HTTP
-        binaryKey = apikey_as_binary(self.__apiKey)
-        signature = sign_request(request, self.__apiSecret)
-        requestDict = {
-            "op": "call",
-            "id": requestId,
-            "call": base64.b64encode(binaryKey + signature + request),
-            "context": "mtgox.com"}
-        msg = json.dumps(requestDict)
-        self.send(msg, False)
-        return requestId
-
-    # def createOrder(self, orderType, amount, currency):
-    #     return self.__authCall("order/add", {"type":orderType, "amount":amount}, currency=currency)
-
-    # def requestPrivateKeyId(self):
-    #     return self.__authCall("private/idkey")
+    def requestPrivateIdKey(self):
+        return self.authCall("private/idkey")
 
     def onPrivate(self, data):
         if data["private"] == "ticker":
@@ -317,11 +309,16 @@ class WebSocketClient(WebSocketClientBase):
             # use only the trades having primary =Y
             if not self.__ignoreMultiCurrency or data["trade"]["primary"] == "Y":
                 self.onTrade(base.Trade(data["trade"]), data["channel"] == self.__publicTradeChannel)
+        elif data["private"] == "wallet":
+            self.onWallet(base.Wallet(data["wallet"]))
         elif data["private"] == "depth":
             self.onDepth(base.Depth(data["depth"]))
         elif data["private"] == "user_order":
             self.onUserOrder(base.UserOrder(data["user_order"]))
         elif data["private"] == "result":
+            print "----"
+            print data
+            print "----"
             pass
 
     def onSubscribe(self, data):
@@ -343,6 +340,9 @@ class WebSocketClient(WebSocketClientBase):
         pass
 
     def onTrade(self, trade, publicChannel):
+        pass
+
+    def onWallet(self, wallet):
         pass
 
     def onDepth(self, depth):

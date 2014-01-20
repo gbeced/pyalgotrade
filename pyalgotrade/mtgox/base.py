@@ -19,6 +19,7 @@
 """
 
 import datetime
+import time
 
 from pyalgotrade.utils import dt
 
@@ -66,6 +67,19 @@ def to_amount_int(value):
 
 def from_amount_int(value_int):
     return int(value_int) * 0.00000001
+
+
+class Nonce(object):
+    def __init__(self):
+        self.__last = None
+
+    def next(self):
+        # nonce must be greater than the last one.
+        ret = int(time.time()*1000000)
+        if ret == self.__last:
+            ret += 1
+        self.__nonce = ret
+        return ret
 
 
 # https://en.bitcoin.it/wiki/MtGox/API/Streaming#Trade
@@ -194,18 +208,21 @@ class UserOrder(object):
         """The currency."""
         return self.__userOrderDict["currency"]
 
-    def isCanceled(self):
-        """Returns True if the order was canceled.
-
-        .. note::
-            When an order is cancelled, the "user_order" field only contains the "oid", and none of the other fields.
-        """
-        return "oid" in self.__userOrderDict and "status" not in self.__userOrderDict
+    def getReason(self):
+        """Returns the reason why an order has been removed from the order book."""
+        # As noted in https://en.bitcoin.it/wiki/MtGox/IRC_mtgox
+        # A new field has been added to the user_order broadcast. The field is called 'reason'.
+        # This field tells you exactly why an order has been removed from the order book.
+        return self.__userOrderDict["reason"]
 
     def getAmount(self):
-        """The traded amount in item (BTC)."""
+        """The amount in BTC."""
         return Price(self.__userOrderDict["amount"]).getValue()
 
+    def getEffectiveAmount(self):
+        """The effective amount BTC."""
+        return Price(self.__userOrderDict["effective_amount"]).getValue()
+ 
     def isMarketOrder(self):
         """Returns True if this is a market order."""
         return "price" not in self.__userOrderDict
@@ -221,8 +238,20 @@ class UserOrder(object):
     def getStatus(self):
         """The order status."""
         # Check https://en.bitcoin.it/wiki/MtGox/IRC_mtgox for more info on what each status means.
-        return self.__userOrderDict["status"]
+        return self.__userOrderDict.get("status")
 
     def getDateTime(self):
         """:class:`datetime.datetime` for the order."""
         return datetime.datetime.fromtimestamp(int(self.__userOrderDict["date"]))
+
+
+# https://en.bitcoin.it/wiki/MtGox/API/Streaming#wallet
+class Wallet(object):
+    def __init__(self, walletDict):
+        self.__walletDict = walletDict
+
+    def getOp(self):
+        return self.__walletDict["op"]
+
+    def getDict(self):
+        return self.__walletDict
