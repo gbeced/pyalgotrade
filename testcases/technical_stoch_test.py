@@ -40,7 +40,7 @@ class TestCase(unittest.TestCase):
     def __buildBar(self, openPrice, highPrice, lowPrice, closePrice):
         dateTime = datetime.datetime.now() + datetime.timedelta(seconds=self.__currSeconds)
         self.__currSeconds += 1
-        return bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice)
+        return bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice, bar.Frequency.DAY)
 
     def __fillBarDataSeries(self, barDS, closePrices, highPrices, lowPrices):
         assert(len(closePrices) == len(highPrices) == len(lowPrices))

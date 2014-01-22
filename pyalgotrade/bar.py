@@ -19,6 +19,23 @@
 """
 
 
+class Frequency(object):
+    """Enum like class for bar frequencies. Valid values are:
+
+    * **Frequency.TRADE**: The bar represents a single trade.
+    * **Frequency.SECOND**: The bar summarizes the trading activity during 1 second.
+    * **Frequency.MINUTE**: The bar summarizes the trading activity during 1 minute.
+    * **Frequency.HOUR**: The bar summarizes the trading activity during 1 hour.
+    * **Frequency.DAY**: The bar summarizes the trading activity during 1 day.
+    * **Frequency.WEEK**: The bar summarizes the trading activity during 1 week.
+    """
+    TRADE = -1  # A bar is created for each trade.
+    SECOND = 1
+    MINUTE = 60
+    HOUR = 60*60
+    DAY = 24*60*60
+    WEEK = 24*60*60*7
+
 class Bar(object):
     """A Bar is a summary of the trading activity for a security in a given period.
 
@@ -54,6 +71,10 @@ class Bar(object):
         """Returns the adjusted closing price."""
         raise NotImplementedError()
 
+    def getFrequency(self):
+        """The bar's period."""
+        raise NotImplementedError()
+ 
     def getTypicalPrice(self):
         """Returns the typical price."""
         return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
@@ -74,9 +95,9 @@ class Bar(object):
 
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__sessionClose', '__barsTillSessionClose')
+    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__frequency', '__sessionClose', '__barsTillSessionClose')
 
-    def __init__(self, dateTime, open_, high, low, close, volume, adjClose):
+    def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency):
         if high < open_:
             raise Exception("high < open on %s" % (dateTime))
         if high < low:
@@ -97,14 +118,15 @@ class BasicBar(Bar):
         self.__low = low
         self.__volume = volume
         self.__adjClose = adjClose
+        self.__frequency = frequency
         self.__sessionClose = False
         self.__barsTillSessionClose = None
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__sessionClose, self.__barsTillSessionClose) = state
+        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency, self.__sessionClose, self.__barsTillSessionClose) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__sessionClose, self.__barsTillSessionClose)
+        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency, self.__sessionClose, self.__barsTillSessionClose)
 
     def getDateTime(self):
         return self.__dateTime
@@ -136,6 +158,9 @@ class BasicBar(Bar):
     def getAdjClose(self):
         return self.__adjClose
 
+    def getFrequency(self):
+        return self.__frequency
+ 
     def getSessionClose(self):
         # Returns True if this is the last bar for the session, or False otherwise.
         return self.__sessionClose

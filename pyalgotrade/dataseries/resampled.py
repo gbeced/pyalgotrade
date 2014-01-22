@@ -32,7 +32,7 @@ def get_slot_datetime(dateTime, frequency):
 
 
 class Slot(object):
-    def __init__(self, dateTime, bar_):
+    def __init__(self, dateTime, bar_, frequency):
         self.__dateTime = dateTime
         self.__open = bar_.getOpen()
         self.__high = bar_.getHigh()
@@ -40,6 +40,7 @@ class Slot(object):
         self.__close = bar_.getClose()
         self.__volume = bar_.getVolume()
         self.__adjClose = bar_.getAdjClose()
+        self.__frequency = frequency
 
     def getDateTime(self):
         return self.__dateTime
@@ -70,7 +71,7 @@ class Slot(object):
         self.__volume += bar_.getVolume()
 
     def buildBasicBar(self):
-        return bar.BasicBar(self.__dateTime, self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose)
+        return bar.BasicBar(self.__dateTime, self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose, self.__frequency)
 
 
 class ResampledBarDataSeries(bards.BarDataSeries):
@@ -107,9 +108,9 @@ class ResampledBarDataSeries(bards.BarDataSeries):
         dateTime = get_slot_datetime(value.getDateTime(), self.__frequency)
 
         if self.__slot is None:
-            self.__slot = Slot(dateTime, value)
+            self.__slot = Slot(dateTime, value, self.__frequency)
         elif self.__slot.getDateTime() == dateTime:
             self.__slot.addBar(value)
         else:
             self.appendWithDateTime(self.__slot.getDateTime(), self.__slot.buildBasicBar())
-            self.__slot = Slot(dateTime, value)
+            self.__slot = Slot(dateTime, value, self.__frequency)

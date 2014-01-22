@@ -51,9 +51,9 @@ class ResampleTestCase(unittest.TestCase):
         barDs = bards.BarDataSeries()
         resampledBarDS = resampled.ResampledBarDataSeries(barDs, barfeed.Frequency.MINUTE)
 
-        barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 1), 2.1, 3, 1, 2, 10, 1))
-        barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 2), 2, 3, 1, 2.3, 10, 2))
-        barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 2, 1), 2, 3, 1, 2, 10, 2))
+        barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 1), 2.1, 3, 1, 2, 10, 1, bar.Frequency.SECOND))
+        barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 2), 2, 3, 1, 2.3, 10, 2, bar.Frequency.SECOND))
+        barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 2, 1), 2, 3, 1, 2, 10, 2, bar.Frequency.SECOND))
 
         self.assertEqual(len(resampledBarDS), 1)
         self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2011, 1, 1, 1, 1))

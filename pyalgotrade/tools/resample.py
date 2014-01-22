@@ -65,12 +65,12 @@ class Sampler(object):
         bar = bars[self.__instrument]
 
         if self.__slot is None:
-            self.__slot = resampled.Slot(slotDateTime, bar)
+            self.__slot = resampled.Slot(slotDateTime, bar, self.__frequency)
         elif self.__slot.getDateTime() == slotDateTime:
             self.__slot.addBar(bar)
         else:
             self.__writer.writeSlot(self.__slot)
-            self.__slot = resampled.Slot(slotDateTime, bar)
+            self.__slot = resampled.Slot(slotDateTime, bar, self.__frequency)
 
     def finish(self):
         if self.__slot is not None:

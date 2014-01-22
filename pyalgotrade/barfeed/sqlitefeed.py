@@ -111,7 +111,7 @@ class Database(dbfeed.Database):
 
     def getBars(self, instrument, frequency, timezone=None, fromDateTime=None, toDateTime=None):
         instrument = normalize_instrument(instrument)
-        sql = "select bar.timestamp, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.adj_close" \
+        sql = "select bar.timestamp, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.adj_close, bar.frequency" \
             " from bar join instrument on (bar.instrument_id = instrument.instrument_id)" \
             " where instrument.name = ? and bar.frequency = ?"
         args = [instrument, frequency]
@@ -131,7 +131,7 @@ class Database(dbfeed.Database):
             dateTime = dt.timestamp_to_datetime(row[0])
             if timezone:
                 dateTime = dt.localize(dateTime, timezone)
-            ret.append(bar.BasicBar(dateTime, row[1], row[2], row[3], row[4], row[5], row[6]))
+            ret.append(bar.BasicBar(dateTime, row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
         cursor.close()
         return ret
 

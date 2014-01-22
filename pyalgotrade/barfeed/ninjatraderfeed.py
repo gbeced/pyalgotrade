@@ -98,7 +98,7 @@ class RowParser(csvfeed.RowParser):
         high = float(csvRowDict["High"])
         low = float(csvRowDict["Low"])
         volume = float(csvRowDict["Volume"])
-        return bar.BasicBar(dateTime, open_, high, low, close, volume, None)
+        return bar.BasicBar(dateTime, open_, high, low, close, volume, None, self.__frequency)
 
 
 class Feed(csvfeed.BarFeed):

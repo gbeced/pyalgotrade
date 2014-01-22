@@ -44,6 +44,9 @@ class TradeBar(bar.Bar):
     def __getstate__(self):
         return (self.__dateTime, self.__price, self.__amount, self.__tradeType, self.__sessionClose, self.__barsTillSessionClose)
 
+    def getFrequency(self):
+        bar.Frequency.TRADE
+
     def getDateTime(self):
         return self.__dateTime
 

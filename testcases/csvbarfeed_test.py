@@ -25,6 +25,7 @@ from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.utils import dt
+from pyalgotrade import bar
 from pyalgotrade import marketsession
 import feed_test
 import common
@@ -78,7 +79,7 @@ class YahooTestCase(unittest.TestCase):
     TestInstrument = "orcl"
 
     def __parseDate(self, date):
-        parser = yahoofeed.RowParser(datetime.time(23, 59))
+        parser = yahoofeed.RowParser(datetime.time(23, 59), bar.Frequency.DAY)
         row = {
             "Date": date,
             "Close": 0,

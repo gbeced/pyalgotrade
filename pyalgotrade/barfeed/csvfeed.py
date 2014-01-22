@@ -133,7 +133,8 @@ class BarFeed(membf.BarFeed):
 
 
 class GenericRowParser(RowParser):
-    def __init__(self, timezone):
+    def __init__(self, frequency, timezone):
+        self.__frequency = frequency
         self.__timezone = timezone
         self.__haveAdjClose = False
 
@@ -170,7 +171,7 @@ class GenericRowParser(RowParser):
         else:
             adjClose = None
 
-        return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose)
+        return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
 
 
 class GenericBarFeed(BarFeed):
@@ -218,7 +219,7 @@ class GenericBarFeed(BarFeed):
 
         if timezone is None:
             timezone = self.__timezone
-        rowParser = GenericRowParser(timezone)
+        rowParser = GenericRowParser(self.getFrequency(), timezone)
         BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 
         if rowParser.barsHaveAdjClose():
