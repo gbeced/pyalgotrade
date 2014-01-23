@@ -22,7 +22,7 @@ import os
 import unittest
 
 from pyalgotrade.tools import yahoofinance
-from pyalgotrade import barfeed
+from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
 import common
 
@@ -46,7 +46,7 @@ class ToolsTestCase(unittest.TestCase):
         common.init_temp_path()
         path = os.path.join(common.get_temp_path(), "aapl-weekly-2013.csv")
         yahoofinance.download_weekly_bars(instrument, 2013, path)
-        bf = yahoofeed.Feed(frequency=barfeed.Frequency.WEEK)
+        bf = yahoofeed.Feed(frequency=bar.Frequency.WEEK)
         bf.addBarsFromCSV(instrument, path)
         bf.loadAll()
         self.assertEqual(bf[instrument][-1].getOpen(), 557.46)

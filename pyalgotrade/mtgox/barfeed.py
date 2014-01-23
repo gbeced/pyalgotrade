@@ -140,7 +140,7 @@ class CSVTradeFeed(csvfeed.BarFeed):
     """
 
     def __init__(self, timezone=None, frequency=None, maxLen=dataseries.DEFAULT_MAX_LEN):
-        csvfeed.BarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
+        csvfeed.BarFeed.__init__(self, bar.Frequency.TRADE, maxLen)
         self.__timezone = timezone
 
     def addBarsFromCSV(self, path, timezone=None):
@@ -176,7 +176,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     """
 
     def __init__(self, client, maxLen=dataseries.DEFAULT_MAX_LEN):
-        barfeed.BaseBarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
+        barfeed.BaseBarFeed.__init__(self, bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
         self.__currency = client.getCurrency()
         self.registerInstrument("BTC")

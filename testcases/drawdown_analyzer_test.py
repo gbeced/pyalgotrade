@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade.stratanalyzer import drawdown
@@ -226,7 +225,7 @@ class AnalyzerTestCase(unittest.TestCase):
         self.__testIGE_BrokerImpl(2)
 
     def __testManualImpl(self, closingPrices, cash):
-        barFeed = membf.BarFeed(barfeed.Frequency.DAY)
+        barFeed = membf.BarFeed(bar.Frequency.DAY)
         bars = build_bars_from_closing_prices(closingPrices)
         barFeed.addBarsFromSequence("orcl", bars)
 

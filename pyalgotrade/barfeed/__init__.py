@@ -18,20 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
 from pyalgotrade import warninghelpers
 
 
-class Frequency(object):
-    TRADE = -1  # A bar is created for each trade.
-    SECOND = 1
-    MINUTE = 60
-    HOUR = 60*60
-    DAY = 24*60*60
-    WEEK = 24*60*60*7
-
+# This is only for backward compatibility since Frequency used to be defined here and not in bar.py.
+Frequency = bar.Frequency
 
 # Subclasses should implement:
 # - getNextBars
@@ -45,11 +40,11 @@ class BaseBarFeed(feed.BaseFeed):
 
     :param frequency: The bars frequency. Valid frequency values are:
 
-        * barfeed.Frequency.TRADE
-        * barfeed.Frequency.SECOND
-        * barfeed.Frequency.MINUTE
-        * barfeed.Frequency.HOUR
-        * barfeed.Frequency.DAY
+        * bar.Frequency.TRADE
+        * bar.Frequency.SECOND
+        * bar.Frequency.MINUTE
+        * bar.Frequency.HOUR
+        * bar.Frequency.DAY
 
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.

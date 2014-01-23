@@ -29,7 +29,8 @@ class Frequency(object):
     * **Frequency.DAY**: The bar summarizes the trading activity during 1 day.
     * **Frequency.WEEK**: The bar summarizes the trading activity during 1 week.
     """
-    TRADE = -1  # A bar is created for each trade.
+
+    TRADE = -1
     SECOND = 1
     MINUTE = 60
     HOUR = 60*60

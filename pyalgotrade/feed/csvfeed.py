@@ -138,7 +138,7 @@ class Feed(BaseFeed):
     :type converter: function.
     :param delimiter: The string used to separate values.
     :type delimiter: string.
-    :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+    :param timezone: The timezone to use to localize datetimes. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.

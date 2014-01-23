@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
+from pyalgotrade import bar
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.utils import dt
@@ -42,7 +42,7 @@ def load_intraday_bars():
     global feed
 
     print "Loading bars from file"
-    feed = ninjatraderfeed.Feed(barfeed.Frequency.MINUTE)
+    feed = ninjatraderfeed.Feed(bar.Frequency.MINUTE)
     # feed.setBarFilter(csvfeed.DateRangeFilter(dt.as_utc(datetime.datetime(2008, 1, 1)), dt.as_utc(datetime.datetime(2008, 12, 31))))
     feed.setBarFilter(csvfeed.DateRangeFilter(dt.as_utc(datetime.datetime(2008, 1, 1)), dt.as_utc(datetime.datetime(2008, 3, 31))))
     feed.addBarsFromCSV(instrument, "/Users/gabo/Downloads/etf-quotes/SPY.Last.txt")

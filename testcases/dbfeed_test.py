@@ -23,7 +23,7 @@ import os
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed
-from pyalgotrade import barfeed
+from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade import marketsession
 import common
@@ -56,7 +56,7 @@ class SQLiteFeedTestCase(unittest.TestCase):
     dbName = "SQLiteFeedTestCase.sqlite"
 
     def testBaseFeedInterface(self):
-        tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY)
+        tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, bar.Frequency.DAY)
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed()
@@ -72,7 +72,7 @@ class SQLiteFeedTestCase(unittest.TestCase):
             feed_test.tstBaseFeedInterface(self, sqliteFeed)
 
     def testLoadDailyBars(self):
-        tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY)
+        tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, bar.Frequency.DAY)
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed()
@@ -103,7 +103,7 @@ class SQLiteFeedTestCase(unittest.TestCase):
                 self.assertEqual(yahooDS[i].getSessionClose(), sqliteDS[i].getSessionClose())
 
     def testBounded(self):
-        tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, barfeed.Frequency.DAY, maxLen=2)
+        tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, bar.Frequency.DAY, maxLen=2)
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed(maxLen=1)

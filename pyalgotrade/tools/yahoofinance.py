@@ -23,7 +23,7 @@ import os
 import datetime
 
 import pyalgotrade.logger
-from pyalgotrade import barfeed
+from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
 
 
@@ -98,7 +98,7 @@ def download_weekly_bars(instrument, year, csvFile):
     f.close()
 
 
-def build_feed(instruments, fromYear, toYear, storage, frequency=barfeed.Frequency.DAY, timezone=None, skipErrors=False):
+def build_feed(instruments, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None, skipErrors=False):
     logger = pyalgotrade.logger.getLogger("yahoofinance")
     ret = yahoofeed.Feed(frequency, timezone)
 
@@ -112,9 +112,9 @@ def build_feed(instruments, fromYear, toYear, storage, frequency=barfeed.Frequen
             if not os.path.exists(fileName):
                 logger.info("Downloading %s %d to %s" % (instrument, year, fileName))
                 try:
-                    if frequency == barfeed.Frequency.DAY:
+                    if frequency == bar.Frequency.DAY:
                         download_daily_bars(instrument, year, fileName)
-                    elif frequency == barfeed.Frequency.WEEK:
+                    elif frequency == bar.Frequency.WEEK:
                         download_weekly_bars(instrument, year, fileName)
                     else:
                         raise Exception("Invalid frequency")

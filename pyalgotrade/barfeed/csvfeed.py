@@ -101,20 +101,9 @@ class BarFeed(membf.BarFeed):
         self.__dailyTime = datetime.time(0, 0, 0)
 
     def getDailyBarTime(self):
-        """Returns the time to set to daily bars when that information is not present in CSV files. Defaults to 23:59:59.
-
-        :rtype: datetime.time.
-        """
-
         return self.__dailyTime
 
     def setDailyBarTime(self, time):
-        """Sets the time to set to daily bars when that information is not present in CSV files.
-
-        :param time: The time to set.
-        :type time: datetime.time.
-        """
-
         self.__dailyTime = time
 
     def setBarFilter(self, barFilter):
@@ -181,7 +170,7 @@ class GenericBarFeed(BarFeed):
         Date Time,Open,High,Low,Close,Volume,Adj Close
         2013-01-01 13:59:00,13.51001,13.56,13.51,13.56,273.88014126,13.51001
 
-    :param frequency: The frequency of the bars.
+    :param frequency: The frequency of the bars. Check :class:`pyalgotrade.bar.Frequency`.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
@@ -190,11 +179,6 @@ class GenericBarFeed(BarFeed):
 
     .. note::
         * It is ok if the **Adj Close** column is empty.
-        * Valid **frequency** parameter values are:
-
-         * pyalgotrade.barfeed.Frequency.MINUTE
-         * pyalgotrade.barfeed.Frequency.HOUR
-         * pyalgotrade.barfeed.Frequency.DAY
     """
 
     def __init__(self, frequency, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):

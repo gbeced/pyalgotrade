@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.utils import dt
 from pyalgotrade import bar
@@ -96,7 +95,7 @@ class RowParser(csvfeed.RowParser):
 class Feed(csvfeed.BarFeed):
     """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
 
-    :param frequency: The frequency of the bars. Only **pyalgotrade.barfeed.Frequency.DAY** or **pyalgotrade.barfeed.Frequency.WEEK**
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
         are supported.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
@@ -112,11 +111,11 @@ class Feed(csvfeed.BarFeed):
             * If any of the instruments loaded are from different timezones, then the timezone parameter must be set.
     """
 
-    def __init__(self, frequency=barfeed.Frequency.DAY, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
         if isinstance(timezone, int):
             raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 
-        if frequency not in [barfeed.Frequency.DAY, barfeed.Frequency.WEEK]:
+        if frequency not in [bar.Frequency.DAY, bar.Frequency.WEEK]:
             raise Exception("Invalid frequency.")
 
         csvfeed.BarFeed.__init__(self, frequency, maxLen)
