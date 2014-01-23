@@ -27,12 +27,14 @@ Strategies
 Feeds
     These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
+    Feeds are not limited to bars. For example, there is a Twitter feed that allows incorporating Twitter
+    events into trading desicions.
 
 Brokers
     Brokers are responsible for executing orders.
 
 DataSeries
-    A data series is an abstraction used to manage historical data.
+    A data series is an abstraction used to manage time series data.
 
 Technicals
     These are a set of filters that you use to make calculations on top of DataSeries.
@@ -88,7 +90,7 @@ That is because we need at least 15 values to get something out of the SMA:
 
 All the technicals will return None when the value can't be calculated at a given time.
 
-One important thing about technicals is that they can be combined. That is because they're modeled as data series as well.
+One important thing about technicals is that they can be combined. That is because they're modeled as DataSeries as well.
 For example, getting an SMA over the RSI over the closing prices is as simple as this:
 
 .. literalinclude:: ../samples/tutorial-3.py
@@ -107,7 +109,7 @@ Trading
 Let's move on with a simple strategy, this time simulating actual trading. The idea is very simple:
 
  * If the adjusted close price is above the SMA(15) we enter a long position (we place a buy market order).
- * If a long order is in place, and the adjusted close price drops below the SMA(15) we exit the long position (we place a sell market order).
+ * If a long position is in place, and the adjusted close price drops below the SMA(15) we exit the long position (we place a sell market order).
 
 .. literalinclude:: ../samples/tutorial-4.py
 
@@ -171,7 +173,7 @@ This is the server script:
 
 The server code is doing 3 things:
 
- 1. Declaring a generator function that builds parameters.
+ 1. Declaring a generator function that yields different parameter combinations.
  2. Loading the feed with the CSV files we downloaded.
  3. Running the server that will wait for incoming connections on port 5000.
 
@@ -181,7 +183,7 @@ This is the worker script:
 
 The worker code is doing 2 things:
 
- 1. Declaring the RSI2 strategy.
+ 1. Implementing the RSI2 strategy.
  2. Using pyalgotrade.optimizer.worker module to run the strategy in parallel with the data supplied by the server.
 
 
@@ -224,8 +226,8 @@ module like this:
 
 The code is doing 4 things:
 
- 1. Declaring the RSI2 strategy.
- 2. Declaring a generator function that builds parameters.
+ 1. Implementing the RSI2 strategy.
+ 2. Declaring a generator function that yields different parameter combinations.
  3. Loading the feed with the CSV files we downloaded.
  4. Using the pyalgotrade.optimizer.local module to run the strategy in parallel and find the best result.
 
@@ -286,6 +288,6 @@ This is what the plot looks like:
 
 .. image:: ../samples/tutorial-5.png
 
-I hope you enjoyed this quick introduction. I'd recommend you to download PyAlgoTrade here: http://gbeced.github.com/pyalgotrade/downloads/index.html
+I hope you enjoyed this quick introduction. I'd recommend you to download PyAlgoTrade here: http://gbeced.github.io/pyalgotrade/downloads/index.html 
 and get started writing you own strategies.
 
