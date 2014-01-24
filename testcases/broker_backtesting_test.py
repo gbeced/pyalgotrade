@@ -39,7 +39,9 @@ class BarsBuilder(object):
         self.__instrument = instrument
         self.__frequency = frequency
         self.__nextDateTime = datetime.datetime(2011, 1, 1)
-        if frequency == bar.Frequency.SECOND:
+        if frequency == bar.Frequency.TRADE:
+            self.__delta = datetime.timedelta(milliseconds=1)
+        elif frequency == bar.Frequency.SECOND:
             self.__delta = datetime.timedelta(seconds=1)
         elif frequency == bar.Frequency.MINUTE:
             self.__delta = datetime.timedelta(minutes=1)
@@ -109,7 +111,7 @@ class BrokerTestCase(BaseTestCase):
         self.assertEqual(activeOrders[2], 1)  # Second order gets accepted, one order is active.
         self.assertEqual(activeOrders[3], 0)  # Second order gets filled, zero orders are active.
 
-    def testVolumeLimit(self):
+    def testVolumeLimitMinuteBars(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         orders = []
@@ -128,13 +130,44 @@ class BrokerTestCase(BaseTestCase):
         brk.placeOrder(order)
         orders.append(order)
 
+        # The order should not get filled if there is not enough volume.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=10))
         for order in orders:
             self.assertFalse(order.isFilled())
+
+        # The order should now get filled since there is enough volume.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=12))
         for order in orders:
             self.assertTrue(order.isFilled())
 
+    def testVolumeLimitTradeBars(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.TRADE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.TRADE)
+        orders = []
+
+        # Try with different order types.
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 3)
+        brk.placeOrder(order)
+        orders.append(order)
+        order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
+        brk.placeOrder(order)
+        orders.append(order)
+        order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
+        brk.placeOrder(order)
+        orders.append(order)
+        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 10, 3)
+        brk.placeOrder(order)
+        orders.append(order)
+
+        # The order should not get filled if there is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=2))
+        for order in orders:
+            self.assertFalse(order.isFilled())
+
+        # The order should now get filled since the volume matches the bar.
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=3))
+        for order in orders:
+            self.assertTrue(order.isFilled())
 
 class MarketOrderTestCase(BaseTestCase):
     def testBuyAndSell(self):

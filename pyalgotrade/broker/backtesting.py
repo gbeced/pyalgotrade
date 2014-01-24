@@ -247,7 +247,7 @@ class DefaultStrategy(FillStrategy):
             * If the limit order was activated at a previous bar then the limit fill price (as described earlier) is used.
 
     .. note::
-        This is the default strategy used by the Broker.
+        This is the default strategy used by the Broker. If using trade bars, then volumeLimit is ignored.
     """
 
     def __init__(self, volumeLimit=0.25):
@@ -259,7 +259,12 @@ class DefaultStrategy(FillStrategy):
 
     def __getFillSize(self, order, bar):
         if self.__volumeLimit is not None:
-            maxQuantity = bar.getVolume() * self.__volumeLimit
+            # If these are trade bars, then allow the whole volume to be used.
+            if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
+                maxQuantity = bar.getVolume()
+            else:
+                maxQuantity = bar.getVolume() * self.__volumeLimit
+
             if order.getQuantity() > maxQuantity:
                 # Partial fills not supported yet.
                 ret = None

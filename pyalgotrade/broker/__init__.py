@@ -48,6 +48,7 @@ class Order(object):
     :type quantity: int/float.
 
     .. note::
+        This is a base class and should not be used directly.
 
         Valid **action** parameter values are:
 
@@ -55,8 +56,6 @@ class Order(object):
          * Order.Action.BUY_TO_COVER
          * Order.Action.SELL
          * Order.Action.SELL_SHORT
-
-        This is a base class and should not be used directly.
     """
 
     class Action(object):
