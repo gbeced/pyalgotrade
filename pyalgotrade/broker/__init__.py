@@ -50,6 +50,13 @@ class Order(object):
     .. note::
         This is a base class and should not be used directly.
 
+        Valid **type** parameter values are:
+
+         * Order.Type.MARKET
+         * Order.Type.LIMIT
+         * Order.Type.STOP
+         * Order.Type.STOP_LIMIT
+
         Valid **action** parameter values are:
 
          * Order.Action.BUY
@@ -105,17 +112,28 @@ class Order(object):
         return self.__id
 
     def getType(self):
-        """Returns the order type."""
+        """Returns the order type. Valid order types are:
+
+         * Order.Type.MARKET
+         * Order.Type.LIMIT
+         * Order.Type.STOP
+         * Order.Type.STOP_LIMIT
+        """
         return self.__type
 
     def getAction(self):
-        """Returns the order action."""
+        """Returns the order action. Valid order actions are:
+
+         * Order.Action.BUY
+         * Order.Action.BUY_TO_COVER
+         * Order.Action.SELL
+         * Order.Action.SELL_SHORT
+        """
         return self.__action
 
     def getState(self):
-        """Returns the order state.
+        """Returns the order state. Valid order states are:
 
-        Valid order states are:
          * Order.State.INITIAL (the initial state).
          * Order.State.SUBMITTED
          * Order.State.ACCEPTED
@@ -126,7 +144,7 @@ class Order(object):
 
     def isActive(self):
         """Returns True if the order is active."""
-        return self.__state in [Order.State.INITIAL, Order.State.SUBMITTED, Order.State.ACCEPTED]
+        return self.__state not in [Order.State.CANCELED, Order.State.FILLED]
 
     def isInitial(self):
         """Returns True if the order state is Order.State.INITIAL."""
@@ -157,7 +175,6 @@ class Order(object):
         return self.__quantity
 
     def setQuantity(self, quantity):
-        """Updates the quantity."""
         self.__quantity = quantity
 
     def getGoodTillCanceled(self):
@@ -171,7 +188,11 @@ class Order(object):
 
         :param goodTillCanceled: True if the order should be good till canceled.
         :type goodTillCanceled: boolean.
+
+        .. note:: This can't be changed once the order is submitted.
         """
+        if self.__state != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
         self.__goodTillCanceled = goodTillCanceled
 
     def getAllOrNone(self):
@@ -226,7 +247,12 @@ class MarketOrder(Order):
         return self.__onClose
 
     def setFillOnClose(self, onClose):
-        """Sets if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
+        """Sets if the order should be filled as close to the closing price as possible (Market-On-Close order).
+
+        .. note:: This can't be changed once the order is submitted.
+        """
+        if self.getState() != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
         self.__onClose = onClose
 
 
@@ -247,7 +273,12 @@ class LimitOrder(Order):
         return self.__limitPrice
 
     def setLimitPrice(self, limitPrice):
-        """Updates the limit price."""
+        """Updates the limit price.
+
+        .. note:: This can't be changed once the order is submitted.
+        """
+        if self.getState() != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
         self.__limitPrice = limitPrice
 
 
@@ -268,7 +299,13 @@ class StopOrder(Order):
         return self.__stopPrice
 
     def setStopPrice(self, stopPrice):
-        """Updates the stop price."""
+        """Updates the stop price.
+
+        .. note:: This can't be changed once the order is submitted.
+        """
+        if self.getState() != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
+
         self.__stopPrice = stopPrice
 
 
@@ -291,7 +328,12 @@ class StopLimitOrder(Order):
         return self.__limitPrice
 
     def setLimitPrice(self, limitPrice):
-        """Updates the limit price."""
+        """Updates the limit price.
+
+        .. note:: This can't be changed once the order is submitted.
+        """
+        if self.getState() != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
         self.__limitPrice = limitPrice
 
     def getStopPrice(self):
@@ -299,7 +341,12 @@ class StopLimitOrder(Order):
         return self.__stopPrice
 
     def setStopPrice(self, stopPrice):
-        """Updates the stop price."""
+        """Updates the stop price.
+
+        .. note:: This can't be changed once the order is submitted.
+        """
+        if self.getState() != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
         self.__stopPrice = stopPrice
 
     def setLimitOrderActive(self, limitOrderActive):

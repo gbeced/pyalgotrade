@@ -38,7 +38,8 @@ class Position(object):
     """
 
     def __init__(self, strategy, entryOrder, goodTillCanceled):
-        assert(entryOrder.isSubmitted())
+        # The order must be created but not submitted.
+        assert(entryOrder.isInitial())
 
         self.__activeOrders = {entryOrder.getId(): entryOrder}
         self.__shares = 0
@@ -46,7 +47,11 @@ class Position(object):
         self.__entryOrder = entryOrder
         self.__exitOrder = None
         self.__exitOnSessionClose = False
+
         entryOrder.setGoodTillCanceled(goodTillCanceled)
+        # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
+        strategy.getBroker().placeOrder(entryOrder)
+
         self.getStrategy().registerPositionOrder(self, entryOrder)
 
     def getStrategy(self):
@@ -330,9 +335,6 @@ class LongPosition(Position):
         else:
             assert(False)
 
-        # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
-        strategy.getBroker().placeOrder(entryOrder)
-
         Position.__init__(self, strategy, entryOrder, goodTillCanceled)
 
     def __getPosTracker(self):
@@ -388,9 +390,6 @@ class ShortPosition(Position):
             entryOrder = strategy.getBroker().createStopLimitOrder(pyalgotrade.broker.Order.Action.SELL_SHORT, instrument, stopPrice, limitPrice, quantity)
         else:
             assert(False)
-
-        # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
-        strategy.getBroker().placeOrder(entryOrder)
 
         Position.__init__(self, strategy, entryOrder, goodTillCanceled)
 
