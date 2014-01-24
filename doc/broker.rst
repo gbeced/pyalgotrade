@@ -6,6 +6,7 @@ Base module and classes
 
 .. automodule:: pyalgotrade.broker
     :members: Order, MarketOrder, LimitOrder, StopOrder, StopLimitOrder, OrderExecutionInfo, Broker
+    :member-order: bysource
     :show-inheritance:
 
 Backtesting module and classes
