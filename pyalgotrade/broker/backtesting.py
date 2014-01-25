@@ -603,12 +603,11 @@ class Broker(broker.Broker):
         return ret
 
     def placeOrder(self, order):
-        if order.isActive():
-            if order.getId() not in self.__activeOrders:
-                self.__activeOrders[order.getId()] = order
+        if order.isInitial():
+            # assert(order.getId() not in self.__activeOrders)
+            self.__activeOrders[order.getId()] = order
             # Switch from INITIAL -> SUBMITTED
-            if order.getState() == broker.Order.State.INITIAL:
-                order.setState(broker.Order.State.SUBMITTED)
+            order.switchState(broker.Order.State.SUBMITTED)
         else:
             raise Exception("The order was already processed")
 
@@ -616,7 +615,7 @@ class Broker(broker.Broker):
         for order in self.__activeOrders.values():
             # Switch from SUBMITTED -> ACCEPTED
             if order.isSubmitted():
-                order.setState(broker.Order.State.ACCEPTED)
+                order.switchState(broker.Order.State.ACCEPTED)
                 self.getOrderUpdatedEvent().emit(self, order)
 
             if order.isAccepted():
@@ -668,4 +667,4 @@ class Broker(broker.Broker):
             raise Exception("The order is not active anymore")
         if activeOrder.isFilled():
             raise Exception("Can't cancel order that has already been filled")
-        activeOrder.setState(broker.Order.State.CANCELED)
+        activeOrder.switchState(broker.Order.State.CANCELED)

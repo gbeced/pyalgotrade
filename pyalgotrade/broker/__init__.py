@@ -27,11 +27,15 @@ from pyalgotrade import observer
 ## http://www.interactivebrokers.com/en/software/tws/usersguidebook/ordertypes/basic_order_types.htm
 #
 # State chart:
-# INITIAL    -> CANCELED
-#            -> SUBMITTED -> CANCELED
-#            -> SUBMITTED -> ACCEPTED
-#            -> SUBMITTED -> ACCEPTED -> CANCELED
-#            -> SUBMITTED -> ACCEPTED -> FILLED
+# INITIAL           -> SUBMITTED
+# INITIAL           -> CANCELED
+# SUBMITTED         -> ACCEPTED
+# SUBMITTED         -> CANCELED
+# ACCEPTED          -> FILLED
+# ACCEPTED          -> PARTIALLY_FILLED
+# ACCEPTED          -> CANCELED
+# PARTIALLY_FILLED  -> FILLED
+# PARTIALLY_FILLED  -> CANCELED
 
 class Order(object):
     """Base class for orders.
@@ -76,13 +80,39 @@ class Order(object):
         SUBMITTED = 2  # Order has been submitted.
         ACCEPTED = 3  # Order has been acknowledged by the broker.
         CANCELED = 4  # Order has been cancelled.
-        FILLED = 5  # Order has been filled.
+        PARTIALLY_FILLED = 5  # Order has been partially filled.
+        FILLED = 6  # Order has been completely filled.
+
+        @classmethod
+        def toString(cls, state):
+            if state == cls.INITIAL:
+                return "INITIAL"
+            elif state == cls.SUBMITTED:
+                return "SUBMITTED"
+            elif state == cls.ACCEPTED:
+                return "ACCEPTED"
+            elif state == cls.CANCELED:
+                return "CANCELED"
+            elif state == cls.PARTIALLY_FILLED:
+                return "PARTIALLY_FILLED"
+            elif state == cls.FILLED:
+                return "FILLED"
+            else:
+                raise Exception("Invalid state")
 
     class Type(object):
         MARKET = 1
         LIMIT = 2
         STOP = 3
         STOP_LIMIT = 4
+
+    # Valid state transitions.
+    VALID_TRANSITIONS = {
+        State.INITIAL : [State.SUBMITTED, State.CANCELED],
+        State.SUBMITTED : [State.ACCEPTED, State.CANCELED],
+        State.ACCEPTED : [State.FILLED, State.PARTIALLY_FILLED, State.CANCELED],
+        State.PARTIALLY_FILLED : [State.FILLED, State.CANCELED],
+    }
 
     def __init__(self, orderId, type_, action, instrument, quantity):
         self.__id = orderId
@@ -138,6 +168,7 @@ class Order(object):
          * Order.State.SUBMITTED
          * Order.State.ACCEPTED
          * Order.State.CANCELED
+         * Order.State.PARTIALLY_FILLED
          * Order.State.FILLED
         """
         return self.__state
@@ -161,6 +192,10 @@ class Order(object):
     def isCanceled(self):
         """Returns True if the order state is Order.State.CANCELED."""
         return self.__state == Order.State.CANCELED
+
+    def isPartiallyFilled(self):
+        """Returns True if the order state is Order.State.PARTIALLY_FILLED."""
+        return self.__state == Order.State.PARTIALLY_FILLED
 
     def isFilled(self):
         """Returns True if the order state is Order.State.FILLED."""
@@ -211,8 +246,15 @@ class Order(object):
         self.__executionInfo = orderExecutionInfo
         self.__state = Order.State.FILLED
 
-    def setState(self, state):
-        self.__state = state
+    def switchState(self, newState):
+        validTransitions = Order.VALID_TRANSITIONS.get(self.__state, [])
+        if newState not in validTransitions:
+            raise Exception("Invalid order state transition from %s to %s" % (Order.State.toString(self.__state), Order.State.toString(newState)))
+        else:
+            self.__state = newState
+
+    def setState(self, newState):
+        self.__state = newState
 
     def getExecutionInfo(self):
         """Returns the order execution info if the order was filled, or None otherwise.
