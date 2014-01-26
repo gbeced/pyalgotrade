@@ -115,11 +115,14 @@ class Order(object):
     }
 
     def __init__(self, orderId, type_, action, instrument, quantity):
+        if quantity <= 0:
+            raise Exception("Invalid quantity")
         self.__id = orderId
         self.__type = type_
         self.__action = action
         self.__instrument = instrument
         self.__quantity = quantity
+        self.__filled = 0
         self.__executionInfo = None
         self.__goodTillCanceled = False
         self.__allOrNone = True
@@ -209,8 +212,13 @@ class Order(object):
         """Returns the quantity."""
         return self.__quantity
 
-    def setQuantity(self, quantity):
-        self.__quantity = quantity
+    def getFilled(self):
+        """Returns the number of shares that have been executed."""
+        return self.__filled
+
+    def getRemaining(self):
+        """Returns the number of shares still outstanding."""
+        return self.__quantity - self.__filled
 
     def getGoodTillCanceled(self):
         """Returns True if the order is good till canceled."""
@@ -245,6 +253,7 @@ class Order(object):
     def setExecuted(self, orderExecutionInfo):
         self.__executionInfo = orderExecutionInfo
         self.__state = Order.State.FILLED
+        self.__filled += orderExecutionInfo.getQuantity()
 
     def switchState(self, newState):
         validTransitions = Order.VALID_TRANSITIONS.get(self.__state, [])
@@ -459,7 +468,8 @@ class Broker(observer.Subject):
         :type order: :class:`Order`.
 
         .. note::
-            If the order is filled or canceled, an exception will be raised.
+            * After this call the order is in SUBMITTED state and an event is not triggered for this transition.
+            * Calling this twice on the same order will raise an exception.
         """
         raise NotImplementedError()
 
