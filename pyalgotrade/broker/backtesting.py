@@ -607,6 +607,8 @@ class Broker(broker.Broker):
             # assert(order.getId() not in self.__activeOrders)
             self.__activeOrders[order.getId()] = order
             # Switch from INITIAL -> SUBMITTED
+            # IMPORTANT: Do not emit an event for this switch because when using the position interface
+            # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
             order.switchState(broker.Order.State.SUBMITTED)
         else:
             raise Exception("The order was already processed")
