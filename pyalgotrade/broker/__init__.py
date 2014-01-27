@@ -123,6 +123,7 @@ class Order(object):
         self.__instrument = instrument
         self.__quantity = quantity
         self.__filled = 0
+        self.__avgFillPrice = None
         self.__executionInfo = None
         self.__goodTillCanceled = False
         self.__allOrNone = True
@@ -220,6 +221,10 @@ class Order(object):
         """Returns the number of shares still outstanding."""
         return self.__quantity - self.__filled
 
+    def getAvgFillPrice(self):
+        """Returns the average price of the shares that have been executed, or None if nothing has been filled."""
+        return self.__avgFillPrice
+
     def getGoodTillCanceled(self):
         """Returns True if the order is good till canceled."""
         return self.__goodTillCanceled
@@ -250,10 +255,22 @@ class Order(object):
 #        """
 #        self.__allOrNone = allOrNone
 
-    def setExecuted(self, orderExecutionInfo):
+    def addExecutionInfo(self, orderExecutionInfo):
+        if orderExecutionInfo.getQuantity() > self.getRemaining():
+            raise Exception("Invalid fill size. %s remaining and %s filled" % (self.getRemaining(), orderExecutionInfo.getQuantity()))
+
+        if self.__avgFillPrice is None:
+            self.__avgFillPrice = orderExecutionInfo.getPrice()
+        else:
+            self.__avgFillPrice = (self.__avgFillPrice * self.__filled + orderExecutionInfo.getPrice() * orderExecutionInfo.getQuantity()) / float(self.__filled + orderExecutionInfo.getQuantity())
+
         self.__executionInfo = orderExecutionInfo
-        self.__state = Order.State.FILLED
         self.__filled += orderExecutionInfo.getQuantity()
+
+        if self.getRemaining() == 0:
+            self.__state = Order.State.FILLED
+        else:
+            self.__state = Order.State.PARTIALLY_FILLED
 
     def switchState(self, newState):
         validTransitions = Order.VALID_TRANSITIONS.get(self.__state, [])
@@ -266,7 +283,8 @@ class Order(object):
         self.__state = newState
 
     def getExecutionInfo(self):
-        """Returns the order execution info if the order was filled, or None otherwise.
+        """Returns the last execution information for this order, or None if nothing has been filled so far.
+        This will be different every time an order, or part of it, gets filled.
 
         :rtype: :class:`OrderExecutionInfo`.
         """
@@ -409,7 +427,7 @@ class StopLimitOrder(Order):
 
 
 class OrderExecutionInfo(object):
-    """Execution information for a filled order."""
+    """Execution information for an order."""
     def __init__(self, price, quantity, commission, dateTime):
         self.__price = price
         self.__quantity = quantity

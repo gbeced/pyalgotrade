@@ -596,7 +596,7 @@ class Broker(broker.Broker):
 
             # Update the order.
             orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
-            order.setExecuted(orderExecutionInfo)
+            order.addExecutionInfo(orderExecutionInfo)
         else:
             logger.debug("Not enough money to fill order %s" % (order))
 

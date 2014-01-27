@@ -199,7 +199,7 @@ class Position(object):
             del self.__activeOrders[order.getId()]
 
         # Update the number of shares.
-        if order.isFilled():
+        if order.isFilled() or order.isPartiallyFilled():
             if order.isBuy():
                 self.__shares += order.getExecutionInfo().getQuantity()
             else:
