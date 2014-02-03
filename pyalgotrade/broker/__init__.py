@@ -34,6 +34,7 @@ from pyalgotrade import observer
 # ACCEPTED          -> FILLED
 # ACCEPTED          -> PARTIALLY_FILLED
 # ACCEPTED          -> CANCELED
+# PARTIALLY_FILLED  -> PARTIALLY_FILLED
 # PARTIALLY_FILLED  -> FILLED
 # PARTIALLY_FILLED  -> CANCELED
 
@@ -110,8 +111,8 @@ class Order(object):
     VALID_TRANSITIONS = {
         State.INITIAL : [State.SUBMITTED, State.CANCELED],
         State.SUBMITTED : [State.ACCEPTED, State.CANCELED],
-        State.ACCEPTED : [State.FILLED, State.PARTIALLY_FILLED, State.CANCELED],
-        State.PARTIALLY_FILLED : [State.FILLED, State.CANCELED],
+        State.ACCEPTED : [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
+        State.PARTIALLY_FILLED : [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
     }
 
     def __init__(self, orderId, type_, action, instrument, quantity):
@@ -268,9 +269,9 @@ class Order(object):
         self.__filled += orderExecutionInfo.getQuantity()
 
         if self.getRemaining() == 0:
-            self.__state = Order.State.FILLED
+            self.switchState(Order.State.FILLED)
         else:
-            self.__state = Order.State.PARTIALLY_FILLED
+            self.switchState(Order.State.PARTIALLY_FILLED)
 
     def switchState(self, newState):
         validTransitions = Order.VALID_TRANSITIONS.get(self.__state, [])
@@ -450,6 +451,31 @@ class OrderExecutionInfo(object):
         """Returns the :class:`datatime.datetime` when the order was executed."""
         return self.__dateTime
 
+class OrderEvent(object):
+    class Type:
+        ACCEPTED = 1  # Order has been acknowledged by the broker.
+        CANCELED = 2  # Order has been cancelled.
+        PARTIALLY_FILLED = 3  # Order has been partially filled.
+        FILLED = 4  # Order has been completely filled.
+
+    def __init__(self, order, eventyType, eventInfo):
+        self.__order = order
+        self.__eventType = eventyType
+        self.__eventInfo = eventInfo
+
+    def getOrder(self):
+        return self.__order
+
+    def getEventType(self):
+        return self.__eventType
+
+    # This depends on the event type:
+    # ACCEPTED: None
+    # CANCELED: A string with the reason why it was canceled.
+    # PARTIALLY_FILLED: An OrderExecutionInfo instance.
+    # FILLED: An OrderExecutionInfo instance.
+    def getEventInfo(self):
+        return self.__eventInfo
 
 ######################################################################
 ## Base broker class
@@ -462,10 +488,16 @@ class Broker(observer.Subject):
     """
 
     def __init__(self):
-        self.__orderUpdatedEvent = observer.Event()
+        self.__orderEvent = observer.Event()
 
+    def notifyOrderEvent(self, orderEvent):
+        self.__orderEvent.emit(self, orderEvent.getOrder())
+
+    # Handlers should expect 2 parameters:
+    # 1: broker instance
+    # 2: OrderEvent instance
     def getOrderUpdatedEvent(self):
-        return self.__orderUpdatedEvent
+        return self.__orderEvent
 
     def getShares(self, instrument):
         """Returns the number of shares for an instrument."""

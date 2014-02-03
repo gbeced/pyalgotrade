@@ -153,11 +153,15 @@ def get_limit_order_trigger(action, limitPrice, broker_, bar):
 
 
 class FillInfo(object):
-    def __init__(self, price):
+    def __init__(self, price, quantity):
         self.__price = price
+        self.__quantity = quantity
 
     def getPrice(self):
         return self.__price
+
+    def getQuantity(self):
+        return self.__quantity
 
 
 class FillStrategy(object):
@@ -285,7 +289,7 @@ class DefaultStrategy(FillStrategy):
         else:
             price = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
         if price is not None:
-            ret = FillInfo(price)
+            ret = FillInfo(price, order.getQuantity())
         return ret
 
     # Return the fill price for a LimitOrder or None.
@@ -297,7 +301,7 @@ class DefaultStrategy(FillStrategy):
         ret = None
         price = get_limit_order_trigger(order.getAction(), order.getLimitPrice(), broker_, bar)
         if price is not None:
-            ret = FillInfo(price)
+            ret = FillInfo(price, order.getQuantity())
         return ret
 
     # Return the fill price for a StopOrder or None.
@@ -309,7 +313,7 @@ class DefaultStrategy(FillStrategy):
         ret = None
         price = get_stop_order_trigger(order.getAction(), order.getStopPrice(), broker_, bar)
         if price is not None:
-            ret = FillInfo(price)
+            ret = FillInfo(price, order.getQuantity())
         return ret
 
     # Return the fill price for a StopLimitOrder or None.
@@ -332,7 +336,7 @@ class DefaultStrategy(FillStrategy):
                 assert(False)
 
         if price is not None:
-            ret = FillInfo(price)
+            ret = FillInfo(price, order.getQuantity())
         return ret
 
 
@@ -340,34 +344,28 @@ class DefaultStrategy(FillStrategy):
 ## Orders
 
 class BacktestingOrder(object):
-    def checkCanceled(self, broker, bars):
-        # This check is only for accepted orders that are not GTC.
-        if self.getGoodTillCanceled() or not self.isAccepted():
-            return
+    def __init__(self):
+        self.__accepted = None
 
-        # If its the last bar of the session and the order was not filled then cancel it.
-        bar = bars.getBar(self.getInstrument())
-        if bar is not None and bar.getSessionClose():
-            broker.cancelOrder(self)
+    def setAcceptedDateTime(self, dateTime):
+        self.__accepted = dateTime
 
-    def tryExecute(self, broker, bars):
-        if self.isAccepted():
-            # Process the order if there is data available.
-            bar = bars.getBar(self.getInstrument())
-            if bar is not None:
-                self.tryExecuteImpl(broker, bar)
-            # Check if the order has to be canceled.
-            self.checkCanceled(broker, bars)
+    def getAcceptedDateTime(self):
+        return self.__accepted
+
+    def process(self, broker_, bar_):
+        raise NotImplementedError()
 
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
     def __init__(self, orderId, action, instrument, quantity, onClose):
         broker.MarketOrder.__init__(self, orderId, action, instrument, quantity, onClose)
+        BacktestingOrder.__init__(self)
 
-    def tryExecuteImpl(self, broker_, bar):
-        fillInfo = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar)
+    def process(self, broker_, bar_):
+        fillInfo = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar_)
         if fillInfo is not None:
-            broker_.commitOrderExecution(self, fillInfo.getPrice(), self.getQuantity(), bar.getDateTime())
+            broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
 
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
@@ -375,10 +373,10 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
         broker.LimitOrder.__init__(self, orderId, action, instrument, limitPrice, quantity)
         BacktestingOrder.__init__(self)
 
-    def tryExecuteImpl(self, broker_, bar):
-        fillInfo = broker_.getFillStrategy().fillLimitOrder(self, broker_, bar)
+    def process(self, broker_, bar_):
+        fillInfo = broker_.getFillStrategy().fillLimitOrder(self, broker_, bar_)
         if fillInfo is not None:
-            broker_.commitOrderExecution(self, fillInfo.getPrice(), self.getQuantity(), bar.getDateTime())
+            broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
 
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
@@ -386,10 +384,10 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
         broker.StopOrder.__init__(self, orderId, action, instrument, stopPrice, quantity)
         BacktestingOrder.__init__(self)
 
-    def tryExecuteImpl(self, broker_, bar):
-        fillInfo = broker_.getFillStrategy().fillStopOrder(self, broker_, bar)
+    def process(self, broker_, bar_):
+        fillInfo = broker_.getFillStrategy().fillStopOrder(self, broker_, bar_)
         if fillInfo is not None:
-            broker_.commitOrderExecution(self, fillInfo.getPrice(), self.getQuantity(), bar.getDateTime())
+            broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
 
 
 # http://www.sec.gov/answers/stoplim.htm
@@ -417,19 +415,19 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
             assert(False)
         return ret
 
-    def tryExecuteImpl(self, broker_, bar):
+    def process(self, broker_, bar_):
         justHitStopPrice = False
 
         # Check if we have to activate the limit order first.
-        if not self.isLimitOrderActive() and self.__stopHit(broker_, bar):
+        if not self.isLimitOrderActive() and self.__stopHit(broker_, bar_):
             self.setLimitOrderActive(True)
             justHitStopPrice = True
 
         # Check if we have ever reached the limit price
         if self.isLimitOrderActive():
-            fillInfo = broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar, justHitStopPrice)
+            fillInfo = broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar_, justHitStopPrice)
             if fillInfo is not None:
-                broker_.commitOrderExecution(self, fillInfo.getPrice(), self.getQuantity(), bar.getDateTime())
+                broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
 
 
 ######################################################################
@@ -497,7 +495,6 @@ class Broker(broker.Broker):
         return ret
 
     def setCash(self, cash):
-        """Sets the available cash."""
         self.__cash = cash
 
     def getCommission(self):
@@ -528,6 +525,7 @@ class Broker(broker.Broker):
         return self.__useAdjustedValues
 
     def setUseAdjustedValues(self, useAdjusted, deprecationCheck=None):
+        # Deprecated since v0.15
         if not self.__barFeed.barsHaveAdjClose():
             raise Exception("The barfeed doesn't support adjusted close values")
         if deprecationCheck is None:
@@ -542,8 +540,7 @@ class Broker(broker.Broker):
         return self.getActiveOrders()
 
     def getShares(self, instrument):
-        self.__shares.setdefault(instrument, 0)
-        return self.__shares[instrument]
+        return self.__shares.get(instrument, 0)
 
     def getPositions(self):
         return self.__shares
@@ -570,7 +567,10 @@ class Broker(broker.Broker):
         return self.getEquityWithBars(self.__barFeed.getCurrentBars())
 
     # Tries to commit an order execution. Returns True if the order was commited, or False is there is not enough cash.
-    def commitOrderExecution(self, order, price, quantity, dateTime):
+    def commitOrderExecution(self, order, dateTime, fillInfo):
+        price = fillInfo.getPrice()
+        quantity = fillInfo.getQuantity()
+
         if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
             cost = price * quantity * -1
             assert(cost < 0)
@@ -582,25 +582,32 @@ class Broker(broker.Broker):
         else:  # Unknown action
             assert(False)
 
-        ret = False
         commission = self.getCommission().calculate(order, price, quantity)
         cost -= commission
         resultingCash = self.getCash() + cost
 
         # Check that we're ok on cash after the commission.
         if resultingCash >= 0 or self.__allowNegativeCash:
-            # Commit the order execution.
-            self.setCash(resultingCash)
-            self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta
-            ret = True
 
-            # Update the order.
+            # Update the order before updating internal state since addExecutionInfo may raise.
+            # addExecutionInfo should switch the order state.
             orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
             order.addExecutionInfo(orderExecutionInfo)
+
+            # Commit the order execution.
+            self.__cash = resultingCash
+            self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta
+
+            # Notify the order update
+            if order.isFilled():
+                del self.__activeOrders[order.getId()]
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.FILLED, orderExecutionInfo))
+            elif order.isPartiallyFilled():
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo))
+            else:
+                assert(False)
         else:
             logger.debug("Not enough money to fill order %s" % (order))
-
-        return ret
 
     def placeOrder(self, order):
         if order.isInitial():
@@ -613,22 +620,71 @@ class Broker(broker.Broker):
         else:
             raise Exception("The order was already processed")
 
-    def onBars(self, dateTime, bars):
-        for order in self.__activeOrders.values():
+    # Return True if further processing is needed.
+    def __preProcessOrder(self, order, bar_):
+        ret = True
+
+        # For non-GTC orders we need to check if the order has expired.
+        if not order.getGoodTillCanceled():
+            expired = bar_.getDateTime().date() > order.getAcceptedDateTime().date()
+
+            # Cancel the order if it is expired.
+            if expired:
+                ret = False
+                del self.__activeOrders[order.getId()]
+                order.switchState(broker.Order.State.CANCELED)
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
+
+        return ret
+
+    def __postProcessOrder(self, order, bar_):
+        # For non-GTC orders and daily (or greater) bars we need to check if orders should expire right now
+        # before waiting for the next bar.
+        if not order.getGoodTillCanceled():
+            expired = False
+            if self.__barFeed.getFrequency() >= pyalgotrade.bar.Frequency.DAY:
+                expired = bar_.getDateTime().date() >= order.getAcceptedDateTime().date()
+
+            # Cancel the order if it will expire in the next bar.
+            if expired:
+                del self.__activeOrders[order.getId()]
+                order.switchState(broker.Order.State.CANCELED)
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
+
+    def __processOrder(self, order, bar_):
+        if not self.__preProcessOrder(order, bar_):
+            return
+        order.process(self, bar_)
+        if order.isActive():
+            self.__postProcessOrder(order, bar_)
+
+    def __onBarsImpl(self, order, bars):
+        # IF WE'RE DEALING WITH MULTIPLE INSTRUMENTS WE SKIP ORDER PROCESSING IF THERE IS NO BAR FOR THE ORDER'S
+        # INSTRUMENT TO GET THE SAME BEHAVIOUR AS IF WERE BE PROCESSING ONLY ONE INSTRUMENT.
+        bar_ = bars.getBar(order.getInstrument())
+        if bar_ is not None:
             # Switch from SUBMITTED -> ACCEPTED
             if order.isSubmitted():
+                order.setAcceptedDateTime(bar_.getDateTime())
                 order.switchState(broker.Order.State.ACCEPTED)
-                self.getOrderUpdatedEvent().emit(self, order)
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.ACCEPTED, None))
 
-            if order.isAccepted():
-                order.tryExecute(self, bars)
-                if not order.isActive():
-                    del self.__activeOrders[order.getId()]
-                    self.getOrderUpdatedEvent().emit(self, order)
+            if order.isActive():
+                # This may trigger orders to be added/removed from __activeOrders.
+                self.__processOrder(order, bar_)
             else:
-                assert(not order.isActive())
-                del self.__activeOrders[order.getId()]
-                self.getOrderUpdatedEvent().emit(self, order)
+                # If an order is not active it should be because it was canceled in this same loop and it should have been removed.
+                assert(order.isCanceled())
+                assert(order not in self.__activeOrders)
+
+    def onBars(self, dateTime, bars):
+        # This is to froze the orders that will be processed in this event, to avoid new getting orders introduced
+        # and processed on this very same event.
+        ordersToProcess = self.__activeOrders.values()
+
+        for order in ordersToProcess:
+            # This may trigger orders to be added/removed from __activeOrders.
+            self.__onBarsImpl(order, bars)
 
     def start(self):
         pass
@@ -669,4 +725,7 @@ class Broker(broker.Broker):
             raise Exception("The order is not active anymore")
         if activeOrder.isFilled():
             raise Exception("Can't cancel order that has already been filled")
+
+        del self.__activeOrders[activeOrder.getId()]
         activeOrder.switchState(broker.Order.State.CANCELED)
+        self.notifyOrderEvent(broker.OrderEvent(activeOrder, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))

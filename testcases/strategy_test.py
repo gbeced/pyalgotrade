@@ -64,7 +64,6 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__enterCanceledEvents = 0
         self.__exitOkEvents = 0
         self.__exitCanceledEvents = 0
-        self.__exitOnSessionClose = False
         self.__brokerOrdersGTC = False
         self.onStartCalled = False
         self.onIdleCalled = False
@@ -81,9 +80,6 @@ class TestStrategy(strategy.BacktestingStrategy):
     def addPosExit(self, dateTime, *args, **kwargs):
         self.__posExit.setdefault(dateTime, [])
         self.__posExit[dateTime].append((args, kwargs))
-
-    def setExitOnSessionClose(self, exitOnSessionClose):
-        self.__exitOnSessionClose = exitOnSessionClose
 
     def setBrokerOrdersGTC(self, gtc):
         self.__brokerOrdersGTC = gtc
@@ -129,7 +125,6 @@ class TestStrategy(strategy.BacktestingStrategy):
         self.__enterOkEvents += 1
         if self.__activePosition is None:
             self.__activePosition = position
-            self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
             assert(position.isOpen())
             assert(len(position.getActiveOrders()) != 0)
             assert(position.getShares() != 0)
@@ -167,7 +162,6 @@ class TestStrategy(strategy.BacktestingStrategy):
             if self.__activePosition is not None:
                 raise Exception("Only one position allowed at a time")
             self.__activePosition = meth(*args, **kwargs)
-            self.__activePosition.setExitOnSessionClose(self.__exitOnSessionClose)
 
         # Check position exit.
         for args, kwargs in get_by_datetime_or_date(self.__posExit, dateTime):
@@ -314,74 +308,9 @@ class LongPosTestCase(StrategyTestCase):
         self.assertTrue(strat.getBroker().getCash() == 10)
         self.assertTrue(strat.getNetProfit() == 0)
 
-    def testIntradayExitOnClose_EntryNotFilled(self):
-        # Test that if the entry gets canceled, then the exit on close order doesn't get submitted.
-        barFeed = self.loadIntradayBarFeed()
-        strat = TestStrategy(barFeed, 1)
-        strat.setExitOnSessionClose(True)
-
-        strat.addPosEntry(us_equities_datetime(2011, 1, 3, 14, 30), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
-        strat.run()
-
-        self.assertTrue(strat.getEnterOkEvents() == 0)
-        self.assertTrue(strat.getExitOkEvents() == 0)
-        self.assertTrue(strat.getEnterCanceledEvents() == 1)
-        self.assertTrue(strat.getExitCanceledEvents() == 0)
-
-    def testIntradayExitOnClose_AllInOneDay(self):
-        barFeed = self.loadIntradayBarFeed()
-        strat = TestStrategy(barFeed, 1000)
-        strat.setExitOnSessionClose(True)
-
-        # Enter on first bar, exit on close.
-        strat.addPosEntry(us_equities_datetime(2011, 1, 3, 9, 30), strat.enterLong, StrategyTestCase.TestInstrument, 1, False)
-        strat.run()
-
-        self.assertTrue(strat.getEnterOkEvents() == 1)
-        self.assertTrue(strat.getExitOkEvents() == 1)
-        self.assertTrue(strat.getEnterCanceledEvents() == 0)
-        self.assertTrue(strat.getExitCanceledEvents() == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 127.05 - 126.71, 2))
-
-    def testIntradayExitOnClose_BuyOnLastBar(self):
-        barFeed = self.loadIntradayBarFeed()
-        strat = TestStrategy(barFeed, 1000)
-        strat.setExitOnSessionClose(True)
-
-        # 3/Jan/2011 20:59:00 - Enter long
-        # 3/Jan/2011 21:00:00 - Entry gets canceled.
-
-        strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 59), pytz.utc), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
-        strat.run()
-
-        self.assertTrue(strat.getEnterOkEvents() == 0)
-        self.assertTrue(strat.getExitOkEvents() == 0)
-        self.assertTrue(strat.getEnterCanceledEvents() == 1)
-        self.assertTrue(strat.getExitCanceledEvents() == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
-
-    def testIntradayExitOnClose_BuyOnPenultimateBar(self):
-        barFeed = self.loadIntradayBarFeed()
-        strat = TestStrategy(barFeed, 1000)
-        strat.setExitOnSessionClose(True)
-
-        # 3/Jan/2011 20:58:00 - Enter long
-        # 3/Jan/2011 20:59:00 - entry gets filled
-        # 3/Jan/2011 21:00:00 - exit gets filled.
-
-        strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 58), pytz.utc), strat.enterLong, StrategyTestCase.TestInstrument, 1, True)
-        strat.run()
-
-        self.assertTrue(strat.getEnterOkEvents() == 1)
-        self.assertTrue(strat.getExitOkEvents() == 1)
-        self.assertTrue(strat.getEnterCanceledEvents() == 0)
-        self.assertTrue(strat.getExitCanceledEvents() == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 127.05 - 127.07, 2))
-
     def testUnrealized(self):
         barFeed = self.loadIntradayBarFeed()
         strat = TestStrategy(barFeed, 1000)
-        strat.setExitOnSessionClose(False)
 
         # 3/Jan/2011 205300 - Enter long
         # 3/Jan/2011 205400 - entry gets filled at 127.21
@@ -496,31 +425,9 @@ class ShortPosTestCase(StrategyTestCase):
         self.assertTrue(strat.getExitOkEvents() == 1)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(25.12 - 23.31, 2))
 
-    def testIntradayExitOnClose(self):
-        barFeed = self.loadIntradayBarFeed()
-        strat = TestStrategy(barFeed, 1000)
-        strat.setExitOnSessionClose(True)
-
-        # 3/Jan/2011 18:20:00 - Short sell
-        # 3/Jan/2011 18:21:00 - Sell at open price: 127.4
-        # .
-        # 3/Jan/2011 21:00:00 - Exit on close - Buy at close price: 127.05
-        # The exit date should not be triggered
-
-        strat.addPosEntry(us_equities_datetime(2011, 1, 3, 13, 20), strat.enterShort, StrategyTestCase.TestInstrument, 1, True)
-        strat.run()
-
-        self.assertTrue(strat.getEnterOkEvents() == 1)
-        self.assertTrue(strat.getExitOkEvents() == 1)
-        self.assertTrue(strat.getEnterCanceledEvents() == 0)
-        self.assertTrue(strat.getExitCanceledEvents() == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.4 - 127.05), 2))
-        self.assertTrue(round(strat.getNetProfit(), 2) == round(127.4 - 127.05, 2))
-
     def testUnrealized(self):
         barFeed = self.loadIntradayBarFeed()
         strat = TestStrategy(barFeed, 1000)
-        strat.setExitOnSessionClose(False)
 
         # 3/Jan/2011 205300 - Enter long
         # 3/Jan/2011 205400 - entry gets filled at 127.21

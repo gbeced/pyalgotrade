@@ -59,15 +59,16 @@ class BarsBuilder(object):
         else:
             self.__nextDateTime += self.__delta
 
+    # sessionClose is True if the next bars should start at a different date.
     def nextBars(self, openPrice, highPrice, lowPrice, closePrice, volume=None, sessionClose=False):
         if volume is None:
             volume = closePrice*10
         bar_ = bar.BasicBar(self.__nextDateTime, openPrice, highPrice, lowPrice, closePrice, volume, closePrice, self.__frequency)
-        bar_.setSessionClose(sessionClose)
         ret = {self.__instrument : bar_}
         self.advance(sessionClose)
         return bar.Bars(ret)
 
+    # sessionClose is True if the next bars should start at a different date.
     def nextTuple(self, openPrice, highPrice, lowPrice, closePrice, volume=None, sessionClose=False):
         ret = self.nextBars(openPrice, highPrice, lowPrice, closePrice, volume, sessionClose)
         return (ret.getDateTime(), ret)
@@ -198,6 +199,24 @@ class BrokerTestCase(BaseTestCase):
             self.assertEqual(order.getFilled(), 3)
             self.assertEqual(order.getRemaining(), 0)
 
+    def testCancelationEvent(self):
+        orderStates = []
+
+        def onOrderUpdated(broker, order):
+            orderStates.append(order.getState())
+
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+
+        order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2, 1)
+        brk.placeOrder(order)
+
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
+        # Check that cancelation event gets emited right away.
+        brk.cancelOrder(order)
+        self.assertTrue(broker.Order.State.CANCELED in orderStates)
+
 class MarketOrderTestCase(BaseTestCase):
     def testBuyAndSell(self):
         brk = backtesting.Broker(11, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
@@ -251,7 +270,7 @@ class MarketOrderTestCase(BaseTestCase):
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
-        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, sessionClose=True))
         self.assertTrue(order.isAccepted())
         self.assertTrue(order.getExecutionInfo() is None)
         self.assertTrue(len(brk.getActiveOrders()) == 1)
@@ -264,7 +283,7 @@ class MarketOrderTestCase(BaseTestCase):
         # Fail to buy. No money. Canceled due to session close.
         cb = Callback()
         brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-        brk.onBars(*barsBuilder.nextTuple(11, 15, 8, 12, sessionClose=True))
+        brk.onBars(*barsBuilder.nextTuple(11, 15, 8, 12))
         self.assertTrue(order.isCanceled())
         self.assertTrue(order.getExecutionInfo() is None)
         self.assertTrue(len(brk.getActiveOrders()) == 0)
@@ -709,7 +728,7 @@ class LimitOrderTestCase(BaseTestCase):
         cb = Callback()
         brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
         brk.placeOrder(order)
-        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, sessionClose=True))
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
         self.assertTrue(order.isAccepted())
@@ -722,7 +741,7 @@ class LimitOrderTestCase(BaseTestCase):
         # Fail to buy (couldn't get specific price). Canceled due to session close.
         cb = Callback()
         brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
-        brk.onBars(*barsBuilder.nextTuple(11, 15, 8, 12, sessionClose=True))
+        brk.onBars(*barsBuilder.nextTuple(11, 15, 8, 12))
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
         self.assertTrue(order.isCanceled())

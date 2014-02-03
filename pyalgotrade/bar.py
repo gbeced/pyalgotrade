@@ -30,6 +30,7 @@ class Frequency(object):
     * **Frequency.WEEK**: The bar summarizes the trading activity during 1 week.
     """
 
+    # It is important for frequency values to get bigger for bigger windows.
     TRADE = -1
     SECOND = 1
     MINUTE = 60
@@ -80,23 +81,10 @@ class Bar(object):
         """Returns the typical price."""
         return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
 
-    def getSessionClose(self):
-        # Returns True if this is the last bar for the session, or False otherwise.
-        raise NotImplementedError()
-
-    def setSessionClose(self, sessionClose):
-        raise NotImplementedError()
-
-    def getBarsTillSessionClose(self):
-        raise NotImplementedError()
-
-    def setBarsTillSessionClose(self, barsTillSessionClose):
-        raise NotImplementedError()
-
 
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__frequency', '__sessionClose', '__barsTillSessionClose')
+    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__frequency')
 
     def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency):
         if high < open_:
@@ -120,14 +108,12 @@ class BasicBar(Bar):
         self.__volume = volume
         self.__adjClose = adjClose
         self.__frequency = frequency
-        self.__sessionClose = False
-        self.__barsTillSessionClose = None
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency, self.__sessionClose, self.__barsTillSessionClose) = state
+        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency, self.__sessionClose, self.__barsTillSessionClose)
+        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency)
 
     def getDateTime(self):
         return self.__dateTime
@@ -162,21 +148,6 @@ class BasicBar(Bar):
     def getFrequency(self):
         return self.__frequency
  
-    def getSessionClose(self):
-        # Returns True if this is the last bar for the session, or False otherwise.
-        return self.__sessionClose
-
-    def setSessionClose(self, sessionClose):
-        self.__sessionClose = sessionClose
-        if sessionClose:
-            self.__barsTillSessionClose = 0
-
-    def getBarsTillSessionClose(self):
-        return self.__barsTillSessionClose
-
-    def setBarsTillSessionClose(self, barsTillSessionClose):
-        self.__barsTillSessionClose = barsTillSessionClose
-
 
 class Bars(object):
     """A group of :class:`Bar` objects.

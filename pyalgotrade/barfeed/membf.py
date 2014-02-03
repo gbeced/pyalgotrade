@@ -20,7 +20,6 @@
 
 from pyalgotrade import barfeed
 from pyalgotrade import dataseries
-from pyalgotrade.barfeed import helpers
 from pyalgotrade import bar
 from pyalgotrade import utils
 
@@ -46,9 +45,7 @@ class BarFeed(barfeed.BaseBarFeed):
 
     def start(self):
         self.__started = True
-        # Set session close attributes to bars.
         for instrument, bars in self.__bars.iteritems():
-            helpers.set_session_close_attributes(bars)
             self.__barsLeft = max(self.__barsLeft, len(bars))
 
     def stop(self):

@@ -162,7 +162,7 @@ class Strategy(strategy.BaseStrategy):
                 self.__log(1, bars.getDateTime(), "Stop loss. Canceling SELL (Limit order).")
                 self.__position.cancelExit()
         else:
-            self.__exitWithMarketOrder()
+            self.__exitWithMarketOrder(bars)
 
     # WaitExitMarket: Waiting for the sell market order to get filled.
     def __onWaitExitMarket(self, bars):

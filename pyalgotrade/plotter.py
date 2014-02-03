@@ -295,7 +295,7 @@ class InstrumentSubplot(Subplot):
             self.__instrumentSeries.addValue(dateTime, bar)
 
     def onOrderUpdated(self, broker_, order):
-        if self.__plotBuySell and order.isFilled() and order.getInstrument() == self.__instrument:
+        if self.__plotBuySell and (order.isFilled() or order.isPartiallyFilled()) and order.getInstrument() == self.__instrument:
             action = order.getAction()
             execInfo = order.getExecutionInfo()
             if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:

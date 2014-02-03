@@ -28,21 +28,19 @@ from pyalgotrade.mtgox import base
 
 class TradeBar(bar.Bar):
     # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__price', '__amount', '__tradeType', '__sessionClose', '__barsTillSessionClose')
+    __slots__ = ('__dateTime', '__price', '__amount', '__tradeType')
 
     def __init__(self, dateTime, price, amount, tradeType):
         self.__dateTime = dateTime
         self.__price = price
         self.__amount = amount
         self.__tradeType = tradeType
-        self.__sessionClose = False
-        self.__barsTillSessionClose = None
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__price, self.__amount, self.__tradeType, self.__sessionClose, self.__barsTillSessionClose) = state
+        (self.__dateTime, self.__price, self.__amount, self.__tradeType) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__price, self.__amount, self.__tradeType, self.__sessionClose, self.__barsTillSessionClose)
+        return (self.__dateTime, self.__price, self.__amount, self.__tradeType)
 
     def getFrequency(self):
         bar.Frequency.TRADE
@@ -82,21 +80,6 @@ class TradeBar(bar.Bar):
 
     def getTypicalPrice(self):
         return self.__price
-
-    def getSessionClose(self):
-        # Returns True if this is the last bar for the session, or False otherwise.
-        return self.__sessionClose
-
-    def setSessionClose(self, sessionClose):
-        self.__sessionClose = sessionClose
-        if sessionClose:
-            self.__barsTillSessionClose = 0
-
-    def getBarsTillSessionClose(self):
-        return self.__barsTillSessionClose
-
-    def setBarsTillSessionClose(self, barsTillSessionClose):
-        self.__barsTillSessionClose = barsTillSessionClose
 
 
 class RowParser(csvfeed.RowParser):

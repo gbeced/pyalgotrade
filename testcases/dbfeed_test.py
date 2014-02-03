@@ -99,8 +99,6 @@ class SQLiteFeedTestCase(unittest.TestCase):
                 self.assertEqual(yahooDS[i].getLow(), sqliteDS[i].getLow())
                 self.assertEqual(yahooDS[i].getClose(), sqliteDS[i].getClose())
                 self.assertEqual(yahooDS[i].getAdjClose(), sqliteDS[i].getAdjClose())
-                self.assertEqual(yahooDS[i].getBarsTillSessionClose(), sqliteDS[i].getBarsTillSessionClose())
-                self.assertEqual(yahooDS[i].getSessionClose(), sqliteDS[i].getSessionClose())
 
     def testBounded(self):
         tmpFeed = TemporarySQLiteFeed(SQLiteFeedTestCase.dbName, bar.Frequency.DAY, maxLen=2)

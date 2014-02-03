@@ -117,8 +117,8 @@ class Trades(stratanalyzer.StrategyAnalyzer):
             posTracker.sell(quantity*-1, price, commission)
 
     def __onOrderUpdate(self, broker_, order):
-        # Only interested in filled orders.
-        if not order.isFilled():
+        # Only interested in filled or partially filled orders.
+        if not (order.isFilled() or order.isPartiallyFilled()):
             return
 
         # Get or create the tracker for this instrument.

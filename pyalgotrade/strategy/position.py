@@ -46,7 +46,6 @@ class Position(object):
         self.__strategy = strategy
         self.__entryOrder = entryOrder
         self.__exitOrder = None
-        self.__exitOnSessionClose = False
 
         entryOrder.setGoodTillCanceled(goodTillCanceled)
         # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
@@ -92,14 +91,6 @@ class Position(object):
 
     def getGoodTillCanceled(self):
         return self.__entryOrder.getGoodTillCanceled()
-
-    def setExitOnSessionClose(self, exitOnSessionClose):
-        # Deprecated since v0.15
-        warninghelpers.deprecation_warning("Auto exit on session close will be deprecated in the next version.", stacklevel=2)
-        self.__exitOnSessionClose = exitOnSessionClose
-
-    def getExitOnSessionClose(self):
-        return self.__exitOnSessionClose
 
     def getEntryOrder(self):
         """Returns the :class:`pyalgotrade.broker.Order` used to enter the position."""
@@ -177,23 +168,6 @@ class Position(object):
         self.getStrategy().getBroker().placeOrder(closeOrder)
         self.setExitOrder(closeOrder)
 
-    def checkExitOnSessionClose(self, bars):
-        ret = None
-        # If the position was set to exit on session close, and this is the penultimate bar then:
-        # * Create the exit order if the entry was filled.
-        # * Cancel the entry order if it was not filled so far.
-        if self.__exitOnSessionClose and self.__exitOrder is None:
-            bar = bars.getBar(self.getInstrument())
-            if bar and bar.getBarsTillSessionClose() == 1:
-                if self.entryFilled():
-                    ret = self.buildExitOnSessionCloseOrder()
-                    self.getStrategy().getBroker().placeOrder(ret)
-                    self.setExitOrder(ret)
-                    self.getStrategy().registerPositionOrder(self, ret)
-                else:
-                    self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
-        return ret
-
     def onOrderUpdated(self, broker, order):
         if not order.isActive():
             del self.__activeOrders[order.getId()]
@@ -240,7 +214,7 @@ class Position(object):
             raise Exception("Position not opened yet")
         elif not self.exitFilled():
             raise Exception("Position not closed yet")
-        return self.getReturnImpl(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+        return self.getReturnImpl(self.getExitOrder().getAvgFillPrice(), includeCommissions)
 
     def getResult(self):
         warninghelpers.deprecation_warning("getResult will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
@@ -260,7 +234,7 @@ class Position(object):
             raise Exception("Position not opened yet")
         elif not self.exitFilled():
             raise Exception("Position not closed yet")
-        return self.getNetProfitImpl(self.getExitOrder().getExecutionInfo().getPrice(), includeCommissions)
+        return self.getNetProfitImpl(self.getExitOrder().getAvgFillPrice(), includeCommissions)
 
     def getUnrealizedNetProfit(self, price=None):
         """Calculates the unrealized PnL for the position.

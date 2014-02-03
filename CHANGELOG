@@ -3,15 +3,17 @@ Version 0.15 (TBD)
 . [NEW] MACD technical indicator (pyalgotrade.technical.macd.MACD).
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.
 . [NEW] pyalgotrade.barfeed.yahoofeed.Feed now supports weekly bars.
+. [BREAKING CHANGE] Support for auto-exit on session close was removed.
+. [BREAKING CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
+. [BREAKING CHANGE] Prevent resubmitting orders.
+. [BREAKING CHANGE] Prevent changing order parameters once they have been submitted.
 . [CHANGE] pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.
-. [CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [CHANGE] Daily bars from Yahoo and NinjaTrader CSV feeds are loaded with time set to 00:00:00.
 . [CHANGE] All classes now inherit from object.
 . [CHANGE] The backtesting broker ignores volumeLimit when using trade bars.
-. [CHANGE] Prevent resubmitting orders.
-. [CHANGE] Prevent changing order parameters once they have been submitted.
+. [CHANGE] The backtesting broker now emits the cancelation event when cancelation is requested, not in the next bar.
 . [FIX] Fixed a bug in pyalgotrade.technical.roc.RateOfChange when there was no change and the current value was 0.
 . [FIX] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now set the datetime to that of the beggining of the bar.
 

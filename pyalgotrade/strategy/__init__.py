@@ -349,10 +349,6 @@ class BaseStrategy(object):
                 # and the previous order should have been canceled.
                 assert(order.isCanceled())
 
-    def __checkExitOnSessionClose(self, bars):
-        for position in self.__activePositions:
-            position.checkExitOnSessionClose(bars)
-
     def __onBars(self, dateTime, bars):
         # THE ORDER HERE IS VERY IMPORTANT
 
@@ -362,10 +358,7 @@ class BaseStrategy(object):
         # 2: Let the strategy process current bars and place orders.
         self.onBars(bars)
 
-        # 3: Place the necessary orders for positions marked to exit on session close.
-        self.__checkExitOnSessionClose(bars)
-
-        # 4: Notify that the bars were processed.
+        # 3: Notify that the bars were processed.
         self.__barsProcessedEvent.emit(self, bars)
 
     def run(self):
