@@ -217,6 +217,38 @@ class BrokerTestCase(BaseTestCase):
         brk.cancelOrder(order)
         self.assertTrue(broker.Order.State.CANCELED in orderStates)
 
+    def testSkipOrderSubmittedDuringEvent(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        ordersUpdated = []
+
+        def onOrderUpdated(broker_, order):
+            ordersUpdated.append(order)
+            newOrder = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
+            brk.placeOrder(newOrder)
+
+        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+
+        firstOrder = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2, 1)
+        brk.placeOrder(firstOrder)
+        self.assertEquals(len(ordersUpdated), 0)
+
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
+        self.assertEquals(len(ordersUpdated), 1) # First order got accepted.
+        self.assertTrue(firstOrder in ordersUpdated)
+        self.assertEquals(len(brk.getActiveOrders()), 2) # Both orders are active.
+        # Check that the first one was accepted, and the second one submitted.
+        for activeOrder in brk.getActiveOrders():
+            if activeOrder.getId() == firstOrder.getId():
+                self.assertTrue(activeOrder.isAccepted())
+            else:
+                self.assertTrue(activeOrder.isSubmitted())
+
+        # Second order should get accepted and filled.
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
+        self.assertEquals(len(ordersUpdated), 3) 
+        self.assertTrue(firstOrder.isAccepted())
+
 class MarketOrderTestCase(BaseTestCase):
     def testBuyAndSell(self):
         brk = backtesting.Broker(11, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
