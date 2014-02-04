@@ -92,6 +92,38 @@ class CommissionTestCase(unittest.TestCase):
 
 
 class BrokerTestCase(BaseTestCase):
+    def testOneCancelsAnother(self):
+        orders = {}
+
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        def onOrderUpdated(broker, order):
+            if order.isFilled() and order.getId() == orders["sell"].getId():
+                brk.cancelOrder(orders["stoploss"])
+
+        # Buy order.
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
+        brk.placeOrder(order)
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
+        self.assertTrue(order.isFilled())
+
+        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+
+        # Create a sell limit and a stop loss order.
+        order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 11, 1)
+        orders["sell"] = order
+        brk.placeOrder(order)
+        order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 8, 1)
+        orders["stoploss"] = order
+        brk.placeOrder(order)
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 5, 12))
+
+        # Only one order (the sell limit order) should have got filled. The other one should be canceled.
+        self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), 0)
+        self.assertTrue(orders["sell"].isFilled())
+        self.assertTrue(orders["stoploss"].isCanceled())
+
     def testRegressionGetActiveOrders(self):
         activeOrders = []
 
