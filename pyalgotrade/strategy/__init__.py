@@ -19,8 +19,8 @@
 """
 
 import pyalgotrade.broker
-import pyalgotrade.broker.backtesting
-import pyalgotrade.observer
+from pyalgotrade.broker import backtesting
+from pyalgotrade import observer
 import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
 
@@ -42,11 +42,11 @@ class BaseStrategy(object):
         self.__broker = broker
         self.__activePositions = set()
         self.__orderToPosition = {}
-        self.__barsProcessedEvent = pyalgotrade.observer.Event()
+        self.__barsProcessedEvent = observer.Event()
         self.__analyzers = []
         self.__namedAnalyzers = {}
-        self.__dispatcher = pyalgotrade.observer.Dispatcher()
-        self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
+        self.__dispatcher = observer.Dispatcher()
+        self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
         self.__feed.getNewBarsEvent().subscribe(self.__onBars)
 
         self.__dispatcher.getStartEvent().subscribe(self.onStart)
@@ -319,35 +319,38 @@ class BaseStrategy(object):
         """
         pass
 
-    def __onOrderUpdated(self, broker, order):
+    def __onOrderEvent(self, broker_, orderEvent):
+        order = orderEvent.getOrder()
         pos = self.__orderToPosition.get(order.getId(), None)
         if pos is None:
             self.onOrderUpdated(order)
         else:
             # Notify the position that an order was updated.
-            pos.onOrderUpdated(broker, order)
+            pos.onOrderEvent(broker_, orderEvent)
             # Unlink the order to the position if its not active anymore.
             if not order.isActive():
                 self.unregisterPositionOrder(pos, order)
 
             if pos.getEntryOrder().getId() == order.getId():
-                if order.isFilled():
+                if orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.FILLED:
                     self.onEnterOk(pos)
-                elif order.isCanceled():
+                elif orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.CANCELED:
                     self.onEnterCanceled(pos)
                 else:
-                    assert(order.isAccepted())
+                    # Partial fills not yet supported for positions, so the only option left is that the order was accepted.
+                    assert(orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.ACCEPTED)
             elif pos.getExitOrder().getId() == order.getId():
-                if order.isFilled():
+                if orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.FILLED:
                     self.onExitOk(pos)
-                elif order.isCanceled():
+                elif orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.CANCELED:
                     self.onExitCanceled(pos)
                 else:
-                    assert(order.isAccepted())
+                    # Partial fills not yet supported for positions, so the only option left is that the order was accepted.
+                    assert(orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.ACCEPTED)
             else:
                 # The order used to belong to a position but it was ovewritten with a new one
                 # and the previous order should have been canceled.
-                assert(order.isCanceled())
+                assert(orderEvent.getEventType() == pyalgotrade.broker.OrderEvent.Type.CANCELED)
 
     def __onBars(self, dateTime, bars):
         # THE ORDER HERE IS VERY IMPORTANT
@@ -390,7 +393,7 @@ class BacktestingStrategy(BaseStrategy):
     def __init__(self, barFeed, cash=1000000):
         # The broker should subscribe to barFeed events before the strategy.
         # This is to avoid executing orders placed in the current tick.
-        broker = pyalgotrade.broker.backtesting.Broker(cash, barFeed)
+        broker = backtesting.Broker(cash, barFeed)
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
 

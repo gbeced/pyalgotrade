@@ -294,10 +294,11 @@ class InstrumentSubplot(Subplot):
             dateTime = bars.getDateTime()
             self.__instrumentSeries.addValue(dateTime, bar)
 
-    def onOrderUpdated(self, broker_, order):
-        if self.__plotBuySell and (order.isFilled() or order.isPartiallyFilled()) and order.getInstrument() == self.__instrument:
+    def onOrderEvent(self, broker_, orderEvent):
+        order = orderEvent.getOrder()
+        if self.__plotBuySell and orderEvent.getEventType() in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED) and order.getInstrument() == self.__instrument:
             action = order.getAction()
-            execInfo = order.getExecutionInfo()
+            execInfo = orderEvent.getEventInfo()
             if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
                 self.getSeries("Buy", BuyMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
             elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
@@ -330,7 +331,7 @@ class StrategyPlotter(object):
             self.__portfolioSubplot = Subplot()
 
         strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
-        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
+        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
 
     def __checkCreateInstrumentSubplot(self, instrument):
         if instrument not in self.__barSubplots:
@@ -358,10 +359,10 @@ class StrategyPlotter(object):
             # This is in case additional dataseries were added to the portfolio subplot.
             self.__portfolioSubplot.onBars(bars)
 
-    def __onOrderUpdated(self, broker_, order):
+    def __onOrderEvent(self, broker_, orderEvent):
         # Notify BarSubplots
         for subplot in self.__barSubplots.values():
-            subplot.onOrderUpdated(broker_, order)
+            subplot.onOrderEvent(broker_, orderEvent)
 
     def getInstrumentSubplot(self, instrument):
         """Returns the InstrumentSubplot for a given instrument

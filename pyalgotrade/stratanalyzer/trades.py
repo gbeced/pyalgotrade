@@ -116,10 +116,12 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         else:
             posTracker.sell(quantity*-1, price, commission)
 
-    def __onOrderUpdate(self, broker_, order):
+    def __onOrderEvent(self, broker_, orderEvent):
         # Only interested in filled or partially filled orders.
-        if not (order.isFilled() or order.isPartiallyFilled()):
+        if orderEvent.getEventType() not in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED):
             return
+
+        order = orderEvent.getOrder()
 
         # Get or create the tracker for this instrument.
         try:
@@ -129,20 +131,21 @@ class Trades(stratanalyzer.StrategyAnalyzer):
             self.__posTrackers[order.getInstrument()] = posTracker
 
         # Update the tracker for this order.
-        price = order.getExecutionInfo().getPrice()
-        commission = order.getExecutionInfo().getCommission()
+        execInfo = orderEvent.getEventInfo()
+        price = execInfo.getPrice()
+        commission = execInfo.getCommission()
         action = order.getAction()
         if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-            quantity = order.getExecutionInfo().getQuantity()
+            quantity = execInfo.getQuantity()
         elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-            quantity = order.getExecutionInfo().getQuantity() * -1
+            quantity = execInfo.getQuantity() * -1
         else:  # Unknown action
             assert(False)
 
         self.__updatePosTracker(posTracker, price, commission, quantity)
 
     def attached(self, strat):
-        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
+        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
 
     def getCount(self):
         """Returns the total number of trades."""

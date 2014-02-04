@@ -491,7 +491,8 @@ class Broker(observer.Subject):
         self.__orderEvent = observer.Event()
 
     def notifyOrderEvent(self, orderEvent):
-        self.__orderEvent.emit(self, orderEvent.getOrder())
+        # self.__orderEvent.emit(self, orderEvent.getOrder())
+        self.__orderEvent.emit(self, orderEvent)
 
     # Handlers should expect 2 parameters:
     # 1: broker instance

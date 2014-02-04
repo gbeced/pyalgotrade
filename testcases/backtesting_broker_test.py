@@ -31,7 +31,7 @@ class Callback:
     def __init__(self):
         self.eventCount = 0
 
-    def onOrderUpdated(self, broker_, order):
+    def onOrderEvent(self, broker_, orderEvent):
         self.eventCount += 1
 
 class BarsBuilder(object):
@@ -98,8 +98,8 @@ class BrokerTestCase(BaseTestCase):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
 
-        def onOrderUpdated(broker, order):
-            if order.isFilled() and order.getId() == orders["sell"].getId():
+        def onOrderEvent(broker_, orderEvent):
+            if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED and orderEvent.getOrder().getId() == orders["sell"].getId():
                 brk.cancelOrder(orders["stoploss"])
 
         # Buy order.
@@ -108,7 +108,7 @@ class BrokerTestCase(BaseTestCase):
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12))
         self.assertTrue(order.isFilled())
 
-        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(onOrderEvent)
 
         # Create a sell limit and a stop loss order.
         order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 11, 1)
@@ -127,13 +127,13 @@ class BrokerTestCase(BaseTestCase):
     def testRegressionGetActiveOrders(self):
         activeOrders = []
 
-        def onOrderUpdated(broker, order):
+        def onOrderEvent(broker, orderEvent):
             activeOrders.append(len(broker.getActiveOrders()))
 
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
 
-        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(onOrderEvent)
         o1 = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
         brk.placeOrder(o1)
         o2 = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
@@ -234,12 +234,12 @@ class BrokerTestCase(BaseTestCase):
     def testCancelationEvent(self):
         orderStates = []
 
-        def onOrderUpdated(broker, order):
+        def onOrderEvent(broker, orderEvent):
             orderStates.append(order.getState())
 
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
-        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(onOrderEvent)
 
         order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2, 1)
         brk.placeOrder(order)
@@ -254,12 +254,12 @@ class BrokerTestCase(BaseTestCase):
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         ordersUpdated = []
 
-        def onOrderUpdated(broker_, order):
-            ordersUpdated.append(order)
+        def onOrderEvent(broker_, orderEvent):
+            ordersUpdated.append(orderEvent.getOrder())
             newOrder = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
             brk.placeOrder(newOrder)
 
-        brk.getOrderUpdatedEvent().subscribe(onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(onOrderEvent)
 
         firstOrder = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2, 1)
         brk.placeOrder(firstOrder)
@@ -288,7 +288,7 @@ class MarketOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -306,7 +306,7 @@ class MarketOrderTestCase(BaseTestCase):
 
         # Sell
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createMarketOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -330,7 +330,7 @@ class MarketOrderTestCase(BaseTestCase):
 
         # Fail to buy. No money.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -346,7 +346,7 @@ class MarketOrderTestCase(BaseTestCase):
 
         # Fail to buy. No money. Canceled due to session close.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.onBars(*barsBuilder.nextTuple(11, 15, 8, 12))
         self.assertTrue(order.isCanceled())
         self.assertTrue(order.getExecutionInfo() is None)
@@ -368,7 +368,7 @@ class MarketOrderTestCase(BaseTestCase):
 
         # Fail to buy. No money.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.placeOrder(order)
         # Set sessionClose to true test that the order doesn't get canceled.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, sessionClose=True))
@@ -383,7 +383,7 @@ class MarketOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.onBars(*barsBuilder.nextTuple(2, 15, 1, 12))
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 2)
@@ -666,7 +666,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -684,7 +684,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Sell
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 15, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -706,7 +706,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 14, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -724,7 +724,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Sell
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 15, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -746,7 +746,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Buy. Bar is below the target price.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 20, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -764,7 +764,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Sell. Bar is above the target price.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 30, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -790,7 +790,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Fail to buy (couldn't get specific price).
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.placeOrder(order)
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, sessionClose=True))
         self.assertEqual(order.getFilled(), 0)
@@ -804,7 +804,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Fail to buy (couldn't get specific price). Canceled due to session close.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.onBars(*barsBuilder.nextTuple(11, 15, 8, 12))
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -826,7 +826,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Fail to buy (couldn't get specific price).
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.placeOrder(order)
         # Set sessionClose to true test that the order doesn't get canceled.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, sessionClose=True))
@@ -841,7 +841,7 @@ class LimitOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         brk.onBars(*barsBuilder.nextTuple(2, 15, 1, 12))
         self.assertEqual(order.getFilled(), 2)
         self.assertEqual(order.getRemaining(), 0)
@@ -860,7 +860,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -878,7 +878,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Create stop loss order.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 9, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -907,7 +907,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Buy
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -925,7 +925,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Create stop loss order.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 9, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -954,7 +954,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Sell short
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -972,7 +972,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Create stop loss order.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopOrder(broker.Order.Action.BUY_TO_COVER, BaseTestCase.TestInstrument, 11, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1001,7 +1001,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Sell short
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createMarketOrder(broker.Order.Action.SELL_SHORT, BaseTestCase.TestInstrument, 1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -1019,7 +1019,7 @@ class StopOrderTestCase(BaseTestCase):
 
         # Create stop loss order.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopOrder(broker.Order.Action.BUY_TO_COVER, BaseTestCase.TestInstrument, 11, 1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1050,7 +1050,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 10. Buy <= 12.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
@@ -1082,7 +1082,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 8. Sell >= 6.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1116,7 +1116,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 10. Buy <= 12.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1146,7 +1146,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 8. Sell >= 6.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1180,7 +1180,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 10. Buy <= 12.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1210,7 +1210,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 8. Sell >= 6.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1244,7 +1244,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 10. Buy <= 12.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1260,7 +1260,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 8. Sell >= 6.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1280,7 +1280,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 12. Buy <= 10.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1310,7 +1310,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 6. Sell >= 8.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1344,7 +1344,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 12. Buy <= 10.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1374,7 +1374,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 6. Sell >= 8.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1408,7 +1408,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 12. Buy <= 10.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1438,7 +1438,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 6. Sell >= 8.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1472,7 +1472,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Buy. Stop >= 12. Buy <= 10.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
@@ -1488,7 +1488,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Sell. Stop <= 6. Sell >= 8.
         cb = Callback()
-        brk.getOrderUpdatedEvent().subscribe(cb.onOrderUpdated)
+        brk.getOrderUpdatedEvent().subscribe(cb.onOrderEvent)
         order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
         brk.placeOrder(order)
         self.assertEqual(order.getFilled(), 0)
