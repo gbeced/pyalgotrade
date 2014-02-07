@@ -53,4 +53,4 @@ class ToolsTestCase(unittest.TestCase):
         self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
         self.assertEqual(bf[instrument][-1].getLow(), 540.43)
         self.assertEqual(bf[instrument][-1].getClose(), 540.98)
-        self.assertEqual(bf[instrument][-1].getVolume(), 9852500)
+        self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900))
