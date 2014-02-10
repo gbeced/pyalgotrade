@@ -1032,6 +1032,22 @@ class LimitOrderTestCase(BaseTestCase):
 
 
 class StopOrderTestCase(BaseTestCase):
+    def testStopHitWithoutVolume(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15.
+        order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 10)
+        brk.placeOrder(order)
+
+        # 0 should get filled. There is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(18, 19, 17.01, 18, 3))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), True)
+        self.assertEqual(order.getExecutionInfo(), None)
+
     def testBuySellPartial_ActivateAndThenFill(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
@@ -1384,6 +1400,22 @@ class StopOrderTestCase(BaseTestCase):
 
 
 class StopLimitOrderTestCase(BaseTestCase):
+    def testStopHitWithoutVolume(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15. Buy <= 17.
+        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 17, 10)
+        brk.placeOrder(order)
+
+        # 0 should get filled. There is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(18, 19, 15, 18, 3))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), True)
+        self.assertEqual(order.getExecutionInfo(), None)
+
     def testRegressionBarGapsAboveStop(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
