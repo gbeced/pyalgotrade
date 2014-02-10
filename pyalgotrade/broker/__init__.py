@@ -127,7 +127,7 @@ class Order(object):
         self.__avgFillPrice = None
         self.__executionInfo = None
         self.__goodTillCanceled = False
-        self.__allOrNone = True
+        self.__allOrNone = False
         self.__state = Order.State.INITIAL
 
     # This is to check that orders are not compared directly. order ids should be compared.
@@ -248,13 +248,17 @@ class Order(object):
         """Returns True if the order should be completely filled or else canceled."""
         return self.__allOrNone
 
-#    def setAllOrNone(self, allOrNone):
-#        """Sets the All-Or-None property for this order.
-#
-#        :param allOrNone: True if the order should be completely filled or else canceled.
-#        :type allOrNone: boolean.
-#        """
-#        self.__allOrNone = allOrNone
+    def setAllOrNone(self, allOrNone):
+        """Sets the All-Or-None property for this order.
+
+        :param allOrNone: True if the order should be completely filled.
+        :type allOrNone: boolean.
+
+        .. note:: This can't be changed once the order is submitted.
+        """
+        if self.__state != Order.State.INITIAL:
+            raise Exception("The order has already been submitted")
+        self.__allOrNone = allOrNone
 
     def addExecutionInfo(self, orderExecutionInfo):
         if orderExecutionInfo.getQuantity() > self.getRemaining():
@@ -271,6 +275,7 @@ class Order(object):
         if self.getRemaining() == 0:
             self.switchState(Order.State.FILLED)
         else:
+            assert(not self.__allOrNone)
             self.switchState(Order.State.PARTIALLY_FILLED)
 
     def switchState(self, newState):
@@ -316,15 +321,6 @@ class MarketOrder(Order):
         """Returns True if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
         return self.__onClose
 
-    def setFillOnClose(self, onClose):
-        """Sets if the order should be filled as close to the closing price as possible (Market-On-Close order).
-
-        .. note:: This can't be changed once the order is submitted.
-        """
-        if self.getState() != Order.State.INITIAL:
-            raise Exception("The order has already been submitted")
-        self.__onClose = onClose
-
 
 class LimitOrder(Order):
     """Base class for limit orders.
@@ -341,15 +337,6 @@ class LimitOrder(Order):
     def getLimitPrice(self):
         """Returns the limit price."""
         return self.__limitPrice
-
-    def setLimitPrice(self, limitPrice):
-        """Updates the limit price.
-
-        .. note:: This can't be changed once the order is submitted.
-        """
-        if self.getState() != Order.State.INITIAL:
-            raise Exception("The order has already been submitted")
-        self.__limitPrice = limitPrice
 
 
 class StopOrder(Order):
@@ -368,16 +355,6 @@ class StopOrder(Order):
         """Returns the stop price."""
         return self.__stopPrice
 
-    def setStopPrice(self, stopPrice):
-        """Updates the stop price.
-
-        .. note:: This can't be changed once the order is submitted.
-        """
-        if self.getState() != Order.State.INITIAL:
-            raise Exception("The order has already been submitted")
-
-        self.__stopPrice = stopPrice
-
 
 class StopLimitOrder(Order):
     """Base class for stop limit orders.
@@ -391,40 +368,14 @@ class StopLimitOrder(Order):
         Order.__init__(self, orderId, Order.Type.STOP_LIMIT, action, instrument, quantity)
         self.__limitPrice = limitPrice
         self.__stopPrice = stopPrice
-        self.__limitOrderActive = False  # Set to true when the limit order is activated (stop price is hit)
 
     def getLimitPrice(self):
         """Returns the limit price."""
         return self.__limitPrice
 
-    def setLimitPrice(self, limitPrice):
-        """Updates the limit price.
-
-        .. note:: This can't be changed once the order is submitted.
-        """
-        if self.getState() != Order.State.INITIAL:
-            raise Exception("The order has already been submitted")
-        self.__limitPrice = limitPrice
-
     def getStopPrice(self):
         """Returns the stop price."""
         return self.__stopPrice
-
-    def setStopPrice(self, stopPrice):
-        """Updates the stop price.
-
-        .. note:: This can't be changed once the order is submitted.
-        """
-        if self.getState() != Order.State.INITIAL:
-            raise Exception("The order has already been submitted")
-        self.__stopPrice = stopPrice
-
-    def setLimitOrderActive(self, limitOrderActive):
-        self.__limitOrderActive = limitOrderActive
-
-    def isLimitOrderActive(self):
-        """Returns True if the limit order is active."""
-        return self.__limitOrderActive
 
 
 class OrderExecutionInfo(object):

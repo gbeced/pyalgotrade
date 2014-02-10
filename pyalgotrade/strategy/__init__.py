@@ -133,7 +133,7 @@ class BaseStrategy(object):
         """Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
         return self.__broker
 
-    def order(self, instrument, quantity, onClose=False, goodTillCanceled=False):
+    def order(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
         """Places a market order.
 
         :param instrument: Instrument identifier.
@@ -144,6 +144,8 @@ class BaseStrategy(object):
         :type onClose: boolean.
         :param goodTillCanceled: True if the order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the order should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.broker.MarketOrder` submitted.
         """
         ret = None
@@ -153,6 +155,7 @@ class BaseStrategy(object):
             ret = self.getBroker().createMarketOrder(pyalgotrade.broker.Order.Action.SELL, instrument, abs(quantity), onClose)
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
+            ret.setAllOrNone(allOrNone)
             self.getBroker().placeOrder(ret)
         return ret
 

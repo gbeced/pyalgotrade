@@ -92,6 +92,70 @@ class CommissionTestCase(unittest.TestCase):
 
 
 class BrokerTestCase(BaseTestCase):
+    def testStopOrderTriggerBuy(self):
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        # Bar is below
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 5, 5, 5)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 6, 4, 5)[BaseTestCase.TestInstrument]), None)
+        # High touches
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 10, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        # High penetrates
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 11, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        # Open touches
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        # Open is above
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(11, 12, 4, 9)[BaseTestCase.TestInstrument]), 11)
+        # Bar gaps above
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(12, 13, 11, 12)[BaseTestCase.TestInstrument]), 12)
+
+    def testStopOrderTriggerSell(self):
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        # Bar is above
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 15, 15, 15)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 11, 15)[BaseTestCase.TestInstrument]), None)
+        # Low touches
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 10, 11)[BaseTestCase.TestInstrument]), 10)
+        # Low penetrates
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 9, 11)[BaseTestCase.TestInstrument]), 10)
+        # Open touches
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        # Open is below
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(9, 12, 4, 9)[BaseTestCase.TestInstrument]), 9)
+        # Bar gaps below
+        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(8, 9, 6, 9)[BaseTestCase.TestInstrument]), 8)
+ 
+    def testLimitOrderTriggerBuy(self):
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        # Bar is above
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 15, 15, 15)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 11, 15)[BaseTestCase.TestInstrument]), None)
+        # Low touches
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 10, 11)[BaseTestCase.TestInstrument]), 10)
+        # Low penetrates
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 9, 11)[BaseTestCase.TestInstrument]), 10)
+        # Open touches
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        # Open is below
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(9, 12, 4, 9)[BaseTestCase.TestInstrument]), 9)
+        # Bar gaps below
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(8, 9, 6, 9)[BaseTestCase.TestInstrument]), 8)
+ 
+    def testLimitOrderTriggerSell(self):
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        # Bar is below
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 5, 5, 5)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 6, 4, 5)[BaseTestCase.TestInstrument]), None)
+        # High touches
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 10, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        # High penetrates
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 11, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        # Open touches
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        # Open is above
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(11, 12, 4, 9)[BaseTestCase.TestInstrument]), 11)
+        # Bar gaps above
+        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(12, 13, 11, 12)[BaseTestCase.TestInstrument]), 12)
+
     def testOneCancelsAnother(self):
         orders = {}
 
@@ -181,9 +245,9 @@ class BrokerTestCase(BaseTestCase):
             self.assertEqual(order.getRemaining(), 3)
 
         # The orders should not get filled if there is not enough volume.
-        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=10))
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=3))
         for order in orders:
-            self.assertFalse(order.isFilled())
+            self.assertTrue(order.isAccepted())
             self.assertEqual(order.getFilled(), 0)
             self.assertEqual(order.getRemaining(), 3)
 
@@ -217,14 +281,14 @@ class BrokerTestCase(BaseTestCase):
             self.assertEqual(order.getFilled(), 0)
             self.assertEqual(order.getRemaining(), 3)
 
-        # The orders should not get filled if there is not enough volume.
-        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=2))
+        # The orders should get partially filled.
+        brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=1))
         for order in orders:
-            self.assertFalse(order.isFilled())
-            self.assertEqual(order.getFilled(), 0)
-            self.assertEqual(order.getRemaining(), 3)
+            self.assertTrue(order.isPartiallyFilled())
+            self.assertEqual(order.getFilled(), 1)
+            self.assertEqual(order.getRemaining(), 2)
 
-        # The order should now get filled since the volume matches the bar.
+        # The order should now get completely filled.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=3))
         for order in orders:
             self.assertTrue(order.isFilled())
@@ -282,6 +346,63 @@ class BrokerTestCase(BaseTestCase):
         self.assertTrue(firstOrder.isAccepted())
 
 class MarketOrderTestCase(BaseTestCase):
+    def testBuySellPartial(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10)
+        brk.placeOrder(order)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 2)
+        self.assertEqual(order.getRemaining(), 8)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 3 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 3)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+        # Sell
+        order = brk.createMarketOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 10)
+        brk.placeOrder(order)
+        # 0 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 2))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        # 1 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 4))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 1)
+        self.assertEqual(order.getRemaining(), 9)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 9 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 100))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 9)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+ 
     def testBuyAndSell(self):
         brk = backtesting.Broker(11, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
@@ -660,6 +781,63 @@ class MarketOrderTestCase(BaseTestCase):
 
 
 class LimitOrderTestCase(BaseTestCase):
+    def testBuySellPartial(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy
+        order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 10)
+        brk.placeOrder(order)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 2)
+        self.assertEqual(order.getRemaining(), 8)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 10)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 10)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 3 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 10)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 3)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+        # Sell
+        order = brk.createLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 10, 10)
+        brk.placeOrder(order)
+        # 0 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 2))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        # 1 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 4))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 1)
+        self.assertEqual(order.getRemaining(), 9)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 9 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 100))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 9)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+ 
     def testBuyAndSell_HitTargetPrice(self):
         brk = backtesting.Broker(20, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
@@ -854,6 +1032,168 @@ class LimitOrderTestCase(BaseTestCase):
 
 
 class StopOrderTestCase(BaseTestCase):
+    def testBuySellPartial_ActivateAndThenFill(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15.
+        order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 10)
+        brk.placeOrder(order)
+
+        # 0 should get filled. The stop price should have not been hit.
+        brk.onBars(*barsBuilder.nextTuple(12, 14, 8, 12, 10))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), False)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 0 should get filled. The stop price should have been hit but there is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(17.1, 18, 17.01, 18, 3))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), True)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 18)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(17.1, 18, 17.01, 18, 50))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17.1)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+        # Sell. Stop <= 19.
+        order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 19, 10)
+        brk.placeOrder(order)
+        # 0 should get filled. The stop price should have not been hit.
+        brk.onBars(*barsBuilder.nextTuple(19.1, 19.5, 19.1, 19.4, 10))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), False)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 0 should get filled. The stop price should have been hit but there is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 3))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), True)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(16, 21, 15, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 16)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 9)
+        self.assertEqual(order.getRemaining(), 1)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 1 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 10))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+   
+    def testBuySellPartial_ActivateAndFill(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15.
+        order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 10)
+        brk.placeOrder(order)
+
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertEqual(order.getStopHit(), True)
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 18)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled. There is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(17.1, 18, 17.01, 18, 3))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(16, 18, 16, 18, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 16)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+        # Sell. Stop <= 19.
+        order = brk.createStopOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 19, 10)
+        brk.placeOrder(order)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 20))
+        self.assertEqual(order.getStopHit(), True)
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 19)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled. There is not enough volume.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 3))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 9)
+        self.assertEqual(order.getRemaining(), 1)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 1 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+ 
     def testLongPosStopLoss(self):
         brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
@@ -1044,6 +1384,205 @@ class StopOrderTestCase(BaseTestCase):
 
 
 class StopLimitOrderTestCase(BaseTestCase):
+    def testRegressionBarGapsAboveStop(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15. Buy <= 17.
+        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 17, 1)
+        brk.placeOrder(order)
+
+        # 1 should get filled at 17. Before the bug was fixed it was filled at 15.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 1)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+    def testBuySellPartial_ActivateAndThenFill(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15. Buy <= 17.
+        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 17, 10)
+        brk.placeOrder(order)
+
+        # 0 should get filled. The stop price should have not been hit.
+        brk.onBars(*barsBuilder.nextTuple(12, 14, 8, 12, 10))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), False)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 0 should get filled. The stop price should have been hit.
+        brk.onBars(*barsBuilder.nextTuple(17.1, 18, 17.01, 18, 10))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), True)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(17.1, 18, 17.01, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+        # Sell. Stop <= 19. Sell >= 20.
+        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 19, 20, 10)
+        brk.placeOrder(order)
+        # 0 should get filled. The stop price should have not been hit.
+        brk.onBars(*barsBuilder.nextTuple(19.1, 19.5, 19.1, 19.4, 10))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), False)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 0 should get filled. The stop price should have been hit.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 10)
+        self.assertEqual(order.getStopHit(), True)
+        self.assertEqual(order.getExecutionInfo(), None)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 9)
+        self.assertEqual(order.getRemaining(), 1)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 1 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+   
+    def testBuySellPartial_ActivateAndFill(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy. Stop >= 15. Buy <= 17.
+        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 15, 17, 10)
+        brk.placeOrder(order)
+
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(17.1, 18, 17.01, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 17)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(16, 18, 16, 18, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 16)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+
+        # Sell. Stop <= 19. Sell >= 20.
+        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 19, 20, 10)
+        brk.placeOrder(order)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(18, 18, 16, 18, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 5)
+        self.assertEqual(order.getRemaining(), 5)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(20, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 20)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 9)
+        self.assertEqual(order.getRemaining(), 1)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 1 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(21, 21, 17, 18, 10))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 21)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+ 
     def testFillOpen(self):
         brk = backtesting.Broker(15, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
@@ -1060,21 +1599,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(8, 9, 7, 8))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(13, 15, 13, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit (bars include the price). Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(11, 15, 10, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 11)
         self.assertEqual(order.getFilled(), 1)
@@ -1090,21 +1629,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 9, 10))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(4, 5, 3, 4))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit (bars include the price). Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(7, 8, 6, 7))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 7)
         self.assertEqual(order.getFilled(), 1)
@@ -1124,21 +1663,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(8, 9, 7, 8))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(13, 18, 13, 17))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit (bars don't include the price). Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(7, 9, 6, 8))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 7)
         self.assertEqual(order.getFilled(), 1)
@@ -1154,21 +1693,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 9, 10))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(4, 5, 3, 4))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit (bars don't include the price). Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(10, 12, 8, 10))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 10)
         self.assertEqual(order.getFilled(), 1)
@@ -1188,21 +1727,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(8, 9, 7, 8))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(13, 15, 13, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at limit price.
         brk.onBars(*barsBuilder.nextTuple(13, 15, 10, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 12)
         self.assertEqual(order.getFilled(), 1)
@@ -1218,21 +1757,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 9, 10))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(4, 5, 3, 4))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at limit price.
         brk.onBars(*barsBuilder.nextTuple(5, 7, 5, 6))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 6)
         self.assertEqual(order.getFilled(), 1)
@@ -1252,7 +1791,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price hit. Limit price hit. Fill at stop price.
         brk.onBars(*barsBuilder.nextTuple(9, 15, 8, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 10)
         self.assertEqual(order.getFilled(), 1)
@@ -1268,7 +1807,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price hit. Limit price hit. Fill at stop price.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 5, 8))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 8)
         self.assertEqual(order.getFilled(), 1)
@@ -1288,21 +1827,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(8, 9, 7, 8))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(11, 12, 10.5, 11))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(9, 15, 8, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 9)
         self.assertEqual(order.getFilled(), 1)
@@ -1318,21 +1857,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 9, 10))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(7, 7, 6, 7))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 8, 9))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 9)
         self.assertEqual(order.getFilled(), 1)
@@ -1352,21 +1891,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(8, 9, 7, 8))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(11, 12, 10.5, 11))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(7, 9, 6, 8))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 7)
         self.assertEqual(order.getFilled(), 1)
@@ -1382,21 +1921,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 9, 10))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(7, 7, 6, 7))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at open price.
         brk.onBars(*barsBuilder.nextTuple(10, 10, 9, 9))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 10)
         self.assertEqual(order.getFilled(), 1)
@@ -1416,21 +1955,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(8, 9, 7, 8))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(11, 12, 10.5, 11))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at limit price.
         brk.onBars(*barsBuilder.nextTuple(11, 13, 8, 9))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 10)
         self.assertEqual(order.getFilled(), 1)
@@ -1446,21 +1985,21 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price not hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(9, 10, 9, 10))
-        self.assertFalse(order.isLimitOrderActive())
+        self.assertFalse(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Stop price hit. Limit price not hit.
         brk.onBars(*barsBuilder.nextTuple(7, 7, 6, 7))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isAccepted())
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
 
         # Limit price hit. Fill at limit price.
         brk.onBars(*barsBuilder.nextTuple(7, 10, 6, 9))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 8)
         self.assertEqual(order.getFilled(), 1)
@@ -1480,7 +2019,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price hit. Limit price hit. Fill at limit price.
         brk.onBars(*barsBuilder.nextTuple(9, 15, 8, 14))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 10)
         self.assertEqual(order.getFilled(), 1)
@@ -1496,7 +2035,7 @@ class StopLimitOrderTestCase(BaseTestCase):
 
         # Stop price hit. Limit price hit. Fill at limit price.
         brk.onBars(*barsBuilder.nextTuple(6, 10, 5, 7))
-        self.assertTrue(order.isLimitOrderActive())
+        self.assertTrue(order.getStopHit())
         self.assertTrue(order.isFilled())
         self.assertTrue(order.getExecutionInfo().getPrice() == 8)
         self.assertEqual(order.getFilled(), 1)

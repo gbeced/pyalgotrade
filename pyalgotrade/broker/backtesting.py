@@ -27,7 +27,7 @@ logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
 
 ######################################################################
-## Commissions
+## Commission models
 
 class Commission(object):
     """Base class for implementing different commission schemes.
@@ -88,11 +88,11 @@ class TradePercentage(Commission):
 ## Order filling strategies
 
 # Returns the trigger price for a Stop or StopLimit order, or None if the stop price was not yet penetrated.
-def get_stop_order_trigger(action, stopPrice, broker_, bar):
+def get_stop_price_trigger(action, stopPrice, useAdjustedValues, bar):
     ret = None
-    open_ = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
-    high = pyalgotrade.bar.get_high(bar, broker_.getUseAdjustedValues())
-    low = pyalgotrade.bar.get_low(bar, broker_.getUseAdjustedValues())
+    open_ = pyalgotrade.bar.get_open(bar, useAdjustedValues)
+    high = pyalgotrade.bar.get_high(bar, useAdjustedValues)
+    low = pyalgotrade.bar.get_low(bar, useAdjustedValues)
 
     # If the bar is above the stop price, use the open price.
     # If the bar includes the stop price, use the open price or the stop price. Whichever is better.
@@ -121,11 +121,11 @@ def get_stop_order_trigger(action, stopPrice, broker_, bar):
 
 
 # Returns the trigger price for a Limit or StopLimit order, or None if the limit price was not yet penetrated.
-def get_limit_order_trigger(action, limitPrice, broker_, bar):
+def get_limit_price_trigger(action, limitPrice, useAdjustedValues, bar):
     ret = None
-    open_ = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
-    high = pyalgotrade.bar.get_high(bar, broker_.getUseAdjustedValues())
-    low = pyalgotrade.bar.get_low(bar, broker_.getUseAdjustedValues())
+    open_ = pyalgotrade.bar.get_open(bar, useAdjustedValues)
+    high = pyalgotrade.bar.get_high(bar, useAdjustedValues)
+    low = pyalgotrade.bar.get_low(bar, useAdjustedValues)
 
     # If the bar is below the limit price, use the open price.
     # If the bar includes the limit price, use the open price or the limit price.
@@ -167,7 +167,6 @@ class FillInfo(object):
 class FillStrategy(object):
     """Base class for order filling strategies."""
 
-    # Return the fill price for a MarketOrder or None.
     def fillMarketOrder(self, order, broker_, bar):
         """Override to return the fill price for a market order or None if the order can't be filled at the given time.
 
@@ -181,7 +180,6 @@ class FillStrategy(object):
         """
         raise NotImplementedError()
 
-    # Return the fill price for a LimitOrder or None.
     def fillLimitOrder(self, order, broker_, bar):
         """Override to return the fill price for a limit order or None if the order can't be filled at the given time.
 
@@ -195,7 +193,6 @@ class FillStrategy(object):
         """
         raise NotImplementedError()
 
-    # Return the fill price for a StopOrder or None.
     def fillStopOrder(self, order, broker_, bar):
         """Override to return the fill price for a stop order or None if the order can't be filled at the given time.
 
@@ -209,8 +206,7 @@ class FillStrategy(object):
         """
         raise NotImplementedError()
 
-    # Return the fill price for a StopLimitOrder or None.
-    def fillStopLimitOrder(self, order, broker_, bar, justHitStopPrice):
+    def fillStopLimitOrder(self, order, broker_, bar):
         """Override to return the fill price for a stop limit order or None if the order can't be filled at the given time.
 
         :param order: The order.
@@ -219,8 +215,6 @@ class FillStrategy(object):
         :type broker_: :class:`Broker`.
         :param bar: The current bar.
         :type bar: :class:`pyalgotrade.bar.Bar`.
-        :param justHitStopPrice: True if the stop price has just been hit with the current bar.
-        :type justHitStopPrice: boolean.
         :rtype: A :class:`FillInfo` or None if the order should not be filled.
         """
         raise NotImplementedError()
@@ -239,48 +233,58 @@ class DefaultStrategy(FillStrategy):
     * A :class:`pyalgotrade.broker.LimitOrder` will be filled like this:
         * If the limit price was penetrated with the open price, then the open price is used.
         * If the bar includes the limit price, then the limit price is used.
-        * Note that when buying the price is penetrated if it gets <= the limit price, and when selling the price is penetrated if it gets >= the limit price
+        * Note that when buying the price is penetrated if it gets <= the limit price, and when selling the price is penetrated
+          if it gets >= the limit price
     * A :class:`pyalgotrade.broker.StopOrder` will be filled like this:
         * If the stop price was penetrated with the open price, then the open price is used.
         * If the bar includes the stop price, then the stop price is used.
-        * Note that when buying the price is penetrated if it gets >= the stop price, and when selling the price is penetrated if it gets <= the stop price
+        * Note that when buying the price is penetrated if it gets >= the stop price, and when selling the price is penetrated
+          if it gets <= the stop price
     * A :class:`pyalgotrade.broker.StopLimitOrder` will be filled like this:
         * If the stop price was penetrated with the open price, or if the bar includes the stop price, then the limit order becomes active.
         * If the limit order is active:
-            * If the limit order was activated in this same bar and the limit price is penetrated as well, then the best between the stop price and the limit fill price (as described earlier) is used.
+            * If the limit order was activated in this same bar and the limit price is penetrated as well, then the best between
+              the stop price and the limit fill price (as described earlier) is used.
             * If the limit order was activated at a previous bar then the limit fill price (as described earlier) is used.
 
     .. note::
-        This is the default strategy used by the Broker. If using trade bars, then volumeLimit is ignored.
+        * This is the default strategy used by the Broker.
+        * If volumeLimit is 0.25, and a certain bar's volume is 100, then no more than 25 shares can be used by an
+          order that gets processed at that bar.
+        * If using trade bars, then all the volume from that bar can be used.
     """
 
     def __init__(self, volumeLimit=0.25):
         assert(volumeLimit > 0 and volumeLimit <= 1)
         self.__volumeLimit = volumeLimit
+        self.__volumeLeft = {}
 
     def setVolumeLimit(self, volumeLimit):
         self.__volumeLimit = volumeLimit
 
-    def __getFillSize(self, order, bar):
-        if self.__volumeLimit is not None:
-            # If these are trade bars, then allow the whole volume to be used.
-            if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
-                maxQuantity = bar.getVolume()
-            else:
-                maxQuantity = bar.getVolume() * self.__volumeLimit
+    def __calculateFillSize(self, order, broker_, bar):
+        ret = 0
 
-            if order.getQuantity() > maxQuantity:
-                # Partial fills not supported yet.
-                ret = None
-            else:
-                ret = order.getQuantity()
+        if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
+            volumeLeft = bar.getVolume()
+        elif self.__volumeLimit is not None:
+            volumeLeft = bar.getVolume() * self.__volumeLimit
         else:
-            ret = order.getQuantity()
+            volumeLeft = order.getRemaining()
+
+        if not broker_.getAllowFractions():
+            volumeLeft = int(volumeLeft)
+
+        if not order.getAllOrNone():
+            ret = min(volumeLeft, order.getRemaining())
+        elif order.getRemaining() <= volumeLeft:
+            ret = order.getRemaining()
+
         return ret
 
     def fillMarketOrder(self, order, broker_, bar):
-        fillSize = self.__getFillSize(order, bar)
-        if fillSize is None:
+        fillSize = self.__calculateFillSize(order, broker_, bar)
+        if fillSize == 0:
             return None
 
         ret = None
@@ -289,54 +293,73 @@ class DefaultStrategy(FillStrategy):
         else:
             price = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
         if price is not None:
-            ret = FillInfo(price, order.getQuantity())
+            ret = FillInfo(price, fillSize)
         return ret
 
-    # Return the fill price for a LimitOrder or None.
     def fillLimitOrder(self, order, broker_, bar):
-        fillSize = self.__getFillSize(order, bar)
-        if fillSize is None:
+        fillSize = self.__calculateFillSize(order, broker_, bar)
+        if fillSize == 0:
             return None
 
         ret = None
-        price = get_limit_order_trigger(order.getAction(), order.getLimitPrice(), broker_, bar)
+        price = get_limit_price_trigger(order.getAction(), order.getLimitPrice(), broker_.getUseAdjustedValues(), bar)
         if price is not None:
-            ret = FillInfo(price, order.getQuantity())
+            ret = FillInfo(price, fillSize)
         return ret
 
-    # Return the fill price for a StopOrder or None.
     def fillStopOrder(self, order, broker_, bar):
-        fillSize = self.__getFillSize(order, bar)
-        if fillSize is None:
-            return None
-
         ret = None
-        price = get_stop_order_trigger(order.getAction(), order.getStopPrice(), broker_, bar)
-        if price is not None:
-            ret = FillInfo(price, order.getQuantity())
+
+        # First check if the stop price was hit so the market order becomes active.
+        stopPriceTrigger = None
+        if not order.getStopHit():
+            stopPriceTrigger = get_stop_price_trigger(order.getAction(), order.getStopPrice(), broker_.getUseAdjustedValues(), bar)
+            order.setStopHit(stopPriceTrigger is not None)
+
+        # If the stop price was hit, check if we can fill the market order.
+        if order.getStopHit():
+            fillSize = self.__calculateFillSize(order, broker_, bar)
+            if fillSize == 0:
+                return None
+
+            # If we just hit the stop price we'll use it as the fill price.
+            # For the remaining bars we'll use the open price.
+            if stopPriceTrigger is not None:
+                price = stopPriceTrigger
+            else:
+                price = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
+
+            ret = FillInfo(price, fillSize)
         return ret
 
-    # Return the fill price for a StopLimitOrder or None.
-    def fillStopLimitOrder(self, order, broker_, bar, justHitStopPrice):
-        fillSize = self.__getFillSize(order, bar)
-        if fillSize is None:
-            return None
-
+    def fillStopLimitOrder(self, order, broker_, bar):
         ret = None
-        price = get_limit_order_trigger(order.getAction(), order.getLimitPrice(), broker_, bar)
-        # If we just hit the stop price, we need to make additional checks.
-        if price is not None and justHitStopPrice:
-            if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-                # If the stop price is lower than the limit price, then use that one. Else use the limit price.
-                price = min(order.getStopPrice(), order.getLimitPrice())
-            elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-                # If the stop price is greater than the limit price, then use that one. Else use the limit price.
-                price = max(order.getStopPrice(), order.getLimitPrice())
-            else:  # Unknown action
-                assert(False)
 
-        if price is not None:
-            ret = FillInfo(price, order.getQuantity())
+        # First check if the stop price was hit so the limit order becomes active.
+        stopPriceTrigger = None
+        if not order.getStopHit():
+            stopPriceTrigger = get_stop_price_trigger(order.getAction(), order.getStopPrice(), broker_.getUseAdjustedValues(), bar)
+            order.setStopHit(stopPriceTrigger is not None)
+ 
+        # If the stop price was hit, check if we can fill the limit order.
+        if order.getStopHit():
+            fillSize = self.__calculateFillSize(order, broker_, bar)
+            if fillSize == 0:
+                return None
+
+            price = get_limit_price_trigger(order.getAction(), order.getLimitPrice(), broker_.getUseAdjustedValues(), bar)
+            if price is not None:
+                # If we just hit the stop price, we need to make additional checks.
+                if stopPriceTrigger is not None:
+                    if order.isBuy():
+                        # If the stop price triggered is lower than the limit price, then use that one. Else use the limit price.
+                        price = min(stopPriceTrigger, order.getLimitPrice())
+                    else:
+                        # If the stop price triggered is greater than the limit price, then use that one. Else use the limit price.
+                        price = max(stopPriceTrigger, order.getLimitPrice())
+
+                ret = FillInfo(price, fillSize)
+
         return ret
 
 
@@ -353,6 +376,8 @@ class BacktestingOrder(object):
     def getAcceptedDateTime(self):
         return self.__accepted
 
+    # Override to call the fill strategy using the concrete order type.
+    # return FillInfo or None if the order should not be filled.
     def process(self, broker_, bar_):
         raise NotImplementedError()
 
@@ -363,9 +388,7 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
         BacktestingOrder.__init__(self)
 
     def process(self, broker_, bar_):
-        fillInfo = broker_.getFillStrategy().fillMarketOrder(self, broker_, bar_)
-        if fillInfo is not None:
-            broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
+        return broker_.getFillStrategy().fillMarketOrder(self, broker_, bar_)
 
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
@@ -374,21 +397,23 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
         BacktestingOrder.__init__(self)
 
     def process(self, broker_, bar_):
-        fillInfo = broker_.getFillStrategy().fillLimitOrder(self, broker_, bar_)
-        if fillInfo is not None:
-            broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
+        return broker_.getFillStrategy().fillLimitOrder(self, broker_, bar_)
 
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
     def __init__(self, orderId, action, instrument, stopPrice, quantity):
         broker.StopOrder.__init__(self, orderId, action, instrument, stopPrice, quantity)
         BacktestingOrder.__init__(self)
+        self.__stopHit = False
 
     def process(self, broker_, bar_):
-        fillInfo = broker_.getFillStrategy().fillStopOrder(self, broker_, bar_)
-        if fillInfo is not None:
-            broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
+        return broker_.getFillStrategy().fillStopOrder(self, broker_, bar_)
 
+    def setStopHit(self, stopHit):
+        self.__stopHit = stopHit
+
+    def getStopHit(self):
+        return self.__stopHit
 
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
@@ -396,39 +421,20 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
     def __init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity):
         broker.StopLimitOrder.__init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity)
         BacktestingOrder.__init__(self)
+        self.__stopHit = False  # Set to true when the limit order is activated (stop price is hit)
 
-    def __stopHit(self, broker_, bar):
-        ret = False
-        high = pyalgotrade.bar.get_high(bar, broker_.getUseAdjustedValues())
-        low = pyalgotrade.bar.get_low(bar, broker_.getUseAdjustedValues())
-        stopPrice = self.getStopPrice()
+    def setStopHit(self, stopHit):
+        self.__stopHit = stopHit
 
-        # If the bar is above the stop price, or the bar includes the stop price, the stop was hit.
-        if self.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-            if low >= stopPrice or stopPrice <= high:
-                ret = True
-        # If the bar is below the stop price, or the bar includes the stop price, the stop was hit.
-        elif self.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-            if high <= stopPrice or stopPrice >= low:
-                ret = True
-        else:  # Unknown action
-            assert(False)
-        return ret
+    def getStopHit(self):
+        return self.__stopHit
+
+    def isLimitOrderActive(self):
+        # TODO: Deprecated since v0.15. Use getStopHit instead.
+        return self.__stopHit
 
     def process(self, broker_, bar_):
-        justHitStopPrice = False
-
-        # Check if we have to activate the limit order first.
-        if not self.isLimitOrderActive() and self.__stopHit(broker_, bar_):
-            self.setLimitOrderActive(True)
-            justHitStopPrice = True
-
-        # Check if we have ever reached the limit price
-        if self.isLimitOrderActive():
-            fillInfo = broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar_, justHitStopPrice)
-            if fillInfo is not None:
-                broker_.commitOrderExecution(self, bar_.getDateTime(), fillInfo)
-
+        return broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar_)
 
 ######################################################################
 ## Broker
@@ -457,6 +463,7 @@ class Broker(broker.Broker):
         self.__activeOrders = {}
         self.__useAdjustedValues = False
         self.__fillStrategy = DefaultStrategy()
+        self.__allowFractions = False
 
         # It is VERY important that the broker subscribes to barfeed events before the strategy.
         barFeed.getNewBarsEvent().subscribe(self.onBars)
@@ -474,6 +481,12 @@ class Broker(broker.Broker):
         if ret is None:
             ret = self.__barFeed.getLastBar(instrument)
         return ret
+
+    def setAllowFractions(self, allowFractions):
+        self.__allowFractions = allowFractions
+
+    def getAllowFractions(self):
+        return self.__allowFractions
 
     def setAllowNegativeCash(self, allowNegativeCash):
         self.__allowNegativeCash = allowNegativeCash
@@ -654,7 +667,12 @@ class Broker(broker.Broker):
     def __processOrder(self, order, bar_):
         if not self.__preProcessOrder(order, bar_):
             return
-        order.process(self, bar_)
+
+        # Double dispatch to the fill strategy using the concrete order type.
+        fillInfo = order.process(self, bar_)
+        if fillInfo is not None:
+            self.commitOrderExecution(order, bar_.getDateTime(), fillInfo)
+
         if order.isActive():
             self.__postProcessOrder(order, bar_)
 

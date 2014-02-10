@@ -43,6 +43,7 @@ class BacktestingBroker(backtesting.Broker):
         if commission is None:
             commission = backtesting.TradePercentage(0.006)
         backtesting.Broker.__init__(self, cash, barFeed, commission)
+        self.setAllowFractions(True)
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:

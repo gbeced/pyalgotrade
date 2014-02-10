@@ -287,9 +287,6 @@ class Position(object):
     def buildExitOrder(self, limitPrice, stopPrice):
         raise NotImplementedError()
 
-    def buildExitOnSessionCloseOrder(self):
-        raise NotImplementedError()
-
     def isLong(self):
         raise NotImplementedError()
 
@@ -329,6 +326,7 @@ class LongPosition(Position):
         else:
             assert(False)
 
+        entryOrder.setAllOrNone(True)
         Position.__init__(self, strategy, entryOrder, goodTillCanceled)
 
     def buildExitOrder(self, limitPrice, stopPrice):
@@ -344,12 +342,7 @@ class LongPosition(Position):
         else:
             assert(False)
 
-        return ret
-
-    def buildExitOnSessionCloseOrder(self):
-        quantity = self.getShares()
-        ret = self.getStrategy().getBroker().createMarketOrder(broker.Order.Action.SELL, self.getInstrument(), quantity, True)
-        ret.setGoodTillCanceled(True)  # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
+        ret.setAllOrNone(True)
         return ret
 
     def isLong(self):
@@ -370,6 +363,7 @@ class ShortPosition(Position):
         else:
             assert(False)
 
+        entryOrder.setAllOrNone(True)
         Position.__init__(self, strategy, entryOrder, goodTillCanceled)
 
     def buildExitOrder(self, limitPrice, stopPrice):
@@ -385,12 +379,7 @@ class ShortPosition(Position):
         else:
             assert(False)
 
-        return ret
-
-    def buildExitOnSessionCloseOrder(self):
-        quantity = self.getShares() * -1
-        ret = self.getStrategy().getBroker().createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), quantity, True)
-        ret.setGoodTillCanceled(True)  # Mark the exit order as GTC since we want to exit ASAP and avoid this order to get canceled.
+        ret.setAllOrNone(True)
         return ret
 
     def isLong(self):

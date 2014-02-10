@@ -6,7 +6,8 @@ Version 0.15 (TBD)
 . [BREAKING CHANGE] Support for auto-exit on session close was removed.
 . [BREAKING CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [BREAKING CHANGE] Prevent resubmitting orders.
-. [BREAKING CHANGE] Prevent changing order parameters once they have been submitted.
+. [BREAKING CHANGE] Prevent changing order properties that are set during initialization.
+. [BREAKING CHANGE] The last parameter to broker.backtesting.FillStrategy.fillStopLimitOrder was removed. FillStrategy will now handle all the details for order filling to allow better customization.
 . [CHANGE] pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.
