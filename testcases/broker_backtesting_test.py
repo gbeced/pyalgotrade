@@ -456,6 +456,7 @@ class BrokerTestCase(BaseTestCase):
         self.assertEqual(eventTypes[1], broker.OrderEvent.Type.PARTIALLY_FILLED)
         self.assertEqual(eventTypes[2], broker.OrderEvent.Type.CANCELED)
 
+
 class MarketOrderTestCase(BaseTestCase):
     def testBuySellPartial(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
