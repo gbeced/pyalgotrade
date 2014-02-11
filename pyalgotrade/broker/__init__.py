@@ -127,6 +127,7 @@ class Order(object):
         self.__avgFillPrice = None
         self.__executionInfo = None
         self.__goodTillCanceled = False
+        self.__commissions = 0
         self.__allOrNone = False
         self.__state = Order.State.INITIAL
 
@@ -226,6 +227,9 @@ class Order(object):
         """Returns the average price of the shares that have been executed, or None if nothing has been filled."""
         return self.__avgFillPrice
 
+    def getCommissions(self):
+        return self.__commissions
+
     def getGoodTillCanceled(self):
         """Returns True if the order is good till canceled."""
         return self.__goodTillCanceled
@@ -271,6 +275,7 @@ class Order(object):
 
         self.__executionInfo = orderExecutionInfo
         self.__filled += orderExecutionInfo.getQuantity()
+        self.__commissions += orderExecutionInfo.getCommission()
 
         if self.getRemaining() == 0:
             self.switchState(Order.State.FILLED)

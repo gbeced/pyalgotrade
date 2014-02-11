@@ -37,7 +37,7 @@ class Commission(object):
     """
 
     def calculate(self, order, price, quantity):
-        """Calculates the commission for an order.
+        """Calculates the commission for an order execution.
 
         :param order: The order being executed.
         :type order: :class:`pyalgotrade.broker.Order`.
@@ -67,7 +67,11 @@ class FixedPerTrade(Commission):
         self.__amount = amount
 
     def calculate(self, order, price, quantity):
-        return self.__amount
+        ret = 0
+        # Only charge the first fill.
+        if order.getExecutionInfo() is None:
+            ret = self.__amount
+        return ret
 
 
 class TradePercentage(Commission):
@@ -584,11 +588,11 @@ class Broker(broker.Broker):
         price = fillInfo.getPrice()
         quantity = fillInfo.getQuantity()
 
-        if order.getAction() in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
+        if order.isBuy():
             cost = price * quantity * -1
             assert(cost < 0)
             sharesDelta = quantity
-        elif order.getAction() in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
+        elif order.isSell():
             cost = price * quantity
             assert(cost > 0)
             sharesDelta = quantity * -1

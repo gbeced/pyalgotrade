@@ -73,8 +73,10 @@ class BarsBuilder(object):
         ret = self.nextBars(openPrice, highPrice, lowPrice, closePrice, volume, sessionClose)
         return (ret.getDateTime(), ret)
 
+
 class BaseTestCase(unittest.TestCase):
     TestInstrument = "orcl"
+
 
 class CommissionTestCase(unittest.TestCase):
     def testNoCommission(self):
@@ -83,12 +85,94 @@ class CommissionTestCase(unittest.TestCase):
 
     def testFixedPerTrade(self):
         comm = backtesting.FixedPerTrade(1.2)
-        self.assertEqual(comm.calculate(None, 1, 1), 1.2)
+        order = backtesting.MarketOrder(1, broker.Order.Action.BUY, "orcl", 1, False)
+        self.assertEqual(comm.calculate(order, 1, 1), 1.2)
 
     def testTradePercentage(self):
         comm = backtesting.TradePercentage(0.1)
         self.assertEqual(comm.calculate(None, 1, 1), 0.1)
         self.assertEqual(comm.calculate(None, 2, 2), 0.4)
+
+    def testTradePercentageWithPartialFills(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        commPercentage = 0.1
+        brk.setCommission(backtesting.TradePercentage(0.1))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10)
+        brk.placeOrder(order)
+        self.assertEqual(order.getCommissions(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 2)
+        self.assertEqual(order.getRemaining(), 8)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getCommissions(), 12*2*commPercentage)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 12*2*commPercentage)
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getCommissions(), 12*7*commPercentage)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 12*5*commPercentage)
+        # 3 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getCommissions(), 12*10*commPercentage)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 3)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 12*3*commPercentage)
+
+    def testFixedPerTradeWithPartialFills(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        brk.setCommission(backtesting.FixedPerTrade(1.2))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10)
+        brk.placeOrder(order)
+        self.assertEqual(order.getCommissions(), 0)
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 2)
+        self.assertEqual(order.getRemaining(), 8)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getCommissions(), 1.2)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 1.2) # Commision applied in the first fill.
+        # 5 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 7)
+        self.assertEqual(order.getRemaining(), 3)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getCommissions(), 1.2)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 5)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        # 3 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 20))
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 10)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getCommissions(), 1.2)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 3)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
 
 
 class BrokerTestCase(BaseTestCase):
