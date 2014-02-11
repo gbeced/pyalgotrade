@@ -429,6 +429,33 @@ class BrokerTestCase(BaseTestCase):
         self.assertEquals(len(ordersUpdated), 3) 
         self.assertTrue(firstOrder.isAccepted())
 
+    def testPartialFillAndCancel(self):
+        eventTypes = []
+
+        def onOrderEvent(broker_, orderEvent):
+            eventTypes.append(orderEvent.getEventType())
+
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.DAY))
+        brk.getOrderUpdatedEvent().subscribe(onOrderEvent)
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.DAY)
+
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10)
+        brk.placeOrder(order)
+
+        # 2 should get filled.
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        self.assertTrue(order.isCanceled())
+        self.assertEqual(order.getFilled(), 2)
+        self.assertEqual(order.getRemaining(), 8)
+        self.assertEqual(order.getAvgFillPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order.getExecutionInfo().getCommission(), 0)
+        self.assertEqual(len(eventTypes), 3)
+        self.assertEqual(eventTypes[0], broker.OrderEvent.Type.ACCEPTED)
+        self.assertEqual(eventTypes[1], broker.OrderEvent.Type.PARTIALLY_FILLED)
+        self.assertEqual(eventTypes[2], broker.OrderEvent.Type.CANCELED)
+
 class MarketOrderTestCase(BaseTestCase):
     def testBuySellPartial(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
