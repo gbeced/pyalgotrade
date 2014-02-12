@@ -171,12 +171,12 @@ class FillInfo(object):
 class FillStrategy(object):
     """Base class for order filling strategies."""
 
-    # Called when new bars are about to get processed.
     def onBars(self, dateTime, bars):
+        """Override (optional) to get notified when the broker is about to process new bars."""
         pass
 
-    # Called when an order was filled either partially or completely.
     def onOrderFilled(self, order):
+        """Override (optional) to get notified when an order was filled, or partially filled."""
         pass
 
     def fillMarketOrder(self, order, broker_, bar):
