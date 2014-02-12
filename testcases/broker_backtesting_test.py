@@ -308,76 +308,45 @@ class BrokerTestCase(BaseTestCase):
     def testVolumeLimitMinuteBars(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
-        orders = []
 
-        # Try with different order types.
         order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 3)
         brk.placeOrder(order)
-        orders.append(order)
-        order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
-        brk.placeOrder(order)
-        orders.append(order)
-        order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
-        brk.placeOrder(order)
-        orders.append(order)
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 10, 3)
-        brk.placeOrder(order)
-        orders.append(order)
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 3)
 
-        for order in orders:
-            self.assertEqual(order.getFilled(), 0)
-            self.assertEqual(order.getRemaining(), 3)
-
-        # The orders should not get filled if there is not enough volume.
+        # The order should not get filled if there is not enough volume.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=3))
-        for order in orders:
-            self.assertTrue(order.isAccepted())
-            self.assertEqual(order.getFilled(), 0)
-            self.assertEqual(order.getRemaining(), 3)
+        self.assertTrue(order.isAccepted())
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 3)
 
         # The order should now get filled since there is enough volume.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=12))
-        for order in orders:
-            self.assertTrue(order.isFilled())
-            self.assertEqual(order.getFilled(), 3)
-            self.assertEqual(order.getRemaining(), 0)
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 3)
+        self.assertEqual(order.getRemaining(), 0)
 
     def testVolumeLimitTradeBars(self):
         brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.TRADE))
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.TRADE)
-        orders = []
 
         # Try with different order types.
         order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 3)
         brk.placeOrder(order)
-        orders.append(order)
-        order = brk.createLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
-        brk.placeOrder(order)
-        orders.append(order)
-        order = brk.createStopOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 3)
-        brk.placeOrder(order)
-        orders.append(order)
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 10, 10, 3)
-        brk.placeOrder(order)
-        orders.append(order)
+        self.assertEqual(order.getFilled(), 0)
+        self.assertEqual(order.getRemaining(), 3)
 
-        for order in orders:
-            self.assertEqual(order.getFilled(), 0)
-            self.assertEqual(order.getRemaining(), 3)
-
-        # The orders should get partially filled.
+        # The order should get partially filled.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=1))
-        for order in orders:
-            self.assertTrue(order.isPartiallyFilled())
-            self.assertEqual(order.getFilled(), 1)
-            self.assertEqual(order.getRemaining(), 2)
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getFilled(), 1)
+        self.assertEqual(order.getRemaining(), 2)
 
         # The order should now get completely filled.
         brk.onBars(*barsBuilder.nextTuple(10, 15, 8, 12, volume=3))
-        for order in orders:
-            self.assertTrue(order.isFilled())
-            self.assertEqual(order.getFilled(), 3)
-            self.assertEqual(order.getRemaining(), 0)
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 3)
+        self.assertEqual(order.getRemaining(), 0)
 
     def testCancelationEvent(self):
         orderStates = []
@@ -455,6 +424,68 @@ class BrokerTestCase(BaseTestCase):
         self.assertEqual(eventTypes[0], broker.OrderEvent.Type.ACCEPTED)
         self.assertEqual(eventTypes[1], broker.OrderEvent.Type.PARTIALLY_FILLED)
         self.assertEqual(eventTypes[2], broker.OrderEvent.Type.CANCELED)
+
+    def testVolumeLimitPerBar1(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        order1 = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2)
+        brk.placeOrder(order1)
+        order2 = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2)
+        brk.placeOrder(order2)
+
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        # 2 should get filled for the first order.
+        self.assertTrue(order1.isFilled())
+        self.assertEqual(order1.getFilled(), 2)
+        self.assertEqual(order1.getRemaining(), 0)
+        self.assertEqual(order1.getAvgFillPrice(), 12)
+        self.assertEqual(order1.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order1.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order1.getExecutionInfo().getCommission(), 0)
+        # 0 should get filled for the second order.
+        self.assertTrue(order2.isAccepted())
+        self.assertEqual(order2.getFilled(), 0)
+        self.assertEqual(order2.getRemaining(), 2)
+        self.assertEqual(order2.getAvgFillPrice(), None)
+        self.assertEqual(order2.getExecutionInfo(), None)
+
+        brk.onBars(*barsBuilder.nextTuple(13, 15, 8, 12, 10))
+        # 2 should get filled for the second order.
+        self.assertTrue(order2.isFilled())
+        self.assertEqual(order2.getFilled(), 2)
+        self.assertEqual(order2.getRemaining(), 0)
+        self.assertEqual(order2.getAvgFillPrice(), 13)
+        self.assertEqual(order2.getExecutionInfo().getPrice(), 13)
+        self.assertEqual(order2.getExecutionInfo().getQuantity(), 2)
+        self.assertEqual(order2.getExecutionInfo().getCommission(), 0)
+
+    def testVolumeLimitPerBar2(self):
+        brk = backtesting.Broker(1000, barFeed=barfeed.BaseBarFeed(bar.Frequency.MINUTE))
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+
+        order1 = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
+        brk.placeOrder(order1)
+        order2 = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
+        brk.placeOrder(order2)
+
+        brk.onBars(*barsBuilder.nextTuple(12, 15, 8, 12, 10))
+        # 1 should get filled for the first order.
+        self.assertTrue(order1.isFilled())
+        self.assertEqual(order1.getFilled(), 1)
+        self.assertEqual(order1.getRemaining(), 0)
+        self.assertEqual(order1.getAvgFillPrice(), 12)
+        self.assertEqual(order1.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order1.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order1.getExecutionInfo().getCommission(), 0)
+        # 1 should get filled for the second order.
+        self.assertTrue(order2.isFilled())
+        self.assertEqual(order2.getFilled(), 1)
+        self.assertEqual(order2.getRemaining(), 0)
+        self.assertEqual(order2.getAvgFillPrice(), 12)
+        self.assertEqual(order2.getExecutionInfo().getPrice(), 12)
+        self.assertEqual(order2.getExecutionInfo().getQuantity(), 1)
+        self.assertEqual(order2.getExecutionInfo().getCommission(), 0)
 
 
 class MarketOrderTestCase(BaseTestCase):

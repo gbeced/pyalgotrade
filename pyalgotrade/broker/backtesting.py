@@ -171,8 +171,16 @@ class FillInfo(object):
 class FillStrategy(object):
     """Base class for order filling strategies."""
 
+    # Called when new bars are about to get processed.
+    def onBars(self, dateTime, bars):
+        pass
+
+    # Called when an order was filled either partially or completely.
+    def onOrderFilled(self, order):
+        pass
+
     def fillMarketOrder(self, order, broker_, bar):
-        """Override to return the fill price for a market order or None if the order can't be filled at the given time.
+        """Override to return the fill price and quantity for a market order or None if the order can't be filled at the given time.
 
         :param order: The order.
         :type order: :class:`pyalgotrade.broker.MarketOrder`.
@@ -185,7 +193,7 @@ class FillStrategy(object):
         raise NotImplementedError()
 
     def fillLimitOrder(self, order, broker_, bar):
-        """Override to return the fill price for a limit order or None if the order can't be filled at the given time.
+        """Override to return the fill price and quantity for a limit order or None if the order can't be filled at the given time.
 
         :param order: The order.
         :type order: :class:`pyalgotrade.broker.LimitOrder`.
@@ -198,7 +206,7 @@ class FillStrategy(object):
         raise NotImplementedError()
 
     def fillStopOrder(self, order, broker_, bar):
-        """Override to return the fill price for a stop order or None if the order can't be filled at the given time.
+        """Override to return the fill price and quantity for a stop order or None if the order can't be filled at the given time.
 
         :param order: The order.
         :type order: :class:`pyalgotrade.broker.StopOrder`.
@@ -211,7 +219,7 @@ class FillStrategy(object):
         raise NotImplementedError()
 
     def fillStopLimitOrder(self, order, broker_, bar):
-        """Override to return the fill price for a stop limit order or None if the order can't be filled at the given time.
+        """Override to return the fill price and quantity for a stop limit order or None if the order can't be filled at the given time.
 
         :param order: The order.
         :type order: :class:`pyalgotrade.broker.StopLimitOrder`.
@@ -228,7 +236,7 @@ class DefaultStrategy(FillStrategy):
     """
     Default fill strategy.
 
-    :param volumeLimit: The proportion of the volume that an order can take up in a bar. Must be > 0 and <= 1.
+    :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
     :type volumeLimit: float.
 
     This strategy works as follows:
@@ -253,8 +261,8 @@ class DefaultStrategy(FillStrategy):
 
     .. note::
         * This is the default strategy used by the Broker.
-        * If volumeLimit is 0.25, and a certain bar's volume is 100, then no more than 25 shares can be used by an
-          order that gets processed at that bar.
+        * If volumeLimit is 0.25, and a certain bar's volume is 100, then no more than 25 shares can be used by all
+          orders that get processed at that bar.
         * If using trade bars, then all the volume from that bar can be used.
     """
 
@@ -263,16 +271,31 @@ class DefaultStrategy(FillStrategy):
         self.__volumeLimit = volumeLimit
         self.__volumeLeft = {}
 
+    def onBars(self, dateTime, bars):
+        # Update the volume available for each instrument.
+        volumeLeft = {}
+        for instrument in bars.getInstruments():
+            bar = bars[instrument]
+            if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
+                volumeLeft[instrument] = bar.getVolume()
+            elif self.__volumeLimit is not None:
+                volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
+        self.__volumeLeft = volumeLeft
+
+    def onOrderFilled(self, order):
+        # Update the volume left.
+        if self.__volumeLimit is not None:
+            self.__volumeLeft[order.getInstrument()] -= order.getExecutionInfo().getQuantity()
+     
     def setVolumeLimit(self, volumeLimit):
         self.__volumeLimit = volumeLimit
 
     def __calculateFillSize(self, order, broker_, bar):
         ret = 0
 
-        if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
-            volumeLeft = bar.getVolume()
-        elif self.__volumeLimit is not None:
-            volumeLeft = bar.getVolume() * self.__volumeLimit
+        # If self.__volumeLimit then allow all the order to get filled. 
+        if self.__volumeLimit is not None:
+            volumeLeft = self.__volumeLeft.get(order.getInstrument(), 0)
         else:
             volumeLeft = order.getRemaining()
 
@@ -515,14 +538,14 @@ class Broker(broker.Broker):
         self.__cash = cash
 
     def getCommission(self):
-        """Returns the commission instance.
+        """Returns the strategy used to calculate order commissions.
 
         :rtype: :class:`Commission`.
         """
         return self.__commission
 
     def setCommission(self, commission):
-        """Sets the commission instance.
+        """Sets the strategy to use to calculate order commissions.
 
         :param commission: An object responsible for calculating order commissions.
         :type commission: :class:`Commission`.
@@ -615,6 +638,9 @@ class Broker(broker.Broker):
             self.__cash = resultingCash
             self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta
 
+            # Let the strategy know that the order was filled.
+            self.__fillStrategy.onOrderFilled(order)
+
             # Notify the order update
             if order.isFilled():
                 del self.__activeOrders[order.getId()]
@@ -700,6 +726,9 @@ class Broker(broker.Broker):
                 assert(order not in self.__activeOrders)
 
     def onBars(self, dateTime, bars):
+        # Let the strategy know that new bars are being processed.
+        self.__fillStrategy.onBars(dateTime, bars)
+
         # This is to froze the orders that will be processed in this event, to avoid new getting orders introduced
         # and processed on this very same event.
         ordersToProcess = self.__activeOrders.values()
