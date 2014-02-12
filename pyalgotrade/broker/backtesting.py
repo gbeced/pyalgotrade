@@ -588,7 +588,7 @@ class Broker(broker.Broker):
     def getActiveInstruments(self):
         return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
 
-    def getEquityWithBars(self, bars):
+    def __getEquityWithBars(self, bars):
         ret = self.getCash()
         if bars is not None:
             for instrument, shares in self.__shares.iteritems():
@@ -600,11 +600,11 @@ class Broker(broker.Broker):
         if deprecated is not None:
             warninghelpers.deprecation_warning("The bars parameter is no longer used and will be removed in the next version.", stacklevel=2)
 
-        return self.getEquityWithBars(self.__barFeed.getCurrentBars())
+        return self.__getEquityWithBars(self.__barFeed.getCurrentBars())
 
     def getEquity(self):
         """Returns the portfolio value (cash + shares)."""
-        return self.getEquityWithBars(self.__barFeed.getCurrentBars())
+        return self.__getEquityWithBars(self.__barFeed.getCurrentBars())
 
     # Tries to commit an order execution. Returns True if the order was commited, or False is there is not enough cash.
     def commitOrderExecution(self, order, dateTime, fillInfo):
