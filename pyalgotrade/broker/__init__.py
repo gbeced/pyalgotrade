@@ -463,8 +463,12 @@ class Broker(observer.Subject):
         """Returns a dictionary that maps instruments to shares."""
         raise NotImplementedError()
 
-    def getActiveOrders(self):
-        """Returns a sequence with the orders that are still active."""
+    def getActiveOrders(self, instrument=None):
+        """Returns a sequence with the orders that are still active.
+
+        :param instrument: An optional instrument identifier to return only the active orders for the given instrument.
+        :type instrument: string.
+        """
         raise NotImplementedError()
 
     def placeOrder(self, order):

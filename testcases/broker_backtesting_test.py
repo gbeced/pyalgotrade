@@ -426,6 +426,19 @@ class BrokerTestCase(BaseTestCase):
         self.assertEqual(order2.getExecutionInfo().getQuantity(), 1)
         self.assertEqual(order2.getExecutionInfo().getCommission(), 0)
 
+    def testGetActiveOrders(self):
+        barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        brk = self.buildBroker(1000, barFeed)
+
+        order1 = brk.createMarketOrder(broker.Order.Action.BUY, "ins1", 1)
+        brk.placeOrder(order1)
+        order2 = brk.createMarketOrder(broker.Order.Action.BUY, "ins2", 1)
+        brk.placeOrder(order2)
+
+        self.assertEqual(len(brk.getActiveOrders()), 2)
+        self.assertEqual(len(brk.getActiveOrders("ins1")), 1)
+        self.assertEqual(len(brk.getActiveOrders("ins2")), 1)
+        self.assertEqual(len(brk.getActiveOrders("ins3")), 0)
 
 class MarketOrderTestCase(BaseTestCase):
     def testBuySellPartial(self):

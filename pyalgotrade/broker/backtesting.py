@@ -572,8 +572,12 @@ class Broker(broker.Broker):
             warninghelpers.deprecation_warning("setUseAdjustedValues will be deprecated in the next version. Please use setUseAdjustedValues on the strategy instead.", stacklevel=2)
         self.__useAdjustedValues = useAdjusted
 
-    def getActiveOrders(self):
-        return self.__activeOrders.values()
+    def getActiveOrders(self, instrument=None):
+        if instrument is None:
+            ret = self.__activeOrders.values()
+        else:
+            ret = [order for order in self.__activeOrders.values() if order.getInstrument() == instrument]
+        return ret
 
     def getPendingOrders(self):
         warninghelpers.deprecation_warning("getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.", stacklevel=2)
