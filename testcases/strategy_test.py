@@ -323,14 +323,13 @@ class LongPosTestCase(StrategyTestCase):
         self.assertTrue(strat.getEnterCanceledEvents() == 0)
         self.assertTrue(strat.getExitCanceledEvents() == 0)
 
-        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21), 0)
-        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21), 0)
-
-        self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(127.21*1.5), 4), 0.5)
-        self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(127.21*1.5), 4), 127.21/2)
-
-        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21*2), 1)
-        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21*2), 127.21)
+        entryPrice = 127.21
+        lastPrice = barFeed.getCurrentBars()[StrategyTestCase.TestInstrument].getClose()
+ 
+        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (lastPrice - entryPrice) / entryPrice)
+        self.assertEqual(strat.getActivePosition().getReturn(), (lastPrice - entryPrice) / entryPrice)
+        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), lastPrice - entryPrice)
+        self.assertEqual(strat.getActivePosition().getPnL(), lastPrice - entryPrice)
 
     def testIsOpen_NotClosed(self):
         strat = self.createStrategy()
@@ -440,14 +439,13 @@ class ShortPosTestCase(StrategyTestCase):
         self.assertTrue(strat.getEnterCanceledEvents() == 0)
         self.assertTrue(strat.getExitCanceledEvents() == 0)
 
-        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21), 0)
-        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21), 0)
-
-        self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(127.21/2), 4), 0.5)
-        self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(127.21/2), 4), 127.21/2)
-
-        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(127.21*2), -1)
-        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(127.21*2), -127.21)
+        entryPrice = 127.21
+        lastPrice = barFeed.getCurrentBars()[StrategyTestCase.TestInstrument].getClose()
+        
+        self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (entryPrice - lastPrice) / entryPrice)
+        self.assertEqual(strat.getActivePosition().getReturn(), (entryPrice - lastPrice) / entryPrice)
+        self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), entryPrice - lastPrice)
+        self.assertEqual(strat.getActivePosition().getPnL(), entryPrice - lastPrice)
 
 
 class LimitPosTestCase(StrategyTestCase):

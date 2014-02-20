@@ -23,6 +23,62 @@ from pyalgotrade import warninghelpers
 from pyalgotrade import broker
 
 
+class PositionState(object):
+    # Raise an exception if an order can't be placed in the current state.
+    def canPlaceOrder(self, position, order):
+        raise NotImplementedError()
+
+    def onOrderEvent(self, position, orderEvent):
+        raise NotImplementedError()
+
+
+class WaitingEntryState(PositionState):
+    def canPlaceOrder(self, position, order):
+        if position.entryActive():
+            raise Exception("The entry order is still active")
+
+    def onOrderEvent(self, position, orderEvent):
+        if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED:
+            position.switchState(OpenState())
+            position.getStrategy().onEnterOk(position)
+        elif orderEvent.getEventType() == broker.OrderEvent.Type.CANCELED:
+            position.switchState(ClosedState())
+            position.getStrategy().onEnterCanceled(position)
+        elif orderEvent.getEventType() == broker.OrderEvent.Type.PARTIALLY_FILLED:
+            raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+
+
+class OpenState(PositionState):
+    def canPlaceOrder(self, position, order):
+        pass
+
+    def onOrderEvent(self, position, orderEvent):
+        raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+
+
+class WaitingExitState(PositionState):
+    def canPlaceOrder(self, position, order):
+        raise Exception("The exit order is still active")
+
+    def onOrderEvent(self, position, orderEvent):
+        if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED:
+            position.switchState(ClosedState())
+            position.getStrategy().onExitOk(position)
+        elif orderEvent.getEventType() == broker.OrderEvent.Type.CANCELED:
+            position.switchState(OpenState())
+            position.getStrategy().onExitCanceled(position)
+        elif orderEvent.getEventType() == broker.OrderEvent.Type.PARTIALLY_FILLED:
+            raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+ 
+
+class ClosedState(PositionState):
+    def canPlaceOrder(self, position, order):
+        raise Exception("The position is closed")
+
+    def onOrderEvent(self, position, orderEvent):
+        raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+
+ 
 class Position(object):
     """Base class for positions.
 
@@ -44,18 +100,32 @@ class Position(object):
         if not entryOrder.getAllOrNone():
             raise Exception("Only all-or-none orders are supported with the position interface")
 
-        self.__activeOrders = {entryOrder.getId(): entryOrder}
+        self.__state = WaitingEntryState()
+        self.__activeOrders = {}
         self.__shares = 0
         self.__strategy = strategy
-        self.__entryOrder = entryOrder
+        self.__entryOrder = None
         self.__exitOrder = None
         self.__posTracker = returns.PositionTracker()
 
         entryOrder.setGoodTillCanceled(goodTillCanceled)
-        # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
-        strategy.getBroker().placeOrder(entryOrder)
+        self.__placeAndRegisterOrder(entryOrder)
+        self.__entryOrder = entryOrder
 
-        self.getStrategy().registerPositionOrder(self, entryOrder)
+    def __placeAndRegisterOrder(self, order):
+        assert(order.isInitial())
+
+        # Check if an order can be placed in the current state.
+        self.__state.canPlaceOrder(self, order)
+
+        # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
+        self.getStrategy().getBroker().placeOrder(order)
+
+        self.__activeOrders[order.getId()] = order
+        self.getStrategy().registerPositionOrder(self, order)
+
+    def switchState(self, newState):
+        self.__state = newState
 
     def getStrategy(self):
         return self.__strategy
@@ -64,13 +134,11 @@ class Position(object):
         return self.__strategy.getLastPrice(self.getInstrument())
 
     def getActiveOrders(self):
-        """Returns a list with the active orders."""
         return self.__activeOrders.values()
 
     def getShares(self):
         """Returns the number of shares.
-        This will be a possitive number for a long position,
-        and a negative number for a short position.
+        This will be a possitive number for a long position, and a negative number for a short position.
 
         .. note::
             If the entry order was not filled, or if the position is closed, then the number of shares will be 0.
@@ -93,19 +161,9 @@ class Position(object):
         """Returns True if the exit order was filled."""
         return self.__exitOrder is not None and self.__exitOrder.isFilled()
 
-    def getGoodTillCanceled(self):
-        return self.__entryOrder.getGoodTillCanceled()
-
     def getEntryOrder(self):
         """Returns the :class:`pyalgotrade.broker.Order` used to enter the position."""
         return self.__entryOrder
-
-    def setExitOrder(self, exitOrder):
-        assert(self.__exitOrder is None or not self.__exitOrder.isActive())
-        assert(exitOrder.isSubmitted())
-        self.__activeOrders[exitOrder.getId()] = exitOrder
-        self.__exitOrder = exitOrder
-        self.getStrategy().registerPositionOrder(self, exitOrder)
 
     def getExitOrder(self):
         """Returns the :class:`pyalgotrade.broker.Order` used to exit the position. If this position hasn't been closed yet, None is returned."""
@@ -115,18 +173,66 @@ class Position(object):
         """Returns the instrument used for this position."""
         return self.__entryOrder.getInstrument()
 
+    def getReturn(self, includeCommissions=True):
+        """Calculates cumulative percentage returns up to this point.
+        If the position is not closed, these will be unrealized returns.
+
+        :param includeCommissions: True to include commisions in the calculation.
+        :type includeCommissions: boolean. 
+        """
+
+        ret = 0
+        price = self.getLastPrice()
+        if price is not None:
+            ret = self.__posTracker.getReturn(price, includeCommissions)
+        return ret
+
+    def getUnrealizedReturn(self, price=None):
+        # Deprecated in v0.15.
+        warninghelpers.deprecation_warning("getUnrealizedReturn will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
+        if price is not None:
+            raise Exception("Setting the price to getUnrealizedReturn is no longer supported")
+        return self.getReturn(False)
+
+    def getPnL(self, includeCommissions=True):
+        """Calculates PnL up to this point.
+        If the position is not closed, these will be unrealized PnL.
+
+        :param includeCommissions: True to include commisions in the calculation.
+        :type includeCommissions: boolean. 
+        """
+ 
+        ret = 0
+        price = self.getLastPrice()
+        if price is not None:
+            ret = self.__posTracker.getNetProfit(price, includeCommissions)
+        return ret
+
+    def getNetProfit(self, includeCommissions=True):
+        # Deprecated in v0.15.
+        warninghelpers.deprecation_warning("getNetProfit will be deprecated in the next version. Please use getPnL instead.", stacklevel=2)
+        return self.getPnL(includeCommissions)
+
+    def getUnrealizedNetProfit(self, price=None):
+        # Deprecated in v0.15.
+        warninghelpers.deprecation_warning("getUnrealizedNetProfit will be deprecated in the next version. Please use getPnL instead.", stacklevel=2)
+        if price is not None:
+            raise Exception("Setting the price to getUnrealizedNetProfit is no longer supported")
+        return self.getPnL(False)
+
     def getQuantity(self):
-        # TODO: Deprecate this and use abs(getShares()) instead.
-        return self.__entryOrder.getQuantity()
+        # Deprecated in v0.15.
+        warninghelpers.deprecation_warning("getQuantity will be deprecated in the next version. Please use abs(self.getShares()) instead.", stacklevel=2)
+        return abs(self.getShares())
 
     def cancelEntry(self):
         """Cancels the entry order if its active."""
-        if self.getEntryOrder().isActive():
+        if self.entryActive():
             self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
 
     def cancelExit(self):
         """Cancels the exit order if its active."""
-        if self.getExitOrder() is not None and self.getExitOrder().isActive():
+        if self.exitActive():
             self.getStrategy().getBroker().cancelOrder(self.getExitOrder())
 
     def exit(self, limitPrice=None, stopPrice=None, goodTillCanceled=None):
@@ -159,23 +265,24 @@ class Position(object):
             return
 
         # Fail if a previous exit order is active.
-        if self.getExitOrder() is not None and self.getExitOrder().isActive():
+        if self.exitActive():
             raise Exception("Exit order is active and it should be canceled first")
 
         exitOrder = self.buildExitOrder(limitPrice, stopPrice)
+
+        if not exitOrder.getAllOrNone():
+            raise Exception("Only all-or-none orders are supported with the position interface")
 
         # If goodTillCanceled was not set, match the entry order.
         if goodTillCanceled is None:
             goodTillCanceled = self.__entryOrder.getGoodTillCanceled()
         exitOrder.setGoodTillCanceled(goodTillCanceled)
 
-        if not exitOrder.getAllOrNone():
-            raise Exception("Only all-or-none orders are supported with the position interface")
+        self.__placeAndRegisterOrder(exitOrder)
+        self.switchState(WaitingExitState())
+        self.__exitOrder = exitOrder
 
-        self.getStrategy().getBroker().placeOrder(exitOrder)
-        self.setExitOrder(exitOrder)
-
-    def onOrderEvent(self, broker_, orderEvent):
+    def onOrderEvent(self, orderEvent):
         self.__updatePosTracker(orderEvent)
 
         order = orderEvent.getOrder()
@@ -190,84 +297,7 @@ class Position(object):
             else:
                 self.__shares -= execInfo.getQuantity()
 
-    def getUnrealizedReturn(self, price=None):
-        """Calculates the unrealized returns for the position.
-
-        :param price: Price used to calculate the returns.
-            This value is used as the current price and compared against your entry price.
-            If None then the last available price will be used.
-        :type price: float.
-        :rtype: A float between 0 and 1.
-
-        .. note::
-            The position must be open.
-        """
-        if not self.entryFilled():
-            raise Exception("Position not opened yet")
-        elif self.exitFilled():
-            raise Exception("Position already closed")
-
-        if price is None:
-            price = self.getLastPrice()
-        return self.__getReturnImpl(price, False)
-
-    def getReturn(self, includeCommissions=True):
-        """Calculates the returns for the position.
-
-        :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean.
-        :rtype: A float between 0 and 1.
-
-        .. note::
-            The position must be closed.
-        """
-        if not self.entryFilled():
-            raise Exception("Position not opened yet")
-        elif not self.exitFilled():
-            raise Exception("Position not closed yet")
-        return self.__getReturnImpl(self.getExitOrder().getAvgFillPrice(), includeCommissions)
-
-    def getResult(self):
-        warninghelpers.deprecation_warning("getResult will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
-        return self.getReturn(False)
-
-    def getNetProfit(self, includeCommissions=True):
-        """Calculates the PnL for the position.
-
-        :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean.
-        :rtype: A float with the PnL.
-
-        .. note::
-            The position must be closed.
-        """
-        if not self.entryFilled():
-            raise Exception("Position not opened yet")
-        elif not self.exitFilled():
-            raise Exception("Position not closed yet")
-        return self.__getNetProfitImpl(self.getExitOrder().getAvgFillPrice(), includeCommissions)
-
-    def getUnrealizedNetProfit(self, price=None):
-        """Calculates the unrealized PnL for the position.
-
-        :param price: Price used to calculate the PnL.
-            This value is used as the current price and compared against the entry price.
-            If None then the last available price will be used.
-        :type price: float.
-        :rtype: A float with the unrealized PnL.
-
-        .. note::
-            The position must be open.
-        """
-
-        if not self.entryFilled():
-            raise Exception("Position not opened yet")
-        elif self.exitFilled():
-            raise Exception("Position already closed")
-
-        if price is None:
-            price = self.getLastPrice()
-        return self.__getNetProfitImpl(price, False)
+        self.__state.onOrderEvent(self, orderEvent)
 
     def __updatePosTracker(self, orderEvent):
         if orderEvent.getEventType() in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED):
@@ -278,20 +308,8 @@ class Position(object):
             else:
                 self.__posTracker.sell(execInfo.getQuantity(), execInfo.getPrice(), execInfo.getCommission())
 
-    def __getReturnImpl(self, price, includeCommissions):
-        return self.__posTracker.getReturn(price, includeCommissions)
-
-    def __getNetProfitImpl(self, price, includeCommissions):
-        return self.__posTracker.getNetProfit(price, includeCommissions)
-
     def buildExitOrder(self, limitPrice, stopPrice):
         raise NotImplementedError()
-
-    def isLong(self):
-        raise NotImplementedError()
-
-    def isShort(self):
-        return not self.isLong()
 
     def isOpen(self):
         """Returns True if the position is open."""
@@ -345,9 +363,6 @@ class LongPosition(Position):
         ret.setAllOrNone(True)
         return ret
 
-    def isLong(self):
-        return True
-
 
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
@@ -381,6 +396,3 @@ class ShortPosition(Position):
 
         ret.setAllOrNone(True)
         return ret
-
-    def isLong(self):
-        return False

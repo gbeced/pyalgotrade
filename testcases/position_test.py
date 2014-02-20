@@ -206,7 +206,9 @@ class TestCase(unittest.TestCase):
         strat.run()
 
         self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), 29.06 - 29.25)
+        self.assertEqual(strat.getActivePosition().getPnL(), 29.06 - 29.25)
         self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (29.06 - 29.25) / 29.25)
+        self.assertEqual(strat.getActivePosition().getReturn(), (29.06 - 29.25) / 29.25)
 
     def testUnrealizedAdjusted(self):
         instrument = "orcl"
@@ -217,7 +219,9 @@ class TestCase(unittest.TestCase):
         strat.run()
 
         self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(), 2), round(28.41 - 28.60, 2))
+        self.assertEqual(round(strat.getActivePosition().getPnL(), 2), round(28.41 - 28.60, 2))
         self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(), 2), round((28.41 - 28.60) / 28.60, 2))
+        self.assertEqual(round(strat.getActivePosition().getReturn(), 2), round((28.41 - 28.60) / 28.60, 2))
 
     def testInvalidUnrealized(self):
         instrument = "orcl"
@@ -269,6 +273,7 @@ class TestCase(unittest.TestCase):
         # Entered on 2000-01-04 at 115.50
         # Exit on 2000-01-05 at 101.62
         self.assertEqual(strat.pos.getNetProfit(),  101.62 - 115.50)
+        self.assertEqual(strat.pos.getPnL(),  101.62 - 115.50)
 
     def testActiveOrdersAndSharesShort(self):
         instrument = "orcl"
@@ -306,3 +311,4 @@ class TestCase(unittest.TestCase):
         # Entered on 2000-01-04 at 115.50
         # Exit on 2000-01-05 at 101.62
         self.assertEqual(strat.pos.getNetProfit(),  115.50 - 101.62)
+        self.assertEqual(strat.pos.getPnL(),  115.50 - 101.62)

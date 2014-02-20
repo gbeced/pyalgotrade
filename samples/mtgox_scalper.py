@@ -104,7 +104,7 @@ class Strategy(strategy.BaseStrategy):
 
     def __stopLoss(self):
         assert(self.__position is not None)
-        return self.__position.getUnrealizedReturn() <= self.__stopLossPct
+        return self.__position.getReturn(False) <= self.__stopLossPct
 
     # NoPos: A position is not opened.
     def __onNoPos(self, bars):
