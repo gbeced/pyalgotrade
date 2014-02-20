@@ -28,6 +28,7 @@ from pyalgotrade import warninghelpers
 # This is only for backward compatibility since Frequency used to be defined here and not in bar.py.
 Frequency = bar.Frequency
 
+
 # Subclasses should implement:
 # - getNextBars
 # - Remaining observer.Subject methods

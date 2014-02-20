@@ -33,6 +33,7 @@ def __adjust_month(month):
     month -= 1  # Months for yahoo are 0 based
     return month
 
+
 def get_first_monday(year):
     ret = datetime.date(year, 1, 1)
     if ret.weekday() != 0:
@@ -40,12 +41,15 @@ def get_first_monday(year):
         ret = ret + datetime.timedelta(days=diff)
     return ret
 
+
 def get_last_monday(year):
+
     ret = datetime.date(year, 12, 31)
     if ret.weekday() != 0:
         diff = ret.weekday() * -1
         ret = ret + datetime.timedelta(days=diff)
     return ret
+
 
 def download_csv(instrument, begin, end, frequency):
     url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv" % (instrument, __adjust_month(begin.month), begin.day, begin.year, __adjust_month(end.month), end.day, end.year, frequency)

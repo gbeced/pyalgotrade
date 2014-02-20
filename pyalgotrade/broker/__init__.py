@@ -109,10 +109,10 @@ class Order(object):
 
     # Valid state transitions.
     VALID_TRANSITIONS = {
-        State.INITIAL : [State.SUBMITTED, State.CANCELED],
-        State.SUBMITTED : [State.ACCEPTED, State.CANCELED],
-        State.ACCEPTED : [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
-        State.PARTIALLY_FILLED : [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
+        State.INITIAL: [State.SUBMITTED, State.CANCELED],
+        State.SUBMITTED: [State.ACCEPTED, State.CANCELED],
+        State.ACCEPTED: [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
+        State.PARTIALLY_FILLED: [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
     }
 
     def __init__(self, orderId, type_, action, instrument, quantity):
@@ -407,6 +407,7 @@ class OrderExecutionInfo(object):
         """Returns the :class:`datatime.datetime` when the order was executed."""
         return self.__dateTime
 
+
 class OrderEvent(object):
     class Type:
         ACCEPTED = 1  # Order has been acknowledged by the broker.
@@ -432,6 +433,7 @@ class OrderEvent(object):
     # FILLED: An OrderExecutionInfo instance.
     def getEventInfo(self):
         return self.__eventInfo
+
 
 ######################################################################
 ## Base broker class

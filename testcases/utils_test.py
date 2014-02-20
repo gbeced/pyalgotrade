@@ -25,6 +25,7 @@ from pyalgotrade.utils import dt
 import unittest
 import datetime
 
+
 class UtilsTestCase(unittest.TestCase):
     def testChangePercentage(self):
         self.assertEqual(utils.get_change_percentage(1, 1), 0)
@@ -35,7 +36,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(utils.get_change_percentage(1, -1), 2)
         self.assertEqual(utils.get_change_percentage(-2, -1), -1)
         self.assertEqual(utils.get_change_percentage(-1.5, -1), -0.5)
- 
+
     def testSafeMin(self):
         self.assertEqual(utils.safe_min(None, 0), 0)
         self.assertEqual(utils.safe_min(0, None), 0)
@@ -47,6 +48,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(utils.safe_min(1, -1), -1)
         self.assertEqual(utils.safe_min(-1, -2), -2)
         self.assertEqual(utils.safe_min(-2, -1), -2)
+
 
 class CollectionsTestCase(unittest.TestCase):
     def testEmptyIntersection(self):
@@ -214,6 +216,7 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(len(d), 6)
         self.assertEqual(d[5], 15)
         self.assertEqual(d[-1], 15)
+
 
 class DateTimeTestCase(unittest.TestCase):
     def testTimeStampConversions(self):

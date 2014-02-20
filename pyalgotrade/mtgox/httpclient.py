@@ -19,7 +19,6 @@
 """
 
 import base64
-import time
 import urllib
 import urllib2
 import json
@@ -27,6 +26,7 @@ import hmac
 import hashlib
 
 from pyalgotrade.mtgox import base
+
 
 class Error(Exception):
     def __init__(self, error, response):
@@ -36,11 +36,13 @@ class Error(Exception):
     def getResponse(self):
         return self.__response
 
+
 def return_or_fail(response, defaultErrorMessage):
     if response["result"] != "success":
         errorMessage = response.get("error", defaultErrorMessage)
         raise Error(errorMessage, response)
     return response["return"]
+
 
 # https://en.bitcoin.it/wiki/MtGox/API/HTTP#Python
 # https://en.bitcoin.it/wiki/MtGox/API/HTTP/v1

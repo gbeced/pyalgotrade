@@ -21,11 +21,13 @@
 from pyalgotrade.technical import linreg
 from pyalgotrade import warninghelpers
 
+
 class Slope(linreg.Slope):
     def __init__(self, *args, **kwargs):
         # Deprecated since v0.15
         warninghelpers.deprecation_warning("Slope was moved in the pyalgotrade.technical.linreg package", stacklevel=2)
         linreg.Slope.__init__(self, *args, **kwargs)
+
 
 class Trend(linreg.Trend):
     def __init__(self, *args, **kwargs):

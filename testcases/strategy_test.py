@@ -325,7 +325,7 @@ class LongPosTestCase(StrategyTestCase):
 
         entryPrice = 127.21
         lastPrice = barFeed.getCurrentBars()[StrategyTestCase.TestInstrument].getClose()
- 
+
         self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (lastPrice - entryPrice) / entryPrice)
         self.assertEqual(strat.getActivePosition().getReturn(), (lastPrice - entryPrice) / entryPrice)
         self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), lastPrice - entryPrice)
@@ -441,7 +441,7 @@ class ShortPosTestCase(StrategyTestCase):
 
         entryPrice = 127.21
         lastPrice = barFeed.getCurrentBars()[StrategyTestCase.TestInstrument].getClose()
-        
+
         self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (entryPrice - lastPrice) / entryPrice)
         self.assertEqual(strat.getActivePosition().getReturn(), (entryPrice - lastPrice) / entryPrice)
         self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), entryPrice - lastPrice)
@@ -662,6 +662,7 @@ class StopLimitPosTestCase(StrategyTestCase):
         self.assertTrue(strat.getExitOkEvents() == 1)
         self.assertTrue(strat.getExitCanceledEvents() == 0)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 24), 2))
+
 
 class OptionalOverridesTestCase(StrategyTestCase):
     def testOnStartIdleFinish(self):

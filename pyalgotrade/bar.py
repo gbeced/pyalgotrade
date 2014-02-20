@@ -38,6 +38,7 @@ class Frequency(object):
     DAY = 24*60*60
     WEEK = 24*60*60*7
 
+
 class Bar(object):
     """A Bar is a summary of the trading activity for a security in a given period.
 
@@ -76,7 +77,7 @@ class Bar(object):
     def getFrequency(self):
         """The bar's period."""
         raise NotImplementedError()
- 
+
     def getTypicalPrice(self):
         """Returns the typical price."""
         return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
@@ -147,7 +148,7 @@ class BasicBar(Bar):
 
     def getFrequency(self):
         return self.__frequency
- 
+
 
 class Bars(object):
     """A group of :class:`Bar` objects.

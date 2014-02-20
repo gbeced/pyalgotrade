@@ -25,6 +25,7 @@ from pyalgotrade.utils import dt
 
 BTC_SYMBOL = "BTC"
 
+
 def timestamp_to_tid(unixTime):
     return unixTime * 1000000
 
@@ -222,7 +223,7 @@ class UserOrder(object):
     def getEffectiveAmount(self):
         """The effective amount BTC."""
         return Price(self.__userOrderDict["effective_amount"]).getValue()
- 
+
     def isMarketOrder(self):
         """Returns True if this is a market order."""
         return "price" not in self.__userOrderDict

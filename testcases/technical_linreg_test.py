@@ -21,7 +21,6 @@
 import unittest
 from pyalgotrade.technical import linreg
 from pyalgotrade import dataseries
-from pyalgotrade.utils import dt
 import datetime
 
 

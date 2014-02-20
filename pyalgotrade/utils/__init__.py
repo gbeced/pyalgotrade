@@ -27,6 +27,7 @@ def get_change_percentage(actual, prev):
     ret = diff / float(abs(prev))
     return ret
 
+
 def safe_min(left, right):
     if left is None:
         return right

@@ -286,14 +286,14 @@ class DefaultStrategy(FillStrategy):
         # Update the volume left.
         if self.__volumeLimit is not None:
             self.__volumeLeft[order.getInstrument()] -= order.getExecutionInfo().getQuantity()
-     
+
     def setVolumeLimit(self, volumeLimit):
         self.__volumeLimit = volumeLimit
 
     def __calculateFillSize(self, order, broker_, bar):
         ret = 0
 
-        # If self.__volumeLimit then allow all the order to get filled. 
+        # If self.__volumeLimit then allow all the order to get filled.
         if self.__volumeLimit is not None:
             volumeLeft = self.__volumeLeft.get(order.getInstrument(), 0)
         else:
@@ -367,7 +367,7 @@ class DefaultStrategy(FillStrategy):
         if not order.getStopHit():
             stopPriceTrigger = get_stop_price_trigger(order.getAction(), order.getStopPrice(), broker_.getUseAdjustedValues(), bar)
             order.setStopHit(stopPriceTrigger is not None)
- 
+
         # If the stop price was hit, check if we can fill the limit order.
         if order.getStopHit():
             fillSize = self.__calculateFillSize(order, broker_, bar)
@@ -442,6 +442,7 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
     def getStopHit(self):
         return self.__stopHit
 
+
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
@@ -462,6 +463,7 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 
     def process(self, broker_, bar_):
         return broker_.getFillStrategy().fillStopLimitOrder(self, broker_, bar_)
+
 
 ######################################################################
 ## Broker

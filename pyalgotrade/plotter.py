@@ -205,6 +205,7 @@ class MACDMarker(HistogramMarker):
             ret = "r"
         return ret
 
+
 class Subplot(object):
     """ """
     colors = ['b', 'c', 'm', 'y', 'k']

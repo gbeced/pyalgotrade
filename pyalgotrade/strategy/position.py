@@ -69,7 +69,7 @@ class WaitingExitState(PositionState):
             position.getStrategy().onExitCanceled(position)
         elif orderEvent.getEventType() == broker.OrderEvent.Type.PARTIALLY_FILLED:
             raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
- 
+
 
 class ClosedState(PositionState):
     def canPlaceOrder(self, position, order):
@@ -78,7 +78,7 @@ class ClosedState(PositionState):
     def onOrderEvent(self, position, orderEvent):
         raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
 
- 
+
 class Position(object):
     """Base class for positions.
 
@@ -178,7 +178,7 @@ class Position(object):
         If the position is not closed, these will be unrealized returns.
 
         :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean. 
+        :type includeCommissions: boolean.
         """
 
         ret = 0
@@ -199,9 +199,9 @@ class Position(object):
         If the position is not closed, these will be unrealized PnL.
 
         :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean. 
+        :type includeCommissions: boolean.
         """
- 
+
         ret = 0
         price = self.getLastPrice()
         if price is not None:

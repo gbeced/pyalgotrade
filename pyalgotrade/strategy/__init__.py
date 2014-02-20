@@ -158,7 +158,6 @@ class BaseStrategy(object):
             self.getBroker().placeOrder(ret)
         return ret
 
- 
     def enterLong(self, instrument, quantity, goodTillCanceled=False):
         """Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.
 
@@ -232,7 +231,7 @@ class BaseStrategy(object):
         :type goodTillCanceled: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
- 
+
         return pyalgotrade.strategy.position.LongPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
 
     def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
@@ -248,7 +247,7 @@ class BaseStrategy(object):
         :type goodTillCanceled: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
- 
+
         return pyalgotrade.strategy.position.ShortPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
 
     def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):

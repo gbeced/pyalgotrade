@@ -20,6 +20,7 @@
 
 from pyalgotrade import utils
 
+
 class Event(object):
     def __init__(self):
         self.__handlers = []
@@ -129,9 +130,9 @@ class Dispatcher(object):
     # Return True if events were dispatched.
     def __dispatchSubject(self, subject, currEventDateTime):
         ret = False
-        # Dispatch if the datetime is currEventDateTime of if its a realtime subject. 
+        # Dispatch if the datetime is currEventDateTime of if its a realtime subject.
         if not subject.eof() and subject.peekDateTime() in (None, currEventDateTime):
-            ret = subject.dispatch() == True
+            ret = subject.dispatch() is True
         return ret
 
     # Returns a tuple with booleans

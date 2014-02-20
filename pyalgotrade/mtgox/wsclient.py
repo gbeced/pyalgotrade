@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import time
 import json
 import hashlib
 import binascii
