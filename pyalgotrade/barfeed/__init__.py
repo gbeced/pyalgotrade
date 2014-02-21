@@ -22,7 +22,6 @@ from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
-from pyalgotrade import warninghelpers
 
 
 # This is only for backward compatibility since Frequency used to be defined here and not in bar.py.
@@ -104,10 +103,6 @@ class BaseBarFeed(feed.BaseFeed):
     def getCurrentBars(self):
         """Returns the current :class:`pyalgotrade.bar.Bars`."""
         return self.__currentBars
-
-    def getLastBars(self):
-        warninghelpers.deprecation_warning("getLastBars will be deprecated in the next version. Please use getCurrentBars instead.", stacklevel=2)
-        return self.getCurrentBars()
 
     def getLastBar(self, instrument):
         """Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or None."""
