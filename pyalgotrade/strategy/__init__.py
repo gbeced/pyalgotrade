@@ -132,7 +132,7 @@ class BaseStrategy(object):
         """Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
         return self.__broker
 
-    def order(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
+    def marketOrder(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
         """Places a market order.
 
         :param instrument: Instrument identifier.
@@ -157,6 +157,11 @@ class BaseStrategy(object):
             ret.setAllOrNone(allOrNone)
             self.getBroker().placeOrder(ret)
         return ret
+
+    def order(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
+        # Deprecated since v0.14
+        warninghelpers.deprecation_warning("The order method will be deprecated in the next version. Please use the marketOrder method instead.", stacklevel=2)
+        return self.marketOrder(instrument, quantity, onClose, goodTillCanceled, allOrNone)
 
     def enterLong(self, instrument, quantity, goodTillCanceled=False):
         """Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.

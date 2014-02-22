@@ -96,20 +96,20 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def buySpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.order(self.__i1, amount1)
-        self.order(self.__i2, amount2 * -1)
+        self.marketOrder(self.__i1, amount1)
+        self.marketOrder(self.__i2, amount2 * -1)
 
     def sellSpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.order(self.__i1, amount1 * -1)
-        self.order(self.__i2, amount2)
+        self.marketOrder(self.__i1, amount1 * -1)
+        self.marketOrder(self.__i2, amount2)
 
     def reducePosition(self, instrument):
         currentPos = self.getBroker().getShares(instrument)
         if currentPos > 0:
-            self.order(instrument, currentPos * -1)
+            self.marketOrder(instrument, currentPos * -1)
         elif currentPos < 0:
-            self.order(instrument, currentPos * -1)
+            self.marketOrder(instrument, currentPos * -1)
 
     def onBars(self, bars):
         self.__statArbHelper.update()

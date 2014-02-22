@@ -20,7 +20,7 @@ class MyStrategy(strategy.BacktestingStrategy):
             "simo": 17293,
         }
         for instrument, quantity in orders.items():
-            self.order(instrument, quantity, onClose=True, allOrNone=True)
+            self.marketOrder(instrument, quantity, onClose=True, allOrNone=True)
 
     def onBars(self, bars):
         pass

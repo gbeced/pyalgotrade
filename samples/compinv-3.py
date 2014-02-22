@@ -65,9 +65,9 @@ class MyStrategy(strategy.BacktestingStrategy):
     def __onBarsBeforeBroker(self, dateTime, bars):
         for instrument, action, quantity in self.__ordersFile.getOrders(dateTime):
             if action.lower() == "buy":
-                self.order(instrument, quantity, onClose=True)
+                self.marketOrder(instrument, quantity, onClose=True)
             else:
-                self.order(instrument, quantity*-1, onClose=True)
+                self.marketOrder(instrument, quantity*-1, onClose=True)
 
     def onOrderUpdated(self, order):
         if order.isCanceled():

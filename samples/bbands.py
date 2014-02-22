@@ -23,9 +23,9 @@ class MyStrategy(strategy.BacktestingStrategy):
         bar = bars[self.__instrument]
         if shares == 0 and bar.getClose() < lower:
             sharesToBuy = int(self.getBroker().getCash(False) / bar.getClose())
-            self.order(self.__instrument, sharesToBuy)
+            self.marketOrder(self.__instrument, sharesToBuy)
         elif shares > 0 and bar.getClose() > upper:
-            self.order(self.__instrument, -1*shares)
+            self.marketOrder(self.__instrument, -1*shares)
 
 
 def main(plot):

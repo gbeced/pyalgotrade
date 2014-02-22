@@ -22,9 +22,9 @@ class MyStrategy(strategy.BacktestingStrategy):
         price = bars[self.__instrument].getClose()
         notional = shares * price
         if price < vwap * 0.995 and notional > 0:
-            self.order(self.__instrument, -100)
+            self.marketOrder(self.__instrument, -100)
         elif price > vwap * 1.005 and notional < 1000000:
-            self.order(self.__instrument, 100)
+            self.marketOrder(self.__instrument, 100)
 
 
 def main(plot):
