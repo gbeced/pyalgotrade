@@ -3,6 +3,7 @@ Version 0.15 (TBD)
 . [NEW] MACD technical indicator (pyalgotrade.technical.macd.MACD).
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.
 . [NEW] pyalgotrade.barfeed.yahoofeed.Feed now supports weekly bars.
+. [NEW] Added logging methods to the Strategy class.
 . [BREAKING CHANGE] Support for auto-exit on session close was removed.
 . [BREAKING CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [BREAKING CHANGE] Prevent resubmitting orders.

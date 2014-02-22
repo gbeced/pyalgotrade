@@ -23,19 +23,24 @@ from pyalgotrade.broker import backtesting
 from pyalgotrade import observer
 import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
+from pyalgotrade import logger
+import logging
+import time
 
 
 class BaseStrategy(object):
     """Base class for strategies.
 
     :param barFeed: The bar feed that will supply the bars.
-    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+    :type barFeed: :class:`pyalgotrade.barfeed.BaseBarFeed`.
     :param broker: The broker that will handle orders.
     :type broker: :class:`pyalgotrade.broker.Broker`.
 
     .. note::
         This is a base class and should not be used directly.
     """
+
+    LOGGER_NAME = "strategy"
 
     def __init__(self, barFeed, broker):
         self.__feed = barFeed
@@ -56,6 +61,12 @@ class BaseStrategy(object):
         self.__dispatcher.addSubject(self.__broker)
         self.__dispatcher.addSubject(self.__feed)
 
+        # Initialize logging.
+        self.__logger = logger.getLogger(BaseStrategy.LOGGER_NAME)
+
+    def getLogger(self):
+        return self.__logger
+ 
     def getActivePositions(self):
         return self.__activePositions
 
@@ -109,28 +120,21 @@ class BaseStrategy(object):
                 ret = bar.getClose()
         return ret
 
-    def attachAnalyzer(self, strategyAnalyzer):
-        """Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
-        self.attachAnalyzerEx(strategyAnalyzer)
-
-    def getNamedAnalyzer(self, name):
-        return self.__namedAnalyzers.get(name, None)
-
     def getFeed(self):
-        """Returns the :class:`pyalgotrade.barfeed.BarFeed` that this strategy is using."""
+        """Returns the :class:`pyalgotrade.barfeed.BaseBarFeed` that this strategy is using."""
         return self.__feed
 
+    def getBroker(self):
+        """Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
+        return self.__broker
+
     def getCurrentDateTime(self):
-        """Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bar`."""
+        """Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bars`."""
         ret = None
         bars = self.__feed.getCurrentBars()
         if bars:
             ret = bars.getDateTime()
         return ret
-
-    def getBroker(self):
-        """Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
-        return self.__broker
 
     def marketOrder(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
         """Places a market order.
@@ -407,12 +411,35 @@ class BaseStrategy(object):
         """Stops a running strategy."""
         self.__dispatcher.stop()
 
+    def attachAnalyzer(self, strategyAnalyzer):
+        """Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."""
+        self.attachAnalyzerEx(strategyAnalyzer)
+
+    def getNamedAnalyzer(self, name):
+        return self.__namedAnalyzers.get(name, None)
+
+    def debug(self, msg, *args, **kwargs):
+        """Logs a message with level DEBUG on the strategy logger."""
+        self.getLogger().debug(msg, *args, **kwargs)
+
+    def info(self, msg, *args, **kwargs):
+        """Logs a message with level INFO on the strategy logger."""
+        self.getLogger().info(msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        """Logs a message with level ERROR on the strategy logger."""
+        self.getLogger().error(msg, *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        """Logs a message with level CRITICAL on the strategy logger."""
+        self.getLogger().critical(msg, *args, **kwargs)
+
 
 class BacktestingStrategy(BaseStrategy):
     """Base class for backtesting strategies.
 
     :param barFeed: The bar feed to use to backtest the strategy.
-    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+    :type barFeed: :class:`pyalgotrade.barfeed.BaseBarFeed`.
     :param cash: The amount of cash available.
     :type cash: int/float.
 
@@ -420,12 +447,24 @@ class BacktestingStrategy(BaseStrategy):
         This is a base class and should not be used directly.
     """
 
+    USE_BARS_DATETIME_FOR_LOGGING = True
+
     def __init__(self, barFeed, cash=1000000):
         # The broker should subscribe to barFeed events before the strategy.
         # This is to avoid executing orders placed in the current tick.
         broker = backtesting.Broker(cash, barFeed)
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
+        if BacktestingStrategy.USE_BARS_DATETIME_FOR_LOGGING:
+            logging.Formatter.converter = self.__customLogFormatterConverter
+
+    def __customLogFormatterConverter(self, secs):
+        currentBars = self.getFeed().getCurrentBars()
+        if currentBars:
+            ret = currentBars.getDateTime().timetuple()
+        else:
+            ret = time.localtime(secs)
+        return ret
 
     def getUseAdjustedValues(self):
         return self.__useAdjustedValues

@@ -21,8 +21,8 @@
 import logging
 import threading
 
-factoryLock = threading.Lock()
-loggers = {}
+initLock = threading.Lock()
+rootLoggerInitialized = False
 
 # Defaults
 log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
@@ -31,31 +31,29 @@ file_log = None  # File name
 console_log = True
 
 
-def __set_defaults(handler):
+def init_handler(handler):
     handler.setFormatter(logging.Formatter(log_format))
 
 
-def __build_logger(name):
-    ret = logging.getLogger(name)
-    ret.setLevel(level)
+def init_logger(logger):
+    logger.setLevel(level)
 
     if file_log is not None:
         fileHandler = logging.FileHandler(file_log)
-        __set_defaults(fileHandler)
-        ret.addHandler(fileHandler)
+        init_handler(fileHandler)
+        logger.addHandler(fileHandler)
 
     if console_log:
         consoleHandler = logging.StreamHandler()
-        __set_defaults(consoleHandler)
-        ret.addHandler(consoleHandler)
-
-    return ret
+        init_handler(consoleHandler)
+        logger.addHandler(consoleHandler)
 
 
-def getLogger(name):
-    with factoryLock:
-        ret = loggers.get(name)
-        if ret is None:
-            ret = __build_logger(name)
-            loggers[name] = ret
-    return ret
+def getLogger(name=None):
+    global rootLoggerInitialized
+    with initLock:
+        if not rootLoggerInitialized:
+            init_logger(logging.getLogger())
+            rootLoggerInitialized = True
+
+    return logging.getLogger(name)

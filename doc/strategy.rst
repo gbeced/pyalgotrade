@@ -19,6 +19,7 @@ Strategy
 .. automodule:: pyalgotrade.strategy
     :members: BaseStrategy, BacktestingStrategy
     :show-inheritance:
+    :member-order: bysource
 
 Position
 --------
@@ -26,4 +27,4 @@ Position
 .. automodule:: pyalgotrade.strategy.position
     :members: Position
     :show-inheritance:
-
+    :member-order: bysource

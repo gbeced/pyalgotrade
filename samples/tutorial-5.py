@@ -24,7 +24,7 @@ plt.getOrCreateSubplot("returns").addDataSeries("Cum. return", returnsAnalyzer.g
 
 # Run the strategy.
 myStrategy.run()
-print "Final portfolio value: $%.2f" % myStrategy.getResult()
+myStrategy.info("Final portfolio value: $%.2f" % myStrategy.getResult())
 
 # Plot the strategy.
 plt.plot()
