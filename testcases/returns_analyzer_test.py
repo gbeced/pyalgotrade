@@ -25,6 +25,7 @@ from pyalgotrade import broker
 from pyalgotrade import marketsession
 
 import strategy_test
+import position_test
 import common
 
 import unittest
@@ -313,7 +314,7 @@ class ReturnsTestCase(unittest.TestCase):
         initialCash = 33.06
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        strat = position_test.TestStrategy(barFeed, ReturnsTestCase.TestInstrument, initialCash)
 
         strat.addPosEntry(datetime.datetime(2001, 1, 12), strat.enterLong, ReturnsTestCase.TestInstrument, 1)  # 33.06
         strat.addPosExit(datetime.datetime(2001, 11, 27))  # 14.32

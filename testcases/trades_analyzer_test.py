@@ -25,6 +25,7 @@ from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
 
 import strategy_test
+import position_test
 import common
 
 import unittest
@@ -44,12 +45,20 @@ def buildUTCDateTime(year, month, day, hour, minute):
 class TradesAnalyzerTestCase(unittest.TestCase):
     TestInstrument = "spy"
 
-    def __createStrategy(self):
-        barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+    def __loadBarFeed(self):
+        ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFilter = csvfeed.USEquitiesRTH()
-        barFeed.setBarFilter(barFilter)
-        barFeed.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        ret.setBarFilter(barFilter)
+        ret.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        return ret
+
+    def __createStrategy(self):
+        barFeed = self.__loadBarFeed()
         return strategy_test.TestStrategy(barFeed, 1000)
+
+    def __createPositionStrategy(self):
+        barFeed = self.__loadBarFeed()
+        return position_test.TestStrategy(barFeed, TradesAnalyzerTestCase.TestInstrument, 1000)
 
     def testNoTrades(self):
         strat = self.__createStrategy()
@@ -66,7 +75,7 @@ class TradesAnalyzerTestCase(unittest.TestCase):
         self.assertTrue(stratAnalyzer.getUnprofitableCount() == 0)
 
     def testSomeTrades_Position(self):
-        strat = self.__createStrategy()
+        strat = self.__createPositionStrategy()
         stratAnalyzer = trades.Trades()
         strat.attachAnalyzer(stratAnalyzer)
 
