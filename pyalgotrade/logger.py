@@ -32,7 +32,7 @@ console_log = True
 
 
 def init_handler(handler):
-    handler.setFormatter(logging.Formatter(log_format))
+    handler.setFormatter(Formatter(log_format))
 
 
 def init_logger(logger):
@@ -57,3 +57,22 @@ def getLogger(name=None):
             rootLoggerInitialized = True
 
     return logging.getLogger(name)
+
+
+# This class is use to customize datetime formatting, for example, when we need to override the
+# the information that comes inside the LogRecord.
+
+class Formatter(logging.Formatter):
+    FORMAT_TIME_HOOK = None
+
+    def formatTime(self, record, datefmt=None):
+        ret = None
+
+        if Formatter.FORMAT_TIME_HOOK is None:
+            ret = logging.Formatter.formatTime(self, record, datefmt)
+        else:
+            ret = Formatter.FORMAT_TIME_HOOK(record, datefmt)
+            # If the hook failed to format, then fallback to the default.
+            if ret is None:
+                ret = logging.Formatter.formatTime(self, record, datefmt)
+        return ret

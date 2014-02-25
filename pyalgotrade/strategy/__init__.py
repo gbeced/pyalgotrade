@@ -24,7 +24,6 @@ from pyalgotrade import observer
 import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
 from pyalgotrade import logger
-import logging
 import time
 
 
@@ -456,14 +455,13 @@ class BacktestingStrategy(BaseStrategy):
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
         if BacktestingStrategy.USE_BARS_DATETIME_FOR_LOGGING:
-            logging.Formatter.converter = self.__customLogFormatterConverter
+            logger.Formatter.FORMAT_TIME_HOOK = self._formatLogTime
 
-    def __customLogFormatterConverter(self, secs):
+    def _formatLogTime(self, record, datefmt=None):
+        ret = None
         currentBars = self.getFeed().getCurrentBars()
         if currentBars:
-            ret = currentBars.getDateTime().timetuple()
-        else:
-            ret = time.localtime(secs)
+            ret = str(currentBars.getDateTime())
         return ret
 
     def getUseAdjustedValues(self):
