@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from pyalgotrade.technical import roc
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 
 
 class Results(object):
@@ -207,9 +207,9 @@ class Profiler(object):
                 self.__rets[instrument] = roc.RateOfChange(ds, 1)
 
             feed.getNewBarsEvent().subscribe(self.__onBars)
-            dispatcher = observer.Dispatcher()
-            dispatcher.addSubject(feed)
-            dispatcher.run()
+            disp = dispatcher.Dispatcher()
+            disp.addSubject(feed)
+            disp.run()
         finally:
             feed.getNewBarsEvent().unsubscribe(self.__onBars)
 

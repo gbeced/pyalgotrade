@@ -23,6 +23,7 @@ import datetime
 import copy
 
 from pyalgotrade import observer
+from pyalgotrade import dispatcher
 
 
 class NonRealtimeFeed(observer.Subject):
@@ -99,9 +100,9 @@ class DispatcherTestCase(unittest.TestCase):
         nrtFeed = NonRealtimeFeed(copy.copy(datetimes))
         nrtFeed.getEvent().subscribe(lambda x: values.append(x))
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(nrtFeed)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(nrtFeed)
+        disp.run()
 
         self.assertEqual(values, datetimes)
 
@@ -115,10 +116,10 @@ class DispatcherTestCase(unittest.TestCase):
         nrtFeed2 = NonRealtimeFeed(copy.copy(datetimes2))
         nrtFeed2.getEvent().subscribe(lambda x: values.append(x))
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(nrtFeed1)
-        dispatcher.addSubject(nrtFeed2)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(nrtFeed1)
+        disp.addSubject(nrtFeed2)
+        disp.run()
 
         self.assertEqual(len(values), len(datetimes1) + len(datetimes2))
         self.assertEqual(values[:len(datetimes1)], datetimes1)
@@ -131,9 +132,9 @@ class DispatcherTestCase(unittest.TestCase):
         nrtFeed = RealtimeFeed(copy.copy(datetimes))
         nrtFeed.getEvent().subscribe(lambda x: values.append(x))
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(nrtFeed)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(nrtFeed)
+        disp.run()
 
         self.assertEqual(values, datetimes)
 
@@ -147,10 +148,10 @@ class DispatcherTestCase(unittest.TestCase):
         nrtFeed2 = RealtimeFeed(copy.copy(datetimes2))
         nrtFeed2.getEvent().subscribe(lambda x: values.append(x))
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(nrtFeed1)
-        dispatcher.addSubject(nrtFeed2)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(nrtFeed1)
+        disp.addSubject(nrtFeed2)
+        disp.run()
 
         self.assertEqual(len(values), len(datetimes1) + len(datetimes2))
         for i in xrange(len(datetimes1)):
@@ -167,10 +168,10 @@ class DispatcherTestCase(unittest.TestCase):
         nrtFeed2 = NonRealtimeFeed(copy.copy(datetimes2))
         nrtFeed2.getEvent().subscribe(lambda x: values.append(x))
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(nrtFeed1)
-        dispatcher.addSubject(nrtFeed2)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(nrtFeed1)
+        disp.addSubject(nrtFeed2)
+        disp.run()
 
         self.assertEqual(len(values), len(datetimes1) + len(datetimes2))
         for i in xrange(len(datetimes1)):
@@ -183,24 +184,24 @@ class DispatcherTestCase(unittest.TestCase):
         feed2 = RealtimeFeed([], 3)
         feed1 = RealtimeFeed([], 0)
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed3)
-        dispatcher.addSubject(feed2)
-        dispatcher.addSubject(feed1)
-        self.assertEqual(dispatcher.getSubjects(), [feed1, feed2, feed3])
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed3)
+        disp.addSubject(feed2)
+        disp.addSubject(feed1)
+        self.assertEqual(disp.getSubjects(), [feed1, feed2, feed3])
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed1)
-        dispatcher.addSubject(feed2)
-        dispatcher.addSubject(feed3)
-        self.assertEqual(dispatcher.getSubjects(), [feed1, feed2, feed3])
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed1)
+        disp.addSubject(feed2)
+        disp.addSubject(feed3)
+        self.assertEqual(disp.getSubjects(), [feed1, feed2, feed3])
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed3)
-        dispatcher.addSubject(feed4)
-        dispatcher.addSubject(feed2)
-        dispatcher.addSubject(feed1)
-        self.assertEqual(dispatcher.getSubjects(), [feed1, feed2, feed3, feed4])
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed3)
+        disp.addSubject(feed4)
+        disp.addSubject(feed2)
+        disp.addSubject(feed1)
+        self.assertEqual(disp.getSubjects(), [feed1, feed2, feed3, feed4])
 
     def testDispatchOrder(self):
         values = []
@@ -210,11 +211,11 @@ class DispatcherTestCase(unittest.TestCase):
         feed1.getEvent().subscribe(lambda x: values.append(x))
         feed2.getEvent().subscribe(lambda x: values.append(x))
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed2)
-        dispatcher.addSubject(feed1)
-        self.assertEqual(dispatcher.getSubjects(), [feed1, feed2])
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed2)
+        disp.addSubject(feed1)
+        self.assertEqual(disp.getSubjects(), [feed1, feed2])
+        disp.run()
         # Check that although feed2 is realtime, feed1 was dispatched before.
         self.assertTrue(values[0] < values[1])
 

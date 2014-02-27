@@ -18,15 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 
 
 # This will test both the feed and subject interface.
 def tstBaseFeedInterface(testCase, feed):
     # This tests the observer.Subject interface.
-    dispatcher = observer.Dispatcher()
-    dispatcher.addSubject(feed)
-    dispatcher.run()
+    disp = dispatcher.Dispatcher()
+    disp.addSubject(feed)
+    disp.run()
 
     # This tests the feed.BaseFeed interface.
     feed.isRealTime()

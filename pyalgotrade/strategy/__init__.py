@@ -21,6 +21,7 @@
 import pyalgotrade.broker
 from pyalgotrade.broker import backtesting
 from pyalgotrade import observer
+from pyalgotrade import dispatcher
 import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
 from pyalgotrade import logger
@@ -48,7 +49,7 @@ class BaseStrategy(object):
         self.__barsProcessedEvent = observer.Event()
         self.__analyzers = []
         self.__namedAnalyzers = {}
-        self.__dispatcher = observer.Dispatcher()
+        self.__dispatcher = dispatcher.Dispatcher()
         self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
         self.__feed.getNewBarsEvent().subscribe(self.__onBars)
 

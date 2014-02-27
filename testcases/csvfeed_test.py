@@ -22,7 +22,7 @@ import unittest
 import datetime
 
 from pyalgotrade.feed import csvfeed
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 from pyalgotrade import marketsession
 from pyalgotrade.utils import dt
 import common
@@ -43,9 +43,9 @@ class TestCase(unittest.TestCase):
         for col in ["Open", "High", "Low", "Close", "Volume", "Adj Close"]:
             self.assertEqual(len(feed[col]), 0)
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
 
         for col in ["Open", "High", "Low", "Close", "Volume", "Adj Close"]:
             self.assertEqual(len(feed[col]), 252)
@@ -70,9 +70,9 @@ class TestCase(unittest.TestCase):
         for col in ["USD", "GBP", "EUR"]:
             self.assertEqual(len(feed[col]), 0)
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
 
         for col in ["USD", "GBP", "EUR"]:
             self.assertEqual(len(feed[col]), 39)

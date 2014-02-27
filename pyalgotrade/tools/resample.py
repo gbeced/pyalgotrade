@@ -20,7 +20,7 @@
 
 import os
 
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 from pyalgotrade.dataseries import resampled
 
 datetime_format = "%Y-%m-%d %H:%M:%S"
@@ -82,7 +82,7 @@ def resample_impl(barFeed, frequency, csvFile):
     sampler = Sampler(barFeed, frequency, csvFile)
 
     # Process all bars.
-    disp = observer.Dispatcher()
+    disp = dispatcher.Dispatcher()
     disp.addSubject(barFeed)
     disp.run()
 

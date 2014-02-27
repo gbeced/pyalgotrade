@@ -22,7 +22,7 @@ import unittest
 import datetime
 
 from pyalgotrade.feed import memfeed
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 import feed_test
 
 
@@ -44,9 +44,9 @@ class MemFeedTestCase(unittest.TestCase):
         self.assertEqual(len(feed["i"]), 0)
         self.assertFalse("dt" in feed)
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
 
         self.assertTrue("i" in feed)
         self.assertFalse("dt" in feed)
