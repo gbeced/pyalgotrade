@@ -24,12 +24,11 @@ import threading
 initLock = threading.Lock()
 rootLoggerInitialized = False
 
-# Defaults
 log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
 level = logging.INFO
 file_log = None  # File name
 console_log = True
-
+asctime_override_key = "asctime_override"
 
 def init_handler(handler):
     handler.setFormatter(Formatter(log_format))
@@ -63,16 +62,15 @@ def getLogger(name=None):
 # the information that comes inside the LogRecord.
 
 class Formatter(logging.Formatter):
-    FORMAT_TIME_HOOK = None
-
     def formatTime(self, record, datefmt=None):
-        ret = None
+        newDateTime = None
 
-        if Formatter.FORMAT_TIME_HOOK is None:
+        # If the extra args was set, use to override the datetime.
+        if hasattr(record, asctime_override_key):
+            newDateTime = getattr(record, asctime_override_key)
+
+        if newDateTime is None:
             ret = logging.Formatter.formatTime(self, record, datefmt)
         else:
-            ret = Formatter.FORMAT_TIME_HOOK(record, datefmt)
-            # If the hook failed to format, then fallback to the default.
-            if ret is None:
-                ret = logging.Formatter.formatTime(self, record, datefmt)
+            ret = str(newDateTime)
         return ret

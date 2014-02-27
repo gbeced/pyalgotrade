@@ -12,19 +12,16 @@ class MyStrategy(strategy.BacktestingStrategy):
         self.setUseAdjustedValues(True)
         self.__sma = ma.SMA(feed[instrument].getAdjCloseDataSeries(), smaPeriod)
 
-    def onStart(self):
-        print "Initial portfolio value: $%.2f" % self.getBroker().getEquity()
-
     def onEnterOk(self, position):
         execInfo = position.getEntryOrder().getExecutionInfo()
-        print "%s: BUY at $%.2f" % (execInfo.getDateTime(), execInfo.getPrice())
+        self.info("BUY at $%.2f" % (execInfo.getPrice()))
 
     def onEnterCanceled(self, position):
         self.__position = None
 
     def onExitOk(self, position):
         execInfo = position.getExitOrder().getExecutionInfo()
-        print "%s: SELL at $%.2f" % (execInfo.getDateTime(), execInfo.getPrice())
+        self.info("SELL at $%.2f" % (execInfo.getPrice()))
         self.__position = None
 
     def onExitCanceled(self, position):
@@ -47,7 +44,7 @@ class MyStrategy(strategy.BacktestingStrategy):
             self.__position.exit()
 
     def onFinish(self, bars):
-        print "Final portfolio value: $%.2f" % self.getBroker().getEquity()
+        self.info("Final portfolio value: $%.2f" % self.getBroker().getEquity())
 
 
 def run_strategy(smaPeriod):

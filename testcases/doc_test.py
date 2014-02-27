@@ -26,7 +26,7 @@ from testcases import common
 
 
 def run_and_get_output(cmd):
-    return subprocess.check_output(cmd, universal_newlines=True)
+    return subprocess.check_output(cmd, universal_newlines=True, stderr=subprocess.STDOUT)
 
 
 def run_python_code(code, outputFileName=None):
