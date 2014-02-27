@@ -75,7 +75,7 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         portfolioValue = self.getBroker().getEquity()
-        print "%s: Portfolio value: $%.2f" % (bars.getDateTime(), portfolioValue)
+        self.info("Portfolio value: $%.2f" % (portfolioValue))
 
 
 def main():

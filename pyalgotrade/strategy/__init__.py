@@ -419,9 +419,9 @@ class BaseStrategy(object):
     def _getLoggerKWArgs(self, useEventDateTime):
         ret = {}
         if useEventDateTime:
-            currentBars = self.getFeed().getCurrentBars()
-            if currentBars:
-                ret["extra"] = {logger.asctime_override_key: currentBars.getDateTime()}
+            currDateTime = self.getDispatcher().getCurrentDateTime()
+            if currDateTime:
+                ret["extra"] = {logger.asctime_override_key: currDateTime}
         return ret
 
     def debug(self, msg, useEventDateTime=False):

@@ -43,9 +43,6 @@ class MyStrategy(strategy.BacktestingStrategy):
         elif bar.getAdjClose() < self.__sma[-1]:
             self.__position.exit()
 
-    def onFinish(self, bars):
-        self.info("Final portfolio value: $%.2f" % self.getBroker().getEquity())
-
 
 def run_strategy(smaPeriod):
     # Load the yahoo feed from the CSV file
@@ -55,5 +52,6 @@ def run_strategy(smaPeriod):
     # Evaluate the strategy with the feed.
     myStrategy = MyStrategy(feed, "orcl", smaPeriod)
     myStrategy.run()
+    print "Final portfolio value: $%.2f" % myStrategy.getBroker().getEquity()
 
 run_strategy(15)

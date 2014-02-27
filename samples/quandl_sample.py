@@ -19,10 +19,10 @@ class MyStrategy(strategy.BacktestingStrategy):
         quandlFeed.getNewValuesEvent().subscribe(self.onQuandlData)
 
     def onQuandlData(self, dateTime, values):
-        print dateTime, values
+        self.info(values)
 
     def onBars(self, bars):
-        print bars.getDateTime(), bars[self.__instrument].getAdjClose()
+        self.info(bars[self.__instrument].getAdjClose())
 
 
 def main(plot):
@@ -31,7 +31,7 @@ def main(plot):
     # Download the bars.
     feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
 
-    # Load Quandl CSV from http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M
+    # Load Quandl CSV downloaded from http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M
     quandlFeed = csvfeed.Feed("Date", "%Y-%m-%d")
     quandlFeed.setDateRange(datetime.datetime(2006, 1, 1), datetime.datetime(2012, 12, 31))
     quandlFeed.addValuesFromCSV("quandl_gold_2.csv")

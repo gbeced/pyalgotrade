@@ -101,6 +101,11 @@ class Dispatcher(object):
         self.__stop = False
         self.__startEvent = Event()
         self.__idleEvent = Event()
+        self.__currDateTime = None
+
+    # Returns the current event datetime. It may be None for events from realtime subjects.
+    def getCurrentDateTime(self):
+        return self.__currDateTime
 
     def getStartEvent(self):
         return self.__startEvent
@@ -148,6 +153,8 @@ class Dispatcher(object):
             if not subject.eof():
                 eof = False
                 smallestDateTime = utils.safe_min(smallestDateTime, subject.peekDateTime())
+
+        self.__currDateTime = smallestDateTime
 
         # Dispatch realtime subjects and those subjects with the lowest datetime.
         if not eof:
