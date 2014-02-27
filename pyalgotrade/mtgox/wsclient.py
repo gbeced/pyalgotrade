@@ -315,9 +315,6 @@ class WebSocketClient(WebSocketClientBase):
         elif data["private"] == "user_order":
             self.onUserOrder(base.UserOrder(data["user_order"]))
         elif data["private"] == "result":
-            print "----"
-            print data
-            print "----"
             pass
 
     def onSubscribe(self, data):
