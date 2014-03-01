@@ -21,8 +21,55 @@
 import csv
 import os
 import shutil
+import subprocess
 
 from pyalgotrade import dataseries
+
+
+def run_and_get_output(cmd):
+    return subprocess.check_output(cmd, universal_newlines=True, stderr=subprocess.STDOUT)
+
+
+def run_python_code(code, outputFileName=None):
+    cmd = ["python"]
+    cmd.append("-u")
+    cmd.append("-c")
+    cmd.append(code)
+    ret = run_and_get_output(cmd)
+    if outputFileName:
+        outputFile = open(outputFileName, "w")
+        outputFile.write(ret)
+        outputFile.close()
+    return ret
+
+
+def run_python_script(script, params=[]):
+    cmd = ["python"]
+    cmd.append("-u")
+    cmd.append(script)
+    cmd.extend(params)
+    return run_and_get_output(cmd)
+
+
+def run_sample_script(script, params=[]):
+    return run_python_script(os.path.join("samples", script), params)
+
+
+def get_file_lines(fileName):
+    rawLines = open(fileName, "r").readlines()
+    return [rawLine.strip() for rawLine in rawLines]
+
+
+def compare_head(fileName, lines):
+    assert(len(lines) > 0)
+    fileLines = get_file_lines(os.path.join("samples", fileName))
+    return fileLines[0:len(lines)] == lines
+
+
+def compare_tail(fileName, lines):
+    assert(len(lines) > 0)
+    fileLines = get_file_lines(os.path.join("samples", fileName))
+    return fileLines[len(lines)*-1:] == lines
 
 
 def load_test_csv(path):

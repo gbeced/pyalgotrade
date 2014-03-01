@@ -63,6 +63,12 @@ class BaseStrategy(object):
         # Initialize logging.
         self.__logger = logger.getLogger(BaseStrategy.LOGGER_NAME)
 
+    def setUseEventDateTimeInLogs(self, useEventDateTime):
+        if useEventDateTime:
+            logger.Formatter.DATETIME_HOOK = self.getDispatcher().getCurrentDateTime
+        else:
+            logger.Formatter.DATETIME_HOOK = None
+
     def getLogger(self):
         return self.__logger
  
@@ -417,45 +423,21 @@ class BaseStrategy(object):
     def getNamedAnalyzer(self, name):
         return self.__namedAnalyzers.get(name, None)
 
-    def _getLoggerKWArgs(self, useEventDateTime):
-        ret = {}
-        if useEventDateTime:
-            currDateTime = self.getDispatcher().getCurrentDateTime()
-            if currDateTime:
-                ret["extra"] = {logger.asctime_override_key: currDateTime}
-        return ret
+    def debug(self, msg):
+        """Logs a message with level DEBUG on the strategy logger."""
+        self.getLogger().debug(msg)
 
-    def debug(self, msg, useEventDateTime=False):
-        """Logs a message with level DEBUG on the strategy logger.
+    def info(self, msg):
+        """Logs a message with level INFO on the strategy logger."""
+        self.getLogger().info(msg)
 
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        self.getLogger().debug(msg, **self._getLoggerKWArgs(useEventDateTime))
+    def error(self, msg):
+        """Logs a message with level ERROR on the strategy logger."""
+        self.getLogger().error(msg)
 
-    def info(self, msg, useEventDateTime=False):
-        """Logs a message with level INFO on the strategy logger.
-
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        self.getLogger().info(msg, **self._getLoggerKWArgs(useEventDateTime))
-
-    def error(self, msg, useEventDateTime=False):
-        """Logs a message with level ERROR on the strategy logger.
-
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        self.getLogger().error(msg, **self._getLoggerKWArgs(useEventDateTime))
-
-    def critical(self, msg, useEventDateTime=False):
-        """Logs a message with level CRITICAL on the strategy logger.
-
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        self.getLogger().critical(msg, **self._getLoggerKWArgs(useEventDateTime))
+    def critical(self, msg):
+        """Logs a message with level CRITICAL on the strategy logger."""
+        self.getLogger().critical(msg)
 
 
 class BacktestingStrategy(BaseStrategy):
@@ -476,6 +458,7 @@ class BacktestingStrategy(BaseStrategy):
         broker = backtesting.Broker(cash, barFeed)
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
+        self.setUseEventDateTimeInLogs(True)
 
     def getUseAdjustedValues(self):
         return self.__useAdjustedValues
@@ -486,37 +469,6 @@ class BacktestingStrategy(BaseStrategy):
         self.getBroker().setUseAdjustedValues(useAdjusted, True)
         self.__useAdjustedValues = useAdjusted
 
-    def debug(self, msg, useEventDateTime=True):
-        """Logs a message with level DEBUG on the strategy logger.
-    
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        BaseStrategy.debug(self, msg, useEventDateTime)
-
-    def info(self, msg, useEventDateTime=True):
-        """Logs a message with level INFO on the strategy logger.
-   
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        BaseStrategy.info(self, msg, useEventDateTime)
-
-    def error(self, msg, useEventDateTime=True):
-        """Logs a message with level ERROR on the strategy logger.
-  
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        BaseStrategy.error(self, msg, useEventDateTime)
-
-    def critical(self, msg, useEventDateTime=True):
-        """Logs a message with level CRITICAL on the strategy logger.
- 
-        :param useEventDateTime: True if the current event datetime should be used instead of the current datetime.
-        :type useEventDateTime: boolean.
-        """
-        BaseStrategy.critical(self, msg, useEventDateTime)
 
 class Strategy(BacktestingStrategy):
     def __init__(self, *args, **kwargs):

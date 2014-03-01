@@ -28,7 +28,6 @@ log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
 level = logging.INFO
 file_log = None  # File name
 console_log = True
-asctime_override_key = "asctime_override"
 
 def init_handler(handler):
     handler.setFormatter(Formatter(log_format))
@@ -58,16 +57,16 @@ def getLogger(name=None):
     return logging.getLogger(name)
 
 
-# This class is use to customize datetime formatting, for example, when we need to override the
-# the information that comes inside the LogRecord.
+# This formatter provides a way to hook in formatTime.
 
 class Formatter(logging.Formatter):
+    DATETIME_HOOK = None
+
     def formatTime(self, record, datefmt=None):
         newDateTime = None
 
-        # If the extra args was set, use to override the datetime.
-        if hasattr(record, asctime_override_key):
-            newDateTime = getattr(record, asctime_override_key)
+        if Formatter.DATETIME_HOOK is not None:
+            newDateTime = Formatter.DATETIME_HOOK()
 
         if newDateTime is None:
             ret = logging.Formatter.formatTime(self, record, datefmt)

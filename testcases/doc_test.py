@@ -19,81 +19,34 @@
 """
 
 import unittest
-import subprocess
 import os
 
 from testcases import common
 
 
-def run_and_get_output(cmd):
-    return subprocess.check_output(cmd, universal_newlines=True, stderr=subprocess.STDOUT)
-
-
-def run_python_code(code, outputFileName=None):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append("-c")
-    cmd.append(code)
-    ret = run_and_get_output(cmd)
-    if outputFileName:
-        outputFile = open(outputFileName, "w")
-        outputFile.write(ret)
-        outputFile.close()
-    return ret
-
-
-def run_python_script(script, params=[]):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append(script)
-    cmd.extend(params)
-    return run_and_get_output(cmd)
-
-
-def run_sample_script(script, params=[]):
-    return run_python_script(os.path.join("samples", script), params)
-
-
-def get_file_lines(fileName):
-    rawLines = open(fileName, "r").readlines()
-    return [rawLine.strip() for rawLine in rawLines]
-
-
-def compare_head(fileName, lines):
-    assert(len(lines) > 0)
-    fileLines = get_file_lines(os.path.join("samples", fileName))
-    return fileLines[0:len(lines)] == lines
-
-
-def compare_tail(fileName, lines):
-    assert(len(lines) > 0)
-    fileLines = get_file_lines(os.path.join("samples", fileName))
-    return fileLines[len(lines)*-1:] == lines
-
-
 class DocCodeTest(unittest.TestCase):
     def testTutorial1(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-1.py").split("\n")
-            self.assertTrue(compare_head("tutorial-1.output", lines[:3]))
-            self.assertTrue(compare_tail("tutorial-1.output", lines[-4:-1]))
+            lines = common.run_sample_script("tutorial-1.py").split("\n")
+            self.assertTrue(common.compare_head("tutorial-1.output", lines[:3]))
+            self.assertTrue(common.compare_tail("tutorial-1.output", lines[-4:-1]))
 
     def testTutorial2(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-2.py").split("\n")
-            self.assertTrue(compare_head("tutorial-2.output", lines[:15]))
-            self.assertTrue(compare_tail("tutorial-2.output", lines[-4:-1]))
+            lines = common.run_sample_script("tutorial-2.py").split("\n")
+            self.assertTrue(common.compare_head("tutorial-2.output", lines[:15]))
+            self.assertTrue(common.compare_tail("tutorial-2.output", lines[-4:-1]))
 
     def testTutorial3(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-3.py").split("\n")
-            self.assertTrue(compare_head("tutorial-3.output", lines[:30]))
-            self.assertTrue(compare_tail("tutorial-3.output", lines[-4:-1]))
+            lines = common.run_sample_script("tutorial-3.py").split("\n")
+            self.assertTrue(common.compare_head("tutorial-3.output", lines[:30]))
+            self.assertTrue(common.compare_tail("tutorial-3.output", lines[-4:-1]))
 
     def testTutorial4(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-4.py").split("\n")
-            self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
+            lines = common.run_sample_script("tutorial-4.py").split("\n")
+            self.assertTrue(common.compare_head("tutorial-4.output", lines[:-1]))
 
     def testTutorial1MtGox(self):
         with common.CopyFiles([os.path.join("samples", "data", "trades-mtgox-usd-2013-03.csv")], "."):
@@ -102,9 +55,9 @@ sys.path.append('samples')
 import tutorial_mtgox_1
 tutorial_mtgox_1.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_head("tutorial_mtgox_1.output", lines[0:10]))
-            self.assertTrue(compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_head("tutorial_mtgox_1.output", lines[0:10]))
+            self.assertTrue(common.compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
 
     def testCSVFeed(self):
         with common.CopyFiles([os.path.join("testcases", "data", "quandl_gold_2.csv")], "."):
@@ -112,30 +65,30 @@ tutorial_mtgox_1.main(False)
 sys.path.append('samples')
 import csvfeed_1
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_head("csvfeed_1.output", lines[0:10]))
-            self.assertTrue(compare_tail("csvfeed_1.output", lines[-10:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_head("csvfeed_1.output", lines[0:10]))
+            self.assertTrue(common.compare_tail("csvfeed_1.output", lines[-10:-1]))
 
 
 class CompInvTestCase(unittest.TestCase):
     def testCompInv_1(self):
         files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
         with common.CopyFiles(files, "."):
-            lines = run_sample_script("compinv-1.py").split("\n")
-            self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
+            lines = common.run_sample_script("compinv-1.py").split("\n")
+            self.assertTrue(common.compare_head("compinv-1.output", lines[:-1]))
 
 
 class StratAnalyzerTestCase(unittest.TestCase):
     def testSampleStrategyAnalyzer(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("sample-strategy-analyzer.py").split("\n")
-            self.assertTrue(compare_head("sample-strategy-analyzer.output", lines[:-1]))
+            lines = common.run_sample_script("sample-strategy-analyzer.py").split("\n")
+            self.assertTrue(common.compare_head("sample-strategy-analyzer.output", lines[:-1]))
 
 
 class TechnicalTestCase(unittest.TestCase):
     def testTechnical_1(self):
-        lines = run_sample_script("technical-1.py").split("\n")
-        self.assertTrue(compare_head("technical-1.output", lines[:-1]))
+        lines = common.run_sample_script("technical-1.py").split("\n")
+        self.assertTrue(common.compare_head("technical-1.output", lines[:-1]))
 
 
 class SampleStratTestCase(unittest.TestCase):
@@ -152,8 +105,8 @@ sys.path.append('samples')
 import statarb_erniechan
 statarb_erniechan.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("statarb_erniechan.output", lines[-2:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("statarb_erniechan.output", lines[-2:-1]))
 
     def testVWAPMomentum(self):
         files = []
@@ -168,8 +121,8 @@ sys.path.append('samples')
 import vwap_momentum
 vwap_momentum.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("vwap_momentum.output", lines[-2:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("vwap_momentum.output", lines[-2:-1]))
 
     def testBBands(self):
         files = []
@@ -184,8 +137,8 @@ sys.path.append('samples')
 import bbands
 bbands.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("bbands.output", lines[-2:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("bbands.output", lines[-2:-1]))
 
     def testEventStudy(self):
         files = []
@@ -200,8 +153,8 @@ sys.path.append('samples')
 import eventstudy
 eventstudy.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("eventstudy.output", lines[-2:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("eventstudy.output", lines[-2:-1]))
 
     def testQuandl(self):
         files = []
@@ -217,6 +170,6 @@ sys.path.append('samples')
 import quandl_sample
 quandl_sample.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_head("quandl_sample.output", lines[0:10]))
-            self.assertTrue(compare_tail("quandl_sample.output", lines[-10:-1]))
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_head("quandl_sample.output", lines[0:10]))
+            self.assertTrue(common.compare_tail("quandl_sample.output", lines[-10:-1]))

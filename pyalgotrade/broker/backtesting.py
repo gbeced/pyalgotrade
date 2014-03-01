@@ -20,10 +20,8 @@
 
 from pyalgotrade import broker
 from pyalgotrade import warninghelpers
-import pyalgotrade.logger
+from pyalgotrade import logger
 import pyalgotrade.bar
-
-logger = pyalgotrade.logger.getLogger("broker.backtesting")
 
 
 ######################################################################
@@ -479,6 +477,8 @@ class Broker(broker.Broker):
     :type commission: :class:`Commission`
     """
 
+    LOGGER_NAME = "broker.backtesting"
+
     def __init__(self, cash, barFeed, commission=None):
         broker.Broker.__init__(self)
 
@@ -493,6 +493,7 @@ class Broker(broker.Broker):
         self.__useAdjustedValues = False
         self.__fillStrategy = DefaultStrategy()
         self.__allowFractions = False
+        self.__logger = logger.getLogger(Broker.LOGGER_NAME)
 
         # It is VERY important that the broker subscribes to barfeed events before the strategy.
         barFeed.getNewBarsEvent().subscribe(self.onBars)
@@ -510,6 +511,9 @@ class Broker(broker.Broker):
         if ret is None:
             ret = self.__barFeed.getLastBar(instrument)
         return ret
+
+    def getLogger(self):
+        return self.__logger
 
     def setAllowFractions(self, allowFractions):
         self.__allowFractions = allowFractions
@@ -656,7 +660,7 @@ class Broker(broker.Broker):
             else:
                 assert(False)
         else:
-            logger.debug("Not enough money to fill order %s" % (order))
+            self.__logger.debug("Not enough money to fill order %s" % (order))
 
     def placeOrder(self, order):
         if order.isInitial():
