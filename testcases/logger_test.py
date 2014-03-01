@@ -19,11 +19,12 @@
 """
 
 import unittest
+import datetime
 from testcases import common
 
 
 class TestCase(unittest.TestCase):
-    # Check that strategy and custom logs have the proper datetime.
+    # Check that strategy and custom logs have the proper datetime, this is, the bars date time.
     def testBacktestingLog1(self):
             code = """from testcases import logger_test_1
 logger_test_1.main()
@@ -36,7 +37,7 @@ logger_test_1.main()
             ]
             self.assertEqual(lines, expectedLines)
 
-    # Check that the backtesting broker logs have the proper datetime.
+    # Check that strategy and custom logs have the proper datetime, this is, the bars date time.
     def testBacktestingLog2(self):
             code = """from testcases import logger_test_2
 logger_test_2.main()
@@ -47,3 +48,17 @@ logger_test_2.main()
             self.assertTrue(lines[1].find("2000-01-02 00:00:00 broker.backtesting [DEBUG] Not enough money to fill order") == 0)
             self.assertEqual(lines[2], "2000-01-02 00:00:00 strategy [INFO] bla")
             self.assertEqual(lines[3], "")
+
+    # Check that strategy and custom logs have the proper datetime, this is, the current date.
+    def testNonBacktestingLog3(self):
+            code = """from testcases import logger_test_3
+logger_test_3.main()
+"""
+            lines = common.run_python_code(code).split("\n")
+
+            now = datetime.datetime.now()
+            self.assertEqual(len(lines), 3)
+            for line in lines[:-1]:
+                self.assertEqual(line.find(str(now.date())), 0)
+            self.assertNotEqual(lines[0].find("strategy [INFO] bla"), -1)
+            self.assertNotEqual(lines[1].find("custom [INFO] ble"), -1)
