@@ -49,6 +49,10 @@ Momentum Indicators
 Other Indicators
 ----------------
 
+.. automodule:: pyalgotrade.technical.atr
+    :members: ATR
+    :show-inheritance:
+
 .. automodule:: pyalgotrade.technical.linreg
     :members: LeastSquaresRegression, Slope
     :show-inheritance:
