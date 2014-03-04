@@ -24,6 +24,9 @@ from pyalgotrade import broker
 
 
 class PositionState(object):
+    def onEnter(self, position):
+        pass
+
     # Raise an exception if an order can't be placed in the current state.
     def canPlaceOrder(self, position, order):
         raise NotImplementedError()
@@ -31,6 +34,11 @@ class PositionState(object):
     def onOrderEvent(self, position, orderEvent):
         raise NotImplementedError()
 
+    def isOpen(self, position):
+        raise NotImplementedError()
+
+    def exit(self, position, limitPrice=None, stopPrice=None, goodTillCanceled=None):
+        raise NotImplementedError()
 
 class WaitingEntryState(PositionState):
     def canPlaceOrder(self, position, order):
@@ -38,46 +46,78 @@ class WaitingEntryState(PositionState):
             raise Exception("The entry order is still active")
 
     def onOrderEvent(self, position, orderEvent):
-        if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED:
+        # Only entry order events are valid in this state.
+        assert(position.getEntryOrder().getId() == orderEvent.getOrder().getId())
+
+        if orderEvent.getEventType() in (broker.OrderEvent.Type.FILLED, broker.OrderEvent.Type.PARTIALLY_FILLED):
             position.switchState(OpenState())
             position.getStrategy().onEnterOk(position)
         elif orderEvent.getEventType() == broker.OrderEvent.Type.CANCELED:
+            assert(position.getEntryOrder().getFilled() == 0)
             position.switchState(ClosedState())
             position.getStrategy().onEnterCanceled(position)
-        elif orderEvent.getEventType() == broker.OrderEvent.Type.PARTIALLY_FILLED:
-            raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+
+    def isOpen(self, position):
+        return True
+
+    def exit(self, position, limitPrice=None, stopPrice=None, goodTillCanceled=None):
+        assert(position.getShares() == 0)
+        assert(position.getEntryOrder().isActive())
+        position.getStrategy().getBroker().cancelOrder(position.getEntryOrder())
 
 
 class OpenState(PositionState):
     def canPlaceOrder(self, position, order):
+        # Only exit orders should be placed in this state.
         pass
 
     def onOrderEvent(self, position, orderEvent):
-        raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+        if position.getExitOrder() and position.getExitOrder().getId() == orderEvent.getOrder().getId():
+            if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED:
+                if position.getShares() == 0:
+                    position.switchState(ClosedState())
+                    position.getStrategy().onExitOk(position)
+            elif orderEvent.getEventType() == broker.OrderEvent.Type.CANCELED:
+                assert(position.getShares() != 0)
+                position.getStrategy().onExitCanceled(position)
+        elif position.getEntryOrder().getId() == orderEvent.getOrder().getId():
+            # Nothing to do since the entry order may be completely filled or canceled after a partial fill.
+            assert(position.getShares() != 0)
+        else:
+            raise Exception("Invalid order event '%s' in OpenState" % (orderEvent.getEventType()))
 
+    def isOpen(self, position):
+        return True
 
-class WaitingExitState(PositionState):
-    def canPlaceOrder(self, position, order):
-        raise Exception("The exit order is still active")
+    def exit(self, position, limitPrice=None, stopPrice=None, goodTillCanceled=None):
+        assert(position.getShares() != 0)
 
-    def onOrderEvent(self, position, orderEvent):
-        if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED:
-            position.switchState(ClosedState())
-            position.getStrategy().onExitOk(position)
-        elif orderEvent.getEventType() == broker.OrderEvent.Type.CANCELED:
-            position.switchState(OpenState())
-            position.getStrategy().onExitCanceled(position)
-        elif orderEvent.getEventType() == broker.OrderEvent.Type.PARTIALLY_FILLED:
-            raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+        # Fail if a previous exit order is active.
+        if position.exitActive():
+            raise Exception("Exit order is active and it should be canceled first")
 
+        # If the entry order is active, request cancellation.
+        if position.entryActive():
+            position.getStrategy().getBroker().cancelOrder(position.getEntryOrder())
+
+        position._placeExitOrder(limitPrice, stopPrice, goodTillCanceled)
 
 class ClosedState(PositionState):
+    def onEnter(self, position):
+        assert(position.getShares() == 0)
+        position.getStrategy().unregisterPosition(position)
+
     def canPlaceOrder(self, position, order):
         raise Exception("The position is closed")
 
     def onOrderEvent(self, position, orderEvent):
-        raise Exception("Invalid order event '%s' for the current state" % (orderEvent.getEventType()))
+        raise Exception("Invalid order event '%s' in ClosedState" % (orderEvent.getEventType()))
 
+    def isOpen(self, position):
+        return False
+
+    def exit(self, position, limitPrice=None, stopPrice=None, goodTillCanceled=None):
+        pass
 
 class Position(object):
     """Base class for positions.
@@ -88,27 +128,30 @@ class Position(object):
     :type entryOrder: :class:`pyalgotrade.broker.Order`
     :param goodTillCanceled: True if the entry order should be set as good till canceled.
     :type goodTillCanceled: boolean.
+    :param allOrNone: True if the orders should be completely filled or not at all.
+    :type allOrNone: boolean.
 
     .. note::
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, strategy, entryOrder, goodTillCanceled):
+    def __init__(self, strategy, entryOrder, goodTillCanceled, allOrNone):
         # The order must be created but not submitted.
         assert(entryOrder.isInitial())
 
-        if not entryOrder.getAllOrNone():
-            raise Exception("Only all-or-none orders are supported with the position interface")
-
-        self.__state = WaitingEntryState()
+        self.__state = None
         self.__activeOrders = {}
         self.__shares = 0
         self.__strategy = strategy
         self.__entryOrder = None
         self.__exitOrder = None
         self.__posTracker = returns.PositionTracker()
+        self.__allOrNone = allOrNone
+
+        self.switchState(WaitingEntryState())
 
         entryOrder.setGoodTillCanceled(goodTillCanceled)
+        entryOrder.setAllOrNone(allOrNone)
         self.__placeAndRegisterOrder(entryOrder)
         self.__entryOrder = entryOrder
 
@@ -126,6 +169,7 @@ class Position(object):
 
     def switchState(self, newState):
         self.__state = newState
+        self.__state.onEnter(self)
 
     def getStrategy(self):
         return self.__strategy
@@ -246,40 +290,30 @@ class Position(object):
         :type goodTillCanceled: boolean.
 
         .. note::
-            * If the entry order was not filled yet, it will be canceled.
-            * If the exit order for this position was filled, this won't have any effect.
+            * If the position is closed (entry canceled or exit filled) this won't have any effect.
             * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
+            * If the entry order is active, cancellation will be requested.
             * If limitPrice is not set and stopPrice is not set, then a :class:`pyalgotrade.broker.MarketOrder` is used to exit the position.
             * If limitPrice is set and stopPrice is not set, then a :class:`pyalgotrade.broker.LimitOrder` is used to exit the position.
             * If limitPrice is not set and stopPrice is set, then a :class:`pyalgotrade.broker.StopOrder` is used to exit the position.
             * If limitPrice is set and stopPrice is set, then a :class:`pyalgotrade.broker.StopLimitOrder` is used to exit the position.
         """
 
-        if self.getEntryOrder().isActive():
-            assert(self.__shares == 0)
-            self.getStrategy().getBroker().cancelOrder(self.getEntryOrder())
-            return
+        self.__state.exit(self, limitPrice, stopPrice, goodTillCanceled)
 
-        if self.exitFilled():
-            assert(self.__shares == 0)
-            return
-
-        # Fail if a previous exit order is active.
-        if self.exitActive():
-            raise Exception("Exit order is active and it should be canceled first")
+    def _placeExitOrder(self, limitPrice, stopPrice, goodTillCanceled):
+        assert(not self.exitActive())
 
         exitOrder = self.buildExitOrder(limitPrice, stopPrice)
-
-        if not exitOrder.getAllOrNone():
-            raise Exception("Only all-or-none orders are supported with the position interface")
 
         # If goodTillCanceled was not set, match the entry order.
         if goodTillCanceled is None:
             goodTillCanceled = self.__entryOrder.getGoodTillCanceled()
         exitOrder.setGoodTillCanceled(goodTillCanceled)
 
+        exitOrder.setAllOrNone(self.__allOrNone)
+
         self.__placeAndRegisterOrder(exitOrder)
-        self.switchState(WaitingExitState())
         self.__exitOrder = exitOrder
 
     def onOrderEvent(self, orderEvent):
@@ -313,26 +347,12 @@ class Position(object):
 
     def isOpen(self):
         """Returns True if the position is open."""
-        # Entry accepted    -> open
-        # Entry canceled    -> closed
-        # Entry filled        -> check exit
-        #     No exit order    -> open
-        #     Exit accepted    -> open
-        #     Exit canceled    -> open
-        #     Exit filled        -> closed
-
-        ret = False
-        if self.__entryOrder.isActive():
-            ret = True
-        elif self.__entryOrder.isFilled():
-            if self.__exitOrder is None or not self.__exitOrder.isFilled():
-                ret = True
-        return ret
+        return self.__state.isOpen(self)
 
 
 # This class is reponsible for order management in long positions.
 class LongPosition(Position):
-    def __init__(self, strategy, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
+    def __init__(self, strategy, instrument, limitPrice, stopPrice, quantity, goodTillCanceled, allOrNone):
         if limitPrice is None and stopPrice is None:
             entryOrder = strategy.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity, False)
         elif limitPrice is not None and stopPrice is None:
@@ -344,8 +364,7 @@ class LongPosition(Position):
         else:
             assert(False)
 
-        entryOrder.setAllOrNone(True)
-        Position.__init__(self, strategy, entryOrder, goodTillCanceled)
+        Position.__init__(self, strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, limitPrice, stopPrice):
         quantity = self.getShares()
@@ -360,13 +379,12 @@ class LongPosition(Position):
         else:
             assert(False)
 
-        ret.setAllOrNone(True)
         return ret
 
 
 # This class is reponsible for order management in short positions.
 class ShortPosition(Position):
-    def __init__(self, strategy, instrument, limitPrice, stopPrice, quantity, goodTillCanceled):
+    def __init__(self, strategy, instrument, limitPrice, stopPrice, quantity, goodTillCanceled, allOrNone):
         if limitPrice is None and stopPrice is None:
             entryOrder = strategy.getBroker().createMarketOrder(broker.Order.Action.SELL_SHORT, instrument, quantity, False)
         elif limitPrice is not None and stopPrice is None:
@@ -378,8 +396,7 @@ class ShortPosition(Position):
         else:
             assert(False)
 
-        entryOrder.setAllOrNone(True)
-        Position.__init__(self, strategy, entryOrder, goodTillCanceled)
+        Position.__init__(self, strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, limitPrice, stopPrice):
         quantity = self.getShares() * -1
@@ -394,5 +411,4 @@ class ShortPosition(Position):
         else:
             assert(False)
 
-        ret.setAllOrNone(True)
         return ret

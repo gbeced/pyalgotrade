@@ -22,10 +22,12 @@ import unittest
 import datetime
 import pytz
 
+from pyalgotrade import bar
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import barfeed
+from pyalgotrade.barfeed import membf
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.utils import dt
 from pyalgotrade import marketsession
@@ -54,21 +56,26 @@ class BaseTestStrategy(strategy.BacktestingStrategy):
         self.enterCanceledCalls = 0
         self.exitOkCalls = 0
         self.exitCanceledCalls = 0
+        self.posExecutionInfo = []
 
     def onOrderUpdated(self, order):
         self.orderUpdatedCalls += 1
 
     def onEnterOk(self, position):
         self.enterOkCalls += 1
+        self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
 
     def onEnterCanceled(self, position):
         self.enterCanceledCalls += 1
+        self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
 
     def onExitOk(self, position):
         self.exitOkCalls += 1
+        self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
 
     def onExitCanceled(self, position):
         self.exitCanceledCalls += 1
+        self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
 
 
 class TestStrategy(BaseTestStrategy):
@@ -82,6 +89,7 @@ class TestStrategy(BaseTestStrategy):
 
         self.__result = 0
         self.__netProfit = 0
+        self.positions = []
 
     def addPosEntry(self, dateTime, enterMethod, *args, **kwargs):
         self.__posEntry.setdefault(dateTime, [])
@@ -142,6 +150,7 @@ class TestStrategy(BaseTestStrategy):
             if self.__activePosition is not None:
                 raise Exception("Only one position allowed at a time")
             self.__activePosition = meth(*args, **kwargs)
+            self.positions.append(self.__activePosition)
 
         # Check position exit.
         for args, kwargs in strategy_test.get_by_datetime_or_date(self.__posExit, dateTime):
@@ -250,6 +259,7 @@ class LongPosTestCase(BaseTestCase):
         strat = EnterAndExitStrategy(barFeed, instrument)
         strat.run()
 
+        self.assertEqual(strat.position.isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
@@ -264,6 +274,7 @@ class LongPosTestCase(BaseTestCase):
         strat = CancelEntryStrategy(barFeed, instrument)
         strat.run()
 
+        self.assertEqual(strat.position.isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 0)
         self.assertEqual(strat.enterCanceledCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
@@ -278,6 +289,7 @@ class LongPosTestCase(BaseTestCase):
         strat = ExitEntryNotFilledStrategy(barFeed, instrument)
         strat.run()
 
+        self.assertEqual(strat.position.isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 0)
         self.assertEqual(strat.enterCanceledCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
@@ -292,6 +304,7 @@ class LongPosTestCase(BaseTestCase):
         strat = DoubleExitStrategy(barFeed, instrument)
         strat.run()
 
+        self.assertEqual(strat.position.isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
@@ -308,6 +321,7 @@ class LongPosTestCase(BaseTestCase):
         strat = ResubmitExitStrategy(barFeed, instrument)
         strat.run()
 
+        self.assertEqual(strat.position.isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
@@ -329,6 +343,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosExit(datetime.datetime(2000, 11, 7))
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertEqual(strat.orderUpdatedCalls, 0)
@@ -350,6 +365,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosExit(datetime.datetime(2000, 10, 12))
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.31 - 27.44, 2))
@@ -374,6 +390,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosExit(datetime.datetime(2000, 2, 3))
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(48 + 57.63 - 47.94, 2))
@@ -390,6 +407,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, BaseTestCase.TestInstrument, 1, False)
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 0)
         self.assertEqual(strat.enterCanceledCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
@@ -406,6 +424,8 @@ class LongPosTestCase(BaseTestCase):
 
         strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterLong, BaseTestCase.TestInstrument, 1, True)
         strat.run()
+
+        self.assertEqual(strat.positions[0].isOpen(), True)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
         self.assertEqual(strat.enterCanceledCalls, 0)
@@ -426,6 +446,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 29.25.
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), True)
         self.assertEqual(strat.getActivePosition().getUnrealizedNetProfit(), 29.06 - 29.25)
         self.assertEqual(strat.getActivePosition().getPnL(), 29.06 - 29.25)
         self.assertEqual(strat.getActivePosition().getUnrealizedReturn(), (29.06 - 29.25) / 29.25)
@@ -439,6 +460,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 28.60
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), True)
         self.assertEqual(round(strat.getActivePosition().getUnrealizedNetProfit(), 2), round(28.41 - 28.60, 2))
         self.assertEqual(round(strat.getActivePosition().getPnL(), 2), round(28.41 - 28.60, 2))
         self.assertEqual(round(strat.getActivePosition().getUnrealizedReturn(), 2), round((28.41 - 28.60) / 28.60, 2))
@@ -452,6 +474,7 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosExit(datetime.date(2000, 12, 19))
         strat.run()
 
+        self.assertEqual(strat.positions[0].isOpen(), False)
         with self.assertRaises(Exception):
             strat.getActivePosition().getUnrealizedNetProfit()
 
@@ -502,6 +525,81 @@ class LongPosTestCase(BaseTestCase):
         strat.run()
         self.assertTrue(strat.getActivePosition().isOpen())
  
+    def testPartialFillGTCOpenAndClose1(self):
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
+        strat.addPosExit(datetime.datetime(2000, 1, 3))
+        strat.run()
+
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 1)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getShares(), 0)
+
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 11)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 2))
+
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 14)
+        self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 5))
+
+    def testPartialFillGTCOpenAndClose2(self):
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
+        # Exit the position before the entry order gets completely filled.
+        strat.addPosExit(datetime.datetime(2000, 1, 2))
+        strat.run()
+
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 1)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertTrue(strat.positions[0].getEntryOrder().isCanceled())
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getShares(), 0)
+
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 11)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 2))
+
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 12)
+        self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 3))
+
 
 class ShortPosTestCase(BaseTestCase):
     def testActiveOrdersAndSharesShort(self):
