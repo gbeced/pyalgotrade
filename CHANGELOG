@@ -1,5 +1,6 @@
 Version 0.15 (TBD)
 . [NEW] Average True Range (ATR) technical indicator (pyalgotrade.technical.atr.ATR).
+. [NEW] Partial fill support for orders.
 . [NEW] LeastSquaresRegression filter (pyalgotrade.technical.linreg.LeastSquaresRegression). Depends on SciPy.
 . [NEW] MACD technical indicator (pyalgotrade.technical.macd.MACD).
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.

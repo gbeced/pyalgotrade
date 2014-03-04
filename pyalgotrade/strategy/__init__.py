@@ -97,8 +97,10 @@ class BaseStrategy(object):
 
     def unregisterPositionOrder(self, position, order):
         del self.__orderToPosition[order.getId()]
-        if not position.isOpen():
-            self.__activePositions.remove(position)
+
+    def unregisterPosition(self, position):
+        assert(not position.isOpen())
+        self.__activePositions.remove(position)
 
     def __notifyAnalyzers(self, lambdaExpression):
         for s in self.__analyzers:
@@ -172,7 +174,7 @@ class BaseStrategy(object):
         warninghelpers.deprecation_warning("The order method will be deprecated in the next version. Please use the marketOrder method instead.", stacklevel=2)
         return self.marketOrder(instrument, quantity, onClose, goodTillCanceled, allOrNone)
 
-    def enterLong(self, instrument, quantity, goodTillCanceled=False):
+    def enterLong(self, instrument, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.
 
         :param instrument: Instrument identifier.
@@ -181,12 +183,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.LongPosition(self, instrument, None, None, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.LongPosition(self, instrument, None, None, quantity, goodTillCanceled, allOrNone)
 
-    def enterShort(self, instrument, quantity, goodTillCanceled=False):
+    def enterShort(self, instrument, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a sell short :class:`pyalgotrade.broker.MarketOrder` to enter a short position.
 
         :param instrument: Instrument identifier.
@@ -195,12 +199,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.ShortPosition(self, instrument, None, None, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.ShortPosition(self, instrument, None, None, quantity, goodTillCanceled, allOrNone)
 
-    def enterLongLimit(self, instrument, limitPrice, quantity, goodTillCanceled=False):
+    def enterLongLimit(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a buy :class:`pyalgotrade.broker.LimitOrder` to enter a long position.
 
         :param instrument: Instrument identifier.
@@ -211,12 +217,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, None, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, None, quantity, goodTillCanceled, allOrNone)
 
-    def enterShortLimit(self, instrument, limitPrice, quantity, goodTillCanceled=False):
+    def enterShortLimit(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a sell short :class:`pyalgotrade.broker.LimitOrder` to enter a short position.
 
         :param instrument: Instrument identifier.
@@ -227,12 +235,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, None, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, None, quantity, goodTillCanceled, allOrNone)
 
-    def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
+    def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a buy :class:`pyalgotrade.broker.StopOrder` to enter a long position.
 
         :param instrument: Instrument identifier.
@@ -243,12 +253,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.LongPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.LongPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled, allOrNone)
 
-    def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled=False):
+    def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a sell short :class:`pyalgotrade.broker.StopOrder` to enter a short position.
 
         :param instrument: Instrument identifier.
@@ -259,12 +271,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.ShortPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.ShortPosition(self, instrument, None, stopPrice, quantity, goodTillCanceled, allOrNone)
 
-    def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):
+    def enterLongStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a buy :class:`pyalgotrade.broker.StopLimitOrder` order to enter a long position.
 
         :param instrument: Instrument identifier.
@@ -277,12 +291,14 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.LongPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled, allOrNone)
 
-    def enterShortStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False):
+    def enterShortStopLimit(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Generates a sell short :class:`pyalgotrade.broker.StopLimitOrder` order to enter a short position.
 
         :param instrument: Instrument identifier.
@@ -295,10 +311,12 @@ class BaseStrategy(object):
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets automatically canceled when the session closes.
         :type goodTillCanceled: boolean.
+        :param allOrNone: True if the orders should be completely filled or not at all.
+        :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.strategy.position.Position` entered.
         """
 
-        return pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled)
+        return pyalgotrade.strategy.position.ShortPosition(self, instrument, limitPrice, stopPrice, quantity, goodTillCanceled, allOrNone)
 
     def exitPosition(self, position, limitPrice=None, stopPrice=None, goodTillCanceled=None):
         # Deprecated since v0.13

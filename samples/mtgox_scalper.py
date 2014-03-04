@@ -119,7 +119,7 @@ class Strategy(strategy.BaseStrategy):
             self.__targetPrice = bidPrice * (1 + self.__targetPricePct)
             # EnterLong and switch state to WaitEntry
             self.__log(1, bars.getDateTime(), "BUY (ask: %s commit: %s target: %s)" % (bidPrice, self.__commitPrice, self.__targetPrice))
-            self.__position = self.enterLongLimit(self.__instrument, bidPrice, self.__orderSize, True)
+            self.__position = self.enterLongLimit(self.__instrument, bidPrice, self.__orderSize, True, True)
             self.__stateFun = self.__onWaitEntry
             self.__deadline = bars.getDateTime() + self.__maxWaitEntry
 

@@ -80,7 +80,7 @@ class Order(object):
         INITIAL = 1  # Initial state.
         SUBMITTED = 2  # Order has been submitted.
         ACCEPTED = 3  # Order has been acknowledged by the broker.
-        CANCELED = 4  # Order has been cancelled.
+        CANCELED = 4  # Order has been canceled.
         PARTIALLY_FILLED = 5  # Order has been partially filled.
         FILLED = 6  # Order has been completely filled.
 
@@ -411,7 +411,7 @@ class OrderExecutionInfo(object):
 class OrderEvent(object):
     class Type:
         ACCEPTED = 1  # Order has been acknowledged by the broker.
-        CANCELED = 2  # Order has been cancelled.
+        CANCELED = 2  # Order has been canceled.
         PARTIALLY_FILLED = 3  # Order has been partially filled.
         FILLED = 4  # Order has been completely filled.
 
