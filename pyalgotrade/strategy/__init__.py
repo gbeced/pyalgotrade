@@ -63,6 +63,10 @@ class BaseStrategy(object):
         # Initialize logging.
         self.__logger = logger.getLogger(BaseStrategy.LOGGER_NAME)
 
+    # Only valid for testing purposes.
+    def _setBroker(self, broker):
+        self.__broker = broker
+
     def setUseEventDateTimeInLogs(self, useEventDateTime):
         if useEventDateTime:
             logger.Formatter.DATETIME_HOOK = self.getDispatcher().getCurrentDateTime
