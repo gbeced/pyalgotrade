@@ -92,9 +92,9 @@ class TradePercentage(Commission):
 # Returns the trigger price for a Stop or StopLimit order, or None if the stop price was not yet penetrated.
 def get_stop_price_trigger(action, stopPrice, useAdjustedValues, bar):
     ret = None
-    open_ = pyalgotrade.bar.get_open(bar, useAdjustedValues)
-    high = pyalgotrade.bar.get_high(bar, useAdjustedValues)
-    low = pyalgotrade.bar.get_low(bar, useAdjustedValues)
+    open_ = bar.getOpen(useAdjustedValues)
+    high = bar.getHigh(useAdjustedValues)
+    low = bar.getLow(useAdjustedValues)
 
     # If the bar is above the stop price, use the open price.
     # If the bar includes the stop price, use the open price or the stop price. Whichever is better.
@@ -125,9 +125,9 @@ def get_stop_price_trigger(action, stopPrice, useAdjustedValues, bar):
 # Returns the trigger price for a Limit or StopLimit order, or None if the limit price was not yet penetrated.
 def get_limit_price_trigger(action, limitPrice, useAdjustedValues, bar):
     ret = None
-    open_ = pyalgotrade.bar.get_open(bar, useAdjustedValues)
-    high = pyalgotrade.bar.get_high(bar, useAdjustedValues)
-    low = pyalgotrade.bar.get_low(bar, useAdjustedValues)
+    open_ = bar.getOpen(useAdjustedValues)
+    high = bar.getHigh(useAdjustedValues)
+    low = bar.getLow(useAdjustedValues)
 
     # If the bar is below the limit price, use the open price.
     # If the bar includes the limit price, use the open price or the limit price.
@@ -314,9 +314,9 @@ class DefaultStrategy(FillStrategy):
 
         ret = None
         if order.getFillOnClose():
-            price = pyalgotrade.bar.get_close(bar, broker_.getUseAdjustedValues())
+            price = bar.getClose(broker_.getUseAdjustedValues())
         else:
-            price = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
+            price = bar.getOpen(broker_.getUseAdjustedValues())
         if price is not None:
             ret = FillInfo(price, fillSize)
         return ret
@@ -352,7 +352,7 @@ class DefaultStrategy(FillStrategy):
             if stopPriceTrigger is not None:
                 price = stopPriceTrigger
             else:
-                price = pyalgotrade.bar.get_open(bar, broker_.getUseAdjustedValues())
+                price = bar.getOpen(broker_.getUseAdjustedValues())
 
             ret = FillInfo(price, fillSize)
         return ret
@@ -536,7 +536,7 @@ class Broker(broker.Broker):
             bars = self.__barFeed.getCurrentBars()
             for instrument, shares in self.__shares.iteritems():
                 if shares < 0:
-                    instrumentPrice = pyalgotrade.bar.get_close(self.__getBar(bars, instrument), self.getUseAdjustedValues())
+                    instrumentPrice = self.__getBar(bars, instrument).getClose(self.getUseAdjustedValues())
                     ret += instrumentPrice * shares
         return ret
 
@@ -602,7 +602,7 @@ class Broker(broker.Broker):
         ret = self.getCash()
         if bars is not None:
             for instrument, shares in self.__shares.iteritems():
-                instrumentPrice = pyalgotrade.bar.get_close(self.__getBar(bars, instrument), self.getUseAdjustedValues())
+                instrumentPrice = self.__getBar(bars, instrument).getClose(self.getUseAdjustedValues())
                 ret += instrumentPrice * shares
         return ret
 

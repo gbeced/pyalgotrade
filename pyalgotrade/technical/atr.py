@@ -20,7 +20,6 @@
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
-from pyalgotrade import bar
 from pyalgotrade.dataseries import bards
 
 
@@ -37,18 +36,18 @@ class ATREventWindow(technical.EventWindow):
     def _calculateTrueRange(self, value):
         ret = None
         if self.__prevClose is None:
-            ret = bar.get_high(value, self.__useAdjustedValues) - bar.get_low(value, self.__useAdjustedValues)
+            ret = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
         else:
-            tr1 = bar.get_high(value, self.__useAdjustedValues) - bar.get_low(value, self.__useAdjustedValues)
-            tr2 = abs(bar.get_high(value, self.__useAdjustedValues) - self.__prevClose)
-            tr3 = abs(bar.get_low(value, self.__useAdjustedValues) - self.__prevClose)
+            tr1 = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
+            tr2 = abs(value.getHigh(self.__useAdjustedValues) - self.__prevClose)
+            tr3 = abs(value.getLow(self.__useAdjustedValues) - self.__prevClose)
             ret = max(max(tr1, tr2), tr3)
         return ret
 
     def onNewValue(self, dateTime, value):
         tr = self._calculateTrueRange(value)
         technical.EventWindow.onNewValue(self, dateTime, tr)
-        self.__prevClose = bar.get_close(value, self.__useAdjustedValues)
+        self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
             if self.__value is None:

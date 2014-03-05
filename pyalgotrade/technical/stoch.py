@@ -28,22 +28,13 @@ class BarWrapper(object):
         self.__useAdjusted = useAdjusted
 
     def getLow(self, bar_):
-        if self.__useAdjusted:
-            return bar_.getAdjLow()
-        else:
-            return bar_.getLow()
+        return bar_.getLow(self.__useAdjusted)
 
     def getHigh(self, bar_):
-        if self.__useAdjusted:
-            return bar_.getAdjHigh()
-        else:
-            return bar_.getHigh()
+        return bar_.getHigh(self.__useAdjusted)
 
     def getClose(self, bar_):
-        if self.__useAdjusted:
-            return bar_.getAdjClose()
-        else:
-            return bar_.getClose()
+        return bar_.getClose(self.__useAdjusted)
 
 
 def get_low_high_values(barWrapper, bars):

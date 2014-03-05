@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from pyalgotrade import warninghelpers
+
 
 class Frequency(object):
     """Enum like class for bar frequencies. Valid values are:
@@ -50,19 +52,19 @@ class Bar(object):
         """Returns the :class:`datetime.datetime`."""
         raise NotImplementedError()
 
-    def getOpen(self):
+    def getOpen(self, adjusted=False):
         """Returns the opening price."""
         raise NotImplementedError()
 
-    def getHigh(self):
+    def getHigh(self, adjusted=False):
         """Returns the highest price."""
         raise NotImplementedError()
 
-    def getLow(self):
+    def getLow(self, adjusted=False):
         """Returns the lowest price."""
         raise NotImplementedError()
 
-    def getClose(self):
+    def getClose(self, adjusted=False):
         """Returns the closing price."""
         raise NotImplementedError()
 
@@ -119,29 +121,55 @@ class BasicBar(Bar):
     def getDateTime(self):
         return self.__dateTime
 
-    def getOpen(self):
-        return self.__open
+    def getOpen(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose * self.__open / float(self.__close)
+        else:
+            return self.__open
 
-    def getHigh(self):
-        return self.__high
+    def getHigh(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose * self.__high / float(self.__close)
+        else:
+            return self.__high
 
-    def getLow(self):
-        return self.__low
+    def getLow(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose * self.__low / float(self.__close)
+        else:
+            return self.__low
 
-    def getClose(self):
-        return self.__close
+    def getClose(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose
+        else:
+            return self.__close
 
     def getVolume(self):
         return self.__volume
 
     def getAdjOpen(self):
-        return self.__adjClose * self.__open / float(self.__close)
+        # Deprecated in 0.15
+        warninghelpers.deprecation_warning("The getAdjOpen method will be deprecated in the next version. Please use the getOpen(True) instead.", stacklevel=2)
+        return self.getOpen(True)
 
     def getAdjHigh(self):
-        return self.__adjClose * self.__high / float(self.__close)
+        # Deprecated in 0.15
+        warninghelpers.deprecation_warning("The getAdjHigh method will be deprecated in the next version. Please use the getHigh(True) instead.", stacklevel=2)
+        return self.getHigh(True)
 
     def getAdjLow(self):
-        return self.__adjClose * self.__low / float(self.__close)
+        # Deprecated in 0.15
+        warninghelpers.deprecation_warning("The getAdjLow method will be deprecated in the next version. Please use the getLow(True) instead.", stacklevel=2)
+        return self.getLow(True)
 
     def getAdjClose(self):
         return self.__adjClose
@@ -201,31 +229,3 @@ class Bars(object):
     def getBar(self, instrument):
         """Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if the instrument is not found."""
         return self.__barDict.get(instrument, None)
-
-
-def get_open(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjOpen()
-    else:
-        return bar.getOpen()
-
-
-def get_high(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjHigh()
-    else:
-        return bar.getHigh()
-
-
-def get_low(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjLow()
-    else:
-        return bar.getLow()
-
-
-def get_close(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjClose()
-    else:
-        return bar.getClose()

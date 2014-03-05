@@ -48,16 +48,16 @@ class TradeBar(bar.Bar):
     def getDateTime(self):
         return self.__dateTime
 
-    def getOpen(self):
+    def getOpen(self, adjusted=False):
         return self.__price
 
-    def getHigh(self):
+    def getHigh(self, adjusted=False):
         return self.__price
 
-    def getLow(self):
+    def getLow(self, adjusted=False):
         return self.__price
 
-    def getClose(self):
+    def getClose(self, adjusted=False):
         return self.__price
 
     def getVolume(self):
@@ -65,15 +65,6 @@ class TradeBar(bar.Bar):
 
     def getTradeType(self):
         return self.__tradeType
-
-    def getAdjOpen(self):
-        return self.__price
-
-    def getAdjHigh(self):
-        return self.__price
-
-    def getAdjLow(self):
-        return self.__price
 
     def getAdjClose(self):
         return self.__price
