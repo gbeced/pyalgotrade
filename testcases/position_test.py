@@ -525,7 +525,8 @@ class LongPosTestCase(BaseTestCase):
         strat.run()
         self.assertTrue(strat.getActivePosition().isOpen())
  
-    def testPartialFillGTCOpenAndClose1(self):
+    def testPartialFillGTC1(self):
+        # Open and close after entry has been fully filled.
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
@@ -541,28 +542,32 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosExit(datetime.datetime(2000, 1, 3))
         strat.run()
 
-        self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertEqual(strat.exitCanceledCalls, 0)
 
         self.assertEqual(len(strat.posExecutionInfo), 2)
-        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
-        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
-        self.assertEqual(strat.positions[0].getShares(), 0)
-
         self.assertEqual(strat.posExecutionInfo[0].getPrice(), 11)
         self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
         self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
         self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 2))
-
         self.assertEqual(strat.posExecutionInfo[1].getPrice(), 14)
         self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
         self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
         self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 5))
 
-    def testPartialFillGTCOpenAndClose2(self):
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 0)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
+
+    def testPartialFillGTC2(self):
+        # Open and close after entry has been partially filled.
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
@@ -579,26 +584,143 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosExit(datetime.datetime(2000, 1, 2))
         strat.run()
 
-        self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertEqual(strat.exitCanceledCalls, 0)
 
         self.assertEqual(len(strat.posExecutionInfo), 2)
-        self.assertTrue(strat.positions[0].getEntryOrder().isCanceled())
-        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
-        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 11)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 2))
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 12)
+        self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 3))
 
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertTrue(strat.positions[0].getEntryOrder().isCanceled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 2)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
+
+    def testPartialFillGTC3(self):
+        class SkipCancelBroker(object):
+            def __init__(self, decorated):
+                self.__decorated = decorated
+
+            def __getattr__(self, name):
+                return getattr(self.__decorated, name)
+
+            def cancelOrder(self, order):
+                return
+
+        # Open and close after entry has been partially filled.
+        # Cancelations get skipped and the position is left open.
+        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # filled before the cancelation gets processed.
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat._setBroker(SkipCancelBroker(strat.getBroker()))
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
+        # Exit the position before the entry order gets completely filled.
+        strat.addPosExit(datetime.datetime(2000, 1, 2))
+        strat.run()
+
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 0)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 1)
         self.assertEqual(strat.posExecutionInfo[0].getPrice(), 11)
         self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
         self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
         self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 2))
 
-        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 12)
+        self.assertEqual(strat.positions[0].isOpen(), True)
+        self.assertEqual(strat.positions[0].getShares(), 2)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 0)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
+
+    def testPartialFillGTC4(self):
+        class SkipFirstCancelBroker(object):
+            def __init__(self, decorated):
+                self.__decorated = decorated
+                self.__cancelSkipped = False
+
+            def __getattr__(self, name):
+                return getattr(self.__decorated, name)
+
+            def cancelOrder(self, order):
+                if not self.__cancelSkipped:
+                    self.__cancelSkipped = True
+                    return
+                self.__decorated.cancelOrder(order)
+
+        # Open and close after entry has been partially filled.
+        # The first cancelation get skipped and a second exit has to be requested to close the position.
+        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # filled before the cancelation gets processed.
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat._setBroker(SkipFirstCancelBroker(strat.getBroker()))
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
+        # Exit the position before the entry order gets completely filled.
+        strat.addPosExit(datetime.datetime(2000, 1, 2))
+        # Retry exit.
+        strat.addPosExit(datetime.datetime(2000, 1, 4))
+        strat.run()
+
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 1)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 11)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 2))
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 14)
         self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
         self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
-        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 3))
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 5))
+
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 0)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
 
 
 class ShortPosTestCase(BaseTestCase):
@@ -914,6 +1036,207 @@ class StopPosTestCase(BaseTestCase):
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 23.31), 2))
+
+    def testPartialFillGTC1(self):
+        # Open and close after entry has been fully filled.
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLongStop, instrument, 12, 4, True)
+        strat.addPosExit(datetime.datetime(2000, 1, 4))
+        strat.run()
+
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 1)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 12)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 3))
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 15)
+        self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 6))
+
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 0)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
+
+    def testPartialFillGTC2(self):
+        # Open and close after entry has been partially filled.
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLongStop, instrument, 12, 4, True)
+        # Exit the position before the entry order gets completely filled.
+        strat.addPosExit(datetime.datetime(2000, 1, 3))
+        strat.run()
+
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 1)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 12)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 3))
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 13)
+        self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 4))
+
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertTrue(strat.positions[0].getEntryOrder().isCanceled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 2)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
+
+    def testPartialFillGTC3(self):
+        class SkipCancelBroker(object):
+            def __init__(self, decorated):
+                self.__decorated = decorated
+
+            def __getattr__(self, name):
+                return getattr(self.__decorated, name)
+
+            def cancelOrder(self, order):
+                return
+
+        # Open and close after entry has been partially filled.
+        # Cancelations get skipped and the position is left open.
+        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # filled before the cancelation gets processed.
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat._setBroker(SkipCancelBroker(strat.getBroker()))
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLongStop, instrument, 12, 4, True)
+        # Exit the position before the entry order gets completely filled.
+        strat.addPosExit(datetime.datetime(2000, 1, 3))
+        strat.run()
+
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 0)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 1)
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 12)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 3))
+
+        self.assertEqual(strat.positions[0].isOpen(), True)
+        self.assertEqual(strat.positions[0].getShares(), 2)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 0)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
+
+    def testPartialFillGTC4(self):
+        class SkipFirstCancelBroker(object):
+            def __init__(self, decorated):
+                self.__decorated = decorated
+                self.__cancelSkipped = False
+
+            def __getattr__(self, name):
+                return getattr(self.__decorated, name)
+
+            def cancelOrder(self, order):
+                if not self.__cancelSkipped:
+                    self.__cancelSkipped = True
+                    return
+                self.__decorated.cancelOrder(order)
+
+        # Open and close after entry has been partially filled.
+        # The first cancelation get skipped and a second exit has to be requested to close the position.
+        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # filled before the cancelation gets processed.
+        instrument = "orcl"
+        bf = membf.BarFeed(bar.Frequency.DAY)
+        bars = [
+                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+                ]
+        bf.addBarsFromSequence(instrument, bars)
+        strat = TestStrategy(bf, instrument, 1000)
+        strat._setBroker(SkipFirstCancelBroker(strat.getBroker()))
+        strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLongStop, instrument, 12, 4, True)
+        # Exit the position before the entry order gets completely filled.
+        strat.addPosExit(datetime.datetime(2000, 1, 3))
+        # Retry exit.
+        strat.addPosExit(datetime.datetime(2000, 1, 5))
+        strat.run()
+
+        self.assertEqual(strat.enterOkCalls, 1)
+        self.assertEqual(strat.enterCanceledCalls, 0)
+        self.assertEqual(strat.exitOkCalls, 1)
+        self.assertEqual(strat.exitCanceledCalls, 0)
+
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getPrice(), 12)
+        self.assertEqual(strat.posExecutionInfo[0].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[0].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[0].getDateTime(), datetime.datetime(2000, 1, 3))
+        self.assertEqual(strat.posExecutionInfo[1].getPrice(), 15)
+        self.assertEqual(strat.posExecutionInfo[1].getQuantity(), 2)
+        self.assertEqual(strat.posExecutionInfo[1].getCommission(), 0)
+        self.assertEqual(strat.posExecutionInfo[1].getDateTime(), datetime.datetime(2000, 1, 6))
+
+        self.assertEqual(strat.positions[0].isOpen(), False)
+        self.assertEqual(strat.positions[0].getShares(), 0)
+        self.assertTrue(strat.positions[0].getEntryOrder().isFilled())
+        self.assertEqual(strat.positions[0].getEntryOrder().getFilled(), 4)
+        self.assertEqual(strat.positions[0].getEntryOrder().getRemaining(), 0)
+        self.assertTrue(strat.positions[0].getExitOrder().isFilled())
+        self.assertEqual(strat.positions[0].getExitOrder().getFilled(), 2)
+        self.assertEqual(strat.positions[0].getExitOrder().getRemaining(), 0)
 
 
 class StopLimitPosTestCase(BaseTestCase):
