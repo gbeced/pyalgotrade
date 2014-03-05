@@ -102,12 +102,62 @@ class BrokerOrderTestCase(StrategyTestCase):
 
 
 class StrategyOrderTestCase(StrategyTestCase):
-    def testMarketOrder(self):
+    def testOrder(self):
         strat = self.createStrategy()
 
         o = strat.order(StrategyTestCase.TestInstrument, 1)
         strat.run()
         self.assertTrue(o.isFilled())
+        self.assertEqual(strat.orderUpdatedCalls, 2)
+
+    def testMarketOrderBuy(self):
+        strat = self.createStrategy()
+
+        o = strat.marketOrder(StrategyTestCase.TestInstrument, 1)
+        strat.run()
+        self.assertTrue(o.isFilled())
+        self.assertEquals(o.getAction(), broker.Order.Action.BUY)
+        self.assertEquals(o.getQuantity(), 1)
+        self.assertEquals(o.getFilled(), 1)
+        self.assertEquals(o.getRemaining(), 0)
+        self.assertEqual(strat.orderUpdatedCalls, 2)
+
+    def testMarketOrderSell(self):
+        strat = self.createStrategy()
+
+        o = strat.marketOrder(StrategyTestCase.TestInstrument, -2)
+        strat.run()
+        self.assertTrue(o.isFilled())
+        self.assertEquals(o.getAction(), broker.Order.Action.SELL)
+        self.assertEquals(o.getQuantity(), 2)
+        self.assertEquals(o.getFilled(), 2)
+        self.assertEquals(o.getRemaining(), 0)
+        self.assertEqual(strat.orderUpdatedCalls, 2)
+
+    def testLimitOrderBuy(self):
+        strat = self.createStrategy()
+
+        o = strat.limitOrder(StrategyTestCase.TestInstrument, 60, 1, True)
+        strat.run()
+        self.assertTrue(o.isFilled())
+        self.assertEquals(o.getAction(), broker.Order.Action.BUY)
+        self.assertEquals(o.getAvgFillPrice(), 56.13)
+        self.assertEquals(o.getQuantity(), 1)
+        self.assertEquals(o.getFilled(), 1)
+        self.assertEquals(o.getRemaining(), 0)
+        self.assertEqual(strat.orderUpdatedCalls, 2)
+
+    def testLimitOrderSell(self):
+        strat = self.createStrategy()
+
+        o = strat.limitOrder(StrategyTestCase.TestInstrument, 60, -3, False)
+        strat.run()
+        self.assertTrue(o.isFilled())
+        self.assertEquals(o.getAction(), broker.Order.Action.SELL)
+        self.assertEquals(o.getAvgFillPrice(), 124.62)
+        self.assertEquals(o.getQuantity(), 3)
+        self.assertEquals(o.getFilled(), 3)
+        self.assertEquals(o.getRemaining(), 0)
         self.assertEqual(strat.orderUpdatedCalls, 2)
 
 
