@@ -194,11 +194,39 @@ class BaseStrategy(object):
         :type allOrNone: boolean.
         :rtype: The :class:`pyalgotrade.broker.LimitOrder` submitted.
         """
+
         ret = None
         if quantity > 0:
             ret = self.getBroker().createLimitOrder(pyalgotrade.broker.Order.Action.BUY, instrument, limitPrice, quantity)
         elif quantity < 0:
             ret = self.getBroker().createLimitOrder(pyalgotrade.broker.Order.Action.SELL, instrument, limitPrice, quantity*-1)
+        if ret:
+            ret.setGoodTillCanceled(goodTillCanceled)
+            ret.setAllOrNone(allOrNone)
+            self.getBroker().placeOrder(ret)
+        return ret
+
+    def stopOrder(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
+        """Places a stop order.
+
+        :param instrument: Instrument identifier.
+        :type instrument: string.
+        :param stopPrice: Stop price.
+        :type stopPrice: float.
+        :param quantity: The amount of shares. Positive means buy, negative means sell.
+        :type quantity: int/float.
+        :param goodTillCanceled: True if the order is good till canceled. If False then the order gets automatically canceled when the session closes.
+        :type goodTillCanceled: boolean.
+        :param allOrNone: True if the order should be completely filled or not at all.
+        :type allOrNone: boolean.
+        :rtype: The :class:`pyalgotrade.broker.StopOrder` submitted.
+        """
+
+        ret = None
+        if quantity > 0:
+            ret = self.getBroker().createStopOrder(pyalgotrade.broker.Order.Action.BUY, instrument, stopPrice, quantity)
+        elif quantity < 0:
+            ret = self.getBroker().createStopOrder(pyalgotrade.broker.Order.Action.SELL, instrument, stopPrice, quantity*-1)
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)

@@ -7,6 +7,7 @@ Version 0.15 (TBD)
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.
 . [NEW] pyalgotrade.barfeed.yahoofeed.Feed now supports weekly bars.
 . [NEW] Added limitOrder method to the Strategy class to place limit orders.
+. [NEW] Added stopOrder method to the Strategy class to place stop orders.
 . [BREAKING CHANGE] Support for auto-exit on session close was removed.
 . [BREAKING CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [BREAKING CHANGE] Prevent resubmitting orders.
