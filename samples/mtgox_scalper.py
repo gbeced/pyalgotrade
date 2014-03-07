@@ -150,7 +150,7 @@ class Strategy(strategy.BaseStrategy):
         elif currentPrice >= self.__commitPrice:
             # Exit with a limit order at the target price and switch to WaitExitLimit
             self.__log(1, bars.getDateTime(), "SELL (%s)" % (self.__targetPrice))
-            self.__position.exit(self.__targetPrice)
+            self.__position.exit(limitPrice=self.__targetPrice)
             self.__stateFun = self.__onWaitExitLimit
 
     # WaitExitLimit: Waiting for the sell limit order to get filled.

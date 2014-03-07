@@ -137,12 +137,12 @@ class LimitOrderStrategy(SMACrossOverStrategy):
     def exitLongPosition(self, bars, position):
         price = self.__getMiddlePrice(bars)
         self.printDebug("exitLong:", self.getCurrentDateTime(), price, position)
-        position.exit(price)
+        position.exit(None, price)
 
     def exitShortPosition(self, bars, position):
         price = self.__getMiddlePrice(bars)
         self.printDebug("exitShort:", self.getCurrentDateTime(), price, position)
-        position.exit(price)
+        position.exit(limitPrice=price)
 
 
 class TestSMACrossOver(unittest.TestCase):

@@ -187,6 +187,34 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEqual(strat.orderUpdatedCalls, 2)
         self.assertEqual(o.getExecutionInfo().getDateTime(), datetime.datetime(2000, 1, 19))
 
+    def testStopLimitOrderBuy(self):
+        strat = self.createStrategy()
+
+        o = strat.stopLimitOrder(StrategyTestCase.TestInstrument, 110, 100, 1, True)
+        strat.run()
+        self.assertTrue(o.isFilled())
+        self.assertEquals(o.getAction(), broker.Order.Action.BUY)
+        self.assertEquals(o.getAvgFillPrice(), 100)
+        self.assertEquals(o.getQuantity(), 1)
+        self.assertEquals(o.getFilled(), 1)
+        self.assertEquals(o.getRemaining(), 0)
+        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(o.getExecutionInfo().getDateTime(), datetime.datetime(2000, 1, 5))
+
+    def testStopLimitOrderSell(self):
+        strat = self.createStrategy()
+
+        o = strat.stopLimitOrder(StrategyTestCase.TestInstrument, 100, 110, -2, True)
+        strat.run()
+        self.assertTrue(o.isFilled())
+        self.assertEquals(o.getAction(), broker.Order.Action.SELL)
+        self.assertEquals(o.getAvgFillPrice(), 110)
+        self.assertEquals(o.getQuantity(), 2)
+        self.assertEquals(o.getFilled(), 2)
+        self.assertEquals(o.getRemaining(), 0)
+        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(o.getExecutionInfo().getDateTime(), datetime.datetime(2000, 1, 10))
+
 
 class OptionalOverridesTestCase(StrategyTestCase):
     def testOnStartIdleFinish(self):

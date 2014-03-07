@@ -444,8 +444,8 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity):
-        broker.StopLimitOrder.__init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity)
+    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity):
+        broker.StopLimitOrder.__init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity)
         BacktestingOrder.__init__(self)
         self.__stopHit = False  # Set to true when the limit order is activated (stop price is hit)
 
@@ -778,7 +778,7 @@ class Broker(broker.Broker):
         return StopOrder(self.__getNextOrderId(), action, instrument, stopPrice, quantity)
 
     def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-        return StopLimitOrder(self.__getNextOrderId(), action, instrument, limitPrice, stopPrice, quantity)
+        return StopLimitOrder(self.__getNextOrderId(), action, instrument, stopPrice, limitPrice, quantity)
 
     def cancelOrder(self, order):
         activeOrder = self.__activeOrders.get(order.getId())

@@ -883,7 +883,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), 29)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), None, 29)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -904,7 +904,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - enterShortLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortLimit, BaseTestCase.TestInstrument, 29, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 22), 24)
+        strat.addPosExit(datetime.datetime(2000, 11, 22), None, 24)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -925,7 +925,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), 29)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), None, 29)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 0)
@@ -946,7 +946,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 14), 100)
+        strat.addPosExit(datetime.datetime(2000, 11, 14), None, 100)
         strat.addPosExit(datetime.datetime(2000, 11, 16))
         strat.run()
 
@@ -965,7 +965,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 11, 14), 100)
+        strat.addPosExit(datetime.datetime(2000, 11, 14), None, 100)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 0)
@@ -984,7 +984,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 11, 15), 100, None, False)
+        strat.addPosExit(datetime.datetime(2000, 11, 15), None, 100, False)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -1007,7 +1007,7 @@ class StopPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStop
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStop, BaseTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), None, 26)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), 26, None)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -1028,7 +1028,7 @@ class StopPosTestCase(BaseTestCase):
         # 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - enterShortStop
 
         strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStop, BaseTestCase.TestInstrument, 27, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 22), None, 23)
+        strat.addPosExit(datetime.datetime(2000, 11, 22), 23, None)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -1251,8 +1251,8 @@ class StopLimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStopLimit
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, BaseTestCase.TestInstrument, 24, 25.5, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), 28, 27)
+        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, BaseTestCase.TestInstrument, 25.5, 24, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 16), 27, 28)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -1276,8 +1276,8 @@ class StopLimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStopLimit, BaseTestCase.TestInstrument, 29, 27, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 22), 25, 24)
+        strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStopLimit, BaseTestCase.TestInstrument, 27, 29, 1)
+        strat.addPosExit(datetime.datetime(2000, 11, 22), 24, 25)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)

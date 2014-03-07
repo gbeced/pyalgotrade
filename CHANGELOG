@@ -6,13 +6,16 @@ Version 0.15 (TBD)
 . [NEW] MACD technical indicator (pyalgotrade.technical.macd.MACD).
 . [NEW] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.
 . [NEW] pyalgotrade.barfeed.yahoofeed.Feed now supports weekly bars.
+. [NEW] Added marketOrder method to the Strategy class to place market orders.
 . [NEW] Added limitOrder method to the Strategy class to place limit orders.
 . [NEW] Added stopOrder method to the Strategy class to place stop orders.
+. [NEW] Added stopLimitOrder method to the Strategy class to place stop limit orders.
 . [BREAKING CHANGE] Support for auto-exit on session close was removed.
 . [BREAKING CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
 . [BREAKING CHANGE] Prevent resubmitting orders.
 . [BREAKING CHANGE] Prevent changing order properties that are set during initialization.
 . [BREAKING CHANGE] The last parameter to broker.backtesting.FillStrategy.fillStopLimitOrder was removed. FillStrategy will now handle all the details for order filling to allow better customization.
+. [BREAKING CHANGE] Changed the order of the stopPrice and limitPrice parameters in Strategy.enterLongStopLimit, Strategy.enterShortStopLimit and Position.exit. 
 . [CHANGE] pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.

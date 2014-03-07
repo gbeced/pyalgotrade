@@ -369,18 +369,18 @@ class StopLimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, limitPrice, stopPrice, quantity):
+    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity):
         Order.__init__(self, orderId, Order.Type.STOP_LIMIT, action, instrument, quantity)
-        self.__limitPrice = limitPrice
         self.__stopPrice = stopPrice
-
-    def getLimitPrice(self):
-        """Returns the limit price."""
-        return self.__limitPrice
+        self.__limitPrice = limitPrice
 
     def getStopPrice(self):
         """Returns the stop price."""
         return self.__stopPrice
+
+    def getLimitPrice(self):
+        """Returns the limit price."""
+        return self.__limitPrice
 
 
 class OrderExecutionInfo(object):
