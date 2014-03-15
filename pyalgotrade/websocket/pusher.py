@@ -28,6 +28,7 @@ import pyalgotrade.logger
 
 logger = pyalgotrade.logger.getLogger("pusher")
 
+
 # Pusher protocol reference: http://pusher.com/docs/pusher_protocol
 # Every message on a Pusher WebSocket connection is packaged as an event.
 # The data field is sent as a string (check 'Double encoding' in the protocol reference). If dataIsJSON is True, it is decoded.
@@ -70,10 +71,11 @@ class PingKeepAliveMgr(client.KeepAliveMgr):
 
 class WebSocketClient(client.WebSocketClientBase):
     def __init__(self, appKey, protocol=5, maxInactivity=120, responseTimeout=30):
-        params = {"protocol": protocol,
-                "client": "Python-PyAlgoTrade",
-                "version": pyalgotrade.__version__
-                }
+        params = {
+            "protocol": protocol,
+            "client": "Python-PyAlgoTrade",
+            "version": pyalgotrade.__version__
+            }
         url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urllib.urlencode(params))
         client.WebSocketClientBase.__init__(self, url)
         self.setKeepAliveMgr(PingKeepAliveMgr(self, maxInactivity, responseTimeout))

@@ -62,7 +62,7 @@ class Strategy(strategy.BaseStrategy):
         elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
             self.info("Exit signal. Sell at %s" % (self.__bid))
             self.__position.exit(limitPrice=self.__bid)
- 
+
 
 def main():
     cli = client.Client()

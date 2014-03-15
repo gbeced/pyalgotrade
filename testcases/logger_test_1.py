@@ -32,13 +32,13 @@ class BacktestingStrategy(strategy.BacktestingStrategy):
     def onBars(self, bars):
         self.info("bla")
         logger.getLogger("custom").info("ble")
- 
+
 
 def main():
     bf = membf.BarFeed(bar.Frequency.DAY)
     bars = [
-            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-            ]
+        bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+        ]
     bf.addBarsFromSequence("orcl", bars)
 
     strat = BacktestingStrategy(bf, 1000)

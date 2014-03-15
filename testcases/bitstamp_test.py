@@ -73,10 +73,11 @@ class MockClient(observer.Subject):
         return self.__orderBookUpdateEvent
 
     def addTrade(self, dateTime, tid, price, amount):
-        dataDict = {"id": tid,
-                "price": price,
-                "amount": amount
-                }
+        dataDict = {
+            "id": tid,
+            "price": price,
+            "amount": amount
+            }
         eventDict = {}
         eventDict["data"] = json.dumps(dataDict)
         self.__events.append(wsclient.Trade(dateTime, eventDict))

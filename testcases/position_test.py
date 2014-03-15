@@ -524,18 +524,18 @@ class LongPosTestCase(BaseTestCase):
         strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterLong, BaseTestCase.TestInstrument, 1, False)
         strat.run()
         self.assertTrue(strat.getActivePosition().isOpen())
- 
+
     def testPartialFillGTC1(self):
         # Open and close after entry has been fully filled.
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
@@ -571,12 +571,12 @@ class LongPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
@@ -626,12 +626,12 @@ class LongPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat._setBroker(SkipCancelBroker(strat.getBroker()))
@@ -682,12 +682,12 @@ class LongPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat._setBroker(SkipFirstCancelBroker(strat.getBroker()))
@@ -1042,13 +1042,13 @@ class StopPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLongStop, instrument, 12, 4, True)
@@ -1084,13 +1084,13 @@ class StopPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLongStop, instrument, 12, 4, True)
@@ -1140,13 +1140,13 @@ class StopPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat._setBroker(SkipCancelBroker(strat.getBroker()))
@@ -1197,13 +1197,13 @@ class StopPosTestCase(BaseTestCase):
         instrument = "orcl"
         bf = membf.BarFeed(bar.Frequency.DAY)
         bars = [
-                bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
-                bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
-                ]
+            bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 3), 12, 12, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 4), 13, 13, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 5), 14, 14, 10, 10, 10, 10, bar.Frequency.DAY),
+            bar.BasicBar(datetime.datetime(2000, 1, 6), 15, 15, 10, 10, 10, 10, bar.Frequency.DAY),
+            ]
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat._setBroker(SkipFirstCancelBroker(strat.getBroker()))
