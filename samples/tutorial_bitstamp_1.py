@@ -43,7 +43,7 @@ class Strategy(strategy.BaseStrategy):
 
     def onExitCanceled(self, position):
         # If the exit was canceled, re-submit it.
-        self.__position.exit(limitPrice=self.__bid)
+        self.__position.exitLimit(self.__bid)
 
     def onBars(self, bars):
         bar = bars[self.__instrument]
@@ -61,7 +61,7 @@ class Strategy(strategy.BaseStrategy):
         # Check if we have to close the position.
         elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
             self.info("Exit signal. Sell at %s" % (self.__bid))
-            self.__position.exit(limitPrice=self.__bid)
+            self.__position.exitLimit(self.__bid)
 
 
 def main():

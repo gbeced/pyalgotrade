@@ -37,7 +37,7 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onExitCanceled(self, position):
         # If the exit was canceled, re-submit it.
-        position.exit()
+        position.exitMarket()
 
     def onBars(self, bars):
         # Wait for enough bars to be available to calculate SMA and RSI.
@@ -47,10 +47,10 @@ class MyStrategy(strategy.BacktestingStrategy):
         bar = bars["dia"]
         if self.__longPos is not None:
             if self.exitLongSignal(bar):
-                self.__longPos.exit()
+                self.__longPos.exitMarket()
         elif self.__shortPos is not None:
             if self.exitShortSignal(bar):
-                self.__shortPos.exit()
+                self.__shortPos.exitMarket()
         else:
             if self.enterLongSignal(bar):
                 self.__longPos = self.enterLong("dia", 10, True)

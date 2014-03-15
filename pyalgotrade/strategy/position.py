@@ -286,8 +286,54 @@ class Position(object):
         if self.exitActive():
             self.getStrategy().getBroker().cancelOrder(self.getExitOrder())
 
-    def exit(self, stopPrice=None, limitPrice=None, goodTillCanceled=None):
-        """Generates the exit order for the position.
+    def exitMarket(self, goodTillCanceled=None):
+        """Places a market order to close this position.
+
+        :param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
+        :type goodTillCanceled: boolean.
+
+        .. note::
+            * If the position is closed (entry canceled or exit filled) this won't have any effect.
+            * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
+            * If the entry order is active, cancellation will be requested.
+        """
+
+        self.__state.exit(self, None, None, goodTillCanceled)
+
+    def exitLimit(self, limitPrice, goodTillCanceled=None):
+        """Places a limit order to close this position.
+
+        :param limitPrice: The limit price.
+        :type limitPrice: float.
+        :param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
+        :type goodTillCanceled: boolean.
+
+        .. note::
+            * If the position is closed (entry canceled or exit filled) this won't have any effect.
+            * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
+            * If the entry order is active, cancellation will be requested.
+        """
+
+        self.__state.exit(self, None, limitPrice, goodTillCanceled)
+
+    def exitStop(self, stopPrice, goodTillCanceled=None):
+        """Places a stop order to close this position.
+
+        :param stopPrice: The stop price.
+        :type stopPrice: float.
+        :param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
+        :type goodTillCanceled: boolean.
+
+        .. note::
+            * If the position is closed (entry canceled or exit filled) this won't have any effect.
+            * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
+            * If the entry order is active, cancellation will be requested.
+        """
+
+        self.__state.exit(self, stopPrice, None, goodTillCanceled)
+
+    def exitStopLimit(self, stopPrice, limitPrice, goodTillCanceled=None):
+        """Places a stop limit order to close this position.
 
         :param stopPrice: The stop price.
         :type stopPrice: float.
@@ -300,11 +346,20 @@ class Position(object):
             * If the position is closed (entry canceled or exit filled) this won't have any effect.
             * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
             * If the entry order is active, cancellation will be requested.
-            * If limitPrice is not set and stopPrice is not set, then a :class:`pyalgotrade.broker.MarketOrder` is used to exit the position.
-            * If limitPrice is set and stopPrice is not set, then a :class:`pyalgotrade.broker.LimitOrder` is used to exit the position.
-            * If limitPrice is not set and stopPrice is set, then a :class:`pyalgotrade.broker.StopOrder` is used to exit the position.
-            * If limitPrice is set and stopPrice is set, then a :class:`pyalgotrade.broker.StopLimitOrder` is used to exit the position.
         """
+
+        self.__state.exit(self, stopPrice, limitPrice, goodTillCanceled)
+
+    def exit(self, stopPrice=None, limitPrice=None, goodTillCanceled=None):
+        # Deprecated in v0.15.
+        if stopPrice is None and limitPrice is None:
+            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitMarket instead.", stacklevel=2)
+        elif stopPrice is None and limitPrice is not None:
+            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitLimit instead.", stacklevel=2)
+        elif stopPrice is not None and limitPrice is None:
+            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitStop instead.", stacklevel=2)
+        elif stopPrice is not None and limitPrice is not None:
+            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitStopLimit instead.", stacklevel=2)
 
         self.__state.exit(self, stopPrice, limitPrice, goodTillCanceled)
 

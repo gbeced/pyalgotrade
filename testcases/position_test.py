@@ -24,6 +24,7 @@ import pytz
 
 from pyalgotrade import bar
 from pyalgotrade import strategy
+from pyalgotrade.strategy import position
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import barfeed
@@ -97,7 +98,23 @@ class TestStrategy(BaseTestStrategy):
 
     def addPosExit(self, dateTime, *args, **kwargs):
         self.__posExit.setdefault(dateTime, [])
-        self.__posExit[dateTime].append((args, kwargs))
+        self.__posExit[dateTime].append((position.Position.exit, args, kwargs))
+
+    def addPosExitMarket(self, dateTime, *args, **kwargs):
+        self.__posExit.setdefault(dateTime, [])
+        self.__posExit[dateTime].append((position.Position.exitMarket, args, kwargs))
+
+    def addPosExitLimit(self, dateTime, *args, **kwargs):
+        self.__posExit.setdefault(dateTime, [])
+        self.__posExit[dateTime].append((position.Position.exitLimit, args, kwargs))
+
+    def addPosExitStop(self, dateTime, *args, **kwargs):
+        self.__posExit.setdefault(dateTime, [])
+        self.__posExit[dateTime].append((position.Position.exitStop, args, kwargs))
+
+    def addPosExitStopLimit(self, dateTime, *args, **kwargs):
+        self.__posExit.setdefault(dateTime, [])
+        self.__posExit[dateTime].append((position.Position.exitStopLimit, args, kwargs))
 
     def getResult(self):
         return self.__result
@@ -153,10 +170,11 @@ class TestStrategy(BaseTestStrategy):
             self.positions.append(self.__activePosition)
 
         # Check position exit.
-        for args, kwargs in strategy_test.get_by_datetime_or_date(self.__posExit, dateTime):
+        for meth, args, kwargs in strategy_test.get_by_datetime_or_date(self.__posExit, dateTime):
             if self.__activePosition is None:
                 raise Exception("A position was not entered")
-            self.__activePosition.exit(*args, **kwargs)
+            meth(self.__activePosition, *args, **kwargs)
+            # self.__activePosition.exit(*args, **kwargs)
 
 
 class EnterAndExitStrategy(BaseTestStrategy):
@@ -167,7 +185,7 @@ class EnterAndExitStrategy(BaseTestStrategy):
         if self.position is None:
             self.position = self.enterLong(self.instrument, 1)
         elif self.position.entryFilled() and not self.position.exitFilled():
-            self.position.exit()
+            self.position.exitMarket()
 
 
 class DoubleExitStrategy(BaseTestStrategy):
@@ -181,7 +199,7 @@ class DoubleExitStrategy(BaseTestStrategy):
             self.position = self.enterLong(self.instrument, 1)
         elif not self.doubleExit:
             self.doubleExit = True
-            self.position.exit()
+            self.position.exitMarket()
             try:
                 self.position.exit()
             except Exception:
@@ -217,7 +235,7 @@ class ResubmitExitStrategy(BaseTestStrategy):
         if self.position is None:
             self.position = self.enterLong(self.instrument, 1)
         elif self.position.entryFilled() and not self.position.exitFilled():
-            self.position.exit()
+            self.position.exitMarket()
             if not self.exitRequestCanceled:
                 self.position.cancelExit()
                 self.exitRequestCanceled = True
@@ -340,7 +358,7 @@ class LongPosTestCase(BaseTestCase):
         # 2000-11-03,31.50,31.75,29.50,30.31,65020900,29.64 - Enter long
 
         strat.addPosEntry(datetime.datetime(2000, 11, 3), strat.enterLong, BaseTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime.datetime(2000, 11, 7))
+        strat.addPosExitMarket(datetime.datetime(2000, 11, 7))
         strat.run()
 
         self.assertEqual(strat.positions[0].isOpen(), False)
@@ -387,7 +405,7 @@ class LongPosTestCase(BaseTestCase):
         # 2000-01-27,55.81,56.69,50.00,51.81,61061800,25.33 - enterLong
 
         strat.addPosEntry(datetime.datetime(2000, 1, 27), strat.enterLong, BaseTestCase.TestInstrument, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 2, 3))
+        strat.addPosExitMarket(datetime.datetime(2000, 2, 3))
         strat.run()
 
         self.assertEqual(strat.positions[0].isOpen(), False)
@@ -539,7 +557,7 @@ class LongPosTestCase(BaseTestCase):
         bf.addBarsFromSequence(instrument, bars)
         strat = TestStrategy(bf, instrument, 1000)
         strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
-        strat.addPosExit(datetime.datetime(2000, 1, 3))
+        strat.addPosExitMarket(datetime.datetime(2000, 1, 3))
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -637,7 +655,7 @@ class LongPosTestCase(BaseTestCase):
         strat._setBroker(SkipCancelBroker(strat.getBroker()))
         strat.addPosEntry(datetime.datetime(2000, 1, 1), strat.enterLong, instrument, 4, True)
         # Exit the position before the entry order gets completely filled.
-        strat.addPosExit(datetime.datetime(2000, 1, 2))
+        strat.addPosExitMarket(datetime.datetime(2000, 1, 2))
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -695,7 +713,7 @@ class LongPosTestCase(BaseTestCase):
         # Exit the position before the entry order gets completely filled.
         strat.addPosExit(datetime.datetime(2000, 1, 2))
         # Retry exit.
-        strat.addPosExit(datetime.datetime(2000, 1, 4))
+        strat.addPosExitMarket(datetime.datetime(2000, 1, 4))
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -743,7 +761,7 @@ class ShortPosTestCase(BaseTestCase):
                     # At this point the entry order should have been filled.
                     testCase.assertEqual(len(self.pos.getActiveOrders()), 0)
                     testCase.assertEqual(self.pos.getShares(), -1)
-                    self.pos.exit()
+                    self.pos.exitMarket()
                     testCase.assertEqual(len(self.pos.getActiveOrders()), 1)
                     testCase.assertEqual(self.pos.getShares(), -1)
                 else:
@@ -792,7 +810,7 @@ class ShortPosTestCase(BaseTestCase):
         # 2000-01-18,107.87,114.50,105.62,111.25,66791200,27.19
 
         strat.addPosEntry(datetime.datetime(2000, 1, 18), strat.enterShort, BaseTestCase.TestInstrument, 1, False)
-        strat.addPosExit(datetime.datetime(2000, 10, 12))
+        strat.addPosExitMarket(datetime.datetime(2000, 10, 12))
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -838,7 +856,7 @@ class ShortPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterShort
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterShort, BaseTestCase.TestInstrument, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 14))
+        strat.addPosExitMarket(datetime.datetime(2000, 11, 14))
         strat.addPosExit(datetime.datetime(2000, 11, 22))
         strat.run()
 
@@ -883,7 +901,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), None, 29)
+        strat.addPosExitLimit(datetime.datetime(2000, 11, 16), 29)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -925,7 +943,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), None, 29)
+        strat.addPosExitLimit(datetime.datetime(2000, 11, 16), 29)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 0)
@@ -965,7 +983,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 11, 14), None, 100)
+        strat.addPosExitLimit(datetime.datetime(2000, 11, 14), 100)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 0)
@@ -984,7 +1002,7 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1, True)
-        strat.addPosExit(datetime.datetime(2000, 11, 15), None, 100, False)
+        strat.addPosExitLimit(datetime.datetime(2000, 11, 15), 100, False)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -1007,7 +1025,7 @@ class StopPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStop
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStop, BaseTestCase.TestInstrument, 25, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), 26, None)
+        strat.addPosExitStop(datetime.datetime(2000, 11, 16), 26)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)
@@ -1252,7 +1270,7 @@ class StopLimitPosTestCase(BaseTestCase):
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStopLimit
 
         strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, BaseTestCase.TestInstrument, 25.5, 24, 1)
-        strat.addPosExit(datetime.datetime(2000, 11, 16), 27, 28)
+        strat.addPosExitStopLimit(datetime.datetime(2000, 11, 16), 27, 28)
         strat.run()
 
         self.assertEqual(strat.enterOkCalls, 1)

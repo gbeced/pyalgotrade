@@ -17,7 +17,7 @@ Buying and selling can be done in several ways:
 
 Positions are higher level abstractions for placing orders.
 They are escentially a pair of entry-exit orders and allow
-to track returns and PnL easier that placing orders manually.
+tracking returns and PnL easier than placing individual orders.
 
 
 Strategy
