@@ -1,4 +1,5 @@
 Version 0.15 (TBD)
+. [NEW] Added support for papertrading Bitcoin strategies through Bitstamp.
 . [NEW] Partial fill support for orders.
 . [NEW] Added logging methods to the Strategy class.
 . [NEW] Average True Range (ATR) technical indicator (pyalgotrade.technical.atr.ATR).
@@ -15,7 +16,8 @@ Version 0.15 (TBD)
 . [BREAKING CHANGE] Prevent resubmitting orders.
 . [BREAKING CHANGE] Prevent changing order properties that are set during initialization.
 . [BREAKING CHANGE] The last parameter to broker.backtesting.FillStrategy.fillStopLimitOrder was removed. FillStrategy will now handle all the details for order filling to allow better customization.
-. [BREAKING CHANGE] Changed the order of the stopPrice and limitPrice parameters in Strategy.enterLongStopLimit, Strategy.enterShortStopLimit and Position.exit. 
+. [BREAKING CHANGE] Changed the order of the stopPrice and limitPrice parameters in Strategy.enterLongStopLimit, Strategy.enterShortStopLimit and Position.exit.
+. [CHANGE] Removed MtGox support.
 . [CHANGE] pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.

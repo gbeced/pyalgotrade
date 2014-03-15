@@ -18,7 +18,7 @@ Contents:
     eventprofiler
     talib
     googleappengine
-    mtgox
+    bitstamp
     twitter
     compinvpart1
     samples

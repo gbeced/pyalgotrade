@@ -13,8 +13,8 @@ Release checklist
 [ ] Run tutorial examples from the Optimizing section using the installed lib.
 [ ] Run samples/tutorial-5.py using the installed lib.
 [ ] Run samples/compinv-3.py using the installed lib.
-[ ] Run samples/tutorial_mtgox_2.py using the installed lib. Check disconnection detection.
-[ ] Run samples/tutorial_twitter_mtgox.py using the installed lib.
+[ ] Run samples/tutorial_bitstamp_1.py using the installed lib. Check disconnection detection.
+[ ] Run samples/tutorial_twitter_bitstamp.py using the installed lib.
 [ ] Run samples/eventstudy.py using the installed lib.
 
 [ ] Update the website (doc + package).

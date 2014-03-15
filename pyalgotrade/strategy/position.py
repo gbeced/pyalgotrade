@@ -40,6 +40,7 @@ class PositionState(object):
     def exit(self, position, stopPrice=None, limitPrice=None, goodTillCanceled=None):
         raise NotImplementedError()
 
+
 class WaitingEntryState(PositionState):
     def canPlaceOrder(self, position, order):
         if position.entryActive():
@@ -102,6 +103,7 @@ class OpenState(PositionState):
 
         position._placeExitOrder(stopPrice, limitPrice, goodTillCanceled)
 
+
 class ClosedState(PositionState):
     def onEnter(self, position):
         assert(position.getShares() == 0)
@@ -118,6 +120,7 @@ class ClosedState(PositionState):
 
     def exit(self, position, stopPrice=None, limitPrice=None, goodTillCanceled=None):
         pass
+
 
 class Position(object):
     """Base class for positions.

@@ -107,10 +107,10 @@ class TwitterFeed(observer.Subject):
 
     def __threadMain(self):
         try:
-            logger.info("Initializing Twitter client.")
+            logger.info("Initializing client.")
             self.__stream.filter(track=self.__track, follow=self.__follow, languages=self.__languages)
         finally:
-            logger.info("Twitter client finished.")
+            logger.info("Client finished.")
             self.__running = False
 
     def __dispatchImpl(self):
@@ -141,7 +141,7 @@ class TwitterFeed(observer.Subject):
     def stop(self):
         try:
             if self.__thread is not None and self.__thread.is_alive():
-                logger.info("Shutting down Twitter client.")
+                logger.info("Shutting down client.")
                 self.__stream.disconnect()
         except Exception, e:
             logger.error("Error disconnecting stream: %s." % (str(e)))

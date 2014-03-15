@@ -75,7 +75,7 @@ class BaseStrategy(object):
 
     def getLogger(self):
         return self.__logger
- 
+
     def getActivePositions(self):
         return self.__activePositions
 

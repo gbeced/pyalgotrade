@@ -43,7 +43,6 @@ class TestCase(unittest.TestCase):
             barDataSeries.append(b)
             self.assertEqual(common.safe_round(atrDS[-1], 2), expected[i])
 
-
     def testStockChartsATRAdjusted(self):
         # Test data from http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:average_true_range_a
         high = [48.70, 48.72, 48.90, 48.87, 48.82, 49.05, 49.20, 49.35, 49.92, 50.19, 50.12, 49.66, 49.88, 50.19, 50.36, 50.57, 50.65, 50.43, 49.63, 50.33, 50.29, 50.17, 49.32, 48.50, 48.32, 46.80, 47.80, 48.39, 48.66, 48.79]

@@ -109,4 +109,3 @@ class Dispatcher(object):
                 subject.stop()
             for subject in self.__subjects:
                 subject.join()
-

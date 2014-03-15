@@ -33,10 +33,10 @@ setup(
     download_url='http://sourceforge.net/projects/pyalgotrade/files/0.14/PyAlgoTrade-0.14.tar.gz/download',
     packages=['pyalgotrade',
         'pyalgotrade.barfeed',
+        'pyalgotrade.bitstamp',
         'pyalgotrade.broker',
         'pyalgotrade.dataseries',
         'pyalgotrade.feed',
-        'pyalgotrade.mtgox',
         'pyalgotrade.optimizer',
         'pyalgotrade.stratanalyzer',
         'pyalgotrade.strategy',
@@ -44,7 +44,8 @@ setup(
         'pyalgotrade.technical',
         'pyalgotrade.tools',
         'pyalgotrade.twitter',
-        'pyalgotrade.utils'],
+        'pyalgotrade.utils',
+        'pyalgotrade.websocket'],
     install_requires=[
         'numpy',
         'pytz']

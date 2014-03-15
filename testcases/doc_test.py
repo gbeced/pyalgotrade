@@ -48,17 +48,6 @@ class DocCodeTest(unittest.TestCase):
             lines = common.run_sample_script("tutorial-4.py").split("\n")
             self.assertTrue(common.compare_head("tutorial-4.output", lines[:-1]))
 
-    def testTutorial1MtGox(self):
-        with common.CopyFiles([os.path.join("samples", "data", "trades-mtgox-usd-2013-03.csv")], "."):
-            code = """import sys
-sys.path.append('samples')
-import tutorial_mtgox_1
-tutorial_mtgox_1.main(False)
-"""
-            lines = common.run_python_code(code).split("\n")
-            self.assertTrue(common.compare_head("tutorial_mtgox_1.output", lines[0:10]))
-            self.assertTrue(common.compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
-
     def testCSVFeed(self):
         with common.CopyFiles([os.path.join("testcases", "data", "quandl_gold_2.csv")], "."):
             code = """import sys

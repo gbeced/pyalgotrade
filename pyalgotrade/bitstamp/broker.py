@@ -25,32 +25,27 @@ from pyalgotrade.broker import backtesting
 # In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
 # It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
 
-class BacktestingBroker(backtesting.Broker):
-    """A MtGox backtesting broker.
+class PaperTradingBroker(backtesting.Broker):
+    """A Bitstamp paper trading broker.
 
     :param cash: The initial amount of cash.
     :type cash: int/float.
     :param barFeed: The bar feed that will provide the bars.
     :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
-    :param commission: An object responsible for calculating order commissions. **If None, a 0.6% trade commision will be used**.
-    :type commission: :class:`pyalgotrade.broker.backtesting.Commission`
+    :param fee: The fee percentage for each order. Defaults to 0.5%.
+    :type fee: float.
 
     .. note::
-        Neither stop nor stop limit orders are supported.
+        Only limit orders are supported.
     """
 
-    def __init__(self, cash, barFeed, commission=None):
-        if commission is None:
-            commission = backtesting.TradePercentage(0.006)
+    def __init__(self, cash, barFeed, fee=0.005):
+        commission = backtesting.TradePercentage(fee)
         backtesting.Broker.__init__(self, cash, barFeed, commission)
         self.setAllowFractions(True)
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
-        if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:
-            raise Exception("Only BUY/SELL orders are supported")
-        if instrument != "BTC":
-            raise Exception("Only BTC instrument is supported")
-        return backtesting.Broker.createMarketOrder(self, action, instrument, quantity, onClose)
+        raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
         if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:

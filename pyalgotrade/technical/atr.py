@@ -78,4 +78,3 @@ class ATR(technical.EventBasedFilter):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
         technical.EventBasedFilter.__init__(self, barDataSeries, ATREventWindow(period, useAdjustedValues), maxLen)
-

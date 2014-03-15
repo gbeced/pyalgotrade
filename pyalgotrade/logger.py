@@ -29,6 +29,7 @@ level = logging.INFO
 file_log = None  # File name
 console_log = True
 
+
 def init_handler(handler):
     handler.setFormatter(Formatter(log_format))
 
