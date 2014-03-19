@@ -132,7 +132,7 @@ class WMAEventWindow(technical.EventWindow):
     def __init__(self, weights):
         assert(len(weights) > 0)
         technical.EventWindow.__init__(self, len(weights))
-        self.__weights = np.array(weights)
+        self.__weights = np.asarray(weights)
 
     def getValue(self):
         ret = None

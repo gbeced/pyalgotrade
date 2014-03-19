@@ -60,8 +60,8 @@ class StatArbHelper:
 
     def update(self):
         if len(self.__ds1) >= self.__windowSize:
-            values1 = np.array(self.__ds1[-1*self.__windowSize:])
-            values2 = np.array(self.__ds2[-1*self.__windowSize:])
+            values1 = np.asarray(self.__ds1[-1*self.__windowSize:])
+            values2 = np.asarray(self.__ds2[-1*self.__windowSize:])
             self.__updateHedgeRatio(values1, values2)
             self.__updateSpread()
             self.__updateSpreadMeanAndStd(values1, values2)

@@ -221,7 +221,7 @@ def build_plot(profilerResults):
     std = []
     for t in xrange(profilerResults.getLookBack()*-1, profilerResults.getLookForward()+1):
         x.append(t)
-        values = np.array(profilerResults.getValues(t))
+        values = np.asarray(profilerResults.getValues(t))
         y.append(values.mean())
         std.append(values.std())
 

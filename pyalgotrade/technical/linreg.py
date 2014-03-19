@@ -30,10 +30,8 @@ from scipy import stats
 # Using scipy.stats.linregress instead of numpy.linalg.lstsq because of this:
 # http://stackoverflow.com/questions/20736255/numpy-linalg-lstsq-with-big-values
 def lsreg(x, y):
-    if not isinstance(x, np.ndarray):
-        x = np.array(x)
-    if not isinstance(y, np.ndarray):
-        y = np.array(y)
+    x = np.asarray(x)
+    y = np.asarray(y)
     res = stats.linregress(x, y)
     return res[0], res[1]
 
@@ -99,7 +97,7 @@ class LeastSquaresRegression(technical.EventBasedFilter):
 class SlopeEventWindow(technical.EventWindow):
     def __init__(self, windowSize):
         technical.EventWindow.__init__(self, windowSize)
-        self.__x = np.array(range(windowSize))
+        self.__x = np.asarray(range(windowSize))
 
     def getValue(self):
         ret = None

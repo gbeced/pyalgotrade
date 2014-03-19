@@ -165,40 +165,40 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 
     def getAll(self):
         """Returns a numpy.array with the profits/losses for each trade."""
-        return np.array(self.__all)
+        return np.asarray(self.__all)
 
     def getProfits(self):
         """Returns a numpy.array with the profits for each profitable trade."""
-        return np.array(self.__profits)
+        return np.asarray(self.__profits)
 
     def getLosses(self):
         """Returns a numpy.array with the losses for each unprofitable trade."""
-        return np.array(self.__losses)
+        return np.asarray(self.__losses)
 
     def getAllReturns(self):
         """Returns a numpy.array with the returns for each trade."""
-        return np.array(self.__allReturns)
+        return np.asarray(self.__allReturns)
 
     def getPositiveReturns(self):
         """Returns a numpy.array with the positive returns for each trade."""
-        return np.array(self.__positiveReturns)
+        return np.asarray(self.__positiveReturns)
 
     def getNegativeReturns(self):
         """Returns a numpy.array with the negative returns for each trade."""
-        return np.array(self.__negativeReturns)
+        return np.asarray(self.__negativeReturns)
 
     def getCommissionsForAllTrades(self):
         """Returns a numpy.array with the commissions for each trade."""
-        return np.array(self.__allCommissions)
+        return np.asarray(self.__allCommissions)
 
     def getCommissionsForProfitableTrades(self):
         """Returns a numpy.array with the commissions for each profitable trade."""
-        return np.array(self.__profitableCommissions)
+        return np.asarray(self.__profitableCommissions)
 
     def getCommissionsForUnprofitableTrades(self):
         """Returns a numpy.array with the commissions for each unprofitable trade."""
-        return np.array(self.__unprofitableCommissions)
+        return np.asarray(self.__unprofitableCommissions)
 
     def getCommissionsForEvenTrades(self):
         """Returns a numpy.array with the commissions for each trade whose net profit was 0."""
-        return np.array(self.__evenCommissions)
+        return np.asarray(self.__evenCommissions)
