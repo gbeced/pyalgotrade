@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PyAlgoTrade'
-copyright = u'2011-2013, Gabriel Martín Becedillas Ruiz'
+copyright = u'2011-2014, Gabriel Martín Becedillas Ruiz'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
