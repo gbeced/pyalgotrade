@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2014 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,18 +48,19 @@ def init_logger(logger):
         logger.addHandler(consoleHandler)
 
 
-def getLogger(name=None):
+def initialize():
     global rootLoggerInitialized
     with initLock:
         if not rootLoggerInitialized:
             init_logger(logging.getLogger())
             rootLoggerInitialized = True
-
+ 
+def getLogger(name=None):
+    initialize()
     return logging.getLogger(name)
 
 
 # This formatter provides a way to hook in formatTime.
-
 class Formatter(logging.Formatter):
     DATETIME_HOOK = None
 
