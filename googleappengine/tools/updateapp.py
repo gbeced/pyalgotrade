@@ -86,7 +86,7 @@ def update_pyalgotrade(appPath):
     dstPath = os.path.join(appPath, "pyalgotrade")
 
     if os.path.exists(dstPath):
-        print "WARNING: %s allready exists. Cleaning it up." % (dstPath)
+        print "WARNING: %s already exists. Cleaning it up." % (dstPath)
         shutil.rmtree(dstPath)
 
     print "Preparing pyalgotrade package"
