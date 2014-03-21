@@ -54,7 +54,8 @@ def initialize():
         if not rootLoggerInitialized:
             init_logger(logging.getLogger())
             rootLoggerInitialized = True
- 
+
+
 def getLogger(name=None):
     initialize()
     return logging.getLogger(name)
