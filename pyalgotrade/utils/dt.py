@@ -27,6 +27,11 @@ def datetime_is_naive(dateTime):
     return dateTime.tzinfo is None or dateTime.tzinfo.utcoffset(dateTime) is None
 
 
+# Remove timezone information.
+def unlocalize(dateTime):
+    return dateTime.replace(tzinfo=None)
+
+
 def localize(dateTime, timeZone):
     """Returns a datetime adjusted to a timezone:
 
