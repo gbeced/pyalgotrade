@@ -22,23 +22,29 @@ import urlparse
 import urllib
 import urllib2
 import json
-# import pytz
+import pytz
 
 from pyalgotrade.utils import dt
-from pyalgotrade import marketsession
+
 
 USE_SECURE_REQUESTS = False
 
-# https://www.xignite.com/product/global-real-time-stock-quote-data/api/ListExchanges/
+# The exchange list comes from:
+#  https://www.xignite.com/product/global-real-time-stock-quote-data/api/ListExchanges/
+#
+# I couldn't deduce the timezones for OOTC, PINX and XOTC using:
+#  https://www.xignite.com/product/XigniteGlobalExchanges/api/GetExchangeHoursUTC/
+#  https://www.xignite.com/product/XigniteGlobalExchanges/api/GetExchangeHours/
+
 MARKET_TIMEZONES = {
-        "ARCX": None,  # NYSE ARCA
-        "CHIX": marketsession.NYSE.timezone,  # CHI-X EUROPE LIMITED
-        "OOTC": None,  # OTHER OTC/NBB
-        "PINX": None,  # OTC PINK MARKETPLACE
-        "XASE": marketsession.NYSE.timezone,  # NYSE MKT EQUITIES
-        "XNAS": marketsession.NASDAQ.timezone,  # NASDAQ
-        "XNYS": marketsession.NYSE.timezone,  # NEW YORK STOCK EXCHANGE, INC
-        "XOTC": None,  # OTC BULLETIN BOARD
+        "ARCX": pytz.timezone("US/Eastern"),  # NYSE ARCA
+        "CHIX": pytz.timezone("Europe/London"),  # CHI-X EUROPE LIMITED
+#        "OOTC": None,  # OTHER OTC/NBB
+#        "PINX": None,  # OTC PINK MARKETPLACE
+        "XASE": pytz.timezone("US/Eastern"),  # NYSE MKT EQUITIES
+        "XNAS": pytz.timezone("US/Eastern"),  # NASDAQ
+        "XNYS": pytz.timezone("US/Eastern"),  # NEW YORK STOCK EXCHANGE, INC
+#        "XOTC": None,  # OTC BULLETIN BOARD
         }
 
 
@@ -68,9 +74,17 @@ def json_http_request(url):
     response = f.read()
     return json.loads(response)
 
-def XigniteGlobalRealTime_GetBar(token, identifier, identifierType, exchange, endDateTime, precision, period, secureRequest=None):
+
+# https://www.xignite.com/product/global-real-time-stock-quote-data/api/GetBar/
+def XigniteGlobalRealTime_GetBar(token, identifier, identifierType, endDateTime, precision, period, secureRequest=None):
     if dt.datetime_is_naive(endDateTime):
         raise Exception("endDateTime must have a timezone")
+
+    # Parse the exchange from the identifier.
+    parts = identifier.split(".")
+    if len(parts) != 2:
+        raise Exception("Invalid identifier. Exchange suffix is missing")
+    exchange = parts[1]
 
     if secureRequest is None:
         secureRequest = USE_SECURE_REQUESTS
@@ -82,12 +96,12 @@ def XigniteGlobalRealTime_GetBar(token, identifier, identifierType, exchange, en
 
     # print datetime_to_string(endDateTime, exchange)
     params = {"_Token": token,
-            "Identifier": "%s.%s" % (identifier, exchange),
-            "IdentifierType": identifierType,
-            "EndTime": datetime_to_string(endDateTime, exchange),
-            "Precision": precision,
-            "Period": period,
-            }
+        "Identifier": identifier,
+        "IdentifierType": identifierType,
+        "EndTime": datetime_to_string(endDateTime, exchange),
+        "Precision": precision,
+        "Period": period,
+        }
     parts = (scheme, "globalrealtime.xignite.com", "v3/xGlobalRealTime.json/GetBar", urllib.urlencode(params), "")
     url = urlparse.urlunsplit(parts)
 
@@ -99,4 +113,3 @@ def XigniteGlobalRealTime_GetBar(token, identifier, identifierType, exchange, en
         raise XigniteError(msg, ret)
 
     return ret
-

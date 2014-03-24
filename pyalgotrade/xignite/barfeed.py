@@ -37,6 +37,7 @@ logger = pyalgotrade.logger.getLogger("xignite")
 def utcnow():
     return dt.as_utc(datetime.datetime.utcnow())
 
+
 class PollingThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -73,7 +74,11 @@ class PollingThread(threading.Thread):
 
 
 class GetBarThread(PollingThread):
-    def __init__(self, queue, apiToken, instrument, exchange, frequency):
+
+    # Events
+    ON_BARS = 1
+
+    def __init__(self, queue, apiToken, identifiers, frequency):
         PollingThread.__init__(self)
 
         # Map frequency to precision and period.
@@ -92,8 +97,7 @@ class GetBarThread(PollingThread):
 
         self.__queue = queue
         self.__apiToken = apiToken
-        self.__instrument = instrument
-        self.__exchange = exchange
+        self.__identifiers = identifiers
         self.__frequency = frequency
         self.__nextDateTime = utcnow()
  
@@ -103,14 +107,15 @@ class GetBarThread(PollingThread):
     def doCall(self):
         now = utcnow()
         self.__nextDateTime = now + self.__timeDelta
+        identifierType = "Symbol"
 
-        try:
-            logger.debug("Requesting bars with precision %s and period %s" % (self.__precision, self.__period))
-            identifierType = "Symbol"
-            res = api.XigniteGlobalRealTime_GetBar(self.__apiToken, self.__instrument, identifierType, self.__exchange, now, self.__precision, self.__period)
-            logger.debug(res)
-        except api.XigniteError, e:
-            logger.error(e)
+        for indentifier in self.__identifiers:
+            try:
+                logger.debug("Requesting bars with precision %s and period %s for %s" % (self.__precision, self.__period, indentifier))
+                res = api.XigniteGlobalRealTime_GetBar(self.__apiToken, indentifier, identifierType, now, self.__precision, self.__period)
+                logger.debug(res)
+            except api.XigniteError, e:
+                logger.error(e)
 
 
 class LiveFeed(barfeed.BaseBarFeed):
@@ -118,12 +123,14 @@ class LiveFeed(barfeed.BaseBarFeed):
     QUEUE_TIMEOUT = 0.01
 
     # apiToken
-    # instrument
-    # exchange: Market identification code (ARCX, CHIX, OOTC, PINX, XASE, XNAS, XNYS, XOTC)
-    def __init__(self, apiToken, instrument, exchange, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    # identifiers: A list with the fully qualified identifier for the securities including the exchange suffix.
+    # Valid exchange suffixes are (ARCX, CHIX, XASE, XNAS, XNYS)
+    def __init__(self, apiToken, identifiers, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
         self.__queue = Queue.Queue()
-        self.__thread = GetBarThread(self.__queue, apiToken, instrument, exchange, frequency)
+        self.__thread = GetBarThread(self.__queue, apiToken, identifiers, frequency)
+        for instrument in identifiers:
+            self.registerInstrument(instrument)
 
     ###################################################################### 
     # observer.Subject interface
@@ -145,10 +152,7 @@ class LiveFeed(barfeed.BaseBarFeed):
         return self.__thread.stopped()
 
     def peekDateTime(self):
-        # Return the datetime for the next event.
-        # This is needed to properly synchronize non-realtime subjects.
         return None
-        raise NotImplementedError()
 
     def isRealTime(self):
         return True
@@ -163,8 +167,8 @@ class LiveFeed(barfeed.BaseBarFeed):
 
         ret = None
         try:
-            eventType, eventData = self.__client.getQueue().get(True, Feed.QUEUE_TIMEOUT)
-            if eventType == GetBarsThread.ON_BARS:
+            eventType, eventData = self.__client.getQueue().get(True, LiveFeed.QUEUE_TIMEOUT)
+            if eventType == GetBarThread.ON_BARS:
                 pass
             else:
                 logger.error("Invalid event received: %s - %s" % (eventType, eventData))

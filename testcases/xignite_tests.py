@@ -26,17 +26,17 @@ import datetime
 
 
 class DateTimeTestCase(unittest.TestCase):
-    def testLocalizeDatetime(self):
+    def testMarketTimes(self):
         # 9:30 in GMT-5
         dateTime = dt.as_utc(datetime.datetime(2013, 1, 1, 9+5, 30))
-
         self.assertEqual(dt.unlocalize(api.to_market_datetime(dateTime, "XNYS")), datetime.datetime(2013, 1, 1, 9, 30))
-        # api.to_market_datetime(dateTime, "ARCX")
-        # api.to_market_datetime(dateTime, "CHIX")
-        # api.to_market_datetime(dateTime, "OOTC")
-        # api.to_market_datetime(dateTime, "PINX")
-        # api.to_market_datetime(dateTime, "XASE")
-        # api.to_market_datetime(dateTime, "XNAS")
-        # api.to_market_datetime(dateTime, "XNYS")
-        # api.to_market_datetime(dateTime, "XOTC")
+        self.assertEqual(dt.unlocalize(api.to_market_datetime(dateTime, "XASE")), datetime.datetime(2013, 1, 1, 9, 30))
+        self.assertEqual(dt.unlocalize(api.to_market_datetime(dateTime, "XNAS")), datetime.datetime(2013, 1, 1, 9, 30))
+        self.assertEqual(dt.unlocalize(api.to_market_datetime(dateTime, "XNYS")), datetime.datetime(2013, 1, 1, 9, 30))
 
+        # 8:00 in GMT
+        dateTime = dt.as_utc(datetime.datetime(2013, 1, 1, 8))
+        self.assertEqual(dt.unlocalize(api.to_market_datetime(dateTime, "CHIX")), datetime.datetime(2013, 1, 1, 8))
+        # From Apr~Oct CHIX is GMT+1
+        dateTime = dt.as_utc(datetime.datetime(2013, 4, 1, 8))
+        self.assertEqual(dt.unlocalize(api.to_market_datetime(dateTime, "CHIX")), datetime.datetime(2013, 4, 1, 9))
