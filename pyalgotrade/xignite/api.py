@@ -75,16 +75,20 @@ def json_http_request(url):
     return json.loads(response)
 
 
+def parse_instrument_exchange(identifier):
+    ret = identifier.split(".")
+    if len(ret) != 2:
+        raise Exception("Invalid identifier. Exchange suffix is missing")
+    return ret
+
+
 # https://www.xignite.com/product/global-real-time-stock-quote-data/api/GetBar/
 def XigniteGlobalRealTime_GetBar(token, identifier, identifierType, endDateTime, precision, period, secureRequest=None):
     if dt.datetime_is_naive(endDateTime):
         raise Exception("endDateTime must have a timezone")
 
     # Parse the exchange from the identifier.
-    parts = identifier.split(".")
-    if len(parts) != 2:
-        raise Exception("Invalid identifier. Exchange suffix is missing")
-    exchange = parts[1]
+    instrument, exchange = parse_instrument_exchange(identifier)
 
     if secureRequest is None:
         secureRequest = USE_SECURE_REQUESTS

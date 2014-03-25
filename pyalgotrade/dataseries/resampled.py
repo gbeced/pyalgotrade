@@ -20,6 +20,7 @@ from pyalgotrade import bar
 from pyalgotrade.utils import dt
 
 
+# Returns the slot's beginning datetime.
 # frequency in seconds
 def get_slot_datetime(dateTime, frequency):
     ts = int(dt.datetime_to_timestamp(dateTime))

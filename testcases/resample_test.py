@@ -38,6 +38,11 @@ class ResampleTestCase(unittest.TestCase):
         # 1 minute
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60), datetime.datetime(2011, 1, 1, 1, 1))
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60), datetime.datetime(2011, 1, 1, 1, 1))
+        # 5 minute
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 0), 60*5), datetime.datetime(2011, 1, 1, 1, 0))
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1), 60*5), datetime.datetime(2011, 1, 1, 1, 0))
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 4), 60*5), datetime.datetime(2011, 1, 1, 1, 0))
+        self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 5), 60*5), datetime.datetime(2011, 1, 1, 1, 5))
         # 1 hour
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60*60), datetime.datetime(2011, 1, 1, 1))
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60*60), datetime.datetime(2011, 1, 1, 1))

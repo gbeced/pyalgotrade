@@ -26,6 +26,7 @@ import Queue
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import resampled
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
 import api
@@ -66,11 +67,38 @@ class PollingThread(threading.Thread):
                     logger.critical("Unhandled exception", exc_info=e)
         logger.debug("Thread finished.")
 
+    # Must return a non-naive datetime.
     def getNextCallDateTime(self):
         raise NotImplementedError()
 
     def doCall(self):
         raise NotImplementedError()
+
+
+def build_bar(barDict, identifier, frequency):
+    # "StartDate": "3/19/2014"
+    # "StartTime": "9:55:00 AM"
+    # "EndDate": "3/19/2014"
+    # "EndTime": "10:00:00 AM"
+    # "UTCOffset": 0
+    # "Open": 31.71
+    # "High": 31.71
+    # "Low": 31.68
+    # "Close": 31.69
+    # "Volume": 2966
+    # "Trades": 19
+    # "TWAP": 31.6929
+    # "VWAP": 31.693
+
+    startDate = barDict["StartDate"]
+    startTime = barDict["StartTime"]
+    startDateTimeStr = startDate + " " + startTime
+    startDateTime = datetime.datetime.strptime(startDateTimeStr, "%m/%d/%Y %I:%M:%S %p")
+
+    instrument, exchange = api.parse_instrument_exchange(identifier)
+    startDateTime = api.to_market_datetime(startDateTime, exchange)
+
+    return bar.BasicBar(startDateTime, barDict["Open"], barDict["High"], barDict["Low"], barDict["Close"], barDict["Volume"], None, frequency)
 
 
 class GetBarThread(PollingThread):
@@ -99,21 +127,26 @@ class GetBarThread(PollingThread):
         self.__apiToken = apiToken
         self.__identifiers = identifiers
         self.__frequency = frequency
-        self.__nextDateTime = utcnow()
+        self.__nextBarClose = None
+
+        self.__updateNextBarClose()
  
+    def __updateNextBarClose(self):
+        self.__nextBarClose = resampled.get_slot_datetime(utcnow(), self.__frequency) + self.__timeDelta
+
     def getNextCallDateTime(self):
-        return self.__nextDateTime
+        return self.__nextBarClose
 
     def doCall(self):
-        now = utcnow()
-        self.__nextDateTime = now + self.__timeDelta
-        identifierType = "Symbol"
+        endDateTime = self.__nextBarClose
+        self.__updateNextBarClose()
 
         for indentifier in self.__identifiers:
             try:
                 logger.debug("Requesting bars with precision %s and period %s for %s" % (self.__precision, self.__period, indentifier))
-                res = api.XigniteGlobalRealTime_GetBar(self.__apiToken, indentifier, identifierType, now, self.__precision, self.__period)
-                logger.debug(res)
+                response = api.XigniteGlobalRealTime_GetBar(self.__apiToken, indentifier, "Symbol", endDateTime, self.__precision, self.__period)
+                logger.debug(response)
+                build_bar(response["Bar"], indentifier, self.__frequency)
             except api.XigniteError, e:
                 logger.error(e)
 
@@ -163,11 +196,9 @@ class LiveFeed(barfeed.BaseBarFeed):
         return False
 
     def getNextBars(self):
-        return None
-
         ret = None
         try:
-            eventType, eventData = self.__client.getQueue().get(True, LiveFeed.QUEUE_TIMEOUT)
+            eventType, eventData = self.__queue.get(True, LiveFeed.QUEUE_TIMEOUT)
             if eventType == GetBarThread.ON_BARS:
                 pass
             else:
