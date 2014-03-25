@@ -66,7 +66,7 @@ class TradeBar(bar.Bar):
         return self.__amount
 
     def getAdjClose(self):
-        return self.__price
+        return None
 
     def getTypicalPrice(self):
         return self.__price
@@ -112,6 +112,9 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
         # Dispatch immediately
         self.dispatch()
+
+    def barsHaveAdjClose(self):
+        return False
 
     def getNextBars(self):
         ret = None

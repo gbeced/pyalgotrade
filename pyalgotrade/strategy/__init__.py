@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 import pyalgotrade.broker
 from pyalgotrade.broker import backtesting
 from pyalgotrade import observer
@@ -38,6 +40,8 @@ class BaseStrategy(object):
     .. note::
         This is a base class and should not be used directly.
     """
+
+    __metaclass__ = abc.ABCMeta
 
     LOGGER_NAME = "strategy"
 
@@ -466,6 +470,7 @@ class BaseStrategy(object):
         """
         pass
 
+    @abc.abstractmethod
     def onBars(self, bars):
         """Override (**mandatory**) to get notified when new bars are available. The default implementation raises an Exception.
 

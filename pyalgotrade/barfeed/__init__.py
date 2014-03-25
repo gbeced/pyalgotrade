@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
@@ -65,10 +67,12 @@ class BaseBarFeed(feed.BaseFeed):
         self.__prevDateTime = None
 
     # Return True if bars provided have adjusted close values.
+    @abc.abstractmethod
     def barsHaveAdjClose(self):
         raise NotImplementedError()
 
     # Subclasses should implement this and return a pyalgotrade.bar.Bars or None if there are no bars.
+    @abc.abstractmethod
     def getNextBars(self):
         """Override to return the next :class:`pyalgotrade.bar.Bars` in the feed or None if there are no bars.
 

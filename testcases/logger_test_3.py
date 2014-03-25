@@ -26,6 +26,11 @@ from pyalgotrade import logger
 from pyalgotrade.barfeed import membf
 
 
+class TestBarFeed(membf.BarFeed):
+    def barsHaveAdjClose(self):
+        raise NotImplementedError()
+
+
 class Strategy(strategy.BaseStrategy):
     def __init__(self, barFeed, cash):
         strategy.BaseStrategy.__init__(self, barFeed, backtesting.Broker(cash, barFeed))
@@ -36,7 +41,7 @@ class Strategy(strategy.BaseStrategy):
 
 
 def main():
-    bf = membf.BarFeed(bar.Frequency.DAY)
+    bf = TestBarFeed(bar.Frequency.DAY)
     bars = [
         bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
         ]

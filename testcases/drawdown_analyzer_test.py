@@ -42,6 +42,11 @@ def build_bars_from_closing_prices(closingPrices):
     return ret
 
 
+class TestBarFeed(membf.BarFeed):
+    def barsHaveAdjClose(self):
+        raise NotImplementedError()
+
+
 class DDHelperCase(unittest.TestCase):
     def testNoDrawDown1(self):
         helper = drawdown.DrawDownHelper()
@@ -225,7 +230,7 @@ class AnalyzerTestCase(unittest.TestCase):
         self.__testIGE_BrokerImpl(2)
 
     def __testManualImpl(self, closingPrices, cash):
-        barFeed = membf.BarFeed(bar.Frequency.DAY)
+        barFeed = TestBarFeed(bar.Frequency.DAY)
         bars = build_bars_from_closing_prices(closingPrices)
         barFeed.addBarsFromSequence("orcl", bars)
 

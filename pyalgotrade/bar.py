@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 from pyalgotrade import warninghelpers
 
 
@@ -48,34 +50,44 @@ class Bar(object):
         This is a base class and should not be used directly.
     """
 
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def getDateTime(self):
         """Returns the :class:`datetime.datetime`."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getOpen(self, adjusted=False):
         """Returns the opening price."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getHigh(self, adjusted=False):
         """Returns the highest price."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getLow(self, adjusted=False):
         """Returns the lowest price."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getClose(self, adjusted=False):
         """Returns the closing price."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getVolume(self):
         """Returns the volume."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getAdjClose(self):
         """Returns the adjusted closing price."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getFrequency(self):
         """The bar's period."""
         raise NotImplementedError()

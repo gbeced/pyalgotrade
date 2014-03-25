@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 from pyalgotrade import observer
 
 
@@ -50,16 +52,19 @@ class BaseFeed(observer.Subject):
         self.__maxLen = maxLen
 
     # Return True if this is a real-time feed.
+    @abc.abstractmethod
     def isRealTime(self):
         raise NotImplementedError()
 
     # Subclasses should implement this and return the appropriate dataseries for the given key.
+    @abc.abstractmethod
     def createDataSeries(self, key, maxLen):
         raise NotImplementedError()
 
     # Subclasses should implement this and return a tuple with two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
+    @abc.abstractmethod
     def getNextValues(self):
         raise NotImplementedError()
 

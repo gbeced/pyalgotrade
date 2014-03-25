@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 
 class Event(object):
     def __init__(self):
@@ -61,26 +63,34 @@ class Event(object):
 
 
 class Subject(object):
+    __metaclass__ = abc.ABCMeta
+
     # This may raise.
+    @abc.abstractmethod
     def start(self):
         raise NotImplementedError()
 
     # This should not raise.
+    @abc.abstractmethod
     def stop(self):
         raise NotImplementedError()
 
     # This should not raise.
+    @abc.abstractmethod
     def join(self):
         raise NotImplementedError()
 
     # Return True if there are not more events to dispatch.
+    @abc.abstractmethod
     def eof(self):
         raise NotImplementedError()
 
     # Dispatch events. If True is returned, it means that at least one event was dispatched.
+    @abc.abstractmethod
     def dispatch(self):
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def peekDateTime(self):
         # Return the datetime for the next event.
         # This is needed to properly synchronize non-realtime subjects.

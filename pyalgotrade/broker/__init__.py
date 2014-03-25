@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 from pyalgotrade import observer
 
 
@@ -445,6 +447,8 @@ class Broker(observer.Subject):
         This is a base class and should not be used directly.
     """
 
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self):
         self.__orderEvent = observer.Event()
 
@@ -457,14 +461,17 @@ class Broker(observer.Subject):
     def getOrderUpdatedEvent(self):
         return self.__orderEvent
 
+    @abc.abstractmethod
     def getShares(self, instrument):
         """Returns the number of shares for an instrument."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getPositions(self):
         """Returns a dictionary that maps instruments to shares."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getActiveOrders(self, instrument=None):
         """Returns a sequence with the orders that are still active.
 
@@ -473,6 +480,7 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def placeOrder(self, order):
         """Submits an order.
 
@@ -485,6 +493,7 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         """Creates a Market order.
         A market order is an order to buy or sell a stock at the best available price.
@@ -503,6 +512,7 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
         """Creates a Limit order.
         A limit order is an order to buy or sell a stock at a specific price or better.
@@ -521,6 +531,7 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def createStopOrder(self, action, instrument, stopPrice, quantity):
         """Creates a Stop order.
         A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the stock
@@ -543,6 +554,7 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
         """Creates a Stop-Limit order.
         A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit order.
@@ -563,6 +575,7 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def cancelOrder(self, order):
         """Requests an order to be canceled. If the order is filled an Exception is raised.
 

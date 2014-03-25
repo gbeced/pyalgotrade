@@ -84,6 +84,24 @@ class BarFeed(barfeed.BaseBarFeed):
         self.__builder = BarsBuilder(instrument, frequency)
         self.__nextBars = None
 
+    def start(self):
+        raise NotImplementedError()
+
+    def stop(self):
+        raise NotImplementedError()
+
+    def join(self):
+        raise NotImplementedError()
+
+    def eof(self):
+        raise NotImplementedError()
+
+    def peekDateTime(self):
+        raise NotImplementedError()
+
+    def isRealTime(self):
+        raise NotImplementedError()
+
     def dispatchBars(self, openPrice, highPrice, lowPrice, closePrice, volume=None, sessionClose=False):
         self.__nextBars = self.__builder.nextBars(openPrice, highPrice, lowPrice, closePrice, volume, sessionClose)
         self.dispatch()

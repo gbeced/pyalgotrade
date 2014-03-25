@@ -48,6 +48,11 @@ def us_equities_datetime(*args, **kwargs):
     return ret
 
 
+class TestBarFeed(membf.BarFeed):
+    def barsHaveAdjClose(self):
+        raise NotImplementedError()
+
+
 class BaseTestStrategy(strategy.BacktestingStrategy):
     def __init__(self, barFeed, instrument, cash=1000000):
         strategy.BacktestingStrategy.__init__(self, barFeed, cash)
@@ -546,7 +551,7 @@ class LongPosTestCase(BaseTestCase):
     def testPartialFillGTC1(self):
         # Open and close after entry has been fully filled.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -587,7 +592,7 @@ class LongPosTestCase(BaseTestCase):
     def testPartialFillGTC2(self):
         # Open and close after entry has been partially filled.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -642,7 +647,7 @@ class LongPosTestCase(BaseTestCase):
         # The idea is to simulate a real scenario where cancelation gets submited but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -698,7 +703,7 @@ class LongPosTestCase(BaseTestCase):
         # The idea is to simulate a real scenario where cancelation gets submited but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -1058,7 +1063,7 @@ class StopPosTestCase(BaseTestCase):
     def testPartialFillGTC1(self):
         # Open and close after entry has been fully filled.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -1100,7 +1105,7 @@ class StopPosTestCase(BaseTestCase):
     def testPartialFillGTC2(self):
         # Open and close after entry has been partially filled.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -1156,7 +1161,7 @@ class StopPosTestCase(BaseTestCase):
         # The idea is to simulate a real scenario where cancelation gets submited but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
@@ -1213,7 +1218,7 @@ class StopPosTestCase(BaseTestCase):
         # The idea is to simulate a real scenario where cancelation gets submited but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
-        bf = membf.BarFeed(bar.Frequency.DAY)
+        bf = TestBarFeed(bar.Frequency.DAY)
         bars = [
             bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
             bar.BasicBar(datetime.datetime(2000, 1, 2), 11, 11, 10, 10, 10, 10, bar.Frequency.DAY),
