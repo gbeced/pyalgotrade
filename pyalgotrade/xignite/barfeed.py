@@ -140,17 +140,23 @@ class GetBarThread(PollingThread):
     def doCall(self):
         endDateTime = self.__nextBarClose
         self.__updateNextBarClose()
+        barDict = {}
 
         for indentifier in self.__identifiers:
             try:
                 logger.debug("Requesting bars with precision %s and period %s for %s" % (self.__precision, self.__period, indentifier))
                 response = api.XigniteGlobalRealTime_GetBar(self.__apiToken, indentifier, "Symbol", endDateTime, self.__precision, self.__period)
                 logger.debug(response)
-                build_bar(response["Bar"], indentifier, self.__frequency)
+                barDict[indentifier] = build_bar(response["Bar"], indentifier, self.__frequency)
             except api.XigniteError, e:
                 logger.error(e)
 
+        if len(barDict):
+            bars = bar.Bars(barDict)
+            self.__queue.put((GetBarThread.ON_BARS, bars))
 
+
+# Live BarFeed based on XigniteGlobalRealTime API (https://www.xignite.com/product/global-real-time-stock-quote-data/).
 class LiveFeed(barfeed.BaseBarFeed):
 
     QUEUE_TIMEOUT = 0.01
@@ -200,7 +206,7 @@ class LiveFeed(barfeed.BaseBarFeed):
         try:
             eventType, eventData = self.__queue.get(True, LiveFeed.QUEUE_TIMEOUT)
             if eventType == GetBarThread.ON_BARS:
-                pass
+                ret = eventData
             else:
                 logger.error("Invalid event received: %s - %s" % (eventType, eventData))
         except Queue.Empty:
