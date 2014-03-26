@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
 import datetime
 
 from pyalgotrade.utils import dt
@@ -28,23 +29,33 @@ from pyalgotrade import dataseries
 
 # Interface for csv row parsers.
 class RowParser(object):
+
+    __metaclass__ = abc.ABCMeta
+
     # Parses a row and returns a tuple with with two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
+    @abc.abstractmethod
     def parseRow(self, csvRowDict):
         raise NotImplementedError()
 
     # Returns a list of field names. If None, then the first row in the CSV should have the field names.
+    @abc.abstractmethod
     def getFieldNames(self):
         raise NotImplementedError()
 
     # Returns the delimiter.
+    @abc.abstractmethod
     def getDelimiter(self):
         raise NotImplementedError()
 
 
 # Interface for bar filters.
 class RowFilter(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def includeRow(self, dateTime, values):
         raise NotImplementedError()
 

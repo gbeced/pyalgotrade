@@ -30,24 +30,10 @@ from pyalgotrade import feed
 Frequency = bar.Frequency
 
 
-# Subclasses should implement:
-# - getNextBars
-# - Remaining observer.Subject methods
-# - Remaining feed.BaseFeed methods
-#
-# THIS IS A VERY BASIC CLASS AND IT WON'T DO ANY VERIFICATIONS OVER THE BARS RETURNED.
-
 class BaseBarFeed(feed.BaseFeed):
     """Base class for :class:`pyalgotrade.bar.Bar` providing feeds.
 
-    :param frequency: The bars frequency. Valid frequency values are:
-
-        * bar.Frequency.TRADE
-        * bar.Frequency.SECOND
-        * bar.Frequency.MINUTE
-        * bar.Frequency.HOUR
-        * bar.Frequency.DAY
-
+    :param frequency: The bars frequency. Valid values defined in :class:`pyalgotrade.bar.Frequency`.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
     :type maxLen: int.

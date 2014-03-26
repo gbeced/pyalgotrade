@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 from pyalgotrade import broker
 from pyalgotrade import warninghelpers
 from pyalgotrade import logger
@@ -34,6 +36,9 @@ class Commission(object):
         This is a base class and should not be used directly.
     """
 
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def calculate(self, order, price, quantity):
         """Calculates the commission for an order execution.
 
@@ -169,6 +174,8 @@ class FillInfo(object):
 class FillStrategy(object):
     """Base class for order filling strategies."""
 
+    __metaclass__ = abc.ABCMeta
+
     def onBars(self, dateTime, bars):
         """Override (optional) to get notified when the broker is about to process new bars."""
         pass
@@ -177,6 +184,7 @@ class FillStrategy(object):
         """Override (optional) to get notified when an order was filled, or partially filled."""
         pass
 
+    @abc.abstractmethod
     def fillMarketOrder(self, order, broker_, bar):
         """Override to return the fill price and quantity for a market order or None if the order can't be filled at the given time.
 
@@ -190,6 +198,7 @@ class FillStrategy(object):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def fillLimitOrder(self, order, broker_, bar):
         """Override to return the fill price and quantity for a limit order or None if the order can't be filled at the given time.
 
@@ -203,6 +212,7 @@ class FillStrategy(object):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def fillStopOrder(self, order, broker_, bar):
         """Override to return the fill price and quantity for a stop order or None if the order can't be filled at the given time.
 
@@ -216,6 +226,7 @@ class FillStrategy(object):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def fillStopLimitOrder(self, order, broker_, bar):
         """Override to return the fill price and quantity for a stop limit order or None if the order can't be filled at the given time.
 
