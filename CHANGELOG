@@ -1,4 +1,5 @@
 Version 0.15 (TBD)
+. [NEW] Xignite support (http://www.xignite.com/).
 . [NEW] Added support for papertrading Bitcoin strategies through Bitstamp.
 . [NEW] Partial fill support for orders.
 . [NEW] Added logging methods to the Strategy class.

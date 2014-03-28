@@ -15,6 +15,7 @@ Release checklist
 [ ] Run samples/compinv-3.py using the installed lib.
 [ ] Run samples/tutorial_bitstamp_1.py using the installed lib. Check disconnection detection.
 [ ] Run samples/tutorial_twitter_bitstamp.py using the installed lib.
+[ ] Run samples/tutorial_xignite_1.py using the installed lib.
 [ ] Run samples/eventstudy.py using the installed lib.
 
 [ ] Update the website (doc + package).

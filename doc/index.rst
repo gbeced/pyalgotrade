@@ -16,10 +16,11 @@ Contents:
     code
     tools
     eventprofiler
-    talib
-    googleappengine
+    xignite
     bitstamp
     twitter
+    talib
+    googleappengine
     compinvpart1
     samples
 

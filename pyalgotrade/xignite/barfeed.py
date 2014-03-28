@@ -106,7 +106,7 @@ class GetBarThread(PollingThread):
     # Events
     ON_BARS = 1
 
-    def __init__(self, queue, apiToken, identifiers, frequency):
+    def __init__(self, queue, apiToken, identifiers, frequency, apiCallDelay):
         PollingThread.__init__(self)
 
         # Map frequency to precision and period.
@@ -128,6 +128,8 @@ class GetBarThread(PollingThread):
         self.__identifiers = identifiers
         self.__frequency = frequency
         self.__nextBarClose = None
+        # The delay between the bar's close and the API call.
+        self.__apiCallDelay = apiCallDelay
 
         self.__updateNextBarClose()
  
@@ -135,7 +137,7 @@ class GetBarThread(PollingThread):
         self.__nextBarClose = resampled.get_slot_datetime(utcnow(), self.__frequency) + self.__timeDelta
 
     def getNextCallDateTime(self):
-        return self.__nextBarClose
+        return self.__nextBarClose + self.__apiCallDelay
 
     def doCall(self):
         endDateTime = self.__nextBarClose
@@ -146,7 +148,7 @@ class GetBarThread(PollingThread):
             try:
                 logger.debug("Requesting bars with precision %s and period %s for %s" % (self.__precision, self.__period, indentifier))
                 response = api.XigniteGlobalRealTime_GetBar(self.__apiToken, indentifier, "Symbol", endDateTime, self.__precision, self.__period)
-                logger.debug(response)
+                # logger.debug(response)
                 barDict[indentifier] = build_bar(response["Bar"], indentifier, self.__frequency)
             except api.XigniteError, e:
                 logger.error(e)
@@ -156,18 +158,40 @@ class GetBarThread(PollingThread):
             self.__queue.put((GetBarThread.ON_BARS, bars))
 
 
-# Live BarFeed based on XigniteGlobalRealTime API (https://www.xignite.com/product/global-real-time-stock-quote-data/).
 class LiveFeed(barfeed.BaseBarFeed):
+    """A real-time BarFeed that builds bars using XigniteGlobalRealTime API
+    (https://www.xignite.com/product/global-real-time-stock-quote-data/).
+
+    :param apiToken: The API token to authenticate calls to Xignine APIs.
+    :type apiToken: string.
+    :param identifiers: A list with the fully qualified identifier for the securities including the exchange suffix.
+    :type identifiers: list.
+    :param frequency: The frequency of the bars.
+        Must be greater than or equal to **bar.Frequency.MINUTE** and less than **bar.Frequency.DAY**.
+    :param apiCallDelay: The delay in seconds between the bar's close and the API call.
+    :type apiCallDelay: int.
+    :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+    :type maxLen: int.
+
+    .. note:: Valid exchange suffixes are:
+
+         * **ARCX**: NYSE ARCA
+         * **CHIX**: CHI-X EUROPE LIMITED
+         * **XASE**: NYSE MKT EQUITIES
+         * **XNAS**: NASDAQ
+         * **XNYS**: NEW YORK STOCK EXCHANGE, INC
+    """
 
     QUEUE_TIMEOUT = 0.01
 
-    # apiToken
-    # identifiers: A list with the fully qualified identifier for the securities including the exchange suffix.
-    # Valid exchange suffixes are (ARCX, CHIX, XASE, XNAS, XNYS)
-    def __init__(self, apiToken, identifiers, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, apiToken, identifiers, frequency, apiCallDelay=10, maxLen=dataseries.DEFAULT_MAX_LEN):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
+        if not isinstance(identifiers, list):
+            raise Exception("identifiers must be a list")
+
         self.__queue = Queue.Queue()
-        self.__thread = GetBarThread(self.__queue, apiToken, identifiers, frequency)
+        self.__thread = GetBarThread(self.__queue, apiToken, identifiers, frequency, datetime.timedelta(seconds=apiCallDelay))
         for instrument in identifiers:
             self.registerInstrument(instrument)
 
