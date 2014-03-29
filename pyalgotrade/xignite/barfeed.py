@@ -132,7 +132,7 @@ class GetBarThread(PollingThread):
         self.__apiCallDelay = apiCallDelay
 
         self.__updateNextBarClose()
- 
+
     def __updateNextBarClose(self):
         self.__nextBarClose = resampled.get_slot_datetime(utcnow(), self.__frequency) + self.__timeDelta
 
@@ -195,8 +195,9 @@ class LiveFeed(barfeed.BaseBarFeed):
         for instrument in identifiers:
             self.registerInstrument(instrument)
 
-    ###################################################################### 
+    ######################################################################
     # observer.Subject interface
+
     def start(self):
         if self.__thread.is_alive():
             raise Exception("Already strated")
@@ -220,8 +221,9 @@ class LiveFeed(barfeed.BaseBarFeed):
     def isRealTime(self):
         return True
 
-    ###################################################################### 
+    ######################################################################
     # barfeed.BaseBarFeed interface
+
     def barsHaveAdjClose(self):
         return False
 

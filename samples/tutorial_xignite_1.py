@@ -4,6 +4,7 @@ from pyalgotrade.xignite import barfeed
 from pyalgotrade.broker import backtesting
 from pyalgotrade.technical import ma
 
+
 class Strategy(strategy.BaseStrategy):
     def __init__(self, feed, brk):
         strategy.BaseStrategy.__init__(self, feed, brk)
@@ -15,6 +16,7 @@ class Strategy(strategy.BaseStrategy):
         for instrument in bars.getInstruments():
             bar = bars[instrument]
             self.info("%s: Open: %s High: %s Low: %s Close: %s Volume: %s SMA: %s" % (instrument, bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), self.__sma[instrument][-1]))
+
 
 def main():
     # Replace apiToken with your own API token.
