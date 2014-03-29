@@ -20,7 +20,7 @@ class Strategy(strategy.BaseStrategy):
 
 def main():
     # Replace apiToken with your own API token.
-    apiToken = "B1FAD1B285D04F6A8818CE1B6240933D"
+    apiToken = "<YOUR API TOKEN HERE>"
     # indentifiers are fully qualified identifiers for the security and must include the exchange suffix.
     indentifiers = ["RIOl.CHIX", "HSBAl.CHIX"]
     # apiCallDelay is necessary because the bar may not be immediately available.
