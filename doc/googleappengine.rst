@@ -71,9 +71,9 @@ This basic application that you just uploaded includes the RSI2 strategy from th
 
 Next, you'll download 3 years of daily bars for 'Dow Jones Industrial Average': ::
 
-    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2009)" > dia-2009.csv
-    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2010)" > dia-2010.csv
-    python -c "from pyalgotrade.tools import yahoofinance; print yahoofinance.get_daily_csv('dia', 2011)" > dia-2011.csv
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2009, 'dia-2009.csv')"
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2010, 'dia-2010.csv')" 
+    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2011, 'dia-2011.csv')"
 
 and then upload those to your app with the following command: ::
 

@@ -14,13 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import rsi2
-import triple_ma_crossover
 
-
-# Export strategies here.
+# Export strategy classes here. The full class path must be used.
 def get_strategy_classes():
     ret = []
-    ret.append(rsi2.Strategy)
-    ret.append(triple_ma_crossover.Strategy)
+    ret.append("strategies.rsi2.Strategy")
+    ret.append("strategies.triple_ma_crossover.Strategy")
     return ret

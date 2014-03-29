@@ -94,9 +94,9 @@ class Strategy(strategy.BacktestingStrategy):
         if self.__position is not None:
             self.__daysLeft -= 1
             if self.__daysLeft <= 0:
-                self.__position.exit()
-            elif self.__position.getUnrealizedReturn(closePrice) < -0.03:
-                self.__position.exit()
+                self.__position.exitMarket()
+            elif self.__position.getUnrealizedReturn() < -0.03:
+                self.__position.exitMarket()
         elif self.__entrySignal(bars):
             self.__position = self.enterLong(self.__instrument, self.__getOrderSize(closePrice))
             self.__daysLeft = self.__daysToHold

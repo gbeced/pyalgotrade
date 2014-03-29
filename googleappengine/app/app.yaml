@@ -32,3 +32,6 @@ handlers:
   script: pages/home.py
   login: admin
 
+libraries:
+- name: numpy
+  version: "latest"
