@@ -1,3 +1,5 @@
+.. _xignite-tutorial-label:
+
 Xignite Example
 ===============
 
@@ -17,7 +19,7 @@ The key things to highlight are:
  3. As described in https://www.xignite.com/product/global-real-time-stock-quote-data/api/GetBar/, indentifiers are fully qualified
     identifiers for the security as determined by the **IdentifierType** parameter. You **must** include the exchange suffix.
  4. You can only paper trade while the market is open.
- 5. The 5 minute bars are requested 60 seconds after the 5 minute window closes because data is not immediately available.
+ 5. The 5 minute bars are requested 60 seconds after the 5 minute window closes because data may not be immediately available.
 
 .. literalinclude:: ../samples/tutorial_xignite_1.py
 

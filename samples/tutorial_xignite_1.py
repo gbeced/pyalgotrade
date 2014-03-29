@@ -23,7 +23,7 @@ def main():
     apiToken = "B1FAD1B285D04F6A8818CE1B6240933D"
     # indentifiers are fully qualified identifiers for the security and must include the exchange suffix.
     indentifiers = ["RIOl.CHIX", "HSBAl.CHIX"]
-    # apiCallDelay is necessary because the bar is not immediately available.
+    # apiCallDelay is necessary because the bar may not be immediately available.
     apiCallDelay = 60
 
     feed = barfeed.LiveFeed(apiToken, indentifiers, Frequency.MINUTE*5, apiCallDelay)

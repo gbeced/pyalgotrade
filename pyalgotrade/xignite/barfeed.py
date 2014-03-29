@@ -169,6 +169,7 @@ class LiveFeed(barfeed.BaseBarFeed):
     :param frequency: The frequency of the bars.
         Must be greater than or equal to **bar.Frequency.MINUTE** and less than **bar.Frequency.DAY**.
     :param apiCallDelay: The delay in seconds between the bar's close and the API call.
+        This is necessary because the bar may not be immediately available.
     :type apiCallDelay: int.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
@@ -185,7 +186,7 @@ class LiveFeed(barfeed.BaseBarFeed):
 
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, apiToken, identifiers, frequency, apiCallDelay=10, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, apiToken, identifiers, frequency, apiCallDelay=30, maxLen=dataseries.DEFAULT_MAX_LEN):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
         if not isinstance(identifiers, list):
             raise Exception("identifiers must be a list")

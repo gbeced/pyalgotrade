@@ -37,11 +37,11 @@ USE_SECURE_REQUESTS = False
 #  https://www.xignite.com/product/XigniteGlobalExchanges/api/GetExchangeHours/
 
 MARKET_TIMEZONES = {
-    "ARCX": pytz.timezone("US/Eastern"),  # NYSE ARCA
+    "ARCX": pytz.timezone("US/Eastern"),     # NYSE ARCA
     "CHIX": pytz.timezone("Europe/London"),  # CHI-X EUROPE LIMITED
-    "XASE": pytz.timezone("US/Eastern"),  # NYSE MKT EQUITIES
-    "XNAS": pytz.timezone("US/Eastern"),  # NASDAQ
-    "XNYS": pytz.timezone("US/Eastern"),  # NEW YORK STOCK EXCHANGE, INC
+    "XASE": pytz.timezone("US/Eastern"),     # NYSE MKT EQUITIES
+    "XNAS": pytz.timezone("US/Eastern"),     # NASDAQ
+    "XNYS": pytz.timezone("US/Eastern"),     # NEW YORK STOCK EXCHANGE, INC
 }
 
 
