@@ -31,6 +31,7 @@ class MemBarFeed(membf.BarFeed):
     def barsHaveAdjClose(self):
         return True
 
+
 # Converts a persistence.Bar to a pyalgotrade.bar.Bar.
 def ds_bar_to_pyalgotrade_bar(dsBar):
     return bar.BasicBar(dsBar.dateTime, dsBar.open_, dsBar.high, dsBar.low, dsBar.close_, dsBar.volume, dsBar.adjClose, bar.Frequency.DAY)
