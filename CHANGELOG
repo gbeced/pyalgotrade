@@ -1,4 +1,4 @@
-Version 0.15 (TBD)
+Version 0.15 (30/Mar/2014)
 . [NEW] Xignite support (http://www.xignite.com/).
 . [NEW] Added support for papertrading Bitcoin strategies through Bitstamp.
 . [NEW] Partial fill support for orders.
@@ -14,12 +14,12 @@ Version 0.15 (TBD)
 . [NEW] Added stopLimitOrder method to the Strategy class to place stop limit orders.
 . [BREAKING CHANGE] Support for auto-exit on session close was removed.
 . [BREAKING CHANGE] Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).
-. [BREAKING CHANGE] Prevent resubmitting orders.
-. [BREAKING CHANGE] Prevent changing order properties that are set during initialization.
+. [BREAKING CHANGE] Fail when resubmitting orders.
+. [BREAKING CHANGE] Fail when changing order properties that are set during initialization.
 . [BREAKING CHANGE] The last parameter to broker.backtesting.FillStrategy.fillStopLimitOrder was removed. FillStrategy will now handle all the details for order filling to allow better customization.
 . [BREAKING CHANGE] Changed the order of the stopPrice and limitPrice parameters in Strategy.enterLongStopLimit, Strategy.enterShortStopLimit and Position.exit.
-. [CHANGE] Removed MtGox support.
-. [CHANGE] pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.
+. [BREAKING CHANGE] Removed MtGox support.
+. [BREAKING CHANGE] pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.
 . [CHANGE] setUseAdjustedValues should now be called on the strategy instead of the broker.
 . [CHANGE] Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.
 . [CHANGE] Daily bars from Yahoo and NinjaTrader CSV feeds are loaded with time set to 00:00:00.
