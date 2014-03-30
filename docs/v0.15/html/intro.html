@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; PyAlgoTrade 0.15 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.15',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.15 documentation" href="index.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="PyAlgoTrade documentation" href="index.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyAlgoTrade documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>PyAlgoTrade is an event driven algorithmic trading Python library that I started with one goal in mind:
+<strong>To make it easy to backtest stock trading strategies</strong>.
+This is, given a certain amount of historical data for one stock, I want to check how a certain stock trading strategy behaves.</p>
+<dl class="docutils">
+<dt>Paper trading support is in its early stages right now and there are two real time bar feeds supported:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference internal" href="bitstamp_example.html#bitstamp-tutorial-label"><em>Bitstamp Example</em></a></li>
+<li><a class="reference internal" href="xignite_example.html#xignite-tutorial-label"><em>Xignite Example</em></a></li>
+</ul>
+</dd>
+</dl>
+<p>Although initially designed for backtesting purposes, the design should adapt real trading scenarios and future releases will
+gradually support this.</p>
+<p>It should also make it easy to optimize a strategy using multiple computers.</p>
+<dl class="docutils">
+<dt>PyAlgoTrade is developed using Python 2.7 and depends on:</dt>
+<dd><ul class="first last simple">
+<li>NumPy and SciPy (<a class="reference external" href="http://numpy.scipy.org/">http://numpy.scipy.org/</a>).</li>
+<li>pytz (<a class="reference external" href="http://pytz.sourceforge.net/">http://pytz.sourceforge.net/</a>).</li>
+<li>matplotlib (<a class="reference external" href="http://matplotlib.sourceforge.net/">http://matplotlib.sourceforge.net/</a>) for plotting support.</li>
+<li>ws4py (<a class="reference external" href="https://github.com/Lawouach/WebSocket-for-Python">https://github.com/Lawouach/WebSocket-for-Python</a>) for Bitstamp support.</li>
+<li>tornado (<a class="reference external" href="http://www.tornadoweb.org/en/stable/">http://www.tornadoweb.org/en/stable/</a>) for Bitstamp support.</li>
+<li>tweepy (<a class="reference external" href="https://github.com/tweepy/tweepy">https://github.com/tweepy/tweepy</a>) for Twitter support.</li>
+</ul>
+</dd>
+</dl>
+<p>so you need to have those installed in order to use this library.</p>
+<p>You can install PyAlgoTrade using pip like this:</p>
+<div class="highlight-python"><pre>pip install pyalgotrade</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">PyAlgoTrade documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyAlgoTrade documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

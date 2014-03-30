@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quandl integration &mdash; PyAlgoTrade 0.15 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.15',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.15 documentation" href="index.html" />
+    <link rel="up" title="Sample strategies" href="samples.html" />
+    <link rel="prev" title="Bollinger Bands" href="sample_bbands.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_bbands.html" title="Bollinger Bands"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li>
+          <li><a href="samples.html" accesskey="U">Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="quandl-integration">
+<h1>Quandl integration<a class="headerlink" href="#quandl-integration" title="Permalink to this headline">¶</a></h1>
+<p>The purpose of this example is to show how to integrate any time-series data in CSV format into a strategy.</p>
+<p>We&#8217;ll use the following CSV data from Quandl:
+<a class="reference external" href="http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M">http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M</a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">yahoofinance</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.feed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">quandlFeed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUseAdjustedValues</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+
+        <span class="c"># It is VERY important to add the the extra feed to the event dispatch loop before</span>
+        <span class="c"># running the strategy.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getDispatcher</span><span class="p">()</span><span class="o">.</span><span class="n">addSubject</span><span class="p">(</span><span class="n">quandlFeed</span><span class="p">)</span>
+
+        <span class="c"># Subscribe to events from the Quandl feed.</span>
+        <span class="n">quandlFeed</span><span class="o">.</span><span class="n">getNewValuesEvent</span><span class="p">()</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onQuandlData</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onQuandlData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dateTime</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getAdjClose</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+    <span class="n">instruments</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;gld&quot;</span><span class="p">]</span>
+
+    <span class="c"># Download the bars.</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofinance</span><span class="o">.</span><span class="n">build_feed</span><span class="p">(</span><span class="n">instruments</span><span class="p">,</span> <span class="mi">2006</span><span class="p">,</span> <span class="mi">2012</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="c"># Load Quandl CSV downloaded from http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M</span>
+    <span class="n">quandlFeed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">(</span><span class="s">&quot;Date&quot;</span><span class="p">,</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">quandlFeed</span><span class="o">.</span><span class="n">setDateRange</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+    <span class="n">quandlFeed</span><span class="o">.</span><span class="n">addValuesFromCSV</span><span class="p">(</span><span class="s">&quot;quandl_gold_2.csv&quot;</span><span class="p">)</span>
+
+    <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">quandlFeed</span><span class="p">,</span> <span class="n">instruments</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">myStrategy</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getOrCreateSubplot</span><span class="p">(</span><span class="s">&quot;quandl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;USD&quot;</span><span class="p">,</span> <span class="n">quandlFeed</span><span class="p">[</span><span class="s">&quot;USD&quot;</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getOrCreateSubplot</span><span class="p">(</span><span class="s">&quot;quandl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;EUR&quot;</span><span class="p">,</span> <span class="n">quandlFeed</span><span class="p">[</span><span class="s">&quot;EUR&quot;</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getOrCreateSubplot</span><span class="p">(</span><span class="s">&quot;quandl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;GBP&quot;</span><span class="p">,</span> <span class="n">quandlFeed</span><span class="p">[</span><span class="s">&quot;GBP&quot;</span><span class="p">])</span>
+
+    <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this is what the output should look like:</p>
+<div class="highlight-python"><pre>2006-01-01 00:00:00 strategy [INFO] {'USD': 513.0, 'GBP': 298.204, 'EUR': 433.533}
+2006-01-03 00:00:00 strategy [INFO] 53.12
+2006-01-04 00:00:00 strategy [INFO] 53.3
+2006-01-05 00:00:00 strategy [INFO] 52.34
+2006-01-06 00:00:00 strategy [INFO] 53.72
+2006-01-08 00:00:00 strategy [INFO] {'USD': 535.25, 'GBP': 302.572, 'EUR': 440.173}
+2006-01-09 00:00:00 strategy [INFO] 54.6
+2006-01-10 00:00:00 strategy [INFO] 54.06
+2006-01-11 00:00:00 strategy [INFO] 54.53
+2006-01-12 00:00:00 strategy [INFO] 54.43
+.
+.
+.
+2012-12-19 00:00:00 strategy [INFO] 161.69
+2012-12-20 00:00:00 strategy [INFO] 159.73
+2012-12-21 00:00:00 strategy [INFO] 160.33
+2012-12-23 00:00:00 strategy [INFO] {'USD': 1651.5, 'GBP': 1019.256, 'EUR': 1253.701}
+2012-12-24 00:00:00 strategy [INFO] 160.62
+2012-12-26 00:00:00 strategy [INFO] 160.78
+2012-12-27 00:00:00 strategy [INFO] 161.16
+2012-12-28 00:00:00 strategy [INFO] 160.54
+2012-12-30 00:00:00 strategy [INFO] {'USD': 1657.5, 'GBP': 1027.206, 'EUR': 1253.024}
+2012-12-31 00:00:00 strategy [INFO] 162.02
+</pre>
+</div>
+<p>and this is what the plot should look like:</p>
+<img alt="_images/quandl_sample.png" src="_images/quandl_sample.png" />
+<p>you can get better returns by tunning the Bollinger Bands period as well as the entry and exit points.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sample_bbands.html"
+                        title="previous chapter">Bollinger Bands</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sample_quandl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_bbands.html" title="Bollinger Bands"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li>
+          <li><a href="samples.html" >Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

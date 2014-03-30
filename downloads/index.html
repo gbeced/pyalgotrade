@@ -102,7 +102,53 @@
 			</div><!-- /.navbar -->
 		</div>
 
-		<h2>Current version: 0.14 (12/Oct/2013)</h2>
+		<h2>Current version: 0.15 (30/Mar/2014)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.15/PyAlgoTrade-0.15.tar.gz/download">PyAlgoTrade-0.15.tar.gz</a>
+		<h3>New features</h3>
+		<ul>
+			<li><a href="http://www.xignite.com/">Xignite</a> support for realtime bars.</li>
+			<li>Support for papertrading Bitcoin strategies through <a href="https://www.bitstamp.net/">Bitstamp</a>.</li>
+			<li>Partial fill support for orders.</li>
+			<li>MACD technical indicator (pyalgotrade.technical.macd.MACD).</li>
+			<li>Average True Range (ATR) technical indicator (pyalgotrade.technical.atr.ATR).</li>
+			<li>LeastSquaresRegression filter (pyalgotrade.technical.linreg.LeastSquaresRegression). Depends on SciPy.</li>
+			<li>Added marketOrder method to the Strategy class to place market orders.</li>
+			<li>Added limitOrder method to the Strategy class to place limit orders.</li>
+			<li>Added stopOrder method to the Strategy class to place stop orders.</li>
+			<li>Added stopLimitOrder method to the Strategy class to place stop limit orders.</li>
+			<li>Added logging methods to the Strategy class.</li>
+			<li>pyalgotrade.barfeed.yahoofeed.Feed now supports weekly bars.</li>
+			<li>pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now support any grouping frequency.</li>
+		</ul>
+		<h3>Bug fixes</h3>
+		<ul>
+			<li>Fixed a bug in pyalgotrade.technical.roc.RateOfChange when there was no change and the current value was 0.</li>
+			<li>pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now set the datetime to that of the beggining of the bar.</li>
+		</ul>
+		<h3>Breaking changes</h3>
+		<ul>
+			<li>Removed MtGox support.</li>
+			<li>Changed the order of the stopPrice and limitPrice parameters in Strategy.enterLongStopLimit, Strategy.enterShortStopLimit and Position.exit.</li>
+			<li>Support for auto-exit on session close was removed.</li>
+			<li>pyalgotrade.technical.trend.Slope was moved into the pyalgotrade.technical.linreg package.</li>
+			<li>Removed some deprecated methods from DataSeries (appendValue, appendValueWithDatetime, getValue, getValues, getValuesAbsolute, getFirstValidPos and getLength).</li>
+			<li>Fail when resubmitting orders.</li>
+			<li>Fail when changing order properties that are set during initialization.</li>
+			<li>The last parameter to broker.backtesting.FillStrategy.fillStopLimitOrder was removed. FillStrategy will now handle all the details for order filling to allow better customization.</li>
+		</ul>
+		<h3>Other changes</h3>
+		<ul>
+			<li>setUseAdjustedValues should now be called on the strategy instead of the broker.</li>
+			<li>Position.getUnrealizedNetProfit and Position.getUnrealizedReturn will automatically use the last available price if None is given.</li>
+			<li>Daily bars from Yahoo and NinjaTrader CSV feeds are loaded with time set to 00:00:00.</li>
+			<li>All classes now inherit from object.</li>
+			<li>The backtesting broker ignores volumeLimit when using trade bars.</li>
+			<li>The backtesting broker now emits the cancelation event when cancelation is requested, not in the next bar.</li>
+		</ul>
+
+		<hr>
+
+		<h2>Version 0.14 (12/Oct/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.14/PyAlgoTrade-0.14.tar.gz/download">PyAlgoTrade-0.14.tar.gz</a>
 		<ul>
 			<li>Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
@@ -123,8 +169,6 @@
 			<li>Event handlers for pyalgotrade.barfeed.BaseBarFeed.getNewBarsEvent should expect two parameters: datetime and bars.
 			<b>This change may break existing strategies that were manually subscribing to BarFeed events.</b></li>
 		</ul>
-
-		<hr>
 
 		<h2>Version 0.13 (26/Aug/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.13/PyAlgoTrade-0.13.tar.gz/download">PyAlgoTrade-0.13.tar.gz</a>
@@ -280,7 +324,7 @@
 		<hr>
 
 		<div class="footer">
-			<p>&copy; Gabriel Becedillas 2011</p>
+			<p>&copy; Gabriel Becedillas 2011-2014</p>
 		</div>
 
 	</div> <!-- /container -->

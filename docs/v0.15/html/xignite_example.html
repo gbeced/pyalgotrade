@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Xignite Example &mdash; PyAlgoTrade 0.15 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.15',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.15 documentation" href="index.html" />
+    <link rel="up" title="Xignite support" href="xignite.html" />
+    <link rel="next" title="Bitstamp support" href="bitstamp.html" />
+    <link rel="prev" title="xignite – Xignite reference" href="xignite_ref.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bitstamp.html" title="Bitstamp support"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="xignite_ref.html" title="xignite – Xignite reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li>
+          <li><a href="xignite.html" accesskey="U">Xignite support</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="xignite-example">
+<span id="xignite-tutorial-label"></span><h1>Xignite Example<a class="headerlink" href="#xignite-example" title="Permalink to this headline">¶</a></h1>
+<p>This goal of this example is to show how to put all the pieces together to paper
+trade a strategy using realtime feeds supplied by Xignite (<a class="reference external" href="https://www.xignite.com/">https://www.xignite.com/</a>).</p>
+<p>This example assumes that you&#8217;re already familiar with the basic concepts presented
+in the <a class="reference internal" href="tutorial.html#tutorial-label"><em>Tutorial</em></a> section.</p>
+<p>The key things to highlight are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>We&#8217;re using <a class="reference internal" href="strategy.html#pyalgotrade.strategy.BaseStrategy" title="pyalgotrade.strategy.BaseStrategy"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.strategy.BaseStrategy</span></tt></a> instead of <a class="reference internal" href="strategy.html#pyalgotrade.strategy.BacktestingStrategy" title="pyalgotrade.strategy.BacktestingStrategy"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.strategy.BacktestingStrategy</span></tt></a>
+as the base class. This is not a backtest.</li>
+<li><a class="reference internal" href="xignite_ref.html#pyalgotrade.xignite.barfeed.LiveFeed" title="pyalgotrade.xignite.barfeed.LiveFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.xignite.barfeed.LiveFeed</span></tt></a> is used to pull 5 minute bars directly from Xignite. In order to use this service
+you need to sign up for the XigniteGlobalRealTime API (<a class="reference external" href="https://www.xignite.com/product/global-real-time-stock-quote-data/">https://www.xignite.com/product/global-real-time-stock-quote-data/</a>)
+to get an API token.</li>
+<li>As described in <a class="reference external" href="https://www.xignite.com/product/global-real-time-stock-quote-data/api/GetBar/">https://www.xignite.com/product/global-real-time-stock-quote-data/api/GetBar/</a>, indentifiers are fully qualified
+identifiers for the security as determined by the <strong>IdentifierType</strong> parameter. You <strong>must</strong> include the exchange suffix.</li>
+<li>You can only paper trade while the market is open.</li>
+<li>The 5 minute bars are requested 60 seconds after the 5 minute window closes because data may not be immediately available.</li>
+</ol>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.bar</span> <span class="kn">import</span> <span class="n">Frequency</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.xignite</span> <span class="kn">import</span> <span class="n">barfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.broker</span> <span class="kn">import</span> <span class="n">backtesting</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
+
+
+<span class="k">class</span> <span class="nc">Strategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">feed</span><span class="o">.</span><span class="n">getRegisteredInstruments</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">getInstruments</span><span class="p">():</span>
+            <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Open: </span><span class="si">%s</span><span class="s"> High: </span><span class="si">%s</span><span class="s"> Low: </span><span class="si">%s</span><span class="s"> Close: </span><span class="si">%s</span><span class="s"> Volume: </span><span class="si">%s</span><span class="s"> SMA: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">getOpen</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getHigh</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getLow</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getVolume</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="p">[</span><span class="n">instrument</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c"># Replace apiToken with your own API token.</span>
+    <span class="n">apiToken</span> <span class="o">=</span> <span class="s">&quot;&lt;YOUR API TOKEN HERE&gt;&quot;</span>
+    <span class="c"># indentifiers are fully qualified identifiers for the security and must include the exchange suffix.</span>
+    <span class="n">indentifiers</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;RIOl.CHIX&quot;</span><span class="p">,</span> <span class="s">&quot;HSBAl.CHIX&quot;</span><span class="p">]</span>
+    <span class="c"># apiCallDelay is necessary because the bar may not be immediately available.</span>
+    <span class="n">apiCallDelay</span> <span class="o">=</span> <span class="mi">60</span>
+
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">barfeed</span><span class="o">.</span><span class="n">LiveFeed</span><span class="p">(</span><span class="n">apiToken</span><span class="p">,</span> <span class="n">indentifiers</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">MINUTE</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="n">apiCallDelay</span><span class="p">)</span>
+    <span class="n">brk</span> <span class="o">=</span> <span class="n">backtesting</span><span class="o">.</span><span class="n">Broker</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+    <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">Strategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+    <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The output should look like this:</p>
+<div class="highlight-python"><pre>2014-03-28 09:31:01,389 strategy [INFO] HSBAl.CHIX: Open: 6.093 High: 6.102 Low: 6.093 Close: 6.101 Volume: 45635.0 SMA: None
+2014-03-28 09:31:01,390 strategy [INFO] RIOl.CHIX: Open: 33.08 High: 33.08 Low: 33.065 Close: 33.07 Volume: 2303.0 SMA: None
+2014-03-28 09:36:01,494 strategy [INFO] HSBAl.CHIX: Open: 6.102 High: 6.102 Low: 6.099 Close: 6.099 Volume: 21043.0 SMA: None
+2014-03-28 09:36:01,495 strategy [INFO] RIOl.CHIX: Open: 33.075 High: 33.09 Low: 33.055 Close: 33.055 Volume: 2909.0 SMA: None
+2014-03-28 09:41:01,885 strategy [INFO] HSBAl.CHIX: Open: 6.101 High: 6.101 Low: 6.097 Close: 6.097 Volume: 29075.0 SMA: None
+2014-03-28 09:41:01,886 strategy [INFO] RIOl.CHIX: Open: 33.04 High: 33.04 Low: 33.005 Close: 33.005 Volume: 895.0 SMA: None
+2014-03-28 09:46:00,943 strategy [INFO] HSBAl.CHIX: Open: 6.098 High: 6.098 Low: 6.093 Close: 6.094 Volume: 17955.0 SMA: None
+2014-03-28 09:46:00,943 strategy [INFO] RIOl.CHIX: Open: 33.005 High: 33.035 Low: 32.995 Close: 32.995 Volume: 4052.0 SMA: None
+2014-03-28 09:51:01,604 strategy [INFO] HSBAl.CHIX: Open: 6.093 High: 6.099 Low: 6.092 Close: 6.097 Volume: 28046.0 SMA: 6.0976
+2014-03-28 09:51:01,604 strategy [INFO] RIOl.CHIX: Open: 32.99 High: 33.025 Low: 32.985 Close: 32.99 Volume: 2823.0 SMA: 33.023
+2014-03-28 09:56:01,511 strategy [INFO] HSBAl.CHIX: Open: 6.099 High: 6.1 Low: 6.096 Close: 6.098 Volume: 19713.0 SMA: 6.097
+2014-03-28 09:56:01,511 strategy [INFO] RIOl.CHIX: Open: 32.98 High: 33.01 Low: 32.96 Close: 33.01 Volume: 1545.0 SMA: 33.011
+.
+.
+.</pre>
+</div>
+<p>When apiCallDelay is not long enough, or when there is no data at all, you may receive the following error message:</p>
+<div class="highlight-python"><pre>xignite [ERROR] No ticks available for Symbol:RIOl.CHIX from 3/28/2014 1:10:00 PM to 3/28/2014 1:11:00 PM.</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="xignite_ref.html"
+                        title="previous chapter">xignite &#8211; Xignite reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bitstamp.html"
+                        title="next chapter">Bitstamp support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/xignite_example.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bitstamp.html" title="Bitstamp support"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="xignite_ref.html" title="xignite – Xignite reference"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li>
+          <li><a href="xignite.html" >Xignite support</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

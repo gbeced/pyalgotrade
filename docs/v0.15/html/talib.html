@@ -1,0 +1,999 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>TA-Lib integration &mdash; PyAlgoTrade 0.15 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.15',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.15 documentation" href="index.html" />
+    <link rel="next" title="Google App Engine support" href="googleappengine.html" />
+    <link rel="prev" title="Twitter Example" href="twitter_example.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="googleappengine.html" title="Google App Engine support"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="twitter_example.html" title="Twitter Example"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ta-lib-integration">
+<h1>TA-Lib integration<a class="headerlink" href="#ta-lib-integration" title="Permalink to this headline">¶</a></h1>
+<p>The <strong>pyalgotrade.talibext.indicator</strong> module provides integration with Python wrapper for TA-Lib (<a class="reference external" href="http://mrjbq7.github.com/ta-lib/">http://mrjbq7.github.com/ta-lib/</a>)
+to enable calling TA-Lib functions directly with <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> or <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a>
+instances instead of numpy arrays.</p>
+<p>If you&#8217;re familiar with the <strong>talib</strong> module, then using the <strong>pyalgotrade.talibext.indicator</strong> module should be straightforward.
+When using <strong>talib</strong> standalone you do something like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">talib</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">upper</span><span class="p">,</span> <span class="n">middle</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="n">talib</span><span class="o">.</span><span class="n">BBANDS</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">matype</span><span class="o">=</span><span class="n">talib</span><span class="o">.</span><span class="n">MA_T3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To use the <strong>pyalgotrade.talibext.indicator</strong> module in your strategies you should do something like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+    <span class="n">closeDs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeed</span><span class="p">()</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">()</span>
+    <span class="n">upper</span><span class="p">,</span> <span class="n">middle</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="n">pyalgotrade</span><span class="o">.</span><span class="n">talibext</span><span class="o">.</span><span class="n">indicator</span><span class="o">.</span><span class="n">BBANDS</span><span class="p">(</span><span class="n">closeDs</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">matype</span><span class="o">=</span><span class="n">talib</span><span class="o">.</span><span class="n">MA_T3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">upper</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">upper</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Every function in the <strong>pyalgotrade.talibext.indicator</strong> module receives one or more dataseries (most receive just one) and the
+number of values to use from the dataseries. In the example above, we&#8217;re calculating Bollinger Bands over the last 100 closing prices.</p>
+<p>If the parameter name is <strong>ds</strong>, then you should pass a regular <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> instance, like the one
+shown in the example above.</p>
+<p>If the parameter name is <strong>barDs</strong>, then you should pass a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> instance, like in the next
+example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+    <span class="n">barDs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeed</span><span class="p">()</span><span class="o">.</span><span class="n">getDataSeries</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">)</span>
+    <span class="n">sar</span> <span class="o">=</span> <span class="n">indicator</span><span class="o">.</span><span class="n">SAR</span><span class="p">(</span><span class="n">barDs</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sar</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">sar</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The following TA-Lib functions are available through the <strong>pyalgotrade.talibext.indicator</strong> module:</p>
+<span class="target" id="module-pyalgotrade.talibext.indicator"></span><dl class="function">
+<dt id="pyalgotrade.talibext.indicator.AD">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">AD</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.AD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chaikin A/D Line</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ADOSC">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ADOSC</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>fastperiod=-2147483648</em>, <em>slowperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ADOSC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chaikin A/D Oscillator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ADX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ADX</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ADX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average Directional Movement Index</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ADXR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ADXR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ADXR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average Directional Movement Index Rating</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.APO">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">APO</tt><big>(</big><em>ds</em>, <em>count</em>, <em>fastperiod=-2147483648</em>, <em>slowperiod=-2147483648</em>, <em>matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.APO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Absolute Price Oscillator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.AROON">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">AROON</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.AROON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aroon</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.AROONOSC">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">AROONOSC</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.AROONOSC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aroon Oscillator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ATR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ATR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average True Range</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.AVGPRICE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">AVGPRICE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.AVGPRICE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average Price</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.BBANDS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">BBANDS</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em>, <em>nbdevup=-4e+37</em>, <em>nbdevdn=-4e+37</em>, <em>matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.BBANDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bollinger Bands</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.BETA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">BETA</tt><big>(</big><em>ds1</em>, <em>ds2</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.BETA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Beta</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.BOP">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">BOP</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.BOP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Balance Of Power</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CCI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CCI</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CCI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commodity Channel Index</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL2CROWS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL2CROWS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL2CROWS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two Crows</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL3BLACKCROWS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL3BLACKCROWS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL3BLACKCROWS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Three Black Crows</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL3INSIDE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL3INSIDE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL3INSIDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Three Inside Up/Down</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL3LINESTRIKE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL3LINESTRIKE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL3LINESTRIKE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Three-Line Strike</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL3OUTSIDE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL3OUTSIDE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL3OUTSIDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Three Outside Up/Down</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL3STARSINSOUTH">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL3STARSINSOUTH</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL3STARSINSOUTH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Three Stars In The South</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDL3WHITESOLDIERS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDL3WHITESOLDIERS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDL3WHITESOLDIERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Three Advancing White Soldiers</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLABANDONEDBABY">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLABANDONEDBABY</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLABANDONEDBABY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abandoned Baby</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLADVANCEBLOCK">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLADVANCEBLOCK</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLADVANCEBLOCK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advance Block</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLBELTHOLD">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLBELTHOLD</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLBELTHOLD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Belt-hold</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLBREAKAWAY">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLBREAKAWAY</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLBREAKAWAY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breakaway</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLCLOSINGMARUBOZU">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLCLOSINGMARUBOZU</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLCLOSINGMARUBOZU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closing Marubozu</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLCONCEALBABYSWALL">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLCONCEALBABYSWALL</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLCONCEALBABYSWALL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concealing Baby Swallow</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLCOUNTERATTACK">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLCOUNTERATTACK</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLCOUNTERATTACK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counterattack</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLDARKCLOUDCOVER">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLDARKCLOUDCOVER</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLDARKCLOUDCOVER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dark Cloud Cover</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLDOJI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLDOJI</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLDOJI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Doji</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLDOJISTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLDOJISTAR</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLDOJISTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Doji Star</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLDRAGONFLYDOJI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLDRAGONFLYDOJI</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLDRAGONFLYDOJI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dragonfly Doji</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLENGULFING">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLENGULFING</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLENGULFING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Engulfing Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLEVENINGDOJISTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLEVENINGDOJISTAR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLEVENINGDOJISTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evening Doji Star</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLEVENINGSTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLEVENINGSTAR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLEVENINGSTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evening Star</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLGAPSIDESIDEWHITE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLGAPSIDESIDEWHITE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLGAPSIDESIDEWHITE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Up/Down-gap side-by-side white lines</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLGRAVESTONEDOJI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLGRAVESTONEDOJI</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLGRAVESTONEDOJI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gravestone Doji</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHAMMER">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHAMMER</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHAMMER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hammer</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHANGINGMAN">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHANGINGMAN</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHANGINGMAN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hanging Man</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHARAMI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHARAMI</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHARAMI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Harami Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHARAMICROSS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHARAMICROSS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHARAMICROSS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Harami Cross Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHIGHWAVE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHIGHWAVE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHIGHWAVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>High-Wave Candle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHIKKAKE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHIKKAKE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHIKKAKE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hikkake Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHIKKAKEMOD">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHIKKAKEMOD</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHIKKAKEMOD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified Hikkake Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLHOMINGPIGEON">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLHOMINGPIGEON</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLHOMINGPIGEON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Homing Pigeon</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLIDENTICAL3CROWS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLIDENTICAL3CROWS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLIDENTICAL3CROWS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identical Three Crows</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLINNECK">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLINNECK</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLINNECK" title="Permalink to this definition">¶</a></dt>
+<dd><p>In-Neck Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLINVERTEDHAMMER">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLINVERTEDHAMMER</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLINVERTEDHAMMER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverted Hammer</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLKICKING">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLKICKING</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLKICKING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kicking</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLKICKINGBYLENGTH">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLKICKINGBYLENGTH</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLKICKINGBYLENGTH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kicking - bull/bear determined by the longer marubozu</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLLADDERBOTTOM">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLLADDERBOTTOM</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLLADDERBOTTOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ladder Bottom</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLLONGLEGGEDDOJI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLLONGLEGGEDDOJI</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLLONGLEGGEDDOJI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Long Legged Doji</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLLONGLINE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLLONGLINE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLLONGLINE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Long Line Candle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLMARUBOZU">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLMARUBOZU</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLMARUBOZU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marubozu</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLMATCHINGLOW">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLMATCHINGLOW</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLMATCHINGLOW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matching Low</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLMATHOLD">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLMATHOLD</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLMATHOLD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mat Hold</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLMORNINGDOJISTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLMORNINGDOJISTAR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLMORNINGDOJISTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Morning Doji Star</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLMORNINGSTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLMORNINGSTAR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>penetration=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLMORNINGSTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Morning Star</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLONNECK">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLONNECK</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLONNECK" title="Permalink to this definition">¶</a></dt>
+<dd><p>On-Neck Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLPIERCING">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLPIERCING</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLPIERCING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Piercing Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLRICKSHAWMAN">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLRICKSHAWMAN</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLRICKSHAWMAN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rickshaw Man</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLRISEFALL3METHODS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLRISEFALL3METHODS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLRISEFALL3METHODS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rising/Falling Three Methods</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLSEPARATINGLINES">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLSEPARATINGLINES</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLSEPARATINGLINES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Separating Lines</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLSHOOTINGSTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLSHOOTINGSTAR</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLSHOOTINGSTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shooting Star</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLSHORTLINE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLSHORTLINE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLSHORTLINE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Short Line Candle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLSPINNINGTOP">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLSPINNINGTOP</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLSPINNINGTOP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spinning Top</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLSTALLEDPATTERN">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLSTALLEDPATTERN</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLSTALLEDPATTERN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stalled Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLSTICKSANDWICH">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLSTICKSANDWICH</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLSTICKSANDWICH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stick Sandwich</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLTAKURI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLTAKURI</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLTAKURI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takuri (Dragonfly Doji with very long lower shadow)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLTASUKIGAP">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLTASUKIGAP</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLTASUKIGAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tasuki Gap</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLTHRUSTING">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLTHRUSTING</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLTHRUSTING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thrusting Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLTRISTAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLTRISTAR</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLTRISTAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tristar Pattern</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLUNIQUE3RIVER">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLUNIQUE3RIVER</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLUNIQUE3RIVER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique 3 River</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLUPSIDEGAP2CROWS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLUPSIDEGAP2CROWS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLUPSIDEGAP2CROWS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upside Gap Two Crows</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CDLXSIDEGAP3METHODS">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CDLXSIDEGAP3METHODS</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CDLXSIDEGAP3METHODS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upside/Downside Gap Three Methods</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CMO">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CMO</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CMO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chande Momentum Oscillator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.CORREL">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">CORREL</tt><big>(</big><em>ds1</em>, <em>ds2</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.CORREL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pearson&#8217;s Correlation Coefficient (r)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.DEMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">DEMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.DEMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Double Exponential Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.DX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">DX</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.DX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Directional Movement Index</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.EMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">EMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.EMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.HT_DCPERIOD">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">HT_DCPERIOD</tt><big>(</big><em>ds</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.HT_DCPERIOD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform - Dominant Cycle Period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.HT_DCPHASE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">HT_DCPHASE</tt><big>(</big><em>ds</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.HT_DCPHASE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform - Dominant Cycle Phase</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.HT_PHASOR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">HT_PHASOR</tt><big>(</big><em>ds</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.HT_PHASOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform - Phasor Components</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.HT_SINE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">HT_SINE</tt><big>(</big><em>ds</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.HT_SINE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform - SineWave</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.HT_TRENDLINE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">HT_TRENDLINE</tt><big>(</big><em>ds</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.HT_TRENDLINE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform - Instantaneous Trendline</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.HT_TRENDMODE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">HT_TRENDMODE</tt><big>(</big><em>ds</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.HT_TRENDMODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform - Trend vs Cycle Mode</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.KAMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">KAMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.KAMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kaufman Adaptive Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.LINEARREG">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">LINEARREG</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.LINEARREG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear Regression</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.LINEARREG_ANGLE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">LINEARREG_ANGLE</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.LINEARREG_ANGLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear Regression Angle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.LINEARREG_INTERCEPT">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">LINEARREG_INTERCEPT</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.LINEARREG_INTERCEPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear Regression Intercept</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.LINEARREG_SLOPE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">LINEARREG_SLOPE</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.LINEARREG_SLOPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear Regression Slope</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em>, <em>matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MA" title="Permalink to this definition">¶</a></dt>
+<dd><p>All Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MACD">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MACD</tt><big>(</big><em>ds</em>, <em>count</em>, <em>fastperiod=-2147483648</em>, <em>slowperiod=-2147483648</em>, <em>signalperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MACD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moving Average Convergence/Divergence</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MACDEXT">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MACDEXT</tt><big>(</big><em>ds</em>, <em>count</em>, <em>fastperiod=-2147483648</em>, <em>fastmatype=0</em>, <em>slowperiod=-2147483648</em>, <em>slowmatype=0</em>, <em>signalperiod=-2147483648</em>, <em>signalmatype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MACDEXT" title="Permalink to this definition">¶</a></dt>
+<dd><p>MACD with controllable MA type</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MACDFIX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MACDFIX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>signalperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MACDFIX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moving Average Convergence/Divergence Fix 12/26</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MAMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MAMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>fastlimit=-4e+37</em>, <em>slowlimit=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MAMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>MESA Adaptive Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MAX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MAX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MAX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highest value over a specified period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MAXINDEX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MAXINDEX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MAXINDEX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index of highest value over a specified period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MEDPRICE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MEDPRICE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MEDPRICE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Median Price</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MFI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MFI</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MFI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Money Flow Index</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MIDPOINT">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MIDPOINT</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MIDPOINT" title="Permalink to this definition">¶</a></dt>
+<dd><p>MidPoint over period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MIDPRICE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MIDPRICE</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MIDPRICE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Midpoint Price over period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MIN">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MIN</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lowest value over a specified period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MININDEX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MININDEX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MININDEX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index of lowest value over a specified period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MINMAX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MINMAX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MINMAX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lowest and highest values over a specified period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MINMAXINDEX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MINMAXINDEX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MINMAXINDEX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes of lowest and highest values over a specified period</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MINUS_DI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MINUS_DI</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MINUS_DI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minus Directional Indicator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MINUS_DM">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MINUS_DM</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MINUS_DM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minus Directional Movement</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.MOM">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">MOM</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.MOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Momentum</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.NATR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">NATR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.NATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalized Average True Range</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.OBV">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">OBV</tt><big>(</big><em>ds1</em>, <em>volumeDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.OBV" title="Permalink to this definition">¶</a></dt>
+<dd><p>On Balance Volume</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.PLUS_DI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">PLUS_DI</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.PLUS_DI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plus Directional Indicator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.PLUS_DM">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">PLUS_DM</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.PLUS_DM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plus Directional Movement</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.PPO">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">PPO</tt><big>(</big><em>ds</em>, <em>count</em>, <em>fastperiod=-2147483648</em>, <em>slowperiod=-2147483648</em>, <em>matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.PPO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Percentage Price Oscillator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ROC">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ROC</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ROC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rate of change : ((price/prevPrice)-1)*100</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ROCP">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ROCP</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ROCP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rate of change Percentage: (price-prevPrice)/prevPrice</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ROCR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ROCR</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ROCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rate of change ratio: (price/prevPrice)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ROCR100">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ROCR100</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ROCR100" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rate of change ratio 100 scale: (price/prevPrice)*100</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.RSI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">RSI</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.RSI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relative Strength Index</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.SAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">SAR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>acceleration=-4e+37</em>, <em>maximum=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.SAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parabolic SAR</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.SAREXT">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">SAREXT</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>startvalue=-4e+37</em>, <em>offsetonreverse=-4e+37</em>, <em>accelerationinitlong=-4e+37</em>, <em>accelerationlong=-4e+37</em>, <em>accelerationmaxlong=-4e+37</em>, <em>accelerationinitshort=-4e+37</em>, <em>accelerationshort=-4e+37</em>, <em>accelerationmaxshort=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.SAREXT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parabolic SAR - Extended</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.SMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">SMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.SMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.STDDEV">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">STDDEV</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em>, <em>nbdev=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.STDDEV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard Deviation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.STOCH">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">STOCH</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>fastk_period=-2147483648</em>, <em>slowk_period=-2147483648</em>, <em>slowk_matype=0</em>, <em>slowd_period=-2147483648</em>, <em>slowd_matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.STOCH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stochastic</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.STOCHF">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">STOCHF</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>fastk_period=-2147483648</em>, <em>fastd_period=-2147483648</em>, <em>fastd_matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.STOCHF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stochastic Fast</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.STOCHRSI">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">STOCHRSI</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em>, <em>fastk_period=-2147483648</em>, <em>fastd_period=-2147483648</em>, <em>fastd_matype=0</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.STOCHRSI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stochastic Relative Strength Index</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.SUM">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">SUM</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.SUM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.T3">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">T3</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em>, <em>vfactor=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.T3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triple Exponential Moving Average (T3)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.TEMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">TEMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.TEMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triple Exponential Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.TRANGE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">TRANGE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.TRANGE" title="Permalink to this definition">¶</a></dt>
+<dd><p>True Range</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.TRIMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">TRIMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.TRIMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triangular Moving Average</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.TRIX">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">TRIX</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.TRIX" title="Permalink to this definition">¶</a></dt>
+<dd><p>1-day Rate-Of-Change (ROC) of a Triple Smooth EMA</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.TSF">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">TSF</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.TSF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time Series Forecast</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.TYPPRICE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">TYPPRICE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.TYPPRICE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Typical Price</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.ULTOSC">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">ULTOSC</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod1=-2147483648</em>, <em>timeperiod2=-2147483648</em>, <em>timeperiod3=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.ULTOSC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ultimate Oscillator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.VAR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">VAR</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em>, <em>nbdev=-4e+37</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.VAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.WCLPRICE">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">WCLPRICE</tt><big>(</big><em>barDs</em>, <em>count</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.WCLPRICE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted Close Price</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.WILLR">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">WILLR</tt><big>(</big><em>barDs</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.WILLR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Williams&#8217; %R</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.talibext.indicator.WMA">
+<tt class="descclassname">pyalgotrade.talibext.indicator.</tt><tt class="descname">WMA</tt><big>(</big><em>ds</em>, <em>count</em>, <em>timeperiod=-2147483648</em><big>)</big><a class="headerlink" href="#pyalgotrade.talibext.indicator.WMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted Moving Average</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="twitter_example.html"
+                        title="previous chapter">Twitter Example</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="googleappengine.html"
+                        title="next chapter">Google App Engine support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/talib.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="googleappengine.html" title="Google App Engine support"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="twitter_example.html" title="Twitter Example"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.15 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
