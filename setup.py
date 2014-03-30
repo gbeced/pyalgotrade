@@ -45,6 +45,7 @@ setup(
         'pyalgotrade.tools',
         'pyalgotrade.twitter',
         'pyalgotrade.utils',
+        'pyalgotrade.xignite',
         'pyalgotrade.websocket'],
     install_requires=[
         'numpy',
