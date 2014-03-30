@@ -46,6 +46,7 @@ class MasterTask(chanchero.tasks.MasterTask):
         self.__stratExecConfigKey = stratExecConfig.key()
         self.__paramsIt = build_params_iterator(stratExecConfig)
         self.__tooManyErrosChecked = False
+        self.__logger = logger.Logger()
 
     def beforeToPickleString(self):
         # Reset to avoid from getting pickled.
@@ -61,7 +62,7 @@ class MasterTask(chanchero.tasks.MasterTask):
             self.__tooManyErrosChecked = True
             stratExecConfig = persistence.StratExecConfig.getByKey(self.__stratExecConfigKey)
             if stratExecConfig.status == persistence.StratExecConfig.Status.CANCELED_TOO_MANY_ERRORS:
-                logger.Logger().error("Dropping execution of '%s' due to too many errors" % (stratExecConfig.className))
+                self.__logger.error("Dropping execution of '%s' due to too many errors" % (stratExecConfig.className))
                 return None
 
         chunkSize = 1000  # Max executions per task.
@@ -84,13 +85,14 @@ class WorkerTask(chanchero.tasks.WorkerTask):
         self.__stratExecConfigKey = stratExecConfigKey
         self.__paramsIt = paramsIt
         self.__chunkSize = chunkSize
+        self.__logger = logger.Logger()
 
     def run(self):
         global strategyExecutor
 
         taskTimer = timer.Timer()
         stratExecConfig = persistence.StratExecConfig.getByKey(self.__stratExecConfigKey)
-        # logger.Logger().info("WorkerTask for '%s' starting from %s" % (stratExecConfig.className, str(self.__paramsIt.getCurrent())))
+        self.__logger.info("WorkerTask for '%s' starting from %s" % (stratExecConfig.className, str(self.__paramsIt.getCurrent())))
 
         maxTaskRunTime = 9 * 60  # Stop the task after 9 minutes to avoid getting interrupted after 10 minutes.
         bestResult = 0.0
@@ -103,7 +105,7 @@ class WorkerTask(chanchero.tasks.WorkerTask):
             stratExecTimer = timer.Timer()
             try:
                 paramValues = self.__paramsIt.getCurrent()
-                # logger.Logger().info("WorkerTask running '%s' with parameters: %s" % (stratExecConfig.className, paramValues))
+                # self.__logger.info("WorkerTask running '%s' with parameters: %s" % (stratExecConfig.className, paramValues))
 
                 # If there are no more parameters, just stop.
                 if paramValues is None:
@@ -132,10 +134,10 @@ class WorkerTask(chanchero.tasks.WorkerTask):
 
         # Reschedule ourselves if there is work left to do.
         if self.__chunkSize > 0 and self.__paramsIt.getCurrent() is not None:
-            logger.Logger().info("Rescheduling WorkerTask for '%s'. %d executions completed. Continuing from %s." % (stratExecConfig.className, executions, self.__paramsIt.getCurrent()))
+            self.__logger.info("Rescheduling WorkerTask for '%s' after %d minutes. %d executions completed. Continuing from %s." % (stratExecConfig.className, taskTimer.minutesElapsed(), executions, self.__paramsIt.getCurrent()))
             self.queue()
         else:
-            logger.Logger().info("WorkerTask for '%s' finished after %d minutes. %d executions completed. Max strat runtime %d seconds." % (stratExecConfig.className, taskTimer.minutesElapsed(), executions, maxStratTime))
+            self.__logger.info("WorkerTask for '%s' finished after %d minutes. %d executions completed. Max strat runtime %d seconds." % (stratExecConfig.className, taskTimer.minutesElapsed(), executions, maxStratTime))
 
 
 class ResultTask(chanchero.tasks.ResultTask):

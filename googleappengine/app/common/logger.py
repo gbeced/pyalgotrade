@@ -18,15 +18,15 @@ import logging
 
 
 class Logger:
-    def __init__(self, maxErrors=20):
+    def __init__(self, maxErrors=None):
         self.__maxErrors = maxErrors
 
     def info(self, msg):
         logging.info(msg)
 
     def error(self, msg):
-        if self.__maxErrors > 0:
+        if self.__maxErrors is not None and self.__maxErrors > 0:
             self.__maxErrors -= 1
             logging.error(msg)
 
-logging.getLogger().setLevel(logging.DEBUG)
+# logging.getLogger().setLevel(logging.DEBUG)

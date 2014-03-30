@@ -101,7 +101,7 @@ class BarsCache:
 
 class StrategyExecutor:
     def __init__(self):
-        self.__logger = logger.Logger()
+        self.__logger = logger.Logger(20)
         self.__barCache = BarsCache(self.__logger)
 
     def __loadBars(self, stratExecConfig):
