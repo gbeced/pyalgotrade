@@ -1,0 +1,14 @@
+body {
+  padding-top: 70px;
+}
+
+.footer-row {
+	margin: 20px 0;
+}
+
+.footer {
+  margin-top: 80px;
+  color: #999;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+}

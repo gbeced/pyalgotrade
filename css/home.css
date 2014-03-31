@@ -1,0 +1,32 @@
+/* From justified-nav.css */
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  background-color: transparent;
+}
+
+.jumbotron .btn {
+  padding: 14px 24px;
+  font-size: 21px;
+}
+
+/* Social proof buttons from GitHub & Twitter */
+.bs-docs-social {
+	text-align: center;
+}
+
+.bs-docs-social-buttons {
+	margin-left: 0;
+	margin-bottom: 0;
+	padding-left: 0;
+	list-style: none;
+}
+
+.bs-docs-social-buttons li {
+	display: inline-block;
+	padding: 5px 8px;
+	line-height: 1;
+	*display: inline;
+	*zoom: 1;
+}
+
