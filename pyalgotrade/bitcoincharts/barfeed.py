@@ -88,7 +88,7 @@ class UnixTimeFix(object):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, unixTimeFix, timezone = None):
+    def __init__(self, unixTimeFix, timezone=None):
         self.__unixTimeFix = unixTimeFix
         self.__timezone = timezone
 
@@ -152,7 +152,7 @@ class CSVTradeFeed(csvfeed.BarFeed):
         :param toDateTime: An optional datetime to use to filter bars to load.
             If supplied only those bars whose datetime is lower than or equal to toDateTime are loaded.
         :type toDateTime: datetime.datetime.
- 
+
         .. note::
             Every file that you load bars from must have trades in the same currency.
         """
