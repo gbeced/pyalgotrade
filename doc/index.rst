@@ -17,7 +17,7 @@ Contents:
     tools
     eventprofiler
     xignite
-    bitstamp
+    bitcoin
     twitter
     talib
     googleappengine

@@ -106,6 +106,9 @@ class BarFeed(membf.BarFeed):
     def setDailyBarTime(self, time):
         self.__dailyTime = time
 
+    def getBarFilter(self):
+        return self.__barFilter
+
     def setBarFilter(self, barFilter):
         self.__barFilter = barFilter
 
