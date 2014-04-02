@@ -27,6 +27,12 @@ from pyalgotrade.utils import dt
 import datetime
 
 
+def to_utc_if_naive(dateTime):
+    if dateTime is not None and dt.datetime_is_naive(dateTime):
+        dateTime = dt.as_utc(dateTime)
+    return dateTime
+
+
 class TradeBar(bar.Bar):
     # Optimization to reduce memory footprint.
     __slots__ = ('__dateTime', '__price', '__amount')
@@ -154,7 +160,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
         :type toDateTime: datetime.datetime.
 
         .. note::
-            Every file that you load bars from must have trades in the same currency.
+            * Every file that you load bars from must have trades in the same currency.
+            * If fromDateTime or toDateTime are naive, they are treated as UTC.
         """
 
         if timezone is None:
@@ -165,7 +172,7 @@ class CSVTradeFeed(csvfeed.BarFeed):
         prevBarFilter = self.getBarFilter()
         try:
             if fromDateTime or toDateTime:
-                self.setBarFilter(csvfeed.DateRangeFilter(fromDateTime, toDateTime))
+                self.setBarFilter(csvfeed.DateRangeFilter(to_utc_if_naive(fromDateTime), to_utc_if_naive(toDateTime)))
             csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
         finally:
             self.setBarFilter(prevBarFilter)

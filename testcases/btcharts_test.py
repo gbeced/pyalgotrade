@@ -63,7 +63,7 @@ class TestCase(unittest.TestCase):
 
     def testLoadFilterFromAndTo(self):
         feed = barfeed.CSVTradeFeed()
-        feed.addBarsFromCSV(common.get_data_file_path("bitstampUSD.csv"), "bitstampUSD", fromDateTime=dt.as_utc(datetime.datetime(2012, 5, 29)), toDateTime=dt.as_utc(datetime.datetime(2012, 5, 31)))
+        feed.addBarsFromCSV(common.get_data_file_path("bitstampUSD.csv"), "bitstampUSD", fromDateTime=dt.as_utc(datetime.datetime(2012, 5, 29)), toDateTime=datetime.datetime(2012, 5, 31))
         loaded = [(dateTime, bars) for dateTime, bars in feed]
 
         self.assertEquals(len(loaded), 579)
