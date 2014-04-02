@@ -290,6 +290,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
+        self.assertEqual(strat.position.getAge().days, 1)
 
     def testCancelEntry(self):
         instrument = "orcl"
@@ -305,6 +306,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
+        self.assertEqual(strat.position.getAge().total_seconds(), 0)
 
     def testExitEntryNotFilled(self):
         instrument = "orcl"
@@ -320,6 +322,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
+        self.assertEqual(strat.position.getAge().total_seconds(), 0)
 
     def testDoubleExitFails(self):
         instrument = "orcl"
@@ -337,6 +340,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.doubleExitFailed, True)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
+        self.assertEqual(strat.position.getAge().days, 1)
 
     def testResubmitExit(self):
         instrument = "orcl"
@@ -352,6 +356,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertEqual(len(strat.getActivePositions()), 0)
         self.assertEqual(len(strat.getOrderToPosition()), 0)
+        self.assertEqual(strat.position.getAge().days, 2)
 
     def testLongPosition(self):
         strat = self.createStrategy()
@@ -373,6 +378,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 27.37 - 30.69, 2))
         self.assertTrue(round(strat.getResult(), 3) == -0.108)
         self.assertTrue(round(strat.getNetProfit(), 2) == round(27.37 - 30.69, 2))
+        self.assertEqual(strat.positions[0].getAge().days, 2)
 
     def testLongPositionAdjClose(self):
         strat = self.createStrategy()
@@ -394,6 +400,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.31 - 27.44, 2))
         self.assertTrue(round(strat.getResult(), 3) == 0.105)
         self.assertTrue(round(strat.getNetProfit(), 2) == round(30.31 - 27.44, 2))
+        self.assertEqual(strat.positions[0].getAge().days, 268)
 
     def testLongPositionGTC(self):
         strat = self.createStrategy()
@@ -418,6 +425,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(48 + 57.63 - 47.94, 2))
         self.assertTrue(round(strat.getNetProfit(), 2) == round(57.63 - 47.94, 2))
+        self.assertEqual(strat.positions[0].getAge().days, 4)
 
     def testEntryCanceled(self):
         strat = self.createStrategy()

@@ -22,6 +22,8 @@ from pyalgotrade.stratanalyzer import returns
 from pyalgotrade import warninghelpers
 from pyalgotrade import broker
 
+import datetime
+
 
 class PositionState(object):
     def onEnter(self, position):
@@ -68,6 +70,10 @@ class WaitingEntryState(PositionState):
 
 
 class OpenState(PositionState):
+    def onEnter(self, position):
+        entryDateTime = position.getEntryOrder().getExecutionInfo().getDateTime()
+        position.setEntryDateTime(entryDateTime)
+
     def canPlaceOrder(self, position, order):
         # Only exit orders should be placed in this state.
         pass
@@ -106,6 +112,11 @@ class OpenState(PositionState):
 
 class ClosedState(PositionState):
     def onEnter(self, position):
+        # Set the exit datetime if the exit order was filled.
+        if position.exitFilled():
+            exitDateTime = position.getExitOrder().getExecutionInfo().getDateTime()
+            position.setExitDateTime(exitDateTime)
+
         assert(position.getShares() == 0)
         position.getStrategy().unregisterPosition(position)
 
@@ -151,7 +162,9 @@ class Position(object):
         self.__shares = 0
         self.__strategy = strategy
         self.__entryOrder = None
+        self.__entryDateTime = None
         self.__exitOrder = None
+        self.__exitDateTime = None
         self.__posTracker = returns.PositionTracker()
         self.__allOrNone = allOrNone
 
@@ -173,6 +186,12 @@ class Position(object):
 
         self.__activeOrders[order.getId()] = order
         self.getStrategy().registerPositionOrder(self, order)
+
+    def setEntryDateTime(self, dateTime):
+        self.__entryDateTime = dateTime
+
+    def setExitDateTime(self, dateTime):
+        self.__exitDateTime = dateTime
 
     def switchState(self, newState):
         self.__state = newState
@@ -410,6 +429,24 @@ class Position(object):
     def isOpen(self):
         """Returns True if the position is open."""
         return self.__state.isOpen(self)
+
+    def getAge(self):
+        """Returns the duration in open state.
+
+        :rtype: datetime.timedelta.
+
+        .. note::
+            * If the position is open, then the difference between the entry datetime and the datetime of the last bar is returned.
+            * If the position is closed, then the difference between the entry datetime and the exit datetime is returned.
+        """
+        ret = datetime.timedelta()
+        if self.__entryDateTime is not None:
+            if self.__exitDateTime is not None:
+                last = self.__exitDateTime
+            else:
+                last = self.__strategy.getCurrentDateTime()
+            ret = last - self.__entryDateTime
+        return ret
 
 
 # This class is reponsible for order management in long positions.
