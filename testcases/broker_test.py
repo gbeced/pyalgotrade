@@ -24,9 +24,14 @@ import datetime
 from pyalgotrade import broker
 
 
+class DefaultTraits(broker.InstrumentTraits):
+    def roundQuantity(self, quantity):
+        return int(quantity)
+
+
 class OrderTestCase(unittest.TestCase):
     def __buildAcceptedLimitOrder(self, action, limitPrice, quantity):
-        ret = broker.LimitOrder(1, action, "orcl", limitPrice, quantity)
+        ret = broker.LimitOrder(1, action, "orcl", limitPrice, quantity, DefaultTraits())
         ret.switchState(broker.Order.State.SUBMITTED)
         ret.switchState(broker.Order.State.ACCEPTED)
         return ret

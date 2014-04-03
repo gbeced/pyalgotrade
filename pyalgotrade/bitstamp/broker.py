@@ -22,6 +22,12 @@ from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
 
 
+class BTCTraits(broker.InstrumentTraits):
+    # This is to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
+    def roundQuantity(self, quantity):
+        return round(quantity, 8)
+
+
 # In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
 # It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
 
@@ -42,7 +48,9 @@ class PaperTradingBroker(backtesting.Broker):
     def __init__(self, cash, barFeed, fee=0.005):
         commission = backtesting.TradePercentage(fee)
         backtesting.Broker.__init__(self, cash, barFeed, commission)
-        self.setAllowFractions(True)
+
+    def getInstrumentTraits(self, instrument):
+        return BTCTraits()
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         raise Exception("Market orders are not supported")

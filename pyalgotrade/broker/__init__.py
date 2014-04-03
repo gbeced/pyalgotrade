@@ -23,6 +23,16 @@ import abc
 from pyalgotrade import observer
 
 
+class InstrumentTraits(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    # This is to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
+    @abc.abstractmethod
+    def roundQuantity(self, quantity):
+        raise NotImplementedError()
+
+
 ######################################################################
 ## Orders
 ## http://stocks.about.com/od/tradingbasics/a/markords.htm
@@ -117,7 +127,7 @@ class Order(object):
         State.PARTIALLY_FILLED: [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
     }
 
-    def __init__(self, orderId, type_, action, instrument, quantity):
+    def __init__(self, orderId, type_, action, instrument, quantity, instrumentTraits):
         if quantity <= 0:
             raise Exception("Invalid quantity")
         self.__id = orderId
@@ -125,6 +135,7 @@ class Order(object):
         self.__action = action
         self.__instrument = instrument
         self.__quantity = quantity
+        self.__instrumentTraits = instrumentTraits
         self.__filled = 0
         self.__avgFillPrice = None
         self.__executionInfo = None
@@ -144,6 +155,9 @@ class Order(object):
     #    if other is None:
     #        return True
     #    assert(False)
+
+    def getInstrumentTraits(self):
+        return self.__instrumentTraits
 
     def getId(self):
         """Returns the order id."""
@@ -223,7 +237,7 @@ class Order(object):
 
     def getRemaining(self):
         """Returns the number of shares still outstanding."""
-        return self.__quantity - self.__filled
+        return self.__instrumentTraits.roundQuantity(self.__quantity - self.__filled)
 
     def getAvgFillPrice(self):
         """Returns the average price of the shares that have been executed, or None if nothing has been filled."""
@@ -276,7 +290,7 @@ class Order(object):
             self.__avgFillPrice = (self.__avgFillPrice * self.__filled + orderExecutionInfo.getPrice() * orderExecutionInfo.getQuantity()) / float(self.__filled + orderExecutionInfo.getQuantity())
 
         self.__executionInfo = orderExecutionInfo
-        self.__filled += orderExecutionInfo.getQuantity()
+        self.__filled = self.getInstrumentTraits().roundQuantity(self.__filled + orderExecutionInfo.getQuantity())
         self.__commissions += orderExecutionInfo.getCommission()
 
         if self.getRemaining() == 0:
@@ -320,8 +334,8 @@ class MarketOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, quantity, onClose):
-        Order.__init__(self, orderId, Order.Type.MARKET, action, instrument, quantity)
+    def __init__(self, orderId, action, instrument, quantity, onClose, instrumentTraits):
+        Order.__init__(self, orderId, Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
         self.__onClose = onClose
 
     def getFillOnClose(self):
@@ -337,8 +351,8 @@ class LimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, limitPrice, quantity):
-        Order.__init__(self, orderId, Order.Type.LIMIT, action, instrument, quantity)
+    def __init__(self, orderId, action, instrument, limitPrice, quantity, instrumentTraits):
+        Order.__init__(self, orderId, Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
         self.__limitPrice = limitPrice
 
     def getLimitPrice(self):
@@ -354,8 +368,8 @@ class StopOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, stopPrice, quantity):
-        Order.__init__(self, orderId, Order.Type.STOP, action, instrument, quantity)
+    def __init__(self, orderId, action, instrument, stopPrice, quantity, instrumentTraits):
+        Order.__init__(self, orderId, Order.Type.STOP, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
 
     def getStopPrice(self):
@@ -371,8 +385,8 @@ class StopLimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity):
-        Order.__init__(self, orderId, Order.Type.STOP_LIMIT, action, instrument, quantity)
+    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
+        Order.__init__(self, orderId, Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
         self.__limitPrice = limitPrice
 
@@ -460,6 +474,10 @@ class Broker(observer.Subject):
     # 2: OrderEvent instance
     def getOrderUpdatedEvent(self):
         return self.__orderEvent
+
+    @abc.abstractmethod
+    def getInstrumentTraits(self, instrument):
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def getShares(self, instrument):

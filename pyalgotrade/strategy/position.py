@@ -408,9 +408,9 @@ class Position(object):
         if orderEvent.getEventType() in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED):
             execInfo = orderEvent.getEventInfo()
             if order.isBuy():
-                self.__shares += execInfo.getQuantity()
+                self.__shares = order.getInstrumentTraits().roundQuantity(self.__shares + execInfo.getQuantity())
             else:
-                self.__shares -= execInfo.getQuantity()
+                self.__shares = order.getInstrumentTraits().roundQuantity(self.__shares - execInfo.getQuantity())
 
         self.__state.onOrderEvent(self, orderEvent)
 
@@ -467,6 +467,7 @@ class LongPosition(Position):
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares()
+        assert(quantity > 0)
         if limitPrice is None and stopPrice is None:
             ret = self.getStrategy().getBroker().createMarketOrder(broker.Order.Action.SELL, self.getInstrument(), quantity, False)
         elif limitPrice is not None and stopPrice is None:
@@ -499,6 +500,7 @@ class ShortPosition(Position):
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares() * -1
+        assert(quantity > 0)
         if limitPrice is None and stopPrice is None:
             ret = self.getStrategy().getBroker().createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), quantity, False)
         elif limitPrice is not None and stopPrice is None:

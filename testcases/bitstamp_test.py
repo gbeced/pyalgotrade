@@ -207,3 +207,44 @@ class TestCase(unittest.TestCase):
         self.assertFalse(strat.pos.isOpen())
         self.assertEqual(strat.pos.getShares(), 0)
         self.assertEqual(len(strat.posExecutionInfo), 2)
+
+    def testRoundingBug(self):
+        # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
+        # instead of 0.
+
+        class Strategy(TestStrategy):
+            def __init__(self, cli, feed, brk):
+                TestStrategy.__init__(self, cli, feed, brk)
+                self.pos = None
+
+            def onBars(self, bars):
+                if self.pos is None:
+                    self.pos = self.enterLongLimit("BTC", 100, 0.01, True)
+                elif self.pos.entryFilled() and not self.pos.getExitOrder():
+                    self.pos.exitLimit(100, True)
+
+        cli = MockClient()
+        cli.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 1)
+        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.01)
+        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.00441376)
+        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00445547)
+        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00113077)
+
+        barFeed = barfeed.LiveTradeFeed(cli)
+        brk = broker.PaperTradingBroker(1000, barFeed)
+        strat = Strategy(cli, barFeed, brk)
+
+        strat.getDispatcher().addSubject(cli)
+        strat.run()
+
+        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 100)
+        self.assertEqual(strat.pos.getExitOrder().getAvgFillPrice(), 100)
+        self.assertEqual(strat.pos.getEntryOrder().getFilled(), 0.01)
+        self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.01)
+        self.assertEqual(strat.pos.getEntryOrder().getRemaining(), 0)
+        self.assertEqual(strat.pos.getExitOrder().getRemaining(), 0)
+
+        self.assertFalse(strat.pos.isOpen())
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.pos.getShares(), 0.0)

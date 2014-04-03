@@ -26,6 +26,11 @@ from pyalgotrade import logger
 import pyalgotrade.bar
 
 
+class DefaultTraits(broker.InstrumentTraits):
+    def roundQuantity(self, quantity):
+        return int(quantity)
+
+
 ######################################################################
 ## Commission models
 
@@ -294,7 +299,7 @@ class DefaultStrategy(FillStrategy):
     def onOrderFilled(self, order):
         # Update the volume left.
         if self.__volumeLimit is not None:
-            self.__volumeLeft[order.getInstrument()] -= order.getExecutionInfo().getQuantity()
+            self.__volumeLeft[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(self.__volumeLeft[order.getInstrument()] - order.getExecutionInfo().getQuantity())
 
     def setVolumeLimit(self, volumeLimit):
         self.__volumeLimit = volumeLimit
@@ -308,8 +313,7 @@ class DefaultStrategy(FillStrategy):
         else:
             volumeLeft = order.getRemaining()
 
-        if not broker_.getAllowFractions():
-            volumeLeft = int(volumeLeft)
+        volumeLeft = order.getInstrumentTraits().roundQuantity(volumeLeft)
 
         if not order.getAllOrNone():
             ret = min(volumeLeft, order.getRemaining())
@@ -419,8 +423,8 @@ class BacktestingOrder(object):
 
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, quantity, onClose):
-        broker.MarketOrder.__init__(self, orderId, action, instrument, quantity, onClose)
+    def __init__(self, orderId, action, instrument, quantity, onClose, instrumentTraits):
+        broker.MarketOrder.__init__(self, orderId, action, instrument, quantity, onClose, instrumentTraits)
         BacktestingOrder.__init__(self)
 
     def process(self, broker_, bar_):
@@ -428,8 +432,8 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, limitPrice, quantity):
-        broker.LimitOrder.__init__(self, orderId, action, instrument, limitPrice, quantity)
+    def __init__(self, orderId, action, instrument, limitPrice, quantity, instrumentTraits):
+        broker.LimitOrder.__init__(self, orderId, action, instrument, limitPrice, quantity, instrumentTraits)
         BacktestingOrder.__init__(self)
 
     def process(self, broker_, bar_):
@@ -437,8 +441,8 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
 
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, stopPrice, quantity):
-        broker.StopOrder.__init__(self, orderId, action, instrument, stopPrice, quantity)
+    def __init__(self, orderId, action, instrument, stopPrice, quantity, instrumentTraits):
+        broker.StopOrder.__init__(self, orderId, action, instrument, stopPrice, quantity, instrumentTraits)
         BacktestingOrder.__init__(self)
         self.__stopHit = False
 
@@ -455,8 +459,8 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity):
-        broker.StopLimitOrder.__init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity)
+    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
+        broker.StopLimitOrder.__init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits)
         BacktestingOrder.__init__(self)
         self.__stopHit = False  # Set to true when the limit order is activated (stop price is hit)
 
@@ -503,7 +507,6 @@ class Broker(broker.Broker):
         self.__activeOrders = {}
         self.__useAdjustedValues = False
         self.__fillStrategy = DefaultStrategy()
-        self.__allowFractions = False
         self.__logger = logger.getLogger(Broker.LOGGER_NAME)
 
         # It is VERY important that the broker subscribes to barfeed events before the strategy.
@@ -525,12 +528,6 @@ class Broker(broker.Broker):
 
     def getLogger(self):
         return self.__logger
-
-    def setAllowFractions(self, allowFractions):
-        self.__allowFractions = allowFractions
-
-    def getAllowFractions(self):
-        return self.__allowFractions
 
     def setAllowNegativeCash(self, allowNegativeCash):
         self.__allowNegativeCash = allowNegativeCash
@@ -600,6 +597,9 @@ class Broker(broker.Broker):
         warninghelpers.deprecation_warning("getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.", stacklevel=2)
         return self.getActiveOrders()
 
+    def getInstrumentTraits(self, instrument):
+        return DefaultTraits()
+
     def getShares(self, instrument):
         return self.__shares.get(instrument, 0)
 
@@ -657,7 +657,7 @@ class Broker(broker.Broker):
 
             # Commit the order execution.
             self.__cash = resultingCash
-            self.__shares[order.getInstrument()] = self.getShares(order.getInstrument()) + sharesDelta
+            self.__shares[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(self.getShares(order.getInstrument()) + sharesDelta)
 
             # Let the strategy know that the order was filled.
             self.__fillStrategy.onOrderFilled(order)
@@ -780,16 +780,16 @@ class Broker(broker.Broker):
         return None
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
-        return MarketOrder(self.__getNextOrderId(), action, instrument, quantity, onClose)
+        return MarketOrder(self.__getNextOrderId(), action, instrument, quantity, onClose, self.getInstrumentTraits(instrument))
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        return LimitOrder(self.__getNextOrderId(), action, instrument, limitPrice, quantity)
+        return LimitOrder(self.__getNextOrderId(), action, instrument, limitPrice, quantity, self.getInstrumentTraits(instrument))
 
     def createStopOrder(self, action, instrument, stopPrice, quantity):
-        return StopOrder(self.__getNextOrderId(), action, instrument, stopPrice, quantity)
+        return StopOrder(self.__getNextOrderId(), action, instrument, stopPrice, quantity, self.getInstrumentTraits(instrument))
 
     def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-        return StopLimitOrder(self.__getNextOrderId(), action, instrument, stopPrice, limitPrice, quantity)
+        return StopLimitOrder(self.__getNextOrderId(), action, instrument, stopPrice, limitPrice, quantity, self.getInstrumentTraits(instrument))
 
     def cancelOrder(self, order):
         activeOrder = self.__activeOrders.get(order.getId())
