@@ -542,6 +542,10 @@ class BaseStrategy(object):
         """Logs a message with level INFO on the strategy logger."""
         self.getLogger().info(msg)
 
+    def warning(self, msg):
+        """Logs a message with level WARNING on the strategy logger."""
+        self.getLogger().warning(msg)
+
     def error(self, msg):
         """Logs a message with level ERROR on the strategy logger."""
         self.getLogger().error(msg)
