@@ -23,7 +23,6 @@ from pyalgotrade.broker import backtesting
 
 
 class BTCTraits(broker.InstrumentTraits):
-    # This is to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
     def roundQuantity(self, quantity):
         return round(quantity, 8)
 

@@ -78,6 +78,14 @@ class BarsBuilder(object):
         return (ret.getDateTime(), ret)
 
 
+class DecimalTraits(broker.InstrumentTraits):
+    def __init__(self, decimals):
+        self.__decimals = decimals
+
+    def roundQuantity(self, quantity):
+        return round(quantity, self.__decimals)
+
+
 class BarFeed(barfeed.BaseBarFeed):
     def __init__(self, instrument, frequency):
         barfeed.BaseBarFeed.__init__(self, frequency)
@@ -462,6 +470,41 @@ class BrokerTestCase(BaseTestCase):
 
 
 class MarketOrderTestCase(BaseTestCase):
+    def testBuyPartialWithDecimals(self):
+        class Broker(backtesting.Broker):
+            def getInstrumentTraits(self, instrument):
+                return DecimalTraits(2)
+
+        barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        cash = 1000000
+        brk = Broker(cash, barFeed)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 500)
+        brk.placeOrder(order)
+
+        # 138.75 should get filled.
+        barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, 555.00)
+        self.assertTrue(order.isPartiallyFilled())
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 138.75)
+        self.assertEqual(order.getFilled(), 138.75)
+        self.assertEqual(order.getRemaining(), 361.25)
+        self.assertEqual(order.getAvgFillPrice(), 12.03)
+        self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), 138.75)
+        self.assertEqual(brk.getEquity(), cash)
+        self.assertEqual(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], 0)
+
+        # 361.25 should get filled.
+        barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, 2345.00)
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 361.25)
+        self.assertEqual(order.getFilled(), 500)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getAvgFillPrice(), 12.03)
+        self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), 500)
+        self.assertEqual(brk.getEquity(), cash)
+        self.assertEqual(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], 586.25 - 361.25)
+
     def testBuySellPartial(self):
         barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         brk = self.buildBroker(1000, barFeed)

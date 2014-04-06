@@ -23,11 +23,15 @@ import abc
 from pyalgotrade import observer
 
 
+# This class is used to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
+# Why not use decimal.Decimal instead ?
+# 1: I'd have to expose this to users. They'd have to deal with decimal.Decimal and it'll break existing users.
+# 2: numpy arrays built using decimal.Decimal instances have dtype=object.
 class InstrumentTraits(object):
 
     __metaclass__ = abc.ABCMeta
 
-    # This is to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
+    # Return the floating point value number rounded.
     @abc.abstractmethod
     def roundQuantity(self, quantity):
         raise NotImplementedError()

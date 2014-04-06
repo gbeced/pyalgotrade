@@ -296,6 +296,9 @@ class DefaultStrategy(FillStrategy):
                 volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
         self.__volumeLeft = volumeLeft
 
+    def getVolumeLeft(self):
+        return self.__volumeLeft
+
     def onOrderFilled(self, order):
         # Update the volume left.
         if self.__volumeLimit is not None:

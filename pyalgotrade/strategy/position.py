@@ -407,6 +407,7 @@ class Position(object):
         # Update the number of shares.
         if orderEvent.getEventType() in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED):
             execInfo = orderEvent.getEventInfo()
+            # roundQuantity is used to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug
             if order.isBuy():
                 self.__shares = order.getInstrumentTraits().roundQuantity(self.__shares + execInfo.getQuantity())
             else:

@@ -115,6 +115,15 @@ class TestStrategy(strategy.BaseStrategy):
 
 
 class TestCase(unittest.TestCase):
+    def testInstrumentTraits(self):
+        traits = broker.BTCTraits()
+        self.assertEqual(traits.roundQuantity(0), 0)
+        self.assertEqual(traits.roundQuantity(1), 1)
+        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
+        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1 - 3.3), 0)
+        self.assertEqual(traits.roundQuantity(0.00441376), 0.00441376)
+        self.assertEqual(traits.roundQuantity(0.004413764), 0.00441376)
+
     def testBuyWithPartialFill(self):
 
         class Strategy(TestStrategy):
@@ -208,7 +217,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(strat.pos.getShares(), 0)
         self.assertEqual(len(strat.posExecutionInfo), 2)
 
-    def testRoundingBug(self):
+    def testRoundingBugWithTrades(self):
         # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
         # instead of 0.
 
@@ -226,9 +235,9 @@ class TestCase(unittest.TestCase):
         cli = MockClient()
         cli.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 1)
         cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.01)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.00441376)
-        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00445547)
-        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00113077)
+        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00441376)
+        cli.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.00445547)
+        cli.addTrade(datetime.datetime(2000, 1, 5), 1, 100, 0.00113077)
 
         barFeed = barfeed.LiveTradeFeed(cli)
         brk = broker.PaperTradingBroker(1000, barFeed)
