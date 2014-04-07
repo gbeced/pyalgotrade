@@ -470,7 +470,7 @@ class BrokerTestCase(BaseTestCase):
 
 
 class MarketOrderTestCase(BaseTestCase):
-    def testBuyPartialWithDecimals(self):
+    def testBuyPartialWithTwoDecimals(self):
         class Broker(backtesting.Broker):
             def getInstrumentTraits(self, instrument):
                 return DecimalTraits(2)
@@ -504,6 +504,54 @@ class MarketOrderTestCase(BaseTestCase):
         self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), 500)
         self.assertEqual(brk.getEquity(), cash)
         self.assertEqual(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], 586.25 - 361.25)
+
+    def testBuyPartialWithEightDecimals(self):
+        quantityPresicion = 8
+        cashPresicion = 2
+        maxFill = 0.25
+
+        class Broker(backtesting.Broker):
+            def getInstrumentTraits(self, instrument):
+                return DecimalTraits(quantityPresicion)
+
+        barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        cash = 1000000
+        brk = Broker(cash, barFeed)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
+        brk.placeOrder(order)
+
+        volumes = [0.0001, 0.1, 0.0000001, 0.00000001, 0.132401]
+        volumeFill = [(volume, round(volume*maxFill, quantityPresicion)) for volume in volumes]
+        cumFilled = 0
+        for volume, expectedFill in volumeFill:
+            cumFilled += expectedFill # I'm not rounding here so I can carry errors.
+            barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, volume)
+            # print expectedFill, cumFilled
+            self.assertTrue(order.isPartiallyFilled())
+            if expectedFill > 0:
+                self.assertEqual(order.getExecutionInfo().getQuantity(), expectedFill)
+            self.assertEqual(order.getFilled(), round(cumFilled, quantityPresicion))
+            self.assertEqual(order.getRemaining(), 1 - cumFilled)
+            self.assertEqual(round(order.getAvgFillPrice(), cashPresicion), 12.03)
+            self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), round(cumFilled, quantityPresicion))
+            self.assertEqual(round(brk.getEquity(), cashPresicion), cash)
+            self.assertEqual(round(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], quantityPresicion), 0)
+
+        # Full fill
+        filledSoFar = order.getFilled()
+        volume = 10
+        cumFilled += expectedFill # I'm not rounding here so I can carry errors.
+        barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, volume)
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 1 - filledSoFar)
+        self.assertEqual(order.getFilled(), 1)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getAvgFillPrice(), 12.03)
+        self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), 1)
+        self.assertEqual(brk.getEquity(), cash)
+        self.assertEqual(round(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], quantityPresicion), round((volume*maxFill) - (1-filledSoFar), quantityPresicion))
 
     def testBuySellPartial(self):
         barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
