@@ -9,7 +9,7 @@ PyAlgoTrade is an **event driven algorithmic trading** Python library. Although 
 
 Future releases will gradually support real trading as well.
 
-To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/tutorial.html) first and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/index.html) next.
+To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/index.html).
 
 Main Features
 -------------
