@@ -1,0 +1,44 @@
+PyAlgoTrade
+===========
+
+PyAlgoTrade is an **event driven algorithmic trading** Python library. Although the initial focus was on **backtesting**,
+**paper trading** is now possible using:
+
+ * [Bitstamp](https://www.bitstamp.net/) for Bitcoins
+ * [Xignite](https://www.xignite.com/) for stocks
+
+Future releases will gradually support real trading as well.
+
+To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/tutorial.html) first and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/index.html) next.
+
+Main Features
+-------------
+
+ * Event driven.
+ * Supports Market, Limit, Stop and StopLimit orders.
+ * Supports Yahoo! Finance and NinjaTrader CSV files.
+ * Supports any type of time-series data in CSV format, for example [Quandl](http://www.quandl.com/).
+ * [Xignite](https://www.xignite.com/) realtime feed.
+ * Bitcoin support through [Bitstamp](https://www.bitstamp.net/).
+ * Technical indicators and filters like SMA, WMA, EMA, RSI, Bollinger Bands and many more.
+ * Strategy metrics like Sharpe ratio and drawdown analysis.
+ * Handling Twitter events in realtime.
+ * Event profiler.
+ * TA-Lib integration.
+
+Installation
+------------
+PyAlgoTrade is developed using Python 2.7 and depends on:
+
+ * [NumPy and SciPy](http://numpy.scipy.org/).
+ * [pytz](http://pytz.sourceforge.net/).
+ * [matplotlib](http://matplotlib.sourceforge.net/) for plotting support.
+ * [ws4py](https://github.com/Lawouach/WebSocket-for-Python) for Bitstamp support.
+ * [tornado](http://www.tornadoweb.org/en/stable/) for Bitstamp support.
+ * [tweepy](https://github.com/tweepy/tweepy) for Twitter support.
+
+
+
+You can install PyAlgoTrade using pip like this:
+
+    pip install pyalgotrade
