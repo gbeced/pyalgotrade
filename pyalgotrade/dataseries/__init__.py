@@ -82,7 +82,6 @@ class SequenceDataSeries(DataSeries):
         self.__newValueEvent = observer.Event()
         self.__values = collections.ListDeque(maxLen)
         self.__dateTimes = collections.ListDeque(maxLen)
-        self.__maxLen = maxLen
 
     def __len__(self):
         return len(self.__values)
