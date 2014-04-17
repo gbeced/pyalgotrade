@@ -20,6 +20,7 @@
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 from pyalgotrade.technical import ma
 
 
@@ -82,6 +83,9 @@ class StochasticOscillator(technical.EventBasedFilter):
 
     def __init__(self, barDataSeries, period, dSMAPeriod=3, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
         assert(dSMAPeriod > 1)
+        if not isinstance(barDataSeries, bards.BarDataSeries):
+            raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
+
         technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
         self.__d = ma.SMA(self, dSMAPeriod, maxLen)
 
