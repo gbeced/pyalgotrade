@@ -147,6 +147,7 @@ class Order(object):
         self.__commissions = 0
         self.__allOrNone = False
         self.__state = Order.State.INITIAL
+        self.__submitDateTime = None
 
     # This is to check that orders are not compared directly. order ids should be compared.
     #def __eq__(self, other):
@@ -176,6 +177,13 @@ class Order(object):
          * Order.Type.STOP_LIMIT
         """
         return self.__type
+
+    def getSubmitDateTime(self):
+        """Returns the datetime when the order was submitted."""
+        return self.__submitDateTime
+
+    def setSubmitDateTime(self, dateTime):
+        self.__submitDateTime = dateTime
 
     def getAction(self):
         """Returns the order action. Valid order actions are:
@@ -478,6 +486,10 @@ class Broker(observer.Subject):
     # 2: OrderEvent instance
     def getOrderUpdatedEvent(self):
         return self.__orderEvent
+
+    @abc.abstractmethod
+    def getCurrentDateTime(self):
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def getInstrumentTraits(self, instrument):

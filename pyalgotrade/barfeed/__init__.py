@@ -52,6 +52,10 @@ class BaseBarFeed(feed.BaseFeed):
         self.__frequency = frequency
         self.__prevDateTime = None
 
+    @abc.abstractmethod
+    def getCurrentDateTime(self):
+        raise NotImplementedError()
+
     # Return True if bars provided have adjusted close values.
     @abc.abstractmethod
     def barsHaveAdjClose(self):
@@ -138,6 +142,9 @@ class OptimizerBarFeed(BaseBarFeed):
             self.__barsHaveAdjClose = self.__bars[0][instruments[0]].getAdjClose() is not None
         except Exception:
             self.__barsHaveAdjClose = False
+
+    def getCurrentDateTime(self):
+        self.__bars[self.__nextBar].getDateTime()
 
     def barsHaveAdjClose(self):
         return self.__barsHaveAdjClose

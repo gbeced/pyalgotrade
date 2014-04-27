@@ -40,6 +40,9 @@ class BarFeed(barfeed.BaseBarFeed):
         self.__barsLeft = 0
         self.__prevDateTime = None
 
+    def getCurrentDateTime(self):
+        return self.peekDateTime()
+
     def isRealTime(self):
         return False
 

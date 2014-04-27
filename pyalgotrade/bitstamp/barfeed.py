@@ -23,6 +23,7 @@ import datetime
 from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade import barfeed
+from pyalgotrade.bitstamp import wsclient
 
 
 class TradeBar(bar.Bar):
@@ -91,6 +92,9 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         self.registerInstrument("BTC")
         client.getTradeEvent().subscribe(self.__onTrade)
         self.__prevTradeDateTime = None
+
+    def getCurrentDateTime(self):
+        return wsclient.get_current_datetime()
 
     def isRealTime(self):
         return True

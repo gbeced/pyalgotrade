@@ -600,6 +600,9 @@ class Broker(broker.Broker):
         warninghelpers.deprecation_warning("getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.", stacklevel=2)
         return self.getActiveOrders()
 
+    def getCurrentDateTime(self):
+        return self.__barFeed.getCurrentDateTime()
+
     def getInstrumentTraits(self, instrument):
         return DefaultTraits()
 
@@ -684,6 +687,7 @@ class Broker(broker.Broker):
             # IMPORTANT: Do not emit an event for this switch because when using the position interface
             # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
             order.switchState(broker.Order.State.SUBMITTED)
+            order.setSubmitDateTime(self.getCurrentDateTime())
         else:
             raise Exception("The order was already processed")
 

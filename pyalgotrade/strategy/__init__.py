@@ -46,7 +46,7 @@ class BaseStrategy(object):
     LOGGER_NAME = "strategy"
 
     def __init__(self, barFeed, broker):
-        self.__feed = barFeed
+        self.__barFeed = barFeed
         self.__broker = broker
         self.__activePositions = set()
         self.__orderToPosition = {}
@@ -55,14 +55,14 @@ class BaseStrategy(object):
         self.__namedAnalyzers = {}
         self.__dispatcher = dispatcher.Dispatcher()
         self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
-        self.__feed.getNewBarsEvent().subscribe(self.__onBars)
+        self.__barFeed.getNewBarsEvent().subscribe(self.__onBars)
 
         self.__dispatcher.getStartEvent().subscribe(self.onStart)
         self.__dispatcher.getIdleEvent().subscribe(self.onIdle)
 
         # It is important to dispatch broker events before feed events, specially if we're backtesting.
         self.__dispatcher.addSubject(self.__broker)
-        self.__dispatcher.addSubject(self.__feed)
+        self.__dispatcher.addSubject(self.__barFeed)
 
         # Initialize logging.
         self.__logger = logger.getLogger(BaseStrategy.LOGGER_NAME)
@@ -137,7 +137,7 @@ class BaseStrategy(object):
 
     def getFeed(self):
         """Returns the :class:`pyalgotrade.barfeed.BaseBarFeed` that this strategy is using."""
-        return self.__feed
+        return self.__barFeed
 
     def getBroker(self):
         """Returns the :class:`pyalgotrade.broker.Broker` used to handle order executions."""
@@ -145,11 +145,7 @@ class BaseStrategy(object):
 
     def getCurrentDateTime(self):
         """Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bars`."""
-        ret = None
-        bars = self.__feed.getCurrentBars()
-        if bars:
-            ret = bars.getDateTime()
-        return ret
+        return self.__barFeed.getCurrentDateTime()
 
     def marketOrder(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
         """Places a market order.
@@ -518,8 +514,8 @@ class BaseStrategy(object):
         """Call once (**and only once**) to run the strategy."""
         self.__dispatcher.run()
 
-        if self.__feed.getCurrentBars() is not None:
-            self.onFinish(self.__feed.getCurrentBars())
+        if self.__barFeed.getCurrentBars() is not None:
+            self.onFinish(self.__barFeed.getCurrentBars())
         else:
             raise Exception("Feed was empty")
 

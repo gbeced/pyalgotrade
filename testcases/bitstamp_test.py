@@ -151,6 +151,7 @@ class TestCase(unittest.TestCase):
         self.assertTrue(strat.pos.isOpen())
         self.assertEqual(round(strat.pos.getShares(), 3), 0.3)
         self.assertEqual(len(strat.posExecutionInfo), 1)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testBuyAndSellWithPartialFill1(self):
 
@@ -183,6 +184,8 @@ class TestCase(unittest.TestCase):
         self.assertTrue(strat.pos.isOpen())
         self.assertEqual(round(strat.pos.getShares(), 3), 0.1)
         self.assertEqual(len(strat.posExecutionInfo), 1)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testBuyAndSellWithPartialFill2(self):
 
@@ -216,6 +219,8 @@ class TestCase(unittest.TestCase):
         self.assertFalse(strat.pos.isOpen())
         self.assertEqual(strat.pos.getShares(), 0)
         self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testRoundingBugWithTrades(self):
         # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
@@ -253,6 +258,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.01)
         self.assertEqual(strat.pos.getEntryOrder().getRemaining(), 0)
         self.assertEqual(strat.pos.getExitOrder().getRemaining(), 0)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
         self.assertFalse(strat.pos.isOpen())
         self.assertEqual(len(strat.posExecutionInfo), 2)

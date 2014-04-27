@@ -23,6 +23,9 @@ import datetime
 from pyalgotrade.websocket import pusher
 
 
+def get_current_datetime():
+    return datetime.datetime.now()
+
 # Bitstamp protocol reference: https://www.bitstamp.net/websocket/
 
 class Trade(pusher.Event):
@@ -87,9 +90,9 @@ class WebSocketClient(pusher.WebSocketClient):
         # If we can't handle the message, forward it to Pusher WebSocketClient.
         event = msg.get("event")
         if event == "trade":
-            self.onTrade(Trade(datetime.datetime.now(), msg))
+            self.onTrade(Trade(get_current_datetime(), msg))
         elif event == "data" and msg.get("channel") == "order_book":
-            self.onOrderBookUpdate(OrderBookUpdate(datetime.datetime.now(), msg))
+            self.onOrderBookUpdate(OrderBookUpdate(get_current_datetime(), msg))
         else:
             pusher.WebSocketClient.onMessage(self, msg)
 
