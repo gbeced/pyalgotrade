@@ -3,6 +3,7 @@ from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
 from pyalgotrade import plotter
 from pyalgotrade.tools import yahoofinance
+from pyalgotrade.stratanalyzer import sharpe
 
 import numpy as np
 import statsmodels.api as sm
@@ -68,7 +69,7 @@ class StatArbHelper:
             self.__updateZScore()
 
 
-class MyStrategy(strategy.BacktestingStrategy):
+class StatArb(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument1, instrument2, windowSize):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.setUseAdjustedValues(True)
@@ -139,18 +140,21 @@ def main(plot):
     # Download the bars.
     feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
 
-    myStrategy = MyStrategy(feed, instruments[0], instruments[1], windowSize)
+    strat = StatArb(feed, instruments[0], instruments[1], windowSize)
+    sharpeRatioAnalyzer = sharpe.SharpeRatio()
+    strat.attachAnalyzer(sharpeRatioAnalyzer)
 
     if plot:
-        plt = plotter.StrategyPlotter(myStrategy, False, False, True)
-        plt.getOrCreateSubplot("hedge").addDataSeries("Hedge Ratio", myStrategy.getHedgeRatioDS())
-        plt.getOrCreateSubplot("spread").addDataSeries("Spread", myStrategy.getSpreadDS())
+        plt = plotter.StrategyPlotter(strat, False, False, True)
+        plt.getOrCreateSubplot("hedge").addDataSeries("Hedge Ratio", strat.getHedgeRatioDS())
+        plt.getOrCreateSubplot("spread").addDataSeries("Spread", strat.getSpreadDS())
 
-    myStrategy.run()
-    print "Result: %.2f" % myStrategy.getResult()
+    strat.run()
+    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
 
     if plot:
         plt.plot()
+
 
 if __name__ == "__main__":
     main(True)

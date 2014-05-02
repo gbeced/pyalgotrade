@@ -13,4 +13,4 @@
 2013-09-21 00:02:44,153 yahoofinance [INFO] Downloading gdx 2011 to data/gdx-2011-yahoofinance.csv
 2013-09-21 00:02:44,901 yahoofinance [INFO] Downloading gld 2012 to data/gld-2012-yahoofinance.csv
 2013-09-21 00:02:45,965 yahoofinance [INFO] Downloading gdx 2012 to data/gdx-2012-yahoofinance.csv
-Result: 1241843.95
+Sharpe ratio: -0.20
