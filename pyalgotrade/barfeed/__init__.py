@@ -144,7 +144,11 @@ class OptimizerBarFeed(BaseBarFeed):
             self.__barsHaveAdjClose = False
 
     def getCurrentDateTime(self):
-        self.__bars[self.__nextBar].getDateTime()
+        if self.__nextBar < len(self.__bars):
+            bar = self.__bars[self.__nextBar]
+        else:
+            bar = self.__bars[-1]
+        return bar.getDateTime()
 
     def barsHaveAdjClose(self):
         return self.__barsHaveAdjClose
