@@ -1,3 +1,5 @@
+.. _samples-label:
+
 Sample strategies
 =================
 

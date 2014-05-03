@@ -270,9 +270,10 @@ Plotting
 --------
 
 PyAlgoTrade makes it very easy to plot a strategy execution.
-Save this SMA crossover strategy as smacross_strategy.py:
 
-.. literalinclude:: ../samples/smacross_strategy.py
+Save this as sma_crossover.py:
+
+.. literalinclude:: ../samples/sma_crossover.py
 
 and save this code to a different file:
 
@@ -291,3 +292,4 @@ This is what the plot looks like:
 I hope you enjoyed this quick introduction. I'd recommend you to download PyAlgoTrade here: http://gbeced.github.io/pyalgotrade/downloads/index.html 
 and get started writing you own strategies.
 
+You can also find more examples in the :ref:`samples-label` section.
