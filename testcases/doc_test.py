@@ -113,6 +113,23 @@ vwap_momentum.main(False)
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_tail("vwap_momentum.output", lines[-2:-1]))
 
+    def testSMACrossOver(self):
+        files = []
+        for year in range(2011, 2013):
+            for symbol in ["aapl"]:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "."):
+            code = """import sys
+sys.path.append('samples')
+import sma_crossover
+sma_crossover.main(False)
+"""
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("sma_crossover.output", lines[-2:-1]))
+
+
     def testBBands(self):
         files = []
         for year in range(2011, 2013):
