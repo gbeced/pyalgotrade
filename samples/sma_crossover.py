@@ -1,9 +1,6 @@
 from pyalgotrade import strategy
-from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
-from pyalgotrade.stratanalyzer import sharpe
 
 
 class SMACrossOver(strategy.BacktestingStrategy):
@@ -34,34 +31,8 @@ class SMACrossOver(strategy.BacktestingStrategy):
         if self.__position is None:
             if cross.cross_above(self.__adjClose, self.__sma) > 0:
                 shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getClose())
-                # Enter a buy market order for 10 shares. The order is good till canceled.
+                # Enter a buy market order. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, shares, True)
         # Check if we have to exit the position.
         elif not self.__position.exitActive() and cross.cross_below(self.__adjClose, self.__sma) > 0:
             self.__position.exitMarket()
-
-
-def main(plot):
-    instrument = "aapl"
-    smaPeriod = 163
-
-    # Download the bars.
-    feed = yahoofinance.build_feed([instrument], 2011, 2012, ".")
-
-    strat = SMACrossOver(feed, instrument, smaPeriod)
-    sharpeRatioAnalyzer = sharpe.SharpeRatio()
-    strat.attachAnalyzer(sharpeRatioAnalyzer)
-
-    if plot:
-        plt = plotter.StrategyPlotter(strat, True, False, True)
-        plt.getInstrumentSubplot(instrument).addDataSeries("sma", strat.getSMA())
-
-    strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-
-    if plot:
-        plt.plot()
-
-
-if __name__ == "__main__":
-    main(True)

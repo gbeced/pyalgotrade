@@ -1,7 +1,13 @@
 SMA Crossover
 =============
 
+Save this code as sma_crossover.py:
+
 .. literalinclude:: ../samples/sma_crossover.py
+
+and use the following code to execute the strategy:
+
+.. literalinclude:: ../samples/sma_crossover_sample.py
 
 This is what the output should look like:
 

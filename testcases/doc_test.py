@@ -123,8 +123,8 @@ vwap_momentum.main(False)
         with common.CopyFiles(files, "."):
             code = """import sys
 sys.path.append('samples')
-import sma_crossover
-sma_crossover.main(False)
+import sma_crossover_sample
+sma_crossover_sample.main(False)
 """
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_tail("sma_crossover.output", lines[-2:-1]))
