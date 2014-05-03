@@ -85,7 +85,7 @@ class Worker(object):
         call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters, workerName)
 
     def __processJob(self, job, barsFreq, instruments, bars):
-        bestResult = 0
+        bestResult = None
         parameters = job.getNextParameters()
         bestParams = parameters
         while parameters is not None:
@@ -95,7 +95,7 @@ class Worker(object):
             self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
             result = self.runStrategy(feed, *parameters)
             self.getLogger().info("Result %s" % result)
-            if result > bestResult:
+            if bestResult is None or result > bestResult:
                 bestResult = result
                 bestParams = parameters
             # Run with the next set of parameters.
