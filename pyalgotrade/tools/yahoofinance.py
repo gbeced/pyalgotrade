@@ -25,6 +25,7 @@ import datetime
 import pyalgotrade.logger
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.utils import dt
 
 
 def __adjust_month(month):
@@ -32,23 +33,6 @@ def __adjust_month(month):
         raise Exception("Invalid month")
     month -= 1  # Months for yahoo are 0 based
     return month
-
-
-def get_first_monday(year):
-    ret = datetime.date(year, 1, 1)
-    if ret.weekday() != 0:
-        diff = 7 - ret.weekday()
-        ret = ret + datetime.timedelta(days=diff)
-    return ret
-
-
-def get_last_monday(year):
-
-    ret = datetime.date(year, 12, 31)
-    if ret.weekday() != 0:
-        diff = ret.weekday() * -1
-        ret = ret + datetime.timedelta(days=diff)
-    return ret
 
 
 def download_csv(instrument, begin, end, frequency):
@@ -67,7 +51,7 @@ def download_csv(instrument, begin, end, frequency):
 
 
 def download_daily_bars(instrument, year, csvFile):
-    """Download daily bars for a given year.
+    """Download daily bars from Yahoo! Finance for a given year.
 
     :param instrument: Instrument identifier.
     :type instrument: string.
@@ -84,7 +68,7 @@ def download_daily_bars(instrument, year, csvFile):
 
 
 def download_weekly_bars(instrument, year, csvFile):
-    """Download weekly bars for a given year.
+    """Download weekly bars from Yahoo! Finance for a given year.
 
     :param instrument: Instrument identifier.
     :type instrument: string.
@@ -94,8 +78,8 @@ def download_weekly_bars(instrument, year, csvFile):
     :type csvFile: string.
     """
 
-    begin = get_first_monday(year)
-    end = get_last_monday(year) + datetime.timedelta(days=6)
+    begin = dt.get_first_monday(year)
+    end = dt.get_last_monday(year) + datetime.timedelta(days=6)
     bars = download_csv(instrument, begin, end, "w")
     f = open(csvFile, "w")
     f.write(bars)

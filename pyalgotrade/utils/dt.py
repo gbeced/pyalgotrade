@@ -63,4 +63,21 @@ def timestamp_to_datetime(timeStamp, localized=True):
         ret = localize(ret, pytz.utc)
     return ret
 
+
+def get_first_monday(year):
+    ret = datetime.date(year, 1, 1)
+    if ret.weekday() != 0:
+        diff = 7 - ret.weekday()
+        ret = ret + datetime.timedelta(days=diff)
+    return ret
+
+
+def get_last_monday(year):
+    ret = datetime.date(year, 12, 31)
+    if ret.weekday() != 0:
+        diff = ret.weekday() * -1
+        ret = ret + datetime.timedelta(days=diff)
+    return ret
+
+
 epoch_utc = as_utc(datetime.datetime(1970, 1, 1))

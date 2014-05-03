@@ -22,6 +22,12 @@ Yahoo! Finance
     :members: Feed
     :show-inheritance:
 
+Quandl
+------
+.. automodule:: pyalgotrade.barfeed.quandlfeed
+    :members: Feed
+    :show-inheritance:
+
 Ninja Trader
 ------------
 .. automodule:: pyalgotrade.barfeed.ninjatraderfeed

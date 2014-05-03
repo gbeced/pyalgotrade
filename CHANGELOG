@@ -1,4 +1,5 @@
 Version 0.16 (TBD)
+. [NEW] Support for downloading and loading bars from Quandl (pyalgotrade.tools.quandl and pyalgotrade.barfeed.quandlfeed).
 . [NEW] Support for loading Bitcoin Charts historical trades CSV files (pyalgotrade.bitcoincharts.barfeed).
 . [FIX] Fixed a rounding error in pyalgotrade.bitstamp.broker.PaperTradingBroker.
 

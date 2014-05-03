@@ -49,7 +49,7 @@ class DocCodeTest(unittest.TestCase):
             self.assertTrue(common.compare_head("tutorial-4.output", lines[:-1]))
 
     def testCSVFeed(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "quandl_gold_2.csv")], "."):
+        with common.CopyFiles([os.path.join("samples", "data", "quandl_gold_2.csv")], "."):
             code = """import sys
 sys.path.append('samples')
 import csvfeed_1
@@ -180,10 +180,10 @@ eventstudy.main(False)
     def testQuandl(self):
         files = []
         for year in range(2006, 2013):
-            for symbol in ["gld"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["GORO"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
-        files.append(os.path.join("testcases", "data", "quandl_gold_2.csv"))
+        files.append(os.path.join("samples", "data", "quandl_gold_2.csv"))
 
         with common.CopyFiles(files, "."):
             code = """import sys

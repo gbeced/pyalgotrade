@@ -16,8 +16,7 @@ Main Features
 
  * Event driven.
  * Supports Market, Limit, Stop and StopLimit orders.
- * Supports Yahoo! Finance and NinjaTrader CSV files.
- * Supports any type of time-series data in CSV format, for example [Quandl](http://www.quandl.com/).
+ * Supports any type of time-series data in CSV format like Yahoo! Finance, Quandl and NinjaTrader.
  * [Xignite](https://www.xignite.com/) realtime feed.
  * Bitcoin support through [Bitstamp](https://www.bitstamp.net/).
  * Technical indicators and filters like SMA, WMA, EMA, RSI, Bollinger Bands and many more.

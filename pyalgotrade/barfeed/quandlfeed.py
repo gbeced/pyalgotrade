@@ -26,36 +26,24 @@ from pyalgotrade import dataseries
 import datetime
 
 
-######################################################################
-## Yahoo Finance CSV parser
-# Each bar must be on its own line and fields must be separated by comma (,).
-#
-# Bars Format:
-# Date,Open,High,Low,Close,Volume,Adj Close
-#
-# The csv Date column must have the following format: YYYY-MM-DD
-
-def parse_date(date):
-    # Sample: 2005-12-30
-    # This custom parsing works faster than:
-    # datetime.datetime.strptime(date, "%Y-%m-%d")
-    year = int(date[0:4])
-    month = int(date[5:7])
-    day = int(date[8:10])
-    ret = datetime.datetime(year, month, day)
-    return ret
-
-
 class RowParser(csvfeed.RowParser):
-    def __init__(self, dailyBarTime, frequency, timezone=None, sanitize=False):
+    def __init__(self, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone):
+        self.__dateTimeFormat = dateTimeFormat
         self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
         self.__timezone = timezone
-        self.__sanitize = sanitize
+        # Column names.
+        self.__dateTimeColName = columnNames["datetime"]
+        self.__openColName = columnNames["open"]
+        self.__highColName = columnNames["high"]
+        self.__lowColName = columnNames["low"]
+        self.__closeColName = columnNames["close"]
+        self.__volumeColName = columnNames["volume"]
+        self.__adjCloseColName = columnNames["adj_close"]
 
     def __parseDate(self, dateString):
-        ret = parse_date(dateString)
-        # Time on Yahoo! Finance CSV files is empty. If told to set one, do it.
+        ret = datetime.datetime.strptime(dateString, self.__dateTimeFormat)
+
         if self.__dailyBarTime is not None:
             ret = datetime.datetime.combine(ret, self.__dailyBarTime)
         # Localize the datetime if a timezone was given.
@@ -71,29 +59,21 @@ class RowParser(csvfeed.RowParser):
         return ","
 
     def parseBar(self, csvRowDict):
-        dateTime = self.__parseDate(csvRowDict["Date"])
-        close = float(csvRowDict["Close"])
-        open_ = float(csvRowDict["Open"])
-        high = float(csvRowDict["High"])
-        low = float(csvRowDict["Low"])
-        volume = float(csvRowDict["Volume"])
-        adjClose = float(csvRowDict["Adj Close"])
-
-        if self.__sanitize:
-            if low > open_:
-                low = open_
-            if low > close:
-                low = close
-            if high < open_:
-                high = open_
-            if high < close:
-                high = close
-
+        dateTime = self.__parseDate(csvRowDict[self.__dateTimeColName])
+        open_ = float(csvRowDict[self.__openColName])
+        high = float(csvRowDict[self.__highColName])
+        low = float(csvRowDict[self.__lowColName])
+        close = float(csvRowDict[self.__closeColName])
+        volume = float(csvRowDict[self.__volumeColName])
+        if self.__adjCloseColName is not None:
+            adjClose = float(csvRowDict[self.__adjCloseColName])
+        else:
+            adjClose = None
         return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
 
 
 class Feed(csvfeed.BarFeed):
-    """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
+    """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Quandl.
 
     :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
         are supported.
@@ -104,7 +84,6 @@ class Feed(csvfeed.BarFeed):
     :type maxLen: int.
 
     .. note::
-        Yahoo! Finance csv files lack timezone information.
         When working with multiple instruments:
 
             * If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.
@@ -120,13 +99,32 @@ class Feed(csvfeed.BarFeed):
 
         csvfeed.BarFeed.__init__(self, frequency, maxLen)
         self.__timezone = timezone
-        self.__sanitizeBars = False
-
-    def sanitizeBars(self, sanitize):
-        self.__sanitizeBars = sanitize
+        self.__barsHaveAdjClose = True
+        self.__dateTimeFormat = "%Y-%m-%d"
+        self.__columnNames = {
+            "datetime": "Date",
+            "open": "Open",
+            "high": "High",
+            "low": "Low",
+            "close": "Close",
+            "volume": "Volume",
+            "adj_close": "Adj. Close",
+        }
 
     def barsHaveAdjClose(self):
-        return True
+        return self.__columnNames["adj_close"] is not None
+
+    def setNoAdjClose(self):
+        self.__columnNames["adj_close"] = None
+
+    def getColumnNames(self):
+        return self.__columnNames
+
+    def getDateTimeFormat(self):
+        return self.__dateTimeFormat
+
+    def setDateTimeFormat(self, dateTimeFormat):
+        self.__dateTimeFormat = dateTimeFormat
 
     def addBarsFromCSV(self, instrument, path, timezone=None):
         """Loads bars for a given instrument from a CSV formatted file.
@@ -145,5 +143,6 @@ class Feed(csvfeed.BarFeed):
 
         if timezone is None:
             timezone = self.__timezone
-        rowParser = RowParser(self.getDailyBarTime(), self.getFrequency(), timezone, self.__sanitizeBars)
+
+        rowParser = RowParser(self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(), timezone)
         csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
