@@ -129,6 +129,21 @@ sma_crossover_sample.main(False)
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_tail("sma_crossover.output", lines[-2:-1]))
 
+    def testRSI2(self):
+        files = []
+        for year in range(2009, 2013):
+            for symbol in ["DIA"]:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "."):
+            code = """import sys
+sys.path.append('samples')
+import rsi2_sample
+rsi2_sample.main(False)
+"""
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("rsi2_sample.output", lines[-2:-1]))
 
     def testBBands(self):
         files = []

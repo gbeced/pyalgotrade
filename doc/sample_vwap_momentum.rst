@@ -14,5 +14,5 @@ and this is what the plot should look like:
 
 .. image:: ../samples/vwap_momentum.png
 
-you can get better returns by tunning the VWAP and threshold parameters.
+You can get better returns by tunning the VWAP and threshold parameters.
 

@@ -17,5 +17,4 @@ and this is what the plot should look like:
 
 .. image:: ../samples/sma_crossover.png
 
-you can get better returns by tunning the sma period.
-
+You can get better returns by tunning the sma period.

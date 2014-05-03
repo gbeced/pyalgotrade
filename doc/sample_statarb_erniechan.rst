@@ -15,5 +15,5 @@ and this is what the plot should look like:
 
 .. image:: ../samples/statarb_erniechan.png
 
-you can get better returns by tunning the window size as well as the entry and exit values for the z-score.
+You can get better returns by tunning the window size as well as the entry and exit values for the z-score.
 

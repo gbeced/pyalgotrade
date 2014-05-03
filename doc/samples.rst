@@ -14,6 +14,7 @@ Mean Reversion
 .. toctree::
     sample_statarb_erniechan
     sample_bbands
+    sample_rsi2
 
 Others
 ------
