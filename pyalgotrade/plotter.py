@@ -226,7 +226,7 @@ class Subplot(object):
         return len(self.__series) == 0
 
     def addDataSeries(self, label, dataSeries, defaultClass=LineMarker):
-        """Adds a DataSeries to the subplot.
+        """Add a DataSeries to the subplot.
 
         :param label: A name for the DataSeries values.
         :type label: string.
@@ -237,13 +237,23 @@ class Subplot(object):
         self.__callbacks[callback] = self.getSeries(label, defaultClass)
 
     def addCallback(self, label, callback, defaultClass=LineMarker):
-        """Adds a callback that will be called on each bar.
+        """Add a callback that will be called on each bar.
 
         :param label: A name for the series values.
         :type label: string.
         :param callback: A function that receives a :class:`pyalgotrade.bar.Bars` instance as a parameter and returns a number or None.
         """
         self.__callbacks[callback] = self.getSeries(label, defaultClass)
+
+    def addLine(self, label, level):
+        """Add a horizontal line to the plot.
+
+        :param label: A label.
+        :type label: string.
+        :param level: The position for the line.
+        :type level: int/float.
+        """
+        self.addCallback(label, lambda x: level)
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()
