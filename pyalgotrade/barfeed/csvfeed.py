@@ -125,21 +125,33 @@ class BarFeed(membf.BarFeed):
 
 
 class GenericRowParser(RowParser):
-    def __init__(self, frequency, timezone):
+    def __init__(self, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone):
+        self.__dateTimeFormat = dateTimeFormat
+        self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
         self.__timezone = timezone
         self.__haveAdjClose = False
+        # Column names.
+        self.__dateTimeColName = columnNames["datetime"]
+        self.__openColName = columnNames["open"]
+        self.__highColName = columnNames["high"]
+        self.__lowColName = columnNames["low"]
+        self.__closeColName = columnNames["close"]
+        self.__volumeColName = columnNames["volume"]
+        self.__adjCloseColName = columnNames["adj_close"]
 
-    def barsHaveAdjClose(self):
-        return self.__haveAdjClose
+    def _parseDate(self, dateString):
+        ret = datetime.datetime.strptime(dateString, self.__dateTimeFormat)
 
-    def __parseDate(self, dateString):
-        datetime_format = "%Y-%m-%d %H:%M:%S"
-        ret = datetime.datetime.strptime(dateString, datetime_format)
+        if self.__dailyBarTime is not None:
+            ret = datetime.datetime.combine(ret, self.__dailyBarTime)
         # Localize the datetime if a timezone was given.
         if self.__timezone:
             ret = dt.localize(ret, self.__timezone)
         return ret
+
+    def barsHaveAdjClose(self):
+        return self.__haveAdjClose
 
     def getFieldNames(self):
         # It is expected for the first row to have the field names.
@@ -149,20 +161,18 @@ class GenericRowParser(RowParser):
         return ","
 
     def parseBar(self, csvRowDict):
-        dateTime = self.__parseDate(csvRowDict["Date Time"])
-        close = float(csvRowDict["Close"])
-        open_ = float(csvRowDict["Open"])
-        high = float(csvRowDict["High"])
-        low = float(csvRowDict["Low"])
-        volume = float(csvRowDict["Volume"])
-
-        adjClose = csvRowDict["Adj Close"]
-        if len(adjClose) > 0:
-            adjClose = float(adjClose)
-            self.__haveAdjClose = True
-        else:
-            adjClose = None
-
+        dateTime = self._parseDate(csvRowDict[self.__dateTimeColName])
+        open_ = float(csvRowDict[self.__openColName])
+        high = float(csvRowDict[self.__highColName])
+        low = float(csvRowDict[self.__lowColName])
+        close = float(csvRowDict[self.__closeColName])
+        volume = float(csvRowDict[self.__volumeColName])
+        adjClose = None
+        if self.__adjCloseColName is not None:
+            adjCloseValue = csvRowDict.get(self.__adjCloseColName, "")
+            if len(adjCloseValue) > 0:
+                adjClose = float(adjCloseValue)
+                self.__haveAdjClose = True
         return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
 
 
@@ -181,16 +191,47 @@ class GenericBarFeed(BarFeed):
     :type maxLen: int.
 
     .. note::
+        * The CSV file **must** have the column names in the first row.
         * It is ok if the **Adj Close** column is empty.
+        * When working with multiple instruments:
+
+         * If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.
+         * If any of the instruments loaded are in different timezones, then the timezone parameter should be set.
     """
 
     def __init__(self, frequency, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
         BarFeed.__init__(self, frequency, maxLen)
         self.__timezone = timezone
+        # Assume bars don't have adjusted close. This will be set to True after
+        # loading the first file if the adj_close column is there.
         self.__haveAdjClose = False
+
+        self.__dateTimeFormat = "%Y-%m-%d %H:%M:%S"
+        self.__columnNames = {
+            "datetime": "Date Time",
+            "open": "Open",
+            "high": "High",
+            "low": "Low",
+            "close": "Close",
+            "volume": "Volume",
+            "adj_close": "Adj Close",
+        }
+        # self.__dateTimeFormat expects time to be set so there is no need to
+        # fix time.
+        self.setDailyBarTime(None)
 
     def barsHaveAdjClose(self):
         return self.__haveAdjClose
+
+    def setNoAdjClose(self):
+        self.__columnNames["adj_close"] = None
+        self.__haveAdjClose = False
+
+    def setColumnName(self, col, name):
+        self.__columnNames[col] = name
+
+    def setDateTimeFormat(self, dateTimeFormat):
+        self.__dateTimeFormat = dateTimeFormat
 
     def addBarsFromCSV(self, instrument, path, timezone=None):
         """Loads bars for a given instrument from a CSV formatted file.
@@ -206,10 +247,11 @@ class GenericBarFeed(BarFeed):
 
         if timezone is None:
             timezone = self.__timezone
-        rowParser = GenericRowParser(self.getFrequency(), timezone)
+
+        rowParser = GenericRowParser(self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(), timezone)
         BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
 
         if rowParser.barsHaveAdjClose():
             self.__haveAdjClose = True
         elif self.__haveAdjClose:
-            raise Exception("Previous bars had adjusted close and these ones doesn't have.")
+            raise Exception("Previous bars had adjusted close and these ones don't have.")
