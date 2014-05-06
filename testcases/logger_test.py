@@ -45,7 +45,7 @@ logger_test_2.main()
             lines = common.run_python_code(code).split("\n")
             self.assertEqual(len(lines), 4)
             self.assertEqual(lines[0], "2000-01-01 00:00:00 strategy [INFO] bla")
-            self.assertTrue(lines[1].find("2000-01-02 00:00:00 broker.backtesting [DEBUG] Not enough money to fill order") == 0)
+            self.assertEqual(lines[1], "2000-01-02 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill order [1] for 1 share/s")
             self.assertEqual(lines[2], "2000-01-02 00:00:00 strategy [INFO] bla")
             self.assertEqual(lines[3], "")
 

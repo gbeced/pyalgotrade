@@ -310,7 +310,7 @@ class DefaultStrategy(FillStrategy):
     def __calculateFillSize(self, order, broker_, bar):
         ret = 0
 
-        # If self.__volumeLimit then allow all the order to get filled.
+        # If self.__volumeLimit is None then allow all the order to get filled.
         if self.__volumeLimit is not None:
             volumeLeft = self.__volumeLeft.get(order.getInstrument(), 0)
         else:
@@ -328,6 +328,7 @@ class DefaultStrategy(FillStrategy):
     def fillMarketOrder(self, order, broker_, bar):
         fillSize = self.__calculateFillSize(order, broker_, bar)
         if fillSize == 0:
+            broker_.getLogger().debug("Not enough volume to fill market order [%s] for %d share/s" % (order.getId(), order.getRemaining()))
             return None
 
         ret = None
@@ -342,6 +343,7 @@ class DefaultStrategy(FillStrategy):
     def fillLimitOrder(self, order, broker_, bar):
         fillSize = self.__calculateFillSize(order, broker_, bar)
         if fillSize == 0:
+            broker_.getLogger().debug("Not enough volume to fill limit order [%s] for %d share/s" % (order.getId(), order.getRemaining()))
             return None
 
         ret = None
@@ -363,6 +365,7 @@ class DefaultStrategy(FillStrategy):
         if order.getStopHit():
             fillSize = self.__calculateFillSize(order, broker_, bar)
             if fillSize == 0:
+                broker_.getLogger().debug("Not enough volume to fill stop order [%s] for %d share/s" % (order.getId(), order.getRemaining()))
                 return None
 
             # If we just hit the stop price we'll use it as the fill price.
@@ -388,6 +391,7 @@ class DefaultStrategy(FillStrategy):
         if order.getStopHit():
             fillSize = self.__calculateFillSize(order, broker_, bar)
             if fillSize == 0:
+                broker_.getLogger().debug("Not enough volume to fill stop limit order [%s] for %d share/s" % (order.getId(), order.getRemaining()))
                 return None
 
             price = get_limit_price_trigger(order.getAction(), order.getLimitPrice(), broker_.getUseAdjustedValues(), bar)
@@ -677,7 +681,7 @@ class Broker(broker.Broker):
             else:
                 assert(False)
         else:
-            self.__logger.debug("Not enough money to fill order %s" % (order))
+            self.__logger.debug("Not enough cash to fill order [%s] for %d share/s" % (order.getId(), order.getRemaining()))
 
     def placeOrder(self, order):
         if order.isInitial():
