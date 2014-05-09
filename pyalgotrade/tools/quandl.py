@@ -65,7 +65,7 @@ def download_daily_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     :type year: int.
     :param csvFile: The path to the CSV file to write.
     :type csvFile: string.
-    :param authToken: Optional. You will need an authentication token unless you are doing less than 50 calls per day.
+    :param authToken: Optional. An authentication token needed if you're doing more than 50 calls per day.
     :type authToken: string.
     """
 
@@ -86,7 +86,7 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     :type year: int.
     :param csvFile: The path to the CSV file to write.
     :type csvFile: string.
-    :param authToken: Optional. You will need an authentication token unless you are doing less than 50 calls per day.
+    :param authToken: Optional. An authentication token needed if you're doing more than 50 calls per day.
     :type authToken: string.
     """
 
@@ -99,6 +99,32 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
 
 
 def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None, skipErrors=False, noAdjClose=False, authToken=None):
+    """Build and load a :class:`pyalgotrade.barfeed.quandlfeed.Feed` using CSV files downloaded from Quandl.
+    CSV files are downloaded if they haven't been downloaded before.
+
+    :param sourceCode: The dataset source code.
+    :type sourceCode: string.
+    :param tableCodes: The dataset table codes.
+    :type tableCodes: list.
+    :param fromYear: The first year.
+    :type fromYear: int.
+    :param toYear: The last year.
+    :type toYear: int.
+    :param storage: The path were the files will be loaded from, or downloaded to.
+    :type storage: string.
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
+        are supported.
+    :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+    :type timezone: A pytz timezone.
+    :param skipErrors: True to keep on loading/downloading files in case of errors.
+    :type skipErrors: boolean.
+    :param noAdjClose: True if the instruments don't have adjusted close values.
+    :type noAdjClose: boolean.
+    :param authToken: Optional. An authentication token needed if you're doing more than 50 calls per day.
+    :type authToken: string.
+    :rtype: :class:`pyalgotrade.barfeed.quandlfeed.Feed`.
+    """
+
     logger = pyalgotrade.logger.getLogger("quandl")
     ret = quandlfeed.Feed(frequency, timezone)
     if noAdjClose:

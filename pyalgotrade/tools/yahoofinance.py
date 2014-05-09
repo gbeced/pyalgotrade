@@ -87,6 +87,26 @@ def download_weekly_bars(instrument, year, csvFile):
 
 
 def build_feed(instruments, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None, skipErrors=False):
+    """Build and load a :class:`pyalgotrade.barfeed.yahoofeed.Feed` using CSV files downloaded from Yahoo! Finance.
+    CSV files are downloaded if they haven't been downloaded before.
+
+    :param instruments: Instrument identifiers.
+    :type instruments: list.
+    :param fromYear: The first year.
+    :type fromYear: int.
+    :param toYear: The last year.
+    :type toYear: int.
+    :param storage: The path were the files will be loaded from, or downloaded to.
+    :type storage: string.
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
+        are supported.
+    :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+    :type timezone: A pytz timezone.
+    :param skipErrors: True to keep on loading/downloading files in case of errors.
+    :type skipErrors: boolean.
+    :rtype: :class:`pyalgotrade.barfeed.yahoofeed.Feed`.
+    """
+
     logger = pyalgotrade.logger.getLogger("yahoofinance")
     ret = yahoofeed.Feed(frequency, timezone)
 
