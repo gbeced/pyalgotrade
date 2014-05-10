@@ -667,7 +667,11 @@ class Broker(broker.Broker):
 
             # Commit the order execution.
             self.__cash = resultingCash
-            self.__shares[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(self.getShares(order.getInstrument()) + sharesDelta)
+            updatedShares = order.getInstrumentTraits().roundQuantity(self.getShares(order.getInstrument()) + sharesDelta)
+            if updatedShares == 0:
+                del self.__shares[order.getInstrument()]
+            else:
+                self.__shares[order.getInstrument()] = updatedShares
 
             # Let the strategy know that the order was filled.
             self.__fillStrategy.onOrderFilled(order)
