@@ -1,7 +1,7 @@
 VWAP Momentum Trade
 ===================
 
-This sample is based on:
+This example is based on:
  * https://www.quantopian.com/posts/momentum-trade
 
 .. literalinclude:: ../samples/vwap_momentum.py

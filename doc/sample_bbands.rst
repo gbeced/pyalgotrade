@@ -1,7 +1,7 @@
 Bollinger Bands
 ===============
 
-This sample is based on:
+This example is based on:
  * http://www.investopedia.com/articles/trading/07/bollinger.asp
 
 .. literalinclude:: ../samples/bbands.py

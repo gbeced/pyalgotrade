@@ -196,3 +196,21 @@ quandl_sample.main(False)
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_head("quandl_sample.output", lines[0:10]))
             self.assertTrue(common.compare_tail("quandl_sample.output", lines[-10:-1]))
+
+    def testMarketTiming(self):
+        common.init_temp_path()
+        files = []
+        instruments = ["MSFT", "ORCL", "IBM", "HPQ", "WMT", "UPS", "TGT", "CCL", "XOM", "CVX", "COP", "OXY", "BAC", "JPM", "WFC", "GS", "PG", "PEP", "CL", "KO"]
+        for year in range(2005, 2013+1):
+            for symbol in instruments:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "data"):
+            code = """import sys
+sys.path.append('samples')
+import market_timing
+market_timing.main(False)
+"""
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("market_timing.output", lines[-10:-1]))
