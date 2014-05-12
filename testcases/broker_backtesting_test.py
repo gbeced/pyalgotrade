@@ -514,6 +514,26 @@ class BrokerTestCase(BaseTestCase):
 
 
 class MarketOrderTestCase(BaseTestCase):
+    def testGetPositions(self):
+        barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        cash = 1000000
+        brk = backtesting.Broker(cash, barFeed)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1)
+        brk.placeOrder(order)
+        barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, 555.00)
+        self.assertTrue(order.isFilled())
+        self.assertEquals(brk.getPositions().get(BaseTestCase.TestInstrument), 1)
+
+        # Sell
+        order = brk.createMarketOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, 1)
+        brk.placeOrder(order)
+        barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, 555.00)
+        self.assertTrue(order.isFilled())
+        self.assertEquals(brk.getPositions().get(BaseTestCase.TestInstrument), None)
+
+
     def testBuyPartialWithTwoDecimals(self):
         class Broker(backtesting.Broker):
             def getInstrumentTraits(self, instrument):

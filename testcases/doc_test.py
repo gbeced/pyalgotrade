@@ -27,26 +27,26 @@ from testcases import common
 class DocCodeTest(unittest.TestCase):
     def testTutorial1(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = common.run_sample_script("tutorial-1.py").split("\n")
+            lines = common.run_sample_script("tutorial-1.py")
             self.assertTrue(common.compare_head("tutorial-1.output", lines[:3]))
-            self.assertTrue(common.compare_tail("tutorial-1.output", lines[-4:-1]))
+            self.assertTrue(common.compare_tail("tutorial-1.output", lines[-3:]))
 
     def testTutorial2(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = common.run_sample_script("tutorial-2.py").split("\n")
+            lines = common.run_sample_script("tutorial-2.py")
             self.assertTrue(common.compare_head("tutorial-2.output", lines[:15]))
-            self.assertTrue(common.compare_tail("tutorial-2.output", lines[-4:-1]))
+            self.assertTrue(common.compare_tail("tutorial-2.output", lines[-3:]))
 
     def testTutorial3(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = common.run_sample_script("tutorial-3.py").split("\n")
+            lines = common.run_sample_script("tutorial-3.py")
             self.assertTrue(common.compare_head("tutorial-3.output", lines[:30]))
-            self.assertTrue(common.compare_tail("tutorial-3.output", lines[-4:-1]))
+            self.assertTrue(common.compare_tail("tutorial-3.output", lines[-3:]))
 
     def testTutorial4(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = common.run_sample_script("tutorial-4.py").split("\n")
-            self.assertTrue(common.compare_head("tutorial-4.output", lines[:-1]))
+            lines = common.run_sample_script("tutorial-4.py")
+            self.assertTrue(common.compare_head("tutorial-4.output", lines))
 
     def testCSVFeed(self):
         with common.CopyFiles([os.path.join("samples", "data", "quandl_gold_2.csv")], "."):
@@ -63,21 +63,23 @@ class CompInvTestCase(unittest.TestCase):
     def testCompInv_1(self):
         files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
         with common.CopyFiles(files, "."):
-            lines = common.run_sample_script("compinv-1.py").split("\n")
-            self.assertTrue(common.compare_head("compinv-1.output", lines[:-1]))
+            lines = common.run_sample_script("compinv-1.py")
+            # Skip the first two lines that have debug messages from the
+            # broker.
+            self.assertTrue(common.compare_head("compinv-1.output", lines[2:]))
 
 
 class StratAnalyzerTestCase(unittest.TestCase):
     def testSampleStrategyAnalyzer(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = common.run_sample_script("sample-strategy-analyzer.py").split("\n")
-            self.assertTrue(common.compare_head("sample-strategy-analyzer.output", lines[:-1]))
+            lines = common.run_sample_script("sample-strategy-analyzer.py")
+            self.assertTrue(common.compare_head("sample-strategy-analyzer.output", lines))
 
 
 class TechnicalTestCase(unittest.TestCase):
     def testTechnical_1(self):
-        lines = common.run_sample_script("technical-1.py").split("\n")
-        self.assertTrue(common.compare_head("technical-1.output", lines[:-1]))
+        lines = common.run_sample_script("technical-1.py")
+        self.assertTrue(common.compare_head("technical-1.output", lines))
 
 
 class SampleStratTestCase(unittest.TestCase):
@@ -194,3 +196,21 @@ quandl_sample.main(False)
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_head("quandl_sample.output", lines[0:10]))
             self.assertTrue(common.compare_tail("quandl_sample.output", lines[-10:-1]))
+
+    def testMarketTiming(self):
+        common.init_temp_path()
+        files = []
+        instruments = ["MSFT", "ORCL", "IBM", "HPQ", "WMT", "UPS", "TGT", "CCL", "XOM", "CVX", "COP", "OXY", "BAC", "JPM", "WFC", "GS", "PG", "PEP", "CL", "KO"]
+        for year in range(2005, 2013+1):
+            for symbol in instruments:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "data"):
+            code = """import sys
+sys.path.append('samples')
+import market_timing
+market_timing.main(False)
+"""
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_tail("market_timing.output", lines[-10:-1]))

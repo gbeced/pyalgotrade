@@ -1,7 +1,7 @@
 Ernie Chan's Gold vs. Gold Miners
 =================================
 
-This sample is based on:
+This example is based on:
  * http://epchan.blogspot.com.ar/2006/11/gold-vs-gold-miners-another-arbitrage.html
  * https://www.quantopian.com/posts/ernie-chans-gold-vs-gold-miners-stat-arb
 

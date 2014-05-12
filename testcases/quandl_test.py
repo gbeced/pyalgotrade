@@ -83,4 +83,6 @@ class ToolsTestCase(unittest.TestCase):
         self.assertEquals(bf[instrument][-1].getLow(), 323.17)
         self.assertEquals(bf[instrument][-1].getClose(), 323.6)
         self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
-        self.assertEquals(bf[instrument][-1].getAdjClose(), 311.0164494677866)
+        # Not checking against a specific value since this is going to change
+        # as time passes by.
+        self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)

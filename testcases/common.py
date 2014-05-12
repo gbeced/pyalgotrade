@@ -52,7 +52,9 @@ def run_python_script(script, params=[]):
 
 
 def run_sample_script(script, params=[]):
-    return run_python_script(os.path.join("samples", script), params)
+    lines = run_python_script(os.path.join("samples", script), params).split("\n")
+    # Skip the last, empty line.
+    return lines[:-1]
 
 
 def get_file_lines(fileName):

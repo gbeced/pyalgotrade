@@ -8,6 +8,7 @@ Momentum
 .. toctree::
     sample_vwap_momentum
     sample_sma_crossover
+    sample_market_timing
 
 Mean Reversion
 --------------

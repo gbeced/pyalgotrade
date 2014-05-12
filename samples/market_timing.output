@@ -1,0 +1,23 @@
+2014-05-10 23:53:01,624 yahoofinance [INFO] Creating data directory
+2014-05-10 23:53:01,624 yahoofinance [INFO] Downloading WMT 2005 to data/WMT-2005-yahoofinance.csv
+2014-05-10 23:53:02,189 yahoofinance [INFO] Downloading UPS 2005 to data/UPS-2005-yahoofinance.csv
+2014-05-10 23:53:02,606 yahoofinance [INFO] Downloading TGT 2005 to data/TGT-2005-yahoofinance.csv
+2014-05-10 23:53:03,129 yahoofinance [INFO] Downloading CCL 2005 to data/CCL-2005-yahoofinance.csv
+2014-05-10 23:53:03,545 yahoofinance [INFO] Downloading BAC 2005 to data/BAC-2005-yahoofinance.csv
+2014-05-10 23:53:03,967 yahoofinance [INFO] Downloading JPM 2005 to data/JPM-2005-yahoofinance.csv
+2014-05-10 23:53:04,545 yahoofinance [INFO] Downloading WFC 2005 to data/WFC-2005-yahoofinance.csv
+2014-05-10 23:53:05,396 yahoofinance [INFO] Downloading GS 2005 to data/GS-2005-yahoofinance.csv
+2014-05-10 23:53:05,957 yahoofinance [INFO] Downloading PG 2005 to data/PG-2005-yahoofinance.csv
+.
+.
+.
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -104 HPQ shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -30 XOM shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -28 UPS shares
+2013-12-03 00:00:00 strategy [INFO] Placing market order for 21 CVX shares
+2013-12-03 00:00:00 strategy [INFO] Placing market order for 34 WMT shares
+2013-12-03 00:00:00 strategy [INFO] Placing market order for 177 BAC shares
+2013-12-03 00:00:00 strategy [INFO] Placing market order for 72 MSFT shares
+2013-12-03 00:00:00 strategy [INFO] Placing market order for 19 PG shares
+2013-12-04 00:00:00 strategy [INFO] Placing market order for 14 PG shares
+Sharpe ratio: -0.02

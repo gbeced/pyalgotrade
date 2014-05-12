@@ -19,6 +19,7 @@
 """
 
 import abc
+import logging
 
 import pyalgotrade.broker
 from pyalgotrade.broker import backtesting
@@ -556,7 +557,7 @@ class BacktestingStrategy(BaseStrategy):
 
     :param barFeed: The bar feed to use to backtest the strategy.
     :type barFeed: :class:`pyalgotrade.barfeed.BaseBarFeed`.
-    :param cash: The amount of cash available.
+    :param cash: The starting capital.
     :type cash: int/float.
 
     .. note::
@@ -570,6 +571,7 @@ class BacktestingStrategy(BaseStrategy):
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
         self.setUseEventDateTimeInLogs(True)
+        self.setDebugMode(True)
 
     def getUseAdjustedValues(self):
         return self.__useAdjustedValues
@@ -580,6 +582,12 @@ class BacktestingStrategy(BaseStrategy):
         self.getBroker().setUseAdjustedValues(useAdjusted, True)
         self.__useAdjustedValues = useAdjusted
 
+    def setDebugMode(self, debugOn):
+        """Enable/disable debug level messages in the strategy and backtesting broker.
+        This is enabled by default."""
+        level = logging.DEBUG if debugOn else logging.INFO
+        self.getLogger().setLevel(level)
+        self.getBroker().getLogger().setLevel(level)
 
 class Strategy(BacktestingStrategy):
     def __init__(self, *args, **kwargs):
