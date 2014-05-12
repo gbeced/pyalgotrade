@@ -4,3 +4,4 @@ dist
 doc/_build
 build
 PyAlgoTrade.egg-info
+data
