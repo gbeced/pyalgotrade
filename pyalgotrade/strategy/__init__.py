@@ -130,10 +130,7 @@ class BaseStrategy(object):
         ret = None
         bar = self.getFeed().getLastBar(instrument)
         if bar is not None:
-            if self.getUseAdjustedValues():
-                ret = bar.getAdjClose()
-            else:
-                ret = bar.getClose()
+            ret = bar.getPrice()
         return ret
 
     def getFeed(self):

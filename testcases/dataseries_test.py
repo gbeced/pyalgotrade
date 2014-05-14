@@ -183,6 +183,7 @@ class TestBarDataSeries(unittest.TestCase):
         self.__testGetValue(ds.getLowDataSeries(), 10, 1)
         self.__testGetValue(ds.getVolumeDataSeries(), 10, 10)
         self.__testGetValue(ds.getAdjCloseDataSeries(), 10, 3)
+        self.__testGetValue(ds.getPriceDataSeries(), 10, 3)
 
     def testSeqLikeOps(self):
         seq = []

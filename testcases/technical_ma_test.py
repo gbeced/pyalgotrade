@@ -205,7 +205,7 @@ class EMATestCase(unittest.TestCase):
     def testMaxRecursion(self):
         barFeed = ninjatraderfeed.Feed(bar.Frequency.MINUTE)
         barFeed.addBarsFromCSV("any", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        ema = ma.EMA(barFeed["any"].getCloseDataSeries(), 10)
+        ema = ma.EMA(barFeed["any"].getPriceDataSeries(), 10)
         # Load all the feed.
         barFeed.loadAll()
 

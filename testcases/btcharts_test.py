@@ -37,11 +37,13 @@ class TestCase(unittest.TestCase):
         self.assertEquals(loaded[0][0], dt.as_utc(datetime.datetime(2011, 9, 13, 13, 53, 36)))
         self.assertEquals(loaded[0][1]["BTC"].getDateTime(), dt.as_utc(datetime.datetime(2011, 9, 13, 13, 53, 36)))
         self.assertEquals(loaded[0][1]["BTC"].getClose(), 5.8)
+        self.assertEquals(loaded[0][1]["BTC"].getPrice(), 5.8)
         self.assertEquals(loaded[0][1]["BTC"].getVolume(), 1.0)
 
         self.assertEquals(loaded[-1][0], dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
         self.assertEquals(loaded[-1][1]["BTC"].getDateTime(), dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
         self.assertEquals(loaded[-1][1]["BTC"].getClose(), 5.1)
+        self.assertEquals(loaded[-1][1]["BTC"].getPrice(), 5.1)
         self.assertEquals(loaded[-1][1]["BTC"].getVolume(), 0.39215686)
 
     def testLoadFilterFrom(self):
@@ -54,11 +56,13 @@ class TestCase(unittest.TestCase):
         self.assertEquals(loaded[0][0], dt.as_utc(datetime.datetime(2012, 5, 29, 1, 47, 52)))
         self.assertEquals(loaded[0][1]["bitstampUSD"].getDateTime(), dt.as_utc(datetime.datetime(2012, 5, 29, 1, 47, 52)))
         self.assertEquals(loaded[0][1]["bitstampUSD"].getClose(), 5.07)
+        self.assertEquals(loaded[0][1]["bitstampUSD"].getPrice(), 5.07)
         self.assertEquals(loaded[0][1]["bitstampUSD"].getVolume(), 1.39081288)
 
         self.assertEquals(loaded[-1][0], dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
         self.assertEquals(loaded[-1][1]["bitstampUSD"].getDateTime(), dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
         self.assertEquals(loaded[-1][1]["bitstampUSD"].getClose(), 5.1)
+        self.assertEquals(loaded[-1][1]["bitstampUSD"].getPrice(), 5.1)
         self.assertEquals(loaded[-1][1]["bitstampUSD"].getVolume(), 0.39215686)
 
     def testLoadFilterFromAndTo(self):
