@@ -53,6 +53,10 @@ class Bar(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
+    def setUseAdjustedValue(self, useAdjusted):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
     def getDateTime(self):
         """Returns the :class:`datetime.datetime`."""
         raise NotImplementedError()
@@ -96,10 +100,15 @@ class Bar(object):
         """Returns the typical price."""
         return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
 
+    @abc.abstractmethod
+    def getPrice(self):
+        """Returns the closing or adjusted closing price."""
+        raise NotImplementedError()
+
 
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__frequency')
+    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__frequency', '__useAdjustedValue')
 
     def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency):
         if high < open_:
@@ -123,12 +132,18 @@ class BasicBar(Bar):
         self.__volume = volume
         self.__adjClose = adjClose
         self.__frequency = frequency
+        self.__useAdjustedValue = False
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency) = state
+        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency, self.__useAdjustedValue) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency)
+        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__frequency, self.__useAdjustedValue)
+
+    def setUseAdjustedValue(self, useAdjusted):
+        if useAdjusted and self.__adjClose is None:
+            raise Exception("Adjusted close is not available")
+        self.__useAdjustedValue = useAdjusted
 
     def getDateTime(self):
         return self.__dateTime
@@ -188,6 +203,12 @@ class BasicBar(Bar):
 
     def getFrequency(self):
         return self.__frequency
+
+    def getPrice(self):
+        if self.__useAdjustedValue:
+            return self.__adjClose
+        else:
+            return self.__close
 
 
 class Bars(object):

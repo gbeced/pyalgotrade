@@ -577,8 +577,7 @@ class BacktestingStrategy(BaseStrategy):
         return self.__useAdjustedValues
 
     def setUseAdjustedValues(self, useAdjusted):
-        if not self.getFeed().barsHaveAdjClose():
-            raise Exception("The barfeed doesn't support adjusted close values")
+        self.getFeed().setUseAdjustedValues(useAdjusted)
         self.getBroker().setUseAdjustedValues(useAdjusted, True)
         self.__useAdjustedValues = useAdjusted
 
