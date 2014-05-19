@@ -51,6 +51,16 @@ class BaseBarFeed(feed.BaseFeed):
         self.__lastBars = {}
         self.__frequency = frequency
         self.__prevDateTime = None
+        self.__useAdjustedValues = False
+
+    def setUseAdjustedValues(self, useAdjusted):
+        if useAdjusted and not self.barsHaveAdjClose():
+            raise Exception("The barfeed doesn't support adjusted close values")
+        # This is to affect future dataseries when they get created.
+        self.__useAdjustedValues = useAdjusted
+        # Update existing dataseries
+        for instrument in self.getRegisteredInstruments():
+            self.getDataSeries(instrument).setUseAdjustedValues(useAdjusted)
 
     @abc.abstractmethod
     def getCurrentDateTime(self):
@@ -72,7 +82,9 @@ class BaseBarFeed(feed.BaseFeed):
         raise NotImplementedError()
 
     def createDataSeries(self, key, maxLen):
-        return bards.BarDataSeries(maxLen)
+        ret = bards.BarDataSeries(maxLen)
+        ret.setUseAdjustedValues(self.__useAdjustedValues)
+        return ret
 
     def getNextValues(self):
         dateTime = None

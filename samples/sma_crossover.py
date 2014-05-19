@@ -10,8 +10,8 @@ class SMACrossOver(strategy.BacktestingStrategy):
         self.__position = None
         # We'll use adjusted close values instead of regular close values.
         self.setUseAdjustedValues(True)
-        self.__adjClose = feed[instrument].getAdjCloseDataSeries()
-        self.__sma = ma.SMA(self.__adjClose, smaPeriod)
+        self.__prices = feed[instrument].getPriceDataSeries()
+        self.__sma = ma.SMA(self.__prices, smaPeriod)
 
     def getSMA(self):
         return self.__sma
@@ -29,10 +29,10 @@ class SMACrossOver(strategy.BacktestingStrategy):
     def onBars(self, bars):
         # If a position was not opened, check if we should enter a long position.
         if self.__position is None:
-            if cross.cross_above(self.__adjClose, self.__sma) > 0:
-                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getClose())
+            if cross.cross_above(self.__prices, self.__sma) > 0:
+                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
                 # Enter a buy market order. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, shares, True)
         # Check if we have to exit the position.
-        elif not self.__position.exitActive() and cross.cross_below(self.__adjClose, self.__sma) > 0:
+        elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
             self.__position.exitMarket()

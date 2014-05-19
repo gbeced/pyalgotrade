@@ -130,10 +130,7 @@ class BaseStrategy(object):
         ret = None
         bar = self.getFeed().getLastBar(instrument)
         if bar is not None:
-            if self.getUseAdjustedValues():
-                ret = bar.getAdjClose()
-            else:
-                ret = bar.getClose()
+            ret = bar.getPrice()
         return ret
 
     def getFeed(self):
@@ -577,8 +574,7 @@ class BacktestingStrategy(BaseStrategy):
         return self.__useAdjustedValues
 
     def setUseAdjustedValues(self, useAdjusted):
-        if not self.getFeed().barsHaveAdjClose():
-            raise Exception("The barfeed doesn't support adjusted close values")
+        self.getFeed().setUseAdjustedValues(useAdjusted)
         self.getBroker().setUseAdjustedValues(useAdjusted, True)
         self.__useAdjustedValues = useAdjusted
 

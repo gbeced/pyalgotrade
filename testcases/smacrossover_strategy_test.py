@@ -30,7 +30,7 @@ import common
 class SMACrossOverStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, fastSMA, slowSMA):
         strategy.BacktestingStrategy.__init__(self, feed, 1000)
-        ds = feed["orcl"].getCloseDataSeries()
+        ds = feed["orcl"].getPriceDataSeries()
         self.__fastSMADS = ma.SMA(ds, fastSMA)
         self.__slowSMADS = ma.SMA(ds, slowSMA)
         self.__longPos = None

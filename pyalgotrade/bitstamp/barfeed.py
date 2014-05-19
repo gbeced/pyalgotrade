@@ -42,6 +42,10 @@ class TradeBar(bar.Bar):
     def __getstate__(self):
         return (self.__dateTime, self.__tradeId, self.__price, self.__amount)
 
+    def setUseAdjustedValue(self, useAdjusted):
+        if useAdjusted:
+            raise Exception("Adjusted close is not available")
+
     def getTradeId(self):
         return self.__tradeId
 
@@ -70,6 +74,9 @@ class TradeBar(bar.Bar):
         return None
 
     def getTypicalPrice(self):
+        return self.__price
+
+    def getPrice(self):
         return self.__price
 
 

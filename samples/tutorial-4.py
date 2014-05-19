@@ -10,7 +10,7 @@ class MyStrategy(strategy.BacktestingStrategy):
         self.__instrument = instrument
         # We'll use adjusted close values instead of regular close values.
         self.setUseAdjustedValues(True)
-        self.__sma = ma.SMA(feed[instrument].getAdjCloseDataSeries(), smaPeriod)
+        self.__sma = ma.SMA(feed[instrument].getPriceDataSeries(), smaPeriod)
 
     def onEnterOk(self, position):
         execInfo = position.getEntryOrder().getExecutionInfo()
@@ -36,11 +36,11 @@ class MyStrategy(strategy.BacktestingStrategy):
         bar = bars[self.__instrument]
         # If a position was not opened, check if we should enter a long position.
         if self.__position is None:
-            if bar.getAdjClose() > self.__sma[-1]:
+            if bar.getPrice() > self.__sma[-1]:
                 # Enter a buy market order for 10 shares. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, 10, True)
         # Check if we have to exit the position.
-        elif bar.getAdjClose() < self.__sma[-1]:
+        elif bar.getPrice() < self.__sma[-1]:
             self.__position.exitMarket()
 
 

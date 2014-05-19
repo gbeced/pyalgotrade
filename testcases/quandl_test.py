@@ -48,6 +48,28 @@ class ToolsTestCase(unittest.TestCase):
         self.assertEquals(bf[instrument][-1].getClose(), 31.3)
         self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
         self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
+        self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+
+    def testDownloadAndParseDaily_UseAdjClose(self):
+        instrument = "ORCL"
+
+        common.init_temp_path()
+        path = os.path.join(common.get_temp_path(), "quandl-daily-orcl-2010.csv")
+        quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
+        bf = quandlfeed.Feed()
+        bf.addBarsFromCSV(instrument, path)
+        # Need to setUseAdjustedValues(True) after loading the file because we
+        # can't tell in advance if adjusted values are there or not.
+        bf.setUseAdjustedValues(True)
+        bf.loadAll()
+        self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+        self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
+        self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
+        self.assertEquals(bf[instrument][-1].getLow(), 30.93)
+        self.assertEquals(bf[instrument][-1].getClose(), 31.3)
+        self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
+        self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
+        self.assertEquals(bf[instrument][-1].getPrice(), 30.23179912467581)
 
     def testDownloadAndParseDailyNoAdjClose(self):
         instrument = "ORCL"
@@ -66,6 +88,7 @@ class ToolsTestCase(unittest.TestCase):
         self.assertEquals(bf[instrument][-1].getClose(), 38.26)
         self.assertEquals(bf[instrument][-1].getVolume(), 11747517)
         self.assertEquals(bf[instrument][-1].getAdjClose(), None)
+        self.assertEquals(bf[instrument][-1].getPrice(), 38.26)
 
     def testDownloadAndParseWeekly(self):
         instrument = "AAPL"
@@ -83,6 +106,7 @@ class ToolsTestCase(unittest.TestCase):
         self.assertEquals(bf[instrument][-1].getLow(), 323.17)
         self.assertEquals(bf[instrument][-1].getClose(), 323.6)
         self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
+        self.assertEquals(bf[instrument][-1].getPrice(), 323.6)
         # Not checking against a specific value since this is going to change
         # as time passes by.
         self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
