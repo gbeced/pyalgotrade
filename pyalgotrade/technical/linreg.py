@@ -119,7 +119,7 @@ class Slope(technical.EventBasedFilter):
     :type maxLen: int.
 
     .. note::
-        This filter ignores the time ellapsed between the different values.
+        This filter ignores the time elapsed between the different values.
     """
 
     def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
