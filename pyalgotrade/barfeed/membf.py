@@ -35,21 +35,18 @@ class BarFeed(barfeed.BaseBarFeed):
     def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
         self.__bars = {}
-        self.__nextBarIdx = {}
+        self.__nextPos = {}
         self.__started = False
-        self.__barsLeft = 0
-        self.__prevDateTime = None
+        self.__currDateTime = None
 
     def getCurrentDateTime(self):
-        return self.peekDateTime()
+        return self.__currDateTime
 
     def isRealTime(self):
         return False
 
     def start(self):
         self.__started = True
-        for instrument, bars in self.__bars.iteritems():
-            self.__barsLeft = max(self.__barsLeft, len(bars))
 
     def stop(self):
         pass
@@ -62,7 +59,7 @@ class BarFeed(barfeed.BaseBarFeed):
             raise Exception("Can't add more bars once you started consuming bars")
 
         self.__bars.setdefault(instrument, [])
-        self.__nextBarIdx.setdefault(instrument, 0)
+        self.__nextPos.setdefault(instrument, 0)
 
         # Add and sort the bars
         self.__bars[instrument].extend(bars)
@@ -75,8 +72,8 @@ class BarFeed(barfeed.BaseBarFeed):
         ret = True
         # Check if there is at least one more bar to return.
         for instrument, bars in self.__bars.iteritems():
-            nextIdx = self.__nextBarIdx[instrument]
-            if nextIdx < len(bars):
+            nextPos = self.__nextPos[instrument]
+            if nextPos < len(bars):
                 ret = False
                 break
         return ret
@@ -85,9 +82,9 @@ class BarFeed(barfeed.BaseBarFeed):
         ret = None
 
         for instrument, bars in self.__bars.iteritems():
-            nextIdx = self.__nextBarIdx[instrument]
-            if nextIdx < len(bars):
-                ret = utils.safe_min(ret, bars[nextIdx].getDateTime())
+            nextPos = self.__nextPos[instrument]
+            if nextPos < len(bars):
+                ret = utils.safe_min(ret, bars[nextPos].getDateTime())
         return ret
 
     def getNextBars(self):
@@ -95,27 +92,21 @@ class BarFeed(barfeed.BaseBarFeed):
         smallestDateTime = self.peekDateTime()
 
         if smallestDateTime is None:
-            assert(self.__barsLeft == 0)
             return None
 
         # Make a second pass to get all the bars that had the smallest datetime.
         ret = {}
         for instrument, bars in self.__bars.iteritems():
-            nextIdx = self.__nextBarIdx[instrument]
-            if nextIdx < len(bars) and bars[nextIdx].getDateTime() == smallestDateTime:
-                ret[instrument] = bars[nextIdx]
-                self.__nextBarIdx[instrument] += 1
+            nextPos = self.__nextPos[instrument]
+            if nextPos < len(bars) and bars[nextPos].getDateTime() == smallestDateTime:
+                ret[instrument] = bars[nextPos]
+                self.__nextPos[instrument] += 1
 
-        self.__barsLeft -= 1
-
-        if self.__prevDateTime == smallestDateTime:
+        if self.__currDateTime == smallestDateTime:
             raise Exception("Duplicate bars found for %s on %s" % (ret.keys(), smallestDateTime))
 
-        self.__prevDateTime = smallestDateTime
+        self.__currDateTime = smallestDateTime
         return bar.Bars(ret)
-
-    def getBarsLeft(self):
-        return self.__barsLeft
 
     def loadAll(self):
         for dateTime, bars in self:

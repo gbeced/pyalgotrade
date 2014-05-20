@@ -44,13 +44,11 @@ class BaseBarFeed(feed.BaseFeed):
 
     def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         feed.BaseFeed.__init__(self, maxLen)
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
         self.__defaultInstrument = None
         self.__currentBars = None
         self.__lastBars = {}
         self.__frequency = frequency
-        self.__prevDateTime = None
+        self.__currDateTime = None
         self.__useAdjustedValues = False
 
     def setUseAdjustedValues(self, useAdjusted):
@@ -93,9 +91,9 @@ class BaseBarFeed(feed.BaseFeed):
             dateTime = bars.getDateTime()
 
             # Check that current bar datetimes are greater than the previous one.
-            if self.__prevDateTime is not None and self.__prevDateTime >= dateTime:
-                raise Exception("Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (self.__prevDateTime, dateTime))
-            self.__prevDateTime = dateTime
+            if self.__currDateTime is not None and self.__currDateTime >= dateTime:
+                raise Exception("Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (self.__currDateTime, dateTime))
+            self.__currDateTime = dateTime
 
             # Update self.__currentBars and self.__lastBars
             self.__currentBars = bars
@@ -149,18 +147,16 @@ class OptimizerBarFeed(BaseBarFeed):
         for instrument in instruments:
             self.registerInstrument(instrument)
         self.__bars = bars
-        self.__nextBar = 0
+        self.__nextPos = 0
+        self.__currDateTime = None
+
         try:
             self.__barsHaveAdjClose = self.__bars[0][instruments[0]].getAdjClose() is not None
         except Exception:
             self.__barsHaveAdjClose = False
 
     def getCurrentDateTime(self):
-        if self.__nextBar < len(self.__bars):
-            bar = self.__bars[self.__nextBar]
-        else:
-            bar = self.__bars[-1]
-        return bar.getDateTime()
+        return self.__currDateTime
 
     def barsHaveAdjClose(self):
         return self.__barsHaveAdjClose
@@ -178,14 +174,15 @@ class OptimizerBarFeed(BaseBarFeed):
         pass
 
     def peekDateTime(self):
-        self.__bars[self.__nextBar].getDateTime()
+        self.__bars[self.__nextPos].getDateTime()
 
     def getNextBars(self):
         ret = None
-        if self.__nextBar < len(self.__bars):
-            ret = self.__bars[self.__nextBar]
-            self.__nextBar += 1
+        if self.__nextPos < len(self.__bars):
+            ret = self.__bars[self.__nextPos]
+            self.__currDateTime = ret.getDateTime()
+            self.__nextPos += 1
         return ret
 
     def eof(self):
-        return self.__nextBar >= len(self.__bars)
+        return self.__nextPos >= len(self.__bars)
