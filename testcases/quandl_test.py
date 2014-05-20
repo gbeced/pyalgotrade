@@ -110,3 +110,7 @@ class ToolsTestCase(unittest.TestCase):
         # Not checking against a specific value since this is going to change
         # as time passes by.
         self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+
+    def testInvalidFrequency(self):
+        with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
+            quandlfeed.Feed(frequency=bar.Frequency.MINUTE)

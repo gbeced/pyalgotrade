@@ -22,6 +22,7 @@ import unittest
 import datetime
 import json
 
+from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
 from pyalgotrade.bitstamp import broker
 from pyalgotrade.bitstamp import wsclient
@@ -264,3 +265,18 @@ class TestCase(unittest.TestCase):
         self.assertFalse(strat.pos.isOpen())
         self.assertEqual(len(strat.posExecutionInfo), 2)
         self.assertEqual(strat.pos.getShares(), 0.0)
+
+    def testInvalidOrders(self):
+        cli = MockClient()
+        barFeed = barfeed.LiveTradeFeed(cli)
+        brk = broker.PaperTradingBroker(1000, barFeed)
+        with self.assertRaises(Exception):
+            brk.createLimitOrder(basebroker.Order.Action.BUY, "none", 1, 1)
+        with self.assertRaises(Exception):
+            brk.createLimitOrder(basebroker.Order.Action.SELL_SHORT, "none", 1, 1)
+        with self.assertRaises(Exception):
+            brk.createMarketOrder(basebroker.Order.Action.BUY, "none", 1)
+        with self.assertRaises(Exception):
+            brk.createStopOrder(basebroker.Order.Action.BUY, "none", 1, 1)
+        with self.assertRaises(Exception):
+            brk.createStopLimitOrder(basebroker.Order.Action.BUY, "none", 1, 1, 1)
