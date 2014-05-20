@@ -22,9 +22,9 @@ class Timer:
         self.__started = time.time()
 
     def secondsElapsed(self):
-        """Returns an int with the number of seconds ellapsed since the instance was created."""
+        """Returns an int with the number of seconds elapsed since the instance was created."""
         return int(time.time() - self.__started)
 
     def minutesElapsed(self):
-        """Returns an float with the number of seconds ellapsed since the instance was created."""
+        """Returns an float with the number of seconds elapsed since the instance was created."""
         return self.secondsElapsed() / float(60)
