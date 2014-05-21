@@ -59,9 +59,6 @@ class Worker(object):
     def getLogger(self):
         return self.__logger
 
-    def setLogger(self, logger):
-        self.__logger = logger
-
     def getInstrumentsAndBars(self):
         ret = call_and_retry_on_network_error(self.__server.getInstrumentsAndBars, 10)
         ret = pickle.loads(ret)
