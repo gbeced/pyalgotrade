@@ -28,7 +28,7 @@ Feeds
     These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
     Feeds are not limited to bars. For example, there is a Twitter feed that allows incorporating Twitter
-    events into trading desicions.
+    events into trading decisions.
 
 Brokers
     Brokers are responsible for executing orders.
