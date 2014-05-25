@@ -33,84 +33,112 @@ auth_token = None
 
 class ToolsTestCase(unittest.TestCase):
     def testDownloadAndParseDaily(self):
-        instrument = "ORCL"
-
-        common.init_temp_path()
-        path = os.path.join(common.get_temp_path(), "quandl-daily-orcl-2010.csv")
-        quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
-        bf = quandlfeed.Feed()
-        bf.addBarsFromCSV(instrument, path)
-        bf.loadAll()
-        self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-        self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
-        self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
-        self.assertEquals(bf[instrument][-1].getLow(), 30.93)
-        self.assertEquals(bf[instrument][-1].getClose(), 31.3)
-        self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-        self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
-        self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+        with common.TmpDir() as tmpPath:
+            instrument = "ORCL"
+            path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
+            quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
+            bf = quandlfeed.Feed()
+            bf.addBarsFromCSV(instrument, path)
+            bf.loadAll()
+            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
+            self.assertEquals(bf[instrument][-1].getLow(), 30.93)
+            self.assertEquals(bf[instrument][-1].getClose(), 31.3)
+            self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
+            self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
+            self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
 
     def testDownloadAndParseDaily_UseAdjClose(self):
-        instrument = "ORCL"
-
-        common.init_temp_path()
-        path = os.path.join(common.get_temp_path(), "quandl-daily-orcl-2010.csv")
-        quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
-        bf = quandlfeed.Feed()
-        bf.addBarsFromCSV(instrument, path)
-        # Need to setUseAdjustedValues(True) after loading the file because we
-        # can't tell in advance if adjusted values are there or not.
-        bf.setUseAdjustedValues(True)
-        bf.loadAll()
-        self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-        self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
-        self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
-        self.assertEquals(bf[instrument][-1].getLow(), 30.93)
-        self.assertEquals(bf[instrument][-1].getClose(), 31.3)
-        self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-        self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
-        self.assertEquals(bf[instrument][-1].getPrice(), 30.23179912467581)
+        with common.TmpDir() as tmpPath:
+            instrument = "ORCL"
+            path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
+            quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
+            bf = quandlfeed.Feed()
+            bf.addBarsFromCSV(instrument, path)
+            # Need to setUseAdjustedValues(True) after loading the file because we
+            # can't tell in advance if adjusted values are there or not.
+            bf.setUseAdjustedValues(True)
+            bf.loadAll()
+            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
+            self.assertEquals(bf[instrument][-1].getLow(), 30.93)
+            self.assertEquals(bf[instrument][-1].getClose(), 31.3)
+            self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
+            self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
+            self.assertEquals(bf[instrument][-1].getPrice(), 30.23179912467581)
 
     def testDownloadAndParseDailyNoAdjClose(self):
-        instrument = "ORCL"
-
-        common.init_temp_path()
-        path = os.path.join(common.get_temp_path(), "quandl-daily-orcl-2013.csv")
-        quandl.download_daily_bars("GOOG", "NASDAQ_ORCL", 2013, path, auth_token)
-        bf = quandlfeed.Feed()
-        bf.setNoAdjClose()
-        bf.addBarsFromCSV(instrument, path)
-        bf.loadAll()
-        self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2013, 12, 31))
-        self.assertEquals(bf[instrument][-1].getOpen(), 37.94)
-        self.assertEquals(bf[instrument][-1].getHigh(), 38.34)
-        self.assertEquals(bf[instrument][-1].getLow(), 37.88)
-        self.assertEquals(bf[instrument][-1].getClose(), 38.26)
-        self.assertEquals(bf[instrument][-1].getVolume(), 11747517)
-        self.assertEquals(bf[instrument][-1].getAdjClose(), None)
-        self.assertEquals(bf[instrument][-1].getPrice(), 38.26)
+        with common.TmpDir() as tmpPath:
+            instrument = "ORCL"
+            path = os.path.join(tmpPath, "quandl-daily-orcl-2013.csv")
+            quandl.download_daily_bars("GOOG", "NASDAQ_ORCL", 2013, path, auth_token)
+            bf = quandlfeed.Feed()
+            bf.setNoAdjClose()
+            bf.addBarsFromCSV(instrument, path)
+            bf.loadAll()
+            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2013, 12, 31))
+            self.assertEquals(bf[instrument][-1].getOpen(), 37.94)
+            self.assertEquals(bf[instrument][-1].getHigh(), 38.34)
+            self.assertEquals(bf[instrument][-1].getLow(), 37.88)
+            self.assertEquals(bf[instrument][-1].getClose(), 38.26)
+            self.assertEquals(bf[instrument][-1].getVolume(), 11747517)
+            self.assertEquals(bf[instrument][-1].getAdjClose(), None)
+            self.assertEquals(bf[instrument][-1].getPrice(), 38.26)
 
     def testDownloadAndParseWeekly(self):
-        instrument = "AAPL"
-
-        common.init_temp_path()
-        path = os.path.join(common.get_temp_path(), "quandl-aapl-weekly-2010.csv")
-        quandl.download_weekly_bars("WIKI", instrument, 2010, path, auth_token)
-        bf = quandlfeed.Feed(frequency=bar.Frequency.WEEK)
-        bf.addBarsFromCSV(instrument, path)
-        bf.loadAll()
-        self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 3))
-        self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
-        self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
-        self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
-        self.assertEquals(bf[instrument][-1].getLow(), 323.17)
-        self.assertEquals(bf[instrument][-1].getClose(), 323.6)
-        self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
-        self.assertEquals(bf[instrument][-1].getPrice(), 323.6)
-        # Not checking against a specific value since this is going to change
-        # as time passes by.
-        self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+        with common.TmpDir() as tmpPath:
+            instrument = "AAPL"
+            path = os.path.join(tmpPath, "quandl-aapl-weekly-2010.csv")
+            quandl.download_weekly_bars("WIKI", instrument, 2010, path, auth_token)
+            bf = quandlfeed.Feed(frequency=bar.Frequency.WEEK)
+            bf.addBarsFromCSV(instrument, path)
+            bf.loadAll()
+            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 3))
+            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
+            self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
+            self.assertEquals(bf[instrument][-1].getLow(), 323.17)
+            self.assertEquals(bf[instrument][-1].getClose(), 323.6)
+            self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
+            self.assertEquals(bf[instrument][-1].getPrice(), 323.6)
+            # Not checking against a specific value since this is going to change
+            # as time passes by.
+            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testInvalidFrequency(self):
         with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
             quandlfeed.Feed(frequency=bar.Frequency.MINUTE)
+
+    def testBuildFeedDaily(self):
+        with common.TmpDir() as tmpPath:
+            instrument = "ORCL"
+            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=auth_token)
+            bf.loadAll()
+            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
+            self.assertEquals(bf[instrument][-1].getLow(), 30.93)
+            self.assertEquals(bf[instrument][-1].getClose(), 31.3)
+            self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
+            self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
+            self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+
+    def testBuildFeedWeekly(self):
+        with common.TmpDir() as tmpPath:
+            instrument = "AAPL"
+            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token)
+            bf.loadAll()
+            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 3))
+            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
+            self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
+            self.assertEquals(bf[instrument][-1].getLow(), 323.17)
+            self.assertEquals(bf[instrument][-1].getClose(), 323.6)
+            self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
+            self.assertEquals(bf[instrument][-1].getPrice(), 323.6)
+            # Not checking against a specific value since this is going to change
+            # as time passes by.
+            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+

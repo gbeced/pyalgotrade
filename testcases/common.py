@@ -22,6 +22,7 @@ import csv
 import os
 import shutil
 import subprocess
+import tempfile
 
 from pyalgotrade import dataseries
 
@@ -141,3 +142,15 @@ class CopyFiles:
     def __exit__(self, exc_type, exc_val, exc_tb):
         for src in self.__files:
             os.remove(os.path.join(self.__dst, os.path.basename(src)))
+
+class TmpDir(object):
+    def __init__(self):
+        self.__tmpdir = None
+
+    def __enter__(self):
+        self.__tmpdir = tempfile.mkdtemp()
+        return self.__tmpdir
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.__tmpdir is not None:
+            shutil.rmtree(self.__tmpdir)
