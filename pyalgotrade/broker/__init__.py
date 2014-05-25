@@ -21,6 +21,7 @@
 import abc
 
 from pyalgotrade import observer
+from pyalgotrade import warninghelpers
 
 
 # This class is used to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
@@ -515,7 +516,7 @@ class Broker(observer.Subject):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def placeOrder(self, order):
+    def submitOrder(self, order):
         """Submits an order.
 
         :param order: The order to submit.
@@ -526,6 +527,12 @@ class Broker(observer.Subject):
             * Calling this twice on the same order will raise an exception.
         """
         raise NotImplementedError()
+
+
+    def placeOrder(self, order):
+        # Deprecated since v0.16
+        warninghelpers.deprecation_warning("placeOrder will be deprecated in the next version. Please use submitOrder instead.", stacklevel=2)
+        return self.submitOrder(order)
 
     @abc.abstractmethod
     def createMarketOrder(self, action, instrument, quantity, onClose=False):

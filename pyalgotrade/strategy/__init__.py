@@ -146,7 +146,7 @@ class BaseStrategy(object):
         return self.__barFeed.getCurrentDateTime()
 
     def marketOrder(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
-        """Places a market order.
+        """Submits a market order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -169,7 +169,7 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def order(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
@@ -178,7 +178,7 @@ class BaseStrategy(object):
         return self.marketOrder(instrument, quantity, onClose, goodTillCanceled, allOrNone)
 
     def limitOrder(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
-        """Places a limit order.
+        """Submits a limit order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -201,11 +201,11 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def stopOrder(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
-        """Places a stop order.
+        """Submits a stop order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -228,11 +228,11 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def stopLimitOrder(self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
-        """Places a stop limit order.
+        """Submits a stop limit order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -257,7 +257,7 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def enterLong(self, instrument, quantity, goodTillCanceled=False, allOrNone=False):
@@ -477,7 +477,7 @@ class BaseStrategy(object):
 
     def onOrderUpdated(self, order):
         """Override (optional) to get notified when an order gets updated.
-        This is not called for orders placed using any of the enterLong or enterShort methods.
+        This is not called for orders submitted using any of the enterLong or enterShort methods.
 
         :param order: The order updated.
         :type order: :class:`pyalgotrade.broker.Order`.
@@ -502,7 +502,7 @@ class BaseStrategy(object):
         # 1: Let analyzers process bars.
         self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
-        # 2: Let the strategy process current bars and place orders.
+        # 2: Let the strategy process current bars and submit orders.
         self.onBars(bars)
 
         # 3: Notify that the bars were processed.
@@ -563,7 +563,7 @@ class BacktestingStrategy(BaseStrategy):
 
     def __init__(self, barFeed, cash=1000000):
         # The broker should subscribe to barFeed events before the strategy.
-        # This is to avoid executing orders placed in the current tick.
+        # This is to avoid executing orders submitted in the current tick.
         broker = backtesting.Broker(cash, barFeed)
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False

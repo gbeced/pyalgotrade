@@ -29,8 +29,8 @@ class PositionState(object):
     def onEnter(self, position):
         pass
 
-    # Raise an exception if an order can't be placed in the current state.
-    def canPlaceOrder(self, position, order):
+    # Raise an exception if an order can't be submitted in the current state.
+    def canSubmitOrder(self, position, order):
         raise NotImplementedError()
 
     def onOrderEvent(self, position, orderEvent):
@@ -44,7 +44,7 @@ class PositionState(object):
 
 
 class WaitingEntryState(PositionState):
-    def canPlaceOrder(self, position, order):
+    def canSubmitOrder(self, position, order):
         if position.entryActive():
             raise Exception("The entry order is still active")
 
@@ -74,8 +74,8 @@ class OpenState(PositionState):
         entryDateTime = position.getEntryOrder().getExecutionInfo().getDateTime()
         position.setEntryDateTime(entryDateTime)
 
-    def canPlaceOrder(self, position, order):
-        # Only exit orders should be placed in this state.
+    def canSubmitOrder(self, position, order):
+        # Only exit orders should be submitted in this state.
         pass
 
     def onOrderEvent(self, position, orderEvent):
@@ -107,7 +107,7 @@ class OpenState(PositionState):
         if position.entryActive():
             position.getStrategy().getBroker().cancelOrder(position.getEntryOrder())
 
-        position._placeExitOrder(stopPrice, limitPrice, goodTillCanceled)
+        position._submitExitOrder(stopPrice, limitPrice, goodTillCanceled)
 
 
 class ClosedState(PositionState):
@@ -120,7 +120,7 @@ class ClosedState(PositionState):
         assert(position.getShares() == 0)
         position.getStrategy().unregisterPosition(position)
 
-    def canPlaceOrder(self, position, order):
+    def canSubmitOrder(self, position, order):
         raise Exception("The position is closed")
 
     def onOrderEvent(self, position, orderEvent):
@@ -172,17 +172,17 @@ class Position(object):
 
         entryOrder.setGoodTillCanceled(goodTillCanceled)
         entryOrder.setAllOrNone(allOrNone)
-        self.__placeAndRegisterOrder(entryOrder)
+        self.__submitAndRegisterOrder(entryOrder)
         self.__entryOrder = entryOrder
 
-    def __placeAndRegisterOrder(self, order):
+    def __submitAndRegisterOrder(self, order):
         assert(order.isInitial())
 
-        # Check if an order can be placed in the current state.
-        self.__state.canPlaceOrder(self, order)
+        # Check if an order can be submitted in the current state.
+        self.__state.canSubmitOrder(self, order)
 
-        # This may raise an exception, so we wan't to place the order before moving forward and registering the order in the strategy.
-        self.getStrategy().getBroker().placeOrder(order)
+        # This may raise an exception, so we wan't to submit the order before moving forward and registering the order in the strategy.
+        self.getStrategy().getBroker().submitOrder(order)
 
         self.__activeOrders[order.getId()] = order
         self.getStrategy().registerPositionOrder(self, order)
@@ -306,7 +306,7 @@ class Position(object):
             self.getStrategy().getBroker().cancelOrder(self.getExitOrder())
 
     def exitMarket(self, goodTillCanceled=None):
-        """Places a market order to close this position.
+        """Submits a market order to close this position.
 
         :param goodTillCanceled: True if the exit order is good till canceled. If False then the order gets automatically canceled when the session closes. If None, then it will match the entry order.
         :type goodTillCanceled: boolean.
@@ -320,7 +320,7 @@ class Position(object):
         self.__state.exit(self, None, None, goodTillCanceled)
 
     def exitLimit(self, limitPrice, goodTillCanceled=None):
-        """Places a limit order to close this position.
+        """Submits a limit order to close this position.
 
         :param limitPrice: The limit price.
         :type limitPrice: float.
@@ -336,7 +336,7 @@ class Position(object):
         self.__state.exit(self, None, limitPrice, goodTillCanceled)
 
     def exitStop(self, stopPrice, goodTillCanceled=None):
-        """Places a stop order to close this position.
+        """Submits a stop order to close this position.
 
         :param stopPrice: The stop price.
         :type stopPrice: float.
@@ -352,7 +352,7 @@ class Position(object):
         self.__state.exit(self, stopPrice, None, goodTillCanceled)
 
     def exitStopLimit(self, stopPrice, limitPrice, goodTillCanceled=None):
-        """Places a stop limit order to close this position.
+        """Submits a stop limit order to close this position.
 
         :param stopPrice: The stop price.
         :type stopPrice: float.
@@ -382,7 +382,7 @@ class Position(object):
 
         self.__state.exit(self, stopPrice, limitPrice, goodTillCanceled)
 
-    def _placeExitOrder(self, stopPrice, limitPrice, goodTillCanceled):
+    def _submitExitOrder(self, stopPrice, limitPrice, goodTillCanceled):
         assert(not self.exitActive())
 
         exitOrder = self.buildExitOrder(stopPrice, limitPrice)
@@ -394,7 +394,7 @@ class Position(object):
 
         exitOrder.setAllOrNone(self.__allOrNone)
 
-        self.__placeAndRegisterOrder(exitOrder)
+        self.__submitAndRegisterOrder(exitOrder)
         self.__exitOrder = exitOrder
 
     def onOrderEvent(self, orderEvent):

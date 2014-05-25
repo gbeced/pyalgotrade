@@ -687,7 +687,7 @@ class Broker(broker.Broker):
         else:
             self.__logger.debug("Not enough cash to fill %s order [%s] for %d share/s" % (order.getInstrument(), order.getId(), order.getRemaining()))
 
-    def placeOrder(self, order):
+    def submitOrder(self, order):
         if order.isInitial():
             # assert(order.getId() not in self.__activeOrders)
             self.__activeOrders[order.getId()] = order
