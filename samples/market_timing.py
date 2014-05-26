@@ -25,11 +25,11 @@ class MarketTiming(strategy.BacktestingStrategy):
         return dateTime.month != self.__rebalanceMonth
 
     def _getRank(self, instrument):
-        # If the price is above the SMA, then this instrument doesn't rank at
+        # If the price is below the SMA, then this instrument doesn't rank at
         # all.
         smas = self.__sma[instrument]
         price = self.getLastPrice(instrument)
-        if smas[-1] is None or price < smas[-1]:
+        if len(smas) == 0 or smas[-1] is None or price < smas[-1]:
             return None
 
         # Rank based on 20 day returns.
@@ -129,18 +129,18 @@ class MarketTiming(strategy.BacktestingStrategy):
 def main(plot):
     initialCash = 10000
     instrumentsByClass = {
-        "Technology": ["MSFT", "ORCL", "IBM", "HPQ"],
-        "Services": ["WMT", "UPS", "TGT", "CCL"],
-        "Basic Materials": ["XOM", "CVX", "COP", "OXY"],
-        "Financial": ["BAC", "JPM", "WFC", "GS"],
-        "Consumer Goods": ["PG", "PEP", "CL", "KO"],
+        "US Stocks": ["VTI"],
+        "Foreign Stocks": ["VEU"],
+        "US 10 Year Government Bonds": ["IEF"],
+        "Real Estate": ["VNQ"],
+        "Commodities": ["DBC"],
     }
 
     # Download the bars.
     instruments = ["SPY"]
     for assetClass in instrumentsByClass:
         instruments.extend(instrumentsByClass[assetClass])
-    feed = yahoofinance.build_feed(instruments, 2005, 2013, "data", skipErrors=True)
+    feed = yahoofinance.build_feed(instruments, 2007, 2013, "data", skipErrors=True)
 
     strat = MarketTiming(feed, instrumentsByClass, initialCash)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
@@ -157,6 +157,7 @@ def main(plot):
 
     strat.run()
     print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print "Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100)
 
     if plot:
         plt.plot()

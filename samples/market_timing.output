@@ -1,23 +1,23 @@
-2014-05-10 23:53:01,624 yahoofinance [INFO] Creating data directory
-2014-05-10 23:53:01,624 yahoofinance [INFO] Downloading WMT 2005 to data/WMT-2005-yahoofinance.csv
-2014-05-10 23:53:02,189 yahoofinance [INFO] Downloading UPS 2005 to data/UPS-2005-yahoofinance.csv
-2014-05-10 23:53:02,606 yahoofinance [INFO] Downloading TGT 2005 to data/TGT-2005-yahoofinance.csv
-2014-05-10 23:53:03,129 yahoofinance [INFO] Downloading CCL 2005 to data/CCL-2005-yahoofinance.csv
-2014-05-10 23:53:03,545 yahoofinance [INFO] Downloading BAC 2005 to data/BAC-2005-yahoofinance.csv
-2014-05-10 23:53:03,967 yahoofinance [INFO] Downloading JPM 2005 to data/JPM-2005-yahoofinance.csv
-2014-05-10 23:53:04,545 yahoofinance [INFO] Downloading WFC 2005 to data/WFC-2005-yahoofinance.csv
-2014-05-10 23:53:05,396 yahoofinance [INFO] Downloading GS 2005 to data/GS-2005-yahoofinance.csv
-2014-05-10 23:53:05,957 yahoofinance [INFO] Downloading PG 2005 to data/PG-2005-yahoofinance.csv
+2014-05-25 22:36:59,740 yahoofinance [INFO] Creating data directory
+2014-05-25 22:36:59,740 yahoofinance [INFO] Downloading SPY 2007 to data/SPY-2007-yahoofinance.csv
+2014-05-25 22:37:06,332 yahoofinance [INFO] Downloading VTI 2007 to data/VTI-2007-yahoofinance.csv
+2014-05-25 22:37:10,666 yahoofinance [INFO] Downloading DBC 2007 to data/DBC-2007-yahoofinance.csv
+2014-05-25 22:37:13,102 yahoofinance [INFO] Downloading IEF 2007 to data/IEF-2007-yahoofinance.csv
+2014-05-25 22:37:19,394 yahoofinance [INFO] Downloading VEU 2007 to data/VEU-2007-yahoofinance.csv
+2014-05-25 22:37:27,378 yahoofinance [INFO] Downloading VNQ 2007 to data/VNQ-2007-yahoofinance.csv
+2014-05-25 22:37:32,771 yahoofinance [INFO] Downloading SPY 2008 to data/SPY-2008-yahoofinance.csv
+2014-05-25 22:37:38,326 yahoofinance [INFO] Downloading VTI 2008 to data/VTI-2008-yahoofinance.csv
+2014-05-25 22:37:42,262 yahoofinance [INFO] Downloading DBC 2008 to data/DBC-2008-yahoofinance.csv
 .
 .
 .
-2013-12-02 00:00:00 strategy [INFO] Placing market order for -104 HPQ shares
-2013-12-02 00:00:00 strategy [INFO] Placing market order for -30 XOM shares
-2013-12-02 00:00:00 strategy [INFO] Placing market order for -28 UPS shares
-2013-12-03 00:00:00 strategy [INFO] Placing market order for 21 CVX shares
-2013-12-03 00:00:00 strategy [INFO] Placing market order for 34 WMT shares
-2013-12-03 00:00:00 strategy [INFO] Placing market order for 177 BAC shares
-2013-12-03 00:00:00 strategy [INFO] Placing market order for 72 MSFT shares
-2013-12-03 00:00:00 strategy [INFO] Placing market order for 19 PG shares
-2013-12-04 00:00:00 strategy [INFO] Placing market order for 14 PG shares
-Sharpe ratio: -0.02
+2013-12-02 00:00:00 strategy [INFO] Rebalancing
+2013-12-02 00:00:00 strategy [INFO] Best for class US Stocks: VTI
+2013-12-02 00:00:00 strategy [INFO] Best for class Commodities: None
+2013-12-02 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
+2013-12-02 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-12-02 00:00:00 strategy [INFO] Best for class Real Estate: None
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -1 VTI shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -39 VNQ shares
+Sharpe ratio: -0.06
+Returns: 32.70 %
