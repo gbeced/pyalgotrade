@@ -21,6 +21,11 @@
 import time
 import threading
 import Queue
+import hmac
+import hashlib
+import urllib
+import urllib2
+import json
 
 import wsclient
 from pyalgotrade import observer
@@ -222,3 +227,60 @@ class Client(observer.Subject):
         1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
         """
         return self.__orderBookUpdateEvent
+
+######################################################################
+
+class AccountBalance(object):
+    def __init__(self, jsonDict):
+        self.__jsonDict = jsonDict
+
+    def getUSDAvailable(self):
+        return self.__jsonDict.get("usd_available", 0.0)
+
+    def getBTCAvailable(self):
+        return self.__jsonDict.get("btc_available", 0.0)
+
+
+class HTTPClient(object):
+    USER_AGENT = "PyAlgoTrade"
+
+    def __init__(self, clientId, key, secret):
+        self.__clientId = clientId
+        self.__key = key
+        self.__secret = secret
+        self.__prevNonce = None
+
+    def _getNonce(self):
+        if self.__prevNonce is None:
+            self.__prevNonce = int(time.time())
+        else:
+            self.__prevNonce += 1
+        return self.__prevNonce
+
+
+    def _buildQuery(self, params):
+        # Build the signature.
+        nonce = self._getNonce()
+        message = "%d%s%s" % (nonce, self.__clientId, self.__key)
+        signature = hmac.new(self.__secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
+
+        # Headers
+        headers = {}
+        headers["User-Agent"] = HTTPClient.USER_AGENT
+
+        # POST data.
+        data = {}
+        data.update(params)
+        data["key"] = self.__key
+        data["signature"] = signature
+        data["nonce"] = nonce
+
+        post_data = urllib.urlencode(data)
+        return (post_data, headers)
+
+    def getAccountBalance(self):
+        url = "https://www.bitstamp.net/api/balance/"
+        data, headers = self._buildQuery({})
+        req = urllib2.Request(url, data, headers)
+        response = urllib2.urlopen(req, data)
+        return AccountBalance(json.loads(response.read()))
