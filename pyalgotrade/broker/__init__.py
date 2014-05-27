@@ -489,10 +489,6 @@ class Broker(observer.Subject):
         return self.__orderEvent
 
     @abc.abstractmethod
-    def getCurrentDateTime(self):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
     def getInstrumentTraits(self, instrument):
         raise NotImplementedError()
 
