@@ -19,6 +19,7 @@
 """
 
 import time
+import datetime
 import threading
 import Queue
 import hmac
@@ -29,6 +30,7 @@ import json
 
 import wsclient
 from pyalgotrade import observer
+from pyalgotrade.utils import dt
 import pyalgotrade.logger
 
 
@@ -230,15 +232,42 @@ class Client(observer.Subject):
 
 ######################################################################
 
+def parse_datetime(dateTime):
+    ret = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S")
+    return dt.as_utc(ret)
+
 class AccountBalance(object):
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
 
     def getUSDAvailable(self):
-        return self.__jsonDict.get("usd_available", 0.0)
+        return float(self.__jsonDict["usd_available"])
 
     def getBTCAvailable(self):
-        return self.__jsonDict.get("btc_available", 0.0)
+        return float(self.__jsonDict["btc_available"])
+
+
+class OpenOrder(object):
+    def __init__(self, jsonDict):
+        self.__jsonDict = jsonDict
+
+    def getId(self):
+        return int(self.__jsonDict["id"])
+
+    def isBuy(self):
+        return self.__jsonDict["type"] == 0
+
+    def isSell(self):
+        return self.__jsonDict["type"] == 1
+
+    def getPrice(self):
+        return float(self.__jsonDict["price"])
+
+    def getAmount(self):
+        return float(self.__jsonDict["amount"])
+
+    def getDateTime(self):
+        return parse_datetime(self.__jsonDict["datetime"])
 
 
 class HTTPClient(object):
@@ -284,3 +313,10 @@ class HTTPClient(object):
         req = urllib2.Request(url, data, headers)
         response = urllib2.urlopen(req, data)
         return AccountBalance(json.loads(response.read()))
+
+    def getOpenOrders(self):
+        url = "https://www.bitstamp.net/api/open_orders/"
+        data, headers = self._buildQuery({})
+        req = urllib2.Request(url, data, headers)
+        response = urllib2.urlopen(req, data)
+        return [OpenOrder(json_open_order) for json_open_order in json.loads(response.read())]

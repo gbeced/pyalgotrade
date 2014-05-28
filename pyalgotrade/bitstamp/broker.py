@@ -27,6 +27,19 @@ import pyalgotrade.logger
 btc_symbol = "BTC"
 logger = pyalgotrade.logger.getLogger("bitstamp")
 
+def build_order_from_open_order(openOrder, instrumentTraits):
+    if openOrder.isBuy():
+        action = broker.Order.Action.BUY
+    elif openOrder.isSell():
+        action = broker.Order.Action.SELL
+    else:
+        raise Exception("Invalid order type")
+
+    ret = broker.LimitOrder(openOrder.getId(), action, btc_symbol, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
+    ret.setState(broker.Order.State.ACCEPTED)
+    ret.setSubmitDateTime(openOrder.getDateTime())
+    return ret
+
 
 class BTCTraits(broker.InstrumentTraits):
     def roundQuantity(self, quantity):
@@ -113,8 +126,11 @@ class LiveBroker(broker.Broker):
         self.__httpClient = client.HTTPClient(clientId, key, secret)
         self.__cash = 0
         self.__shares = {}
+        self.__activeOrders = {}
 
     def refreshAccountBalance(self):
+        """Refreshes cash and BTC balance."""
+
         self.__stop = True  # Stop running in case of errors.
         logger.info("Retrieving account balance.")
         balance = self.__httpClient.getAccountBalance()
@@ -132,6 +148,11 @@ class LiveBroker(broker.Broker):
     def refreshOpenOrders(self):
         self.__stop = True  # Stop running in case of errors.
         logger.info("Retrieving open orders.")
+        openOrders = self.__httpClient.getOpenOrders()
+        for openOrder in openOrders:
+            self.__activeOrders[openOrder.getId()] = build_order_from_open_order(openOrder, self.getInstrumentTraits(btc_symbol))
+
+        logger.info("%d open order/s found" % (len(openOrders)))
         self.__stop = False  # No errors. Keep running.
 
     # BEGIN observer.Subject interface
