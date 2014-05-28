@@ -307,16 +307,33 @@ class HTTPClient(object):
         post_data = urllib.urlencode(data)
         return (post_data, headers)
 
-    def getAccountBalance(self):
-        url = "https://www.bitstamp.net/api/balance/"
-        data, headers = self._buildQuery({})
+    def _post(self, url, params):
+        data, headers = self._buildQuery(params)
         req = urllib2.Request(url, data, headers)
         response = urllib2.urlopen(req, data)
-        return AccountBalance(json.loads(response.read()))
+        json_response = json.loads(response.read())
+
+        # Check for errors.
+        if isinstance(json_response, dict):
+            error = json_response.get("error")
+            if error is not None:
+                raise Exception(error)
+
+        return json_response
+
+    def getAccountBalance(self):
+        url = "https://www.bitstamp.net/api/balance/"
+        json_response = self._post(url, {})
+        return AccountBalance(json_response)
 
     def getOpenOrders(self):
         url = "https://www.bitstamp.net/api/open_orders/"
-        data, headers = self._buildQuery({})
-        req = urllib2.Request(url, data, headers)
-        response = urllib2.urlopen(req, data)
-        return [OpenOrder(json_open_order) for json_open_order in json.loads(response.read())]
+        json_response = self._post(url, {})
+        return [OpenOrder(json_open_order) for json_open_order in json_response]
+
+    def cancelOrder(self, orderId):
+        url = "https://www.bitstamp.net/api/cancel_order/"
+        params = {"id": orderId}
+        json_response = self._post(url, params)
+        if json_response != True:
+            raise Exception("Failed to cancel order")

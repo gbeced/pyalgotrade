@@ -191,7 +191,7 @@ class LiveBroker(broker.Broker):
         raise NotImplementedError()
 
     def getActiveOrders(self, instrument=None):
-        raise NotImplementedError()
+        return self.__activeOrders.values()
 
     def submitOrder(self, order):
         raise NotImplementedError()
@@ -209,6 +209,10 @@ class LiveBroker(broker.Broker):
         raise Exception("Stop limit orders are not supported")
 
     def cancelOrder(self, order):
-        raise NotImplementedError()
+        self.__httpClient.cancelOrder(order.getId())
+
+        del self.__activeOrders[order.getId()]
+        order.switchState(broker.Order.State.CANCELED)
+        self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
 
     # END broker.Broker interface
