@@ -286,12 +286,11 @@ class HTTPClient(object):
         self.__prevNonce = None
 
     def _getNonce(self):
-        if self.__prevNonce is None:
-            self.__prevNonce = int(time.time())
-        else:
-            self.__prevNonce += 1
-        return self.__prevNonce
-
+        ret = int(time.time())
+        if ret == self.__prevNonce:
+            ret += 1
+        self.__prevNonce = ret
+        return ret
 
     def _buildQuery(self, params):
         # Build the signature.
