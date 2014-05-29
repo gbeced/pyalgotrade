@@ -233,7 +233,10 @@ class Client(observer.Subject):
 ######################################################################
 
 def parse_datetime(dateTime):
-    ret = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S")
+    try:
+        ret = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        ret = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S.%f")
     return dt.as_utc(ret)
 
 class AccountBalance(object):
@@ -247,9 +250,12 @@ class AccountBalance(object):
         return float(self.__jsonDict["btc_available"])
 
 
-class OpenOrder(object):
+class Order(object):
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
+
+    def getDict(self):
+        return self.__jsonDict
 
     def getId(self):
         return int(self.__jsonDict["id"])
@@ -329,7 +335,7 @@ class HTTPClient(object):
     def getOpenOrders(self):
         url = "https://www.bitstamp.net/api/open_orders/"
         json_response = self._post(url, {})
-        return [OpenOrder(json_open_order) for json_open_order in json_response]
+        return [Order(json_open_order) for json_open_order in json_response]
 
     def cancelOrder(self, orderId):
         url = "https://www.bitstamp.net/api/cancel_order/"
@@ -337,3 +343,21 @@ class HTTPClient(object):
         json_response = self._post(url, params)
         if json_response != True:
             raise Exception("Failed to cancel order")
+
+    def buyLimit(self, limitPrice, quantity):
+        url = "https://www.bitstamp.net/api/buy/"
+        params = {
+            "price": limitPrice,
+            "amount": quantity
+        }
+        json_response = self._post(url, params)
+        return Order(json_response)
+
+    def sellLimit(self, limitPrice, quantity):
+        url = "https://www.bitstamp.net/api/sell/"
+        params = {
+            "price": limitPrice,
+            "amount": quantity
+        }
+        json_response = self._post(url, params)
+        return Order(json_response)
