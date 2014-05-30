@@ -345,18 +345,34 @@ class HTTPClient(object):
 
     def buyLimit(self, limitPrice, quantity):
         url = "https://www.bitstamp.net/api/buy/"
+
+        # Rounding price to avoid 'Ensure that there are no more than 2 decimal places'
+        # error.
+        price = round(limitPrice, 2)
+        # Rounding amount to avoid 'Ensure that there are no more than 8 decimal places'
+        # error.
+        amount = round(quantity, 8)
+
         params = {
-            "price": limitPrice,
-            "amount": quantity
+            "price": price,
+            "amount": amount
         }
         json_response = self._post(url, params)
         return Order(json_response)
 
     def sellLimit(self, limitPrice, quantity):
         url = "https://www.bitstamp.net/api/sell/"
+
+        # Rounding price to avoid 'Ensure that there are no more than 2 decimal places'
+        # error.
+        price = round(limitPrice, 2)
+        # Rounding amount to avoid 'Ensure that there are no more than 8 decimal places'
+        # error.
+        amount = round(quantity, 8)
+
         params = {
-            "price": limitPrice,
-            "amount": quantity
+            "price": price,
+            "amount": amount
         }
         json_response = self._post(url, params)
         return Order(json_response)
