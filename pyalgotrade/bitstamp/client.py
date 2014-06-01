@@ -239,9 +239,13 @@ def parse_datetime(dateTime):
         ret = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S.%f")
     return dt.as_utc(ret)
 
+
 class AccountBalance(object):
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
+
+    def getDict(self):
+        return self.__jsonDict
 
     def getUSDAvailable(self):
         return float(self.__jsonDict["usd_available"])
@@ -274,6 +278,35 @@ class Order(object):
 
     def getDateTime(self):
         return parse_datetime(self.__jsonDict["datetime"])
+
+
+class UserTransaction(object):
+    def __init__(self, jsonDict):
+        self.__jsonDict = jsonDict
+
+    def getDict(self):
+        return self.__jsonDict
+
+    def getBTC(self):
+        return float(self.__jsonDict["btc"])
+
+    def getBTCUSD(self):
+        return float(self.__jsonDict["btc_usd"])
+
+    def getDateTime(self):
+        return parse_datetime(self.__jsonDict["datetime"])
+
+    def getFee(self):
+        return float(self.__jsonDict["fee"])
+
+    def getId(self):
+        return int(self.__jsonDict["id"])
+
+    def getOrderId(self):
+        return int(self.__jsonDict["order_id"])
+
+    def getUSD(self):
+        return float(self.__jsonDict["usd"])
 
 
 class HTTPClient(object):
@@ -376,3 +409,12 @@ class HTTPClient(object):
         }
         json_response = self._post(url, params)
         return Order(json_response)
+
+    def getUserTransactions(self, transaction_type=None):
+        url = "https://www.bitstamp.net/api/user_transactions/"
+        json_response = self._post(url, {})
+        if transaction_type is not None:
+            json_user_transactions = filter(lambda json_user_transaction: json_user_transaction["type"] == transaction_type, json_response)
+        else:
+            json_user_transactions = json_response
+        return [UserTransaction(json_user_transaction) for json_user_transaction in json_user_transactions]
