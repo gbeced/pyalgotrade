@@ -20,58 +20,46 @@
 
 import unittest
 import datetime
+import time
+import threading
+import Queue
 import json
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
 from pyalgotrade.bitstamp import broker
 from pyalgotrade.bitstamp import wsclient
-from pyalgotrade import observer
+from pyalgotrade.bitstamp import common
 from pyalgotrade import strategy
 
 
-class MockClient(observer.Subject):
-    def __init__(self):
-        self.__tradeEvent = observer.Event()
-        self.__orderBookUpdateEvent = observer.Event()
-        self.__events = []
+class TestingWebSocketClientThread(threading.Thread):
+    def __init__(self, events):
+        threading.Thread.__init__(self)
+        self.__queue = Queue.Queue()
+        self.__queue.put((wsclient.WebSocketClient.ON_CONNECTED, None))
+        for event in events:
+            self.__queue.put(event)
+        self.__queue.put((wsclient.WebSocketClient.ON_DISCONNECTED, None))
 
-    # This may raise.
+    def getQueue(self):
+        return self.__queue
+
     def start(self):
-        pass
+        threading.Thread.start(self)
 
-    # This should not raise.
+    def run(self):
+        while not self.__queue.empty():
+            time.sleep(0.01)
+
     def stop(self):
         pass
 
-    # This should not raise.
-    def join(self):
-        pass
 
-    # Return True if there are not more events to dispatch.
-    def eof(self):
-        return len(self.__events) == 0
-
-    # Dispatch events. If True is returned, it means that at least one event was dispatched.
-    def dispatch(self):
-        if len(self.__events):
-            event = self.__events.pop(0)
-            if isinstance(event, wsclient.Trade):
-                self.__tradeEvent.emit(event)
-            elif isinstance(event, wsclient.OrderBookUpdate):
-                self.__orderBookUpdateEvent.emit(event)
-            else:
-                assert(False)
-
-    def peekDateTime(self):
-        # Return None since this is a realtime subject.
-        return None
-
-    def getTradeEvent(self):
-        return self.__tradeEvent
-
-    def getOrderBookUpdateEvent(self):
-        return self.__orderBookUpdateEvent
+class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
+    def __init__(self):
+        barfeed.LiveTradeFeed.__init__(self)
+        self.__events = []
 
     def addTrade(self, dateTime, tid, price, amount):
         dataDict = {
@@ -81,18 +69,21 @@ class MockClient(observer.Subject):
             }
         eventDict = {}
         eventDict["data"] = json.dumps(dataDict)
-        self.__events.append(wsclient.Trade(dateTime, eventDict))
+        self.__events.append((wsclient.WebSocketClient.ON_TRADE, wsclient.Trade(dateTime, eventDict)))
+
+    def buildWebSocketClientThread(self):
+        return TestingWebSocketClientThread(self.__events)
 
 
 class TestStrategy(strategy.BaseStrategy):
-    def __init__(self, cli, feed, brk):
+    def __init__(self, feed, brk):
         strategy.BaseStrategy.__init__(self, feed, brk)
         self.bid = None
         self.ask = None
         self.posExecutionInfo = []
 
         # Subscribe to order book update events to get bid/ask prices to trade.
-        cli.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
+        feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
 
     def __onOrderBookUpdate(self, orderBookUpdate):
         bid = orderBookUpdate.getBidPrices()[0]
@@ -115,9 +106,9 @@ class TestStrategy(strategy.BaseStrategy):
         self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
 
 
-class TestCase(unittest.TestCase):
+class InstrumentTraitsTestCase(unittest.TestCase):
     def testInstrumentTraits(self):
-        traits = broker.BTCTraits()
+        traits = common.BTCTraits()
         self.assertEqual(traits.roundQuantity(0), 0)
         self.assertEqual(traits.roundQuantity(1), 1)
         self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
@@ -125,28 +116,27 @@ class TestCase(unittest.TestCase):
         self.assertEqual(traits.roundQuantity(0.00441376), 0.00441376)
         self.assertEqual(traits.roundQuantity(0.004413764), 0.00441376)
 
+
+class PaperTradingTestCase(unittest.TestCase):
     def testBuyWithPartialFill(self):
 
         class Strategy(TestStrategy):
-            def __init__(self, cli, feed, brk):
-                TestStrategy.__init__(self, cli, feed, brk)
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
                 self.pos = None
 
             def onBars(self, bars):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
 
-        cli = MockClient()
-        cli.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
-        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
 
-        barFeed = barfeed.LiveTradeFeed(cli)
         brk = broker.PaperTradingBroker(1000, barFeed)
-        strat = Strategy(cli, barFeed, brk)
-
-        strat.getDispatcher().addSubject(cli)
+        strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertTrue(strat.pos.isOpen())
@@ -157,8 +147,8 @@ class TestCase(unittest.TestCase):
     def testBuyAndSellWithPartialFill1(self):
 
         class Strategy(TestStrategy):
-            def __init__(self, cli, feed, brk):
-                TestStrategy.__init__(self, cli, feed, brk)
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
                 self.pos = None
 
             def onBars(self, bars):
@@ -167,19 +157,16 @@ class TestCase(unittest.TestCase):
                 elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
                     self.pos.exit(limitPrice=101)
 
-        cli = MockClient()
-        cli.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
-        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
-        cli.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.2)
-        cli.addTrade(datetime.datetime(2000, 1, 5), 1, 101, 0.2)
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
+        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.2)
+        barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 101, 0.2)
 
-        barFeed = barfeed.LiveTradeFeed(cli)
         brk = broker.PaperTradingBroker(1000, barFeed)
-        strat = Strategy(cli, barFeed, brk)
-
-        strat.getDispatcher().addSubject(cli)
+        strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertTrue(strat.pos.isOpen())
@@ -191,8 +178,8 @@ class TestCase(unittest.TestCase):
     def testBuyAndSellWithPartialFill2(self):
 
         class Strategy(TestStrategy):
-            def __init__(self, cli, feed, brk):
-                TestStrategy.__init__(self, cli, feed, brk)
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
                 self.pos = None
 
             def onBars(self, bars):
@@ -201,20 +188,17 @@ class TestCase(unittest.TestCase):
                 elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
                     self.pos.exit(limitPrice=101)
 
-        cli = MockClient()
-        cli.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
-        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
-        cli.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.2)
-        cli.addTrade(datetime.datetime(2000, 1, 5), 1, 101, 0.2)
-        cli.addTrade(datetime.datetime(2000, 1, 6), 1, 102, 5)
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
+        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.2)
+        barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 101, 0.2)
+        barFeed.addTrade(datetime.datetime(2000, 1, 6), 1, 102, 5)
 
-        barFeed = barfeed.LiveTradeFeed(cli)
         brk = broker.PaperTradingBroker(1000, barFeed)
-        strat = Strategy(cli, barFeed, brk)
-
-        strat.getDispatcher().addSubject(cli)
+        strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertFalse(strat.pos.isOpen())
@@ -228,8 +212,8 @@ class TestCase(unittest.TestCase):
         # instead of 0.
 
         class Strategy(TestStrategy):
-            def __init__(self, cli, feed, brk):
-                TestStrategy.__init__(self, cli, feed, brk)
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
                 self.pos = None
 
             def onBars(self, bars):
@@ -238,18 +222,15 @@ class TestCase(unittest.TestCase):
                 elif self.pos.entryFilled() and not self.pos.getExitOrder():
                     self.pos.exitLimit(100, True)
 
-        cli = MockClient()
-        cli.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 1)
-        cli.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.01)
-        cli.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00441376)
-        cli.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.00445547)
-        cli.addTrade(datetime.datetime(2000, 1, 5), 1, 100, 0.00113077)
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.01)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00441376)
+        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.00445547)
+        barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 100, 0.00113077)
 
-        barFeed = barfeed.LiveTradeFeed(cli)
         brk = broker.PaperTradingBroker(1000, barFeed)
-        strat = Strategy(cli, barFeed, brk)
-
-        strat.getDispatcher().addSubject(cli)
+        strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertEqual(brk.getShares("BTC"), 0)
@@ -267,8 +248,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(strat.pos.getShares(), 0.0)
 
     def testInvalidOrders(self):
-        cli = MockClient()
-        barFeed = barfeed.LiveTradeFeed(cli)
+        barFeed = TestingLiveTradeFeed()
         brk = broker.PaperTradingBroker(1000, barFeed)
         with self.assertRaises(Exception):
             brk.createLimitOrder(basebroker.Order.Action.BUY, "none", 1, 1)

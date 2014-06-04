@@ -14,16 +14,14 @@ The key things to highlight are:
  1. We're using :class:`pyalgotrade.strategy.BaseStrategy` instead of :class:`pyalgotrade.strategy.BacktestingStrategy`
     as the base class. This is not a backtest.
  2. Trade events get notified via the call to **onBars**. No need to manually subscribe.
- 3. Order book update events are handled by manually subscribing to :class:`pyalgotrade.bitstamp.client.Client.getOrderBookUpdateEvent`.
+ 3. Order book update events are handled by manually subscribing to :class:`pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent`.
     This is needed to be up to date with latest bid and ask prices.
- 4. The :class:`pyalgotrade.bitstamp.client.Client` instance has to be included in the strategy event dispatch loop
-    before running the strategy.
 
 .. literalinclude:: ../samples/tutorial_bitstamp_1.py
 
 The output should look like this: ::
 
-    2014-03-15 00:35:59,085 bitstamp [INFO] Initializing client.
+    2014-03-15 00:35:59,085 bitstamp [INFO] Initializing websocket client.
     2014-03-15 00:35:59,452 bitstamp [INFO] Connection established.
     2014-03-15 00:35:59,453 bitstamp [INFO] Initialization ok.
     2014-03-15 00:36:30,726 strategy [INFO] Order book updated. Best bid: 629.6. Best ask: 630.0

@@ -18,33 +18,14 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
-from pyalgotrade.bitstamp import client
-import pyalgotrade.logger
+from pyalgotrade.bitstamp import common
+from pyalgotrade.bitstamp import livebroker
 
 
-btc_symbol = "BTC"
-logger = pyalgotrade.logger.getLogger("bitstamp")
-
-def build_order_from_open_order(openOrder, instrumentTraits):
-    if openOrder.isBuy():
-        action = broker.Order.Action.BUY
-    elif openOrder.isSell():
-        action = broker.Order.Action.SELL
-    else:
-        raise Exception("Invalid order type")
-
-    ret = broker.LimitOrder(openOrder.getId(), action, btc_symbol, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
-    ret.setState(broker.Order.State.ACCEPTED)
-    ret.setSubmitDateTime(openOrder.getDateTime())
-    return ret
-
-
-class BTCTraits(broker.InstrumentTraits):
-    def roundQuantity(self, quantity):
-        return round(quantity, 8)
-
+LiveBroker = livebroker.LiveBroker
 
 # In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
 # It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
@@ -68,7 +49,7 @@ class BacktestingBroker(backtesting.Broker):
         backtesting.Broker.__init__(self, cash, barFeed, commission)
 
     def getInstrumentTraits(self, instrument):
-        return BTCTraits()
+        return common.BTCTraits()
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         raise Exception("Market orders are not supported")
@@ -76,7 +57,7 @@ class BacktestingBroker(backtesting.Broker):
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
         if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:
             raise Exception("Only BUY/SELL orders are supported")
-        if instrument != btc_symbol:
+        if instrument != common.btc_symbol:
             raise Exception("Only BTC instrument is supported")
         return backtesting.Broker.createLimitOrder(self, action, instrument, limitPrice, quantity)
 
@@ -102,117 +83,3 @@ class PaperTradingBroker(BacktestingBroker):
     """
 
     pass
-
-
-class LiveBroker(broker.Broker):
-    """A Bitstamp live broker.
-
-    :param cli: A bitstamp client.
-    :type cli: :class:`pyalgotrade.bitstamp.client.Client`.
-    :param clientId: Client id.
-    :type clientId: string.
-    :param key: API key.
-    :type key: string.
-    :param secret: API secret.
-    :type secret: string.
-
-
-    .. note::
-        Only limit orders are supported.
-    """
-    def __init__(self, cli, clientId, key, secret):
-        broker.Broker.__init__(self)
-        self.__stop = False
-        self.__httpClient = client.HTTPClient(clientId, key, secret)
-        self.__cash = 0
-        self.__shares = {}
-        self.__activeOrders = {}
-
-    def refreshAccountBalance(self):
-        """Refreshes cash and BTC balance."""
-
-        self.__stop = True  # Stop running in case of errors.
-        logger.info("Retrieving account balance.")
-        balance = self.__httpClient.getAccountBalance()
-
-        # Cash
-        self.__cash = balance.getUSDAvailable()
-        logger.info("%s %s" % (self.__cash, "USD"))
-        # BTC
-        btc = balance.getBTCAvailable()
-        self.__shares = {btc_symbol: btc}
-        logger.info("%s BTC" % (btc))
-
-        self.__stop = False  # No errors. Keep running.
-
-    def refreshOpenOrders(self):
-        self.__stop = True  # Stop running in case of errors.
-        logger.info("Retrieving open orders.")
-        openOrders = self.__httpClient.getOpenOrders()
-        for openOrder in openOrders:
-            self.__activeOrders[openOrder.getId()] = build_order_from_open_order(openOrder, self.getInstrumentTraits(btc_symbol))
-
-        logger.info("%d open order/s found" % (len(openOrders)))
-        self.__stop = False  # No errors. Keep running.
-
-    # BEGIN observer.Subject interface
-    def start(self):
-        self.refreshAccountBalance()
-        self.refreshOpenOrders()
-
-    def stop(self):
-        self.__stop = True
-
-    def join(self):
-        pass
-
-    def eof(self):
-        return self.__stop
-
-    def dispatch(self):
-        # TODO: Dispatch order events when they come from the feed.
-        pass
-
-    def peekDateTime(self):
-        # Return None since this is a realtime subject.
-        return None
-
-    # END observer.Subject interface
-
-    # BEGIN broker.Broker interface
-
-    def getInstrumentTraits(self, instrument):
-        return BTCTraits()
-
-    def getShares(self, instrument):
-        raise NotImplementedError()
-
-    def getPositions(self):
-        raise NotImplementedError()
-
-    def getActiveOrders(self, instrument=None):
-        return self.__activeOrders.values()
-
-    def submitOrder(self, order):
-        raise NotImplementedError()
-
-    def createMarketOrder(self, action, instrument, quantity, onClose=False):
-        raise Exception("Market orders are not supported")
-
-    def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        raise NotImplementedError()
-
-    def createStopOrder(self, action, instrument, stopPrice, quantity):
-        raise Exception("Stop orders are not supported")
-
-    def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-        raise Exception("Stop limit orders are not supported")
-
-    def cancelOrder(self, order):
-        self.__httpClient.cancelOrder(order.getId())
-
-        del self.__activeOrders[order.getId()]
-        order.switchState(broker.Order.State.CANCELED)
-        self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
-
-    # END broker.Broker interface

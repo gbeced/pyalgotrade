@@ -18,8 +18,14 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import pyalgotrade.logger
+from pyalgotrade import broker
 
-from pyalgotrade.bitstamp import livefeed
+
+btc_symbol = "BTC"
+logger = pyalgotrade.logger.getLogger("bitstamp")
 
 
-LiveTradeFeed = livefeed.LiveTradeFeed
+class BTCTraits(broker.InstrumentTraits):
+    def roundQuantity(self, quantity):
+        return round(quantity, 8)

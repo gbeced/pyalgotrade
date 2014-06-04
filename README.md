@@ -27,6 +27,7 @@ Main Features
 
 Installation
 ------------
+
 PyAlgoTrade is developed using Python 2.7 and depends on:
 
  * [NumPy and SciPy](http://numpy.scipy.org/).
@@ -36,9 +37,8 @@ PyAlgoTrade is developed using Python 2.7 and depends on:
  * [tornado](http://www.tornadoweb.org/en/stable/) for Bitstamp support.
  * [tweepy](https://github.com/tweepy/tweepy) for Twitter support.
 
-
-
 You can install PyAlgoTrade using pip like this:
+
 ```
 pip install pyalgotrade
 ```
