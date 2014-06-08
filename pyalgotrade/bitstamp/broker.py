@@ -55,10 +55,22 @@ class BacktestingBroker(backtesting.Broker):
         raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:
-            raise Exception("Only BUY/SELL orders are supported")
         if instrument != common.btc_symbol:
             raise Exception("Only BTC instrument is supported")
+
+        if action == broker.Order.Action.BUY:
+            # Check that there is enough cash.
+            fee = self.getCommission().calculate(None, limitPrice, quantity)
+            cashRequired = limitPrice * quantity + fee
+            if cashRequired > self.getCash(False):
+                raise Exception("Not enough cash")
+        elif action == broker.Order.Action.SELL:
+            # Check that there are enough coins.
+            if quantity > self.getShares(common.btc_symbol):
+                raise Exception("Not enough %s" % (common.btc_symbol))
+        else:
+            raise Exception("Only BUY/SELL orders are supported")
+
         return backtesting.Broker.createLimitOrder(self, action, instrument, limitPrice, quantity)
 
     def createStopOrder(self, action, instrument, stopPrice, quantity):
