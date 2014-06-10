@@ -29,11 +29,12 @@ from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
 from pyalgotrade.bitstamp import broker
 from pyalgotrade.bitstamp import wsclient
+from pyalgotrade.bitstamp import httpclient
 from pyalgotrade.bitstamp import common
 from pyalgotrade import strategy
 
 
-class TestingWebSocketClientThread(threading.Thread):
+class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
         self.__queue = Queue.Queue()
@@ -41,6 +42,7 @@ class TestingWebSocketClientThread(threading.Thread):
         for event in events:
             self.__queue.put(event)
         self.__queue.put((wsclient.WebSocketClient.ON_DISCONNECTED, None))
+        self.__stop = False
 
     def getQueue(self):
         return self.__queue
@@ -49,11 +51,11 @@ class TestingWebSocketClientThread(threading.Thread):
         threading.Thread.start(self)
 
     def run(self):
-        while not self.__queue.empty():
+        while not self.__queue.empty() and not self.__stop:
             time.sleep(0.01)
 
     def stop(self):
-        pass
+        self.__stop = True
 
 
 class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
@@ -72,7 +74,95 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
         self.__events.append((wsclient.WebSocketClient.ON_TRADE, wsclient.Trade(dateTime, eventDict)))
 
     def buildWebSocketClientThread(self):
-        return TestingWebSocketClientThread(self.__events)
+        return WebSocketClientThreadMock(self.__events)
+
+
+class HTTPClientMock(object):
+    class UserTransactionType:
+        MARKET_TRADE = 2
+
+    def __init__(self):
+        self.__userTransactions = []
+        self.__openOrders = []
+        self.__btcAvailable = 0.0
+        self.__usdAvailable = 0.0
+        self.__nextTxId = 1
+        self.__userTransactionsRequested = False
+
+    def setUSDAvailable(self, usd):
+        self.__usdAvailable = usd
+
+    def setBTCAvailable(self, btc):
+        self.__btcAvailable = btc
+
+    def addOpenOrder(self, orderId, btcAmount, usdAmount):
+        jsonDict = {
+            'id': orderId,
+            'datetime': str(datetime.datetime.now()),
+            'type': 0 if btcAmount > 0 else 1,
+            'price': str(usdAmount),
+            'amount': str(abs(btcAmount)),
+        }
+        self.__openOrders.append(jsonDict)
+
+    def addUserTransaction(self, orderId, btcAmount, usdAmount, fillPrice, fee):
+        jsonDict = {
+            'btc': str(btcAmount),
+            'btc_usd': str(fillPrice),
+            'datetime': str(datetime.datetime.now()),
+            'fee': str(fee),
+            'id': self.__nextTxId,
+            'order_id': orderId,
+            'type': 2,
+            'usd': str(usdAmount)
+        }
+        self.__userTransactions.insert(0, jsonDict)
+        self.__nextTxId += 1
+
+    def getAccountBalance(self):
+        jsonDict = {
+            'btc_available': str(self.__btcAvailable),
+            # 'btc_balance': '0',
+            # 'btc_reserved': '0',
+            # 'fee': '0.5000',
+            'usd_available': str(self.__usdAvailable),
+            # 'usd_balance': '0.00',
+            # 'usd_reserved': '0'
+        }
+        return httpclient.AccountBalance(jsonDict)
+
+    def getOpenOrders(self):
+        return [httpclient.Order(jsonDict) for jsonDict in self.__openOrders]
+
+    def cancelOrder(self, orderId):
+        pass
+
+    def buyLimit(self, limitPrice, quantity):
+        raise NotImplementedError()
+
+    def sellLimit(self, limitPrice, quantity):
+        raise NotImplementedError()
+
+    def getUserTransactions(self, transactionType=None):
+        # The first call is to retrieve user transactions that should have been
+        # processed already.
+        if not self.__userTransactionsRequested:
+            self.__userTransactionsRequested = True
+            return []
+        else:
+            return [httpclient.UserTransaction(jsonDict) for jsonDict in self.__userTransactions]
+
+
+class TestingLiveBroker(broker.LiveBroker):
+    def __init__(self, clientId, key, secret):
+        self.__httpClient = HTTPClientMock()
+        broker.LiveBroker.__init__(self, clientId, key, secret)
+
+    def buildHTTPClient(self, clientId, key, secret):
+        return self.__httpClient
+
+    def getHTTPClient(self):
+        return self.__httpClient
 
 
 class TestStrategy(strategy.BaseStrategy):
@@ -81,6 +171,7 @@ class TestStrategy(strategy.BaseStrategy):
         self.bid = None
         self.ask = None
         self.posExecutionInfo = []
+        self.orderExecutionInfo = []
 
         # Subscribe to order book update events to get bid/ask prices to trade.
         feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
@@ -92,6 +183,9 @@ class TestStrategy(strategy.BaseStrategy):
         if bid != self.bid or ask != self.ask:
             self.bid = bid
             self.ask = ask
+
+    def onOrderUpdated(self, order):
+        self.orderExecutionInfo.append(order.getExecutionInfo())
 
     def onEnterOk(self, position):
         self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
@@ -109,12 +203,12 @@ class TestStrategy(strategy.BaseStrategy):
 class InstrumentTraitsTestCase(unittest.TestCase):
     def testInstrumentTraits(self):
         traits = common.BTCTraits()
-        self.assertEqual(traits.roundQuantity(0), 0)
-        self.assertEqual(traits.roundQuantity(1), 1)
-        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
-        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1 - 3.3), 0)
-        self.assertEqual(traits.roundQuantity(0.00441376), 0.00441376)
-        self.assertEqual(traits.roundQuantity(0.004413764), 0.00441376)
+        self.assertEquals(traits.roundQuantity(0), 0)
+        self.assertEquals(traits.roundQuantity(1), 1)
+        self.assertEquals(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
+        self.assertEquals(traits.roundQuantity(1.1 + 1.1 + 1.1 - 3.3), 0)
+        self.assertEquals(traits.roundQuantity(0.00441376), 0.00441376)
+        self.assertEquals(traits.roundQuantity(0.004413764), 0.00441376)
 
 
 class PaperTradingTestCase(unittest.TestCase):
@@ -140,9 +234,9 @@ class PaperTradingTestCase(unittest.TestCase):
         strat.run()
 
         self.assertTrue(strat.pos.isOpen())
-        self.assertEqual(round(strat.pos.getShares(), 3), 0.3)
-        self.assertEqual(len(strat.posExecutionInfo), 1)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(round(strat.pos.getShares(), 3), 0.3)
+        self.assertEquals(len(strat.posExecutionInfo), 1)
+        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testBuyAndSellWithPartialFill1(self):
 
@@ -170,10 +264,10 @@ class PaperTradingTestCase(unittest.TestCase):
         strat.run()
 
         self.assertTrue(strat.pos.isOpen())
-        self.assertEqual(round(strat.pos.getShares(), 3), 0.1)
-        self.assertEqual(len(strat.posExecutionInfo), 1)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(round(strat.pos.getShares(), 3), 0.1)
+        self.assertEquals(len(strat.posExecutionInfo), 1)
+        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testBuyAndSellWithPartialFill2(self):
 
@@ -202,10 +296,10 @@ class PaperTradingTestCase(unittest.TestCase):
         strat.run()
 
         self.assertFalse(strat.pos.isOpen())
-        self.assertEqual(strat.pos.getShares(), 0)
-        self.assertEqual(len(strat.posExecutionInfo), 2)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(strat.pos.getShares(), 0)
+        self.assertEquals(len(strat.posExecutionInfo), 2)
+        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testRoundingBugWithTrades(self):
         # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
@@ -233,19 +327,19 @@ class PaperTradingTestCase(unittest.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEqual(brk.getShares("BTC"), 0)
-        self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 100)
-        self.assertEqual(strat.pos.getExitOrder().getAvgFillPrice(), 100)
-        self.assertEqual(strat.pos.getEntryOrder().getFilled(), 0.01)
-        self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.01)
-        self.assertEqual(strat.pos.getEntryOrder().getRemaining(), 0)
-        self.assertEqual(strat.pos.getExitOrder().getRemaining(), 0)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(brk.getShares("BTC"), 0)
+        self.assertEquals(strat.pos.getEntryOrder().getAvgFillPrice(), 100)
+        self.assertEquals(strat.pos.getExitOrder().getAvgFillPrice(), 100)
+        self.assertEquals(strat.pos.getEntryOrder().getFilled(), 0.01)
+        self.assertEquals(strat.pos.getExitOrder().getFilled(), 0.01)
+        self.assertEquals(strat.pos.getEntryOrder().getRemaining(), 0)
+        self.assertEquals(strat.pos.getExitOrder().getRemaining(), 0)
+        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEquals(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
         self.assertFalse(strat.pos.isOpen())
-        self.assertEqual(len(strat.posExecutionInfo), 2)
-        self.assertEqual(strat.pos.getShares(), 0.0)
+        self.assertEquals(len(strat.posExecutionInfo), 2)
+        self.assertEquals(strat.pos.getShares(), 0.0)
 
     def testInvalidOrders(self):
         barFeed = TestingLiveTradeFeed()
@@ -260,3 +354,148 @@ class PaperTradingTestCase(unittest.TestCase):
             brk.createStopOrder(basebroker.Order.Action.BUY, "none", 1, 1)
         with self.assertRaises(Exception):
             brk.createStopLimitOrder(basebroker.Order.Action.BUY, "none", 1, 1, 1)
+
+    def testBuyWithoutCash(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+                self.errors = 0
+
+            def onBars(self, bars):
+                try:
+                    self.limitOrder("BTC", 10, 1)
+                except Exception:
+                    self.errors += 1
+
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
+
+        brk = broker.PaperTradingBroker(0, barFeed)
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertEquals(strat.errors, 4)
+        self.assertEquals(brk.getShares("BTC"), 0)
+        self.assertEquals(brk.getCash(), 0)
+
+    def testRanOutOfCash(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+                self.errors = 0
+
+            def onBars(self, bars):
+                try:
+                    self.limitOrder("BTC", 100, 0.1)
+                except Exception:
+                    self.errors += 1
+
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 10)
+
+        brk = broker.PaperTradingBroker(10.05, barFeed)
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertEquals(strat.errors, 2)
+        self.assertEquals(brk.getShares("BTC"), 0.1)
+        self.assertEquals(brk.getCash(), 0)
+
+    def testSellWithoutBTC(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+                self.errors = 0
+
+            def onBars(self, bars):
+                try:
+                    self.limitOrder("BTC", 100, -0.1)
+                except Exception:
+                    self.errors += 1
+
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
+
+        brk = broker.PaperTradingBroker(0, barFeed)
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertEquals(strat.errors, 2)
+        self.assertEquals(brk.getShares("BTC"), 0)
+        self.assertEquals(brk.getCash(), 0)
+
+    def testRanOutOfCoins(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+                self.errors = 0
+                self.bought = False
+
+            def onBars(self, bars):
+                if not self.bought:
+                    self.limitOrder("BTC", 100, 0.1)
+                    self.bought = True
+                else:
+                    try:
+                        self.limitOrder("BTC", 100, -0.1)
+                    except Exception:
+                        self.errors += 1
+
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 10)
+
+        brk = broker.PaperTradingBroker(10.05, barFeed)
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertEquals(strat.errors, 1)
+        self.assertEquals(brk.getShares("BTC"), 0)
+        self.assertEquals(brk.getCash(), 9.95)
+
+
+class LiveTradingTestCase(unittest.TestCase):
+    def testSellAndBuy(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+
+            def onBars(self, bars):
+                self.stop()
+
+        barFeed = TestingLiveTradeFeed()
+        barFeed.addTrade(datetime.datetime.now(), 1, 100, 1)
+
+        brk = TestingLiveBroker(None, None, None)
+        httpClient = brk.getHTTPClient()
+        httpClient.setUSDAvailable(0)
+        httpClient.setBTCAvailable(0.1)
+
+        httpClient.addOpenOrder(1, -0.1, 578.79)
+        httpClient.addOpenOrder(2, 0.1, 567.21)
+
+        # def addUserTransaction(orderId, btcAmount, usdAmount, fillPrice, fee):
+        httpClient.addUserTransaction(1, -0.04557395, 26.38, 578.79, 0.14)
+        httpClient.addUserTransaction(2, 0.04601436, -26.10, 567.21, 0.14)
+
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertEquals(brk.getShares("BTC"), 0.10044041)
+        self.assertEquals(brk.getCash(), 0)
+        self.assertEquals(len(strat.orderExecutionInfo), 2)
+        self.assertEquals(strat.orderExecutionInfo[0].getPrice(), 578.79)
+        self.assertEquals(strat.orderExecutionInfo[0].getQuantity(), 0.04557395)
+        self.assertEquals(strat.orderExecutionInfo[0].getCommission(), 0.14)
+        self.assertEquals(strat.orderExecutionInfo[0].getDateTime().date(), datetime.datetime.now().date())
+        self.assertEquals(strat.orderExecutionInfo[1].getPrice(), 567.21)
+        self.assertEquals(strat.orderExecutionInfo[1].getQuantity(), 0.04601436)
+        self.assertEquals(strat.orderExecutionInfo[1].getCommission(), 0.14)
+        self.assertEquals(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())

@@ -493,6 +493,16 @@ class Broker(observer.Subject):
         raise NotImplementedError()
 
     @abc.abstractmethod
+    def getCash(self, includeShort=True):
+        """
+        Returns the available cash.
+
+        :param includeShort: Include cash from short positions.
+        :type includeShort: boolean.
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
     def getShares(self, instrument):
         """Returns the number of shares for an instrument."""
         raise NotImplementedError()

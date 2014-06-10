@@ -540,12 +540,6 @@ class Broker(broker.Broker):
         self.__allowNegativeCash = allowNegativeCash
 
     def getCash(self, includeShort=True):
-        """
-        Returns the available cash.
-
-        :param includeShort: Include cash from short positions.
-        :type includeShort: boolean.
-        """
         ret = self.__cash
         if not includeShort and self.__barFeed.getCurrentBars() is not None:
             bars = self.__barFeed.getCurrentBars()
