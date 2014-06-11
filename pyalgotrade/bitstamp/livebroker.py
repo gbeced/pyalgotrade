@@ -35,9 +35,9 @@ def build_order_from_open_order(openOrder, instrumentTraits):
     else:
         raise Exception("Invalid order type")
 
-    ret = broker.LimitOrder(openOrder.getId(), action, common.btc_symbol, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
+    ret = broker.LimitOrder(action, common.btc_symbol, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
+    ret.setSubmitted(openOrder.getId(), openOrder.getDateTime())
     ret.setState(broker.Order.State.ACCEPTED)
-    ret.setSubmitDateTime(openOrder.getDateTime())
     return ret
 
 
@@ -131,6 +131,16 @@ class LiveBroker(broker.Broker):
         self.__shares = {}
         self.__activeOrders = {}
 
+    def _registerOrder(self, order):
+        assert(order.getId() not in self.__activeOrders)
+        assert(order.getId() is not None)
+        self.__activeOrders[order.getId()] = order
+
+    def _unregisterOrder(self, order):
+        assert(order.getId() in self.__activeOrders)
+        assert(order.getId() is not None)
+        del self.__activeOrders[order.getId()]
+
     # Factory method for testing purposes.
     def buildHTTPClient(self, clientId, key, secret):
         return httpclient.HTTPClient(clientId, key, secret)
@@ -157,7 +167,7 @@ class LiveBroker(broker.Broker):
         common.logger.info("Retrieving open orders.")
         openOrders = self.__httpClient.getOpenOrders()
         for openOrder in openOrders:
-            self.__activeOrders[openOrder.getId()] = build_order_from_open_order(openOrder, self.getInstrumentTraits(common.btc_symbol))
+            self._registerOrder(build_order_from_open_order(openOrder, self.getInstrumentTraits(common.btc_symbol)))
 
         common.logger.info("%d open order/s found" % (len(openOrders)))
         self.__stop = False  # No errors. Keep running.
@@ -184,7 +194,7 @@ class LiveBroker(broker.Broker):
                 if self.__shares[common.btc_symbol] == 0:
                     del self.__shares[common.btc_symbol]
                 if not order.isActive():
-                    del self.__activeOrders[order.getId()]
+                    self._unregisterOrder(order)
 
                 # Notify that the order was updated.
                 orderExecutionInfo = broker.OrderExecutionInfo(fillPrice, abs(btcAmount), fee, dateTime)
@@ -216,6 +226,14 @@ class LiveBroker(broker.Broker):
         return self.__stop
 
     def dispatch(self):
+        # Switch orders from SUBMITTED to ACCEPTED.
+        ordersToProcess = self.__activeOrders.values()
+        for order in ordersToProcess:
+            if order.isSubmitted():
+                order.switchState(broker.Order.State.ACCEPTED)
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.ACCEPTED, None))
+
+        # Dispatch events from the trade monitor.
         try:
             eventType, eventData = self.__tradeMonitor.getQueue().get(True, LiveBroker.QUEUE_TIMEOUT)
 
@@ -244,20 +262,41 @@ class LiveBroker(broker.Broker):
         return self.__shares.get(instrument, 0)
 
     def getPositions(self):
-        raise NotImplementedError()
+        return self.__shares
 
     def getActiveOrders(self, instrument=None):
         return self.__activeOrders.values()
 
     def submitOrder(self, order):
-        raise NotImplementedError()
+        if order.isInitial():
+            if order.isBuy():
+                bitstampOrder = self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity())
+            else:
+                bitstampOrder = self.__httpClient.sellLimit(order.getLimitPrice(), order.getQuantity())
+
+            order.setSubmitted(bitstampOrder.getId(), bitstampOrder.getDateTime())
+            self._registerOrder(order)
+            # Switch from INITIAL -> SUBMITTED
+            # IMPORTANT: Do not emit an event for this switch because when using the position interface
+            # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
+            order.switchState(broker.Order.State.SUBMITTED)
+        else:
+            raise Exception("The order was already processed")
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        # TODO: Round limitPrice and quantity as in HTTPClient.
-        raise NotImplementedError()
+        if instrument != common.btc_symbol:
+            raise Exception("Only BTC instrument is supported")
+
+        if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:
+            raise Exception("Only BUY/SELL orders are supported")
+
+        instrumentTraits = self.getInstrumentTraits(instrument)
+        limitPrice = round(limitPrice, 2)
+        quantity = instrumentTraits.roundQuantity(quantity)
+        return broker.LimitOrder(action, instrument, limitPrice, quantity, instrumentTraits)
 
     def createStopOrder(self, action, instrument, stopPrice, quantity):
         raise Exception("Stop orders are not supported")
@@ -266,9 +305,14 @@ class LiveBroker(broker.Broker):
         raise Exception("Stop limit orders are not supported")
 
     def cancelOrder(self, order):
-        self.__httpClient.cancelOrder(order.getId())
+        activeOrder = self.__activeOrders.get(order.getId())
+        if activeOrder is None:
+            raise Exception("The order is not active anymore")
+        if activeOrder.isFilled():
+            raise Exception("Can't cancel order that has already been filled")
 
-        del self.__activeOrders[order.getId()]
+        self.__httpClient.cancelOrder(order.getId())
+        self._unregisterOrder(order)
         order.switchState(broker.Order.State.CANCELED)
         self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
 

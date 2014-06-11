@@ -87,6 +87,7 @@ class HTTPClientMock(object):
         self.__btcAvailable = 0.0
         self.__usdAvailable = 0.0
         self.__nextTxId = 1
+        self.__nextOrderId = 1000
         self.__userTransactionsRequested = False
 
     def setUSDAvailable(self, usd):
@@ -137,11 +138,24 @@ class HTTPClientMock(object):
     def cancelOrder(self, orderId):
         pass
 
+    def _buildOrder(self, price, amount):
+        jsonDict = {
+            'id': self.__nextOrderId,
+            'datetime': str(datetime.datetime.now()),
+            'type': 0 if amount > 0 else 1,
+            'price': str(price),
+            'amount': str(abs(amount)),
+        }
+        self.__nextOrderId += 1
+        return httpclient.Order(jsonDict)
+
     def buyLimit(self, limitPrice, quantity):
-        raise NotImplementedError()
+        assert(quantity > 0)
+        return self._buildOrder(limitPrice, quantity)
 
     def sellLimit(self, limitPrice, quantity):
-        raise NotImplementedError()
+        assert(quantity < 0)
+        return self._buildOrder(limitPrice, quantity*-1)
 
     def getUserTransactions(self, transactionType=None):
         # The first call is to retrieve user transactions that should have been
@@ -171,6 +185,7 @@ class TestStrategy(strategy.BaseStrategy):
         self.bid = None
         self.ask = None
         self.posExecutionInfo = []
+        self.ordersUpdated = []
         self.orderExecutionInfo = []
 
         # Subscribe to order book update events to get bid/ask prices to trade.
@@ -185,6 +200,7 @@ class TestStrategy(strategy.BaseStrategy):
             self.ask = ask
 
     def onOrderUpdated(self, order):
+        self.ordersUpdated.append(order)
         self.orderExecutionInfo.append(order.getExecutionInfo())
 
     def onEnterOk(self, position):
@@ -462,7 +478,7 @@ class PaperTradingTestCase(unittest.TestCase):
 
 
 class LiveTradingTestCase(unittest.TestCase):
-    def testSellAndBuy(self):
+    def testMapUserTransactionsToOrderEvents(self):
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
                 TestStrategy.__init__(self, feed, brk)
@@ -471,6 +487,7 @@ class LiveTradingTestCase(unittest.TestCase):
                 self.stop()
 
         barFeed = TestingLiveTradeFeed()
+        # This is to hit onBars and stop strategy execution.
         barFeed.addTrade(datetime.datetime.now(), 1, 100, 1)
 
         brk = TestingLiveBroker(None, None, None)
@@ -481,7 +498,6 @@ class LiveTradingTestCase(unittest.TestCase):
         httpClient.addOpenOrder(1, -0.1, 578.79)
         httpClient.addOpenOrder(2, 0.1, 567.21)
 
-        # def addUserTransaction(orderId, btcAmount, usdAmount, fillPrice, fee):
         httpClient.addUserTransaction(1, -0.04557395, 26.38, 578.79, 0.14)
         httpClient.addUserTransaction(2, 0.04601436, -26.10, 567.21, 0.14)
 
@@ -498,4 +514,71 @@ class LiveTradingTestCase(unittest.TestCase):
         self.assertEquals(strat.orderExecutionInfo[1].getPrice(), 567.21)
         self.assertEquals(strat.orderExecutionInfo[1].getQuantity(), 0.04601436)
         self.assertEquals(strat.orderExecutionInfo[1].getCommission(), 0.14)
+        self.assertEquals(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
+
+    def testCancelOrder(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+
+            def onBars(self, bars):
+                order = self.getBroker().getActiveOrders()[0]
+                self.getBroker().cancelOrder(order)
+                self.stop()
+
+        barFeed = TestingLiveTradeFeed()
+        # This is to hit onBars and stop strategy execution.
+        barFeed.addTrade(datetime.datetime.now(), 1, 100, 1)
+
+        brk = TestingLiveBroker(None, None, None)
+        httpClient = brk.getHTTPClient()
+        httpClient.setUSDAvailable(0)
+        httpClient.setBTCAvailable(0)
+        httpClient.addOpenOrder(1, 0.1, 578.79)
+
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertEquals(brk.getShares("BTC"), 0)
+        self.assertEquals(brk.getCash(), 0)
+        self.assertEquals(len(strat.orderExecutionInfo), 1)
+        self.assertEquals(strat.orderExecutionInfo[0], None)
+        self.assertEquals(len(strat.ordersUpdated), 1)
+        self.assertTrue(strat.ordersUpdated[0].isCanceled())
+
+    def testBuyAndSell(self):
+        class Strategy(TestStrategy):
+            def __init__(self, feed, brk):
+                TestStrategy.__init__(self, feed, brk)
+                self.buyOrder = None
+
+            def onOrderUpdated(self, order):
+                TestStrategy.onOrderUpdated(self, order)
+                if order.isPartiallyFilled():
+                    self.stop()
+
+            def onBars(self, bars):
+                if self.buyOrder is None:
+                    self.buyOrder = self.limitOrder(common.btc_symbol, 10, 1)
+                    brk.getHTTPClient().addUserTransaction(self.buyOrder.getId(), 0.5, -5, 10, 0.01)
+
+        barFeed = TestingLiveTradeFeed()
+        # This is to get onBars called once.
+        barFeed.addTrade(datetime.datetime.now(), 1, 100, 1)
+
+        brk = TestingLiveBroker(None, None, None)
+        httpClient = brk.getHTTPClient()
+        httpClient.setUSDAvailable(10)
+        httpClient.setBTCAvailable(0)
+
+        strat = Strategy(barFeed, brk)
+        strat.run()
+
+        self.assertTrue(strat.buyOrder.isPartiallyFilled())
+        # 2 events. 1 for accepted, 1 for partial fill.
+        self.assertEquals(len(strat.orderExecutionInfo), 2)
+        self.assertEquals(strat.orderExecutionInfo[0], None)
+        self.assertEquals(strat.orderExecutionInfo[1].getPrice(), 10)
+        self.assertEquals(strat.orderExecutionInfo[1].getQuantity(), 0.5)
+        self.assertEquals(strat.orderExecutionInfo[1].getCommission(), 0.01)
         self.assertEquals(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
