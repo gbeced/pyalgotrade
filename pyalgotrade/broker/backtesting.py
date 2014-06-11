@@ -32,7 +32,7 @@ class DefaultTraits(broker.InstrumentTraits):
 
 
 ######################################################################
-## Commission models
+# Commission models
 
 class Commission(object):
     """Base class for implementing different commission schemes.
@@ -97,7 +97,7 @@ class TradePercentage(Commission):
 
 
 ######################################################################
-## Order filling strategies
+# Order filling strategies
 
 # Returns the trigger price for a Stop or StopLimit order, or None if the stop price was not yet penetrated.
 def get_stop_price_trigger(action, stopPrice, useAdjustedValues, bar):
@@ -411,7 +411,7 @@ class DefaultStrategy(FillStrategy):
 
 
 ######################################################################
-## Orders
+# Orders
 
 class BacktestingOrder(object):
     def __init__(self):
@@ -430,8 +430,8 @@ class BacktestingOrder(object):
 
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, quantity, onClose, instrumentTraits):
-        broker.MarketOrder.__init__(self, orderId, action, instrument, quantity, onClose, instrumentTraits)
+    def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
+        broker.MarketOrder.__init__(self, action, instrument, quantity, onClose, instrumentTraits)
         BacktestingOrder.__init__(self)
 
     def process(self, broker_, bar_):
@@ -439,8 +439,8 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, limitPrice, quantity, instrumentTraits):
-        broker.LimitOrder.__init__(self, orderId, action, instrument, limitPrice, quantity, instrumentTraits)
+    def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
+        broker.LimitOrder.__init__(self, action, instrument, limitPrice, quantity, instrumentTraits)
         BacktestingOrder.__init__(self)
 
     def process(self, broker_, bar_):
@@ -448,8 +448,8 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
 
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, stopPrice, quantity, instrumentTraits):
-        broker.StopOrder.__init__(self, orderId, action, instrument, stopPrice, quantity, instrumentTraits)
+    def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
+        broker.StopOrder.__init__(self, action, instrument, stopPrice, quantity, instrumentTraits)
         BacktestingOrder.__init__(self)
         self.__stopHit = False
 
@@ -466,8 +466,8 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
-    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
-        broker.StopLimitOrder.__init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits)
+    def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
+        broker.StopLimitOrder.__init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits)
         BacktestingOrder.__init__(self)
         self.__stopHit = False  # Set to true when the limit order is activated (stop price is hit)
 
@@ -486,7 +486,7 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 
 
 ######################################################################
-## Broker
+# Broker
 
 class Broker(broker.Broker):
     """Backtesting broker.
@@ -522,16 +522,26 @@ class Broker(broker.Broker):
         self.__allowNegativeCash = False
         self.__nextOrderId = 1
 
-    def __getNextOrderId(self):
+    def _getNextOrderId(self):
         ret = self.__nextOrderId
         self.__nextOrderId += 1
         return ret
 
-    def __getBar(self, bars, instrument):
+    def _getBar(self, bars, instrument):
         ret = bars.getBar(instrument)
         if ret is None:
             ret = self.__barFeed.getLastBar(instrument)
         return ret
+
+    def _registerOrder(self, order):
+        assert(order.getId() not in self.__activeOrders)
+        assert(order.getId() is not None)
+        self.__activeOrders[order.getId()] = order
+
+    def _unregisterOrder(self, order):
+        assert(order.getId() in self.__activeOrders)
+        assert(order.getId() is not None)
+        del self.__activeOrders[order.getId()]
 
     def getLogger(self):
         return self.__logger
@@ -545,7 +555,7 @@ class Broker(broker.Broker):
             bars = self.__barFeed.getCurrentBars()
             for instrument, shares in self.__shares.iteritems():
                 if shares < 0:
-                    instrumentPrice = self.__getBar(bars, instrument).getClose(self.getUseAdjustedValues())
+                    instrumentPrice = self._getBar(bars, instrument).getClose(self.getUseAdjustedValues())
                     ret += instrumentPrice * shares
         return ret
 
@@ -617,7 +627,7 @@ class Broker(broker.Broker):
         ret = self.getCash()
         if bars is not None:
             for instrument, shares in self.__shares.iteritems():
-                instrumentPrice = self.__getBar(bars, instrument).getClose(self.getUseAdjustedValues())
+                instrumentPrice = self._getBar(bars, instrument).getClose(self.getUseAdjustedValues())
                 ret += instrumentPrice * shares
         return ret
 
@@ -672,7 +682,7 @@ class Broker(broker.Broker):
 
             # Notify the order update
             if order.isFilled():
-                del self.__activeOrders[order.getId()]
+                self._unregisterOrder(order)
                 self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.FILLED, orderExecutionInfo))
             elif order.isPartiallyFilled():
                 self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo))
@@ -683,13 +693,12 @@ class Broker(broker.Broker):
 
     def submitOrder(self, order):
         if order.isInitial():
-            # assert(order.getId() not in self.__activeOrders)
-            self.__activeOrders[order.getId()] = order
+            order.setSubmitted(self._getNextOrderId(), self._getCurrentDateTime())
+            self._registerOrder(order)
             # Switch from INITIAL -> SUBMITTED
             # IMPORTANT: Do not emit an event for this switch because when using the position interface
             # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
             order.switchState(broker.Order.State.SUBMITTED)
-            order.setSubmitDateTime(self._getCurrentDateTime())
         else:
             raise Exception("The order was already processed")
 
@@ -704,7 +713,7 @@ class Broker(broker.Broker):
             # Cancel the order if it is expired.
             if expired:
                 ret = False
-                del self.__activeOrders[order.getId()]
+                self._unregisterOrder(order)
                 order.switchState(broker.Order.State.CANCELED)
                 self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
 
@@ -720,7 +729,7 @@ class Broker(broker.Broker):
 
             # Cancel the order if it will expire in the next bar.
             if expired:
-                del self.__activeOrders[order.getId()]
+                self._unregisterOrder(order)
                 order.switchState(broker.Order.State.CANCELED)
                 self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
 
@@ -789,16 +798,16 @@ class Broker(broker.Broker):
         return None
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
-        return MarketOrder(self.__getNextOrderId(), action, instrument, quantity, onClose, self.getInstrumentTraits(instrument))
+        return MarketOrder(action, instrument, quantity, onClose, self.getInstrumentTraits(instrument))
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        return LimitOrder(self.__getNextOrderId(), action, instrument, limitPrice, quantity, self.getInstrumentTraits(instrument))
+        return LimitOrder(action, instrument, limitPrice, quantity, self.getInstrumentTraits(instrument))
 
     def createStopOrder(self, action, instrument, stopPrice, quantity):
-        return StopOrder(self.__getNextOrderId(), action, instrument, stopPrice, quantity, self.getInstrumentTraits(instrument))
+        return StopOrder(action, instrument, stopPrice, quantity, self.getInstrumentTraits(instrument))
 
     def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-        return StopLimitOrder(self.__getNextOrderId(), action, instrument, stopPrice, limitPrice, quantity, self.getInstrumentTraits(instrument))
+        return StopLimitOrder(action, instrument, stopPrice, limitPrice, quantity, self.getInstrumentTraits(instrument))
 
     def cancelOrder(self, order):
         activeOrder = self.__activeOrders.get(order.getId())
@@ -807,6 +816,6 @@ class Broker(broker.Broker):
         if activeOrder.isFilled():
             raise Exception("Can't cancel order that has already been filled")
 
-        del self.__activeOrders[activeOrder.getId()]
+        self._unregisterOrder(activeOrder)
         activeOrder.switchState(broker.Order.State.CANCELED)
         self.notifyOrderEvent(broker.OrderEvent(activeOrder, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))

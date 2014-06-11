@@ -39,9 +39,9 @@ class InstrumentTraits(object):
 
 
 ######################################################################
-## Orders
-## http://stocks.about.com/od/tradingbasics/a/markords.htm
-## http://www.interactivebrokers.com/en/software/tws/usersguidebook/ordertypes/basic_order_types.htm
+# Orders
+# http://stocks.about.com/od/tradingbasics/a/markords.htm
+# http://www.interactivebrokers.com/en/software/tws/usersguidebook/ordertypes/basic_order_types.htm
 #
 # State chart:
 # INITIAL           -> SUBMITTED
@@ -58,8 +58,6 @@ class InstrumentTraits(object):
 class Order(object):
     """Base class for orders.
 
-    :param orderId: The order id.
-    :type orderId: string.
     :param type_: The order type
     :type type_: :class:`Order.Type`
     :param action: The order action.
@@ -132,10 +130,10 @@ class Order(object):
         State.PARTIALLY_FILLED: [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
     }
 
-    def __init__(self, orderId, type_, action, instrument, quantity, instrumentTraits):
+    def __init__(self, type_, action, instrument, quantity, instrumentTraits):
         if quantity <= 0:
             raise Exception("Invalid quantity")
-        self.__id = orderId
+        self.__id = None
         self.__type = type_
         self.__action = action
         self.__instrument = instrument
@@ -151,22 +149,28 @@ class Order(object):
         self.__submitDateTime = None
 
     # This is to check that orders are not compared directly. order ids should be compared.
-    #def __eq__(self, other):
-    #    if other is None:
-    #        return False
-    #    assert(False)
+#    def __eq__(self, other):
+#        if other is None:
+#            return False
+#        assert(False)
 
     # This is to check that orders are not compared directly. order ids should be compared.
-    #def __ne__(self, other):
-    #    if other is None:
-    #        return True
-    #    assert(False)
+#    def __ne__(self, other):
+#        if other is None:
+#            return True
+#        assert(False)
 
     def getInstrumentTraits(self):
         return self.__instrumentTraits
 
     def getId(self):
-        """Returns the order id."""
+        """
+        Returns the order id.
+
+        .. note::
+
+            This will be None if the order was not submitted.
+        """
         return self.__id
 
     def getType(self):
@@ -183,7 +187,9 @@ class Order(object):
         """Returns the datetime when the order was submitted."""
         return self.__submitDateTime
 
-    def setSubmitDateTime(self, dateTime):
+    def setSubmitted(self, orderId, dateTime):
+        assert(self.__id is None or orderId == self.__id)
+        self.__id = orderId
         self.__submitDateTime = dateTime
 
     def getAction(self):
@@ -347,8 +353,8 @@ class MarketOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, quantity, onClose, instrumentTraits):
-        Order.__init__(self, orderId, Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
+    def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
+        Order.__init__(self, Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
         self.__onClose = onClose
 
     def getFillOnClose(self):
@@ -364,8 +370,8 @@ class LimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, limitPrice, quantity, instrumentTraits):
-        Order.__init__(self, orderId, Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
+    def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
+        Order.__init__(self, Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
         self.__limitPrice = limitPrice
 
     def getLimitPrice(self):
@@ -381,8 +387,8 @@ class StopOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, stopPrice, quantity, instrumentTraits):
-        Order.__init__(self, orderId, Order.Type.STOP, action, instrument, quantity, instrumentTraits)
+    def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
+        Order.__init__(self, Order.Type.STOP, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
 
     def getStopPrice(self):
@@ -398,8 +404,8 @@ class StopLimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, orderId, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
-        Order.__init__(self, orderId, Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
+    def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
+        Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
         self.__limitPrice = limitPrice
 
@@ -465,7 +471,7 @@ class OrderEvent(object):
 
 
 ######################################################################
-## Base broker class
+# Base broker class
 class Broker(observer.Subject):
     """Base class for brokers.
 
@@ -533,7 +539,6 @@ class Broker(observer.Subject):
             * Calling this twice on the same order will raise an exception.
         """
         raise NotImplementedError()
-
 
     def placeOrder(self, order):
         # Deprecated since v0.16
