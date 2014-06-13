@@ -41,7 +41,8 @@ class BacktestingBroker(backtesting.Broker):
     :type fee: float.
 
     .. note::
-        Only limit orders are supported.
+        * Only limit orders are supported.
+        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
     """
 
     def __init__(self, cash, barFeed, fee=0.005):
@@ -50,6 +51,13 @@ class BacktestingBroker(backtesting.Broker):
 
     def getInstrumentTraits(self, instrument):
         return common.BTCTraits()
+
+    def submitOrder(self, order):
+        if order.isInitial():
+            # Override user settings based on Bitstamp limitations.
+            order.setAllOrNone(False)
+            order.setGoodTillCanceled(True)
+        return backtesting.Broker.submitOrder(self, order)
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         raise Exception("Market orders are not supported")

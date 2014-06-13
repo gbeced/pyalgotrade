@@ -110,7 +110,8 @@ class LiveBroker(broker.Broker):
 
     .. note::
         * Only limit orders are supported.
-        * API access permissions should include:
+        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
+        *  API access permissions should include:
 
           * Account balance
           * Open orders
@@ -269,6 +270,10 @@ class LiveBroker(broker.Broker):
 
     def submitOrder(self, order):
         if order.isInitial():
+            # Override user settings based on Bitstamp limitations.
+            order.setAllOrNone(False)
+            order.setGoodTillCanceled(True)
+
             if order.isBuy():
                 bitstampOrder = self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity())
             else:
