@@ -154,8 +154,8 @@ class HTTPClientMock(object):
         return self._buildOrder(limitPrice, quantity)
 
     def sellLimit(self, limitPrice, quantity):
-        assert(quantity < 0)
-        return self._buildOrder(limitPrice, quantity*-1)
+        assert(quantity > 0)
+        return self._buildOrder(limitPrice, quantity)
 
     def getUserTransactions(self, transactionType=None):
         # The first call is to retrieve user transactions that should have been
@@ -551,10 +551,16 @@ class LiveTradingTestCase(unittest.TestCase):
             def __init__(self, feed, brk):
                 TestStrategy.__init__(self, feed, brk)
                 self.buyOrder = None
+                self.sellOrder = None
 
             def onOrderUpdated(self, order):
                 TestStrategy.onOrderUpdated(self, order)
-                if order.isPartiallyFilled():
+
+                if order == self.buyOrder and order.isPartiallyFilled():
+                    if self.sellOrder is None:
+                        self.sellOrder = self.limitOrder(common.btc_symbol, 10, -0.5)
+                        brk.getHTTPClient().addUserTransaction(self.sellOrder.getId(), -0.5, 5, 10, 0.01)
+                elif order == self.sellOrder and order.isFilled():
                     self.stop()
 
             def onBars(self, bars):
@@ -575,10 +581,17 @@ class LiveTradingTestCase(unittest.TestCase):
         strat.run()
 
         self.assertTrue(strat.buyOrder.isPartiallyFilled())
-        # 2 events. 1 for accepted, 1 for partial fill.
-        self.assertEquals(len(strat.orderExecutionInfo), 2)
+        self.assertTrue(strat.sellOrder.isFilled())
+        # 2 events for each order: 1 for accepted, 1 for fill.
+        self.assertEquals(len(strat.orderExecutionInfo), 4)
         self.assertEquals(strat.orderExecutionInfo[0], None)
         self.assertEquals(strat.orderExecutionInfo[1].getPrice(), 10)
         self.assertEquals(strat.orderExecutionInfo[1].getQuantity(), 0.5)
         self.assertEquals(strat.orderExecutionInfo[1].getCommission(), 0.01)
         self.assertEquals(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
+        self.assertEquals(strat.orderExecutionInfo[2], None)
+        self.assertEquals(strat.orderExecutionInfo[3].getPrice(), 10)
+        self.assertEquals(strat.orderExecutionInfo[3].getQuantity(), 0.5)
+        self.assertEquals(strat.orderExecutionInfo[3].getCommission(), 0.01)
+        self.assertEquals(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
+
