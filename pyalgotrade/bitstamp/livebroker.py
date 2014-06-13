@@ -158,7 +158,10 @@ class LiveBroker(broker.Broker):
         common.logger.info("%s USD" % (self.__cash))
         # BTC
         btc = balance.getBTCAvailable()
-        self.__shares = {common.btc_symbol: btc}
+        if btc:
+            self.__shares = {common.btc_symbol: btc}
+        else:
+            self.__shares = {}
         common.logger.info("%s BTC" % (btc))
 
         self.__stop = False  # No errors. Keep running.
@@ -186,20 +189,16 @@ class LiveBroker(broker.Broker):
                 fee = trade.getFee()
                 fillPrice = trade.getBTCUSD()
                 btcAmount = trade.getBTC()
-                usdAmount = trade.getUSD()
                 dateTime = trade.getDateTime()
 
-                # Update cash, shares and active orders.
-                self.__cash = round(self.__cash + usdAmount - fee, 2)
-                self.__shares[common.btc_symbol] = order.getInstrumentTraits().roundQuantity(self.__shares.get(common.btc_symbol, 0) + btcAmount)
-                if self.__shares[common.btc_symbol] == 0:
-                    del self.__shares[common.btc_symbol]
-                if not order.isActive():
-                    self._unregisterOrder(order)
-
-                # Notify that the order was updated.
+                # Update cash and shares.
+                self.refreshAccountBalance()
+                # Update the order.
                 orderExecutionInfo = broker.OrderExecutionInfo(fillPrice, abs(btcAmount), fee, dateTime)
                 order.addExecutionInfo(orderExecutionInfo)
+                if not order.isActive():
+                    self._unregisterOrder(order)
+                # Notify that the order was updated.
                 if order.isFilled():
                     eventType = broker.OrderEvent.Type.FILLED
                 else:

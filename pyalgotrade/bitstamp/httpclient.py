@@ -29,6 +29,7 @@ import threading
 
 
 from pyalgotrade.utils import dt
+from pyalgotrade.bitstamp import common
 
 
 def parse_datetime(dateTime):
@@ -155,6 +156,8 @@ class HTTPClient(object):
             data, headers = self._buildQuery(params)
             req = urllib2.Request(url, data, headers)
             response = urllib2.urlopen(req, data)
+
+        common.logger.debug("POST to %s with params %s" % (url, str(params)))
 
         jsonResponse = json.loads(response.read())
 

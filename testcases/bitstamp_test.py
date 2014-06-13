@@ -504,8 +504,6 @@ class LiveTradingTestCase(unittest.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(brk.getShares("BTC"), 0.10044041)
-        self.assertEquals(brk.getCash(), 0)
         self.assertEquals(len(strat.orderExecutionInfo), 2)
         self.assertEquals(strat.orderExecutionInfo[0].getPrice(), 578.79)
         self.assertEquals(strat.orderExecutionInfo[0].getQuantity(), 0.04557395)
@@ -594,4 +592,3 @@ class LiveTradingTestCase(unittest.TestCase):
         self.assertEquals(strat.orderExecutionInfo[3].getQuantity(), 0.5)
         self.assertEquals(strat.orderExecutionInfo[3].getCommission(), 0.01)
         self.assertEquals(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
-

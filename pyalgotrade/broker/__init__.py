@@ -426,6 +426,9 @@ class OrderExecutionInfo(object):
         self.__commission = commission
         self.__dateTime = dateTime
 
+    def __str__(self):
+        return "%s - Price: %s - Amount: %s - Fee: %s" % (self.__dateTime, self.__price, self.__quantity, self.__commission)
+
     def getPrice(self):
         """Returns the fill price."""
         return self.__price
