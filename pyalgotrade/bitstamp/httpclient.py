@@ -150,14 +150,14 @@ class HTTPClient(object):
         return (post_data, headers)
 
     def _post(self, url, params):
+        common.logger.debug("POST to %s with params %s" % (url, str(params)))
+
         # Serialize access to nonce generation and http requests to avoid
         # sending them in the wrong order.
         with self.__lock:
             data, headers = self._buildQuery(params)
             req = urllib2.Request(url, data, headers)
             response = urllib2.urlopen(req, data)
-
-        common.logger.debug("POST to %s with params %s" % (url, str(params)))
 
         jsonResponse = json.loads(response.read())
 
