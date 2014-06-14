@@ -318,6 +318,11 @@ class LiveBroker(broker.Broker):
         self.__httpClient.cancelOrder(order.getId())
         self._unregisterOrder(order)
         order.switchState(broker.Order.State.CANCELED)
+
+        # Update cash and shares.
+        self.refreshAccountBalance()
+
+        # Notify that the order was canceled.
         self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
 
     # END broker.Broker interface
