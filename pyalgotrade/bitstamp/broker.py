@@ -30,6 +30,7 @@ LiveBroker = livebroker.LiveBroker
 # In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
 # It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
 
+
 class BacktestingBroker(backtesting.Broker):
     """A Bitstamp backtesting broker.
 
@@ -43,6 +44,8 @@ class BacktestingBroker(backtesting.Broker):
     .. note::
         * Only limit orders are supported.
         * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
+        * BUY_TO_COVER orders are mapped to BUY orders.
+        * SELL_SHORT orders are mapped to SELL orders.
     """
 
     def __init__(self, cash, barFeed, fee=0.005):
@@ -65,6 +68,11 @@ class BacktestingBroker(backtesting.Broker):
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
         if instrument != common.btc_symbol:
             raise Exception("Only BTC instrument is supported")
+
+        if action == broker.Order.Action.BUY_TO_COVER:
+            action = broker.Order.Action.BUY
+        elif action == broker.Order.Action.SELL_SHORT:
+            action = broker.Order.Action.SELL
 
         if action == broker.Order.Action.BUY:
             # Check that there is enough cash.
@@ -99,7 +107,10 @@ class PaperTradingBroker(BacktestingBroker):
     :type fee: float.
 
     .. note::
-        Only limit orders are supported.
+        * Only limit orders are supported.
+        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
+        * BUY_TO_COVER orders are mapped to BUY orders.
+        * SELL_SHORT orders are mapped to SELL orders.
     """
 
     pass

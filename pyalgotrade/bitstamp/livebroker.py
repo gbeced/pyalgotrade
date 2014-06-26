@@ -111,7 +111,9 @@ class LiveBroker(broker.Broker):
     .. note::
         * Only limit orders are supported.
         * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
-        *  API access permissions should include:
+        * BUY_TO_COVER orders are mapped to BUY orders.
+        * SELL_SHORT orders are mapped to SELL orders.
+        * API access permissions should include:
 
           * Account balance
           * Open orders
@@ -293,6 +295,11 @@ class LiveBroker(broker.Broker):
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
         if instrument != common.btc_symbol:
             raise Exception("Only BTC instrument is supported")
+
+        if action == broker.Order.Action.BUY_TO_COVER:
+            action = broker.Order.Action.BUY
+        elif action == broker.Order.Action.SELL_SHORT:
+            action = broker.Order.Action.SELL
 
         if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:
             raise Exception("Only BUY/SELL orders are supported")
