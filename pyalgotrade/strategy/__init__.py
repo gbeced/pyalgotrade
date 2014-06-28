@@ -477,7 +477,6 @@ class BaseStrategy(object):
 
     def onOrderUpdated(self, order):
         """Override (optional) to get notified when an order gets updated.
-        This is not called for orders submitted using any of the enterLong or enterShort methods.
 
         :param order: The order updated.
         :type order: :class:`pyalgotrade.broker.Order`.
@@ -487,9 +486,8 @@ class BaseStrategy(object):
     def __onOrderEvent(self, broker_, orderEvent):
         order = orderEvent.getOrder()
         pos = self.__orderToPosition.get(order.getId(), None)
-        if pos is None:
-            self.onOrderUpdated(order)
-        else:
+        self.onOrderUpdated(order)
+        if pos is not None:
             # Unlink the order from the position if its not active anymore.
             if not order.isActive():
                 self.unregisterPositionOrder(pos, order)

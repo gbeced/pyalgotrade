@@ -2,6 +2,7 @@ Version 0.16 (TBD)
 . [NEW] Support for downloading and loading bars from Quandl (pyalgotrade.tools.quandl and pyalgotrade.barfeed.quandlfeed).
 . [NEW] Support for loading Bitcoin Charts historical trades CSV files (pyalgotrade.bitcoincharts.barfeed).
 . [BREAKING CHANGE] pyalgotrade.bitstamp.client.Client was removed and the functionality is now included in pyalgotrade.bitstamp.barfeed.LiveTradeFeed.
+. [BREAKING CHANGE] Strategy.onOrderUpdated now gets called for all order events, included those generated using the position interface.
 . [FIX] Bitstamp BacktestingBroker and PaperTradingBroker will now fail to place orders without enough cash or BTC.
 . [FIX] Fixed a rounding error in pyalgotrade.bitstamp.broker.PaperTradingBroker.
 . [FIX] Fixed a bug in BarFeed.getCurrentDateTime.
