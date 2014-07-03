@@ -32,6 +32,7 @@ from pyalgotrade.bitstamp import wsclient
 from pyalgotrade.bitstamp import httpclient
 from pyalgotrade.bitstamp import common
 from pyalgotrade import strategy
+from pyalgotrade import dispatcher
 
 
 class WebSocketClientThreadMock(threading.Thread):
@@ -592,3 +593,42 @@ class LiveTradingTestCase(unittest.TestCase):
         self.assertEquals(strat.orderExecutionInfo[3].getQuantity(), 0.5)
         self.assertEquals(strat.orderExecutionInfo[3].getCommission(), 0.01)
         self.assertEquals(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
+
+
+class WebSocketTestCase(unittest.TestCase):
+    def testBarFeed(self):
+        events = {
+            "on_bars": False,
+            "on_order_book_updated": False,
+            "break": False,
+            "start": datetime.datetime.now()
+        }
+
+        disp = dispatcher.Dispatcher()
+        barFeed = barfeed.LiveTradeFeed()
+        disp.addSubject(barFeed)
+
+        def on_bars(dateTime, bars):
+            events["on_bars"] = True
+            if events["on_order_book_updated"] is True:
+                disp.stop()
+
+        def on_order_book_updated(orderBookUpdate):
+            events["on_order_book_updated"] = True
+            if events["on_bars"] is True:
+                disp.stop()
+
+        def on_idle():
+            # Stop after 5 minutes.
+            if (datetime.datetime.now() - events["start"]).seconds > 60*5:
+                disp.stop()
+
+        # Subscribe to events.
+        barFeed.getNewValuesEvent().subscribe(on_bars)
+        barFeed.getOrderBookUpdateEvent().subscribe(on_order_book_updated)
+        disp.getIdleEvent().subscribe(on_idle)
+        disp.run()
+
+        # Check that we received both events.
+        self.assertTrue(events["on_bars"])
+        self.assertTrue(events["on_order_book_updated"])
