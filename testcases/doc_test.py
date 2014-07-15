@@ -200,8 +200,8 @@ quandl_sample.main(False)
     def testMarketTiming(self):
         common.init_temp_path()
         files = []
-        instruments = ["MSFT", "ORCL", "IBM", "HPQ", "WMT", "UPS", "TGT", "CCL", "XOM", "CVX", "COP", "OXY", "BAC", "JPM", "WFC", "GS", "PG", "PEP", "CL", "KO"]
-        for year in range(2005, 2013+1):
+        instruments = ["VTI", "VEU", "IEF", "VNQ", "DBC", "SPY"]
+        for year in range(2007, 2013+1):
             for symbol in instruments:
                 fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
