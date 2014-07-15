@@ -83,8 +83,12 @@ class TradeBar(bar.Bar):
     def getPrice(self):
         return self.__price
 
+    def getUseAdjValue(self):
+        return False
+
 
 class LiveTradeFeed(barfeed.BaseBarFeed):
+
     """A real-time BarFeed that builds bars from live trades.
 
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.

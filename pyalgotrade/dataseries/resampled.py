@@ -42,6 +42,7 @@ class Slot(object):
         self.__volume = bar_.getVolume()
         self.__adjClose = bar_.getAdjClose()
         self.__frequency = frequency
+        self.__useAdjValue = bar_.getUseAdjValue()
 
     def getDateTime(self):
         return self.__dateTime
@@ -72,17 +73,30 @@ class Slot(object):
         self.__volume += bar_.getVolume()
 
     def buildBasicBar(self):
-        return bar.BasicBar(self.__dateTime, self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose, self.__frequency)
+        ret = bar.BasicBar(
+            self.__dateTime,
+            self.__open,
+            self.__high,
+            self.__low,
+            self.__close,
+            self.__volume,
+            self.__adjClose,
+            self.__frequency
+        )
+        ret.setUseAdjustedValue(self.__useAdjValue)
+        return ret
 
 
 class ResampledBarDataSeries(bards.BarDataSeries):
     """A BarDataSeries that will build on top of another, higher frequency, BarDataSeries.
+    Resampling will take place as new values get pushed into the dataseries being resampled.
 
     :param dataSeries: The DataSeries instance being resampled.
-    :type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
+    :type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`
     :param frequency: The grouping frequency in seconds. Must be > 0.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+        from the opposite end.
     :type maxLen: int.
     """
 
@@ -106,12 +120,24 @@ class ResampledBarDataSeries(bards.BarDataSeries):
         self.__slot = None
 
     def __onNewValue(self, dataSeries, dateTime, value):
-        dateTime = get_slot_datetime(value.getDateTime(), self.__frequency)
+        slotDateTime = get_slot_datetime(dateTime, self.__frequency)
 
         if self.__slot is None:
-            self.__slot = Slot(dateTime, value, self.__frequency)
-        elif self.__slot.getDateTime() == dateTime:
+            self.__slot = Slot(slotDateTime, value, self.__frequency)
+        elif self.__slot.getDateTime() == slotDateTime:
             self.__slot.addBar(value)
         else:
             self.appendWithDateTime(self.__slot.getDateTime(), self.__slot.buildBasicBar())
-            self.__slot = Slot(dateTime, value, self.__frequency)
+            self.__slot = Slot(slotDateTime, value, self.__frequency)
+
+    def checkNow(self, dateTime):
+        """Forces a resample check. Depending on the resample frequency, and the current datetime, a new
+        value may be generated.
+
+       :param dateTime: The current datetime.
+       :type dateTime: :class:`datetime.datetime`
+        """
+        slotDateTime = get_slot_datetime(dateTime, self.__frequency)
+        if self.__slot is not None and self.__slot.getDateTime() != slotDateTime:
+            self.appendWithDateTime(self.__slot.getDateTime(), self.__slot.buildBasicBar())
+            self.__slot = None

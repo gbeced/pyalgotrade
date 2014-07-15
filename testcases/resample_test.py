@@ -34,6 +34,7 @@ import common
 
 
 class ResampleTestCase(unittest.TestCase):
+
     def testSlotDateTime(self):
         # 1 minute
         self.assertEqual(resampled.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60), datetime.datetime(2011, 1, 1, 1, 1))
@@ -130,3 +131,21 @@ class ResampleTestCase(unittest.TestCase):
         self.assertEqual(len(resampledBarDS), len(feed["spy"]))
         self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(datetime.datetime(2011, 1, 3)))
         self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(datetime.datetime(2011, 2, 1)))
+
+    def testCheckNow(self):
+        barDs = bards.BarDataSeries()
+        resampledBarDS = resampled.ResampledBarDataSeries(barDs, bar.Frequency.SECOND)
+
+        barDateTime = datetime.datetime(2014, 07, 07, 22, 46, 28, 10000)
+        barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.SECOND))
+        self.assertEqual(len(resampledBarDS), 0)
+
+        resampledBarDS.checkNow(barDateTime + datetime.timedelta(hours=2))
+        self.assertEqual(len(resampledBarDS), 1)
+        self.assertEqual(barDs[0].getOpen(), resampledBarDS[0].getOpen())
+        self.assertEqual(barDs[0].getHigh(), resampledBarDS[0].getHigh())
+        self.assertEqual(barDs[0].getLow(), resampledBarDS[0].getLow())
+        self.assertEqual(barDs[0].getClose(), resampledBarDS[0].getClose())
+        self.assertEqual(barDs[0].getVolume(), resampledBarDS[0].getVolume())
+        self.assertEqual(barDs[0].getAdjClose(), resampledBarDS[0].getAdjClose())
+        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46, 28))

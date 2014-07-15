@@ -52,6 +52,9 @@ class TradeBar(bar.Bar):
         if useAdjusted:
             raise Exception("Adjusted close is not available")
 
+    def getUseAdjValue(self):
+        return False
+
     def getDateTime(self):
         return self.__dateTime
 
