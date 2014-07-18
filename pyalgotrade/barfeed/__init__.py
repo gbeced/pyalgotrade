@@ -161,9 +161,6 @@ class OptimizerBarFeed(BaseBarFeed):
     def barsHaveAdjClose(self):
         return self.__barsHaveAdjClose
 
-    def isRealTime(self):
-        return False
-
     def start(self):
         pass
 

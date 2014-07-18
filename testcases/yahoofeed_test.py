@@ -112,7 +112,7 @@ class FeedTestCase(unittest.TestCase):
         barFeed = yahoofeed.Feed()
         barFeed.sanitizeBars(True)
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barfeed_test.check_base_barfeed(self, barFeed, True, False)
+        barfeed_test.check_base_barfeed(self, barFeed, True)
 
     def testInvalidFrequency(self):
         with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):

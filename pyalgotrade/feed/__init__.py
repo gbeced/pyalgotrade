@@ -51,11 +51,6 @@ class BaseFeed(observer.Subject):
         self.__event = observer.Event()
         self.__maxLen = maxLen
 
-    # Return True if this is a real-time feed.
-    @abc.abstractmethod
-    def isRealTime(self):
-        raise NotImplementedError()
-
     # Subclasses should implement this and return the appropriate dataseries for the given key.
     @abc.abstractmethod
     def createDataSeries(self, key, maxLen):

@@ -42,9 +42,6 @@ class BarFeed(barfeed.BaseBarFeed):
     def getCurrentDateTime(self):
         return self.__currDateTime
 
-    def isRealTime(self):
-        return False
-
     def start(self):
         self.__started = True
 

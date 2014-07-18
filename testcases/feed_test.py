@@ -29,6 +29,5 @@ def tstBaseFeedInterface(testCase, feed):
     disp.run()
 
     # This tests the feed.BaseFeed interface.
-    feed.isRealTime()
     feed.createDataSeries("any", 10)
     feed.getNextValues()

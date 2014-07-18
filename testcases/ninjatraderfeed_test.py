@@ -111,7 +111,7 @@ class NinjaTraderTestCase(unittest.TestCase):
     def testBaseBarFeed(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        barfeed_test.check_base_barfeed(self, barFeed, False, False)
+        barfeed_test.check_base_barfeed(self, barFeed, False)
 
     def testInvalidFrequency(self):
         with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):

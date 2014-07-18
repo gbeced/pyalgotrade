@@ -219,9 +219,6 @@ class LiveFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         return None
 
-    def isRealTime(self):
-        return True
-
     ######################################################################
     # barfeed.BaseBarFeed interface
 

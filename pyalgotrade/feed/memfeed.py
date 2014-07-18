@@ -49,9 +49,6 @@ class MemFeed(feed.BaseFeed):
             ret = self.__values[self.__nextIdx][0]
         return ret
 
-    def isRealTime(self):
-        return False
-
     def createDataSeries(self, key, maxLen):
         return dataseries.SequenceDataSeries(maxLen)
 

@@ -113,9 +113,6 @@ class BarFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         raise NotImplementedError()
 
-    def isRealTime(self):
-        raise NotImplementedError()
-
     def dispatchBars(self, openPrice, highPrice, lowPrice, closePrice, volume=None, sessionClose=False):
         self.__nextBars = self.__builder.nextBars(openPrice, highPrice, lowPrice, closePrice, volume, sessionClose)
         self.dispatch()
