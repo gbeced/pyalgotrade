@@ -20,44 +20,12 @@ from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
 from pyalgotrade.utils import dt
+from pyalgotrade import resamplebase
 
 
-# Returns the slot's beginning datetime.
-# frequency in seconds
-def get_slot_datetime(dateTime, frequency):
-    ts = int(dt.datetime_to_timestamp(dateTime))
-    slot = ts / frequency
-    slotTs = slot * frequency
-    ret = dt.timestamp_to_datetime(slotTs, False)
-    if not dt.datetime_is_naive(dateTime):
-        ret = dt.localize(ret, dateTime.tzinfo)
-    return ret
-
-
-
-class Grouper(object):
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, groupDateTime):
-        self.__groupDateTime = groupDateTime
-
-    def getDateTime(self):
-        return self.__groupDateTime
-
-    @abc.abstractmethod
-    def addValue(self, value):
-        """Add a value to the group."""
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def getGrouped(self):
-        """Return the grouped value."""
-        raise NotImplementedError()
-
-
-class BarGrouper(Grouper):
+class BarGrouper(resamplebase.Grouper):
     def __init__(self, groupDateTime, bar_, frequency):
-        Grouper.__init__(self, groupDateTime)
+        resamplebase.Grouper.__init__(self, groupDateTime)
         self.__open = bar_.getOpen()
         self.__high = bar_.getHigh()
         self.__low = bar_.getLow()
@@ -123,7 +91,7 @@ class ResampledBarDataSeries(bards.BarDataSeries):
             self.__grouper = None
 
     def __onNewValue(self, dataSeries, dateTime, value):
-        slotDateTime = get_slot_datetime(dateTime, self.__frequency)
+        slotDateTime = resamplebase.get_slot_datetime(dateTime, self.__frequency)
 
         if self.__grouper is None:
             self.__grouper = BarGrouper(slotDateTime, value, self.__frequency)
@@ -140,7 +108,7 @@ class ResampledBarDataSeries(bards.BarDataSeries):
        :param dateTime: The current datetime.
        :type dateTime: :class:`datetime.datetime`
         """
-        slotDateTime = get_slot_datetime(dateTime, self.__frequency)
+        slotDateTime = resamplebase.get_slot_datetime(dateTime, self.__frequency)
         if self.__grouper is not None and self.__grouper.getDateTime() != slotDateTime:
             self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
             self.__grouper = None
