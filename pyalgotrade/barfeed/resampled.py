@@ -61,6 +61,10 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         if not resamplebase.is_valid_frequency(frequency):
             raise Exception("Unsupported frequency")
 
+        # Register the same instruments as in the underlying barfeed.
+        for instrument in barFeed.getRegisteredInstruments():
+            self.registerInstrument(instrument)
+
         self.__values = []
         self.__barFeed = barFeed
         self.__grouper = None
