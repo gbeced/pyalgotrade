@@ -16,19 +16,121 @@
 
 
 import abc
+import datetime
 
 from pyalgotrade.utils import dt
+from pyalgotrade import bar
 
 
-# Returns the slot's beginning datetime.
-# frequency in seconds
-def get_slot_datetime(dateTime, frequency):
-    ts = int(dt.datetime_to_timestamp(dateTime))
-    slot = ts / frequency
-    slotTs = slot * frequency
-    ret = dt.timestamp_to_datetime(slotTs, False)
-    if not dt.datetime_is_naive(dateTime):
-        ret = dt.localize(ret, dateTime.tzinfo)
+class TimeRange(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def belongs(self, dateTime):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def getBeginning(self):
+        raise NotImplementedError()
+
+    # 1 past the end
+    @abc.abstractmethod
+    def getEnding(self):
+        raise NotImplementedError()
+
+
+class IntraDayRange(TimeRange):
+    def __init__(self, dateTime, frequency):
+        assert(isinstance(frequency, int))
+        assert(frequency > 1)
+        assert(frequency < bar.Frequency.DAY)
+
+        ts = int(dt.datetime_to_timestamp(dateTime))
+        slot = int(ts / frequency)
+        slotTs = slot * frequency
+        self.__begin = dt.timestamp_to_datetime(slotTs, False)
+        if not dt.datetime_is_naive(dateTime):
+            self.__begin = dt.localize(self.__begin, dateTime.tzinfo)
+        self.__end = self.__begin + datetime.timedelta(seconds=frequency)
+
+    def belongs(self, dateTime):
+        return dateTime >= self.__begin and dateTime < self.__end
+
+    def getBeginning(self):
+        return self.__begin
+
+    def getEnding(self):
+        return self.__end
+
+
+class DayRange(TimeRange):
+    def __init__(self, dateTime):
+        self.__begin = datetime.datetime(dateTime.year, dateTime.month, dateTime.day)
+        if not dt.datetime_is_naive(dateTime):
+            self.__begin = dt.localize(self.__begin, dateTime.tzinfo)
+        self.__end = self.__begin + datetime.timedelta(days=1)
+
+    def belongs(self, dateTime):
+        return dateTime >= self.__begin and dateTime < self.__end
+
+    def getBeginning(self):
+        return self.__begin
+
+    def getEnding(self):
+        return self.__end
+
+
+class MonthRange(TimeRange):
+    def __init__(self, dateTime):
+        self.__begin = datetime.datetime(dateTime.year, dateTime.month, 1)
+
+        # Calculate the ending date.
+        if dateTime.month == 12:
+            self.__end = datetime.datetime(dateTime.year + 1, 1, 1)
+        else:
+            self.__end = datetime.datetime(dateTime.year, dateTime.month + 1, 1)
+
+        if not dt.datetime_is_naive(dateTime):
+            self.__begin = dt.localize(self.__begin, dateTime.tzinfo)
+            self.__end = dt.localize(self.__end, dateTime.tzinfo)
+
+    def belongs(self, dateTime):
+        return dateTime >= self.__begin and dateTime < self.__end
+
+    def getBeginning(self):
+        return self.__begin
+
+    def getEnding(self):
+        return self.__end
+
+
+def is_valid_frequency(frequency):
+    assert(isinstance(frequency, int))
+    assert(frequency > 1)
+
+    if frequency < bar.Frequency.DAY:
+        ret = True
+    elif frequency == bar.Frequency.DAY:
+        ret = True
+    elif frequency == bar.Frequency.MONTH:
+        ret = True
+    else:
+        ret = False
+    return ret
+
+
+def build_range(dateTime, frequency):
+    assert(isinstance(frequency, int))
+    assert(frequency > 1)
+
+    if frequency < bar.Frequency.DAY:
+        ret = IntraDayRange(dateTime, frequency)
+    elif frequency == bar.Frequency.DAY:
+        ret = DayRange(dateTime)
+    elif frequency == bar.Frequency.MONTH:
+        ret = MonthRange(dateTime)
+    else:
+        raise Exception("Unsupported frequency")
     return ret
 
 

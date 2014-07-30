@@ -37,23 +37,83 @@ from pyalgotrade import resamplebase
 import common
 
 
-class ResampleTestCase(unittest.TestCase):
+class IntraDayRange(unittest.TestCase):
+    def testMinuteRange(self):
+        freq = bar.Frequency.MINUTE
+        begin = datetime.datetime(2011, 1, 1, 1, 1)
+        r = resamplebase.build_range(begin + datetime.timedelta(seconds=5), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 1, 2))
 
-    def testSlotDateTime(self):
-        # 1 minute
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60), datetime.datetime(2011, 1, 1, 1, 1))
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60), datetime.datetime(2011, 1, 1, 1, 1))
-        # 5 minute
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 0), 60*5), datetime.datetime(2011, 1, 1, 1, 0))
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1), 60*5), datetime.datetime(2011, 1, 1, 1, 0))
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 4), 60*5), datetime.datetime(2011, 1, 1, 1, 0))
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 5), 60*5), datetime.datetime(2011, 1, 1, 1, 5))
-        # 1 hour
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60*60), datetime.datetime(2011, 1, 1, 1))
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60*60), datetime.datetime(2011, 1, 1, 1))
-        # 1 day
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1), 60*60*24), datetime.datetime(2011, 1, 1))
-        self.assertEqual(resamplebase.get_slot_datetime(datetime.datetime(2011, 1, 1, 1, 1, 1, microsecond=1), 60*60*24), datetime.datetime(2011, 1, 1))
+    def testFiveMinuteRange(self):
+        freq = 60*5
+        begin = datetime.datetime(2011, 1, 1, 1)
+        r = resamplebase.build_range(begin + datetime.timedelta(seconds=120), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 1, 5))
+
+    def testHourRange(self):
+        freq = bar.Frequency.HOUR
+        begin = datetime.datetime(2011, 1, 1, 16)
+        r = resamplebase.build_range(begin + datetime.timedelta(seconds=120), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 17))
+
+
+class DayRange(unittest.TestCase):
+    def testOk(self):
+        freq = bar.Frequency.DAY
+        begin = datetime.datetime(2011, 1, 1)
+        r = resamplebase.build_range(begin + datetime.timedelta(hours=5, minutes=25), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 2))
+
+
+class MonthRange(unittest.TestCase):
+    def test31Days(self):
+        freq = bar.Frequency.MONTH
+        begin = datetime.datetime(2011, 1, 1)
+        r = resamplebase.build_range(begin + datetime.timedelta(hours=5, minutes=25), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2011, 2, 1))
+
+    def test28Days(self):
+        freq = bar.Frequency.MONTH
+        begin = datetime.datetime(2011, 2, 1)
+        r = resamplebase.build_range(begin + datetime.timedelta(hours=5, minutes=25), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq - bar.Frequency.DAY*3):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2011, 3, 1))
+
+    def testDecember(self):
+        freq = bar.Frequency.MONTH
+        begin = datetime.datetime(2011, 12, 1)
+        r = resamplebase.build_range(begin + datetime.timedelta(hours=5, minutes=25), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), datetime.datetime(2012, 1, 1))
+
+
+class DataSeriesTestCase(unittest.TestCase):
 
     def testResample(self):
         barDs = bards.BarDataSeries()
@@ -138,13 +198,13 @@ class ResampleTestCase(unittest.TestCase):
 
     def testCheckNow(self):
         barDs = bards.BarDataSeries()
-        resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.SECOND)
+        resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
 
         barDateTime = datetime.datetime(2014, 07, 07, 22, 46, 28, 10000)
-        barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.SECOND))
+        barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.MINUTE))
         self.assertEqual(len(resampledBarDS), 0)
 
-        resampledBarDS.checkNow(barDateTime + datetime.timedelta(hours=2))
+        resampledBarDS.checkNow(barDateTime + datetime.timedelta(minutes=1))
         self.assertEqual(len(resampledBarDS), 1)
         self.assertEqual(barDs[0].getOpen(), resampledBarDS[0].getOpen())
         self.assertEqual(barDs[0].getHigh(), resampledBarDS[0].getHigh())
@@ -152,15 +212,29 @@ class ResampleTestCase(unittest.TestCase):
         self.assertEqual(barDs[0].getClose(), resampledBarDS[0].getClose())
         self.assertEqual(barDs[0].getVolume(), resampledBarDS[0].getVolume())
         self.assertEqual(barDs[0].getAdjClose(), resampledBarDS[0].getAdjClose())
-        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46, 28))
+        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46))
+
+
+class BarFeedTestCase(unittest.TestCase):
 
     def testResampledBarFeed(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV("spy", common.get_data_file_path("spy-2010-yahoofinance.csv"))
         barFeed.addBarsFromCSV("nikkei", common.get_data_file_path("nikkei-2010-yahoofinance.csv"))
-        resampledBarFeed = resampled_bf.ResampledBarFeed(barFeed, bar.Frequency.WEEK)
+        resampledBarFeed = resampled_bf.ResampledBarFeed(barFeed, bar.Frequency.MONTH)
 
         disp = dispatcher.Dispatcher()
         disp.addSubject(barFeed)
         disp.addSubject(resampledBarFeed)
         disp.run()
+
+        weeklySpyBarDS = resampledBarFeed["spy"]
+        weeklyNikkeiBarDS = resampledBarFeed["nikkei"]
+
+        # Check first bar
+        self.assertEqual(weeklySpyBarDS[0].getDateTime().date(), datetime.date(2010, 1, 1))
+        self.assertEqual(weeklyNikkeiBarDS[0].getDateTime().date(), datetime.date(2010, 1, 1))
+
+        # Check last bar
+        self.assertEqual(weeklySpyBarDS[-1].getDateTime().date(), datetime.date(2010, 11, 1))
+        self.assertEqual(weeklyNikkeiBarDS[-1].getDateTime().date(), datetime.date(2010, 11, 1))

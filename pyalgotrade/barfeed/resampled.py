@@ -58,23 +58,26 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         if not isinstance(barFeed, barfeed.BaseBarFeed):
             raise Exception("barFeed must be a barfeed.BaseBarFeed instance")
 
-        if frequency <= 0:
-            raise Exception("Invalid frequency")
+        if not resamplebase.is_valid_frequency(frequency):
+            raise Exception("Unsupported frequency")
 
+        self.__values = []
         self.__barFeed = barFeed
         self.__grouper = None
-        self.__values = []
+        self.__range = None
+
         barFeed.getNewValuesEvent().subscribe(self.__onNewValues)
 
     def __onNewValues(self, dateTime, value):
-        slotDateTime = resamplebase.get_slot_datetime(dateTime, self.getFrequency())
-        if self.__grouper is None:
-            self.__grouper = BarsGrouper(slotDateTime, value, self.getFrequency())
-        elif self.__grouper.getDateTime() == slotDateTime:
+        if self.__range is None:
+            self.__range = resamplebase.build_range(dateTime, self.getFrequency())
+            self.__grouper = BarsGrouper(self.__range.getBeginning(), value, self.getFrequency())
+        elif self.__range.belongs(dateTime):
             self.__grouper.addValue(value)
         else:
             self.__values.append(self.__grouper.getGrouped())
-            self.__grouper = BarsGrouper(slotDateTime, value, self.getFrequency())
+            self.__range = resamplebase.build_range(dateTime, self.getFrequency())
+            self.__grouper = BarsGrouper(self.__range.getBeginning(), value, self.getFrequency())
 
     def getCurrentDateTime(self):
         return self.__barFeed.getCurrentDateTime()
@@ -106,7 +109,7 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         pass
 
     def checkNow(self, dateTime):
-        slotDateTime = resamplebase.get_slot_datetime(dateTime, self.getFrequency())
-        if self.__grouper is not None and self.__grouper.getDateTime() != slotDateTime:
+        if self.__range is not None and not self.__range.belongs(dateTime):
             self.__values.append(self.__grouper.getGrouped())
             self.__grouper = None
+            self.__range = None

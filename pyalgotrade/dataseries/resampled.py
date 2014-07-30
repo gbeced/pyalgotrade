@@ -77,29 +77,31 @@ class ResampledBarDataSeries(bards.BarDataSeries):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        if frequency > 0:
-            self.__frequency = frequency
-        else:
-            raise Exception("Invalid frequency")
+        if not resamplebase.is_valid_frequency(frequency):
+            raise Exception("Unsupported frequency")
 
+        self.__frequency = frequency
         self.__grouper = None
+        self.__range = None
+
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
 
     def pushLast(self):
         if self.__grouper is not None:
             self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
             self.__grouper = None
+            self.__range = None
 
     def __onNewValue(self, dataSeries, dateTime, value):
-        slotDateTime = resamplebase.get_slot_datetime(dateTime, self.__frequency)
-
-        if self.__grouper is None:
-            self.__grouper = BarGrouper(slotDateTime, value, self.__frequency)
-        elif self.__grouper.getDateTime() == slotDateTime:
+        if self.__range is None:
+            self.__range = resamplebase.build_range(dateTime, self.__frequency)
+            self.__grouper = BarGrouper(self.__range.getBeginning(), value, self.__frequency)
+        elif self.__range.belongs(dateTime):
             self.__grouper.addValue(value)
         else:
             self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
-            self.__grouper = BarGrouper(slotDateTime, value, self.__frequency)
+            self.__range = resamplebase.build_range(dateTime, self.__frequency)
+            self.__grouper = BarGrouper(self.__range.getBeginning(), value, self.__frequency)
 
     def checkNow(self, dateTime):
         """Forces a resample check. Depending on the resample frequency, and the current datetime, a new
@@ -108,7 +110,8 @@ class ResampledBarDataSeries(bards.BarDataSeries):
        :param dateTime: The current datetime.
        :type dateTime: :class:`datetime.datetime`
         """
-        slotDateTime = resamplebase.get_slot_datetime(dateTime, self.__frequency)
-        if self.__grouper is not None and self.__grouper.getDateTime() != slotDateTime:
+
+        if self.__range is not None and not self.__range.belongs(dateTime):
             self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
             self.__grouper = None
+            self.__range = None

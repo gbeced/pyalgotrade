@@ -33,6 +33,7 @@ class Frequency(object):
     * **Frequency.HOUR**: The bar summarizes the trading activity during 1 hour.
     * **Frequency.DAY**: The bar summarizes the trading activity during 1 day.
     * **Frequency.WEEK**: The bar summarizes the trading activity during 1 week.
+    * **Frequency.MONTH**: The bar summarizes the trading activity during 1 month.
     """
 
     # It is important for frequency values to get bigger for bigger windows.
@@ -42,6 +43,7 @@ class Frequency(object):
     HOUR = 60*60
     DAY = 24*60*60
     WEEK = 24*60*60*7
+    MONTH = 24*60*60*31
 
 
 class Bar(object):
