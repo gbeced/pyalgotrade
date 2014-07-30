@@ -69,6 +69,12 @@ class ResampledBarDataSeries(bards.BarDataSeries):
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
         from the opposite end.
     :type maxLen: int.
+
+    .. note::
+        * Supported resampling frequencies are:
+            * Less than bar.Frequency.DAY
+            * bar.Frequency.DAY
+            * bar.Frequency.MONTH
     """
 
     def __init__(self, dataSeries, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):

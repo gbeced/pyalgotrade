@@ -96,6 +96,10 @@ def resample_to_csv(barFeed, frequency, csvFile):
     .. note::
         * Datetimes are stored without timezone information.
         * **Adj Close** column may be empty if the input bar feed doesn't have that info.
+        * Supported resampling frequencies are:
+            * Less than bar.Frequency.DAY
+            * bar.Frequency.DAY
+            * bar.Frequency.MONTH
     """
 
     if frequency > 0:
