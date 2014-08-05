@@ -39,6 +39,13 @@ class BarFeed(barfeed.BaseBarFeed):
         self.__started = False
         self.__currDateTime = None
 
+    def reset(self):
+        self.__nextPos = {}
+        for instrument in self.__bars.keys():
+            self.__nextPos.setdefault(instrument, 0)
+        self.__currDateTime = None
+        barfeed.BaseBarFeed.reset(self)
+
     def getCurrentDateTime(self):
         return self.__currDateTime
 

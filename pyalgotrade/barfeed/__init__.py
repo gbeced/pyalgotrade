@@ -44,12 +44,18 @@ class BaseBarFeed(feed.BaseFeed):
 
     def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         feed.BaseFeed.__init__(self, maxLen)
+        self.__frequency = frequency
+        self.__useAdjustedValues = False
         self.__defaultInstrument = None
         self.__currentBars = None
         self.__lastBars = {}
-        self.__frequency = frequency
         self.__currDateTime = None
-        self.__useAdjustedValues = False
+
+    def reset(self):
+        self.__currentBars = None
+        self.__lastBars = {}
+        self.__currDateTime = None
+        feed.BaseFeed.reset(self)
 
     def setUseAdjustedValues(self, useAdjusted):
         if useAdjusted and not self.barsHaveAdjClose():

@@ -51,6 +51,12 @@ class BaseFeed(observer.Subject):
         self.__event = observer.Event()
         self.__maxLen = maxLen
 
+    def reset(self):
+        keys = self.__ds.keys()
+        self.__ds = {}
+        for key in keys:
+            self.registerDataSeries(key)
+
     # Subclasses should implement this and return the appropriate dataseries for the given key.
     @abc.abstractmethod
     def createDataSeries(self, key, maxLen):

@@ -28,6 +28,10 @@ class MemFeed(feed.BaseFeed):
         self.__values = []
         self.__nextIdx = 0
 
+    def reset(self):
+        self.__nextIdx = 0
+        feed.BaseFeed.reset(self)
+
     def start(self):
         pass
 
