@@ -607,6 +607,7 @@ class BacktestingStrategy(BaseStrategy):
         self.getLogger().setLevel(level)
         self.getBroker().getLogger().setLevel(level)
 
+
 class Strategy(BacktestingStrategy):
     def __init__(self, *args, **kwargs):
         # Deprecated since v0.13

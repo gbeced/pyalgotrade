@@ -24,6 +24,7 @@ import cPickle
 
 from pyalgotrade import bar
 
+
 class BasicBarTestCase(unittest.TestCase):
     def testInvalidConstruction(self):
         with self.assertRaises(Exception):
@@ -79,6 +80,7 @@ class BasicBarTestCase(unittest.TestCase):
             b.getLow(True)
         with self.assertRaises(Exception):
             b.getClose(True)
+
 
 class BarsTestCase(unittest.TestCase):
     def testEmptyDict(self):

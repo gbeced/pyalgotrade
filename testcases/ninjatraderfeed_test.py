@@ -128,7 +128,6 @@ class NinjaTraderTestCase(unittest.TestCase):
 
         barFeed.reset()
         barFeed.loadAll()
-        reloadedInstruments = barFeed.getRegisteredInstruments()
         reloadedDs = barFeed[instrument]
 
         self.assertEqual(len(reloadedDs), len(ds))

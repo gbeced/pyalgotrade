@@ -31,6 +31,7 @@ def get_current_datetime():
 
 # Bitstamp protocol reference: https://www.bitstamp.net/websocket/
 
+
 class Trade(pusher.Event):
     """A trade event."""
 

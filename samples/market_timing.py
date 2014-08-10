@@ -58,7 +58,7 @@ class MarketTiming(strategy.BacktestingStrategy):
         return ret
 
     def _placePendingOrders(self):
-        remainingCash = self.getBroker().getCash() * 0.9 # Use less chash just in case price changes too much.
+        remainingCash = self.getBroker().getCash() * 0.9  # Use less chash just in case price changes too much.
 
         for instrument in self.__sharesToBuy:
             orderSize = self.__sharesToBuy[instrument]
@@ -125,6 +125,7 @@ class MarketTiming(strategy.BacktestingStrategy):
             self._rebalance()
 
         self._placePendingOrders()
+
 
 def main(plot):
     initialCash = 10000

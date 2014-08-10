@@ -251,7 +251,6 @@ class FeedTestCase(unittest.TestCase):
 
         barFeed.reset()
         barFeed.loadAll()
-        reloadedInstruments = barFeed.getRegisteredInstruments()
         reloadedDs = barFeed[FeedTestCase.TestInstrument]
 
         self.assertEqual(len(reloadedDs), len(ds))

@@ -530,7 +530,6 @@ class MarketOrderTestCase(BaseTestCase):
         self.assertTrue(order.isFilled())
         self.assertEquals(brk.getPositions().get(BaseTestCase.TestInstrument), None)
 
-
     def testBuyPartialWithTwoDecimals(self):
         class Broker(backtesting.Broker):
             def getInstrumentTraits(self, instrument):
@@ -591,7 +590,7 @@ class MarketOrderTestCase(BaseTestCase):
         volumeFill = [(volume, round(volume*maxFill, quantityPresicion)) for volume in volumes]
         cumFilled = 0
         for volume, expectedFill in volumeFill:
-            cumFilled += expectedFill # I'm not rounding here so I can carry errors.
+            cumFilled += expectedFill  # I'm not rounding here so I can carry errors.
             barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, volume)
             # print expectedFill, cumFilled
             self.assertTrue(order.isPartiallyFilled())
@@ -607,7 +606,7 @@ class MarketOrderTestCase(BaseTestCase):
         # Full fill
         filledSoFar = order.getFilled()
         volume = 10
-        cumFilled += expectedFill # I'm not rounding here so I can carry errors.
+        cumFilled += expectedFill  # I'm not rounding here so I can carry errors.
         barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, volume)
         self.assertTrue(order.isFilled())
         self.assertEqual(order.getExecutionInfo().getQuantity(), 1 - filledSoFar)

@@ -14,12 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import abc
-
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
-from pyalgotrade.utils import dt
 from pyalgotrade import resamplebase
 
 

@@ -54,6 +54,7 @@ def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
 
     return buff
 
+
 def download_daily_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     """Download daily bars from Quandl for a given year.
 
@@ -90,8 +91,8 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     :type authToken: string.
     """
 
-    begin = dt.get_first_monday(year) - datetime.timedelta(days=1) # Start on a sunday
-    end = dt.get_last_monday(year)  - datetime.timedelta(days=1) # Start on a sunday
+    begin = dt.get_first_monday(year) - datetime.timedelta(days=1)  # Start on a sunday
+    end = dt.get_last_monday(year) - datetime.timedelta(days=1)  # Start on a sunday
     bars = download_csv(sourceCode, tableCode, begin, end, "weekly", authToken)
     f = open(csvFile, "w")
     f.write(bars)

@@ -77,4 +77,3 @@ class OptimizerBarFeedestCase(unittest.TestCase):
     def testEmtpy(self):
         barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], [])
         self.assertEquals(barFeed.barsHaveAdjClose(), False)
-
