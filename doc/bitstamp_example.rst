@@ -129,3 +129,10 @@ The output should look like this: ::
     .
     .
     .
+
+In order to live trade this strategy you should use :class:`pyalgotrade.bitstamp.broker.LiveBroker` instead of
+:class:`pyalgotrade.bitstamp.broker.PaperTradingBroker`.
+
+**Note that if you try to live trade this strategy you will probably loose money.**
+Before jumping to live trading, be sure to write your own strategy, backtest and paper trade it thoroughly
+before risking real money.
