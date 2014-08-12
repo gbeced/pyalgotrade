@@ -46,8 +46,10 @@ class ToolsTestCase(unittest.TestCase):
             self.assertEquals(bf[instrument][-1].getLow(), 30.93)
             self.assertEquals(bf[instrument][-1].getClose(), 31.3)
             self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
             self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+            # Not checking against a specific value since this is going to change
+            # as time passes by.
+            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testDownloadAndParseDaily_UseAdjClose(self):
         with common.TmpDir() as tmpPath:
@@ -66,8 +68,10 @@ class ToolsTestCase(unittest.TestCase):
             self.assertEquals(bf[instrument][-1].getLow(), 30.93)
             self.assertEquals(bf[instrument][-1].getClose(), 31.3)
             self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
-            self.assertEquals(bf[instrument][-1].getPrice(), 30.23179912467581)
+            self.assertEquals(bf[instrument][-1].getPrice(), bf[instrument][-1].getAdjClose())
+            # Not checking against a specific value since this is going to change
+            # as time passes by.
+            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testDownloadAndParseDailyNoAdjClose(self):
         with common.TmpDir() as tmpPath:
@@ -122,8 +126,10 @@ class ToolsTestCase(unittest.TestCase):
             self.assertEquals(bf[instrument][-1].getLow(), 30.93)
             self.assertEquals(bf[instrument][-1].getClose(), 31.3)
             self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEquals(bf[instrument][-1].getAdjClose(), 30.23179912467581)
             self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+            # Not checking against a specific value since this is going to change
+            # as time passes by.
+            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testBuildFeedWeekly(self):
         with common.TmpDir() as tmpPath:
@@ -141,4 +147,3 @@ class ToolsTestCase(unittest.TestCase):
             # Not checking against a specific value since this is going to change
             # as time passes by.
             self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
-

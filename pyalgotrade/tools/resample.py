@@ -23,6 +23,7 @@ import os
 from pyalgotrade import dispatcher
 from pyalgotrade.dataseries import resampled
 
+
 datetime_format = "%Y-%m-%d %H:%M:%S"
 
 
@@ -36,57 +37,44 @@ class CSVFileWriter(object):
         self.__file.write(line)
         self.__file.write(os.linesep)
 
-    def writeSlot(self, slot):
-        adjClose = slot.getAdjClose()
+    def writeBar(self, bar_):
+        adjClose = bar_.getAdjClose()
         if adjClose is None:
             adjClose = ""
-        dateTime = slot.getDateTime().strftime(datetime_format)
-        self.__writeLine(dateTime, slot.getOpen(), slot.getHigh(), slot.getLow(), slot.getClose(), slot.getVolume(), adjClose)
+        dateTime = bar_.getDateTime().strftime(datetime_format)
+        self.__writeLine(
+            dateTime,
+            bar_.getOpen(),
+            bar_.getHigh(),
+            bar_.getLow(),
+            bar_.getClose(),
+            bar_.getVolume(),
+            adjClose
+        )
 
     def close(self):
         self.__file.close()
 
 
-class Sampler(object):
-    def __init__(self, barFeed, frequency, csvFile):
-        instruments = barFeed.getRegisteredInstruments()
-        if len(instruments) != 1:
-            raise Exception("Only barfeeds with 1 instrument can be resampled")
-
-        barFeed.getNewBarsEvent().subscribe(self.__onBars)
-        self.__barFeed = barFeed
-        self.__frequency = frequency
-        self.__instrument = instruments[0]
-        self.__slot = None
-        self.__writer = CSVFileWriter(csvFile)
-
-    def __onBars(self, dateTime, bars):
-        slotDateTime = resampled.get_slot_datetime(dateTime, self.__frequency)
-        bar = bars[self.__instrument]
-
-        if self.__slot is None:
-            self.__slot = resampled.Slot(slotDateTime, bar, self.__frequency)
-        elif self.__slot.getDateTime() == slotDateTime:
-            self.__slot.addBar(bar)
-        else:
-            self.__writer.writeSlot(self.__slot)
-            self.__slot = resampled.Slot(slotDateTime, bar, self.__frequency)
-
-    def finish(self):
-        if self.__slot is not None:
-            self.__writer.writeSlot(self.__slot)
-        self.__writer.close()
-
-
 def resample_impl(barFeed, frequency, csvFile):
-    sampler = Sampler(barFeed, frequency, csvFile)
+    instruments = barFeed.getRegisteredInstruments()
+    if len(instruments) != 1:
+        raise Exception("Only barfeeds with 1 instrument can be resampled")
+
+    csvWriter = CSVFileWriter(csvFile)
+
+    def on_bar(ds, dateTime, value):
+        csvWriter.writeBar(value)
+
+    insrumentDS = barFeed[instruments[0]]
+    resampledDS = resampled.ResampledBarDataSeries(insrumentDS, frequency)
+    resampledDS.getNewValueEvent().subscribe(on_bar)
 
     # Process all bars.
     disp = dispatcher.Dispatcher()
     disp.addSubject(barFeed)
     disp.run()
-
-    sampler.finish()
+    resampledDS.pushLast()
 
 
 def resample_to_csv(barFeed, frequency, csvFile):
@@ -108,6 +96,10 @@ def resample_to_csv(barFeed, frequency, csvFile):
     .. note::
         * Datetimes are stored without timezone information.
         * **Adj Close** column may be empty if the input bar feed doesn't have that info.
+        * Supported resampling frequencies are:
+            * Less than bar.Frequency.DAY
+            * bar.Frequency.DAY
+            * bar.Frequency.MONTH
     """
 
     if frequency > 0:

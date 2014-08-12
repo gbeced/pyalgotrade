@@ -17,73 +17,61 @@
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
-from pyalgotrade.utils import dt
+from pyalgotrade import resamplebase
 
 
-# Returns the slot's beginning datetime.
-# frequency in seconds
-def get_slot_datetime(dateTime, frequency):
-    ts = int(dt.datetime_to_timestamp(dateTime))
-    slot = ts / frequency
-    slotTs = slot * frequency
-    ret = dt.timestamp_to_datetime(slotTs, False)
-    if not dt.datetime_is_naive(dateTime):
-        ret = dt.localize(ret, dateTime.tzinfo)
-    return ret
-
-
-class Slot(object):
-    def __init__(self, dateTime, bar_, frequency):
-        self.__dateTime = dateTime
+class BarGrouper(resamplebase.Grouper):
+    def __init__(self, groupDateTime, bar_, frequency):
+        resamplebase.Grouper.__init__(self, groupDateTime)
         self.__open = bar_.getOpen()
         self.__high = bar_.getHigh()
         self.__low = bar_.getLow()
         self.__close = bar_.getClose()
         self.__volume = bar_.getVolume()
         self.__adjClose = bar_.getAdjClose()
+        self.__useAdjValue = bar_.getUseAdjValue()
         self.__frequency = frequency
 
-    def getDateTime(self):
-        return self.__dateTime
+    def addValue(self, value):
+        self.__high = max(self.__high, value.getHigh())
+        self.__low = min(self.__low, value.getLow())
+        self.__close = value.getClose()
+        self.__adjClose = value.getAdjClose()
+        self.__volume += value.getVolume()
 
-    def getOpen(self):
-        return self.__open
-
-    def getHigh(self):
-        return self.__high
-
-    def getLow(self):
-        return self.__low
-
-    def getClose(self):
-        return self.__close
-
-    def getVolume(self):
-        return self.__volume
-
-    def getAdjClose(self):
-        return self.__adjClose
-
-    def addBar(self, bar_):
-        self.__high = max(self.__high, bar_.getHigh())
-        self.__low = min(self.__low, bar_.getLow())
-        self.__close = bar_.getClose()
-        self.__adjClose = bar_.getAdjClose()
-        self.__volume += bar_.getVolume()
-
-    def buildBasicBar(self):
-        return bar.BasicBar(self.__dateTime, self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose, self.__frequency)
+    def getGrouped(self):
+        """Return the grouped value."""
+        ret = bar.BasicBar(
+            self.getDateTime(),
+            self.__open,
+            self.__high,
+            self.__low,
+            self.__close,
+            self.__volume,
+            self.__adjClose,
+            self.__frequency
+        )
+        ret.setUseAdjustedValue(self.__useAdjValue)
+        return ret
 
 
 class ResampledBarDataSeries(bards.BarDataSeries):
     """A BarDataSeries that will build on top of another, higher frequency, BarDataSeries.
+    Resampling will take place as new values get pushed into the dataseries being resampled.
 
     :param dataSeries: The DataSeries instance being resampled.
-    :type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
+    :type dataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`
     :param frequency: The grouping frequency in seconds. Must be > 0.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+        from the opposite end.
     :type maxLen: int.
+
+    .. note::
+        * Supported resampling frequencies are:
+            * Less than bar.Frequency.DAY
+            * bar.Frequency.DAY
+            * bar.Frequency.MONTH
     """
 
     def __init__(self, dataSeries, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
@@ -92,26 +80,41 @@ class ResampledBarDataSeries(bards.BarDataSeries):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        if frequency > 0:
-            self.__frequency = frequency
-        else:
-            raise Exception("Invalid frequency")
+        if not resamplebase.is_valid_frequency(frequency):
+            raise Exception("Unsupported frequency")
 
-        self.__slot = None
+        self.__frequency = frequency
+        self.__grouper = None
+        self.__range = None
+
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
 
     def pushLast(self):
-        if self.__slot is not None:
-            self.appendWithDateTime(self.__slot.getDateTime(), self.__slot.buildBasicBar())
-        self.__slot = None
+        if self.__grouper is not None:
+            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
+            self.__grouper = None
+            self.__range = None
 
     def __onNewValue(self, dataSeries, dateTime, value):
-        dateTime = get_slot_datetime(value.getDateTime(), self.__frequency)
-
-        if self.__slot is None:
-            self.__slot = Slot(dateTime, value, self.__frequency)
-        elif self.__slot.getDateTime() == dateTime:
-            self.__slot.addBar(value)
+        if self.__range is None:
+            self.__range = resamplebase.build_range(dateTime, self.__frequency)
+            self.__grouper = BarGrouper(self.__range.getBeginning(), value, self.__frequency)
+        elif self.__range.belongs(dateTime):
+            self.__grouper.addValue(value)
         else:
-            self.appendWithDateTime(self.__slot.getDateTime(), self.__slot.buildBasicBar())
-            self.__slot = Slot(dateTime, value, self.__frequency)
+            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
+            self.__range = resamplebase.build_range(dateTime, self.__frequency)
+            self.__grouper = BarGrouper(self.__range.getBeginning(), value, self.__frequency)
+
+    def checkNow(self, dateTime):
+        """Forces a resample check. Depending on the resample frequency, and the current datetime, a new
+        value may be generated.
+
+       :param dateTime: The current datetime.
+       :type dateTime: :class:`datetime.datetime`
+        """
+
+        if self.__range is not None and not self.__range.belongs(dateTime):
+            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
+            self.__grouper = None
+            self.__range = None

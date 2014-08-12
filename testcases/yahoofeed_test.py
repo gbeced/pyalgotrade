@@ -112,7 +112,7 @@ class FeedTestCase(unittest.TestCase):
         barFeed = yahoofeed.Feed()
         barFeed.sanitizeBars(True)
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barfeed_test.check_base_barfeed(self, barFeed, True, False)
+        barfeed_test.check_base_barfeed(self, barFeed, True)
 
     def testInvalidFrequency(self):
         with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
@@ -241,3 +241,21 @@ class FeedTestCase(unittest.TestCase):
         self.assertEqual(len(barDS.getHighDataSeries()), 2)
         self.assertEqual(len(barDS.getLowDataSeries()), 2)
         self.assertEqual(len(barDS.getAdjCloseDataSeries()), 2)
+
+    def testReset(self):
+        barFeed = yahoofeed.Feed()
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.loadAll()
+        instruments = barFeed.getRegisteredInstruments()
+        ds = barFeed[FeedTestCase.TestInstrument]
+
+        barFeed.reset()
+        barFeed.loadAll()
+        reloadedDs = barFeed[FeedTestCase.TestInstrument]
+
+        self.assertEqual(len(reloadedDs), len(ds))
+        self.assertNotEqual(reloadedDs, ds)
+        self.assertEqual(instruments, barFeed.getRegisteredInstruments())
+        for i in range(len(ds)):
+            self.assertEqual(ds[i].getDateTime(), reloadedDs[i].getDateTime())
+            self.assertEqual(ds[i].getClose(), reloadedDs[i].getClose())

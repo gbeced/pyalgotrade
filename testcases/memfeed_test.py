@@ -52,3 +52,30 @@ class MemFeedTestCase(unittest.TestCase):
         self.assertFalse("dt" in feed)
         self.assertEqual(feed["i"][0], 0)
         self.assertEqual(feed["i"][-1], 99)
+
+    def testReset(self):
+        key = "i"
+        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {key: i}) for i in xrange(100)]
+
+        feed = memfeed.MemFeed()
+        feed.addValues(values)
+
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
+
+        keys = feed.getKeys()
+        values = feed[key]
+
+        feed.reset()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
+        reloadedKeys = feed.getKeys()
+        reloadedValues = feed[key]
+
+        self.assertEqual(keys, reloadedKeys)
+        self.assertNotEqual(values, reloadedValues)
+        self.assertEqual(len(values), len(reloadedValues))
+        for i in range(len(values)):
+            self.assertEqual(values[i], reloadedValues[i])

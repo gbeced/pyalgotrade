@@ -143,6 +143,7 @@ class CopyFiles:
         for src in self.__files:
             os.remove(os.path.join(self.__dst, os.path.basename(src)))
 
+
 class TmpDir(object):
     def __init__(self):
         self.__tmpdir = None

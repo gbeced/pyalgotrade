@@ -161,7 +161,7 @@ class InstrumentMarker(Series):
         if not self.__useCandleSticks and ret is not None:
             if self.__useAdjClose is None:
                 ret = ret.getPrice()
-            elif self.__useAdjClose == True:
+            elif self.__useAdjClose:
                 ret = ret.getAdjClose()
             else:
                 ret = ret.getClose()

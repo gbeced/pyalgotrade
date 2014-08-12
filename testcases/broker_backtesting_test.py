@@ -113,9 +113,6 @@ class BarFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         raise NotImplementedError()
 
-    def isRealTime(self):
-        raise NotImplementedError()
-
     def dispatchBars(self, openPrice, highPrice, lowPrice, closePrice, volume=None, sessionClose=False):
         self.__nextBars = self.__builder.nextBars(openPrice, highPrice, lowPrice, closePrice, volume, sessionClose)
         self.dispatch()
@@ -144,7 +141,7 @@ class CommissionTestCase(unittest.TestCase):
 
     def testFixedPerTrade(self):
         comm = backtesting.FixedPerTrade(1.2)
-        order = backtesting.MarketOrder(1, broker.Order.Action.BUY, "orcl", 1, False, backtesting.DefaultTraits())
+        order = backtesting.MarketOrder(broker.Order.Action.BUY, "orcl", 1, False, backtesting.DefaultTraits())
         self.assertEqual(comm.calculate(order, 1, 1), 1.2)
 
     def testTradePercentage(self):
@@ -533,7 +530,6 @@ class MarketOrderTestCase(BaseTestCase):
         self.assertTrue(order.isFilled())
         self.assertEquals(brk.getPositions().get(BaseTestCase.TestInstrument), None)
 
-
     def testBuyPartialWithTwoDecimals(self):
         class Broker(backtesting.Broker):
             def getInstrumentTraits(self, instrument):
@@ -594,7 +590,7 @@ class MarketOrderTestCase(BaseTestCase):
         volumeFill = [(volume, round(volume*maxFill, quantityPresicion)) for volume in volumes]
         cumFilled = 0
         for volume, expectedFill in volumeFill:
-            cumFilled += expectedFill # I'm not rounding here so I can carry errors.
+            cumFilled += expectedFill  # I'm not rounding here so I can carry errors.
             barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, volume)
             # print expectedFill, cumFilled
             self.assertTrue(order.isPartiallyFilled())
@@ -610,7 +606,7 @@ class MarketOrderTestCase(BaseTestCase):
         # Full fill
         filledSoFar = order.getFilled()
         volume = 10
-        cumFilled += expectedFill # I'm not rounding here so I can carry errors.
+        cumFilled += expectedFill  # I'm not rounding here so I can carry errors.
         barFeed.dispatchBars(12.03, 12.03, 12.03, 12.03, volume)
         self.assertTrue(order.isFilled())
         self.assertEqual(order.getExecutionInfo().getQuantity(), 1 - filledSoFar)

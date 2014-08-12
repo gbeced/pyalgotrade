@@ -26,7 +26,7 @@ from pyalgotrade import bar
 from pyalgotrade import dispatcher
 
 
-def check_base_barfeed(testCase, barFeed, barsHaveAdjClose, isRealTime):
+def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
     called = {"called": True}
 
     def callback(dateTime, bars):
@@ -38,7 +38,6 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose, isRealTime):
     if not barsHaveAdjClose:
         with testCase.assertRaisesRegexp(Exception, "The barfeed doesn't support adjusted close values.*"):
             barFeed.setUseAdjustedValues(True)
-    testCase.assertEquals(barFeed.isRealTime(), isRealTime)
 
     d = dispatcher.Dispatcher()
     d.addSubject(barFeed)
@@ -65,7 +64,7 @@ class OptimizerBarFeedestCase(unittest.TestCase):
             bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
         ]
         barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
-        check_base_barfeed(self, barFeed, True, False)
+        check_base_barfeed(self, barFeed, True)
 
     def testBaseBarFeedNoAdjClose(self):
         bars = [
@@ -73,9 +72,8 @@ class OptimizerBarFeedestCase(unittest.TestCase):
             bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, None, bar.Frequency.DAY)}),
         ]
         barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
-        check_base_barfeed(self, barFeed, False, False)
+        check_base_barfeed(self, barFeed, False)
 
     def testEmtpy(self):
         barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], [])
         self.assertEquals(barFeed.barsHaveAdjClose(), False)
-

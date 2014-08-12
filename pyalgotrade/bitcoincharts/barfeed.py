@@ -52,6 +52,9 @@ class TradeBar(bar.Bar):
         if useAdjusted:
             raise Exception("Adjusted close is not available")
 
+    def getUseAdjValue(self):
+        return False
+
     def getDateTime(self):
         return self.__dateTime
 
@@ -78,6 +81,7 @@ class TradeBar(bar.Bar):
 
     def getPrice(self):
         return self.__price
+
 
 # As described in http://www.bitcoincharts.com/about/markets-api/
 # unixtime has second precision so more than 1 trade in a second will trigger
@@ -137,8 +141,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
     :type maxLen: int.
 
     .. note::
-        Note that a :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so
-        open, high, low and close values will all be the same.
+        * A :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so open, high, low and close values will all be the same.
+        * Files must be sorted with the **unixtime** column in ascending order.
     """
 
     def __init__(self, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):

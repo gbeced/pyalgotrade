@@ -19,14 +19,18 @@
 """
 
 import datetime
+import threading
+import Queue
 
 from pyalgotrade.websocket import pusher
+from pyalgotrade.bitstamp import common
 
 
 def get_current_datetime():
     return datetime.datetime.now()
 
 # Bitstamp protocol reference: https://www.bitstamp.net/websocket/
+
 
 class Trade(pusher.Event):
     """A trade event."""
@@ -83,8 +87,18 @@ class OrderBookUpdate(pusher.Event):
 class WebSocketClient(pusher.WebSocketClient):
     PUSHER_APP_KEY = "de504dc5763aeef9ff52"
 
+    # Events
+    ON_TRADE = 1
+    ON_ORDER_BOOK_UPDATE = 2
+    ON_CONNECTED = 3
+    ON_DISCONNECTED = 4
+
     def __init__(self):
         pusher.WebSocketClient.__init__(self, WebSocketClient.PUSHER_APP_KEY, 5)
+        self.__queue = Queue.Queue()
+
+    def getQueue(self):
+        return self.__queue
 
     def onMessage(self, msg):
         # If we can't handle the message, forward it to Pusher WebSocketClient.
@@ -97,10 +111,67 @@ class WebSocketClient(pusher.WebSocketClient):
             pusher.WebSocketClient.onMessage(self, msg)
 
     ######################################################################
-    # Override for Bitstamp specific events.
+    # WebSocketClientBase events.
+
+    def onOpened(self):
+        pass
+
+    def onClosed(self, code, reason):
+        common.logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+
+    def onDisconnectionDetected(self):
+        common.logger.info("Disconnection detected.")
+        try:
+            self.stopClient()
+        except Exception, e:
+            common.logger.error("Error stopping client: %s" % str(e))
+        self.__queue.put((WebSocketClient.ON_DISCONNECTED, None))
+
+    ######################################################################
+    # Pusher specific events.
+
+    def onConnectionEstablished(self, event):
+        common.logger.info("Connection established.")
+        self.subscribeChannel("live_trades")
+        self.subscribeChannel("order_book")
+        self.__queue.put((WebSocketClient.ON_CONNECTED, None))
+
+    def onSubscriptionError(self, event):
+        common.logger.error("Channel subscription error: %s" % (event))
+
+    def onError(self, event):
+        common.logger.error("Error: %s" % (event))
+
+    def onUnknownEvent(self, event):
+        common.logger.warning("Unknown event: %s" % (event))
+
+    ######################################################################
+    # Bitstamp specific
 
     def onTrade(self, trade):
-        pass
+        self.__queue.put((WebSocketClient.ON_TRADE, trade))
 
     def onOrderBookUpdate(self, orderBookUpdate):
-        pass
+        self.__queue.put((WebSocketClient.ON_ORDER_BOOK_UPDATE, orderBookUpdate))
+
+
+class WebSocketClientThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.__wsClient = WebSocketClient()
+
+    def getQueue(self):
+        return self.__wsClient.getQueue()
+
+    def start(self):
+        self.__wsClient.connect()
+        threading.Thread.start(self)
+
+    def run(self):
+        self.__wsClient.startClient()
+
+    def stop(self):
+        try:
+            self.__wsClient.stopClient()
+        except Exception, e:
+            common.logger.error("Error shutting down websocket client: %s." % (str(e)))
