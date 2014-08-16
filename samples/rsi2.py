@@ -8,8 +8,9 @@ class RSI2(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.__instrument = instrument
-        # We'll use adjusted close values instead of regular close values.
-        self.setUseAdjustedValues(True)
+        # We'll use adjusted close values, if available, instead of regular close values.
+        if feed.barsHaveAdjClose():
+            self.setUseAdjustedValues(True)
         self.__priceDS = feed[instrument].getPriceDataSeries()
         self.__entrySMA = ma.SMA(self.__priceDS, entrySMA)
         self.__exitSMA = ma.SMA(self.__priceDS, exitSMA)

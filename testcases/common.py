@@ -63,15 +63,15 @@ def get_file_lines(fileName):
     return [rawLine.strip() for rawLine in rawLines]
 
 
-def compare_head(fileName, lines):
+def compare_head(fileName, lines, path="samples"):
     assert(len(lines) > 0)
-    fileLines = get_file_lines(os.path.join("samples", fileName))
+    fileLines = get_file_lines(os.path.join(path, fileName))
     return fileLines[0:len(lines)] == lines
 
 
-def compare_tail(fileName, lines):
+def compare_tail(fileName, lines, path="samples"):
     assert(len(lines) > 0)
-    fileLines = get_file_lines(os.path.join("samples", fileName))
+    fileLines = get_file_lines(os.path.join(path, fileName))
     return fileLines[len(lines)*-1:] == lines
 
 
@@ -134,14 +134,19 @@ class CopyFiles:
     def __init__(self, files, dst):
         self.__files = files
         self.__dst = dst
+        self.__toRemove = []
 
     def __enter__(self):
         for src in self.__files:
             shutil.copy2(src, self.__dst)
+            if os.path.isdir(self.__dst):
+                self.__toRemove.append(os.path.join(self.__dst, os.path.basename(src)))
+            else:
+                self.__toRemove.append(self.__dst)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        for src in self.__files:
-            os.remove(os.path.join(self.__dst, os.path.basename(src)))
+        for src in self.__toRemove:
+            os.remove(src)
 
 
 class TmpDir(object):

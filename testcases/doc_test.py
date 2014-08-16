@@ -214,3 +214,29 @@ market_timing.main(False)
 """
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_tail("market_timing.output", lines[-10:-1]))
+
+
+class BitcoinChartsTestCase(unittest.TestCase):
+    def testExample1(self):
+        with common.CopyFiles([os.path.join("testcases", "data", "bitstampUSD-2.csv")], "bitstampUSD.csv"):
+            code = """import sys
+sys.path.append('samples')
+import bccharts_example_1
+bccharts_example_1.main()
+"""
+            common.run_python_code(code)
+            lines = common.get_file_lines("30min-bitstampUSD.csv")
+            self.assertTrue(common.compare_head("30min-bitstampUSD-2.csv", lines[0:10], "testcases/data"))
+            self.assertTrue(common.compare_tail("30min-bitstampUSD-2.csv", lines[-10:], "testcases/data"))
+            os.remove("30min-bitstampUSD.csv")
+
+    def testExample2(self):
+        with common.CopyFiles([os.path.join("testcases", "data", "30min-bitstampUSD-2.csv")], "30min-bitstampUSD.csv"):
+            code = """import sys
+sys.path.append('samples')
+import bccharts_example_2
+bccharts_example_2.main(False)
+"""
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_head("bccharts_example_2.output", lines[0:10], "testcases/data"))
+            self.assertTrue(common.compare_tail("bccharts_example_2.output", lines[-10:-1], "testcases/data"))

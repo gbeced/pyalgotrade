@@ -576,17 +576,22 @@ class BacktestingStrategy(BaseStrategy):
 
     :param barFeed: The bar feed to use to backtest the strategy.
     :type barFeed: :class:`pyalgotrade.barfeed.BaseBarFeed`.
-    :param cash: The starting capital.
-    :type cash: int/float.
+    :param cash_or_brk: The starting capital or a broker instance.
+    :type cash_or_brk: int/float or :class:`pyalgotrade.broker.Broker`.
 
     .. note::
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, barFeed, cash=1000000):
+    def __init__(self, barFeed, cash_or_brk=1000000):
         # The broker should subscribe to barFeed events before the strategy.
         # This is to avoid executing orders submitted in the current tick.
-        broker = backtesting.Broker(cash, barFeed)
+
+        if isinstance(cash_or_brk, pyalgotrade.broker.Broker):
+            broker = cash_or_brk
+        else:
+            broker = backtesting.Broker(cash_or_brk, barFeed)
+
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
         self.setUseEventDateTimeInLogs(True)
