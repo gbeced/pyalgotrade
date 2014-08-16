@@ -67,21 +67,7 @@ def download_daily_bars(instrument, year, csvFile):
     f.close()
 
 
-def download_weekly_bars(instrument, year, csvFile):
-    """Download weekly bars from Google Finance for a given year.
-
-    :param instrument: Instrument identifier.
-    :type instrument: string.
-    :param year: The year.
-    :type year: int.
-    :param csvFile: The path to the CSV file to write.
-    :type csvFile: string.
-    """
-    raise NotImplementedError
-
-
-def build_feed(instruments, fromYear, toYear, storage,
-               frequency=bar.Frequency.DAY, timezone=None, skipErrors=False):
+def build_feed(instruments, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None, skipErrors=False):
     """Build and load a :class:`pyalgotrade.barfeed.googlefeed.Feed` using CSV files downloaded from Google Finance.
     CSV files are downloaded if they haven't been downloaded before.
 
@@ -93,8 +79,7 @@ def build_feed(instruments, fromYear, toYear, storage,
     :type toYear: int.
     :param storage: The path were the files will be loaded from, or downloaded to.
     :type storage: string.
-    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
-        are supported.
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** is currently supported.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param skipErrors: True to keep on loading/downloading files in case of errors.
@@ -122,8 +107,6 @@ def build_feed(instruments, fromYear, toYear, storage,
                 try:
                     if frequency == bar.Frequency.DAY:
                         download_daily_bars(instrument, year, fileName)
-                    elif frequency == bar.Frequency.WEEK:
-                        download_weekly_bars(instrument, year, fileName)
                     else:
                         raise Exception("Invalid frequency")
                 except Exception, e:
