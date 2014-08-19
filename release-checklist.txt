@@ -9,7 +9,6 @@ Release checklist
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
 [ ] Rebuild and review documentation.
-[ ] Test GoogleApp Engine support. Look for errors in the logs.
 [ ] Run testcases using the installed lib.
 [ ] Run tutorial examples from the Optimizing section using the installed lib.
 [ ] Run samples/tutorial-5.py using the installed lib.

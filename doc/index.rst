@@ -20,7 +20,6 @@ Contents:
     bitcoin
     twitter
     talib
-    googleappengine
     compinvpart1
     samples
 
