@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import abc
+
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
@@ -55,7 +57,48 @@ class BarGrouper(resamplebase.Grouper):
         return ret
 
 
-class ResampledBarDataSeries(bards.BarDataSeries):
+class DSResampler(object):
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, dataSeries, frequency):
+        if not resamplebase.is_valid_frequency(frequency):
+            raise Exception("Unsupported frequency")
+
+        self.__frequency = frequency
+        self.__grouper = None
+        self.__range = None
+
+        dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
+
+    @abc.abstractmethod
+    def buildGrouper(self, range_, value, frequency):
+        raise NotImplementedError()
+
+    def __onNewValue(self, dataSeries, dateTime, value):
+        if self.__range is None:
+            self.__range = resamplebase.build_range(dateTime, self.__frequency)
+            self.__grouper = self.buildGrouper(self.__range, value, self.__frequency)
+        elif self.__range.belongs(dateTime):
+            self.__grouper.addValue(value)
+        else:
+            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
+            self.__range = resamplebase.build_range(dateTime, self.__frequency)
+            self.__grouper = self.buildGrouper(self.__range, value, self.__frequency)
+
+    def pushLast(self):
+        if self.__grouper is not None:
+            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
+            self.__grouper = None
+            self.__range = None
+
+    def checkNow(self, dateTime):
+        if self.__range is not None and not self.__range.belongs(dateTime):
+            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
+            self.__grouper = None
+            self.__range = None
+
+
+class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
     """A BarDataSeries that will build on top of another, higher frequency, BarDataSeries.
     Resampling will take place as new values get pushed into the dataseries being resampled.
 
@@ -75,36 +118,11 @@ class ResampledBarDataSeries(bards.BarDataSeries):
     """
 
     def __init__(self, dataSeries, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
-        bards.BarDataSeries.__init__(self, maxLen)
-
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        if not resamplebase.is_valid_frequency(frequency):
-            raise Exception("Unsupported frequency")
-
-        self.__frequency = frequency
-        self.__grouper = None
-        self.__range = None
-
-        dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
-
-    def pushLast(self):
-        if self.__grouper is not None:
-            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
-            self.__grouper = None
-            self.__range = None
-
-    def __onNewValue(self, dataSeries, dateTime, value):
-        if self.__range is None:
-            self.__range = resamplebase.build_range(dateTime, self.__frequency)
-            self.__grouper = BarGrouper(self.__range.getBeginning(), value, self.__frequency)
-        elif self.__range.belongs(dateTime):
-            self.__grouper.addValue(value)
-        else:
-            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
-            self.__range = resamplebase.build_range(dateTime, self.__frequency)
-            self.__grouper = BarGrouper(self.__range.getBeginning(), value, self.__frequency)
+        bards.BarDataSeries.__init__(self, maxLen)
+        DSResampler.__init__(self, dataSeries, frequency)
 
     def checkNow(self, dateTime):
         """Forces a resample check. Depending on the resample frequency, and the current datetime, a new
@@ -114,7 +132,7 @@ class ResampledBarDataSeries(bards.BarDataSeries):
        :type dateTime: :class:`datetime.datetime`
         """
 
-        if self.__range is not None and not self.__range.belongs(dateTime):
-            self.appendWithDateTime(self.__grouper.getDateTime(), self.__grouper.getGrouped())
-            self.__grouper = None
-            self.__range = None
+        return DSResampler.checkNow(self, dateTime)
+
+    def buildGrouper(self, range_, value, frequency):
+        return BarGrouper(range_.getBeginning(), value, frequency)
