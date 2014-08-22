@@ -117,6 +117,7 @@ class DataSeriesTestCase(unittest.TestCase):
 
     def testResample(self):
         barDs = bards.BarDataSeries()
+        resampledDS = resampled_ds.ResampledDataSeries(barDs.getCloseDataSeries(), bar.Frequency.MINUTE, sum)
         resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
 
         barDs.append(bar.BasicBar(datetime.datetime(2011, 1, 1, 1, 1, 1), 2.1, 3, 1, 2, 10, 1, bar.Frequency.SECOND))
@@ -131,6 +132,7 @@ class DataSeriesTestCase(unittest.TestCase):
         self.assertEqual(resampledBarDS[0].getClose(), 2.3)
         self.assertEqual(resampledBarDS[0].getVolume(), 20)
         self.assertEqual(resampledBarDS[0].getAdjClose(), 2)
+        self.assertEqual(resampledDS[-1], 2 + 2.3)
 
         resampledBarDS.pushLast()
         self.assertEqual(len(resampledBarDS), 2)
@@ -141,6 +143,9 @@ class DataSeriesTestCase(unittest.TestCase):
         self.assertEqual(resampledBarDS[1].getClose(), 2)
         self.assertEqual(resampledBarDS[1].getVolume(), 10)
         self.assertEqual(resampledBarDS[1].getAdjClose(), 2)
+
+        resampledDS.pushLast()
+        self.assertEqual(resampledDS[1], 2)
 
     def testResampleNinjaTraderHour(self):
         common.init_temp_path()

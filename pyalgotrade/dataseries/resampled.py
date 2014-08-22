@@ -22,6 +22,19 @@ from pyalgotrade import bar
 from pyalgotrade import resamplebase
 
 
+class AggFunGrouper(resamplebase.Grouper):
+    def __init__(self, groupDateTime, value, aggfun):
+        resamplebase.Grouper.__init__(self, groupDateTime)
+        self.__values = [value]
+        self.__aggfun = aggfun
+
+    def addValue(self, value):
+        self.__values.append(value)
+
+    def getGrouped(self):
+        return self.__aggfun(self.__values)
+
+
 class BarGrouper(resamplebase.Grouper):
     def __init__(self, groupDateTime, bar_, frequency):
         resamplebase.Grouper.__init__(self, groupDateTime)
@@ -136,3 +149,13 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
 
     def buildGrouper(self, range_, value, frequency):
         return BarGrouper(range_.getBeginning(), value, frequency)
+
+
+class ResampledDataSeries(dataseries.SequenceDataSeries, DSResampler):
+    def __init__(self, dataSeries, frequency, aggfun, maxLen=dataseries.DEFAULT_MAX_LEN):
+        dataseries.SequenceDataSeries.__init__(self, maxLen)
+        DSResampler.__init__(self, dataSeries, frequency)
+        self.__aggfun = aggfun
+
+    def buildGrouper(self, range_, value, frequency):
+        return AggFunGrouper(range_.getBeginning(), value, self.__aggfun)
