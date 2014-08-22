@@ -34,6 +34,7 @@ setup(
     packages=['pyalgotrade',
         'pyalgotrade.barfeed',
         'pyalgotrade.bitstamp',
+        'pyalgotrade.bitcoincharts',
         'pyalgotrade.broker',
         'pyalgotrade.dataseries',
         'pyalgotrade.feed',
