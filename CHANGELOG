@@ -9,6 +9,7 @@ Version 0.16 (TBD)
 . [FIX] Bitstamp BacktestingBroker and PaperTradingBroker will now fail to place orders without enough cash or BTC.
 . [FIX] Fixed a rounding error in pyalgotrade.bitstamp.broker.PaperTradingBroker.
 . [FIX] Fixed a bug in BarFeed.getCurrentDateTime.
+. [FIX] Fixed a bug in pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below.
 . [REMOVED] Removed Google App Engine support.
 
 Version 0.15 (30/Mar/2014)
