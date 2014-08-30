@@ -61,6 +61,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(utils.safe_max(-1, 1.1), 1.1)
         self.assertEqual(utils.safe_max(2, 1.1), 2)
 
+
 class CollectionsTestCase(unittest.TestCase):
     def testEmptyIntersection(self):
         values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
