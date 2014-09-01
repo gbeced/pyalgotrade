@@ -28,4 +28,4 @@ Release checklist
 [ ] Commit and tag (git tag v0.x-rtm -m "Version 0.x").
 [ ] Push (git push; git push --tags).
 [ ] Push the website (git push).
-[ ] Tweet about it.
+[ ] Announce on Google Groups and Twitter.

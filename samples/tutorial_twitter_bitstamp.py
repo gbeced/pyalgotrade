@@ -1,12 +1,11 @@
 from pyalgotrade import strategy
-from pyalgotrade.bitstamp import client
 from pyalgotrade.bitstamp import barfeed
 from pyalgotrade.bitstamp import broker
 from pyalgotrade.twitter import feed as twitterfeed
 
 
 class Strategy(strategy.BaseStrategy):
-    def __init__(self, cli, feed, brk, twitterFeed):
+    def __init__(self, feed, brk, twitterFeed):
         strategy.BaseStrategy.__init__(self, feed, brk)
         self.__instrument = "BTC"
 
@@ -43,13 +42,11 @@ def main():
     languages = ["en"]
     twitterFeed = twitterfeed.TwitterFeed(consumer_key, consumer_secret, access_token, access_token_secret, track, follow, languages)
 
-    cli = client.Client()
-    barFeed = barfeed.LiveTradeFeed(cli)
+    barFeed = barfeed.LiveTradeFeed()
     brk = broker.PaperTradingBroker(1000, barFeed)
-    strat = Strategy(cli, barFeed, brk, twitterFeed)
+    strat = Strategy(barFeed, brk, twitterFeed)
 
-    # It is VERY important to add these to the event dispatch loop before running the strategy.
-    strat.getDispatcher().addSubject(cli)
+    # It is VERY important to add twitterFeed to the event dispatch loop before running the strategy.
     strat.getDispatcher().addSubject(twitterFeed)
 
     strat.run()
