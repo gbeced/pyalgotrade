@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Twitter Example &mdash; PyAlgoTrade 0.16 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.16 documentation" href="index.html" />
+    <link rel="up" title="Twitter support" href="twitter.html" />
+    <link rel="next" title="TA-Lib integration" href="talib.html" />
+    <link rel="prev" title="twitter – Twitter feed reference" href="twitter_ref.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="twitter_ref.html" title="twitter – Twitter feed reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li>
+          <li><a href="twitter.html" accesskey="U">Twitter support</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="twitter-example">
+<h1>Twitter Example<a class="headerlink" href="#twitter-example" title="Permalink to this headline">¶</a></h1>
+<p>This goal of this simple example is to show you how to put all the pieces together to incorporate
+Twitter events in a strategy.
+We will be using Bitstamp&#8217;s live feed since backtesting with Twitter is not supported so please
+take a look at the <a class="reference internal" href="bitstamp_example.html#bitstamp-tutorial-label"><em>Bitstamp Example</em></a> section before moving forward.</p>
+<dl class="docutils">
+<dt>In order to connect to Twitter&#8217;s API you&#8217;ll need:</dt>
+<dd><ul class="first last simple">
+<li>Consumer key</li>
+<li>Consumer secret</li>
+<li>Access token</li>
+<li>Access token secret</li>
+</ul>
+</dd>
+</dl>
+<p>Go to <a class="reference external" href="http://dev.twitter.com">http://dev.twitter.com</a> and create an app.  The consumer key and secret will be generated for you after that.
+Then you&#8217;ll need to create an access token under the &#8220;Your access token&#8221; section.</p>
+<p>The key things to highlight are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>We&#8217;re using <a class="reference internal" href="strategy.html#pyalgotrade.strategy.BaseStrategy" title="pyalgotrade.strategy.BaseStrategy"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.strategy.BaseStrategy</span></tt></a> instead of <a class="reference internal" href="strategy.html#pyalgotrade.strategy.BacktestingStrategy" title="pyalgotrade.strategy.BacktestingStrategy"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.strategy.BacktestingStrategy</span></tt></a>
+as the base class. This is not a backtest.</li>
+<li>The <a class="reference internal" href="twitter_ref.html#pyalgotrade.twitter.feed.TwitterFeed" title="pyalgotrade.twitter.feed.TwitterFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.twitter.feed.TwitterFeed</span></tt></a> instance has to be included in the strategy event dispatch loop
+before running the strategy.</li>
+</ol>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.bitstamp</span> <span class="kn">import</span> <span class="n">barfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.bitstamp</span> <span class="kn">import</span> <span class="n">broker</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.twitter</span> <span class="kn">import</span> <span class="n">feed</span> <span class="k">as</span> <span class="n">twitterfeed</span>
+
+
+<span class="k">class</span> <span class="nc">Strategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">,</span> <span class="n">twitterFeed</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BaseStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="s">&quot;BTC&quot;</span>
+
+        <span class="c"># Subscribe to Twitter events.</span>
+        <span class="n">twitterFeed</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__onTweet</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__onTweet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c"># Refer to https://dev.twitter.com/docs/streaming-apis/messages#Public_stream_messages for</span>
+        <span class="c"># the information available in data.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Twitter: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;text&quot;</span><span class="p">]))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Price: </span><span class="si">%s</span><span class="s">. Volume: </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">(),</span> <span class="n">bar</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()))</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c"># Go to http://dev.twitter.com and create an app.</span>
+    <span class="c"># The consumer key and secret will be generated for you after that.</span>
+    <span class="n">consumer_key</span> <span class="o">=</span> <span class="s">&quot;&lt;YOUR-CONSUMER-KEY-HERE&gt;&quot;</span>
+    <span class="n">consumer_secret</span> <span class="o">=</span> <span class="s">&quot;&lt;YOUR-CONSUMER-SECRET-HERE&gt;&quot;</span>
+
+    <span class="c"># After the step above, you will be redirected to your app&#39;s page.</span>
+    <span class="c"># Create an access token under the the &quot;Your access token&quot; section</span>
+    <span class="n">access_token</span> <span class="o">=</span> <span class="s">&quot;&lt;YOUR-ACCESS-TOKEN-HERE&gt;&quot;</span>
+    <span class="n">access_token_secret</span> <span class="o">=</span> <span class="s">&quot;&lt;YOUR-ACCESS-TOKEN-SECRET-HERE&gt;&quot;</span>
+
+    <span class="c"># Create a twitter feed to track BitCoin related events.</span>
+    <span class="n">track</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;bitcoin&quot;</span><span class="p">,</span> <span class="s">&quot;btc&quot;</span><span class="p">,</span> <span class="s">&quot;mtgox&quot;</span><span class="p">,</span> <span class="s">&quot;bitstamp&quot;</span><span class="p">,</span> <span class="s">&quot;xapo&quot;</span><span class="p">]</span>
+    <span class="n">follow</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">languages</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;en&quot;</span><span class="p">]</span>
+    <span class="n">twitterFeed</span> <span class="o">=</span> <span class="n">twitterfeed</span><span class="o">.</span><span class="n">TwitterFeed</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">,</span> <span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">,</span> <span class="n">track</span><span class="p">,</span> <span class="n">follow</span><span class="p">,</span> <span class="n">languages</span><span class="p">)</span>
+
+    <span class="n">barFeed</span> <span class="o">=</span> <span class="n">barfeed</span><span class="o">.</span><span class="n">LiveTradeFeed</span><span class="p">()</span>
+    <span class="n">brk</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">PaperTradingBroker</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">barFeed</span><span class="p">)</span>
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">Strategy</span><span class="p">(</span><span class="n">barFeed</span><span class="p">,</span> <span class="n">brk</span><span class="p">,</span> <span class="n">twitterFeed</span><span class="p">)</span>
+
+    <span class="c"># It is VERY important to add twitterFeed to the event dispatch loop before running the strategy.</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">getDispatcher</span><span class="p">()</span><span class="o">.</span><span class="n">addSubject</span><span class="p">(</span><span class="n">twitterFeed</span><span class="p">)</span>
+
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The output should look like this:</p>
+<div class="highlight-python"><pre>2014-03-15 02:42:07,696 bitstamp [INFO] Initializing client.
+2014-03-15 02:42:08,174 bitstamp [INFO] Connection established.
+2014-03-15 02:42:08,175 bitstamp [INFO] Initialization ok.
+2014-03-15 02:42:08,175 twitter [INFO] Initializing client.
+2014-03-15 02:42:09,238 twitter [INFO] Connected.
+2014-03-15 02:42:15,107 strategy [INFO] Twitter: Warren Buffett Urges Investors to ‘Stay Away’ from Bitcoin http://t.co/WWRCr3rfob
+2014-03-15 02:42:22,926 strategy [INFO] Twitter: FundingUnion Inc. Bitcoin MLM Social Build  - The Currently in BETA version - Join Today : http://t.co/bxcfoBV0I4 #Bitcoin #MLM #SocialMedia
+2014-03-15 02:42:23,577 strategy [INFO] Twitter: #News Alleged Bitcoin creator denies he's the one http://t.co/gmilO85smQ #DailyNews
+2014-03-15 02:42:29,378 strategy [INFO] Twitter: RT @Tom_Cruis3: #News Alleged Bitcoin creator denies he's the one http://t.co/gmilO85smQ #DailyNews
+2014-03-15 02:42:38,012 strategy [INFO] Twitter: Need for speed dulu at BTC XXI
+2014-03-15 02:42:40,162 strategy [INFO] Price: 632.97. Volume: 0.51896614.
+2014-03-15 02:42:45,867 strategy [INFO] Twitter: Analysis of the leaked MTGOX database http://t.co/6ty8EupGh9 via @Reddit
+2014-03-15 02:42:46,761 strategy [INFO] Twitter: [ANN] After MtGox implosion, this is the first exchange to implement transparent cold storage http://t.co/EyafH5jXsM #reddit #bitcoin
+2014-03-15 02:42:46,825 strategy [INFO] Twitter: @abatalion @naval @cdixon you guys remember CentMail? http://t.co/iihgCS4OwJ would be interesting with a BTC twist.
+2014-03-15 02:42:47,285 strategy [INFO] Twitter: Help me convince my Dad to mine Bitcoins! http://t.co/fxboBooINu #reddit #bitcoin
+2014-03-15 02:42:47,492 strategy [INFO] Twitter: RT @VentureBeat: Warren Buffett: Bitcoin is a 'mirage' http://t.co/B1FcvZKJQS by @xBarryLevine
+2014-03-15 02:42:47,625 strategy [INFO] Twitter: I believe in bitcoin as not only a easy exchange of value but an 'anti bank movement' with occupy wall street, environmentalists, cons...
+2014-03-15 02:42:47,979 strategy [INFO] Twitter: Bitcoin protocol/algorithm is being managed by a bunch of people. Isn't that a vulnerability? http://t.co/HJaCkgC6zT #reddit #bitcoin
+2014-03-15 02:42:48,388 strategy [INFO] Twitter: Does anyone still think Dorian Nakomoto is Satoshi Nakamoto? http://t.co/v2N8SEZzxC #reddit #bitcoin
+2014-03-15 02:42:53,313 strategy [INFO] Twitter: Last sale price at #Bitstamp was $632.99 per #Bitcoin - Free SMS price alerts from 10 exchanges at http://t.co/jsM3JqlvZd
+2014-03-15 02:42:54,058 strategy [INFO] Twitter: Last sale price at #BTCe was $623.00 per #Bitcoin - Free SMS price alerts from 10 exchanges at http://t.co/jsM3JqlvZd
+2014-03-15 02:42:54,059 strategy [INFO] Twitter: Last sale price at #Coinbase was $632.99 per #Bitcoin - Free SMS price alerts from 10 exchanges at http://t.co/jsM3JqlvZd
+2014-03-15 02:42:57,148 strategy [INFO] Twitter: GET PAID WITH USD OR BITCOIN TO PROMOTE LINKS!!!... http://t.co/HKANbuZQHM
+2014-03-15 02:43:00,845 strategy [INFO] Twitter: We're back! Bitcoin expert Pete Watson explaining just how the incredible #cryptocurrency works #bitcoin #HongKong http://t.co/CJpTA6RujJ
+2014-03-15 02:43:28,001 strategy [INFO] Twitter: Bitcoin's COO Explains What #Bitcoin Is http://t.co/cQ1rVxYSUJ via @YouTube
+2014-03-15 02:43:31,888 strategy [INFO] Twitter: #BINARY-OPTIONS! and BITCOIN! Trade Area! With fantastic profits of up to 1,000% per trade and even more. @ http://t.co/R9c9J4Q5VA
+2014-03-15 02:43:42,148 strategy [INFO] Twitter: GET PAID WITH USD OR BITCOIN TO PROMOTE LINKS!!!... http://t.co/bD6cacFKTs
+
+</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="twitter_ref.html"
+                        title="previous chapter">twitter &#8211; Twitter feed reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="talib.html"
+                        title="next chapter">TA-Lib integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/twitter_example.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="twitter_ref.html" title="twitter – Twitter feed reference"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li>
+          <li><a href="twitter.html" >Twitter support</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

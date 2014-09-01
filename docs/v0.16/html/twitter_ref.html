@@ -1,0 +1,194 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>twitter – Twitter feed reference &mdash; PyAlgoTrade 0.16 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.16 documentation" href="index.html" />
+    <link rel="up" title="Twitter support" href="twitter.html" />
+    <link rel="next" title="Twitter Example" href="twitter_example.html" />
+    <link rel="prev" title="Twitter support" href="twitter.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter_example.html" title="Twitter Example"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Twitter support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li>
+          <li><a href="twitter.html" accesskey="U">Twitter support</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="twitter-twitter-feed-reference">
+<h1>twitter &#8211; Twitter feed reference<a class="headerlink" href="#twitter-twitter-feed-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyalgotrade.twitter.feed">
+<span id="feed"></span><h2>Feed<a class="headerlink" href="#module-pyalgotrade.twitter.feed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.twitter.feed.TwitterFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.twitter.feed.</tt><tt class="descname">TwitterFeed</tt><big>(</big><em>consumerKey</em>, <em>consumerSecret</em>, <em>accessToken</em>, <em>accessTokenSecret</em>, <em>track=</em><span class="optional">[</span><span class="optional">]</span>, <em>follow=</em><span class="optional">[</span><span class="optional">]</span>, <em>languages=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pyalgotrade.twitter.feed.TwitterFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.observer.Subject</span></tt></p>
+<p>Class responsible for connecting to Twitter&#8217;s public stream API and dispatching events.
+Check <a class="reference external" href="https://dev.twitter.com/docs/streaming-apis/streams/public">https://dev.twitter.com/docs/streaming-apis/streams/public</a> for more information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>consumerKey</strong> (<em>string.</em>) &#8211; Consumer key.</li>
+<li><strong>consumerSecret</strong> (<em>string.</em>) &#8211; Consumer secret.</li>
+<li><strong>accessToken</strong> (<em>string.</em>) &#8211; Access token.</li>
+<li><strong>accessTokenSecret</strong> (<em>string.</em>) &#8211; Access token secret.</li>
+<li><strong>track</strong> (<em>list.</em>) &#8211; A list of phrases which will be used to determine what Tweets will be delivered
+on the stream. A phrase may be one or more terms separated by spaces, and a phrase will match
+if all of the terms in the phrase are present in the Tweet, regardless of order and ignoring case.</li>
+<li><strong>follow</strong> (<em>list.</em>) &#8211; A list of user IDs, indicating the users whose Tweets should be delivered on the
+stream. Following protected users is not supported.</li>
+<li><strong>languages</strong> (<em>list.</em>) &#8211; A list of language IDs a defined in <a class="reference external" href="http://tools.ietf.org/html/bcp47">http://tools.ietf.org/html/bcp47</a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Go to <a class="reference external" href="http://dev.twitter.com">http://dev.twitter.com</a> and create an app. The consumer key and secret will be generated for you after that.</li>
+<li>Create an access token under the &#8220;Your access token&#8221; section.</li>
+<li>At least <strong>track</strong> or <strong>follow</strong> have to be set.</li>
+</ul>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.twitter.feed.TwitterFeed.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>callback</em><big>)</big><a class="headerlink" href="#pyalgotrade.twitter.feed.TwitterFeed.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to Twitter events. The event handler will receive a dictionary with the data as defined in:
+<a class="reference external" href="https://dev.twitter.com/docs/streaming-apis/messages#Public_stream_messages">https://dev.twitter.com/docs/streaming-apis/messages#Public_stream_messages</a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">twitter &#8211; Twitter feed reference</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.twitter.feed">Feed</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="twitter.html"
+                        title="previous chapter">Twitter support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="twitter_example.html"
+                        title="next chapter">Twitter Example</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/twitter_ref.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter_example.html" title="Twitter Example"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Twitter support"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li>
+          <li><a href="twitter.html" >Twitter support</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

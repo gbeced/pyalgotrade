@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Computational Investing Part I &mdash; PyAlgoTrade 0.16 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.16 documentation" href="index.html" />
+    <link rel="next" title="Sample strategies" href="samples.html" />
+    <link rel="prev" title="TA-Lib integration" href="talib.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="computational-investing-part-i">
+<h1>Computational Investing Part I<a class="headerlink" href="#computational-investing-part-i" title="Permalink to this headline">¶</a></h1>
+<p>As I was taking the <a class="reference external" href="https://class.coursera.org/compinvesting1-2012-001/class">Computational Investing Part I</a> course in 2012
+I had to work on a set of assignments and for some of them I used PyAlgoTrade.</p>
+<div class="section" id="homework-1">
+<h2>Homework 1<a class="headerlink" href="#homework-1" title="Permalink to this headline">¶</a></h2>
+<p>For this assignment I had to pick 4 stocks, invest a total of $100000 during 2011, and calculate:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Final portfolio value</li>
+<li>Anual return</li>
+<li>Average daily return</li>
+<li>Std. dev. of daily returns</li>
+<li>Sharpe ratio</li>
+</ul>
+</div></blockquote>
+<p>Download the data with the following commands:</p>
+<div class="highlight-python"><pre>python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('aeti', 2011, 'aeti-2011-yahoofinance.csv')"
+python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('egan', 2011, 'egan-2011-yahoofinance.csv')"
+python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('glng', 2011, 'glng-2011-yahoofinance.csv')"
+python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('simo', 2011, 'simo-2011-yahoofinance.csv')"</pre>
+</div>
+<p>Although the deliverable was an Excel spreadsheet, I validated the results using this piece of code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">yahoofeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">returns</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">sharpe</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.utils</span> <span class="kn">import</span> <span class="n">stats</span>
+
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+
+        <span class="c"># We wan&#39;t to use adjusted close prices instead of close.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUseAdjustedValues</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Place the orders to get them processed on the first bar.</span>
+        <span class="n">orders</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;aeti&quot;</span><span class="p">:</span> <span class="mi">297810</span><span class="p">,</span>
+            <span class="s">&quot;egan&quot;</span><span class="p">:</span> <span class="mi">81266</span><span class="p">,</span>
+            <span class="s">&quot;glng&quot;</span><span class="p">:</span> <span class="mi">11095</span><span class="p">,</span>
+            <span class="s">&quot;simo&quot;</span><span class="p">:</span> <span class="mi">17293</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">onClose</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">allOrNone</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="c"># Load the yahoo feed from CSV files.</span>
+<span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">()</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;aeti&quot;</span><span class="p">,</span> <span class="s">&quot;aeti-2011-yahoofinance.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;egan&quot;</span><span class="p">,</span> <span class="s">&quot;egan-2011-yahoofinance.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;glng&quot;</span><span class="p">,</span> <span class="s">&quot;glng-2011-yahoofinance.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;simo&quot;</span><span class="p">,</span> <span class="s">&quot;simo-2011-yahoofinance.csv&quot;</span><span class="p">)</span>
+
+<span class="c"># Evaluate the strategy with the feed&#39;s bars.</span>
+<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+
+<span class="c"># Attach returns and sharpe ratio analyzers.</span>
+<span class="n">retAnalyzer</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">Returns</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="p">)</span>
+<span class="n">sharpeRatioAnalyzer</span> <span class="o">=</span> <span class="n">sharpe</span><span class="o">.</span><span class="n">SharpeRatio</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="p">)</span>
+
+<span class="c"># Run the strategy</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c"># Print the results.</span>
+<span class="k">print</span> <span class="s">&quot;Final portfolio value: $</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">&quot;Anual return: </span><span class="si">%.2f</span><span class="s"> </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getCumulativeReturns</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Average daily return: </span><span class="si">%.2f</span><span class="s"> </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getReturns</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Std. dev. daily return: </span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getReturns</span><span class="p">()))</span>
+<span class="k">print</span> <span class="s">&quot;Sharpe ratio: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="o">.</span><span class="n">getSharpeRatio</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The results were:</p>
+<div class="highlight-python"><pre>Final portfolio value: $1604979.11
+Anual return: 60.50 %
+Average daily return: 0.20 %
+Std. dev. daily return: 0.0136
+Sharpe ratio: 2.30
+</pre>
+</div>
+</div>
+<div class="section" id="homework-3-and-4">
+<h2>Homework 3 and 4<a class="headerlink" href="#homework-3-and-4" title="Permalink to this headline">¶</a></h2>
+<p>For these assignments I had to build a market simulation tool that loads orders from a file, executes those,
+and prints the results for each day.</p>
+<p>The orders file for homework 3 look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mi">2011</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">AAPL</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">1500</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="n">AAPL</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">1500</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="n">IBM</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">4000</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="n">GOOG</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">XOM</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">4000</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">XOM</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">4000</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">GOOG</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">IBM</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">2200</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">IBM</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">3300</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">IBM</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">1500</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">AAPL</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">1200</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GOOG</span><span class="p">,</span><span class="n">Buy</span><span class="p">,</span><span class="mi">55</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GOOG</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">55</span><span class="p">,</span>
+<span class="mi">2011</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="n">AAPL</span><span class="p">,</span><span class="n">Sell</span><span class="p">,</span><span class="mi">1200</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>This is the market simulation tool that I built:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">yahoofeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.utils</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">returns</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">sharpe</span>
+
+
+<span class="k">class</span> <span class="nc">OrdersFile</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordersFile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__orders</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__firstDate</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__lastDate</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instruments</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># Load orders from the file.</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">ordersFile</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">),</span> <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;year&quot;</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">,</span> <span class="s">&quot;day&quot;</span><span class="p">,</span> <span class="s">&quot;symbol&quot;</span><span class="p">,</span> <span class="s">&quot;action&quot;</span><span class="p">,</span> <span class="s">&quot;qty&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="n">dateTime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;year&quot;</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;month&quot;</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;day&quot;</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__orders</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">dateTime</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;symbol&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;qty&quot;</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__orders</span><span class="p">[</span><span class="n">dateTime</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+
+            <span class="c"># As we process the file, store instruments, first date, and last date.</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s">&quot;symbol&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__instruments</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__instruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;symbol&quot;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__firstDate</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__firstDate</span> <span class="o">=</span> <span class="n">dateTime</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__firstDate</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__firstDate</span><span class="p">,</span> <span class="n">dateTime</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lastDate</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__lastDate</span> <span class="o">=</span> <span class="n">dateTime</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__lastDate</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__lastDate</span><span class="p">,</span> <span class="n">dateTime</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getFirstDate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__firstDate</span>
+
+    <span class="k">def</span> <span class="nf">getLastDate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lastDate</span>
+
+    <span class="k">def</span> <span class="nf">getInstruments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__instruments</span>
+
+    <span class="k">def</span> <span class="nf">getOrders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dateTime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__orders</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dateTime</span><span class="p">,</span> <span class="p">[])</span>
+
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">cash</span><span class="p">,</span> <span class="n">ordersFile</span><span class="p">,</span> <span class="n">useAdjustedClose</span><span class="p">):</span>
+        <span class="c"># Suscribe to the feed bars event before the broker just to place the orders properly.</span>
+        <span class="n">feed</span><span class="o">.</span><span class="n">getNewBarsEvent</span><span class="p">()</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__onBarsBeforeBroker</span><span class="p">)</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">cash</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__ordersFile</span> <span class="o">=</span> <span class="n">ordersFile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUseAdjustedValues</span><span class="p">(</span><span class="n">useAdjustedClose</span><span class="p">)</span>
+        <span class="c"># We will allow buying more shares than cash allows.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">setAllowNegativeCash</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__onBarsBeforeBroker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dateTime</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ordersFile</span><span class="o">.</span><span class="n">getOrders</span><span class="p">(</span><span class="n">dateTime</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;buy&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">onClose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">quantity</span><span class="o">*-</span><span class="mi">1</span><span class="p">,</span> <span class="n">onClose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onOrderUpdated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">isCanceled</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Order canceled. Ran out of cash ?&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">portfolioValue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getEquity</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Portfolio value: $</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">portfolioValue</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c"># Load the orders file.</span>
+    <span class="n">ordersFile</span> <span class="o">=</span> <span class="n">OrdersFile</span><span class="p">(</span><span class="s">&quot;orders.csv&quot;</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;First date&quot;</span><span class="p">,</span> <span class="n">ordersFile</span><span class="o">.</span><span class="n">getFirstDate</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Last date&quot;</span><span class="p">,</span> <span class="n">ordersFile</span><span class="o">.</span><span class="n">getLastDate</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Symbols&quot;</span><span class="p">,</span> <span class="n">ordersFile</span><span class="o">.</span><span class="n">getInstruments</span><span class="p">()</span>
+
+    <span class="c"># Load the data from QSTK storage. QS environment variable has to be defined.</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;QS&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;QS environment variable not defined&quot;</span><span class="p">)</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">()</span>
+    <span class="n">feed</span><span class="o">.</span><span class="n">setBarFilter</span><span class="p">(</span><span class="n">csvfeed</span><span class="o">.</span><span class="n">DateRangeFilter</span><span class="p">(</span><span class="n">ordersFile</span><span class="o">.</span><span class="n">getFirstDate</span><span class="p">(),</span> <span class="n">ordersFile</span><span class="o">.</span><span class="n">getLastDate</span><span class="p">()))</span>
+    <span class="n">feed</span><span class="o">.</span><span class="n">setDailyBarTime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>  <span class="c"># This is to match the dates loaded with the ones in the orders file.</span>
+    <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">ordersFile</span><span class="o">.</span><span class="n">getInstruments</span><span class="p">():</span>
+        <span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;QS&quot;</span><span class="p">),</span> <span class="s">&quot;QSData&quot;</span><span class="p">,</span> <span class="s">&quot;Yahoo&quot;</span><span class="p">,</span> <span class="n">symbol</span> <span class="o">+</span> <span class="s">&quot;.csv&quot;</span><span class="p">))</span>
+
+    <span class="c"># Run the strategy.</span>
+    <span class="n">cash</span> <span class="o">=</span> <span class="mi">1000000</span>
+    <span class="n">useAdjustedClose</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">cash</span><span class="p">,</span> <span class="n">ordersFile</span><span class="p">,</span> <span class="n">useAdjustedClose</span><span class="p">)</span>
+
+    <span class="c"># Attach returns and sharpe ratio analyzers.</span>
+    <span class="n">retAnalyzer</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">Returns</span><span class="p">()</span>
+    <span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="p">)</span>
+    <span class="n">sharpeRatioAnalyzer</span> <span class="o">=</span> <span class="n">sharpe</span><span class="o">.</span><span class="n">SharpeRatio</span><span class="p">()</span>
+    <span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="p">)</span>
+
+    <span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="c"># Print the results.</span>
+    <span class="k">print</span> <span class="s">&quot;Final portfolio value: $</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Anual return: </span><span class="si">%.2f</span><span class="s"> </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getCumulativeReturns</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Average daily return: </span><span class="si">%.2f</span><span class="s"> </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getReturns</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Std. dev. daily return: </span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getReturns</span><span class="p">()))</span>
+    <span class="k">print</span> <span class="s">&quot;Sharpe ratio: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="o">.</span><span class="n">getSharpeRatio</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The output for homework 3 looks like this:</p>
+<div class="highlight-python"><pre>First date 2011-01-10 00:00:00
+Last date 2011-12-20 00:00:00
+Symbols ['AAPL', 'IBM', 'GOOG', 'XOM']
+2011-01-10 00:00:00: Portfolio value: $1000000.00
+2011-01-11 00:00:00: Portfolio value: $998785.00
+2011-01-12 00:00:00: Portfolio value: $1002940.00
+2011-01-13 00:00:00: Portfolio value: $1004815.00
+.
+.
+.
+2011-12-15 00:00:00: Portfolio value: $1113532.00
+2011-12-16 00:00:00: Portfolio value: $1116016.00
+2011-12-19 00:00:00: Portfolio value: $1117444.00
+2011-12-20 00:00:00: Portfolio value: $1133860.00
+Final portfolio value: $1133860.00
+Anual return: 13.39 %
+Average daily return: 0.05 %
+Std. dev. daily return: 0.0072
+Sharpe ratio: 1.21</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Computational Investing Part I</a><ul>
+<li><a class="reference internal" href="#homework-1">Homework 1</a></li>
+<li><a class="reference internal" href="#homework-3-and-4">Homework 3 and 4</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="talib.html"
+                        title="previous chapter">TA-Lib integration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="samples.html"
+                        title="next chapter">Sample strategies</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/compinvpart1.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

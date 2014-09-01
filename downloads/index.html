@@ -50,6 +50,34 @@
 
     <div class="container">
 
+		<h2>Current version: 0.16 (31/Aug/2014)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.16/PyAlgoTrade-0.16.tar.gz/download">PyAlgoTrade-0.16.tar.gz</a>
+		<h3>New features</h3>
+		<ul>
+			<li>Added support for live trading Bitcoin strategies through Bitstamp.
+			Example <a href="http://gbeced.github.io/pyalgotrade/docs/v0.16/html/bitstamp_example.html">here</a>.
+			</li>
+			<li>Support for loading Bitcoin Charts historical trades CSV files.</li>
+			<li>Support for downloading and loading bars from Quandl.</li>
+			<li>Support for Google Finance CSV files. Thanks Maciej Żok for implementing this.</li>
+		</ul>
+		<h3>Bug fixes</h3>
+		<ul>
+			<li>Fixed a bug in pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries when using grouping frequencies greater than 1 day.</li>
+			<li>Bitstamp BacktestingBroker and PaperTradingBroker will now fail to place orders without enough cash or BTC.</li>
+			<li>Fixed a rounding error in pyalgotrade.bitstamp.broker.PaperTradingBroker.</li>
+			<li>Fixed a bug in BarFeed.getCurrentDateTime.</li>
+			<li>Fixed a bug in pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below.</li>
+		</ul>
+		<h3>Breaking changes</h3>
+		<ul>
+			<li>Removed Google App Engine support.</li>
+			<li>pyalgotrade.bitstamp.client.Client was removed and the functionality is now included in pyalgotrade.bitstamp.barfeed.LiveTradeFeed.</li>
+			<li>Strategy.onOrderUpdated now gets called for all order events, including those generated using the position interface.</li>
+		</ul>
+
+		<hr>
+
 		<h2>Current version: 0.15 (30/Mar/2014)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.15/PyAlgoTrade-0.15.tar.gz/download">PyAlgoTrade-0.15.tar.gz</a>
 		<h3>New features</h3>
@@ -95,8 +123,6 @@
 			<li>The backtesting broker ignores volumeLimit when using trade bars.</li>
 			<li>The backtesting broker now emits the cancelation event when cancelation is requested, not in the next bar.</li>
 		</ul>
-
-		<hr>
 
 		<h2>Version 0.14 (12/Oct/2013)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.14/PyAlgoTrade-0.14.tar.gz/download">PyAlgoTrade-0.14.tar.gz</a>

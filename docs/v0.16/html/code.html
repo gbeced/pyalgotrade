@@ -1,0 +1,185 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Documentation for the code &mdash; PyAlgoTrade 0.16 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.16 documentation" href="index.html" />
+    <link rel="next" title="bar – Instrument prices" href="bar.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bar.html" title="bar – Instrument prices"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="documentation-for-the-code">
+<h1>Documentation for the code<a class="headerlink" href="#documentation-for-the-code" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bar.html">bar &#8211; Instrument prices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataseries.html">dataseries &#8211; Basic dataseries classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feed.html">feed &#8211; Basic feeds</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="feed.html#module-pyalgotrade.feed.csvfeed">CSV support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feed.html#csv-support-example">CSV support Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="barfeed.html">barfeed &#8211; Bar providers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="barfeed.html#module-pyalgotrade.barfeed.csvfeed">CSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barfeed.html#module-pyalgotrade.barfeed.yahoofeed">Yahoo! Finance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barfeed.html#module-pyalgotrade.barfeed.googlefeed">Google Finance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barfeed.html#module-pyalgotrade.barfeed.quandlfeed">Quandl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="barfeed.html#module-pyalgotrade.barfeed.ninjatraderfeed">Ninja Trader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical.html">technical &#8211; Technical indicators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical.html#module-pyalgotrade.technical.ma">Moving Averages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical.html#module-pyalgotrade.technical.macd">Momentum Indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical.html#module-pyalgotrade.technical.atr">Other Indicators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="broker.html">broker &#8211; Order management classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="broker.html#module-pyalgotrade.broker">Base module and classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="broker.html#module-pyalgotrade.broker.backtesting">Backtesting module and classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">strategy &#8211; Basic strategy classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="strategy.html#module-pyalgotrade.strategy">Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strategy.html#module-pyalgotrade.strategy.position">Position</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stratanalyzer.html">stratanalyzer &#8211; Strategy analyzers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stratanalyzer.html#module-pyalgotrade.stratanalyzer.returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stratanalyzer.html#module-pyalgotrade.stratanalyzer.sharpe">Sharpe Ratio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stratanalyzer.html#module-pyalgotrade.stratanalyzer.drawdown">DrawDown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stratanalyzer.html#module-pyalgotrade.stratanalyzer.trades">Trades</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stratanalyzer.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotter.html">plotter &#8211; Strategy plotter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">optimizer &#8211; Parallel optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marketsession.html">marketsession &#8211; Market sessions</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bar.html"
+                        title="next chapter">bar &#8211; Instrument prices</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/code.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bar.html" title="bar – Instrument prices"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

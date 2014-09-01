@@ -1,0 +1,525 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>stratanalyzer – Strategy analyzers &mdash; PyAlgoTrade 0.16 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.16 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="plotter – Strategy plotter" href="plotter.html" />
+    <link rel="prev" title="strategy – Basic strategy classes" href="strategy.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="stratanalyzer-strategy-analyzers">
+<h1>stratanalyzer &#8211; Strategy analyzers<a class="headerlink" href="#stratanalyzer-strategy-analyzers" title="Permalink to this headline">¶</a></h1>
+<p>Strategy analyzers provide an extensible way to attach different calculations to strategy executions.</p>
+<span class="target" id="module-pyalgotrade.stratanalyzer"></span><dl class="class">
+<dt id="pyalgotrade.stratanalyzer.StrategyAnalyzer">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.</tt><tt class="descname">StrategyAnalyzer</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for strategy analyzers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+</dd></dl>
+
+<div class="section" id="module-pyalgotrade.stratanalyzer.returns">
+<span id="returns"></span><h2>Returns<a class="headerlink" href="#module-pyalgotrade.stratanalyzer.returns" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.stratanalyzer.returns.Returns">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.returns.</tt><tt class="descname">Returns</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.returns.Returns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a> that calculates
+returns and cumulative returns for the whole portfolio.</p>
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.returns.Returns.getCumulativeReturns">
+<tt class="descname">getCumulativeReturns</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.returns.Returns.getCumulativeReturns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> with the cumulative returns for each bar.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.returns.Returns.getReturns">
+<tt class="descname">getReturns</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.returns.Returns.getReturns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> with the returns for each bar.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.stratanalyzer.sharpe">
+<span id="sharpe-ratio"></span><h2>Sharpe Ratio<a class="headerlink" href="#module-pyalgotrade.stratanalyzer.sharpe" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.stratanalyzer.sharpe.SharpeRatio">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.sharpe.</tt><tt class="descname">SharpeRatio</tt><big>(</big><em>useDailyReturns=True</em><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.sharpe.SharpeRatio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a> that calculates
+Sharpe ratio for the whole portfolio.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>useDailyReturns</strong> (<em>boolean.</em>) &#8211; True if daily returns should be used instead of the returns for each bar.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.sharpe.SharpeRatio.getSharpeRatio">
+<tt class="descname">getSharpeRatio</tt><big>(</big><em>riskFreeRate</em>, <em>annualized=True</em><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.sharpe.SharpeRatio.getSharpeRatio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Sharpe ratio for the strategy execution. If the volatility is 0, 0 is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>riskFreeRate</strong> (<em>int/float.</em>) &#8211; The risk free rate per annum.</li>
+<li><strong>annualized</strong> (<em>boolean.</em>) &#8211; True if the sharpe ratio should be annualized.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.stratanalyzer.drawdown">
+<span id="drawdown"></span><h2>DrawDown<a class="headerlink" href="#module-pyalgotrade.stratanalyzer.drawdown" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.stratanalyzer.drawdown.DrawDown">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.drawdown.</tt><tt class="descname">DrawDown</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.drawdown.DrawDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a> that calculates
+max. drawdown and longest drawdown duration for the portfolio.</p>
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.drawdown.DrawDown.getLongestDrawDownDuration">
+<tt class="descname">getLongestDrawDownDuration</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.drawdown.DrawDown.getLongestDrawDownDuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the duration of the longest drawdown.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">datetime.timedelta</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Note that this is the duration of the longest drawdown, not necessarily the deepest one.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.drawdown.DrawDown.getMaxDrawDown">
+<tt class="descname">getMaxDrawDown</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.drawdown.DrawDown.getMaxDrawDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the max. (deepest) drawdown.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.stratanalyzer.trades">
+<span id="trades"></span><h2>Trades<a class="headerlink" href="#module-pyalgotrade.stratanalyzer.trades" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.stratanalyzer.trades.</tt><tt class="descname">Trades</tt><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.stratanalyzer.StrategyAnalyzer" title="pyalgotrade.stratanalyzer.StrategyAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.stratanalyzer.StrategyAnalyzer</span></tt></a> that records the profit/loss
+and returns of every completed trade.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This analyzer operates on individual completed trades.
+For example, lets say you start with a $1000 cash, and then you buy 1 share of XYZ
+for $10 and later sell it for $20:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>The trade&#8217;s profit was $10.</li>
+<li>The trade&#8217;s return is 100%, even though your whole portfolio went from $1000 to $1020, a 2% return.</li>
+</ul>
+</div></blockquote>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getCount">
+<tt class="descname">getCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the total number of trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getProfitableCount">
+<tt class="descname">getProfitableCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getProfitableCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of profitable trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getUnprofitableCount">
+<tt class="descname">getUnprofitableCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getUnprofitableCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of unprofitable trades.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getEvenCount">
+<tt class="descname">getEvenCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getEvenCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of trades whose net profit was 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getAll">
+<tt class="descname">getAll</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the profits/losses for each trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getProfits">
+<tt class="descname">getProfits</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getProfits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the profits for each profitable trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getLosses">
+<tt class="descname">getLosses</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getLosses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the losses for each unprofitable trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getAllReturns">
+<tt class="descname">getAllReturns</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getAllReturns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the returns for each trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getPositiveReturns">
+<tt class="descname">getPositiveReturns</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getPositiveReturns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the positive returns for each trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getNegativeReturns">
+<tt class="descname">getNegativeReturns</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getNegativeReturns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the negative returns for each trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForAllTrades">
+<tt class="descname">getCommissionsForAllTrades</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForAllTrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the commissions for each trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForProfitableTrades">
+<tt class="descname">getCommissionsForProfitableTrades</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForProfitableTrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the commissions for each profitable trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForUnprofitableTrades">
+<tt class="descname">getCommissionsForUnprofitableTrades</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForUnprofitableTrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the commissions for each unprofitable trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForEvenTrades">
+<tt class="descname">getCommissionsForEvenTrades</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForEvenTrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy.array with the commissions for each trade whose net profit was 0.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Save this code as sma_crossover.py:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">ma</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">cross</span>
+
+
+<span class="k">class</span> <span class="nc">SMACrossOver</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">):</span>
+        <span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c"># We&#39;ll use adjusted close values instead of regular close values.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUseAdjustedValues</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__prices</span> <span class="o">=</span> <span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getPriceDataSeries</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">SMA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prices</span><span class="p">,</span> <span class="n">smaPeriod</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getSMA</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span>
+
+    <span class="k">def</span> <span class="nf">onEnterCanceled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">onExitOk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">onExitCanceled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="c"># If the exit was canceled, re-submit it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exitMarket</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="c"># If a position was not opened, check if we should enter a long position.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cross</span><span class="o">.</span><span class="n">cross_above</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">shares</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getCash</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.9</span> <span class="o">/</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getPrice</span><span class="p">())</span>
+                <span class="c"># Enter a buy market order. The order is good till canceled.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enterLong</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="n">shares</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="c"># Check if we have to exit the position.</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exitActive</span><span class="p">()</span> <span class="ow">and</span> <span class="n">cross</span><span class="o">.</span><span class="n">cross_below</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sma</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__position</span><span class="o">.</span><span class="n">exitMarket</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>and save this code in a different file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">yahoofeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">returns</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">sharpe</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">drawdown</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">trades</span>
+<span class="kn">import</span> <span class="nn">sma_crossover</span>
+
+<span class="c"># Load the yahoo feed from the CSV file</span>
+<span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">()</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="s">&quot;orcl-2000.csv&quot;</span><span class="p">)</span>
+
+<span class="c"># Evaluate the strategy with the feed&#39;s bars.</span>
+<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">sma_crossover</span><span class="o">.</span><span class="n">SMACrossOver</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="s">&quot;orcl&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="c"># Attach different analyzers to a strategy before executing it.</span>
+<span class="n">retAnalyzer</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">Returns</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="p">)</span>
+<span class="n">sharpeRatioAnalyzer</span> <span class="o">=</span> <span class="n">sharpe</span><span class="o">.</span><span class="n">SharpeRatio</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="p">)</span>
+<span class="n">drawDownAnalyzer</span> <span class="o">=</span> <span class="n">drawdown</span><span class="o">.</span><span class="n">DrawDown</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">drawDownAnalyzer</span><span class="p">)</span>
+<span class="n">tradesAnalyzer</span> <span class="o">=</span> <span class="n">trades</span><span class="o">.</span><span class="n">Trades</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">tradesAnalyzer</span><span class="p">)</span>
+
+<span class="c"># Run the strategy.</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="s">&quot;Final portfolio value: $</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">&quot;Cumulative returns: </span><span class="si">%.2f</span><span class="s"> </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getCumulativeReturns</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Sharpe ratio: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="o">.</span><span class="n">getSharpeRatio</span><span class="p">(</span><span class="mf">0.05</span><span class="p">))</span>
+<span class="k">print</span> <span class="s">&quot;Max. drawdown: </span><span class="si">%.2f</span><span class="s"> </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">drawDownAnalyzer</span><span class="o">.</span><span class="n">getMaxDrawDown</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Longest drawdown duration: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">drawDownAnalyzer</span><span class="o">.</span><span class="n">getLongestDrawDownDuration</span><span class="p">())</span>
+
+<span class="k">print</span>
+<span class="k">print</span> <span class="s">&quot;Total trades: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getCount</span><span class="p">())</span>
+<span class="k">if</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getCount</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">profits</span> <span class="o">=</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getAll</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Avg. profit: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Profits std. dev.: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Max. profit: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Min. profit: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">returns</span> <span class="o">=</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getAllReturns</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Avg. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Returns std. dev.: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Max. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Min. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="k">print</span>
+<span class="k">print</span> <span class="s">&quot;Profitable trades: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getProfitableCount</span><span class="p">())</span>
+<span class="k">if</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getProfitableCount</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">profits</span> <span class="o">=</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getProfits</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Avg. profit: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Profits std. dev.: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Max. profit: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Min. profit: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">profits</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">returns</span> <span class="o">=</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getPositiveReturns</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Avg. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Returns std. dev.: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Max. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Min. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="k">print</span>
+<span class="k">print</span> <span class="s">&quot;Unprofitable trades: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getUnprofitableCount</span><span class="p">())</span>
+<span class="k">if</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getUnprofitableCount</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getLosses</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Avg. loss: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">losses</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Losses std. dev.: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">losses</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Max. loss: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">losses</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="k">print</span> <span class="s">&quot;Min. loss: $%2.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">losses</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">returns</span> <span class="o">=</span> <span class="n">tradesAnalyzer</span><span class="o">.</span><span class="n">getNegativeReturns</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Avg. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Returns std. dev.: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Max. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Min. return: %2.f </span><span class="si">%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output should look like this:</p>
+<div class="highlight-python"><pre>Final portfolio value: $1295887.22
+Cumulative returns: 29.59 %
+Sharpe ratio: 0.70
+Max. drawdown: 24.53 %
+Longest drawdown duration: 277 days, 0:00:00
+
+Total trades: 13
+Avg. profit: $14437
+Profits std. dev.: $127539
+Max. profit: $420866
+Min. profit: $-89320
+Avg. return:  2 %
+Returns std. dev.: 13 %
+Max. return: 46 %
+Min. return: -7 %
+
+Profitable trades: 3
+Avg. profit: $197053
+Profits std. dev.: $158987
+Max. profit: $420866
+Min. profit: $66537
+Avg. return: 21 %
+Returns std. dev.: 18 %
+Max. return: 46 %
+Min. return:  6 %
+
+Unprofitable trades: 10
+Avg. loss: $-40348
+Losses std. dev.: $23601
+Max. loss: $-89320
+Min. loss: $-4516
+Avg. return: -3 %
+Returns std. dev.:  2 %
+Max. return: -0 %
+Min. return: -7 %
+</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">stratanalyzer &#8211; Strategy analyzers</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.stratanalyzer.returns">Returns</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.stratanalyzer.sharpe">Sharpe Ratio</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.stratanalyzer.drawdown">DrawDown</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.stratanalyzer.trades">Trades</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="strategy.html"
+                        title="previous chapter">strategy &#8211; Basic strategy classes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plotter.html"
+                        title="next chapter">plotter &#8211; Strategy plotter</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/stratanalyzer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotter.html" title="plotter – Strategy plotter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="strategy.html" title="strategy – Basic strategy classes"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.16 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
