@@ -48,6 +48,13 @@ class TradeBar(bar.Bar):
     def __getstate__(self):
         return (self.__dateTime, self.__price, self.__amount)
 
+    def setUseAdjustedValue(self, useAdjusted):
+        if useAdjusted:
+            raise Exception("Adjusted close is not available")
+
+    def getUseAdjValue(self):
+        return False
+
     def getDateTime(self):
         return self.__dateTime
 
@@ -67,10 +74,13 @@ class TradeBar(bar.Bar):
         return self.__amount
 
     def getAdjClose(self):
-        return self.__price
+        return None
 
     def getFrequency(self):
         return bar.Frequency.TRADE
+
+    def getPrice(self):
+        return self.__price
 
 
 # As described in http://www.bitcoincharts.com/about/markets-api/
@@ -131,8 +141,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
     :type maxLen: int.
 
     .. note::
-        Note that a :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so
-        open, high, low and close values will all be the same.
+        * A :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so open, high, low and close values will all be the same.
+        * Files must be sorted with the **unixtime** column in ascending order.
     """
 
     def __init__(self, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
@@ -141,7 +151,7 @@ class CSVTradeFeed(csvfeed.BarFeed):
         self.__unixTimeFix = UnixTimeFix()
 
     def barsHaveAdjClose(self):
-        return True
+        return False
 
     def addBarsFromCSV(self, path, instrument="BTC", timezone=None, fromDateTime=None, toDateTime=None):
         """Loads bars from a trades CSV formatted file.

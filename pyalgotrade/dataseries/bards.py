@@ -37,20 +37,25 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__lowDS = dataseries.SequenceDataSeries(maxLen)
         self.__volumeDS = dataseries.SequenceDataSeries(maxLen)
         self.__adjCloseDS = dataseries.SequenceDataSeries(maxLen)
+        self.__useAdjustedValues = False
 
-    def append(self, value):
-        self.appendWithDateTime(value.getDateTime(), value)
+    def setUseAdjustedValues(self, useAdjusted):
+        self.__useAdjustedValues = useAdjusted
 
-    def appendWithDateTime(self, dateTime, value):
+    def append(self, bar):
+        self.appendWithDateTime(bar.getDateTime(), bar)
+
+    def appendWithDateTime(self, dateTime, bar):
         assert(dateTime is not None)
-        assert(value is not None)
-        dataseries.SequenceDataSeries.appendWithDateTime(self, dateTime, value)
-        self.__openDS.appendWithDateTime(dateTime, value.getOpen())
-        self.__closeDS.appendWithDateTime(dateTime, value.getClose())
-        self.__highDS.appendWithDateTime(dateTime, value.getHigh())
-        self.__lowDS.appendWithDateTime(dateTime, value.getLow())
-        self.__volumeDS.appendWithDateTime(dateTime, value.getVolume())
-        self.__adjCloseDS.appendWithDateTime(dateTime, value.getAdjClose())
+        assert(bar is not None)
+        bar.setUseAdjustedValue(self.__useAdjustedValues)
+        dataseries.SequenceDataSeries.appendWithDateTime(self, dateTime, bar)
+        self.__openDS.appendWithDateTime(dateTime, bar.getOpen())
+        self.__closeDS.appendWithDateTime(dateTime, bar.getClose())
+        self.__highDS.appendWithDateTime(dateTime, bar.getHigh())
+        self.__lowDS.appendWithDateTime(dateTime, bar.getLow())
+        self.__volumeDS.appendWithDateTime(dateTime, bar.getVolume())
+        self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 
     def getOpenDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the open prices."""
@@ -75,3 +80,10 @@ class BarDataSeries(dataseries.SequenceDataSeries):
     def getAdjCloseDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the adjusted close prices."""
         return self.__adjCloseDS
+
+    def getPriceDataSeries(self):
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the close or adjusted close prices."""
+        if self.__useAdjustedValues:
+            return self.__adjCloseDS
+        else:
+            return self.__closeDS

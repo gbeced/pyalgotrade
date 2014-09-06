@@ -5,15 +5,18 @@ Strategies are the classes that you define that implement the trading logic, whe
 Buying and selling can be done in several ways:
 
     * Using any of the following methods:
-        * :meth:`pyalgotrade.strategy.BaseStrategy.marketOrder`
-        * :meth:`pyalgotrade.strategy.BaseStrategy.limitOrder`
-        * :meth:`pyalgotrade.strategy.BaseStrategy.stopOrder`
-        * :meth:`pyalgotrade.strategy.BaseStrategy.stopLimitOrder`
+
+     * :meth:`pyalgotrade.strategy.BaseStrategy.marketOrder`
+     * :meth:`pyalgotrade.strategy.BaseStrategy.limitOrder`
+     * :meth:`pyalgotrade.strategy.BaseStrategy.stopOrder`
+     * :meth:`pyalgotrade.strategy.BaseStrategy.stopLimitOrder`
+
     * Using a long/short position based interface:
-        * :meth:`pyalgotrade.strategy.BaseStrategy.enterLong`
-        * :meth:`pyalgotrade.strategy.BaseStrategy.enterShort`
-        * :meth:`pyalgotrade.strategy.BaseStrategy.enterLongLimit`
-        * :meth:`pyalgotrade.strategy.BaseStrategy.enterShortLimit`
+
+     * :meth:`pyalgotrade.strategy.BaseStrategy.enterLong`
+     * :meth:`pyalgotrade.strategy.BaseStrategy.enterShort`
+     * :meth:`pyalgotrade.strategy.BaseStrategy.enterLongLimit`
+     * :meth:`pyalgotrade.strategy.BaseStrategy.enterShortLimit`
 
 Positions are higher level abstractions for placing orders.
 They are escentially a pair of entry-exit orders and allow

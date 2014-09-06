@@ -44,13 +44,27 @@ class BaseBarFeed(feed.BaseFeed):
 
     def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
         feed.BaseFeed.__init__(self, maxLen)
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+        self.__frequency = frequency
+        self.__useAdjustedValues = False
         self.__defaultInstrument = None
         self.__currentBars = None
         self.__lastBars = {}
-        self.__frequency = frequency
-        self.__prevDateTime = None
+        self.__currDateTime = None
+
+    def reset(self):
+        self.__currentBars = None
+        self.__lastBars = {}
+        self.__currDateTime = None
+        feed.BaseFeed.reset(self)
+
+    def setUseAdjustedValues(self, useAdjusted):
+        if useAdjusted and not self.barsHaveAdjClose():
+            raise Exception("The barfeed doesn't support adjusted close values")
+        # This is to affect future dataseries when they get created.
+        self.__useAdjustedValues = useAdjusted
+        # Update existing dataseries
+        for instrument in self.getRegisteredInstruments():
+            self.getDataSeries(instrument).setUseAdjustedValues(useAdjusted)
 
     @abc.abstractmethod
     def getCurrentDateTime(self):
@@ -72,7 +86,9 @@ class BaseBarFeed(feed.BaseFeed):
         raise NotImplementedError()
 
     def createDataSeries(self, key, maxLen):
-        return bards.BarDataSeries(maxLen)
+        ret = bards.BarDataSeries(maxLen)
+        ret.setUseAdjustedValues(self.__useAdjustedValues)
+        return ret
 
     def getNextValues(self):
         dateTime = None
@@ -81,9 +97,9 @@ class BaseBarFeed(feed.BaseFeed):
             dateTime = bars.getDateTime()
 
             # Check that current bar datetimes are greater than the previous one.
-            if self.__prevDateTime is not None and self.__prevDateTime >= dateTime:
-                raise Exception("Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (self.__prevDateTime, dateTime))
-            self.__prevDateTime = dateTime
+            if self.__currDateTime is not None and self.__currDateTime >= dateTime:
+                raise Exception("Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (self.__currDateTime, dateTime))
+            self.__currDateTime = dateTime
 
             # Update self.__currentBars and self.__lastBars
             self.__currentBars = bars
@@ -137,24 +153,19 @@ class OptimizerBarFeed(BaseBarFeed):
         for instrument in instruments:
             self.registerInstrument(instrument)
         self.__bars = bars
-        self.__nextBar = 0
+        self.__nextPos = 0
+        self.__currDateTime = None
+
         try:
             self.__barsHaveAdjClose = self.__bars[0][instruments[0]].getAdjClose() is not None
         except Exception:
             self.__barsHaveAdjClose = False
 
     def getCurrentDateTime(self):
-        if self.__nextBar < len(self.__bars):
-            bar = self.__bars[self.__nextBar]
-        else:
-            bar = self.__bars[-1]
-        return bar.getDateTime()
+        return self.__currDateTime
 
     def barsHaveAdjClose(self):
         return self.__barsHaveAdjClose
-
-    def isRealTime(self):
-        return False
 
     def start(self):
         pass
@@ -166,14 +177,15 @@ class OptimizerBarFeed(BaseBarFeed):
         pass
 
     def peekDateTime(self):
-        self.__bars[self.__nextBar].getDateTime()
+        self.__bars[self.__nextPos].getDateTime()
 
     def getNextBars(self):
         ret = None
-        if self.__nextBar < len(self.__bars):
-            ret = self.__bars[self.__nextBar]
-            self.__nextBar += 1
+        if self.__nextPos < len(self.__bars):
+            ret = self.__bars[self.__nextPos]
+            self.__currDateTime = ret.getDateTime()
+            self.__nextPos += 1
         return ret
 
     def eof(self):
-        return self.__nextBar >= len(self.__bars)
+        return self.__nextPos >= len(self.__bars)

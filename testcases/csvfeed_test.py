@@ -83,3 +83,29 @@ class TestCase(unittest.TestCase):
         self.assertEqual(feed["EUR"][-1], 986.75)
         self.assertFalse(dt.datetime_is_naive(feed["USD"].getDateTimes()[-1]))
         self.assertEqual(feed["USD"].getDateTimes()[-1], dt.localize(datetime.datetime(2013, 9, 29, 23, 59, 59), marketsession.USEquities.timezone))
+
+    def testReset(self):
+        feed = csvfeed.Feed("Date", "%Y-%m-%d")
+        feed.addValuesFromCSV(common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
+
+        keys = feed.getKeys()
+        key = keys[0]
+        values = feed[key]
+
+        feed.reset()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
+
+        reloadedKeys = feed.getKeys()
+        reloadedValues = feed[key]
+
+        self.assertEqual(keys.sort(), reloadedKeys.sort())
+        self.assertNotEqual(values, reloadedValues)
+        self.assertEqual(len(values), len(reloadedValues))
+        for i in range(len(values)):
+            self.assertEqual(values[i], reloadedValues[i])

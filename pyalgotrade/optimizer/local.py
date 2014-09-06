@@ -29,8 +29,19 @@ from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
 
 
-def server_thread(srv, barFeed, strategyParameters, port):
-    srv.serve(barFeed, strategyParameters)
+class ServerThread(threading.Thread):
+    def __init__(self, server, barFeed, strategyParameters):
+        threading.Thread.__init__(self)
+        self.__server = server
+        self.__barFeed = barFeed
+        self.__strategyParameters = strategyParameters
+        self.__results = None
+
+    def getResults(self):
+        return self.__results
+
+    def run(self):
+        self.__results = self.__server.serve(self.__barFeed, self.__strategyParameters)
 
 
 def worker_process(strategyClass, port):
@@ -68,12 +79,14 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
     :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is a tuple that holds parameter values**.
     :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
     :type workerCount: int.
+    :rtype: A :class:`Results` instance with the best results found.
     """
 
     assert(workerCount is None or workerCount > 0)
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
 
+    ret = None
     workers = []
     port = find_port()
     if port is None:
@@ -81,7 +94,7 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
 
     # Build and start the server thread before the worker processes. We'll manually stop the server once workers have finished.
     srv = server.Server("localhost", port, False)
-    serverThread = threading.Thread(target=server_thread, args=(srv, barFeed, strategyParameters, port))
+    serverThread = ServerThread(srv, barFeed, strategyParameters)
     serverThread.start()
 
     try:
@@ -101,3 +114,5 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
         # Stop and wait the server to finish.
         srv.stop()
         serverThread.join()
+        ret = serverThread.getResults()
+    return ret

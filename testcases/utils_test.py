@@ -36,6 +36,8 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(utils.get_change_percentage(1, -1), 2)
         self.assertEqual(utils.get_change_percentage(-2, -1), -1)
         self.assertEqual(utils.get_change_percentage(-1.5, -1), -0.5)
+        with self.assertRaisesRegexp(Exception, "Invalid values"):
+            utils.get_change_percentage(-1.5, 0)
 
     def testSafeMin(self):
         self.assertEqual(utils.safe_min(None, 0), 0)
@@ -48,6 +50,16 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(utils.safe_min(1, -1), -1)
         self.assertEqual(utils.safe_min(-1, -2), -2)
         self.assertEqual(utils.safe_min(-2, -1), -2)
+
+    def testSafeMax(self):
+        self.assertEqual(utils.safe_max(None, 0), 0)
+        self.assertEqual(utils.safe_max(None, 1), 1)
+        self.assertEqual(utils.safe_max(2, None), 2)
+        self.assertEqual(utils.safe_max(None, None), None)
+        self.assertEqual(utils.safe_max(1, 100), 100)
+        self.assertEqual(utils.safe_max(-1, 1), 1)
+        self.assertEqual(utils.safe_max(-1, 1.1), 1.1)
+        self.assertEqual(utils.safe_max(2, 1.1), 2)
 
 
 class CollectionsTestCase(unittest.TestCase):

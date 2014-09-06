@@ -28,7 +28,7 @@ Feeds
     These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
     Feeds are not limited to bars. For example, there is a Twitter feed that allows incorporating Twitter
-    events into trading desicions.
+    events into trading decisions.
 
 Brokers
     Brokers are responsible for executing orders.
@@ -248,8 +248,6 @@ For the record, the best result found was $2314.40 with the following parameters
  4. overBoughtThreshold: 91
  5. overSoldThreshold: 18
 
-
-If you don't have access to a cluster of computers, then you can take advantage of :doc:`googleappengine`.
 
 Plotting
 --------

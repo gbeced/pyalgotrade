@@ -22,7 +22,6 @@ import SimpleXMLRPCServer
 import threading
 import time
 import pickle
-import random
 import pyalgotrade.logger
 
 
@@ -114,13 +113,6 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.register_function(self.pushJobResults, 'pushJobResults')
         self.__forcedStop = False
 
-    def __getRandomActiveJob(self):
-        ret = None
-        with self.__activeJobsLock:
-            if len(self.__activeJobs) > 0:
-                ret = random.choice(self.__activeJobs.values())
-        return ret
-
     def __getNextParams(self):
         ret = []
 
@@ -136,9 +128,6 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
     def getLogger(self):
         return self.__logger
-
-    def setLogger(self, logger):
-        self.__logger = logger
 
     def getInstrumentsAndBars(self):
         return self.__instrumentsAndBars
@@ -161,10 +150,6 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
             ret = Job(params)
             with self.__activeJobsLock:
                 self.__activeJobs[ret.getId()] = ret
-
-        # If there are no more parameters, try to resubmit any active job.
-        # if ret is None:
-        #     ret = self.__getRandomActiveJob()
 
         return pickle.dumps(ret)
 

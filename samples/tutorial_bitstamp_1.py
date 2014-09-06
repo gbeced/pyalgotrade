@@ -1,4 +1,3 @@
-from pyalgotrade.bitstamp import client
 from pyalgotrade.bitstamp import barfeed
 from pyalgotrade.bitstamp import broker
 from pyalgotrade import strategy
@@ -7,7 +6,7 @@ from pyalgotrade.technical import cross
 
 
 class Strategy(strategy.BaseStrategy):
-    def __init__(self, cli, feed, brk):
+    def __init__(self, feed, brk):
         strategy.BaseStrategy.__init__(self, feed, brk)
         smaPeriod = 20
         self.__instrument = "BTC"
@@ -19,7 +18,7 @@ class Strategy(strategy.BaseStrategy):
         self.__posSize = 0.05
 
         # Subscribe to order book update events to get bid/ask prices to trade.
-        cli.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
+        feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
 
     def __onOrderBookUpdate(self, orderBookUpdate):
         bid = orderBookUpdate.getBidPrices()[0]
@@ -65,13 +64,10 @@ class Strategy(strategy.BaseStrategy):
 
 
 def main():
-    cli = client.Client()
-    barFeed = barfeed.LiveTradeFeed(cli)
+    barFeed = barfeed.LiveTradeFeed()
     brk = broker.PaperTradingBroker(1000, barFeed)
-    strat = Strategy(cli, barFeed, brk)
+    strat = Strategy(barFeed, brk)
 
-    # It is VERY important to add the client to the event dispatch loop before running the strategy.
-    strat.getDispatcher().addSubject(cli)
     strat.run()
 
 if __name__ == "__main__":

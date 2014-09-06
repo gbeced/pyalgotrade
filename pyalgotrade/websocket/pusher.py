@@ -100,7 +100,7 @@ class WebSocketClient(client.WebSocketClientBase):
         eventType = msg.get("event")
 
         if eventType == "pusher:error":
-            self.onError(Event(msg, True))
+            self.onError(Event(msg, False))
         elif eventType == "pusher:ping":
             self.sendPong()
         elif eventType == "pusher:connection_established":

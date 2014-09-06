@@ -18,19 +18,85 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
+from pyalgotrade.bitstamp import common
+from pyalgotrade.bitstamp import livebroker
 
 
-class BTCTraits(broker.InstrumentTraits):
-    def roundQuantity(self, quantity):
-        return round(quantity, 8)
-
+LiveBroker = livebroker.LiveBroker
 
 # In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
 # It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
 
-class PaperTradingBroker(backtesting.Broker):
+
+class BacktestingBroker(backtesting.Broker):
+    """A Bitstamp backtesting broker.
+
+    :param cash: The initial amount of cash.
+    :type cash: int/float.
+    :param barFeed: The bar feed that will provide the bars.
+    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
+    :param fee: The fee percentage for each order. Defaults to 0.5%.
+    :type fee: float.
+
+    .. note::
+        * Only limit orders are supported.
+        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
+        * BUY_TO_COVER orders are mapped to BUY orders.
+        * SELL_SHORT orders are mapped to SELL orders.
+    """
+
+    def __init__(self, cash, barFeed, fee=0.005):
+        commission = backtesting.TradePercentage(fee)
+        backtesting.Broker.__init__(self, cash, barFeed, commission)
+
+    def getInstrumentTraits(self, instrument):
+        return common.BTCTraits()
+
+    def submitOrder(self, order):
+        if order.isInitial():
+            # Override user settings based on Bitstamp limitations.
+            order.setAllOrNone(False)
+            order.setGoodTillCanceled(True)
+        return backtesting.Broker.submitOrder(self, order)
+
+    def createMarketOrder(self, action, instrument, quantity, onClose=False):
+        raise Exception("Market orders are not supported")
+
+    def createLimitOrder(self, action, instrument, limitPrice, quantity):
+        if instrument != common.btc_symbol:
+            raise Exception("Only BTC instrument is supported")
+
+        if action == broker.Order.Action.BUY_TO_COVER:
+            action = broker.Order.Action.BUY
+        elif action == broker.Order.Action.SELL_SHORT:
+            action = broker.Order.Action.SELL
+
+        if action == broker.Order.Action.BUY:
+            # Check that there is enough cash.
+            fee = self.getCommission().calculate(None, limitPrice, quantity)
+            cashRequired = limitPrice * quantity + fee
+            if cashRequired > self.getCash(False):
+                raise Exception("Not enough cash")
+        elif action == broker.Order.Action.SELL:
+            # Check that there are enough coins.
+            if quantity > self.getShares(common.btc_symbol):
+                raise Exception("Not enough %s" % (common.btc_symbol))
+        else:
+            raise Exception("Only BUY/SELL orders are supported")
+
+        return backtesting.Broker.createLimitOrder(self, action, instrument, limitPrice, quantity)
+
+    def createStopOrder(self, action, instrument, stopPrice, quantity):
+        raise Exception("Stop orders are not supported")
+
+    def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
+        raise Exception("Stop limit orders are not supported")
+
+
+class PaperTradingBroker(BacktestingBroker):
     """A Bitstamp paper trading broker.
 
     :param cash: The initial amount of cash.
@@ -41,28 +107,10 @@ class PaperTradingBroker(backtesting.Broker):
     :type fee: float.
 
     .. note::
-        Only limit orders are supported.
+        * Only limit orders are supported.
+        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
+        * BUY_TO_COVER orders are mapped to BUY orders.
+        * SELL_SHORT orders are mapped to SELL orders.
     """
 
-    def __init__(self, cash, barFeed, fee=0.005):
-        commission = backtesting.TradePercentage(fee)
-        backtesting.Broker.__init__(self, cash, barFeed, commission)
-
-    def getInstrumentTraits(self, instrument):
-        return BTCTraits()
-
-    def createMarketOrder(self, action, instrument, quantity, onClose=False):
-        raise Exception("Market orders are not supported")
-
-    def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        if action not in [broker.Order.Action.BUY, broker.Order.Action.SELL]:
-            raise Exception("Only BUY/SELL orders are supported")
-        if instrument != "BTC":
-            raise Exception("Only BTC instrument is supported")
-        return backtesting.Broker.createLimitOrder(self, action, instrument, limitPrice, quantity)
-
-    def createStopOrder(self, action, instrument, stopPrice, quantity):
-        raise Exception("Stop orders are not supported")
-
-    def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-        raise Exception("Stop limit orders are not supported")
+    pass

@@ -24,15 +24,17 @@ except ImportError:
 
 setup(
     name='PyAlgoTrade',
-    version='0.15',
+    version='0.16',
     description='Python Algorithmic Trading',
     long_description='Python library for backtesting stock trading strategies.',
     author='Gabriel Martin Becedillas Ruiz',
     author_email='pyalgotrade@gmail.com',
     url='http://gbeced.github.io/pyalgotrade/',
-    download_url='http://sourceforge.net/projects/pyalgotrade/files/0.15/PyAlgoTrade-0.15.tar.gz/download',
-    packages=['pyalgotrade',
+    download_url='http://sourceforge.net/projects/pyalgotrade/files/0.16/PyAlgoTrade-0.16.tar.gz/download',
+    packages=[
+        'pyalgotrade',
         'pyalgotrade.barfeed',
+        'pyalgotrade.bitcoincharts',
         'pyalgotrade.bitstamp',
         'pyalgotrade.broker',
         'pyalgotrade.dataseries',
@@ -45,8 +47,9 @@ setup(
         'pyalgotrade.tools',
         'pyalgotrade.twitter',
         'pyalgotrade.utils',
+        'pyalgotrade.websocket',
         'pyalgotrade.xignite',
-        'pyalgotrade.websocket'],
+    ],
     install_requires=[
         'numpy',
         'pytz']

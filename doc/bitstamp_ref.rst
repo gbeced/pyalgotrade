@@ -11,24 +11,17 @@ Check https://www.bitstamp.net/websocket/ for more information.
     :members:
     :show-inheritance:
 
-Client
-------
-
-.. automodule:: pyalgotrade.bitstamp.client
-    :members:
-    :show-inheritance:
-
 Feeds
 -----
 
 .. automodule:: pyalgotrade.bitstamp.barfeed
-    :members:
+    :members: LiveTradeFeed
     :show-inheritance:
 
 Brokers
 -------
 
 .. automodule:: pyalgotrade.bitstamp.broker
-    :members:
+    :members: BacktestingBroker, PaperTradingBroker, LiveBroker
     :show-inheritance:
 

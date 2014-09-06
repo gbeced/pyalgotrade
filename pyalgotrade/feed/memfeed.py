@@ -28,6 +28,10 @@ class MemFeed(feed.BaseFeed):
         self.__values = []
         self.__nextIdx = 0
 
+    def reset(self):
+        self.__nextIdx = 0
+        feed.BaseFeed.reset(self)
+
     def start(self):
         pass
 
@@ -48,9 +52,6 @@ class MemFeed(feed.BaseFeed):
         if self.__nextIdx < len(self.__values):
             ret = self.__values[self.__nextIdx][0]
         return ret
-
-    def isRealTime(self):
-        return False
 
     def createDataSeries(self, key, maxLen):
         return dataseries.SequenceDataSeries(maxLen)

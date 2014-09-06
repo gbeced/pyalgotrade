@@ -28,6 +28,7 @@ from pyalgotrade import dispatcher
 import pyalgotrade.strategy.position
 from pyalgotrade import warninghelpers
 from pyalgotrade import logger
+from pyalgotrade.barfeed import resampled
 
 
 class BaseStrategy(object):
@@ -54,12 +55,13 @@ class BaseStrategy(object):
         self.__barsProcessedEvent = observer.Event()
         self.__analyzers = []
         self.__namedAnalyzers = {}
+        self.__resampledBarFeeds = []
         self.__dispatcher = dispatcher.Dispatcher()
         self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
         self.__barFeed.getNewBarsEvent().subscribe(self.__onBars)
 
         self.__dispatcher.getStartEvent().subscribe(self.onStart)
-        self.__dispatcher.getIdleEvent().subscribe(self.onIdle)
+        self.__dispatcher.getIdleEvent().subscribe(self.__onIdle)
 
         # It is important to dispatch broker events before feed events, specially if we're backtesting.
         self.__dispatcher.addSubject(self.__broker)
@@ -130,10 +132,7 @@ class BaseStrategy(object):
         ret = None
         bar = self.getFeed().getLastBar(instrument)
         if bar is not None:
-            if self.getUseAdjustedValues():
-                ret = bar.getAdjClose()
-            else:
-                ret = bar.getClose()
+            ret = bar.getPrice()
         return ret
 
     def getFeed(self):
@@ -149,7 +148,7 @@ class BaseStrategy(object):
         return self.__barFeed.getCurrentDateTime()
 
     def marketOrder(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
-        """Places a market order.
+        """Submits a market order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -172,7 +171,7 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def order(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
@@ -181,7 +180,7 @@ class BaseStrategy(object):
         return self.marketOrder(instrument, quantity, onClose, goodTillCanceled, allOrNone)
 
     def limitOrder(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
-        """Places a limit order.
+        """Submits a limit order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -204,11 +203,11 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def stopOrder(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
-        """Places a stop order.
+        """Submits a stop order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -231,11 +230,11 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def stopLimitOrder(self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
-        """Places a stop limit order.
+        """Submits a stop limit order.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
@@ -260,7 +259,7 @@ class BaseStrategy(object):
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
             ret.setAllOrNone(allOrNone)
-            self.getBroker().placeOrder(ret)
+            self.getBroker().submitOrder(ret)
         return ret
 
     def enterLong(self, instrument, quantity, goodTillCanceled=False, allOrNone=False):
@@ -480,19 +479,25 @@ class BaseStrategy(object):
 
     def onOrderUpdated(self, order):
         """Override (optional) to get notified when an order gets updated.
-        This is not called for orders placed using any of the enterLong or enterShort methods.
 
         :param order: The order updated.
         :type order: :class:`pyalgotrade.broker.Order`.
         """
         pass
 
+    def __onIdle(self):
+        # Force a resample check to avoid depending solely on the underlying
+        # barfeed events.
+        for resampledBarFeed in self.__resampledBarFeeds:
+            resampledBarFeed.checkNow(self.getCurrentDateTime())
+
+        self.onIdle()
+
     def __onOrderEvent(self, broker_, orderEvent):
         order = orderEvent.getOrder()
         pos = self.__orderToPosition.get(order.getId(), None)
-        if pos is None:
-            self.onOrderUpdated(order)
-        else:
+        self.onOrderUpdated(order)
+        if pos is not None:
             # Unlink the order from the position if its not active anymore.
             if not order.isActive():
                 self.unregisterPositionOrder(pos, order)
@@ -505,7 +510,7 @@ class BaseStrategy(object):
         # 1: Let analyzers process bars.
         self.__notifyAnalyzers(lambda s: s.beforeOnBars(self, bars))
 
-        # 2: Let the strategy process current bars and place orders.
+        # 2: Let the strategy process current bars and submit orders.
         self.onBars(bars)
 
         # 3: Notify that the bars were processed.
@@ -551,23 +556,42 @@ class BaseStrategy(object):
         """Logs a message with level CRITICAL on the strategy logger."""
         self.getLogger().critical(msg)
 
+    def resampleBarFeed(self, frequency, callback):
+        """
+        Builds a resampled barfeed that groups bars by a certain frequency.
+
+        :param frequency: The grouping frequency in seconds. Must be > 0.
+        :param callback: A function similar to onBars that will be called when new bars are available.
+        :rtype: :class:`pyalgotrade.barfeed.BaseBarFeed`.
+        """
+        ret = resampled.ResampledBarFeed(self.getFeed(), frequency)
+        ret.getNewBarsEvent().subscribe(callback)
+        self.getDispatcher().addSubject(ret)
+        self.__resampledBarFeeds.append(ret)
+        return ret
+
 
 class BacktestingStrategy(BaseStrategy):
     """Base class for backtesting strategies.
 
     :param barFeed: The bar feed to use to backtest the strategy.
     :type barFeed: :class:`pyalgotrade.barfeed.BaseBarFeed`.
-    :param cash: The starting capital.
-    :type cash: int/float.
+    :param cash_or_brk: The starting capital or a broker instance.
+    :type cash_or_brk: int/float or :class:`pyalgotrade.broker.Broker`.
 
     .. note::
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, barFeed, cash=1000000):
+    def __init__(self, barFeed, cash_or_brk=1000000):
         # The broker should subscribe to barFeed events before the strategy.
-        # This is to avoid executing orders placed in the current tick.
-        broker = backtesting.Broker(cash, barFeed)
+        # This is to avoid executing orders submitted in the current tick.
+
+        if isinstance(cash_or_brk, pyalgotrade.broker.Broker):
+            broker = cash_or_brk
+        else:
+            broker = backtesting.Broker(cash_or_brk, barFeed)
+
         BaseStrategy.__init__(self, barFeed, broker)
         self.__useAdjustedValues = False
         self.setUseEventDateTimeInLogs(True)
@@ -577,8 +601,7 @@ class BacktestingStrategy(BaseStrategy):
         return self.__useAdjustedValues
 
     def setUseAdjustedValues(self, useAdjusted):
-        if not self.getFeed().barsHaveAdjClose():
-            raise Exception("The barfeed doesn't support adjusted close values")
+        self.getFeed().setUseAdjustedValues(useAdjusted)
         self.getBroker().setUseAdjustedValues(useAdjusted, True)
         self.__useAdjustedValues = useAdjusted
 
@@ -588,6 +611,7 @@ class BacktestingStrategy(BaseStrategy):
         level = logging.DEBUG if debugOn else logging.INFO
         self.getLogger().setLevel(level)
         self.getBroker().getLogger().setLevel(level)
+
 
 class Strategy(BacktestingStrategy):
     def __init__(self, *args, **kwargs):

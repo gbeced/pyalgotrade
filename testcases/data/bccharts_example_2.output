@@ -1,0 +1,156 @@
+2014-07-02 05:30:00 strategy [INFO] Buy 0.152 at 643.05
+2014-07-02 06:00:00 strategy [INFO] Buy order 1 updated - Status: ACCEPTED - None
+2014-07-02 06:00:00 strategy [INFO] Buy order 1 updated - Status: FILLED - 2014-07-02 06:00:00 - Price: 643.05 - Amount: 0.152 - Fee: 0.488718
+2014-07-02 06:00:00 strategy [INFO] Buy 0.003 at 643.0
+2014-07-02 06:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 06:30:00 strategy [INFO] Buy 0.003 at 644.99
+2014-07-02 06:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 07:00:00 strategy [INFO] Buy 0.003 at 644.98
+2014-07-02 07:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 07:30:00 strategy [INFO] Buy 0.003 at 643.37
+2014-07-02 07:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 08:00:00 strategy [INFO] Buy 0.003 at 641.71
+2014-07-02 08:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 08:30:00 strategy [INFO] Buy 0.003 at 643.44
+2014-07-02 08:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 09:00:00 strategy [INFO] Buy 0.003 at 645.0
+2014-07-02 09:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 09:30:00 strategy [INFO] Buy 0.003 at 646.25
+2014-07-02 09:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 10:00:00 strategy [INFO] Buy 0.003 at 644.86
+2014-07-02 10:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 10:30:00 strategy [INFO] Buy 0.003 at 646.5
+2014-07-02 10:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 11:00:00 strategy [INFO] Buy 0.003 at 644.02
+2014-07-02 11:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 11:30:00 strategy [INFO] Buy 0.003 at 646.4
+2014-07-02 11:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 12:00:00 strategy [INFO] Buy 0.003 at 645.36
+2014-07-02 12:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 12:30:00 strategy [INFO] Buy 0.003 at 645.0
+2014-07-02 12:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 13:00:00 strategy [INFO] Buy 0.003 at 647.64
+2014-07-02 13:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 13:30:00 strategy [INFO] Buy 0.003 at 650.09
+2014-07-02 13:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 14:00:00 strategy [INFO] Buy 0.003 at 653.02
+2014-07-02 14:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 14:30:00 strategy [INFO] Buy 0.003 at 651.41
+2014-07-02 14:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 15:00:00 strategy [INFO] Buy 0.003 at 655.0
+2014-07-02 15:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 15:30:00 strategy [INFO] Buy 0.003 at 654.18
+2014-07-02 15:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 16:00:00 strategy [INFO] Buy 0.003 at 651.31
+2014-07-02 16:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 16:30:00 strategy [INFO] Buy 0.003 at 654.63
+2014-07-02 16:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 17:00:00 strategy [INFO] Buy 0.003 at 655.0
+2014-07-02 17:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 17:30:00 strategy [INFO] Buy 0.003 at 656.8
+2014-07-02 17:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 18:00:00 strategy [INFO] Buy 0.003 at 655.65
+2014-07-02 18:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 18:30:00 strategy [INFO] Buy 0.003 at 655.0
+2014-07-02 18:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 19:00:00 strategy [INFO] Buy 0.003 at 652.05
+2014-07-02 19:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 19:30:00 strategy [INFO] Buy 0.003 at 655.0
+2014-07-02 19:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 20:00:00 strategy [INFO] Buy 0.003 at 652.71
+2014-07-02 20:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 20:30:00 strategy [INFO] Buy 0.003 at 648.01
+2014-07-02 20:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 21:00:00 strategy [INFO] Buy 0.003 at 646.71
+2014-07-02 21:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 21:30:00 strategy [INFO] Buy 0.003 at 650.0
+2014-07-02 21:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 22:00:00 strategy [INFO] Buy 0.003 at 651.25
+2014-07-02 22:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 22:30:00 strategy [INFO] Buy 0.003 at 649.3
+2014-07-02 22:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 23:00:00 strategy [INFO] Buy 0.003 at 649.31
+2014-07-02 23:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-02 23:30:00 strategy [INFO] Buy 0.003 at 650.5
+2014-07-02 23:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 00:00:00 strategy [INFO] Buy 0.003 at 647.55
+2014-07-03 00:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 00:30:00 strategy [INFO] Buy 0.003 at 645.99
+2014-07-03 00:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 01:00:00 strategy [INFO] Buy 0.003 at 644.99
+2014-07-03 01:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 01:30:00 strategy [INFO] Buy 0.003 at 643.0
+2014-07-03 01:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 02:00:00 strategy [INFO] Buy 0.003 at 646.69
+2014-07-03 02:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 02:30:00 strategy [INFO] Buy 0.003 at 647.09
+2014-07-03 02:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 03:00:00 strategy [INFO] Buy 0.003 at 647.4
+2014-07-03 03:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 03:30:00 strategy [INFO] Buy 0.003 at 647.27
+2014-07-03 03:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 04:00:00 strategy [INFO] Buy 0.003 at 645.01
+2014-07-03 04:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 04:30:00 strategy [INFO] Buy 0.003 at 644.22
+2014-07-03 04:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 05:00:00 strategy [INFO] Buy 0.003 at 646.2
+2014-07-03 05:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 05:30:00 strategy [INFO] Buy 0.003 at 645.47
+2014-07-03 05:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 06:00:00 strategy [INFO] Buy 0.003 at 646.53
+2014-07-03 06:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 06:30:00 strategy [INFO] Buy 0.003 at 648.75
+2014-07-03 06:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 07:00:00 strategy [INFO] Buy 0.003 at 648.18
+2014-07-03 07:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 07:30:00 strategy [INFO] Buy 0.003 at 649.0
+2014-07-03 07:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 08:00:00 strategy [INFO] Buy 0.003 at 649.15
+2014-07-03 08:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 08:30:00 strategy [INFO] Buy 0.003 at 648.0
+2014-07-03 08:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 09:00:00 strategy [INFO] Buy 0.003 at 647.8
+2014-07-03 09:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 09:30:00 strategy [INFO] Buy 0.003 at 649.25
+2014-07-03 09:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 10:00:00 strategy [INFO] Buy 0.003 at 650.0
+2014-07-03 10:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 10:30:00 strategy [INFO] Buy 0.003 at 649.2
+2014-07-03 10:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 11:00:00 strategy [INFO] Buy 0.003 at 648.51
+2014-07-03 11:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 11:30:00 strategy [INFO] Buy 0.003 at 652.13
+2014-07-03 11:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 12:00:00 strategy [INFO] Buy 0.003 at 652.21
+2014-07-03 12:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 12:30:00 strategy [INFO] Buy 0.003 at 650.79
+2014-07-03 12:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 13:00:00 strategy [INFO] Buy 0.003 at 652.21
+2014-07-03 13:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 13:30:00 strategy [INFO] Buy 0.003 at 648.0
+2014-07-03 13:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 14:00:00 strategy [INFO] Buy 0.003 at 648.0
+2014-07-03 14:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 14:30:00 strategy [INFO] Buy 0.003 at 645.73
+2014-07-03 14:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 15:00:00 strategy [INFO] Buy 0.003 at 645.0
+2014-07-03 15:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 15:30:00 strategy [INFO] Buy 0.003 at 646.44
+2014-07-03 15:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 16:00:00 strategy [INFO] Buy 0.003 at 647.3
+2014-07-03 16:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 16:30:00 strategy [INFO] Buy 0.003 at 647.0
+2014-07-03 16:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 17:00:00 strategy [INFO] Buy 0.003 at 645.99
+2014-07-03 17:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-03 17:30:00 strategy [INFO] Buy 0.003 at 645.99
+2014-07-03 17:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-04 03:30:00 strategy [INFO] Buy 0.003 at 650.45
+2014-07-04 03:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-04 04:00:00 strategy [INFO] Buy 0.003 at 649.96
+2014-07-04 04:00:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-04 04:30:00 strategy [INFO] Buy 0.003 at 649.98
+2014-07-04 04:30:00 strategy [ERROR] Failed to buy: Not enough cash
+2014-07-07 09:30:00 strategy [INFO] Sell 0.152 at 625.0
+2014-07-07 10:00:00 strategy [INFO] Sell order 2 updated - Status: ACCEPTED - None
+2014-07-07 10:00:00 strategy [INFO] Sell order 2 updated - Status: FILLED - 2014-07-07 10:00:00 - Price: 627.15 - Amount: 0.152 - Fee: 0.476634

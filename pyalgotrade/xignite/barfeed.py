@@ -26,7 +26,7 @@ import Queue
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import dataseries
-from pyalgotrade.dataseries import resampled
+from pyalgotrade import resamplebase
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
 import api
@@ -115,11 +115,9 @@ class GetBarThread(PollingThread):
         elif frequency < bar.Frequency.HOUR:
             self.__precision = "Minutes"
             self.__period = frequency / bar.Frequency.MINUTE
-            self.__timeDelta = datetime.timedelta(minutes=self.__period)
         elif frequency < bar.Frequency.DAY:
             self.__precision = "Hours"
             self.__period = frequency / bar.Frequency.HOUR
-            self.__timeDelta = datetime.timedelta(hours=self.__period)
         else:
             raise Exception("Frequency must be less than bar.Frequency.DAY")
 
@@ -134,7 +132,7 @@ class GetBarThread(PollingThread):
         self.__updateNextBarClose()
 
     def __updateNextBarClose(self):
-        self.__nextBarClose = resampled.get_slot_datetime(utcnow(), self.__frequency) + self.__timeDelta
+        self.__nextBarClose = resamplebase.build_range(utcnow(), self.__frequency).getEnding()
 
     def getNextCallDateTime(self):
         return self.__nextBarClose + self.__apiCallDelay
@@ -219,11 +217,11 @@ class LiveFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         return None
 
-    def isRealTime(self):
-        return True
-
     ######################################################################
     # barfeed.BaseBarFeed interface
+
+    def getCurrentDateTime(self):
+        return utcnow()
 
     def barsHaveAdjClose(self):
         return False

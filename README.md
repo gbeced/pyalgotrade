@@ -1,13 +1,15 @@
 PyAlgoTrade
 ===========
 
-PyAlgoTrade is an **event driven algorithmic trading** Python library. Although the initial focus was on **backtesting**,
-**paper trading** is now possible using:
+PyAlgoTrade is an **event driven algorithmic trading** Python library. Although the initial focus
+was on **backtesting**, **paper trading** is now possible using:
 
  * [Bitstamp](https://www.bitstamp.net/) for Bitcoins
  * [Xignite](https://www.xignite.com/) for stocks
 
-Future releases will gradually support real trading as well.
+and **live trading** is now possible using:
+
+ * [Bitstamp](https://www.bitstamp.net/) for Bitcoins
 
 To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/index.html).
 
@@ -27,6 +29,7 @@ Main Features
 
 Installation
 ------------
+
 PyAlgoTrade is developed using Python 2.7 and depends on:
 
  * [NumPy and SciPy](http://numpy.scipy.org/).
@@ -36,8 +39,8 @@ PyAlgoTrade is developed using Python 2.7 and depends on:
  * [tornado](http://www.tornadoweb.org/en/stable/) for Bitstamp support.
  * [tweepy](https://github.com/tweepy/tweepy) for Twitter support.
 
-
-
 You can install PyAlgoTrade using pip like this:
 
-    pip install pyalgotrade
+```
+pip install pyalgotrade
+```

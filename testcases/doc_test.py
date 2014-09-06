@@ -200,8 +200,8 @@ quandl_sample.main(False)
     def testMarketTiming(self):
         common.init_temp_path()
         files = []
-        instruments = ["MSFT", "ORCL", "IBM", "HPQ", "WMT", "UPS", "TGT", "CCL", "XOM", "CVX", "COP", "OXY", "BAC", "JPM", "WFC", "GS", "PG", "PEP", "CL", "KO"]
-        for year in range(2005, 2013+1):
+        instruments = ["VTI", "VEU", "IEF", "VNQ", "DBC", "SPY"]
+        for year in range(2007, 2013+1):
             for symbol in instruments:
                 fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
@@ -214,3 +214,29 @@ market_timing.main(False)
 """
             lines = common.run_python_code(code).split("\n")
             self.assertTrue(common.compare_tail("market_timing.output", lines[-10:-1]))
+
+
+class BitcoinChartsTestCase(unittest.TestCase):
+    def testExample1(self):
+        with common.CopyFiles([os.path.join("testcases", "data", "bitstampUSD-2.csv")], "bitstampUSD.csv"):
+            code = """import sys
+sys.path.append('samples')
+import bccharts_example_1
+bccharts_example_1.main()
+"""
+            common.run_python_code(code)
+            lines = common.get_file_lines("30min-bitstampUSD.csv")
+            self.assertTrue(common.compare_head("30min-bitstampUSD-2.csv", lines[0:10], "testcases/data"))
+            self.assertTrue(common.compare_tail("30min-bitstampUSD-2.csv", lines[-10:], "testcases/data"))
+            os.remove("30min-bitstampUSD.csv")
+
+    def testExample2(self):
+        with common.CopyFiles([os.path.join("testcases", "data", "30min-bitstampUSD-2.csv")], "30min-bitstampUSD.csv"):
+            code = """import sys
+sys.path.append('samples')
+import bccharts_example_2
+bccharts_example_2.main(False)
+"""
+            lines = common.run_python_code(code).split("\n")
+            self.assertTrue(common.compare_head("bccharts_example_2.output", lines[0:10], "testcases/data"))
+            self.assertTrue(common.compare_tail("bccharts_example_2.output", lines[-10:-1], "testcases/data"))

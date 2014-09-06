@@ -53,4 +53,23 @@ class ToolsTestCase(unittest.TestCase):
         self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
         self.assertEqual(bf[instrument][-1].getLow(), 540.43)
         self.assertEqual(bf[instrument][-1].getClose(), 540.98)
-        self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900))
+        self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))
+
+    def testBuildDailyFeed(self):
+        with common.TmpDir() as tmpPath:
+            instrument = "orcl"
+            bf = yahoofinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
+            bf.loadAll()
+            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+
+    def testBuildWeeklyFeed(self):
+        with common.TmpDir() as tmpPath:
+            instrument = "aapl"
+            bf = yahoofinance.build_feed([instrument], 2013, 2013, storage=tmpPath, frequency=bar.Frequency.WEEK)
+            bf.loadAll()
+            self.assertEqual(bf[instrument][-1].getOpen(), 557.46)
+            self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
+            self.assertEqual(bf[instrument][-1].getLow(), 540.43)
+            self.assertEqual(bf[instrument][-1].getClose(), 540.98)
+            self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))

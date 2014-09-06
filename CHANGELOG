@@ -1,7 +1,16 @@
-Version 0.16 (TBD)
+Version 0.16 (31/Aug/2014)
+. [NEW] Added support for live trading Bitcoin strategies through Bitstamp.
 . [NEW] Support for downloading and loading bars from Quandl (pyalgotrade.tools.quandl and pyalgotrade.barfeed.quandlfeed).
 . [NEW] Support for loading Bitcoin Charts historical trades CSV files (pyalgotrade.bitcoincharts.barfeed).
+. [NEW] Support for Google Finance CSV files (pyalgotrade.barfeed.googlefeed.Feed). Thanks Maciej Żok for implementing this.
+. [BREAKING CHANGE] pyalgotrade.bitstamp.client.Client was removed and the functionality is now included in pyalgotrade.bitstamp.barfeed.LiveTradeFeed.
+. [BREAKING CHANGE] Strategy.onOrderUpdated now gets called for all order events, including those generated using the position interface.
+. [FIX] Fixed a bug in pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries when using grouping frequencies greater than 1 day.
+. [FIX] Bitstamp BacktestingBroker and PaperTradingBroker will now fail to place orders without enough cash or BTC.
 . [FIX] Fixed a rounding error in pyalgotrade.bitstamp.broker.PaperTradingBroker.
+. [FIX] Fixed a bug in BarFeed.getCurrentDateTime.
+. [FIX] Fixed a bug in pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below.
+. [REMOVED] Removed Google App Engine support.
 
 Version 0.15 (30/Mar/2014)
 . [NEW] Xignite support (http://www.xignite.com/).

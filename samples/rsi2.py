@@ -8,9 +8,10 @@ class RSI2(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.__instrument = instrument
-        # We'll use adjusted close values instead of regular close values.
-        self.setUseAdjustedValues(True)
-        self.__priceDS = feed[instrument].getAdjCloseDataSeries()
+        # We'll use adjusted close values, if available, instead of regular close values.
+        if feed.barsHaveAdjClose():
+            self.setUseAdjustedValues(True)
+        self.__priceDS = feed[instrument].getPriceDataSeries()
         self.__entrySMA = ma.SMA(self.__priceDS, entrySMA)
         self.__exitSMA = ma.SMA(self.__priceDS, exitSMA)
         self.__rsi = rsi.RSI(self.__priceDS, rsiPeriod)
@@ -62,20 +63,20 @@ class RSI2(strategy.BacktestingStrategy):
                 self.__shortPos.exitMarket()
         else:
             if self.enterLongSignal(bar):
-                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getClose())
+                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
                 self.__longPos = self.enterLong(self.__instrument, shares, True)
             elif self.enterShortSignal(bar):
-                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getClose())
+                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
                 self.__shortPos = self.enterShort(self.__instrument, shares, True)
 
     def enterLongSignal(self, bar):
-        return bar.getAdjClose() > self.__entrySMA[-1] and self.__rsi[-1] <= self.__overSoldThreshold
+        return bar.getPrice() > self.__entrySMA[-1] and self.__rsi[-1] <= self.__overSoldThreshold
 
     def exitLongSignal(self):
         return cross.cross_above(self.__priceDS, self.__exitSMA)
 
     def enterShortSignal(self, bar):
-        return bar.getAdjClose() < self.__entrySMA[-1] and self.__rsi[-1] >= self.__overBoughtThreshold
+        return bar.getPrice() < self.__entrySMA[-1] and self.__rsi[-1] >= self.__overBoughtThreshold
 
     def exitShortSignal(self):
         return cross.cross_below(self.__priceDS, self.__exitSMA)

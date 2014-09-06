@@ -139,7 +139,7 @@ class InstrumentMarker(Series):
     def __init__(self):
         Series.__init__(self)
         self.__useCandleSticks = False
-        self.__useAdjClose = False
+        self.__useAdjClose = None
         self.__marker = " "
 
     def needColor(self):
@@ -152,13 +152,16 @@ class InstrumentMarker(Series):
         return self.__marker
 
     def setUseAdjClose(self, useAdjClose):
+        # Force close/adj_close instead of price.
         self.__useAdjClose = useAdjClose
 
     def getValue(self, dateTime):
         # If not using candlesticks, the return the closing price.
         ret = Series.getValue(self, dateTime)
         if not self.__useCandleSticks and ret is not None:
-            if self.__useAdjClose:
+            if self.__useAdjClose is None:
+                ret = ret.getPrice()
+            elif self.__useAdjClose:
                 ret = ret.getAdjClose()
             else:
                 ret = ret.getClose()
@@ -332,7 +335,6 @@ class StrategyPlotter(object):
     def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True):
         self.__dateTimes = set()
 
-        self.__useAdjustedValues = strat.getUseAdjustedValues()
         self.__plotAllInstruments = plotAllInstruments
         self.__plotBuySell = plotBuySell
         self.__barSubplots = {}
@@ -384,7 +386,6 @@ class StrategyPlotter(object):
             ret = self.__barSubplots[instrument]
         except KeyError:
             ret = InstrumentSubplot(instrument, self.__plotBuySell)
-            ret.setUseAdjClose(self.__useAdjustedValues)
             self.__barSubplots[instrument] = ret
         return ret
 
