@@ -5,4 +5,3 @@ doc/_build
 build
 PyAlgoTrade.egg-info
 data
-samples/DailyStockPrices
