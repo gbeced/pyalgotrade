@@ -122,6 +122,9 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     def getCurrentDateTime(self):
         return wsclient.get_current_datetime()
 
+    def enableReconection(self, enableReconnection):
+        self.__enableReconnection = enableReconnection
+
     def __initializeClient(self):
         self.__initializationOk = None
         common.logger.info("Initializing websocket client.")
