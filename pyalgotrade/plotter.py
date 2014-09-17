@@ -27,6 +27,10 @@ from matplotlib import ticker
 from matplotlib import finance
 from matplotlib import dates
 
+# used to generate plot colormap
+import matplotlib.cm as mplcm
+import matplotlib.colors as mpcolors
+
 
 def get_last_value(dataSeries):
     ret = None
@@ -210,13 +214,25 @@ class MACDMarker(HistogramMarker):
 
 
 class Subplot(object):
-    """ """
+    """ """     
     colors = ['b', 'c', 'm', 'y', 'k']
 
     def __init__(self):
         self.__series = {}  # Series by name.
         self.__callbacks = {}  # Maps a function to a Series.
         self.__nextColor = 0
+
+    def __updateColor(self, numColor, mapName='Accent'):
+        # mapName can be selected from http://matplotlib.org/examples/color/colormaps_reference.html
+        cm = plt.get_cmap(mapName)
+        cNorm  = mpcolors.Normalize(vmin=0, vmax=numColor-1)
+        scalarMap = mplcm.ScalarMappable(norm=cNorm, cmap=cm)
+        Subplot.colors = ([scalarMap.to_rgba(i) for i in range(numColor)])
+        return
+        
+    def __resetColor(self):
+        Subplot.colors = ['b', 'c', 'm', 'y', 'k']
+        return
 
     def __getColor(self, series):
         ret = series.getColor()
