@@ -1,4 +1,8 @@
 *pyc
 MANIFEST
-dist
 doc/_build
+
+dist
+PyAlgoTrade.egg-info
+
+testcases/twitter_credentials.py
