@@ -111,6 +111,7 @@ class UserTransaction(object):
 
 class HTTPClient(object):
     USER_AGENT = "PyAlgoTrade"
+    REQUEST_TIMEOUT = 30
 
     class UserTransactionType:
         MARKET_TRADE = 2
@@ -157,7 +158,7 @@ class HTTPClient(object):
         with self.__lock:
             data, headers = self._buildQuery(params)
             req = urllib2.Request(url, data, headers)
-            response = urllib2.urlopen(req, data)
+            response = urllib2.urlopen(req, data, timeout=HTTPClient.REQUEST_TIMEOUT)
 
         jsonResponse = json.loads(response.read())
 
@@ -224,7 +225,9 @@ class HTTPClient(object):
         url = "https://www.bitstamp.net/api/user_transactions/"
         jsonResponse = self._post(url, {})
         if transactionType is not None:
-            jsonUserTransactions = filter(lambda jsonUserTransaction: jsonUserTransaction["type"] == transactionType, jsonResponse)
+            jsonUserTransactions = filter(
+                lambda jsonUserTransaction: jsonUserTransaction["type"] == transactionType, jsonResponse
+            )
         else:
             jsonUserTransactions = jsonResponse
         return [UserTransaction(jsonUserTransaction) for jsonUserTransaction in jsonUserTransactions]

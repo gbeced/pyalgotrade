@@ -92,7 +92,8 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     """A real-time BarFeed that builds bars from live trades.
 
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+        from the opposite end.
     :type maxLen: int.
 
     .. note::
@@ -111,7 +112,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         self.__prevTradeDateTime = None
         self.__thread = None
         self.__initializationOk = None
-        self.__enableReconnection = False
+        self.__enableReconnection = True
         self.__stopped = False
         self.__orderBookUpdateEvent = observer.Event()
 

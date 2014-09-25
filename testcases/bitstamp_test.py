@@ -62,6 +62,8 @@ class WebSocketClientThreadMock(threading.Thread):
 class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
     def __init__(self):
         barfeed.LiveTradeFeed.__init__(self)
+        # Disable reconnections so the test finishes when ON_DISCONNECTED is pushed.
+        self.enableReconection(False)
         self.__events = []
 
     def addTrade(self, dateTime, tid, price, amount):

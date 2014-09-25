@@ -118,6 +118,7 @@ class WebSocketClient(pusher.WebSocketClient):
 
     def onClosed(self, code, reason):
         common.logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+        self.__queue.put((WebSocketClient.ON_DISCONNECTED, None))
 
     def onDisconnectionDetected(self):
         common.logger.info("Disconnection detected.")
