@@ -237,10 +237,10 @@ class TestCase(unittest.TestCase):
 
     def testAPO(self):
         barDs = self.__loadBarDS()
-        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 26, 12, talib.MA_SMA)[25], -3.3124))
-        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 12, 26, talib.MA_SMA)[25], -3.3124))
-        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 12, 26, talib.MA_SMA)[26], -3.5876))
-        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 12, 26, talib.MA_SMA)[-1], -0.1667))
+        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 26, 12, talib.MA_Type.SMA)[25], -3.3124))
+        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 12, 26, talib.MA_Type.SMA)[25], -3.3124))
+        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 12, 26, talib.MA_Type.SMA)[26], -3.5876))
+        self.assertTrue(compare(indicator.APO(barDs.getCloseDataSeries(), 252, 12, 26, talib.MA_Type.SMA)[-1], -0.1667))
 
     def testAROON(self):
         barDs = self.__loadBarDS()
@@ -278,13 +278,13 @@ class TestCase(unittest.TestCase):
     def testBBANDS(self):
         barDs = self.__loadBarDS()
         # EMA
-        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_EMA)[0][19+13], 93.674))
-        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_EMA)[1][19+13], 87.679))
-        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_EMA)[2][19+13], 81.685))
+        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_Type.EMA)[0][19+13], 93.674))
+        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_Type.EMA)[1][19+13], 87.679))
+        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_Type.EMA)[2][19+13], 81.685))
         # SMA
-        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_SMA)[0][19], 98.0734))
-        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_SMA)[1][19], 92.8910))
-        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_SMA)[2][19], 87.7086))
+        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_Type.SMA)[0][19], 98.0734))
+        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_Type.SMA)[1][19], 92.8910))
+        self.assertTrue(compare(indicator.BBANDS(barDs.getCloseDataSeries(), 252, 20, 2.0, 2.0, talib.MA_Type.SMA)[2][19], 87.7086))
 
     def testBETA(self):
         barDs = self.__loadBarDS()
@@ -359,10 +359,10 @@ class TestCase(unittest.TestCase):
 
     def testMA(self):
         barDs = self.__loadBarDS()
-        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_SMA)[1], 93.16))  # Original value 93.15
-        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_SMA)[2], 94.59))
-        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_SMA)[3], 94.73))
-        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_SMA)[-1], 108.31))
+        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_Type.SMA)[1], 93.16))  # Original value 93.15
+        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_Type.SMA)[2], 94.59))
+        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_Type.SMA)[3], 94.73))
+        self.assertTrue(compare(indicator.MA(barDs.getCloseDataSeries(), 252, 2, talib.MA_Type.SMA)[-1], 108.31))
 
     def testMACD(self):
         barDs = self.__loadBarDS()
@@ -375,9 +375,9 @@ class TestCase(unittest.TestCase):
 
     def testMACDEXT(self):
         barDs = self.__loadBarDS()
-        self.assertTrue(compare(indicator.MACDEXT(barDs.getCloseDataSeries(), 252, 12, talib.MA_EMA, 26, talib.MA_EMA, 9, talib.MA_EMA)[0][33], -1.9738))
-        self.assertTrue(compare(indicator.MACDEXT(barDs.getCloseDataSeries(), 252, 12, talib.MA_EMA, 26, talib.MA_EMA, 9, talib.MA_EMA)[1][33], -2.7071))
-        self.assertTrue(compare(indicator.MACDEXT(barDs.getCloseDataSeries(), 252, 12, talib.MA_EMA, 26, talib.MA_EMA, 9, talib.MA_EMA)[2][33], (-1.9738)-(-2.7071)))
+        self.assertTrue(compare(indicator.MACDEXT(barDs.getCloseDataSeries(), 252, 12, talib.MA_Type.EMA, 26, talib.MA_Type.EMA, 9, talib.MA_Type.EMA)[0][33], -1.9738))
+        self.assertTrue(compare(indicator.MACDEXT(barDs.getCloseDataSeries(), 252, 12, talib.MA_Type.EMA, 26, talib.MA_Type.EMA, 9, talib.MA_Type.EMA)[1][33], -2.7071))
+        self.assertTrue(compare(indicator.MACDEXT(barDs.getCloseDataSeries(), 252, 12, talib.MA_Type.EMA, 26, talib.MA_Type.EMA, 9, talib.MA_Type.EMA)[2][33], (-1.9738)-(-2.7071)))
 
     def testMAMA(self):
         ds = self.__loadMedPriceDS()
@@ -442,9 +442,9 @@ class TestCase(unittest.TestCase):
 
     def testPPO(self):
         barDs = self.__loadBarDS()
-        self.assertTrue(compare(indicator.PPO(barDs.getCloseDataSeries(), 252, 2, 3, talib.MA_SMA)[2], 1.10264))
-        self.assertTrue(compare(indicator.PPO(barDs.getCloseDataSeries(), 252, 2, 3, talib.MA_SMA)[3], -0.02813))
-        self.assertTrue(compare(indicator.PPO(barDs.getCloseDataSeries(), 252, 2, 3, talib.MA_SMA)[-1], -0.21191))
+        self.assertTrue(compare(indicator.PPO(barDs.getCloseDataSeries(), 252, 2, 3, talib.MA_Type.SMA)[2], 1.10264))
+        self.assertTrue(compare(indicator.PPO(barDs.getCloseDataSeries(), 252, 2, 3, talib.MA_Type.SMA)[3], -0.02813))
+        self.assertTrue(compare(indicator.PPO(barDs.getCloseDataSeries(), 252, 2, 3, talib.MA_Type.SMA)[-1], -0.21191))
 
     def testROC(self):
         barDs = self.__loadBarDS()
@@ -500,22 +500,22 @@ class TestCase(unittest.TestCase):
 
     def testSTOCH(self):
         barDs = self.__loadBarDS()
-        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_SMA, 3, talib.MA_SMA)[0][8], 24.0128))
-        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_SMA, 3, talib.MA_SMA)[1][8], 36.254))
-        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_SMA, 4, talib.MA_SMA)[0][-1], 30.194))
-        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_SMA, 4, talib.MA_SMA)[1][-1], 46.641))
+        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_Type.SMA, 3, talib.MA_Type.SMA)[0][8], 24.0128))
+        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_Type.SMA, 3, talib.MA_Type.SMA)[1][8], 36.254))
+        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_Type.SMA, 4, talib.MA_Type.SMA)[0][-1], 30.194))
+        self.assertTrue(compare(indicator.STOCH(barDs, 252, 5, 3, talib.MA_Type.SMA, 4, talib.MA_Type.SMA)[1][-1], 46.641))
 
     def testSTOCHRSI(self):
         barDs = self.__loadBarDS()
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_SMA)[0][27], 94.156709))
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_SMA)[1][27], 94.156709))
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_SMA)[0][-1], 0))
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_SMA)[1][-1], 0))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_Type.SMA)[0][27], 94.156709))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_Type.SMA)[1][27], 94.156709))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_Type.SMA)[0][-1], 0))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 14, 1, talib.MA_Type.SMA)[1][-1], 0))
 
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_SMA)[0][58], 79.729186))
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_SMA)[1][58], 79.729186))
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_SMA)[0][-1], 48.1550743))
-        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_SMA)[1][-1], 48.1550743))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_Type.SMA)[0][58], 79.729186))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_Type.SMA)[1][58], 79.729186))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_Type.SMA)[0][-1], 48.1550743))
+        self.assertTrue(compare(indicator.STOCHRSI(barDs.getCloseDataSeries(), 252, 14, 45, 1, talib.MA_Type.SMA)[1][-1], 48.1550743))
 
     def testT3(self):
         barDs = self.__loadBarDS()
