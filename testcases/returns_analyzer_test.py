@@ -32,164 +32,316 @@ import unittest
 import datetime
 
 
+class TimeWeightedReturnsTestCase(unittest.TestCase):
+    def testNullPortfolio(self):
+        retTracker = returns.TimeWeightedReturns(0)
+        self.assertEqual(retTracker.getReturn(), 0)
+
+    def testNoUpdates(self):
+        retTracker = returns.TimeWeightedReturns(10)
+        self.assertEqual(retTracker.getReturn(), 0)
+
+    def testWikiInvest(self):
+        # http://www.wikinvest.com/wiki/Time-weighted_return
+        retTracker = returns.TimeWeightedReturns(1000)
+        retTracker.deposit(250)
+        retTracker.update(1300)
+        self.assertEqual(round(retTracker.getSubPeriodReturns()[-1], 2), 0.05)
+        retTracker.deposit(250)
+        retTracker.update(1700)
+        self.assertEqual(round(retTracker.getSubPeriodReturns()[-1], 3), 0.115)
+        retTracker.update(1900)
+        self.assertEqual(round(retTracker.getSubPeriodReturns()[-1], 3), 0.118)
+        self.assertEqual(round(retTracker.getReturn(), 4), 0.0939)
+
+
+class ReturnsTrackerTestCase(unittest.TestCase):
+    def testNoValues(self):
+        retTracker = returns.ReturnsTracker(10)
+        self.assertEqual(retTracker.getCumulativeReturn(), 0)
+        self.assertEqual(retTracker.getNetReturn(), 0)
+        self.assertEqual(retTracker.getCumulativeReturn(10), 0)
+        self.assertEqual(retTracker.getNetReturn(10), 0)
+
+    def testOneValue(self):
+        retTracker = returns.ReturnsTracker(10)
+        retTracker.updateValue(10)
+        self.assertEqual(retTracker.getCumulativeReturn(), 0)
+        self.assertEqual(retTracker.getNetReturn(), 0)
+        self.assertEqual(retTracker.getCumulativeReturn(10), 0)
+        self.assertEqual(retTracker.getNetReturn(10), 0)
+        self.assertEqual(round(retTracker.getCumulativeReturn(11), 2), 0.1)
+        self.assertEqual(round(retTracker.getNetReturn(11), 2), 0.1)
+
+    def testManyValues(self):
+        retTracker = returns.ReturnsTracker(10)
+
+        retTracker.updateValue(10)
+        self.assertEqual(retTracker.getCumulativeReturn(), 0)
+        self.assertEqual(retTracker.getNetReturn(), 0)
+
+        retTracker.updateValue(11)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), 0.1)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), 0.1)
+
+        self.assertEqual(round(retTracker.getCumulativeReturn(11), 2), 0.1)
+        self.assertEqual(round(retTracker.getNetReturn(11), 2), 0)
+        retTracker.updateValue(11)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), 0.1)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), 0)
+
+        self.assertEqual(round(retTracker.getCumulativeReturn(12), 2), 0.2)
+        self.assertEqual(round(retTracker.getNetReturn(12), 2), 0.09)
+        retTracker.updateValue(12)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), 0.2)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), 0.09)
+
+        self.assertEqual(round(retTracker.getCumulativeReturn(10), 2), 0)
+        self.assertEqual(round(retTracker.getNetReturn(10), 2), -0.17)
+        retTracker.updateValue(10)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), 0)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), -0.17)
+
+        self.assertEqual(round(retTracker.getCumulativeReturn(5), 2), -0.5)
+        self.assertEqual(round(retTracker.getNetReturn(5), 2), -0.5)
+        retTracker.updateValue(5)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), -0.5)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), -0.5)
+
+        self.assertEqual(round(retTracker.getCumulativeReturn(6), 2), -0.4)
+        self.assertEqual(round(retTracker.getNetReturn(6), 2), 0.2)
+        retTracker.updateValue(6)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), -0.4)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), 0.2)
+
+        self.assertEqual(round(retTracker.getCumulativeReturn(10), 2), 0)
+        self.assertEqual(round(retTracker.getNetReturn(10), 2), 0.67)
+        retTracker.updateValue(10)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), 0)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), 0.67)
+
+    def testBankrupt(self):
+        retTracker = returns.ReturnsTracker(10)
+        retTracker.updateValue(5)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), -0.5)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), -0.5)
+        retTracker.updateValue(1)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), -0.9)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), -0.8)
+        retTracker.updateValue(0)
+        self.assertEqual(round(retTracker.getCumulativeReturn(), 2), -1)
+        self.assertEqual(round(retTracker.getNetReturn(), 2), -1)
+
+
 class PosTrackerTestCase(unittest.TestCase):
-    invalid_price = 5000
+
+    def testBuyAndSellBreakEven(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.buy(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        posTracker.sell(1, 10)
+        self.assertEqual(posTracker.getCash(), 0)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getReturn(), 0)
 
     def testBuyAndSellBreakEvenWithCommission(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        self.assertEqual(posTracker.getCash(), 0)
         posTracker.buy(1, 10, 0.01)
+        self.assertEqual(posTracker.getCash(), -10.01)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
         posTracker.sell(1, 10.02, 0.01)
-        self.assertTrue(posTracker.getCost() == 10)
-        # We need to round here or else the testcase fails since the value returned is not exactly 0.<
+        self.assertEqual(round(posTracker.getCash(), 2), 0)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        # We need to round to avoid floating point errors.
         # The same issue can be reproduced with this piece of code:
         # a = 10.02 - 10
         # b = 0.02
         # print a - b
         # print a - b == 0
-        self.assertTrue(round(posTracker.getNetProfit(PosTrackerTestCase.invalid_price), 2) == 0.0)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 2) == 0.0)
-
-    def testBuyAndSellBreakEven(self):
-        posTracker = returns.PositionTracker()
-        posTracker.buy(1, 10)
-        posTracker.sell(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 0)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0)
+        self.assertEqual(posTracker.getShares(), 0)
+        self.assertEqual(round(posTracker.getNetProfit(), 2), 0)
+        self.assertEqual(round(posTracker.getReturn(), 2), 0)
 
     def testBuyAndSellWin(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
         posTracker.sell(1, 11)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0.1)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 1)
+        self.assertTrue(posTracker.getReturn() == 0.1)
+
+    def testBuyAndSellInTwoTrades(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.buy(2, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        posTracker.sell(1, 11)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(), 1)
+        self.assertEqual(posTracker.getReturn(), 0.05)
+        posTracker.sell(1, 12)
+        self.assertEqual(posTracker.getNetProfit(), 3)
+        self.assertEqual(posTracker.getReturn(), 3/20.0)
 
     def testBuyAndSellMultipleEvals(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(2, 10)
-        self.assertTrue(posTracker.getCost() == 20)
-        self.assertTrue(posTracker.getNetProfit(10) == 0)
-        self.assertTrue(posTracker.getReturn(10) == 0)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getNetProfit(9), -2)
+        self.assertEqual(posTracker.getNetProfit(10), 0)
+        self.assertEqual(posTracker.getNetProfit(11), 2)
+        self.assertEqual(posTracker.getReturn(10), 0)
 
-        self.assertTrue(posTracker.getNetProfit(11) == 2)
-        self.assertTrue(posTracker.getReturn(11) == 0.1)
+        self.assertEqual(posTracker.getNetProfit(11), 2)
+        self.assertEqual(round(posTracker.getReturn(11), 2), 0.1)
 
-        self.assertTrue(posTracker.getNetProfit(20) == 20)
-        self.assertTrue(posTracker.getReturn(20) == 1)
+        self.assertEqual(posTracker.getNetProfit(20), 20)
+        self.assertEqual(posTracker.getReturn(20), 1)
 
         posTracker.sell(1, 11)
-        self.assertTrue(posTracker.getCost() == 20)
-        self.assertTrue(posTracker.getNetProfit(11) == 2)
-        self.assertTrue(posTracker.getReturn(11) == 0.1)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(11), 2)
+        self.assertEqual(posTracker.getReturn(11), 0.1)
 
         posTracker.sell(1, 10)
-        self.assertTrue(posTracker.getCost() == 20)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
-        self.assertTrue(posTracker.getReturn(11) == 0.05)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 1)
+        self.assertEqual(posTracker.getReturn(11), 0.05)
 
     def testSellAndBuyWin(self):
-        posTracker = returns.PositionTracker()
-        posTracker.sell(1, 11)
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.sell(1, 13)
+        self.assertEqual(posTracker.getCostPerShare(), 13)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getNetProfit(10), 3)
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 11)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.090909091, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 3)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(0.23076923076923, 9))
 
     def testSellAndBuyMultipleEvals(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.sell(2, 11)
-        self.assertTrue(posTracker.getCost() == 22)
-        self.assertTrue(posTracker.getNetProfit(11) == 0)
-        self.assertTrue(posTracker.getReturn(11) == 0)
+        self.assertEqual(posTracker.getCostPerShare(), 11)
+        self.assertEqual(posTracker.getNetProfit(10), 2)
+        self.assertEqual(posTracker.getNetProfit(11), 0)
+        self.assertEqual(posTracker.getNetProfit(12), -2)
+        self.assertEqual(posTracker.getReturn(11), 0)
 
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 22)
-        self.assertTrue(posTracker.getNetProfit(11) == 1)
-        self.assertTrue(round(posTracker.getReturn(11), 4) == round(0.045454545, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 11)
+        self.assertEqual(posTracker.getNetProfit(11), 1)
+        self.assertEqual(round(posTracker.getReturn(11), 9), round(0.045454545, 9))
 
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 22)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 2)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.090909091, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 2)
+        self.assertEqual(posTracker.getNetProfit(100), 2)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(0.090909091, 9))
 
     def testBuySellBuy(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(9), -1)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getNetProfit(10), 0)
+        self.assertEqual(posTracker.getNetProfit(11), 1)
+        self.assertEqual(posTracker.getReturn(), 0)
+        self.assertEqual(posTracker.getReturn(13), 0.3)
 
-        posTracker.sell(2, 13)  # Short selling 1 @ $13
-        self.assertTrue(posTracker.getCost() == 10 + 13)
+        # Closing the long position and short selling 1 @ $13.
+        # The cost basis for the new position is $13.
+        posTracker.sell(2, 13)
+        self.assertEqual(posTracker.getCostPerShare(), 13)
+        self.assertEqual(posTracker.getNetProfit(), 3)
+        self.assertEqual(round(posTracker.getReturn(), 8), 0.23076923)
 
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10 + 13)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 6)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.260869565, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 6)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(0.46153846153846, 9))
 
-    def testBuyAndUpdate(self):
-        posTracker = returns.PositionTracker()
-        posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(20) == 10)
-        self.assertTrue(posTracker.getReturn(20) == 1)
+    def testSellBuySell(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.sell(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getReturn(), 0)
+        self.assertEqual(posTracker.getNetProfit(13), -3)
+        self.assertEqual(posTracker.getReturn(13), -0.3)
 
-        posTracker.update(15)
-        self.assertTrue(posTracker.getCost() == 15)
-        self.assertTrue(posTracker.getNetProfit(15) == 0)
-        self.assertTrue(posTracker.getReturn(15) == 0)
+        # Closing the short position and going long 1 @ $13.
+        # The cost basis for the new position is $13.
+        posTracker.buy(2, 13)
+        self.assertEqual(posTracker.getCostPerShare(), 13)
+        self.assertEqual(posTracker.getNetProfit(), -3)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(-0.23076923076923, 9))
 
-        self.assertTrue(posTracker.getNetProfit(20) == 5)
-        self.assertTrue(round(posTracker.getReturn(20), 2) == 0.33)
-
-    def testBuyUpdateAndSell(self):
-        posTracker = returns.PositionTracker()
-        posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(15) == 5)
-        self.assertTrue(posTracker.getReturn(15) == 0.5)
-
-        posTracker.update(15)
-        self.assertTrue(posTracker.getCost() == 15)
-        posTracker.sell(1, 20)
-        self.assertTrue(posTracker.getCost() == 15)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 5)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 2) == 0.33)
-
-        posTracker.update(100)
-        self.assertTrue(posTracker.getCost() == 0)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 0)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0)
+        posTracker.sell(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), -6)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(-0.46153846153846, 9))
 
     def testBuyAndSellBreakEvenWithCommision(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(1, 10, 0.5)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
         posTracker.sell(1, 11, 0.5)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price, False) == 1)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price, False) == 0.1)
+        self.assertEqual(posTracker.getNetProfit(includeCommissions=False), 1)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getReturn(includeCommissions=False), 0.1)
+        self.assertEqual(posTracker.getReturn(), 0)
 
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price, True) == 0)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price, True) == 0)
+    def testSeparateAndCombined(self):
+        posA = returns.PositionTracker(broker.IntegerTraits())
+        posA.buy(11, 10)
+        posA.sell(11, 30)
+        self.assertEqual(posA.getNetProfit(), 20*11)
+        self.assertEqual(posA.getReturn(), 2)
 
-    def testLongShortEqualAmount(self):
-        posTrackerXYZ = returns.PositionTracker()
-        posTrackerXYZ.buy(11, 10)
-        posTrackerXYZ.sell(11, 30)
-        self.assertTrue(posTrackerXYZ.getCost() == 11*10)
-        self.assertTrue(posTrackerXYZ.getNetProfit(PosTrackerTestCase.invalid_price) == 20*11)
-        self.assertTrue(posTrackerXYZ.getReturn(PosTrackerTestCase.invalid_price) == 2)
+        posB = returns.PositionTracker(broker.IntegerTraits())
+        posB.sell(100, 1.1)
+        posB.buy(100, 1)
+        self.assertEqual(round(posB.getNetProfit(), 2), 100*0.1)
+        self.assertEqual(round(posB.getReturn(), 2), 0.09)
 
-        posTrackerABC = returns.PositionTracker()
-        posTrackerABC.sell(100, 1.1)
-        posTrackerABC.buy(100, 1)
-        self.assertTrue(posTrackerABC.getCost() == 100*1.1)
-        self.assertTrue(round(posTrackerABC.getNetProfit(PosTrackerTestCase.invalid_price), 2) == 100*0.1)
-        self.assertEqual(round(posTrackerABC.getReturn(PosTrackerTestCase.invalid_price), 2), 0.09)
+        combinedReturn = (1 + posA.getReturn()) * (1 + posB.getReturn()) - 1
 
-        combinedCost = posTrackerXYZ.getCost() + posTrackerABC.getCost()
-        combinedPL = posTrackerXYZ.getNetProfit(PosTrackerTestCase.invalid_price) + posTrackerABC.getNetProfit(PosTrackerTestCase.invalid_price)
-        combinedReturn = combinedPL / float(combinedCost)
-        self.assertTrue(round(combinedReturn, 9) == 1.045454545)
+        combinedPos = returns.PositionTracker(broker.IntegerTraits())
+        combinedPos.buy(11, 10)
+        combinedPos.sell(11, 30)
+        combinedPos.sell(100, 1.1)
+        combinedPos.buy(100, 1)
+        self.assertEqual(combinedPos.getReturn(), combinedReturn)
+
+    def testProfitReturnsAndCost(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.buy(10, 1)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getCostPerShare(), 1)
+        self.assertEqual(posTracker.getCommissions(), 0)
+        self.assertEqual(posTracker.getCash(), -10)
+
+        posTracker.buy(20, 1, 10)
+        self.assertEqual(posTracker.getNetProfit(), -10)
+        self.assertEqual(posTracker.getCostPerShare(), 1)
+        self.assertEqual(posTracker.getCommissions(), 10)
+        self.assertEqual(posTracker.getCash(), -40)
+
+        posTracker.sell(30, 1)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), -10)
+        self.assertEqual(posTracker.getCash(), -10)
+        self.assertEqual(posTracker.getCommissions(), 10)
+        self.assertEqual(posTracker.getReturn(), -10/30.0)
+
+        posTracker.buy(10, 1)
+        self.assertEqual(posTracker.getNetProfit(), -10)
+        self.assertEqual(posTracker.getCostPerShare(), 1)
 
 
 class ReturnsTestCase(unittest.TestCase):

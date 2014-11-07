@@ -18,81 +18,169 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import math
+
 from pyalgotrade import stratanalyzer
 from pyalgotrade import observer
 from pyalgotrade import dataseries
 
 
-# Helper class to calculate returns and net profit.
-class PositionTracker(object):
-    def __init__(self):
-        self.__shares = 0
-        self.__cash = 0
-        self.__commissions = 0
-        self.__cost = 0
+# Helper class to calculate time-weighted returns in a portfolio.
+# Check http://www.wikinvest.com/wiki/Time-weighted_return
+class TimeWeightedReturns(object):
+    def __init__(self, initialValue):
+        self.__lastValue = initialValue
+        self.__subperiodReturns = []
+        self.__flows = 0.0
 
-    def __updateCost(self, quantity, price):
-        cost = 0
+    def deposit(self, amount):
+        self.__flows += amount
 
-        if self.__shares > 0:  # Current position is long
-            if quantity > 0:  # Increase long position
-                cost = quantity * price
-            else:
-                diff = self.__shares + quantity
-                if diff < 0:  # Entering a short position
-                    cost = abs(diff) * price
-        elif self.__shares < 0:  # Current position is short
-            if quantity < 0:  # Increase short position
-                cost = abs(quantity) * price
-            else:
-                diff = self.__shares + quantity
-                if diff > 0:  # Entering a long position
-                    cost = diff * price
+    def withdraw(self, amount):
+        self.__flows -= amount
+
+    # Update the value of the portfolio.
+    def update(self, currentValue):
+        retSubperiod = ((currentValue - self.__flows) - self.__lastValue) / float(self.__lastValue)
+        self.__subperiodReturns.append(retSubperiod)
+        self.__lastValue = currentValue
+        self.__flows = 0.0
+
+    def getSubPeriodReturns(self):
+        return self.__subperiodReturns
+
+    def getReturn(self):
+        if len(self.__subperiodReturns):
+            ret = reduce(
+                lambda x, y: x * y,
+                map(lambda x: x + 1, self.__subperiodReturns),
+                1
+            )
+            ret = ret ** (1 / float(len(self.__subperiodReturns)))
+            ret -= 1
         else:
-            cost = abs(quantity) * price
-        self.__cost += cost
+            ret = 0
+        return ret
+
+
+# Helper class to calculate simple and cumulative returns.
+class ReturnsTracker(object):
+    def __init__(self, initialValue):
+        assert(initialValue > 0)
+        self.__lastValue = initialValue
+        self.__netRet = 0.0
+        self.__cumRet = 0.0
+
+    def updateValue(self, currentValue):
+        netReturn = (currentValue - self.__lastValue) / float(self.__lastValue)
+        self.__netRet = netReturn
+        self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
+        self.__lastValue = currentValue
+
+    def getNetReturn(self, currentValue=None):
+        ret = 0.0
+        if currentValue is None:
+            ret = self.__netRet
+        else:
+            ret = (currentValue - self.__lastValue) / float(self.__lastValue)
+        return ret
+
+    def getCumulativeReturn(self, currentValue=None):
+        ret = 0.0
+        if currentValue is None:
+            ret = self.__cumRet
+        else:
+            netReturn = (currentValue - self.__lastValue) / float(self.__lastValue)
+            ret = (1 + self.__cumRet) * (1 + netReturn) - 1
+        return ret
+
+
+# Helper class to calculate returns and profit over a single instrument.
+class PositionTracker(object):
+    def __init__(self, instrumentTraits):
+        self.__cash = 0.0
+        self.__shares = 0
+        self.__commissions = 0.0
+        self.__costPerShare = 0.0  # Volume weighted average price per share.
+        self.__costBasis = 0.0
+        self.__instrumentTraits = instrumentTraits
+
+    def __update(self, quantity, price, commission):
+        assert(quantity != 0)
+
+        if self.__shares == 0:
+            # Opening a new position
+            totalShares = quantity
+            self.__costPerShare = price
+            self.__costBasis = abs(quantity) * price
+        else:
+            totalShares = self.__instrumentTraits.roundQuantity(self.__shares + quantity)
+            if totalShares != 0:
+                prevDirection = math.copysign(1, self.__shares)
+                txnDirection = math.copysign(1, quantity)
+
+                if prevDirection != txnDirection:
+                    if abs(quantity) > abs(self.__shares):
+                        # Going from long to short or the other way around.
+                        # Update costs as a new position being opened.
+                        self.__costPerShare = price
+                        diff = self.__instrumentTraits.roundQuantity(self.__shares + quantity)
+                        self.__costBasis = abs(diff) * price
+                    else:
+                        # Reducing the position.
+                        # TODO: Shouldn't I reduce self.__costBasis ?
+                        pass
+                else:
+                    # Increasing the current position.
+                    # Calculate a volume weighted average price per share.
+                    prevCost = self.__costPerShare * self.__shares
+                    txnCost = quantity * price
+                    self.__costPerShare = (prevCost + txnCost) / totalShares
+                    self.__costBasis += abs(quantity) * price
+            else:
+                # Closing the position.
+                self.__costPerShare = 0.0
+
+        self.__cash += price * quantity * -1
+        self.__commissions += commission
+        self.__shares = totalShares
+
+    def getCash(self):
+        return self.__cash - self.__commissions
 
     def getShares(self):
         return self.__shares
 
-    def getCost(self):
-        return self.__cost
+    def getCostPerShare(self):
+        # Returns the weighted average cost per share for the open position.
+        return self.__costPerShare
 
     def getCommissions(self):
         return self.__commissions
 
-    def getNetProfit(self, price, includeCommissions=True):
-        ret = self.__cash + self.__shares * price
+    def getNetProfit(self, price=None, includeCommissions=True):
+        ret = self.__cash
+        if price is None:
+            price = self.__costPerShare
+        ret += price * self.__shares
         if includeCommissions:
             ret -= self.__commissions
         return ret
 
-    def getReturn(self, price, includeCommissions=True):
+    def getReturn(self, price=None, includeCommissions=True):
         ret = 0
         netProfit = self.getNetProfit(price, includeCommissions)
-        cost = self.getCost()
-        if cost != 0:
-            ret = netProfit / float(cost)
+        if self.__costBasis != 0:
+            ret = netProfit / float(self.__costBasis)
         return ret
 
     def buy(self, quantity, price, commission=0):
         assert(quantity > 0)
-        self.__updateCost(quantity, price)
-        self.__cash += quantity * -1 * price
-        self.__shares += quantity
-        self.__commissions += commission
+        self.__update(quantity, price, commission)
 
     def sell(self, quantity, price, commission=0):
         assert(quantity > 0)
-        self.__updateCost(quantity * -1, price)
-        self.__cash += quantity * price
-        self.__shares -= quantity
-        self.__commissions += commission
-
-    def update(self, price):
-        self.__commissions = 0
-        self.__cash = self.__shares * -1 * price
-        self.__cost = abs(self.__shares) * price
+        self.__update(quantity * -1, price, commission)
 
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):

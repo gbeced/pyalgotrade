@@ -74,7 +74,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         self.__allReturns.append(netReturn)
         self.__allCommissions.append(posTracker.getCommissions())
 
-        posTracker.update(price)
+        posTracker.reset(price, 0)
 
     def __updatePosTracker(self, posTracker, price, commission, quantity):
         currentShares = posTracker.getShares()
@@ -127,7 +127,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         try:
             posTracker = self.__posTrackers[order.getInstrument()]
         except KeyError:
-            posTracker = returns.PositionTracker()
+            posTracker = returns.PositionTracker(order.getInstrumentTraits())
             self.__posTrackers[order.getInstrument()] = posTracker
 
         # Update the tracker for this order.
