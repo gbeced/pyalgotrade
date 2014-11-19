@@ -74,7 +74,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         self.__allReturns.append(netReturn)
         self.__allCommissions.append(posTracker.getCommissions())
 
-        posTracker.reset(price, 0)
+        posTracker.reset()
 
     def __updatePosTracker(self, posTracker, price, commission, quantity):
         currentShares = posTracker.getShares()

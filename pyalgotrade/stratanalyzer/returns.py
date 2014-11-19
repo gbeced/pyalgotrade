@@ -39,16 +39,25 @@ class TimeWeightedReturns(object):
     def withdraw(self, amount):
         self.__flows -= amount
 
+    def getCurrentValue(self):
+        return self.__lastValue
+
     # Update the value of the portfolio.
     def update(self, currentValue):
-        retSubperiod = ((currentValue - self.__flows) - self.__lastValue) / float(self.__lastValue)
-        self.__subperiodReturns.append(retSubperiod)
+        if self.__lastValue:
+            retSubperiod = (currentValue - self.__lastValue - self.__flows) / float(self.__lastValue)
+        else:
+            retSubperiod = 0
+
+        if retSubperiod:
+            self.__subperiodReturns.append(retSubperiod)
         self.__lastValue = currentValue
         self.__flows = 0.0
 
     def getSubPeriodReturns(self):
         return self.__subperiodReturns
 
+    # Note that this value is not annualized.
     def getReturn(self):
         if len(self.__subperiodReturns):
             ret = reduce(
@@ -56,7 +65,6 @@ class TimeWeightedReturns(object):
                 map(lambda x: x + 1, self.__subperiodReturns),
                 1
             )
-            ret = ret ** (1 / float(len(self.__subperiodReturns)))
             ret -= 1
         else:
             ret = 0
@@ -98,12 +106,15 @@ class ReturnsTracker(object):
 # Helper class to calculate returns and profit over a single instrument.
 class PositionTracker(object):
     def __init__(self, instrumentTraits):
+        self.__instrumentTraits = instrumentTraits
+        self.reset()
+
+    def reset(self):
         self.__cash = 0.0
         self.__shares = 0
         self.__commissions = 0.0
         self.__costPerShare = 0.0  # Volume weighted average price per share.
         self.__costBasis = 0.0
-        self.__instrumentTraits = instrumentTraits
 
     def __update(self, quantity, price, commission):
         assert(quantity != 0)

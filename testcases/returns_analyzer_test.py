@@ -41,18 +41,22 @@ class TimeWeightedReturnsTestCase(unittest.TestCase):
         retTracker = returns.TimeWeightedReturns(10)
         self.assertEqual(retTracker.getReturn(), 0)
 
-    def testWikiInvest(self):
-        # http://www.wikinvest.com/wiki/Time-weighted_return
-        retTracker = returns.TimeWeightedReturns(1000)
-        retTracker.deposit(250)
-        retTracker.update(1300)
-        self.assertEqual(round(retTracker.getSubPeriodReturns()[-1], 2), 0.05)
-        retTracker.deposit(250)
-        retTracker.update(1700)
-        self.assertEqual(round(retTracker.getSubPeriodReturns()[-1], 3), 0.115)
-        retTracker.update(1900)
-        self.assertEqual(round(retTracker.getSubPeriodReturns()[-1], 3), 0.118)
-        self.assertEqual(round(retTracker.getReturn(), 4), 0.0939)
+    def testInvestopedia(self):
+        # http://www.investopedia.com/exam-guide/cfa-level-1/quantitative-methods/discounted-cash-flow-time-weighted-return.asp
+        retTracker = returns.TimeWeightedReturns(200000)
+        retTracker.update(196500)  # March 31, 2004
+        self.assertEquals(round(retTracker.getSubPeriodReturns()[-1], 4), -0.0175)
+        retTracker.update(200000)  # June 30, 2004
+        self.assertEquals(round(retTracker.getSubPeriodReturns()[-1], 4), 0.0178)
+        retTracker.deposit(20000)
+        retTracker.update(222000)  # July 30, 2004
+        self.assertEquals(round(retTracker.getSubPeriodReturns()[-1], 2), 0.01)
+        retTracker.update(243000)  # Sept. 30, 2004
+        self.assertEquals(round(retTracker.getSubPeriodReturns()[-1], 4), 0.0946)
+        retTracker.deposit(2000)
+        retTracker.update(250000)  # Dec. 31, 2004
+        self.assertEquals(round(retTracker.getSubPeriodReturns()[-1], 4), 0.0206)
+        self.assertEquals(round(retTracker.getReturn(), 6),  0.128288)
 
 
 class ReturnsTrackerTestCase(unittest.TestCase):
@@ -309,14 +313,12 @@ class PosTrackerTestCase(unittest.TestCase):
         self.assertEqual(round(posB.getNetProfit(), 2), 100*0.1)
         self.assertEqual(round(posB.getReturn(), 2), 0.09)
 
-        combinedReturn = (1 + posA.getReturn()) * (1 + posB.getReturn()) - 1
-
         combinedPos = returns.PositionTracker(broker.IntegerTraits())
         combinedPos.buy(11, 10)
         combinedPos.sell(11, 30)
         combinedPos.sell(100, 1.1)
         combinedPos.buy(100, 1)
-        self.assertEqual(combinedPos.getReturn(), combinedReturn)
+        self.assertEqual(round(combinedPos.getReturn(), 6), 0.758098)
 
     def testProfitReturnsAndCost(self):
         posTracker = returns.PositionTracker(broker.IntegerTraits())
