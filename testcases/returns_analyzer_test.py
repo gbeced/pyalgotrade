@@ -306,19 +306,27 @@ class PosTrackerTestCase(unittest.TestCase):
         posA.sell(11, 30)
         self.assertEqual(posA.getNetProfit(), 20*11)
         self.assertEqual(posA.getReturn(), 2)
+        self.assertEqual(posA.getCostBasis(), 11*10)
 
         posB = returns.PositionTracker(broker.IntegerTraits())
         posB.sell(100, 1.1)
         posB.buy(100, 1)
         self.assertEqual(round(posB.getNetProfit(), 2), 100*0.1)
         self.assertEqual(round(posB.getReturn(), 2), 0.09)
+        self.assertEqual(posB.getCostBasis(), 100*1.1)
 
         combinedPos = returns.PositionTracker(broker.IntegerTraits())
         combinedPos.buy(11, 10)
         combinedPos.sell(11, 30)
+        self.assertEqual(combinedPos.getCostBasis(), 11*10)
         combinedPos.sell(100, 1.1)
         combinedPos.buy(100, 1)
-        self.assertEqual(round(combinedPos.getReturn(), 6), 0.758098)
+        self.assertEqual(combinedPos.getCostBasis(), 100*1.1)
+        self.assertEqual(round(combinedPos.getReturn(), 6), 2.090909)
+        # The return of the combined position is less than the two returns combined
+        # because when the second position gets opened the amount of cash not invested is greater
+        # than that of posB alone.
+        self.assertLess(round(combinedPos.getReturn(), 6), ((1+posA.getReturn())*(1+posB.getReturn())-1))
 
     def testProfitReturnsAndCost(self):
         posTracker = returns.PositionTracker(broker.IntegerTraits())

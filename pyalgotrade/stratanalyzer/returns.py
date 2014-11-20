@@ -139,7 +139,6 @@ class PositionTracker(object):
                         self.__costBasis = abs(diff) * price
                     else:
                         # Reducing the position.
-                        # TODO: Shouldn't I reduce self.__costBasis ?
                         pass
                 else:
                     # Increasing the current position.
@@ -168,6 +167,9 @@ class PositionTracker(object):
 
     def getCommissions(self):
         return self.__commissions
+
+    def getCostBasis(self):
+        return self.__costBasis
 
     def getNetProfit(self, price=None, includeCommissions=True):
         ret = self.__cash
