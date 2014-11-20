@@ -30,8 +30,9 @@ from pyalgotrade import dataseries
 class TimeWeightedReturns(object):
     def __init__(self, initialValue):
         self.__lastValue = initialValue
-        self.__subperiodReturns = []
         self.__flows = 0.0
+        self.__lastPeriodRet = 0.0
+        self.__cumRet = 0.0
 
     def deposit(self, amount):
         self.__flows += amount
@@ -47,63 +48,23 @@ class TimeWeightedReturns(object):
         if self.__lastValue:
             retSubperiod = (currentValue - self.__lastValue - self.__flows) / float(self.__lastValue)
         else:
-            retSubperiod = 0
+            retSubperiod = 0.0
 
-        if retSubperiod:
-            self.__subperiodReturns.append(retSubperiod)
+        self.__cumRet = (1 + self.__cumRet) * (1 + retSubperiod) - 1
+        self.__lastPeriodRet = retSubperiod
         self.__lastValue = currentValue
         self.__flows = 0.0
 
-    def getSubPeriodReturns(self):
-        return self.__subperiodReturns
+    def getLastPeriodReturns(self):
+        return self.__lastPeriodRet
 
     # Note that this value is not annualized.
-    def getReturn(self):
-        if len(self.__subperiodReturns):
-            ret = reduce(
-                lambda x, y: x * y,
-                map(lambda x: x + 1, self.__subperiodReturns),
-                1
-            )
-            ret -= 1
-        else:
-            ret = 0
-        return ret
+    def getCumulativeReturns(self):
+        return self.__cumRet
 
 
-# Helper class to calculate simple and cumulative returns.
-class ReturnsTracker(object):
-    def __init__(self, initialValue):
-        assert(initialValue > 0)
-        self.__lastValue = initialValue
-        self.__netRet = 0.0
-        self.__cumRet = 0.0
-
-    def updateValue(self, currentValue):
-        netReturn = (currentValue - self.__lastValue) / float(self.__lastValue)
-        self.__netRet = netReturn
-        self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
-        self.__lastValue = currentValue
-
-    def getNetReturn(self, currentValue=None):
-        ret = 0.0
-        if currentValue is None:
-            ret = self.__netRet
-        else:
-            ret = (currentValue - self.__lastValue) / float(self.__lastValue)
-        return ret
-
-    def getCumulativeReturn(self, currentValue=None):
-        ret = 0.0
-        if currentValue is None:
-            ret = self.__cumRet
-        else:
-            netReturn = (currentValue - self.__lastValue) / float(self.__lastValue)
-            ret = (1 + self.__cumRet) * (1 + netReturn) - 1
-        return ret
-
-
-# Helper class to calculate returns and profit over a single instrument.
+# Helper class to calculate returns and profit over a single instrument and a single position (not
+# the whole portfolio).
 class PositionTracker(object):
     def __init__(self, instrumentTraits):
         self.__instrumentTraits = instrumentTraits
@@ -198,10 +159,8 @@ class PositionTracker(object):
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
     def __init__(self):
-        self.__netRet = 0
-        self.__cumRet = 0
         self.__event = observer.Event()
-        self.__lastPortfolioValue = None
+        self.__portfolioReturns = None
 
     @classmethod
     def getOrCreateShared(cls, strat):
@@ -214,7 +173,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
         return ret
 
     def attached(self, strat):
-        self.__lastPortfolioValue = strat.getBroker().getEquity()
+        self.__portfolioReturns = TimeWeightedReturns(strat.getBroker().getEquity())
 
     # An event will be notified when return are calculated at each bar. The hander should receive 1 parameter:
     # 1: The current datetime.
@@ -223,20 +182,13 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
         return self.__event
 
     def getNetReturn(self):
-        return self.__netRet
+        return self.__portfolioReturns.getLastPeriodReturns()
 
     def getCumulativeReturn(self):
-        return self.__cumRet
+        return self.__portfolioReturns.getCumulativeReturns()
 
     def beforeOnBars(self, strat, bars):
-        currentPortfolioValue = strat.getBroker().getEquity()
-        netReturn = (currentPortfolioValue - self.__lastPortfolioValue) / float(self.__lastPortfolioValue)
-        self.__lastPortfolioValue = currentPortfolioValue
-
-        self.__netRet = netReturn
-
-        # Calculate cumulative return.
-        self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
+        self.__portfolioReturns.update(strat.getBroker().getEquity())
 
         # Notify that new returns are available.
         self.__event.emit(bars.getDateTime(), self)
@@ -244,7 +196,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 class Returns(stratanalyzer.StrategyAnalyzer):
     """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-    returns and cumulative returns for the whole portfolio."""
+    time-weighted returns for the whole portfolio."""
 
     def __init__(self):
         self.__netReturns = dataseries.SequenceDataSeries()
