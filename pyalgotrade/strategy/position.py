@@ -165,7 +165,7 @@ class Position(object):
         self.__entryDateTime = None
         self.__exitOrder = None
         self.__exitDateTime = None
-        self.__posTracker = returns.PositionTracker()
+        self.__posTracker = returns.PositionTracker(entryOrder.getInstrumentTraits())
         self.__allOrNone = allOrNone
 
         self.switchState(WaitingEntryState())
@@ -181,7 +181,8 @@ class Position(object):
         # Check if an order can be submitted in the current state.
         self.__state.canSubmitOrder(self, order)
 
-        # This may raise an exception, so we wan't to submit the order before moving forward and registering the order in the strategy.
+        # This may raise an exception, so we wan't to submit the order before moving forward and registering
+        # the order in the strategy.
         self.getStrategy().getBroker().submitOrder(order)
 
         self.__activeOrders[order.getId()] = order

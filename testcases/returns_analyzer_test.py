@@ -32,181 +32,265 @@ import unittest
 import datetime
 
 
+class TimeWeightedReturnsTestCase(unittest.TestCase):
+    def testNullPortfolio(self):
+        retTracker = returns.TimeWeightedReturns(0)
+        self.assertEqual(retTracker.getCumulativeReturns(), 0)
+
+    def testNoUpdates(self):
+        retTracker = returns.TimeWeightedReturns(10)
+        self.assertEqual(retTracker.getCumulativeReturns(), 0)
+
+    def testInvestopedia(self):
+        # http://www.investopedia.com/exam-guide/cfa-level-1/quantitative-methods/discounted-cash-flow-time-weighted-return.asp
+        retTracker = returns.TimeWeightedReturns(200000)
+        retTracker.update(196500)  # March 31, 2004
+        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), -0.0175)
+        retTracker.update(200000)  # June 30, 2004
+        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), 0.0178)
+        retTracker.deposit(20000)
+        retTracker.update(222000)  # July 30, 2004
+        self.assertEquals(round(retTracker.getLastPeriodReturns(), 2), 0.01)
+        retTracker.update(243000)  # Sept. 30, 2004
+        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), 0.0946)
+        retTracker.deposit(2000)
+        retTracker.update(250000)  # Dec. 31, 2004
+        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), 0.0206)
+        self.assertEquals(round(retTracker.getCumulativeReturns(), 6),  0.128288)
+
+
 class PosTrackerTestCase(unittest.TestCase):
-    invalid_price = 5000
+
+    def testBuyAndSellBreakEven(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.buy(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        posTracker.sell(1, 10)
+        self.assertEqual(posTracker.getCash(), 0)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getReturn(), 0)
 
     def testBuyAndSellBreakEvenWithCommission(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        self.assertEqual(posTracker.getCash(), 0)
         posTracker.buy(1, 10, 0.01)
+        self.assertEqual(posTracker.getCash(), -10.01)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
         posTracker.sell(1, 10.02, 0.01)
-        self.assertTrue(posTracker.getCost() == 10)
-        # We need to round here or else the testcase fails since the value returned is not exactly 0.<
+        self.assertEqual(round(posTracker.getCash(), 2), 0)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        # We need to round to avoid floating point errors.
         # The same issue can be reproduced with this piece of code:
         # a = 10.02 - 10
         # b = 0.02
         # print a - b
         # print a - b == 0
-        self.assertTrue(round(posTracker.getNetProfit(PosTrackerTestCase.invalid_price), 2) == 0.0)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 2) == 0.0)
-
-    def testBuyAndSellBreakEven(self):
-        posTracker = returns.PositionTracker()
-        posTracker.buy(1, 10)
-        posTracker.sell(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 0)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0)
+        self.assertEqual(posTracker.getShares(), 0)
+        self.assertEqual(round(posTracker.getNetProfit(), 2), 0)
+        self.assertEqual(round(posTracker.getReturn(), 2), 0)
 
     def testBuyAndSellWin(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
         posTracker.sell(1, 11)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0.1)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 1)
+        self.assertTrue(posTracker.getReturn() == 0.1)
+
+    def testBuyAndSellInTwoTrades(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.buy(2, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        posTracker.sell(1, 11)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(), 1)
+        self.assertEqual(posTracker.getReturn(), 0.05)
+        posTracker.sell(1, 12)
+        self.assertEqual(posTracker.getNetProfit(), 3)
+        self.assertEqual(posTracker.getReturn(), 3/20.0)
 
     def testBuyAndSellMultipleEvals(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(2, 10)
-        self.assertTrue(posTracker.getCost() == 20)
-        self.assertTrue(posTracker.getNetProfit(10) == 0)
-        self.assertTrue(posTracker.getReturn(10) == 0)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getNetProfit(9), -2)
+        self.assertEqual(posTracker.getNetProfit(10), 0)
+        self.assertEqual(posTracker.getNetProfit(11), 2)
+        self.assertEqual(posTracker.getReturn(10), 0)
 
-        self.assertTrue(posTracker.getNetProfit(11) == 2)
-        self.assertTrue(posTracker.getReturn(11) == 0.1)
+        self.assertEqual(posTracker.getNetProfit(11), 2)
+        self.assertEqual(round(posTracker.getReturn(11), 2), 0.1)
 
-        self.assertTrue(posTracker.getNetProfit(20) == 20)
-        self.assertTrue(posTracker.getReturn(20) == 1)
+        self.assertEqual(posTracker.getNetProfit(20), 20)
+        self.assertEqual(posTracker.getReturn(20), 1)
 
         posTracker.sell(1, 11)
-        self.assertTrue(posTracker.getCost() == 20)
-        self.assertTrue(posTracker.getNetProfit(11) == 2)
-        self.assertTrue(posTracker.getReturn(11) == 0.1)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(11), 2)
+        self.assertEqual(posTracker.getReturn(11), 0.1)
 
         posTracker.sell(1, 10)
-        self.assertTrue(posTracker.getCost() == 20)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
-        self.assertTrue(posTracker.getReturn(11) == 0.05)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 1)
+        self.assertEqual(posTracker.getReturn(11), 0.05)
 
     def testSellAndBuyWin(self):
-        posTracker = returns.PositionTracker()
-        posTracker.sell(1, 11)
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.sell(1, 13)
+        self.assertEqual(posTracker.getCostPerShare(), 13)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getNetProfit(10), 3)
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 11)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 1)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.090909091, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 3)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(0.23076923076923, 9))
 
     def testSellAndBuyMultipleEvals(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.sell(2, 11)
-        self.assertTrue(posTracker.getCost() == 22)
-        self.assertTrue(posTracker.getNetProfit(11) == 0)
-        self.assertTrue(posTracker.getReturn(11) == 0)
+        self.assertEqual(posTracker.getCostPerShare(), 11)
+        self.assertEqual(posTracker.getNetProfit(10), 2)
+        self.assertEqual(posTracker.getNetProfit(11), 0)
+        self.assertEqual(posTracker.getNetProfit(12), -2)
+        self.assertEqual(posTracker.getReturn(11), 0)
 
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 22)
-        self.assertTrue(posTracker.getNetProfit(11) == 1)
-        self.assertTrue(round(posTracker.getReturn(11), 4) == round(0.045454545, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 11)
+        self.assertEqual(posTracker.getNetProfit(11), 1)
+        self.assertEqual(round(posTracker.getReturn(11), 9), round(0.045454545, 9))
 
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 22)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 2)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.090909091, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 2)
+        self.assertEqual(posTracker.getNetProfit(100), 2)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(0.090909091, 9))
 
     def testBuySellBuy(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(9), -1)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getNetProfit(10), 0)
+        self.assertEqual(posTracker.getNetProfit(11), 1)
+        self.assertEqual(posTracker.getReturn(), 0)
+        self.assertEqual(posTracker.getReturn(13), 0.3)
 
-        posTracker.sell(2, 13)  # Short selling 1 @ $13
-        self.assertTrue(posTracker.getCost() == 10 + 13)
+        # Closing the long position and short selling 1 @ $13.
+        # The cost basis for the new position is $13.
+        posTracker.sell(2, 13)
+        self.assertEqual(posTracker.getCostPerShare(), 13)
+        self.assertEqual(posTracker.getNetProfit(), 3)
+        self.assertEqual(round(posTracker.getReturn(), 8), 0.23076923)
 
         posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10 + 13)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 6)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 4) == round(0.260869565, 4))
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), 6)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(0.46153846153846, 9))
 
-    def testBuyAndUpdate(self):
-        posTracker = returns.PositionTracker()
-        posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(20) == 10)
-        self.assertTrue(posTracker.getReturn(20) == 1)
+    def testSellBuySell(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.sell(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getReturn(), 0)
+        self.assertEqual(posTracker.getNetProfit(13), -3)
+        self.assertEqual(posTracker.getReturn(13), -0.3)
 
-        posTracker.update(15)
-        self.assertTrue(posTracker.getCost() == 15)
-        self.assertTrue(posTracker.getNetProfit(15) == 0)
-        self.assertTrue(posTracker.getReturn(15) == 0)
+        # Closing the short position and going long 1 @ $13.
+        # The cost basis for the new position is $13.
+        posTracker.buy(2, 13)
+        self.assertEqual(posTracker.getCostPerShare(), 13)
+        self.assertEqual(posTracker.getNetProfit(), -3)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(-0.23076923076923, 9))
 
-        self.assertTrue(posTracker.getNetProfit(20) == 5)
-        self.assertTrue(round(posTracker.getReturn(20), 2) == 0.33)
-
-    def testBuyUpdateAndSell(self):
-        posTracker = returns.PositionTracker()
-        posTracker.buy(1, 10)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(15) == 5)
-        self.assertTrue(posTracker.getReturn(15) == 0.5)
-
-        posTracker.update(15)
-        self.assertTrue(posTracker.getCost() == 15)
-        posTracker.sell(1, 20)
-        self.assertTrue(posTracker.getCost() == 15)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 5)
-        self.assertTrue(round(posTracker.getReturn(PosTrackerTestCase.invalid_price), 2) == 0.33)
-
-        posTracker.update(100)
-        self.assertTrue(posTracker.getCost() == 0)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price) == 0)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price) == 0)
+        posTracker.sell(1, 10)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), -6)
+        self.assertEqual(round(posTracker.getReturn(), 9), round(-0.46153846153846, 9))
 
     def testBuyAndSellBreakEvenWithCommision(self):
-        posTracker = returns.PositionTracker()
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
         posTracker.buy(1, 10, 0.5)
+        self.assertEqual(posTracker.getCostPerShare(), 10)
         posTracker.sell(1, 11, 0.5)
-        self.assertTrue(posTracker.getCost() == 10)
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price, False) == 1)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price, False) == 0.1)
+        self.assertEqual(posTracker.getNetProfit(includeCommissions=False), 1)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getReturn(includeCommissions=False), 0.1)
+        self.assertEqual(posTracker.getReturn(), 0)
 
-        self.assertTrue(posTracker.getNetProfit(PosTrackerTestCase.invalid_price, True) == 0)
-        self.assertTrue(posTracker.getReturn(PosTrackerTestCase.invalid_price, True) == 0)
+    def testSeparateAndCombined(self):
+        posA = returns.PositionTracker(broker.IntegerTraits())
+        posA.buy(11, 10)
+        posA.sell(11, 30)
+        self.assertEqual(posA.getNetProfit(), 20*11)
+        self.assertEqual(posA.getReturn(), 2)
+        self.assertEqual(posA.getCostBasis(), 11*10)
 
-    def testLongShortEqualAmount(self):
-        posTrackerXYZ = returns.PositionTracker()
-        posTrackerXYZ.buy(11, 10)
-        posTrackerXYZ.sell(11, 30)
-        self.assertTrue(posTrackerXYZ.getCost() == 11*10)
-        self.assertTrue(posTrackerXYZ.getNetProfit(PosTrackerTestCase.invalid_price) == 20*11)
-        self.assertTrue(posTrackerXYZ.getReturn(PosTrackerTestCase.invalid_price) == 2)
+        posB = returns.PositionTracker(broker.IntegerTraits())
+        posB.sell(100, 1.1)
+        posB.buy(100, 1)
+        self.assertEqual(round(posB.getNetProfit(), 2), 100*0.1)
+        self.assertEqual(round(posB.getReturn(), 2), 0.09)
+        self.assertEqual(posB.getCostBasis(), 100*1.1)
 
-        posTrackerABC = returns.PositionTracker()
-        posTrackerABC.sell(100, 1.1)
-        posTrackerABC.buy(100, 1)
-        self.assertTrue(posTrackerABC.getCost() == 100*1.1)
-        self.assertTrue(round(posTrackerABC.getNetProfit(PosTrackerTestCase.invalid_price), 2) == 100*0.1)
-        self.assertEqual(round(posTrackerABC.getReturn(PosTrackerTestCase.invalid_price), 2), 0.09)
+        combinedPos = returns.PositionTracker(broker.IntegerTraits())
+        combinedPos.buy(11, 10)
+        combinedPos.sell(11, 30)
+        self.assertEqual(combinedPos.getCostBasis(), 11*10)
+        combinedPos.sell(100, 1.1)
+        combinedPos.buy(100, 1)
+        self.assertEqual(combinedPos.getCostBasis(), 100*1.1)
+        self.assertEqual(round(combinedPos.getReturn(), 6), 2.090909)
+        # The return of the combined position is less than the two returns combined
+        # because when the second position gets opened the amount of cash not invested is greater
+        # than that of posB alone.
+        self.assertLess(round(combinedPos.getReturn(), 6), ((1+posA.getReturn())*(1+posB.getReturn())-1))
 
-        combinedCost = posTrackerXYZ.getCost() + posTrackerABC.getCost()
-        combinedPL = posTrackerXYZ.getNetProfit(PosTrackerTestCase.invalid_price) + posTrackerABC.getNetProfit(PosTrackerTestCase.invalid_price)
-        combinedReturn = combinedPL / float(combinedCost)
-        self.assertTrue(round(combinedReturn, 9) == 1.045454545)
+    def testProfitReturnsAndCost(self):
+        posTracker = returns.PositionTracker(broker.IntegerTraits())
+        posTracker.buy(10, 1)
+        self.assertEqual(posTracker.getNetProfit(), 0)
+        self.assertEqual(posTracker.getCostPerShare(), 1)
+        self.assertEqual(posTracker.getCommissions(), 0)
+        self.assertEqual(posTracker.getCash(), -10)
+
+        posTracker.buy(20, 1, 10)
+        self.assertEqual(posTracker.getNetProfit(), -10)
+        self.assertEqual(posTracker.getCostPerShare(), 1)
+        self.assertEqual(posTracker.getCommissions(), 10)
+        self.assertEqual(posTracker.getCash(), -40)
+
+        posTracker.sell(30, 1)
+        self.assertEqual(posTracker.getCostPerShare(), 0)
+        self.assertEqual(posTracker.getNetProfit(), -10)
+        self.assertEqual(posTracker.getCash(), -10)
+        self.assertEqual(posTracker.getCommissions(), 10)
+        self.assertEqual(posTracker.getReturn(), -10/30.0)
+
+        posTracker.buy(10, 1)
+        self.assertEqual(posTracker.getNetProfit(), -10)
+        self.assertEqual(posTracker.getCostPerShare(), 1)
 
 
-class ReturnsTestCase(unittest.TestCase):
+class AnalyzerTestCase(unittest.TestCase):
     TestInstrument = "any"
 
     def testOneBarReturn(self):
         initialCash = 1000
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 07), datetime.datetime(2001, 12, 07)))
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the orders to get them filled on the first (and only) bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, False)  # Open: 15.74
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
         strat.getBroker().placeOrder(order)
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True)  # Close: 15.91
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
         strat.getBroker().placeOrder(order)
 
         stratAnalyzer = returns.Returns()
@@ -222,15 +306,15 @@ class ReturnsTestCase(unittest.TestCase):
         initialCash = 15.61
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
         # 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, False)  # Open: 15.61
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.61
         strat.getBroker().placeOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, False)  # Open: 15.74
+        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -245,15 +329,15 @@ class ReturnsTestCase(unittest.TestCase):
         initialCash = 15.61
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
         # 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, False)  # Open: 15.61
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.61
         strat.getBroker().placeOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True)  # Close: 15.91
+        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -268,15 +352,15 @@ class ReturnsTestCase(unittest.TestCase):
         initialCash = 15.9
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
         # 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, True)  # Close: 15.90
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.90
         strat.getBroker().placeOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, False)  # Open: 15.74
+        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -291,15 +375,15 @@ class ReturnsTestCase(unittest.TestCase):
         initialCash = 15.90
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
         # 2001-12-06,15.61,16.03,15.50,15.90,66944900,15.55
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, True)  # Close: 15.90
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.90
         strat.getBroker().placeOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, ReturnsTestCase.TestInstrument, 1, True)  # Close: 15.91
+        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -313,10 +397,10 @@ class ReturnsTestCase(unittest.TestCase):
     def testCumulativeReturn(self):
         initialCash = 33.06
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-        strat = position_test.TestStrategy(barFeed, ReturnsTestCase.TestInstrument, initialCash)
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        strat = position_test.TestStrategy(barFeed, AnalyzerTestCase.TestInstrument, initialCash)
 
-        strat.addPosEntry(datetime.datetime(2001, 1, 12), strat.enterLong, ReturnsTestCase.TestInstrument, 1)  # 33.06
+        strat.addPosEntry(datetime.datetime(2001, 1, 12), strat.enterLong, AnalyzerTestCase.TestInstrument, 1)  # 33.06
         strat.addPosExit(datetime.datetime(2001, 11, 27))  # 14.32
 
         stratAnalyzer = returns.Returns()
@@ -328,10 +412,10 @@ class ReturnsTestCase(unittest.TestCase):
     def testGoogle2011(self):
         initialValue = 1000000
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("goog-2011-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("goog-2011-yahoofinance.csv"))
 
         strat = strategy_test.TestStrategy(barFeed, initialValue)
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1654, True)  # 2011-01-03 close: 604.35
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1654, True)  # 2011-01-03 close: 604.35
         strat.getBroker().placeOrder(order)
 
         stratAnalyzer = returns.Returns()
@@ -358,10 +442,10 @@ class ReturnsTestCase(unittest.TestCase):
     def testFirstBar(self):
         initialCash = 1000
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(ReturnsTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
-        strat.addOrder(datetime.datetime(2001, 01, 02), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, ReturnsTestCase.TestInstrument, 1, False)  # 2001-01-03 Open: 25.25 Close: 32.00
+        strat.addOrder(datetime.datetime(2001, 01, 02), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # 2001-01-03 Open: 25.25 Close: 32.00
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)

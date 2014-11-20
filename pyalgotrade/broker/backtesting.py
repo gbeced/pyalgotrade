@@ -26,11 +26,6 @@ from pyalgotrade import logger
 import pyalgotrade.bar
 
 
-class DefaultTraits(broker.InstrumentTraits):
-    def roundQuantity(self, quantity):
-        return int(quantity)
-
-
 ######################################################################
 # Commission models
 
@@ -612,7 +607,7 @@ class Broker(broker.Broker):
         return self.__barFeed.getCurrentDateTime()
 
     def getInstrumentTraits(self, instrument):
-        return DefaultTraits()
+        return broker.IntegerTraits()
 
     def getShares(self, instrument):
         return self.__shares.get(instrument, 0)

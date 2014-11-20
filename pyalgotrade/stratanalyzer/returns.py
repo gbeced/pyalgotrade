@@ -18,89 +18,149 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import math
+
 from pyalgotrade import stratanalyzer
 from pyalgotrade import observer
 from pyalgotrade import dataseries
 
 
-# Helper class to calculate returns and net profit.
-class PositionTracker(object):
-    def __init__(self):
-        self.__shares = 0
-        self.__cash = 0
-        self.__commissions = 0
-        self.__cost = 0
+# Helper class to calculate time-weighted returns in a portfolio.
+# Check http://www.wikinvest.com/wiki/Time-weighted_return
+class TimeWeightedReturns(object):
+    def __init__(self, initialValue):
+        self.__lastValue = initialValue
+        self.__flows = 0.0
+        self.__lastPeriodRet = 0.0
+        self.__cumRet = 0.0
 
-    def __updateCost(self, quantity, price):
-        cost = 0
+    def deposit(self, amount):
+        self.__flows += amount
 
-        if self.__shares > 0:  # Current position is long
-            if quantity > 0:  # Increase long position
-                cost = quantity * price
-            else:
-                diff = self.__shares + quantity
-                if diff < 0:  # Entering a short position
-                    cost = abs(diff) * price
-        elif self.__shares < 0:  # Current position is short
-            if quantity < 0:  # Increase short position
-                cost = abs(quantity) * price
-            else:
-                diff = self.__shares + quantity
-                if diff > 0:  # Entering a long position
-                    cost = diff * price
+    def withdraw(self, amount):
+        self.__flows -= amount
+
+    def getCurrentValue(self):
+        return self.__lastValue
+
+    # Update the value of the portfolio.
+    def update(self, currentValue):
+        if self.__lastValue:
+            retSubperiod = (currentValue - self.__lastValue - self.__flows) / float(self.__lastValue)
         else:
-            cost = abs(quantity) * price
-        self.__cost += cost
+            retSubperiod = 0.0
+
+        self.__cumRet = (1 + self.__cumRet) * (1 + retSubperiod) - 1
+        self.__lastPeriodRet = retSubperiod
+        self.__lastValue = currentValue
+        self.__flows = 0.0
+
+    def getLastPeriodReturns(self):
+        return self.__lastPeriodRet
+
+    # Note that this value is not annualized.
+    def getCumulativeReturns(self):
+        return self.__cumRet
+
+
+# Helper class to calculate returns and profit over a single instrument and a single position (not
+# the whole portfolio).
+class PositionTracker(object):
+    def __init__(self, instrumentTraits):
+        self.__instrumentTraits = instrumentTraits
+        self.reset()
+
+    def reset(self):
+        self.__cash = 0.0
+        self.__shares = 0
+        self.__commissions = 0.0
+        self.__costPerShare = 0.0  # Volume weighted average price per share.
+        self.__costBasis = 0.0
+
+    def __update(self, quantity, price, commission):
+        assert(quantity != 0)
+
+        if self.__shares == 0:
+            # Opening a new position
+            totalShares = quantity
+            self.__costPerShare = price
+            self.__costBasis = abs(quantity) * price
+        else:
+            totalShares = self.__instrumentTraits.roundQuantity(self.__shares + quantity)
+            if totalShares != 0:
+                prevDirection = math.copysign(1, self.__shares)
+                txnDirection = math.copysign(1, quantity)
+
+                if prevDirection != txnDirection:
+                    if abs(quantity) > abs(self.__shares):
+                        # Going from long to short or the other way around.
+                        # Update costs as a new position being opened.
+                        self.__costPerShare = price
+                        diff = self.__instrumentTraits.roundQuantity(self.__shares + quantity)
+                        self.__costBasis = abs(diff) * price
+                    else:
+                        # Reducing the position.
+                        pass
+                else:
+                    # Increasing the current position.
+                    # Calculate a volume weighted average price per share.
+                    prevCost = self.__costPerShare * self.__shares
+                    txnCost = quantity * price
+                    self.__costPerShare = (prevCost + txnCost) / totalShares
+                    self.__costBasis += abs(quantity) * price
+            else:
+                # Closing the position.
+                self.__costPerShare = 0.0
+
+        self.__cash += price * quantity * -1
+        self.__commissions += commission
+        self.__shares = totalShares
+
+    def getCash(self):
+        return self.__cash - self.__commissions
 
     def getShares(self):
         return self.__shares
 
-    def getCost(self):
-        return self.__cost
+    def getCostPerShare(self):
+        # Returns the weighted average cost per share for the open position.
+        return self.__costPerShare
 
     def getCommissions(self):
         return self.__commissions
 
-    def getNetProfit(self, price, includeCommissions=True):
-        ret = self.__cash + self.__shares * price
+    def getCostBasis(self):
+        return self.__costBasis
+
+    def getNetProfit(self, price=None, includeCommissions=True):
+        ret = self.__cash
+        if price is None:
+            price = self.__costPerShare
+        ret += price * self.__shares
         if includeCommissions:
             ret -= self.__commissions
         return ret
 
-    def getReturn(self, price, includeCommissions=True):
+    def getReturn(self, price=None, includeCommissions=True):
         ret = 0
         netProfit = self.getNetProfit(price, includeCommissions)
-        cost = self.getCost()
-        if cost != 0:
-            ret = netProfit / float(cost)
+        if self.__costBasis != 0:
+            ret = netProfit / float(self.__costBasis)
         return ret
 
     def buy(self, quantity, price, commission=0):
         assert(quantity > 0)
-        self.__updateCost(quantity, price)
-        self.__cash += quantity * -1 * price
-        self.__shares += quantity
-        self.__commissions += commission
+        self.__update(quantity, price, commission)
 
     def sell(self, quantity, price, commission=0):
         assert(quantity > 0)
-        self.__updateCost(quantity * -1, price)
-        self.__cash += quantity * price
-        self.__shares -= quantity
-        self.__commissions += commission
-
-    def update(self, price):
-        self.__commissions = 0
-        self.__cash = self.__shares * -1 * price
-        self.__cost = abs(self.__shares) * price
+        self.__update(quantity * -1, price, commission)
 
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
     def __init__(self):
-        self.__netRet = 0
-        self.__cumRet = 0
         self.__event = observer.Event()
-        self.__lastPortfolioValue = None
+        self.__portfolioReturns = None
 
     @classmethod
     def getOrCreateShared(cls, strat):
@@ -113,7 +173,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
         return ret
 
     def attached(self, strat):
-        self.__lastPortfolioValue = strat.getBroker().getEquity()
+        self.__portfolioReturns = TimeWeightedReturns(strat.getBroker().getEquity())
 
     # An event will be notified when return are calculated at each bar. The hander should receive 1 parameter:
     # 1: The current datetime.
@@ -122,20 +182,13 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
         return self.__event
 
     def getNetReturn(self):
-        return self.__netRet
+        return self.__portfolioReturns.getLastPeriodReturns()
 
     def getCumulativeReturn(self):
-        return self.__cumRet
+        return self.__portfolioReturns.getCumulativeReturns()
 
     def beforeOnBars(self, strat, bars):
-        currentPortfolioValue = strat.getBroker().getEquity()
-        netReturn = (currentPortfolioValue - self.__lastPortfolioValue) / float(self.__lastPortfolioValue)
-        self.__lastPortfolioValue = currentPortfolioValue
-
-        self.__netRet = netReturn
-
-        # Calculate cumulative return.
-        self.__cumRet = (1 + self.__cumRet) * (1 + netReturn) - 1
+        self.__portfolioReturns.update(strat.getBroker().getEquity())
 
         # Notify that new returns are available.
         self.__event.emit(bars.getDateTime(), self)
@@ -143,7 +196,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 class Returns(stratanalyzer.StrategyAnalyzer):
     """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-    returns and cumulative returns for the whole portfolio."""
+    time-weighted returns for the whole portfolio."""
 
     def __init__(self):
         self.__netReturns = dataseries.SequenceDataSeries()

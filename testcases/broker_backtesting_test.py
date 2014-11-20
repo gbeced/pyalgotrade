@@ -141,7 +141,7 @@ class CommissionTestCase(unittest.TestCase):
 
     def testFixedPerTrade(self):
         comm = backtesting.FixedPerTrade(1.2)
-        order = backtesting.MarketOrder(broker.Order.Action.BUY, "orcl", 1, False, backtesting.DefaultTraits())
+        order = backtesting.MarketOrder(broker.Order.Action.BUY, "orcl", 1, False, broker.IntegerTraits())
         self.assertEqual(comm.calculate(order, 1, 1), 1.2)
 
     def testTradePercentage(self):

@@ -38,6 +38,11 @@ class InstrumentTraits(object):
         raise NotImplementedError()
 
 
+class IntegerTraits(InstrumentTraits):
+    def roundQuantity(self, quantity):
+        return int(quantity)
+
+
 ######################################################################
 # Orders
 # http://stocks.about.com/od/tradingbasics/a/markords.htm
