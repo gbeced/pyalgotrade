@@ -193,6 +193,9 @@ class Profiler(object):
         :type useAdjustedCloseForReturns: boolean.
         """
 
+        if useAdjustedCloseForReturns:
+            assert feed.barsHaveAdjClose(), "Feed doesn't have adjusted close values"
+
         try:
             self.__feed = feed
             self.__rets = {}
