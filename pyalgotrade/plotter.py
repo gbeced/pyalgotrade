@@ -24,8 +24,6 @@ import broker
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-from matplotlib import finance
-from matplotlib import dates
 
 
 def get_last_value(dataSeries):
@@ -138,12 +136,11 @@ class LineMarker(Series):
 class InstrumentMarker(Series):
     def __init__(self):
         Series.__init__(self)
-        self.__useCandleSticks = False
         self.__useAdjClose = None
         self.__marker = " "
 
     def needColor(self):
-        return not self.__useCandleSticks
+        return True
 
     def setMarker(self, marker):
         self.__marker = marker
@@ -158,7 +155,7 @@ class InstrumentMarker(Series):
     def getValue(self, dateTime):
         # If not using candlesticks, the return the closing price.
         ret = Series.getValue(self, dateTime)
-        if not self.__useCandleSticks and ret is not None:
+        if ret is not None:
             if self.__useAdjClose is None:
                 ret = ret.getPrice()
             elif self.__useAdjClose:
@@ -168,15 +165,7 @@ class InstrumentMarker(Series):
         return ret
 
     def plot(self, mplSubplot, dateTimes, color):
-        if self.__useCandleSticks:
-            values = []
-            for dateTime in dateTimes:
-                bar = self.getValue(dateTime)
-                if bar:
-                    values.append((dates.date2num(dateTime), bar.getOpen(), bar.getClose(), bar.getHigh(), bar.getLow()))
-            finance.candlestick(mplSubplot, values, width=0.5, colorup='g', colordown='r',)
-        else:
-            Series.plot(self, mplSubplot, dateTimes, color)
+        Series.plot(self, mplSubplot, dateTimes, color)
 
 
 class HistogramMarker(Series):
