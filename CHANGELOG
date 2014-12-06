@@ -1,5 +1,6 @@
 Version 0.17 (TBD)
 . [FIX] Automatically reconnect bitstamp feed if the connection gets closed.
+. [FIX] Close connections ASAP to avoid running out of file descriptors when GC gets delayed. Thanks Tibor Kiss for reporting and fixing this.
 
 Version 0.16 (31/Aug/2014)
 . [NEW] Added support for live trading Bitcoin strategies through Bitstamp.

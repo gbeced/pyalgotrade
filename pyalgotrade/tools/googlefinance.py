@@ -40,6 +40,7 @@ def download_csv(instrument, begin, end):
     if f.headers['Content-Type'] != 'application/vnd.ms-excel':
         raise Exception("Failed to download data: %s" % f.getcode())
     buff = f.read()
+    f.close()
 
     # Remove the BOM
     while not buff[0].isalnum():
