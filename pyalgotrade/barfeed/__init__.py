@@ -35,7 +35,8 @@ class BaseBarFeed(feed.BaseFeed):
 
     :param frequency: The bars frequency. Valid values defined in :class:`pyalgotrade.bar.Frequency`.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+        from the opposite end.
     :type maxLen: int.
 
     .. note::
@@ -98,7 +99,12 @@ class BaseBarFeed(feed.BaseFeed):
 
             # Check that current bar datetimes are greater than the previous one.
             if self.__currDateTime is not None and self.__currDateTime >= dateTime:
-                raise Exception("Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (self.__currDateTime, dateTime))
+                raise Exception(
+                    "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
+                        self.__currDateTime,
+                        dateTime
+                    )
+                )
             self.__currDateTime = dateTime
 
             # Update self.__currentBars and self.__lastBars
@@ -109,6 +115,9 @@ class BaseBarFeed(feed.BaseFeed):
 
     def getFrequency(self):
         return self.__frequency
+
+    def isIntraday(self):
+        return self.__frequency < bar.Frequency.DAY
 
     def getCurrentBars(self):
         """Returns the current :class:`pyalgotrade.bar.Bars`."""
@@ -146,7 +155,8 @@ class BaseBarFeed(feed.BaseFeed):
         return self[instrument]
 
 
-# This class is used by the optimizer module. The barfeed is already built on the server side, and the bars are sent back to workers.
+# This class is used by the optimizer module. The barfeed is already built on the server side,
+# and the bars are sent back to workers.
 class OptimizerBarFeed(BaseBarFeed):
     def __init__(self, frequency, instruments, bars, maxLen=dataseries.DEFAULT_MAX_LEN):
         BaseBarFeed.__init__(self, frequency, maxLen)
