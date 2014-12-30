@@ -1212,6 +1212,33 @@ class MarketOrderTestCase(BaseTestCase):
         self.assertEqual(order.getExecutionInfo().getQuantity(), 3)
         self.assertEqual(order.getExecutionInfo().getCommission(), 0)
 
+    def testDailyMarketOnClose(self):
+        barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.DAY)
+        cash = 1000000
+        brk = backtesting.Broker(cash, barFeed)
+
+        # Buy
+        order = brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 2, onClose=True)
+        self.assertEquals(order.getSubmitDateTime(), None)
+        brk.placeOrder(order)
+
+        # 2 should get filled at the closing price.
+        barFeed.dispatchBars(12, 15, 8, 14, 10)
+        self.assertTrue(order.isFilled())
+        self.assertEqual(order.getFilled(), 2)
+        self.assertEqual(order.getRemaining(), 0)
+        self.assertEqual(order.getAvgFillPrice(), 14)
+        self.assertEqual(order.getExecutionInfo().getPrice(), 14)
+        self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
+
+    def testIntradayMarketOnClose(self):
+        barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        cash = 1000000
+        brk = backtesting.Broker(cash, barFeed)
+
+        with self.assertRaisesRegexp(Exception, "Market-on-close not supported with intraday feeds"):
+            brk.createMarketOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, 1, onClose=True)
+
 
 class LimitOrderTestCase(BaseTestCase):
     def testBuySellPartial(self):
