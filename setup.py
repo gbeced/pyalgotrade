@@ -52,6 +52,7 @@ setup(
     ],
     install_requires=[
         'numpy',
+        'scipy',
         'pytz',
     ],
     extras_require={
