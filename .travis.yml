@@ -3,10 +3,11 @@ python:
   - "2.7"
 
 before_install:
-  - sudo apt-get install gfortran libopenblas-dev liblapack-dev
+  - sudo apt-get install gfortran libopenblas-dev liblapack-dev > /dev/null
 
 # command to install dependencies
 install:
+  - pip install scipy > /dev/null
   - pip install .
   - pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
