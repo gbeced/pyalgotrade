@@ -55,7 +55,7 @@ setup(
         'pytz',
     ],
     extras_require={
-        'TALib':  ["TA-Lib"],
+        'TALib':  ["Cython", "TA-Lib"],
         'Plotting':  ["matplotlib"],
         'Bitstamp':  ["ws4py", "tornado"],
         'Twitter':  ["tweepy"],
