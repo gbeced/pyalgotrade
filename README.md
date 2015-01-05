@@ -25,8 +25,8 @@ Main Features
  * Supports any type of time-series data in CSV format like Yahoo! Finance, Quandl and NinjaTrader.
  * [Xignite](https://www.xignite.com/) realtime feed.
  * Bitcoin support through [Bitstamp](https://www.bitstamp.net/).
- * Technical indicators and filters like SMA, WMA, EMA, RSI, Bollinger Bands and many more.
- * Strategy metrics like Sharpe ratio and drawdown analysis.
+ * Technical indicators and filters like SMA, WMA, EMA, RSI, Bollinger Bands and others.
+ * Performance metrics like Sharpe ratio and drawdown analysis.
  * Handling Twitter events in realtime.
  * Event profiler.
  * TA-Lib integration.
