@@ -1,4 +1,4 @@
-talib
+TA-Lib
 matplotlib
 ws4py
 tornado
