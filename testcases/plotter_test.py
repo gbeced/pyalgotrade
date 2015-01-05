@@ -21,6 +21,10 @@
 import unittest
 import sys
 import os
+import matplotlib
+
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade import plotter
