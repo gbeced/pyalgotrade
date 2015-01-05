@@ -5,7 +5,7 @@ python:
 # command to install dependencies
 install:
   - "pip install ."
-  - "pip install --allow-external=TA-Lib -r travis/requirements.txt"
+  - "pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt"
 
 # command to run tests
 # optimizer_testcase is ignored because it gets blocked in Travis.
