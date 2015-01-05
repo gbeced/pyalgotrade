@@ -1,6 +1,10 @@
 PyAlgoTrade
 ===========
 
+[![version status](https://pypip.in/v/pyalgotrade/badge.png)](https://pypi.python.org/pypi/pyalgotrade)
+[![downloads](https://pypip.in/d/pyalgotrade/badge.png)](https://pypi.python.org/pypi/pyalgotrade)
+[![build status](https://travis-ci.org/gbeced/pyalgotrade.png?branch=master)](https://travis-ci.org/gbeced/pyalgotrade)
+
 PyAlgoTrade is an **event driven algorithmic trading** Python library. Although the initial focus
 was on **backtesting**, **paper trading** is now possible using:
 
