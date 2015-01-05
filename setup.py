@@ -52,5 +52,12 @@ setup(
     ],
     install_requires=[
         'numpy',
-        'pytz']
+        'pytz',
+    ],
+    extras_require={
+        'TALib':  ["talib"],
+        'Plotting':  ["matplotlib"],
+        'Bitstamp':  ["ws4py", "tornado"],
+        'Twitter':  ["tweepy"],
+    },
 )

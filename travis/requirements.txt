@@ -1,4 +1,5 @@
+talib
+matplotlib
 ws4py
 tornado
 tweepy
-matplotlib
