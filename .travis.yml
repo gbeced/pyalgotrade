@@ -3,7 +3,7 @@ python:
   - "2.7"
 
 before_install:
-  - sudo apt-get install gfortran
+  - sudo apt-get install gfortran libopenblas-dev liblapack-dev
 
 # command to install dependencies
 install:
