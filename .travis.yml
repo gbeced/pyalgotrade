@@ -14,4 +14,5 @@ install:
 # optimizer_testcase is ignored because it gets blocked in Travis.
 # twitter_test is ignored because it requires credentials.
 # talib_test is ignored until I get it to work on Travis.
-script: nosetests --ignore-files=optimizer_testcase --ignore-files=twitter_test --ignore-files=talib_test
+# bitstamp_test is ignored until Bitstamp gets back online.
+script: nosetests --ignore-files=optimizer_testcase --ignore-files=twitter_test --ignore-files=talib_test --ignore-files=bitstamp_test
