@@ -52,10 +52,10 @@ setup(
     ],
     install_requires=[
         'numpy',
-        'scipy',
         'pytz',
     ],
     extras_require={
+        'Scipy':  ["scipy"],
         'TALib':  ["Cython", "TA-Lib"],
         'Plotting':  ["matplotlib"],
         'Bitstamp':  ["ws4py", "tornado"],

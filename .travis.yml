@@ -2,10 +2,8 @@ language: python
 python:
   - "2.7"
 
-# Not installing scipy with pip because it takes a very long time.
 before_install:
   - sudo apt-get install gfortran libopenblas-dev liblapack-dev
-  - sudo apt-get install python-scipy
 
 # command to install dependencies
 install:
