@@ -2,12 +2,12 @@ language: python
 python:
   - "2.7"
 
+# Not installing scipy with pip because it takes a very long time.
 before_install:
-  - sudo apt-get install gfortran libopenblas-dev liblapack-dev > /dev/null
+  - sudo apt-get install python-scipy
 
 # command to install dependencies
 install:
-  - pip install scipy > /dev/null
   - pip install .
   - pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
