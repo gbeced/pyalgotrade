@@ -9,7 +9,7 @@ before_install:
 # pip install scipy takes a lot of time and generates a lot of output. I want to get some output printed
 # just to avoid the job from getting stopped.
 install:
-  - pip install scipy | grep warning
+  - pip install scipy | awk 'NR % 250 == 0'
   - pip install .
   - pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
