@@ -6,7 +6,10 @@ before_install:
   - sudo apt-get install gfortran libopenblas-dev liblapack-dev
 
 # command to install dependencies
+# pip install scipy takes a lot of time and generates a lot of output. I want to get some output printed
+# just to avoid the job from getting stopped.
 install:
+  - pip install scipy | grep warning
   - pip install .
   - pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
