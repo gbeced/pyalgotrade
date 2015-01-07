@@ -15,7 +15,7 @@ and **live trading** is now possible using:
 
  * [Bitstamp](https://www.bitstamp.net/) for Bitcoins
 
-To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.15/html/index.html).
+To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.16/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.16/html/index.html).
 
 Main Features
 -------------
