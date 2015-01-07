@@ -18,14 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 import cPickle
+
+import common
 
 from pyalgotrade import bar
 
 
-class BasicBarTestCase(unittest.TestCase):
+class BasicBarTestCase(common.TestCase):
     def testInvalidConstruction(self):
         with self.assertRaises(Exception):
             bar.BasicBar(datetime.datetime.now(), 2, 1, 1, 1, 1, 1, bar.Frequency.DAY)
@@ -82,7 +83,7 @@ class BasicBarTestCase(unittest.TestCase):
             b.getClose(True)
 
 
-class BarsTestCase(unittest.TestCase):
+class BarsTestCase(common.TestCase):
     def testEmptyDict(self):
         with self.assertRaises(Exception):
             bar.Bars({})

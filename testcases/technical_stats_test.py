@@ -18,13 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
-from pyalgotrade.technical import stats
-from pyalgotrade import dataseries
 import numpy
 
+import common
 
-class TestCase(unittest.TestCase):
+from pyalgotrade.technical import stats
+from pyalgotrade import dataseries
+
+
+class TestCase(common.TestCase):
     def testStdDev_1(self):
         values = [1, 1, 2, 3, 5]
         seqDS = dataseries.SequenceDataSeries()

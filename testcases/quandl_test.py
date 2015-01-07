@@ -19,19 +19,19 @@
 """
 
 import os
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade.tools import quandl
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
-import common
 
 
 auth_token = None
 
 
-class ToolsTestCase(unittest.TestCase):
+class ToolsTestCase(common.TestCase):
     def testDownloadAndParseDaily(self):
         with common.TmpDir() as tmpPath:
             instrument = "ORCL"

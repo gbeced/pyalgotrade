@@ -19,11 +19,12 @@
 """
 
 import datetime
+import logging
+
 from pyalgotrade import strategy
 from pyalgotrade import bar
 from pyalgotrade import logger
 from pyalgotrade.barfeed import membf
-import logging
 
 
 class TestBarFeed(membf.BarFeed):

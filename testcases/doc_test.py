@@ -18,13 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import os
 
 from testcases import common
 
 
-class DocCodeTest(unittest.TestCase):
+class DocCodeTest(common.TestCase):
     def testTutorial1(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
             lines = common.run_sample_script("tutorial-1.py")
@@ -59,7 +58,7 @@ import csvfeed_1
             self.assertTrue(common.compare_tail("csvfeed_1.output", lines[-10:-1]))
 
 
-class CompInvTestCase(unittest.TestCase):
+class CompInvTestCase(common.TestCase):
     def testCompInv_1(self):
         files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
         with common.CopyFiles(files, "."):
@@ -69,20 +68,20 @@ class CompInvTestCase(unittest.TestCase):
             self.assertTrue(common.compare_head("compinv-1.output", lines[2:]))
 
 
-class StratAnalyzerTestCase(unittest.TestCase):
+class StratAnalyzerTestCase(common.TestCase):
     def testSampleStrategyAnalyzer(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
             lines = common.run_sample_script("sample-strategy-analyzer.py")
             self.assertTrue(common.compare_head("sample-strategy-analyzer.output", lines))
 
 
-class TechnicalTestCase(unittest.TestCase):
+class TechnicalTestCase(common.TestCase):
     def testTechnical_1(self):
         lines = common.run_sample_script("technical-1.py")
         self.assertTrue(common.compare_head("technical-1.output", lines))
 
 
-class SampleStratTestCase(unittest.TestCase):
+class SampleStratTestCase(common.TestCase):
     def testErnieChanGldVsGdx(self):
         files = []
         for year in range(2006, 2013):
@@ -216,7 +215,7 @@ market_timing.main(False)
             self.assertTrue(common.compare_tail("market_timing.output", lines[-10:-1]))
 
 
-class BitcoinChartsTestCase(unittest.TestCase):
+class BitcoinChartsTestCase(common.TestCase):
     def testExample1(self):
         with common.CopyFiles([os.path.join("testcases", "data", "bitstampUSD-2.csv")], "bitstampUSD.csv"):
             code = """import sys

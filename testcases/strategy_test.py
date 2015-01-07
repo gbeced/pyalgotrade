@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade import strategy
 from pyalgotrade import broker
 from pyalgotrade.barfeed import yahoofeed
-import common
 
 
 def get_by_datetime_or_date(dict_, dateTimeOrDate):
@@ -76,7 +76,7 @@ class TestStrategy(strategy.BacktestingStrategy):
             self.getBroker().placeOrder(order)
 
 
-class StrategyTestCase(unittest.TestCase):
+class StrategyTestCase(common.TestCase):
     TestInstrument = "doesntmatter"
 
     def loadDailyBarFeed(self):

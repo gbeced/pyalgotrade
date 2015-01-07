@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import linebreak
 from pyalgotrade.barfeed import yahoofeed
 
 
-class LineBreakTestCase(unittest.TestCase):
+class LineBreakTestCase(common.TestCase):
     Instrument = "orcl"
 
     def __getFeed(self):

@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
@@ -124,7 +125,7 @@ class BarFeed(barfeed.BaseBarFeed):
         return self.__nextBars
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(common.TestCase):
     TestInstrument = "orcl"
 
     def buildBroker(self, *args, **kwargs):
@@ -134,7 +135,7 @@ class BaseTestCase(unittest.TestCase):
         return BarFeed(*args, **kwargs)
 
 
-class CommissionTestCase(unittest.TestCase):
+class CommissionTestCase(common.TestCase):
     def testNoCommission(self):
         comm = backtesting.NoCommission()
         self.assertEqual(comm.calculate(None, 1, 1), 0)

@@ -18,24 +18,19 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import sys
 import os
-import matplotlib
 
-# Force matplotlib to not use any Xwindows backend.
-matplotlib.use('Agg')
+import common
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade import plotter
-
-import common
 
 sys.path.append("samples")
 import sma_crossover
 
 
-class PlotterTestCase(unittest.TestCase):
+class PlotterTestCase(common.TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
         barFeed = yahoofeed.Feed()

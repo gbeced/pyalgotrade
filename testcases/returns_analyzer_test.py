@@ -18,21 +18,20 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+
+import common
+import strategy_test
+import position_test
+
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade import broker
 from pyalgotrade import marketsession
 
-import strategy_test
-import position_test
-import common
 
-import unittest
-import datetime
-
-
-class TimeWeightedReturnsTestCase(unittest.TestCase):
+class TimeWeightedReturnsTestCase(common.TestCase):
     def testNullPortfolio(self):
         retTracker = returns.TimeWeightedReturns(0)
         self.assertEqual(retTracker.getCumulativeReturns(), 0)
@@ -59,7 +58,7 @@ class TimeWeightedReturnsTestCase(unittest.TestCase):
         self.assertEquals(round(retTracker.getCumulativeReturns(), 6),  0.128288)
 
 
-class PosTrackerTestCase(unittest.TestCase):
+class PosTrackerTestCase(common.TestCase):
 
     def testBuyAndSellBreakEven(self):
         posTracker = returns.PositionTracker(broker.IntegerTraits())
@@ -276,7 +275,7 @@ class PosTrackerTestCase(unittest.TestCase):
         self.assertEqual(posTracker.getCostPerShare(), 1)
 
 
-class AnalyzerTestCase(unittest.TestCase):
+class AnalyzerTestCase(common.TestCase):
     TestInstrument = "any"
 
     def testOneBarReturn(self):

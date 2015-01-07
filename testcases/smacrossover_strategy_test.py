@@ -18,13 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
-import common
 
 
 class SMACrossOverStrategy(strategy.BacktestingStrategy):
@@ -145,7 +144,7 @@ class LimitOrderStrategy(SMACrossOverStrategy):
         position.exit(limitPrice=price)
 
 
-class TestSMACrossOver(unittest.TestCase):
+class TestSMACrossOver(common.TestCase):
     def __test(self, strategyClass, finalValue):
         feed = yahoofeed.Feed()
         feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))

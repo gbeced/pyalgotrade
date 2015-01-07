@@ -18,11 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
+
 from pyalgotrade import eventprofiler
 from pyalgotrade.barfeed import yahoofeed
-import common
 
 
 class Predicate(eventprofiler.Predicate):
@@ -36,7 +37,7 @@ class Predicate(eventprofiler.Predicate):
         return ret
 
 
-class EventProfilerTestCase(unittest.TestCase):
+class EventProfilerTestCase(common.TestCase):
     def testNoEvents(self):
         feed = yahoofeed.Feed()
         feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"))

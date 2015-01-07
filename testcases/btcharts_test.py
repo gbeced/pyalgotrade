@@ -18,15 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+
+import common
+
 from pyalgotrade.bitcoincharts import barfeed
 from pyalgotrade.utils import dt
 
-import unittest
-import common
-import datetime
 
-
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def testLoadNoFilter(self):
         feed = barfeed.CSVTradeFeed()
         feed.addBarsFromCSV(common.get_data_file_path("bitstampUSD.csv"))

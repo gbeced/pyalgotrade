@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 
 import common
@@ -76,7 +75,7 @@ class BarFeedEventHandler_TestFilterRange:
             return self.__count
 
 
-class FeedTestCase(unittest.TestCase):
+class FeedTestCase(common.TestCase):
     TestInstrument = "orcl"
 
     def __parseDate(self, date):

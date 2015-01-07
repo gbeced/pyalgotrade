@@ -18,9 +18,10 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 import copy
+
+import common
 
 from pyalgotrade import observer
 from pyalgotrade import dispatcher
@@ -92,7 +93,7 @@ class RealtimeFeed(observer.Subject):
         return self.__priority
 
 
-class DispatcherTestCase(unittest.TestCase):
+class DispatcherTestCase(common.TestCase):
     def test1NrtFeed(self):
         values = []
         now = datetime.datetime.now()
@@ -220,7 +221,7 @@ class DispatcherTestCase(unittest.TestCase):
         self.assertTrue(values[0] < values[1])
 
 
-class EventTestCase(unittest.TestCase):
+class EventTestCase(common.TestCase):
     def testEmitOrder(self):
         handlersData = []
 

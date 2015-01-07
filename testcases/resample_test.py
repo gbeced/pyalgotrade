@@ -18,9 +18,10 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 import os
+
+import common
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import yahoofeed
@@ -34,10 +35,9 @@ from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
 from pyalgotrade import dispatcher
 from pyalgotrade import resamplebase
-import common
 
 
-class IntraDayRange(unittest.TestCase):
+class IntraDayRange(common.TestCase):
     def testMinuteRange(self):
         freq = bar.Frequency.MINUTE
         begin = datetime.datetime(2011, 1, 1, 1, 1)
@@ -69,7 +69,7 @@ class IntraDayRange(unittest.TestCase):
         self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 17))
 
 
-class DayRange(unittest.TestCase):
+class DayRange(common.TestCase):
     def testOk(self):
         freq = bar.Frequency.DAY
         begin = datetime.datetime(2011, 1, 1)
@@ -81,7 +81,7 @@ class DayRange(unittest.TestCase):
         self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 2))
 
 
-class MonthRange(unittest.TestCase):
+class MonthRange(common.TestCase):
     def test31Days(self):
         freq = bar.Frequency.MONTH
         begin = datetime.datetime(2011, 1, 1)
@@ -113,7 +113,7 @@ class MonthRange(unittest.TestCase):
         self.assertEqual(r.getEnding(), datetime.datetime(2012, 1, 1))
 
 
-class DataSeriesTestCase(unittest.TestCase):
+class DataSeriesTestCase(common.TestCase):
 
     def testResample(self):
         barDs = bards.BarDataSeries()
@@ -220,7 +220,7 @@ class DataSeriesTestCase(unittest.TestCase):
         self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46))
 
 
-class BarFeedTestCase(unittest.TestCase):
+class BarFeedTestCase(common.TestCase):
 
     def testResampledBarFeed(self):
         barFeed = yahoofeed.Feed()

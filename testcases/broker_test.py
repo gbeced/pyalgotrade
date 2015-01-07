@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade import broker
 
@@ -29,7 +30,7 @@ class DefaultTraits(broker.InstrumentTraits):
         return int(quantity)
 
 
-class OrderTestCase(unittest.TestCase):
+class OrderTestCase(common.TestCase):
     def __buildAcceptedLimitOrder(self, action, limitPrice, quantity):
         ret = broker.LimitOrder(action, "orcl", limitPrice, quantity, DefaultTraits())
         self.assertEquals(ret.getSubmitDateTime(), None)

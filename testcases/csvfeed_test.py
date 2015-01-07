@@ -18,19 +18,19 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 import os
+
+import common
+import feed_test
 
 from pyalgotrade.feed import csvfeed
 from pyalgotrade import dispatcher
 from pyalgotrade import marketsession
 from pyalgotrade.utils import dt
-import common
-import feed_test
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def testBaseFeedInterface(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")
         feed.addValuesFromCSV(common.get_data_file_path("orcl-2000-yahoofinance.csv"))
@@ -82,7 +82,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(feed["GBP"][-1], 831.203)
         self.assertEqual(feed["EUR"][-1], 986.75)
         self.assertFalse(dt.datetime_is_naive(feed["USD"].getDateTimes()[-1]))
-        self.assertEqual(feed["USD"].getDateTimes()[-1], dt.localize(datetime.datetime(2013, 9, 29, 23, 59, 59), marketsession.USEquities.timezone))
+        self.assertEqual(
+            feed["USD"].getDateTimes()[-1],
+            dt.localize(datetime.datetime(2013, 9, 29, 23, 59, 59), marketsession.USEquities.timezone)
+        )
 
     def testReset(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")

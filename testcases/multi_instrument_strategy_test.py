@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
 
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
@@ -27,7 +27,6 @@ from pyalgotrade import marketsession
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
-import common
 
 
 class NikkeiSpyStrategy(strategy.BacktestingStrategy):
@@ -67,7 +66,7 @@ class NikkeiSpyStrategy(strategy.BacktestingStrategy):
                 self.__pos.exit()
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def __testDifferentTimezonesImpl(self, feed):
         self.assertTrue("^n225" in feed)
         self.assertTrue("spy" in feed)

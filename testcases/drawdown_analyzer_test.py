@@ -18,17 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+
+import common
+import strategy_test
+
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade import broker
 from pyalgotrade import bar
-
-import strategy_test
-import common
-
-import unittest
-import datetime
 
 
 def build_bars_from_closing_prices(closingPrices):
@@ -47,7 +46,7 @@ class TestBarFeed(membf.BarFeed):
         raise NotImplementedError()
 
 
-class DDHelperCase(unittest.TestCase):
+class DDHelperCase(common.TestCase):
     def testNoDrawDown1(self):
         helper = drawdown.DrawDownHelper()
         helper.update(datetime.datetime.now(), 10, 10)
@@ -179,7 +178,7 @@ class DDHelperCase(unittest.TestCase):
         self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=1))
 
 
-class AnalyzerTestCase(unittest.TestCase):
+class AnalyzerTestCase(common.TestCase):
     def testNoTrades(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))

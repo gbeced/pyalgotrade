@@ -18,16 +18,17 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+import json
+
+import common
+
 from pyalgotrade.xignite import api
 from pyalgotrade.xignite import barfeed
 from pyalgotrade.utils import dt
 
-import unittest
-import datetime
-import json
 
-
-class DateTimeTestCase(unittest.TestCase):
+class DateTimeTestCase(common.TestCase):
     def testMarketTimes(self):
         # 9:30 in GMT-5
         dateTime = dt.as_utc(datetime.datetime(2013, 1, 1, 9+5, 30))

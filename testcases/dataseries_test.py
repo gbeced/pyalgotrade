@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
@@ -27,7 +28,7 @@ from pyalgotrade.dataseries import aligned
 from pyalgotrade import bar
 
 
-class TestSequenceDataSeries(unittest.TestCase):
+class TestSequenceDataSeries(common.TestCase):
     def testEmpty(self):
         ds = dataseries.SequenceDataSeries()
         self.assertTrue(len(ds) == 0)
@@ -140,7 +141,7 @@ class TestSequenceDataSeries(unittest.TestCase):
         self.assertEqual(ds[-1], 99)
 
 
-class TestBarDataSeries(unittest.TestCase):
+class TestBarDataSeries(common.TestCase):
     def testEmpty(self):
         ds = bards.BarDataSeries()
         with self.assertRaises(IndexError):
@@ -156,9 +157,11 @@ class TestBarDataSeries(unittest.TestCase):
             now = datetime.datetime.now() + datetime.timedelta(seconds=i)
             ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
             # Adding the same datetime twice should fail
-            self.assertRaises(Exception, ds.append, bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+            with self.assertRaises(Exception):
+                ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
             # Adding a previous datetime should fail
-            self.assertRaises(Exception, ds.append, bar.BasicBar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+            with self.assertRaises(Exception):
+                ds.append(bar.BasicBar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
 
     def testNonEmpty(self):
         ds = bards.BarDataSeries()
@@ -210,7 +213,7 @@ class TestBarDataSeries(unittest.TestCase):
             self.assertEqual(ds.getDateTimes()[i], firstDt + datetime.timedelta(seconds=i))
 
 
-class TestDateAlignedDataSeries(unittest.TestCase):
+class TestDateAlignedDataSeries(common.TestCase):
     def testNotAligned(self):
         size = 20
         ds1 = dataseries.SequenceDataSeries()

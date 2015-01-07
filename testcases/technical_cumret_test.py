@@ -18,12 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
+
 from pyalgotrade import dataseries
 from pyalgotrade.technical import cumret
 
 
-class CumRetTestCase(unittest.TestCase):
+class CumRetTestCase(common.TestCase):
     def testCumRet(self):
         values = dataseries.SequenceDataSeries()
         rets = cumret.CumulativeReturn(values)

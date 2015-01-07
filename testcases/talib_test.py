@@ -18,14 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+import talib
+
+import common
+
 from pyalgotrade.talibext import indicator
 from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
-import datetime
-import unittest
-import talib
 
 # Market data used for regression tests (252 price bars) extracted from ta-lib/src/tools/ta_regtest/test_data.c
 OPEN_VALUES = [
@@ -178,7 +180,7 @@ def compare(obtained, expected, decimals=2):
     return obtained == expected
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     TestInstrument = "orcl"
 
     def __loadMedPriceDS(self):

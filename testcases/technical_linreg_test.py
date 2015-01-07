@@ -18,13 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
-from pyalgotrade.technical import linreg
-from pyalgotrade import dataseries
 import datetime
 
+import common
 
-class LeastSquaresRegressionTestCase(unittest.TestCase):
+from pyalgotrade.technical import linreg
+from pyalgotrade import dataseries
+
+
+class LeastSquaresRegressionTestCase(common.TestCase):
     def testLsreg1(self):
         x = [0, 1, 2]
         y = [1, 2, 3]

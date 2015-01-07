@@ -18,12 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
+
 from pyalgotrade.technical import ratio
 from pyalgotrade import dataseries
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def __buildRatio(self, values, ratioMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
         ret = ratio.Ratio(seqDS, ratioMaxLen)

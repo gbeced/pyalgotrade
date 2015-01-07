@@ -18,16 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
+import twitter_credentials
 
 from pyalgotrade import dispatcher
 from pyalgotrade.twitter import feed as twitterfeed
 
-import twitter_credentials
 
-
-class TwitterFeedTestCase(unittest.TestCase):
+class TwitterFeedTestCase(common.TestCase):
     def testTwitterFeed(self):
         events = {
             "on_tweet": False,

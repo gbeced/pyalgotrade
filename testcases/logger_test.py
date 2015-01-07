@@ -18,12 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
 from testcases import common
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     # Check that strategy and custom logs have the proper datetime, this is, the bars date time.
     def testBacktestingLog1(self):
             code = """from testcases import logger_test_1

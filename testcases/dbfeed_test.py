@@ -18,16 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import os
+
+import common
+import feed_test
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed
 from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade import marketsession
-import common
-import feed_test
 
 
 class TemporarySQLiteFeed:
@@ -52,7 +52,7 @@ class TemporarySQLiteFeed:
         return self.__feed
 
 
-class SQLiteFeedTestCase(unittest.TestCase):
+class SQLiteFeedTestCase(common.TestCase):
     dbName = "SQLiteFeedTestCase.sqlite"
 
     def testBaseFeedInterface(self):

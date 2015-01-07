@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import sys
 
 import common
@@ -35,7 +34,7 @@ def parameters_generator(instrument, smaFirst, smaLast):
         yield(instrument, sma)
 
 
-class OptimizerTestCase(unittest.TestCase):
+class OptimizerTestCase(common.TestCase):
     def testLocal(self):
         barFeed = yahoofeed.Feed()
         instrument = "orcl"

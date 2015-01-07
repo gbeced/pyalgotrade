@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import rsi
 from pyalgotrade import dataseries
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def testAvgGainLoss(self):
         # We divide by 2 because N samples yield N-1 averages.
 

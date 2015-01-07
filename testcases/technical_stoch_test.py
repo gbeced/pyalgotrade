@@ -18,8 +18,10 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
+
 from pyalgotrade.technical import stoch
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
@@ -33,7 +35,7 @@ def values_equal(v1, v2):
     return False
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def setUp(self):
         self.__currSeconds = 0
 

@@ -18,12 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 import time
 import threading
 import Queue
 import json
+
+import common as tc_common
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -219,7 +220,7 @@ class TestStrategy(strategy.BaseStrategy):
         self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
 
 
-class InstrumentTraitsTestCase(unittest.TestCase):
+class InstrumentTraitsTestCase(tc_common.TestCase):
     def testInstrumentTraits(self):
         traits = common.BTCTraits()
         self.assertEquals(traits.roundQuantity(0), 0)
@@ -230,7 +231,7 @@ class InstrumentTraitsTestCase(unittest.TestCase):
         self.assertEquals(traits.roundQuantity(0.004413764), 0.00441376)
 
 
-class PaperTradingTestCase(unittest.TestCase):
+class PaperTradingTestCase(tc_common.TestCase):
     def testBuyWithPartialFill(self):
 
         class Strategy(TestStrategy):
@@ -480,7 +481,7 @@ class PaperTradingTestCase(unittest.TestCase):
         self.assertEquals(brk.getCash(), 9.95)
 
 
-class LiveTradingTestCase(unittest.TestCase):
+class LiveTradingTestCase(tc_common.TestCase):
     def testMapUserTransactionsToOrderEvents(self):
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
@@ -597,7 +598,7 @@ class LiveTradingTestCase(unittest.TestCase):
         self.assertEquals(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
 
 
-class WebSocketTestCase(unittest.TestCase):
+class WebSocketTestCase(tc_common.TestCase):
     def testBarFeed(self):
         events = {
             "on_bars": False,

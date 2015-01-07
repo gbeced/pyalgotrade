@@ -18,22 +18,21 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade.barfeed import ninjatraderfeed
-from pyalgotrade.barfeed import csvfeed
-from pyalgotrade.stratanalyzer import trades
-from pyalgotrade import broker
-from pyalgotrade.broker import backtesting
-
-import strategy_test
-import position_test
-import common
-
-import unittest
 import datetime
 import math
 from distutils import version
 import pytz
 import numpy
+
+import common
+import strategy_test
+import position_test
+
+from pyalgotrade.barfeed import ninjatraderfeed
+from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.stratanalyzer import trades
+from pyalgotrade import broker
+from pyalgotrade.broker import backtesting
 
 
 def buildUTCDateTime(year, month, day, hour, minute):
@@ -42,7 +41,7 @@ def buildUTCDateTime(year, month, day, hour, minute):
     return ret
 
 
-class TradesAnalyzerTestCase(unittest.TestCase):
+class TradesAnalyzerTestCase(common.TestCase):
     TestInstrument = "spy"
 
     def __loadBarFeed(self):

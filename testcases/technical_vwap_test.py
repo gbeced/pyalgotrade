@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import vwap
 from pyalgotrade.barfeed import yahoofeed
 
 
-class VWAPTestCase(unittest.TestCase):
+class VWAPTestCase(common.TestCase):
     Instrument = "orcl"
 
     def __getFeed(self):

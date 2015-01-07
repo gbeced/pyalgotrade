@@ -19,6 +19,7 @@
 """
 
 import datetime
+
 from pyalgotrade import strategy
 from pyalgotrade import bar
 from pyalgotrade import logger

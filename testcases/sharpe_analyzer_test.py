@@ -18,6 +18,11 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+
+import common
+import strategy_test
+
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import csvfeed
@@ -26,14 +31,8 @@ from pyalgotrade.broker import backtesting
 from pyalgotrade import broker
 from pyalgotrade import marketsession
 
-import strategy_test
-import common
 
-import unittest
-import datetime
-
-
-class SharpeRatioTestCase(unittest.TestCase):
+class SharpeRatioTestCase(common.TestCase):
     def testDateTimeDiffs(self):
         # sharpe.days_traded
         self.assertEqual(sharpe.days_traded(datetime.datetime(2001, 1, 1), datetime.datetime(2001, 1, 2)), 2)

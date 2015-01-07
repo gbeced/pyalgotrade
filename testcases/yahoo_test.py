@@ -19,15 +19,15 @@
 """
 
 import os
-import unittest
+
+import common
 
 from pyalgotrade.tools import yahoofinance
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
-import common
 
 
-class ToolsTestCase(unittest.TestCase):
+class ToolsTestCase(common.TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
 

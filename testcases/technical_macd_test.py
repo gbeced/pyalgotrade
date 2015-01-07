@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import macd
 from pyalgotrade import dataseries
 
 
-class MACDTestCase(unittest.TestCase):
+class MACDTestCase(common.TestCase):
     def testMACD(self):
         values = [16.39, 16.4999, 16.45, 16.43, 16.52, 16.51, 16.423, 16.41, 16.47, 16.45, 16.32, 16.36, 16.34, 16.59, 16.54, 16.52, 16.44, 16.47, 16.5, 16.45, 16.28, 16.07, 16.08, 16.1, 16.1, 16.09, 16.43, 16.4899, 16.59, 16.65, 16.78, 16.86, 16.86, 16.76]
         # These expected values were generated using TA-Lib

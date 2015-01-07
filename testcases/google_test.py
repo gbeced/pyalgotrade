@@ -19,14 +19,14 @@
 """
 
 import os
-import unittest
+
+import common
 
 from pyalgotrade.tools import googlefinance
 from pyalgotrade.barfeed import googlefeed
-import common
 
 
-class ToolsTestCase(unittest.TestCase):
+class ToolsTestCase(common.TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
 

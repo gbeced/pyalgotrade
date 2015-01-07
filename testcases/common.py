@@ -23,6 +23,11 @@ import os
 import shutil
 import subprocess
 import tempfile
+import unittest
+
+# Force matplotlib to not use any Xwindows backend.
+import matplotlib
+matplotlib.use('Agg')
 
 from pyalgotrade import dataseries
 
@@ -160,3 +165,7 @@ class TmpDir(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.__tmpdir is not None:
             shutil.rmtree(self.__tmpdir)
+
+
+class TestCase(unittest.TestCase):
+    pass

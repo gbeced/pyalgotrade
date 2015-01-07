@@ -18,15 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade.feed import memfeed
 from pyalgotrade import dispatcher
 import feed_test
 
 
-class MemFeedTestCase(unittest.TestCase):
+class MemFeedTestCase(common.TestCase):
     def testBaseFeedInterface(self):
         values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in xrange(100)]
         feed = memfeed.MemFeed()

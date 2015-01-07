@@ -19,6 +19,7 @@
 """
 
 import datetime
+
 from pyalgotrade import strategy
 from pyalgotrade.broker import backtesting
 from pyalgotrade import bar

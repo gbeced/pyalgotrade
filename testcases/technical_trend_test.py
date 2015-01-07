@@ -18,12 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
+
 from pyalgotrade.technical import linreg
 from pyalgotrade import dataseries
 
 
-class SlopeTest(unittest.TestCase):
+class SlopeTest(common.TestCase):
     def __buildSlope(self, values, period, slopeMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
         ret = linreg.Slope(seqDS, period, slopeMaxLen)
@@ -45,7 +46,7 @@ class SlopeTest(unittest.TestCase):
         self.assertEqual(slope[1], -1.0)
 
 
-class TrendTest(unittest.TestCase):
+class TrendTest(common.TestCase):
     def __buildTrend(self, values, trendDays, positiveThreshold, negativeThreshold, trendMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
         ret = linreg.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold, trendMaxLen)

@@ -18,12 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
+
 from pyalgotrade import dataseries
 from pyalgotrade.technical import highlow
 
 
-class HighLowTestCase(unittest.TestCase):
+class HighLowTestCase(common.TestCase):
     def testHighLow(self):
         values = dataseries.SequenceDataSeries()
         high = highlow.High(values, 5)

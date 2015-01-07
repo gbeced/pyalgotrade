@@ -18,9 +18,11 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 import pytz
+
+import common
+import strategy_test
 
 from pyalgotrade import bar
 from pyalgotrade import strategy
@@ -32,8 +34,6 @@ from pyalgotrade.barfeed import membf
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.utils import dt
 from pyalgotrade import marketsession
-import common
-import strategy_test
 
 
 def load_daily_barfeed(instrument):
@@ -246,7 +246,7 @@ class ResubmitExitStrategy(BaseTestStrategy):
                 self.exitRequestCanceled = True
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(common.TestCase):
     TestInstrument = "doesntmatter"
 
     def loadIntradayBarFeed(self):

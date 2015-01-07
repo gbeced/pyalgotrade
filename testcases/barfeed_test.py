@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade import barfeed
 from pyalgotrade import bar
@@ -47,7 +48,7 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
     testCase.assertEquals(called["called"], True)
 
 
-class OptimizerBarFeedestCase(unittest.TestCase):
+class OptimizerBarFeedestCase(common.TestCase):
     def testDateTimesNotInOrder(self):
         bars = [
             bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),

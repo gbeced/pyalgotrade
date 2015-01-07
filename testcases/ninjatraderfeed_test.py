@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 
 import common
@@ -31,7 +30,7 @@ from pyalgotrade import bar
 from pyalgotrade.utils import dt
 
 
-class NinjaTraderTestCase(unittest.TestCase):
+class NinjaTraderTestCase(common.TestCase):
     def __loadIntradayBarFeed(self, timeZone=None):
         ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
         ret.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
