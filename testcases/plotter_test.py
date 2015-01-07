@@ -45,4 +45,8 @@ class PlotterTestCase(common.TestCase):
             fig.set_size_inches(10, 8)
             png = os.path.join(tmpPath, "plotter_test.png")
             fig.savefig(png)
-            self.assertEquals(open(common.get_data_file_path("plotter_test.png"), "r").read(), open(png, "r").read())
+            # Check that both files have the same size.
+            self.assertEquals(
+                os.stat(common.get_data_file_path("plotter_test.png")).st_size,
+                os.stat(png).st_size
+            )
