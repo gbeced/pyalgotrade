@@ -99,7 +99,10 @@ class ToolsTestCase(common.TestCase):
             bf = quandlfeed.Feed(frequency=bar.Frequency.WEEK)
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
-            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 3))
+            # Quandl used to report 2010-1-3 as the first week of 2010.
+            self.assertTrue(
+                bf[instrument][0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
+            )
             self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
             self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
             self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
@@ -136,7 +139,10 @@ class ToolsTestCase(common.TestCase):
             instrument = "AAPL"
             bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token)
             bf.loadAll()
-            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 3))
+            # Quandl used to report 2010-1-3 as the first week of 2010.
+            self.assertTrue(
+                bf[instrument][0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
+            )
             self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
             self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
             self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
