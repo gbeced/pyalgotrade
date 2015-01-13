@@ -40,7 +40,7 @@ class MyStrategy(strategy.BacktestingStrategy):
                 # Enter a buy market order for 10 shares. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, 10, True)
         # Check if we have to exit the position.
-        elif bar.getPrice() < self.__sma[-1]:
+        elif bar.getPrice() < self.__sma[-1] and not self.__position.exitActive():
             self.__position.exitMarket()
 
 
