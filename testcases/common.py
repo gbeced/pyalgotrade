@@ -32,35 +32,46 @@ matplotlib.use('Agg')
 from pyalgotrade import dataseries
 
 
-def run_and_get_output(cmd):
-    return subprocess.check_output(cmd, universal_newlines=True, stderr=subprocess.STDOUT)
+class RunResults(object):
+    def __init__(self, retcode, output):
+        self.__retcode = retcode
+        self.__output = output
+
+    def exit_ok(self):
+        return self.__retcode == 0
+
+    def get_output(self):
+        return self.__output
+
+    def get_output_lines(self, skip_last_line=False):
+        ret = self.__output.split("\n")
+        # Skip the last, empty line.
+        if skip_last_line:
+            ret = ret[:-1]
+        return ret
 
 
-def run_python_code(code, outputFileName=None):
+def run_cmd(cmd):
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    return RunResults(retcode, output)
+
+
+def run_python_code(code):
     cmd = ["python"]
     cmd.append("-u")
     cmd.append("-c")
     cmd.append(code)
-    ret = run_and_get_output(cmd)
-    if outputFileName:
-        outputFile = open(outputFileName, "w")
-        outputFile.write(ret)
-        outputFile.close()
-    return ret
-
-
-def run_python_script(script, params=[]):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append(script)
-    cmd.extend(params)
-    return run_and_get_output(cmd)
+    return run_cmd(cmd)
 
 
 def run_sample_script(script, params=[]):
-    lines = run_python_script(os.path.join("samples", script), params).split("\n")
-    # Skip the last, empty line.
-    return lines[:-1]
+    cmd = ["python"]
+    cmd.append("-u")
+    cmd.append(os.path.join("samples", script))
+    cmd.extend(params)
+    return run_cmd(cmd)
 
 
 def get_file_lines(fileName):
