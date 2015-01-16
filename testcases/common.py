@@ -91,6 +91,11 @@ def compare_tail(fileName, lines, path="samples"):
     return fileLines[len(lines)*-1:] == lines
 
 
+def tail_file(fileName, line_count, path="samples"):
+    lines = get_file_lines(os.path.join(path, fileName))
+    return lines[line_count*-1:]
+
+
 def load_test_csv(path):
     inputSeq = []
     expectedSeq = []

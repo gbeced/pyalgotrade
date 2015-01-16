@@ -104,7 +104,10 @@ import statarb_erniechan
 statarb_erniechan.main(False)
 """
             res = common.run_python_code(code)
-            self.assertTrue(common.compare_tail("statarb_erniechan.output", res.get_output_lines()[-2:-1]))
+            obtained = res.get_output_lines()[-2]
+            expected = common.tail_file("statarb_erniechan.output", 1)[0]
+            self.assertEquals(expected, obtained, "Got this lines %s instead" % (res.get_output_lines()))
+            # self.assertTrue(common.compare_tail("statarb_erniechan.output", res.get_output_lines()[-2:-1]))
             self.assertTrue(res.exit_ok())
 
     def testVWAPMomentum(self):
