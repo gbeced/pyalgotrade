@@ -73,10 +73,10 @@ class RSI2(strategy.BacktestingStrategy):
         return bar.getPrice() > self.__entrySMA[-1] and self.__rsi[-1] <= self.__overSoldThreshold
 
     def exitLongSignal(self):
-        return cross.cross_above(self.__priceDS, self.__exitSMA)
+        return cross.cross_above(self.__priceDS, self.__exitSMA) and not self.__longPos.exitActive()
 
     def enterShortSignal(self, bar):
         return bar.getPrice() < self.__entrySMA[-1] and self.__rsi[-1] >= self.__overBoughtThreshold
 
     def exitShortSignal(self):
-        return cross.cross_below(self.__priceDS, self.__exitSMA)
+        return cross.cross_below(self.__priceDS, self.__exitSMA) and not self.__shortPos.exitActive()
