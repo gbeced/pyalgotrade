@@ -94,6 +94,7 @@ class Subject(object):
     def peekDateTime(self):
         # Return the datetime for the next event.
         # This is needed to properly synchronize non-realtime subjects.
+        # Return None since this is a realtime subject.
         raise NotImplementedError()
 
     def getDispatchPriority(self):
