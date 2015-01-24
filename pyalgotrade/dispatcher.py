@@ -82,10 +82,10 @@ class Dispatcher(object):
                 eof = False
                 smallestDateTime = utils.safe_min(smallestDateTime, subject.peekDateTime())
 
-        self.__currDateTime = smallestDateTime
-
         # Dispatch realtime subjects and those subjects with the lowest datetime.
         if not eof:
+            self.__currDateTime = smallestDateTime
+
             for subject in self.__subjects:
                 if self.__dispatchSubject(subject, smallestDateTime):
                     eventsDispatched = True
