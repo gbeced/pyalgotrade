@@ -187,7 +187,10 @@ class OptimizerBarFeed(BaseBarFeed):
         pass
 
     def peekDateTime(self):
-        self.__bars[self.__nextPos].getDateTime()
+        ret = None
+        if self.__nextPos < len(self.__bars):
+            ret = self.__bars[self.__nextPos].getDateTime()
+        return ret
 
     def getNextBars(self):
         ret = None
