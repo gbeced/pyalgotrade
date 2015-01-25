@@ -113,12 +113,6 @@ def load_test_csv(path):
     return inputSeq, expectedSeq
 
 
-def normalize_value(value, decimals):
-    if value is not None:
-        value = round(value, decimals)
-    return value
-
-
 def get_data_file_path(fileName):
     return os.path.join(os.path.split(__file__)[0], "data", fileName)
 
@@ -129,8 +123,8 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals=2, maxLe
     filterDS = filterClassBuilder(inputDS)
     for i in xrange(len(inputValues)):
         inputDS.append(inputValues[i])
-        value = normalize_value(filterDS[i], roundDecimals)
-        expectedValue = normalize_value(expectedValues[i], roundDecimals)
+        value = safe_round(filterDS[i], roundDecimals)
+        expectedValue = safe_round(expectedValues[i], roundDecimals)
         testcase.assertEqual(value, expectedValue)
 
 

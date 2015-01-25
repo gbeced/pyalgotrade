@@ -8,6 +8,8 @@ from pyalgotrade import broker as basebroker
 
 
 class VWAPMomentum(strategy.BacktestingStrategy):
+    MIN_TRADE = 5
+
     def __init__(self, feed, brk, instrument, vwapWindowSize, buyThreshold, sellThreshold):
         strategy.BacktestingStrategy.__init__(self, feed, brk)
         self.__instrument = instrument
@@ -34,7 +36,7 @@ class VWAPMomentum(strategy.BacktestingStrategy):
         brk = self.getBroker()
         cashAvail = brk.getCash() * 0.98
         size = round(cashAvail / price, 3)
-        if len(buyOrders) == 0 and size > 0:
+        if len(buyOrders) == 0 and price*size > VWAPMomentum.MIN_TRADE:
             self.info("Buy %s at %s" % (size, price))
             try:
                 self.limitOrder(self.__instrument, price, size)
@@ -80,9 +82,9 @@ class VWAPMomentum(strategy.BacktestingStrategy):
 
 def main(plot):
     instrument = "BTC"
-    initialCash = 100
-    vwapWindowSize = 400
-    buyThreshold = 0.05
+    initialCash = 1000
+    vwapWindowSize = 100
+    buyThreshold = 0.02
     sellThreshold = 0.01
 
     barFeed = csvfeed.GenericBarFeed(bar.Frequency.MINUTE*30)

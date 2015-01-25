@@ -32,6 +32,8 @@ LiveBroker = livebroker.LiveBroker
 
 
 class BacktestingBroker(backtesting.Broker):
+    MIN_TRADE_USD = 5
+
     """A Bitstamp backtesting broker.
 
     :param cash: The initial amount of cash.
@@ -73,6 +75,9 @@ class BacktestingBroker(backtesting.Broker):
             action = broker.Order.Action.BUY
         elif action == broker.Order.Action.SELL_SHORT:
             action = broker.Order.Action.SELL
+
+        if limitPrice * quantity < BacktestingBroker.MIN_TRADE_USD:
+            raise Exception("Trade must be >= %s" % (BacktestingBroker.MIN_TRADE_USD))
 
         if action == broker.Order.Action.BUY:
             # Check that there is enough cash.

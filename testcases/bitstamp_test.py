@@ -32,6 +32,7 @@ from pyalgotrade.bitstamp import broker
 from pyalgotrade.bitstamp import wsclient
 from pyalgotrade.bitstamp import httpclient
 from pyalgotrade.bitstamp import common
+from pyalgotrade.bitcoincharts import barfeed as btcbarfeed
 from pyalgotrade import strategy
 from pyalgotrade import dispatcher
 
@@ -231,6 +232,46 @@ class InstrumentTraitsTestCase(tc_common.TestCase):
         self.assertEquals(traits.roundQuantity(0.004413764), 0.00441376)
 
 
+class BacktestingTestCase(tc_common.TestCase):
+    def testBitcoinChartsFeed(self):
+
+        class TestStrategy(strategy.BaseStrategy):
+            def __init__(self, feed, brk):
+                strategy.BaseStrategy.__init__(self, feed, brk)
+                self.pos = None
+
+            def onBars(self, bars):
+                if not self.pos:
+                    self.pos = self.enterLongLimit("BTC", 5.83, 1, True)
+
+        barFeed = btcbarfeed.CSVTradeFeed()
+        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
+        brk = broker.BacktestingBroker(100, barFeed)
+        strat = TestStrategy(barFeed, brk)
+        strat.run()
+        self.assertEquals(strat.pos.getShares(), 1)
+        self.assertEquals(strat.pos.entryActive(), False)
+        self.assertEquals(strat.pos.isOpen(), True)
+        self.assertEquals(strat.pos.getEntryOrder().getAvgFillPrice(), 5.83)
+
+    def testMinTrade(self):
+        class TestStrategy(strategy.BaseStrategy):
+            def __init__(self, feed, brk):
+                strategy.BaseStrategy.__init__(self, feed, brk)
+                self.pos = None
+
+            def onBars(self, bars):
+                if not self.pos:
+                    self.pos = self.enterLongLimit("BTC", 4.99, 1, True)
+
+        barFeed = btcbarfeed.CSVTradeFeed()
+        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
+        brk = broker.BacktestingBroker(100, barFeed)
+        strat = TestStrategy(barFeed, brk)
+        with self.assertRaisesRegexp(Exception, "Trade must be >= 5"):
+            strat.run()
+
+
 class PaperTradingTestCase(tc_common.TestCase):
     def testBuyWithPartialFill(self):
 
@@ -332,24 +373,24 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit("BTC", 100, 0.01, True)
+                    self.pos = self.enterLongLimit("BTC", 1000, 0.01, True)
                 elif self.pos.entryFilled() and not self.pos.getExitOrder():
-                    self.pos.exitLimit(100, True)
+                    self.pos.exitLimit(1000, True)
 
         barFeed = TestingLiveTradeFeed()
-        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 1)
-        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 0.01)
-        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.00441376)
-        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.00445547)
-        barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 100, 0.00113077)
+        barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 1000, 1)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 1000, 0.01)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 1000, 0.00441376)
+        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 1000, 0.00445547)
+        barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 1000, 0.00113077)
 
         brk = broker.PaperTradingBroker(1000, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(strat.pos.getEntryOrder().getAvgFillPrice(), 100)
-        self.assertEquals(strat.pos.getExitOrder().getAvgFillPrice(), 100)
+        self.assertEquals(strat.pos.getEntryOrder().getAvgFillPrice(), 1000)
+        self.assertEquals(strat.pos.getExitOrder().getAvgFillPrice(), 1000)
         self.assertEquals(strat.pos.getEntryOrder().getFilled(), 0.01)
         self.assertEquals(strat.pos.getExitOrder().getFilled(), 0.01)
         self.assertEquals(strat.pos.getEntryOrder().getRemaining(), 0)
