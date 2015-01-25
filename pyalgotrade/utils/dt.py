@@ -35,8 +35,10 @@ def unlocalize(dateTime):
 def localize(dateTime, timeZone):
     """Returns a datetime adjusted to a timezone:
 
-     * If dateTime is a naive datetime (datetime with no timezone information), timezone information is added but date and time remains the same.
-     * If dateTime is not a naive datetime, a datetime object with new tzinfo attribute is returned, adjusting the date and time data so the result is the same UTC time.
+     * If dateTime is a naive datetime (datetime with no timezone information), timezone information is added but date
+       and time remains the same.
+     * If dateTime is not a naive datetime, a datetime object with new tzinfo attribute is returned, adjusting the date
+       and time data so the result is the same UTC time.
     """
 
     if datetime_is_naive(dateTime):
