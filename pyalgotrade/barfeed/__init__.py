@@ -50,12 +50,10 @@ class BaseBarFeed(feed.BaseFeed):
         self.__defaultInstrument = None
         self.__currentBars = None
         self.__lastBars = {}
-        self.__currDateTime = None
 
     def reset(self):
         self.__currentBars = None
         self.__lastBars = {}
-        self.__currDateTime = None
         feed.BaseFeed.reset(self)
 
     def setUseAdjustedValues(self, useAdjusted):
@@ -67,6 +65,7 @@ class BaseBarFeed(feed.BaseFeed):
         for instrument in self.getRegisteredInstruments():
             self.getDataSeries(instrument).setUseAdjustedValues(useAdjusted)
 
+    # Return the datetime for the current bars.
     @abc.abstractmethod
     def getCurrentDateTime(self):
         raise NotImplementedError()
@@ -98,14 +97,13 @@ class BaseBarFeed(feed.BaseFeed):
             dateTime = bars.getDateTime()
 
             # Check that current bar datetimes are greater than the previous one.
-            if self.__currDateTime is not None and self.__currDateTime >= dateTime:
+            if self.__currentBars is not None and self.__currentBars.getDateTime() >= dateTime:
                 raise Exception(
                     "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
-                        self.__currDateTime,
+                        self.__currentBars.getDateTime(),
                         dateTime
                     )
                 )
-            self.__currDateTime = dateTime
 
             # Update self.__currentBars and self.__lastBars
             self.__currentBars = bars
