@@ -209,12 +209,12 @@ class Profiler(object):
                     ds = feed[instrument].getCloseDataSeries()
                 self.__rets[instrument] = roc.RateOfChange(ds, 1)
 
-            feed.getNewBarsEvent().subscribe(self.__onBars)
+            feed.getNewValuesEvent().subscribe(self.__onBars)
             disp = dispatcher.Dispatcher()
             disp.addSubject(feed)
             disp.run()
         finally:
-            feed.getNewBarsEvent().unsubscribe(self.__onBars)
+            feed.getNewValuesEvent().unsubscribe(self.__onBars)
 
 
 def build_plot(profilerResults):

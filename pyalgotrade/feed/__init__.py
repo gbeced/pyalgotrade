@@ -37,7 +37,8 @@ class BaseFeed(observer.Subject):
     """Base class for feeds.
 
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+        from the opposite end.
     :type maxLen: int.
 
     .. note::

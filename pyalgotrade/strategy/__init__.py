@@ -58,7 +58,7 @@ class BaseStrategy(object):
         self.__resampledBarFeeds = []
         self.__dispatcher = dispatcher.Dispatcher()
         self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
-        self.__barFeed.getNewBarsEvent().subscribe(self.__onBars)
+        self.__barFeed.getNewValuesEvent().subscribe(self.__onBars)
 
         self.__dispatcher.getStartEvent().subscribe(self.onStart)
         self.__dispatcher.getIdleEvent().subscribe(self.__onIdle)
@@ -565,7 +565,7 @@ class BaseStrategy(object):
         :rtype: :class:`pyalgotrade.barfeed.BaseBarFeed`.
         """
         ret = resampled.ResampledBarFeed(self.getFeed(), frequency)
-        ret.getNewBarsEvent().subscribe(callback)
+        ret.getNewValuesEvent().subscribe(callback)
         self.getDispatcher().addSubject(ret)
         self.__resampledBarFeeds.append(ret)
         return ret

@@ -147,7 +147,7 @@ class FeedTestCase(common.TestCase):
 
         # Dispatch and handle events.
         handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, FeedTestCase.TestInstrument)
-        barFeed.getNewBarsEvent().subscribe(handler.onBars)
+        barFeed.getNewValuesEvent().subscribe(handler.onBars)
         while not barFeed.eof():
             barFeed.dispatch()
         self.assertTrue(handler.getEventCount() > 0)
@@ -160,7 +160,7 @@ class FeedTestCase(common.TestCase):
 
         # Dispatch and handle events.
         handler = BarFeedEventHandler_TestFilterRange(self, FeedTestCase.TestInstrument, fromDate, toDate)
-        barFeed.getNewBarsEvent().subscribe(handler.onBars)
+        barFeed.getNewValuesEvent().subscribe(handler.onBars)
         while not barFeed.eof():
             barFeed.dispatch()
         self.assertTrue(handler.getEventCount() > 0)

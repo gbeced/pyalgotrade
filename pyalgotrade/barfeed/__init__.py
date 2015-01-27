@@ -125,10 +125,6 @@ class BaseBarFeed(feed.BaseFeed):
         """Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or None."""
         return self.__lastBars.get(instrument, None)
 
-    def getNewBarsEvent(self):
-        # This is for backwards compatibility purposes.
-        return self.getNewValuesEvent()
-
     def getDefaultInstrument(self):
         """Returns the default instrument."""
         return self.__defaultInstrument
