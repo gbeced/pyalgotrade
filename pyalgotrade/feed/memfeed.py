@@ -63,7 +63,7 @@ class MemFeed(feed.BaseFeed):
             self.__nextIdx += 1
         return ret
 
-    # Add values to the feed. values should be a sequence of tupes. The tupes should have two elements:
+    # Add values to the feed. values should be a sequence of tuples. The tupes should have two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
     def addValues(self, values):
