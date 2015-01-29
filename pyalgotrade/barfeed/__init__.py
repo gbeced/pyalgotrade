@@ -63,7 +63,7 @@ class BaseBarFeed(feed.BaseFeed):
         self.__useAdjustedValues = useAdjusted
         # Update existing dataseries
         for instrument in self.getRegisteredInstruments():
-            self.getDataSeries(instrument).setUseAdjustedValues(useAdjusted)
+            self[instrument].setUseAdjustedValues(useAdjusted)
 
     # Return the datetime for the current bars.
     @abc.abstractmethod
