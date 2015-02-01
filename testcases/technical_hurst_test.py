@@ -53,14 +53,14 @@ class TestCase(common.TestCase):
     def testRandomWalk(self):
         values = np.cumsum(np.random.randn(1000)) + 1000
         hds = build_hurst(values, 500, 20)
-        self.assertGreater(hds[-1], 0.4)
-        self.assertLess(hds[-1], 0.6)
+        self.assertGreater(round(hds[-1], 1), 0.4)
+        self.assertLess(round(hds[-1], 1), 0.6)
 
     def testTrending(self):
         values = np.cumsum(np.random.randn(1000) + 10) + 1000
         hds = build_hurst(values, 500, 20)
-        self.assertGreater(hds[-1], 0.9)
-        self.assertLess(hds[-1], 1.1)
+        self.assertGreater(round(hds[-1], 1), 0.9)
+        self.assertLess(round(hds[-1], 1), 1.1)
 
     def testMeanRev(self):
         values = np.random.randn(1000) + 100
