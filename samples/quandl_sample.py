@@ -1,6 +1,6 @@
 from pyalgotrade import strategy
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import quandl
 from pyalgotrade.feed import csvfeed
 import datetime
 
@@ -19,19 +19,19 @@ class MyStrategy(strategy.BacktestingStrategy):
         quandlFeed.getNewValuesEvent().subscribe(self.onQuandlData)
 
     def onQuandlData(self, dateTime, values):
-        print dateTime, values
+        self.info(values)
 
     def onBars(self, bars):
-        print bars.getDateTime(), bars[self.__instrument].getAdjClose()
+        self.info(bars[self.__instrument].getAdjClose())
 
 
 def main(plot):
-    instruments = ["gld"]
+    instruments = ["GORO"]
 
-    # Download the bars.
-    feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
+    # Download GORO bars using WIKI source code.
+    feed = quandl.build_feed("WIKI", instruments, 2006, 2012, ".")
 
-    # Load Quandl CSV from http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M
+    # Load Quandl CSV downloaded from http://www.quandl.com/OFDP-Open-Financial-Data-Project/GOLD_2-LBMA-Gold-Price-London-Fixings-P-M
     quandlFeed = csvfeed.Feed("Date", "%Y-%m-%d")
     quandlFeed.setDateRange(datetime.datetime(2006, 1, 1), datetime.datetime(2012, 12, 31))
     quandlFeed.addValuesFromCSV("quandl_gold_2.csv")
@@ -48,6 +48,7 @@ def main(plot):
 
     if plot:
         plt.plot()
+
 
 if __name__ == "__main__":
     main(True)

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
-from pyalgotrade.technical import stats
-from pyalgotrade import dataseries
 import numpy
 
+import common
 
-class TestCase(unittest.TestCase):
+from pyalgotrade.technical import stats
+from pyalgotrade import dataseries
+
+
+class TestCase(common.TestCase):
     def testStdDev_1(self):
         values = [1, 1, 2, 3, 5]
         seqDS = dataseries.SequenceDataSeries()

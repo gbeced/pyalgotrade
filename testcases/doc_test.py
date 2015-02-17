@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,127 +18,78 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
-import subprocess
 import os
 
 from testcases import common
 
 
-def run_and_get_output(cmd):
-    return subprocess.check_output(cmd, universal_newlines=True)
-
-
-def run_python_code(code, outputFileName=None):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append("-c")
-    cmd.append(code)
-    ret = run_and_get_output(cmd)
-    if outputFileName:
-        outputFile = open(outputFileName, "w")
-        outputFile.write(ret)
-        outputFile.close()
-    return ret
-
-
-def run_python_script(script, params=[]):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append(script)
-    cmd.extend(params)
-    return run_and_get_output(cmd)
-
-
-def run_sample_script(script, params=[]):
-    return run_python_script(os.path.join("samples", script), params)
-
-
-def get_file_lines(fileName):
-    rawLines = open(fileName, "r").readlines()
-    return [rawLine.strip() for rawLine in rawLines]
-
-
-def compare_head(fileName, lines):
-    assert(len(lines) > 0)
-    fileLines = get_file_lines(os.path.join("samples", fileName))
-    return fileLines[0:len(lines)] == lines
-
-
-def compare_tail(fileName, lines):
-    assert(len(lines) > 0)
-    fileLines = get_file_lines(os.path.join("samples", fileName))
-    return fileLines[len(lines)*-1:] == lines
-
-
-class DocCodeTest(unittest.TestCase):
+class DocCodeTest(common.TestCase):
     def testTutorial1(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-1.py").split("\n")
-            self.assertTrue(compare_head("tutorial-1.output", lines[:3]))
-            self.assertTrue(compare_tail("tutorial-1.output", lines[-4:-1]))
+            res = common.run_sample_script("tutorial-1.py")
+            self.assertTrue(common.compare_head("tutorial-1.output", res.get_output_lines(True)[:3]))
+            self.assertTrue(common.compare_tail("tutorial-1.output", res.get_output_lines(True)[-3:]))
+            self.assertTrue(res.exit_ok())
 
     def testTutorial2(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-2.py").split("\n")
-            self.assertTrue(compare_head("tutorial-2.output", lines[:15]))
-            self.assertTrue(compare_tail("tutorial-2.output", lines[-4:-1]))
+            res = common.run_sample_script("tutorial-2.py")
+            self.assertTrue(common.compare_head("tutorial-2.output", res.get_output_lines(True)[:15]))
+            self.assertTrue(common.compare_tail("tutorial-2.output", res.get_output_lines(True)[-3:]))
+            self.assertTrue(res.exit_ok())
 
     def testTutorial3(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-3.py").split("\n")
-            self.assertTrue(compare_head("tutorial-3.output", lines[:30]))
-            self.assertTrue(compare_tail("tutorial-3.output", lines[-4:-1]))
+            res = common.run_sample_script("tutorial-3.py")
+            self.assertTrue(common.compare_head("tutorial-3.output", res.get_output_lines(True)[:30]))
+            self.assertTrue(common.compare_tail("tutorial-3.output", res.get_output_lines(True)[-3:]))
+            self.assertTrue(res.exit_ok())
 
     def testTutorial4(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("tutorial-4.py").split("\n")
-            self.assertTrue(compare_head("tutorial-4.output", lines[:-1]))
-
-    def testTutorial1MtGox(self):
-        with common.CopyFiles([os.path.join("samples", "data", "trades-mtgox-usd-2013-03.csv")], "."):
-            code = """import sys
-sys.path.append('samples')
-import tutorial_mtgox_1
-tutorial_mtgox_1.main(False)
-"""
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_head("tutorial_mtgox_1.output", lines[0:10]))
-            self.assertTrue(compare_tail("tutorial_mtgox_1.output", lines[-10:-1]))
+            res = common.run_sample_script("tutorial-4.py")
+            self.assertTrue(common.compare_head("tutorial-4.output", res.get_output_lines(True)))
+            self.assertTrue(res.exit_ok())
 
     def testCSVFeed(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "quandl_gold_2.csv")], "."):
+        with common.CopyFiles([os.path.join("samples", "data", "quandl_gold_2.csv")], "."):
             code = """import sys
 sys.path.append('samples')
 import csvfeed_1
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_head("csvfeed_1.output", lines[0:10]))
-            self.assertTrue(compare_tail("csvfeed_1.output", lines[-10:-1]))
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_head("csvfeed_1.output", res.get_output_lines()[0:10]))
+            self.assertTrue(common.compare_tail("csvfeed_1.output", res.get_output_lines()[-10:-1]))
+            self.assertTrue(res.exit_ok())
 
 
-class CompInvTestCase(unittest.TestCase):
+class CompInvTestCase(common.TestCase):
     def testCompInv_1(self):
         files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
         with common.CopyFiles(files, "."):
-            lines = run_sample_script("compinv-1.py").split("\n")
-            self.assertTrue(compare_head("compinv-1.output", lines[:-1]))
+            res = common.run_sample_script("compinv-1.py")
+            # Skip the first two lines that have debug messages from the
+            # broker.
+            self.assertTrue(common.compare_head("compinv-1.output", res.get_output_lines(True)[2:]))
+            self.assertTrue(res.exit_ok())
 
 
-class StratAnalyzerTestCase(unittest.TestCase):
+class StratAnalyzerTestCase(common.TestCase):
     def testSampleStrategyAnalyzer(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            lines = run_sample_script("sample-strategy-analyzer.py").split("\n")
-            self.assertTrue(compare_head("sample-strategy-analyzer.output", lines[:-1]))
+            res = common.run_sample_script("sample-strategy-analyzer.py")
+            self.assertTrue(common.compare_head("sample-strategy-analyzer.output", res.get_output_lines(True)))
+            self.assertTrue(res.exit_ok())
 
 
-class TechnicalTestCase(unittest.TestCase):
+class TechnicalTestCase(common.TestCase):
     def testTechnical_1(self):
-        lines = run_sample_script("technical-1.py").split("\n")
-        self.assertTrue(compare_head("technical-1.output", lines[:-1]))
+        res = common.run_sample_script("technical-1.py")
+        self.assertTrue(common.compare_head("technical-1.output", res.get_output_lines(True)))
+        self.assertTrue(res.exit_ok())
 
 
-class SampleStratTestCase(unittest.TestCase):
+class SampleStratTestCase(common.TestCase):
     def testErnieChanGldVsGdx(self):
         files = []
         for year in range(2006, 2013):
@@ -152,8 +103,12 @@ sys.path.append('samples')
 import statarb_erniechan
 statarb_erniechan.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("statarb_erniechan.output", lines[-2:-1]))
+            res = common.run_python_code(code)
+            obtained = res.get_output_lines()[-2]
+            expected = common.tail_file("statarb_erniechan.output", 1)[0]
+            self.assertEquals(expected, obtained, "Got this lines %s instead" % (res.get_output_lines()))
+            # self.assertTrue(common.compare_tail("statarb_erniechan.output", res.get_output_lines()[-2:-1]))
+            self.assertTrue(res.exit_ok())
 
     def testVWAPMomentum(self):
         files = []
@@ -168,8 +123,43 @@ sys.path.append('samples')
 import vwap_momentum
 vwap_momentum.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("vwap_momentum.output", lines[-2:-1]))
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_tail("vwap_momentum.output", res.get_output_lines()[-2:-1]))
+            self.assertTrue(res.exit_ok())
+
+    def testSMACrossOver(self):
+        files = []
+        for year in range(2011, 2013):
+            for symbol in ["aapl"]:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "."):
+            code = """import sys
+sys.path.append('samples')
+import sma_crossover_sample
+sma_crossover_sample.main(False)
+"""
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_tail("sma_crossover.output", res.get_output_lines()[-2:-1]))
+            self.assertTrue(res.exit_ok())
+
+    def testRSI2(self):
+        files = []
+        for year in range(2009, 2013):
+            for symbol in ["DIA"]:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "."):
+            code = """import sys
+sys.path.append('samples')
+import rsi2_sample
+rsi2_sample.main(False)
+"""
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_tail("rsi2_sample.output", res.get_output_lines()[-2:-1]))
+            self.assertTrue(res.exit_ok())
 
     def testBBands(self):
         files = []
@@ -184,8 +174,9 @@ sys.path.append('samples')
 import bbands
 bbands.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("bbands.output", lines[-2:-1]))
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_tail("bbands.output", res.get_output_lines()[-2:-1]))
+            self.assertTrue(res.exit_ok())
 
     def testEventStudy(self):
         files = []
@@ -200,16 +191,17 @@ sys.path.append('samples')
 import eventstudy
 eventstudy.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_tail("eventstudy.output", lines[-2:-1]))
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_tail("eventstudy.output", res.get_output_lines()[-2:-1]))
+            self.assertTrue(res.exit_ok())
 
     def testQuandl(self):
         files = []
         for year in range(2006, 2013):
-            for symbol in ["gld"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["GORO"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
-        files.append(os.path.join("testcases", "data", "quandl_gold_2.csv"))
+        files.append(os.path.join("samples", "data", "quandl_gold_2.csv"))
 
         with common.CopyFiles(files, "."):
             code = """import sys
@@ -217,6 +209,58 @@ sys.path.append('samples')
 import quandl_sample
 quandl_sample.main(False)
 """
-            lines = run_python_code(code).split("\n")
-            self.assertTrue(compare_head("quandl_sample.output", lines[0:10]))
-            self.assertTrue(compare_tail("quandl_sample.output", lines[-10:-1]))
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_head("quandl_sample.output", res.get_output_lines()[0:10]))
+            self.assertTrue(common.compare_tail("quandl_sample.output", res.get_output_lines()[-10:-1]))
+            self.assertTrue(res.exit_ok())
+
+    def testMarketTiming(self):
+        common.init_temp_path()
+        files = []
+        instruments = ["VTI", "VEU", "IEF", "VNQ", "DBC", "SPY"]
+        for year in range(2007, 2013+1):
+            for symbol in instruments:
+                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                files.append(os.path.join("samples", "data", fileName))
+
+        with common.CopyFiles(files, "data"):
+            code = """import sys
+sys.path.append('samples')
+import market_timing
+market_timing.main(False)
+"""
+            res = common.run_python_code(code)
+            self.assertTrue(common.compare_tail("market_timing.output", res.get_output_lines()[-10:-1]))
+            self.assertTrue(res.exit_ok())
+
+
+class BitcoinChartsTestCase(common.TestCase):
+    def testExample1(self):
+        with common.CopyFiles([os.path.join("testcases", "data", "bitstampUSD-2.csv")], "bitstampUSD.csv"):
+            code = """import sys
+sys.path.append('samples')
+import bccharts_example_1
+bccharts_example_1.main()
+"""
+            res = common.run_python_code(code)
+            lines = common.get_file_lines("30min-bitstampUSD.csv")
+            self.assertTrue(common.compare_head("30min-bitstampUSD-2.csv", lines[0:10], "testcases/data"))
+            self.assertTrue(common.compare_tail("30min-bitstampUSD-2.csv", lines[-10:], "testcases/data"))
+            os.remove("30min-bitstampUSD.csv")
+            self.assertTrue(res.exit_ok())
+
+    def testExample2(self):
+        with common.CopyFiles([os.path.join("testcases", "data", "30min-bitstampUSD-2.csv")], "30min-bitstampUSD.csv"):
+            code = """import sys
+sys.path.append('samples')
+import bccharts_example_2
+bccharts_example_2.main(False)
+"""
+            res = common.run_python_code(code)
+            self.assertTrue(
+                common.compare_head("bccharts_example_2.output", res.get_output_lines()[0:10], "testcases/data")
+            )
+            self.assertTrue(
+                common.compare_tail("bccharts_example_2.output", res.get_output_lines()[-10:-1], "testcases/data")
+            )
+            self.assertTrue(res.exit_ok())

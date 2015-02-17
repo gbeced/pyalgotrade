@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade.barfeed import ninjatraderfeed
-from pyalgotrade.barfeed import csvfeed
-from pyalgotrade.stratanalyzer import trades
-from pyalgotrade import broker
-from pyalgotrade.broker import backtesting
-
-import strategy_test
-import common
-
-import unittest
 import datetime
 import math
 from distutils import version
 import pytz
 import numpy
+
+import common
+import strategy_test
+import position_test
+
+from pyalgotrade.barfeed import ninjatraderfeed
+from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.stratanalyzer import trades
+from pyalgotrade import broker
+from pyalgotrade.broker import backtesting
 
 
 def buildUTCDateTime(year, month, day, hour, minute):
@@ -41,15 +41,23 @@ def buildUTCDateTime(year, month, day, hour, minute):
     return ret
 
 
-class TradesAnalyzerTestCase(unittest.TestCase):
+class TradesAnalyzerTestCase(common.TestCase):
     TestInstrument = "spy"
 
-    def __createStrategy(self):
-        barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+    def __loadBarFeed(self):
+        ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFilter = csvfeed.USEquitiesRTH()
-        barFeed.setBarFilter(barFilter)
-        barFeed.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        ret.setBarFilter(barFilter)
+        ret.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        return ret
+
+    def __createStrategy(self):
+        barFeed = self.__loadBarFeed()
         return strategy_test.TestStrategy(barFeed, 1000)
+
+    def __createPositionStrategy(self):
+        barFeed = self.__loadBarFeed()
+        return position_test.TestStrategy(barFeed, TradesAnalyzerTestCase.TestInstrument, 1000)
 
     def testNoTrades(self):
         strat = self.__createStrategy()
@@ -66,7 +74,7 @@ class TradesAnalyzerTestCase(unittest.TestCase):
         self.assertTrue(stratAnalyzer.getUnprofitableCount() == 0)
 
     def testSomeTrades_Position(self):
-        strat = self.__createStrategy()
+        strat = self.__createPositionStrategy()
         stratAnalyzer = trades.Trades()
         strat.attachAnalyzer(stratAnalyzer)
 

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         self.__allReturns.append(netReturn)
         self.__allCommissions.append(posTracker.getCommissions())
 
-        posTracker.update(price)
+        posTracker.reset()
 
     def __updatePosTracker(self, posTracker, price, commission, quantity):
         currentShares = posTracker.getShares()
@@ -116,33 +116,36 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         else:
             posTracker.sell(quantity*-1, price, commission)
 
-    def __onOrderUpdate(self, broker_, order):
-        # Only interested in filled orders.
-        if not order.isFilled():
+    def __onOrderEvent(self, broker_, orderEvent):
+        # Only interested in filled or partially filled orders.
+        if orderEvent.getEventType() not in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED):
             return
+
+        order = orderEvent.getOrder()
 
         # Get or create the tracker for this instrument.
         try:
             posTracker = self.__posTrackers[order.getInstrument()]
         except KeyError:
-            posTracker = returns.PositionTracker()
+            posTracker = returns.PositionTracker(order.getInstrumentTraits())
             self.__posTrackers[order.getInstrument()] = posTracker
 
         # Update the tracker for this order.
-        price = order.getExecutionInfo().getPrice()
-        commission = order.getExecutionInfo().getCommission()
+        execInfo = orderEvent.getEventInfo()
+        price = execInfo.getPrice()
+        commission = execInfo.getCommission()
         action = order.getAction()
         if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-            quantity = order.getExecutionInfo().getQuantity()
+            quantity = execInfo.getQuantity()
         elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-            quantity = order.getExecutionInfo().getQuantity() * -1
+            quantity = execInfo.getQuantity() * -1
         else:  # Unknown action
             assert(False)
 
         self.__updatePosTracker(posTracker, price, commission, quantity)
 
     def attached(self, strat):
-        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdate)
+        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
 
     def getCount(self):
         """Returns the total number of trades."""
@@ -162,40 +165,40 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 
     def getAll(self):
         """Returns a numpy.array with the profits/losses for each trade."""
-        return np.array(self.__all)
+        return np.asarray(self.__all)
 
     def getProfits(self):
         """Returns a numpy.array with the profits for each profitable trade."""
-        return np.array(self.__profits)
+        return np.asarray(self.__profits)
 
     def getLosses(self):
         """Returns a numpy.array with the losses for each unprofitable trade."""
-        return np.array(self.__losses)
+        return np.asarray(self.__losses)
 
     def getAllReturns(self):
         """Returns a numpy.array with the returns for each trade."""
-        return np.array(self.__allReturns)
+        return np.asarray(self.__allReturns)
 
     def getPositiveReturns(self):
         """Returns a numpy.array with the positive returns for each trade."""
-        return np.array(self.__positiveReturns)
+        return np.asarray(self.__positiveReturns)
 
     def getNegativeReturns(self):
         """Returns a numpy.array with the negative returns for each trade."""
-        return np.array(self.__negativeReturns)
+        return np.asarray(self.__negativeReturns)
 
     def getCommissionsForAllTrades(self):
         """Returns a numpy.array with the commissions for each trade."""
-        return np.array(self.__allCommissions)
+        return np.asarray(self.__allCommissions)
 
     def getCommissionsForProfitableTrades(self):
         """Returns a numpy.array with the commissions for each profitable trade."""
-        return np.array(self.__profitableCommissions)
+        return np.asarray(self.__profitableCommissions)
 
     def getCommissionsForUnprofitableTrades(self):
         """Returns a numpy.array with the commissions for each unprofitable trade."""
-        return np.array(self.__unprofitableCommissions)
+        return np.asarray(self.__unprofitableCommissions)
 
     def getCommissionsForEvenTrades(self):
         """Returns a numpy.array with the commissions for each trade whose net profit was 0."""
-        return np.array(self.__evenCommissions)
+        return np.asarray(self.__evenCommissions)

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+
+import abc
 
 from pyalgotrade import observer
 
@@ -35,7 +37,8 @@ class BaseFeed(observer.Subject):
     """Base class for feeds.
 
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+        from the opposite end.
     :type maxLen: int.
 
     .. note::
@@ -49,17 +52,21 @@ class BaseFeed(observer.Subject):
         self.__event = observer.Event()
         self.__maxLen = maxLen
 
-    # Return True if this is a real-time feed.
-    def isRealTime(self):
-        raise NotImplementedError()
+    def reset(self):
+        keys = self.__ds.keys()
+        self.__ds = {}
+        for key in keys:
+            self.registerDataSeries(key)
 
     # Subclasses should implement this and return the appropriate dataseries for the given key.
+    @abc.abstractmethod
     def createDataSeries(self, key, maxLen):
         raise NotImplementedError()
 
     # Subclasses should implement this and return a tuple with two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
+    @abc.abstractmethod
     def getNextValues(self):
         raise NotImplementedError()
 
@@ -96,6 +103,7 @@ class BaseFeed(observer.Subject):
         dateTime, values = self.getNextValuesAndUpdateDS()
         if dateTime is not None:
             self.__event.emit(dateTime, values)
+        return dateTime is not None
 
     def getKeys(self):
         return self.__ds.keys()

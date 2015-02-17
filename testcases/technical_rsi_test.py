@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import rsi
 from pyalgotrade import dataseries
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def testAvgGainLoss(self):
         # We divide by 2 because N samples yield N-1 averages.
 

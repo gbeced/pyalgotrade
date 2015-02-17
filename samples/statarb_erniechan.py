@@ -3,6 +3,7 @@ from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
 from pyalgotrade import plotter
 from pyalgotrade.tools import yahoofinance
+from pyalgotrade.stratanalyzer import sharpe
 
 import numpy as np
 import statsmodels.api as sm
@@ -60,15 +61,15 @@ class StatArbHelper:
 
     def update(self):
         if len(self.__ds1) >= self.__windowSize:
-            values1 = np.array(self.__ds1[-1*self.__windowSize:])
-            values2 = np.array(self.__ds2[-1*self.__windowSize:])
+            values1 = np.asarray(self.__ds1[-1*self.__windowSize:])
+            values2 = np.asarray(self.__ds2[-1*self.__windowSize:])
             self.__updateHedgeRatio(values1, values2)
             self.__updateSpread()
             self.__updateSpreadMeanAndStd(values1, values2)
             self.__updateZScore()
 
 
-class MyStrategy(strategy.BacktestingStrategy):
+class StatArb(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument1, instrument2, windowSize):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.setUseAdjustedValues(True)
@@ -96,20 +97,20 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def buySpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.order(self.__i1, amount1)
-        self.order(self.__i2, amount2 * -1)
+        self.marketOrder(self.__i1, amount1)
+        self.marketOrder(self.__i2, amount2 * -1)
 
     def sellSpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.order(self.__i1, amount1 * -1)
-        self.order(self.__i2, amount2)
+        self.marketOrder(self.__i1, amount1 * -1)
+        self.marketOrder(self.__i2, amount2)
 
     def reducePosition(self, instrument):
         currentPos = self.getBroker().getShares(instrument)
         if currentPos > 0:
-            self.order(instrument, currentPos * -1)
+            self.marketOrder(instrument, currentPos * -1)
         elif currentPos < 0:
-            self.order(instrument, currentPos * -1)
+            self.marketOrder(instrument, currentPos * -1)
 
     def onBars(self, bars):
         self.__statArbHelper.update()
@@ -139,18 +140,21 @@ def main(plot):
     # Download the bars.
     feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
 
-    myStrategy = MyStrategy(feed, instruments[0], instruments[1], windowSize)
+    strat = StatArb(feed, instruments[0], instruments[1], windowSize)
+    sharpeRatioAnalyzer = sharpe.SharpeRatio()
+    strat.attachAnalyzer(sharpeRatioAnalyzer)
 
     if plot:
-        plt = plotter.StrategyPlotter(myStrategy, False, False, True)
-        plt.getOrCreateSubplot("hedge").addDataSeries("Hedge Ratio", myStrategy.getHedgeRatioDS())
-        plt.getOrCreateSubplot("spread").addDataSeries("Spread", myStrategy.getSpreadDS())
+        plt = plotter.StrategyPlotter(strat, False, False, True)
+        plt.getOrCreateSubplot("hedge").addDataSeries("Hedge Ratio", strat.getHedgeRatioDS())
+        plt.getOrCreateSubplot("spread").addDataSeries("Spread", strat.getSpreadDS())
 
-    myStrategy.run()
-    print "Result: %.2f" % myStrategy.getResult()
+    strat.run()
+    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
 
     if plot:
         plt.plot()
+
 
 if __name__ == "__main__":
     main(True)

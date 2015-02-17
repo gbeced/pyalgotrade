@@ -9,7 +9,7 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         bar = bars[self.__instrument]
-        print "%s: %s" % (bar.getDateTime(), bar.getClose())
+        self.info(bar.getClose())
 
 # Load the yahoo feed from the CSV file
 feed = yahoofeed.Feed()

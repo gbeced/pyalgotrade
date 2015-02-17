@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,14 +33,28 @@ def compute_diff(values1, values2):
     return ret
 
 
+def _get_stripped(values1, values2, alignLeft):
+    if len(values1) > len(values2):
+        if alignLeft:
+            values1 = values1[0:len(values2)]
+        else:
+            values1 = values1[len(values1)-len(values2):]
+    elif len(values2) > len(values1):
+        if alignLeft:
+            values2 = values2[0:len(values1)]
+        else:
+            values2 = values2[len(values2)-len(values1):]
+    return values1, values2
+
+
 def _cross_impl(values1, values2, start, end, signCheck):
     # Get both set of values.
-    values1 = values1[start:end]
-    values2 = values2[start:end]
+    values1, values2 = _get_stripped(values1[start:end], values2[start:end], start > 0)
 
     # Compute differences and check sign changes.
     ret = 0
     diffs = compute_diff(values1, values2)
+    diffs = filter(lambda x: x != 0, diffs)
     prevDiff = None
     for diff in diffs:
         if prevDiff is not None and not signCheck(prevDiff) and signCheck(diff):

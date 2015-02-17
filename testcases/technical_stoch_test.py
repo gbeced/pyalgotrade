@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
+
 from pyalgotrade.technical import stoch
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
@@ -33,14 +35,14 @@ def values_equal(v1, v2):
     return False
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def setUp(self):
         self.__currSeconds = 0
 
     def __buildBar(self, openPrice, highPrice, lowPrice, closePrice):
         dateTime = datetime.datetime.now() + datetime.timedelta(seconds=self.__currSeconds)
         self.__currSeconds += 1
-        return bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice)
+        return bar.BasicBar(dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice, bar.Frequency.DAY)
 
     def __fillBarDataSeries(self, barDS, closePrices, highPrices, lowPrices):
         assert(len(closePrices) == len(highPrices) == len(lowPrices))

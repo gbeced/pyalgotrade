@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from pyalgotrade.technical import roc
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 
 
 class Results(object):
@@ -193,6 +193,9 @@ class Profiler(object):
         :type useAdjustedCloseForReturns: boolean.
         """
 
+        if useAdjustedCloseForReturns:
+            assert feed.barsHaveAdjClose(), "Feed doesn't have adjusted close values"
+
         try:
             self.__feed = feed
             self.__rets = {}
@@ -206,12 +209,12 @@ class Profiler(object):
                     ds = feed[instrument].getCloseDataSeries()
                 self.__rets[instrument] = roc.RateOfChange(ds, 1)
 
-            feed.getNewBarsEvent().subscribe(self.__onBars)
-            dispatcher = observer.Dispatcher()
-            dispatcher.addSubject(feed)
-            dispatcher.run()
+            feed.getNewValuesEvent().subscribe(self.__onBars)
+            disp = dispatcher.Dispatcher()
+            disp.addSubject(feed)
+            disp.run()
         finally:
-            feed.getNewBarsEvent().unsubscribe(self.__onBars)
+            feed.getNewValuesEvent().unsubscribe(self.__onBars)
 
 
 def build_plot(profilerResults):
@@ -221,7 +224,7 @@ def build_plot(profilerResults):
     std = []
     for t in xrange(profilerResults.getLookBack()*-1, profilerResults.getLookForward()+1):
         x.append(t)
-        values = np.array(profilerResults.getValues(t))
+        values = np.asarray(profilerResults.getValues(t))
         y.append(values.mean())
         std.append(values.std())
 

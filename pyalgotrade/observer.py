@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+
+import abc
 
 
 class Event(object):
@@ -50,105 +52,52 @@ class Event(object):
         else:
             self.__handlers.remove(handler)
 
-    def emit(self, *parameters):
+    def emit(self, *args, **kwargs):
         try:
             self.__emitting = True
             for handler in self.__handlers:
-                handler(*parameters)
+                handler(*args, **kwargs)
         finally:
             self.__emitting = False
             self.__applyChanges()
 
 
 class Subject(object):
+    __metaclass__ = abc.ABCMeta
+
     # This may raise.
+    @abc.abstractmethod
     def start(self):
         raise NotImplementedError()
 
     # This should not raise.
+    @abc.abstractmethod
     def stop(self):
         raise NotImplementedError()
 
     # This should not raise.
+    @abc.abstractmethod
     def join(self):
         raise NotImplementedError()
 
     # Return True if there are not more events to dispatch.
+    @abc.abstractmethod
     def eof(self):
         raise NotImplementedError()
 
+    # Dispatch events. If True is returned, it means that at least one event was dispatched.
+    @abc.abstractmethod
     def dispatch(self):
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def peekDateTime(self):
         # Return the datetime for the next event.
         # This is needed to properly synchronize non-realtime subjects.
+        # Return None since this is a realtime subject.
         raise NotImplementedError()
 
     def getDispatchPriority(self):
         # Returns a number (or None) used to sort subjects within the dispatch queue.
         # The return value should never change.
         return None
-
-
-# This class is responsible for dispatching events from multiple subjects, synchronizing them if necessary.
-class Dispatcher(object):
-    def __init__(self):
-        self.__subjects = []
-        self.__stopped = False
-
-    def stop(self):
-        self.__stopped = True
-
-    def getSubjects(self):
-        return self.__subjects
-
-    def addSubject(self, subject):
-        assert(subject not in self.__subjects)
-        if subject.getDispatchPriority() is None:
-            self.__subjects.append(subject)
-        else:
-            # Find the position for the subject's priority.
-            pos = 0
-            for s in self.__subjects:
-                if s.getDispatchPriority() is None or subject.getDispatchPriority() < s.getDispatchPriority():
-                    break
-                pos += 1
-            self.__subjects.insert(pos, subject)
-
-    def __dispatch(self):
-        smallestDateTime = None
-        ret = False
-
-        # Scan for the lowest datetime.
-        for subject in self.__subjects:
-            if not subject.eof():
-                ret = True
-                nextDateTime = subject.peekDateTime()
-                if nextDateTime is not None:
-                    if smallestDateTime is None:
-                        smallestDateTime = nextDateTime
-                    elif nextDateTime < smallestDateTime:
-                        smallestDateTime = nextDateTime
-
-        # Dispatch realtime subjects and those subjects with the lowest datetime.
-        if ret:
-            for subject in self.__subjects:
-                if not subject.eof():
-                    nextDateTime = subject.peekDateTime()
-                    if nextDateTime is None or nextDateTime == smallestDateTime:
-                        subject.dispatch()
-        return ret
-
-    def run(self):
-        try:
-            for subject in self.__subjects:
-                subject.start()
-
-            while not self.__stopped and self.__dispatch():
-                pass
-        finally:
-            for subject in self.__subjects:
-                subject.stop()
-            for subject in self.__subjects:
-                subject.join()

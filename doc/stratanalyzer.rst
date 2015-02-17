@@ -34,7 +34,11 @@ Trades
 
 Example
 -------
-This example depends on smacross_strategy.py from the tutorial section.
+Save this code as sma_crossover.py:
+
+.. literalinclude:: ../samples/sma_crossover.py
+
+and save this code in a different file:
 
 .. literalinclude:: ../samples/sample-strategy-analyzer.py
 

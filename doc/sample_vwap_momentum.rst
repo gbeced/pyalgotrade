@@ -1,7 +1,7 @@
 VWAP Momentum Trade
 ===================
 
-This sample is based on:
+This example is based on:
  * https://www.quantopian.com/posts/momentum-trade
 
 .. literalinclude:: ../samples/vwap_momentum.py
@@ -14,5 +14,5 @@ and this is what the plot should look like:
 
 .. image:: ../samples/vwap_momentum.png
 
-you can get better returns by tunning the VWAP period as well as the entry and exit points.
+You can get better returns by tunning the VWAP and threshold parameters.
 

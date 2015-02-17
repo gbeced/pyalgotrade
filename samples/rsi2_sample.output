@@ -1,0 +1,5 @@
+2014-05-03 13:49:35,354 yahoofinance [INFO] Downloading DIA 2009 to ./DIA-2009-yahoofinance.csv
+2014-05-03 13:49:36,388 yahoofinance [INFO] Downloading DIA 2010 to ./DIA-2010-yahoofinance.csv
+2014-05-03 13:49:36,900 yahoofinance [INFO] Downloading DIA 2011 to ./DIA-2011-yahoofinance.csv
+2014-05-03 13:49:37,457 yahoofinance [INFO] Downloading DIA 2012 to ./DIA-2012-yahoofinance.csv
+Sharpe ratio: -0.11

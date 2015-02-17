@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,16 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
 
-from pyalgotrade import barfeed
+from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed
 from pyalgotrade import marketsession
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
-import common
 
 
 class NikkeiSpyStrategy(strategy.BacktestingStrategy):
@@ -67,7 +66,7 @@ class NikkeiSpyStrategy(strategy.BacktestingStrategy):
                 self.__pos.exit()
 
 
-class TestCase(unittest.TestCase):
+class TestCase(common.TestCase):
     def __testDifferentTimezonesImpl(self, feed):
         self.assertTrue("^n225" in feed)
         self.assertTrue("spy" in feed)
@@ -88,13 +87,13 @@ class TestCase(unittest.TestCase):
         self.__testDifferentTimezonesImpl(feed)
 
     def testDifferentTimezones_DBFeed(self):
-        feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), barfeed.Frequency.DAY)
+        feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), bar.Frequency.DAY)
         feed.loadBars("^n225")
         feed.loadBars("spy")
         self.__testDifferentTimezonesImpl(feed)
 
     def testDifferentTimezones_DBFeed_LocalizedBars(self):
-        feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), barfeed.Frequency.DAY)
+        feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), bar.Frequency.DAY)
         feed.loadBars("^n225", marketsession.TSE.getTimezone())
         feed.loadBars("spy", marketsession.USEquities.getTimezone())
         self.__testDifferentTimezonesImpl(feed)

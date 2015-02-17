@@ -1,0 +1,23 @@
+2014-05-25 22:36:59,740 yahoofinance [INFO] Creating data directory
+2014-05-25 22:36:59,740 yahoofinance [INFO] Downloading SPY 2007 to data/SPY-2007-yahoofinance.csv
+2014-05-25 22:37:06,332 yahoofinance [INFO] Downloading VTI 2007 to data/VTI-2007-yahoofinance.csv
+2014-05-25 22:37:10,666 yahoofinance [INFO] Downloading DBC 2007 to data/DBC-2007-yahoofinance.csv
+2014-05-25 22:37:13,102 yahoofinance [INFO] Downloading IEF 2007 to data/IEF-2007-yahoofinance.csv
+2014-05-25 22:37:19,394 yahoofinance [INFO] Downloading VEU 2007 to data/VEU-2007-yahoofinance.csv
+2014-05-25 22:37:27,378 yahoofinance [INFO] Downloading VNQ 2007 to data/VNQ-2007-yahoofinance.csv
+2014-05-25 22:37:32,771 yahoofinance [INFO] Downloading SPY 2008 to data/SPY-2008-yahoofinance.csv
+2014-05-25 22:37:38,326 yahoofinance [INFO] Downloading VTI 2008 to data/VTI-2008-yahoofinance.csv
+2014-05-25 22:37:42,262 yahoofinance [INFO] Downloading DBC 2008 to data/DBC-2008-yahoofinance.csv
+.
+.
+.
+2013-12-02 00:00:00 strategy [INFO] Rebalancing
+2013-12-02 00:00:00 strategy [INFO] Best for class US Stocks: VTI
+2013-12-02 00:00:00 strategy [INFO] Best for class Commodities: None
+2013-12-02 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
+2013-12-02 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-12-02 00:00:00 strategy [INFO] Best for class Real Estate: None
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -1 VTI shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -39 VNQ shares
+Sharpe ratio: -0.06
+Returns: 32.97 %

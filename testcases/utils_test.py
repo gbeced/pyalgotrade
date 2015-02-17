@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,52 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade.utils import collections
-
-import unittest
 import datetime
 
+import common
 
-class CollectionsTestCase(unittest.TestCase):
+from pyalgotrade import utils
+from pyalgotrade.utils import collections
+from pyalgotrade.utils import dt
+
+
+class UtilsTestCase(common.TestCase):
+    def testChangePercentage(self):
+        self.assertEqual(utils.get_change_percentage(1, 1), 0)
+        self.assertEqual(round(utils.get_change_percentage(1.1, 1), 2), 0.1)
+        self.assertEqual(round(utils.get_change_percentage(2, 1), 2), 1)
+        self.assertEqual(utils.get_change_percentage(1, 2), -0.5)
+        self.assertEqual(utils.get_change_percentage(0, -1), 1)
+        self.assertEqual(utils.get_change_percentage(1, -1), 2)
+        self.assertEqual(utils.get_change_percentage(-2, -1), -1)
+        self.assertEqual(utils.get_change_percentage(-1.5, -1), -0.5)
+        with self.assertRaisesRegexp(Exception, "Invalid values"):
+            utils.get_change_percentage(-1.5, 0)
+
+    def testSafeMin(self):
+        self.assertEqual(utils.safe_min(None, 0), 0)
+        self.assertEqual(utils.safe_min(0, None), 0)
+        self.assertEqual(utils.safe_min(None, None), None)
+        self.assertEqual(utils.safe_min(0, 0), 0)
+        self.assertEqual(utils.safe_min(1, 0), 0)
+        self.assertEqual(utils.safe_min(0, 1), 0)
+        self.assertEqual(utils.safe_min(-1, 1), -1)
+        self.assertEqual(utils.safe_min(1, -1), -1)
+        self.assertEqual(utils.safe_min(-1, -2), -2)
+        self.assertEqual(utils.safe_min(-2, -1), -2)
+
+    def testSafeMax(self):
+        self.assertEqual(utils.safe_max(None, 0), 0)
+        self.assertEqual(utils.safe_max(None, 1), 1)
+        self.assertEqual(utils.safe_max(2, None), 2)
+        self.assertEqual(utils.safe_max(None, None), None)
+        self.assertEqual(utils.safe_max(1, 100), 100)
+        self.assertEqual(utils.safe_max(-1, 1), 1)
+        self.assertEqual(utils.safe_max(-1, 1.1), 1.1)
+        self.assertEqual(utils.safe_max(2, 1.1), 2)
+
+
+class CollectionsTestCase(common.TestCase):
     def testEmptyIntersection(self):
         values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
         self.assertEqual(len(values), 0)
@@ -190,3 +229,27 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(len(d), 6)
         self.assertEqual(d[5], 15)
         self.assertEqual(d[-1], 15)
+
+
+class DateTimeTestCase(common.TestCase):
+    def testTimeStampConversions(self):
+        dateTime = datetime.datetime(2000, 1, 1)
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), False), dateTime)
+
+        dateTime = dt.as_utc(datetime.datetime(2000, 1, 1, 1, 1))
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), True), dateTime)
+
+    def testTimeStampConversionsWithMicroseconds(self):
+        dateTime = datetime.datetime(2000, 1, 1, 1, 1, 1, microsecond=10)
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), False), dateTime)
+
+        dateTime = dt.as_utc(datetime.datetime(2000, 1, 1, 1, 1, 1, microsecond=10))
+        self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), True), dateTime)
+
+    def testGetFirstMonday(self):
+        self.assertEquals(dt.get_first_monday(2010), datetime.date(2010, 1, 4))
+        self.assertEquals(dt.get_first_monday(2011), datetime.date(2011, 1, 3))
+
+    def testGetLastMonday(self):
+        self.assertEquals(dt.get_last_monday(2010), datetime.date(2010, 12, 27))
+        self.assertEquals(dt.get_last_monday(2011), datetime.date(2011, 12, 26))

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
+
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 
@@ -36,7 +37,7 @@ class TestFilter(technical.EventBasedFilter):
         technical.EventBasedFilter.__init__(self, dataSeries, TestEventWindow())
 
 
-class DataSeriesFilterTest(unittest.TestCase):
+class DataSeriesFilterTest(common.TestCase):
     def testInvalidPosNotCached(self):
         ds = dataseries.SequenceDataSeries()
         testFilter = TestFilter(ds)

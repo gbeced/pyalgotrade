@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -91,9 +91,7 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
         self.appendWithDateTime(dateTime, newValue)
 
     def getDataSeries(self):
-        """Returns the :class:`pyalgotrade.dataseries.DataSeries` being filtered."""
         return self.__dataSeries
 
     def getEventWindow(self):
-        """Returns the :class:`EventWindow` instance to use to calculate new values."""
         return self.__eventWindow

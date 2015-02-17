@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,24 +18,24 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import linebreak
 from pyalgotrade.barfeed import yahoofeed
 
 
-class VWAPTestCase(unittest.TestCase):
+class LineBreakTestCase(common.TestCase):
     Instrument = "orcl"
 
     def __getFeed(self):
         # Load the feed and process all bars.
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(VWAPTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(LineBreakTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         return barFeed
 
     def test2LineBreak(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[LineBreakTestCase.Instrument]
         lineBreak = linebreak.LineBreak(bars, 2)
         barFeed.loadAll()
 
@@ -50,7 +50,7 @@ class VWAPTestCase(unittest.TestCase):
 
     def test3LineBreak(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[LineBreakTestCase.Instrument]
         lineBreak = linebreak.LineBreak(bars, 3)
         barFeed.loadAll()
 
@@ -65,7 +65,7 @@ class VWAPTestCase(unittest.TestCase):
 
     def testLineBreakBounded(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[LineBreakTestCase.Instrument]
 
         # Invalid maxLen, smaller than reversalLines.
         with self.assertRaises(Exception):

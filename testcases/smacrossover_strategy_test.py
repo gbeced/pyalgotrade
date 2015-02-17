@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,19 +18,18 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
-import common
 
 
 class SMACrossOverStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, fastSMA, slowSMA):
         strategy.BacktestingStrategy.__init__(self, feed, 1000)
-        ds = feed["orcl"].getCloseDataSeries()
+        ds = feed["orcl"].getPriceDataSeries()
         self.__fastSMADS = ma.SMA(ds, fastSMA)
         self.__slowSMADS = ma.SMA(ds, slowSMA)
         self.__longPos = None
@@ -137,15 +136,15 @@ class LimitOrderStrategy(SMACrossOverStrategy):
     def exitLongPosition(self, bars, position):
         price = self.__getMiddlePrice(bars)
         self.printDebug("exitLong:", self.getCurrentDateTime(), price, position)
-        position.exit(price)
+        position.exit(None, price)
 
     def exitShortPosition(self, bars, position):
         price = self.__getMiddlePrice(bars)
         self.printDebug("exitShort:", self.getCurrentDateTime(), price, position)
-        position.exit(price)
+        position.exit(limitPrice=price)
 
 
-class TestSMACrossOver(unittest.TestCase):
+class TestSMACrossOver(common.TestCase):
     def __test(self, strategyClass, finalValue):
         feed = yahoofeed.Feed()
         feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))

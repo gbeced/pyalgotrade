@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import common
+
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
 from pyalgotrade.barfeed import ninjatraderfeed
-from pyalgotrade import barfeed
+from pyalgotrade import bar
 
 
 def safe_round(number, ndigits):
@@ -33,7 +33,7 @@ def safe_round(number, ndigits):
     return ret
 
 
-class SMATestCase(unittest.TestCase):
+class SMATestCase(common.TestCase):
     def __buildSMA(self, period, values, smaMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDs = dataseries.SequenceDataSeries()
         ret = ma.SMA(seqDs, period, smaMaxLen)
@@ -150,7 +150,7 @@ class SMATestCase(unittest.TestCase):
         common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1000)
 
 
-class WMATestCase(unittest.TestCase):
+class WMATestCase(common.TestCase):
     def __buildWMA(self, weights, values, seqMaxLen=dataseries.DEFAULT_MAX_LEN, wmaMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries(maxLen=seqMaxLen)
         ret = ma.WMA(seqDS, weights, wmaMaxLen)
@@ -197,15 +197,15 @@ class WMATestCase(unittest.TestCase):
         self.assertEqual(len(wma.getDateTimes()), 2)
 
 
-class EMATestCase(unittest.TestCase):
+class EMATestCase(common.TestCase):
     def testStockChartsEMA(self):
         # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
         common.test_from_csv(self, "sc-ema-10.csv", lambda inputDS: ma.EMA(inputDS, 10), 3)
 
     def testMaxRecursion(self):
-        barFeed = ninjatraderfeed.Feed(barfeed.Frequency.MINUTE)
+        barFeed = ninjatraderfeed.Feed(bar.Frequency.MINUTE)
         barFeed.addBarsFromCSV("any", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        ema = ma.EMA(barFeed["any"].getCloseDataSeries(), 10)
+        ema = ma.EMA(barFeed["any"].getPriceDataSeries(), 10)
         # Load all the feed.
         barFeed.loadAll()
 

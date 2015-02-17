@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ class WMAEventWindow(technical.EventWindow):
     def __init__(self, weights):
         assert(len(weights) > 0)
         technical.EventWindow.__init__(self, len(weights))
-        self.__weights = np.array(weights)
+        self.__weights = np.asarray(weights)
 
     def getValue(self):
         ret = None

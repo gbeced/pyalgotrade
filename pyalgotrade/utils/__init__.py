@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,3 +26,21 @@ def get_change_percentage(actual, prev):
     diff = actual-prev
     ret = diff / float(abs(prev))
     return ret
+
+
+def safe_min(left, right):
+    if left is None:
+        return right
+    elif right is None:
+        return left
+    else:
+        return min(left, right)
+
+
+def safe_max(left, right):
+    if left is None:
+        return right
+    elif right is None:
+        return left
+    else:
+        return max(left, right)

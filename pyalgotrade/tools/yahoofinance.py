@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,38 +20,29 @@
 
 import urllib2
 import os
+import datetime
 
 import pyalgotrade.logger
+from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.utils import dt
 
 
 def __adjust_month(month):
     if month > 12 or month < 1:
         raise Exception("Invalid month")
-    month -= 1  # Month for yahoo is 0 based
+    month -= 1  # Months for yahoo are 0 based
     return month
 
 
-def __get_last_day(month):
-    ret = 31
-    if month in (4, 6, 9, 11):
-        ret = 30
-    elif month == 2:
-        ret = 28
-    return ret
-
-
-def __download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYear):
-    fromDay = 1
-    toDay = __get_last_day(toMonth)
-    fromMonth = __adjust_month(fromMonth)
-    toMonth = __adjust_month(toMonth)
-    url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=d&ignore=.csv" % (instrument, fromMonth, fromDay, fromYear, toMonth, toDay, toYear)
+def download_csv(instrument, begin, end, frequency):
+    url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv" % (instrument, __adjust_month(begin.month), begin.day, begin.year, __adjust_month(end.month), end.day, end.year, frequency)
 
     f = urllib2.urlopen(url)
     if f.headers['Content-Type'] != 'text/csv':
         raise Exception("Failed to download data: %s" % f.getcode())
     buff = f.read()
+    f.close()
 
     # Remove the BOM
     while not buff[0].isalnum():
@@ -60,14 +51,8 @@ def __download_instrument_prices(instrument, fromMonth, fromYear, toMonth, toYea
     return buff
 
 
-def get_daily_csv(instrument, year):
-    fromMonth = 1
-    toMonth = 12
-    return __download_instrument_prices(instrument, fromMonth, year, toMonth, year)
-
-
 def download_daily_bars(instrument, year, csvFile):
-    """Download bars for a given year.
+    """Download daily bars from Yahoo! Finance for a given year.
 
     :param instrument: Instrument identifier.
     :type instrument: string.
@@ -77,15 +62,54 @@ def download_daily_bars(instrument, year, csvFile):
     :type csvFile: string.
     """
 
-    bars = get_daily_csv(instrument, year)
+    bars = download_csv(instrument, datetime.date(year, 1, 1), datetime.date(year, 12, 31), "d")
     f = open(csvFile, "w")
     f.write(bars)
     f.close()
 
 
-def build_feed(instruments, fromYear, toYear, storage, timezone=None, skipErrors=False):
+def download_weekly_bars(instrument, year, csvFile):
+    """Download weekly bars from Yahoo! Finance for a given year.
+
+    :param instrument: Instrument identifier.
+    :type instrument: string.
+    :param year: The year.
+    :type year: int.
+    :param csvFile: The path to the CSV file to write.
+    :type csvFile: string.
+    """
+
+    begin = dt.get_first_monday(year)
+    end = dt.get_last_monday(year) + datetime.timedelta(days=6)
+    bars = download_csv(instrument, begin, end, "w")
+    f = open(csvFile, "w")
+    f.write(bars)
+    f.close()
+
+
+def build_feed(instruments, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None, skipErrors=False):
+    """Build and load a :class:`pyalgotrade.barfeed.yahoofeed.Feed` using CSV files downloaded from Yahoo! Finance.
+    CSV files are downloaded if they haven't been downloaded before.
+
+    :param instruments: Instrument identifiers.
+    :type instruments: list.
+    :param fromYear: The first year.
+    :type fromYear: int.
+    :param toYear: The last year.
+    :type toYear: int.
+    :param storage: The path were the files will be loaded from, or downloaded to.
+    :type storage: string.
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
+        are supported.
+    :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+    :type timezone: A pytz timezone.
+    :param skipErrors: True to keep on loading/downloading files in case of errors.
+    :type skipErrors: boolean.
+    :rtype: :class:`pyalgotrade.barfeed.yahoofeed.Feed`.
+    """
+
     logger = pyalgotrade.logger.getLogger("yahoofinance")
-    ret = yahoofeed.Feed(timezone)
+    ret = yahoofeed.Feed(frequency, timezone)
 
     if not os.path.exists(storage):
         logger.info("Creating %s directory" % (storage))
@@ -97,7 +121,12 @@ def build_feed(instruments, fromYear, toYear, storage, timezone=None, skipErrors
             if not os.path.exists(fileName):
                 logger.info("Downloading %s %d to %s" % (instrument, year, fileName))
                 try:
-                    download_daily_bars(instrument, year, fileName)
+                    if frequency == bar.Frequency.DAY:
+                        download_daily_bars(instrument, year, fileName)
+                    elif frequency == bar.Frequency.WEEK:
+                        download_weekly_bars(instrument, year, fileName)
+                    else:
+                        raise Exception("Invalid frequency")
                 except Exception, e:
                     if skipErrors:
                         logger.error(str(e))

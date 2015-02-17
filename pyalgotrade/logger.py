@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,41 +21,58 @@
 import logging
 import threading
 
-factoryLock = threading.Lock()
-loggers = {}
+initLock = threading.Lock()
+rootLoggerInitialized = False
 
-# Defaults
 log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
 level = logging.INFO
 file_log = None  # File name
 console_log = True
 
 
-def __set_defaults(handler):
-    handler.setFormatter(logging.Formatter(log_format))
+def init_handler(handler):
+    handler.setFormatter(Formatter(log_format))
 
 
-def __build_logger(name):
-    ret = logging.getLogger(name)
-    ret.setLevel(level)
+def init_logger(logger):
+    logger.setLevel(level)
 
     if file_log is not None:
         fileHandler = logging.FileHandler(file_log)
-        __set_defaults(fileHandler)
-        ret.addHandler(fileHandler)
+        init_handler(fileHandler)
+        logger.addHandler(fileHandler)
 
     if console_log:
         consoleHandler = logging.StreamHandler()
-        __set_defaults(consoleHandler)
-        ret.addHandler(consoleHandler)
-
-    return ret
+        init_handler(consoleHandler)
+        logger.addHandler(consoleHandler)
 
 
-def getLogger(name):
-    with factoryLock:
-        ret = loggers.get(name)
-        if ret is None:
-            ret = __build_logger(name)
-            loggers[name] = ret
-    return ret
+def initialize():
+    global rootLoggerInitialized
+    with initLock:
+        if not rootLoggerInitialized:
+            init_logger(logging.getLogger())
+            rootLoggerInitialized = True
+
+
+def getLogger(name=None):
+    initialize()
+    return logging.getLogger(name)
+
+
+# This formatter provides a way to hook in formatTime.
+class Formatter(logging.Formatter):
+    DATETIME_HOOK = None
+
+    def formatTime(self, record, datefmt=None):
+        newDateTime = None
+
+        if Formatter.DATETIME_HOOK is not None:
+            newDateTime = Formatter.DATETIME_HOOK()
+
+        if newDateTime is None:
+            ret = logging.Formatter.formatTime(self, record, datefmt)
+        else:
+            ret = str(newDateTime)
+        return ret

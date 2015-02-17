@@ -1,0 +1,4 @@
+2013-09-21 00:01:23,813 yahoofinance [INFO] Creating data directory
+2013-09-21 00:01:23,814 yahoofinance [INFO] Downloading aapl 2011 to data/aapl-2011-yahoofinance.csv
+2013-09-21 00:01:25,275 yahoofinance [INFO] Downloading aapl 2012 to data/aapl-2012-yahoofinance.csv
+Sharpe ratio: 1.12

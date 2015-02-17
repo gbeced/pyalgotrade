@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@
 """
 
 import os
-import unittest
 
-from pyalgotrade.tools import yahoofinance
-from pyalgotrade.barfeed import yahoofeed
 import common
 
+from pyalgotrade.tools import yahoofinance
+from pyalgotrade import bar
+from pyalgotrade.barfeed import yahoofeed
 
-class ToolsTestCase(unittest.TestCase):
-    def testDownloadAndParse(self):
+
+class ToolsTestCase(common.TestCase):
+    def testDownloadAndParseDaily(self):
         instrument = "orcl"
 
         common.init_temp_path()
@@ -38,3 +39,37 @@ class ToolsTestCase(unittest.TestCase):
         bf.loadAll()
         self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
         self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+
+    def testDownloadAndParseWeekly(self):
+        instrument = "aapl"
+
+        common.init_temp_path()
+        path = os.path.join(common.get_temp_path(), "aapl-weekly-2013.csv")
+        yahoofinance.download_weekly_bars(instrument, 2013, path)
+        bf = yahoofeed.Feed(frequency=bar.Frequency.WEEK)
+        bf.addBarsFromCSV(instrument, path)
+        bf.loadAll()
+        self.assertEqual(bf[instrument][-1].getOpen(), 557.46)
+        self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
+        self.assertEqual(bf[instrument][-1].getLow(), 540.43)
+        self.assertEqual(bf[instrument][-1].getClose(), 540.98)
+        self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))
+
+    def testBuildDailyFeed(self):
+        with common.TmpDir() as tmpPath:
+            instrument = "orcl"
+            bf = yahoofinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
+            bf.loadAll()
+            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+
+    def testBuildWeeklyFeed(self):
+        with common.TmpDir() as tmpPath:
+            instrument = "aapl"
+            bf = yahoofinance.build_feed([instrument], 2013, 2013, storage=tmpPath, frequency=bar.Frequency.WEEK)
+            bf.loadAll()
+            self.assertEqual(bf[instrument][-1].getOpen(), 557.46)
+            self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
+            self.assertEqual(bf[instrument][-1].getLow(), 540.43)
+            self.assertEqual(bf[instrument][-1].getClose(), 540.98)
+            self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))

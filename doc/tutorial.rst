@@ -27,12 +27,14 @@ Strategies
 Feeds
     These are data providing abstractions. For example, you'll use a CSV feed that loads bars from a CSV
     (Comma-separated values) formatted file to feed data to a strategy.
+    Feeds are not limited to bars. For example, there is a Twitter feed that allows incorporating Twitter
+    events into trading decisions.
 
 Brokers
     Brokers are responsible for executing orders.
 
 DataSeries
-    A data series is an abstraction used to manage historical data.
+    A data series is an abstraction used to manage time series data.
 
 Technicals
     These are a set of filters that you use to make calculations on top of DataSeries.
@@ -88,7 +90,7 @@ That is because we need at least 15 values to get something out of the SMA:
 
 All the technicals will return None when the value can't be calculated at a given time.
 
-One important thing about technicals is that they can be combined. That is because they're modeled as data series as well.
+One important thing about technicals is that they can be combined. That is because they're modeled as DataSeries as well.
 For example, getting an SMA over the RSI over the closing prices is as simple as this:
 
 .. literalinclude:: ../samples/tutorial-3.py
@@ -107,7 +109,7 @@ Trading
 Let's move on with a simple strategy, this time simulating actual trading. The idea is very simple:
 
  * If the adjusted close price is above the SMA(15) we enter a long position (we place a buy market order).
- * If a long order is in place, and the adjusted close price drops below the SMA(15) we exit the long position (we place a sell market order).
+ * If a long position is in place, and the adjusted close price drops below the SMA(15) we exit the long position (we place a sell market order).
 
 .. literalinclude:: ../samples/tutorial-4.py
 
@@ -165,92 +167,77 @@ Let's start by downloading 3 years of daily bars for 'Dow Jones Industrial Avera
     python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2010, 'dia-2010.csv')" 
     python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2011, 'dia-2011.csv')"
 
+Save this code as rsi2.py:
+
+.. literalinclude:: ../samples/rsi2.py
+
 This is the server script:
 
 .. literalinclude:: ../samples/tutorial-optimizer-server.py
 
 The server code is doing 3 things:
 
- 1. Declaring a generator function that builds parameters.
+ 1. Declaring a generator function that yields different parameter combinations for the strategy.
  2. Loading the feed with the CSV files we downloaded.
  3. Running the server that will wait for incoming connections on port 5000.
 
-This is the worker script:
+This is the worker script that uses the **pyalgotrade.optimizer.worker** module to run the strategy in parallel with
+the data supplied by the server:
 
 .. literalinclude:: ../samples/tutorial-optimizer-worker.py
 
-The worker code is doing 2 things:
-
- 1. Declaring the RSI2 strategy.
- 2. Using pyalgotrade.optimizer.worker module to run the strategy in parallel with the data supplied by the server.
-
-
 When you run the server and the client/s you'll see something like this on the server console: ::
 
-    INFO 2012-03-24 22:29:29,860: Loading bars
-    INFO 2012-03-24 22:29:30,053: Waiting for workers
-    INFO 2012-03-24 22:29:33,640: Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
-    INFO 2012-03-24 22:29:33,769: Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)
-    INFO 2012-03-24 22:29:33,896: Partial result $2100.40 with parameters: (150, 5, 2, 77, 5)
-    INFO 2012-03-24 22:29:34,025: Partial result $2100.40 with parameters: (150, 5, 2, 78, 5)
-    INFO 2012-03-24 22:29:34,153: Partial result $2100.40 with parameters: (150, 5, 2, 79, 5)
-    INFO 2012-03-24 22:29:34,280: Partial result $2112.20 with parameters: (150, 5, 2, 80, 5)
+    2014-05-03 15:04:01,083 server [INFO] Loading bars
+    2014-05-03 15:04:01,348 server [INFO] Waiting for workers
+    2014-05-03 15:04:58,277 server [INFO] Partial result 1242173.28754 with parameters: ('dia', 150, 5, 2, 91, 19) from localworker
+    2014-05-03 15:04:58,566 server [INFO] Partial result 1203266.33502 with parameters: ('dia', 150, 5, 2, 81, 19) from localworker
+    2014-05-03 15:05:50,965 server [INFO] Partial result 1220763.1579 with parameters: ('dia', 150, 5, 3, 83, 24) from localworker
+    2014-05-03 15:05:51,325 server [INFO] Partial result 1221627.50793 with parameters: ('dia', 150, 5, 3, 80, 24) from localworker
     .
     .
 
 and something like this on the worker/s console: ::
 
-    INFO 2012-03-24 22:29:33,515: Running strategy with parameters (150, 5, 2, 75, 5)
-    INFO 2012-03-24 22:29:33,638: Result 2036.9
-    INFO 2012-03-24 22:29:33,643: Running strategy with parameters (150, 5, 2, 76, 5)
-    INFO 2012-03-24 22:29:33,767: Result 2089.2
-    INFO 2012-03-24 22:29:33,772: Running strategy with parameters (150, 5, 2, 77, 5)
-    INFO 2012-03-24 22:29:33,895: Result 2100.4
-    INFO 2012-03-24 22:29:33,899: Running strategy with parameters (150, 5, 2, 78, 5)
-    INFO 2012-03-24 22:29:34,023: Result 2100.4
-    INFO 2012-03-24 22:29:34,028: Running strategy with parameters (150, 5, 2, 79, 5)
-    INFO 2012-03-24 22:29:34,151: Result 2100.4
-    INFO 2012-03-24 22:29:34,156: Running strategy with parameters (150, 5, 2, 80, 5)
-    INFO 2012-03-24 22:29:34,278: Result 2112.2
+    2014-05-03 15:02:25,360 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 15)
+    2014-05-03 15:02:25,377 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 94, 5)
+    2014-05-03 15:02:25,661 localworker [INFO] Result 1090481.06342
+    2014-05-03 15:02:25,661 localworker [INFO] Result 1031470.23717
+    2014-05-03 15:02:25,662 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 93, 25)
+    2014-05-03 15:02:25,665 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 14)
+    2014-05-03 15:02:25,995 localworker [INFO] Result 1135558.55667
+    2014-05-03 15:02:25,996 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 93, 24)
+    2014-05-03 15:02:26,006 localworker [INFO] Result 1083987.18174
+    2014-05-03 15:02:26,007 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 13)
+    2014-05-03 15:02:26,256 localworker [INFO] Result 1093736.17175
+    2014-05-03 15:02:26,257 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 12)
+    2014-05-03 15:02:26,280 localworker [INFO] Result 1135558.55667
     .
     .
 
 Note that you should run **only one server and one or more workers**.
 
-If you just want to run strategies in parallel in your own desktop you can take advantage of the pyalgotrade.optimizer.local
+If you just want to run strategies in parallel in your own desktop you can take advantage of the **pyalgotrade.optimizer.local**
 module like this:
 
 .. literalinclude:: ../samples/tutorial-optimizer-local.py
 
-The code is doing 4 things:
+The code is doing 3 things:
 
- 1. Declaring the RSI2 strategy.
- 2. Declaring a generator function that builds parameters.
- 3. Loading the feed with the CSV files we downloaded.
- 4. Using the pyalgotrade.optimizer.local module to run the strategy in parallel and find the best result.
+ 1. Declaring a generator function that yields different parameter combinations.
+ 2. Loading the feed with the CSV files we downloaded.
+ 3. Using the **pyalgotrade.optimizer.local** module to run the strategy in parallel and find the best result.
 
 When you run this code you should see something like this: ::
 
-    INFO 2012-03-25 00:07:34,793: Loading bars
-    INFO 2012-03-25 00:07:34,996: Waiting for workers
-    INFO 2012-03-25 00:07:35,366: Partial result $2036.90 with parameters: (150, 5, 2, 75, 5)
-    INFO 2012-03-25 00:07:35,385: Partial result $2089.20 with parameters: (150, 5, 2, 76, 5)
-    INFO 2012-03-25 00:07:35,499: Partial result $2100.40 with parameters: (150, 5, 2, 77, 5)
-    INFO 2012-03-25 00:07:35,515: Partial result $2100.40 with parameters: (150, 5, 2, 78, 5)
-    INFO 2012-03-25 00:07:35,632: Partial result $2100.40 with parameters: (150, 5, 2, 79, 5)
-    INFO 2012-03-25 00:07:35,646: Partial result $2112.20 with parameters: (150, 5, 2, 80, 5)
-    INFO 2012-03-25 00:07:35,763: Partial result $2115.50 with parameters: (150, 5, 2, 81, 5)
-    INFO 2012-03-25 00:07:35,775: Partial result $2076.60 with parameters: (150, 5, 2, 82, 5)
-    INFO 2012-03-25 00:07:35,895: Partial result $2003.60 with parameters: (150, 5, 2, 83, 5)
-    INFO 2012-03-25 00:07:35,902: Partial result $2003.60 with parameters: (150, 5, 2, 84, 5)
-    INFO 2012-03-25 00:07:36,026: Partial result $2003.60 with parameters: (150, 5, 2, 85, 5)
-    INFO 2012-03-25 00:07:36,033: Partial result $2048.60 with parameters: (150, 5, 2, 86, 5)
-    INFO 2012-03-25 00:07:36,157: Partial result $2061.70 with parameters: (150, 5, 2, 87, 5)
-    INFO 2012-03-25 00:07:36,163: Partial result $2075.00 with parameters: (150, 5, 2, 88, 5)
-    INFO 2012-03-25 00:07:36,288: Partial result $2082.00 with parameters: (150, 5, 2, 89, 5)
-    INFO 2012-03-25 00:07:36,293: Partial result $2080.70 with parameters: (150, 5, 2, 90, 5)
-    INFO 2012-03-25 00:07:36,418: Partial result $2086.80 with parameters: (150, 5, 2, 91, 5)
-    INFO 2012-03-25 00:07:36,424: Partial result $2086.80 with parameters: (150, 5, 2, 92, 5)
+    2014-05-03 15:08:06,587 server [INFO] Loading bars
+    2014-05-03 15:08:06,910 server [INFO] Waiting for workers
+    2014-05-03 15:08:58,347 server [INFO] Partial result 1242173.28754 with parameters: ('dia', 150, 5, 2, 91, 19) from worker-95583
+    2014-05-03 15:08:58,967 server [INFO] Partial result 1203266.33502 with parameters: ('dia', 150, 5, 2, 81, 19) from worker-95584
+    2014-05-03 15:09:52,097 server [INFO] Partial result 1220763.1579 with parameters: ('dia', 150, 5, 3, 83, 24) from worker-95584
+    2014-05-03 15:09:52,921 server [INFO] Partial result 1221627.50793 with parameters: ('dia', 150, 5, 3, 80, 24) from worker-95583
+    2014-05-03 15:10:40,826 server [INFO] Partial result 1142162.23912 with parameters: ('dia', 150, 5, 4, 76, 17) from worker-95584
+    2014-05-03 15:10:41,318 server [INFO] Partial result 1107487.03214 with parameters: ('dia', 150, 5, 4, 83, 17) from worker-95583
     .
     .
 
@@ -262,15 +249,14 @@ For the record, the best result found was $2314.40 with the following parameters
  5. overSoldThreshold: 18
 
 
-If you don't have access to a cluster of computers, then you can take advantage of :doc:`googleappengine`.
-
 Plotting
 --------
 
 PyAlgoTrade makes it very easy to plot a strategy execution.
-Save this SMA crossover strategy as smacross_strategy.py:
 
-.. literalinclude:: ../samples/smacross_strategy.py
+Save this as sma_crossover.py:
+
+.. literalinclude:: ../samples/sma_crossover.py
 
 and save this code to a different file:
 
@@ -286,6 +272,7 @@ This is what the plot looks like:
 
 .. image:: ../samples/tutorial-5.png
 
-I hope you enjoyed this quick introduction. I'd recommend you to download PyAlgoTrade here: http://gbeced.github.com/pyalgotrade/downloads/index.html
+I hope you enjoyed this quick introduction. I'd recommend you to download PyAlgoTrade here: http://gbeced.github.io/pyalgotrade/downloads/index.html 
 and get started writing you own strategies.
 
+You can also find more examples in the :ref:`samples-label` section.

@@ -16,10 +16,10 @@ Contents:
     code
     tools
     eventprofiler
-    talib
-    googleappengine
-    mtgox
+    xignite
+    bitcoin
     twitter
+    talib
     compinvpart1
     samples
 

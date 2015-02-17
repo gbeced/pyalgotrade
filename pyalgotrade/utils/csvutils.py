@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import csv
 
 # A faster (but limited) version of csv.DictReader
 class FastDictReader(object):
-    def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwds):
+    def __init__(self, f, fieldnames=None, dialect="excel", *args, **kwargs):
         self.__fieldNames = fieldnames
-        self.reader = csv.reader(f, dialect, *args, **kwds)
+        self.reader = csv.reader(f, dialect, *args, **kwargs)
         if self.__fieldNames is None:
             self.__fieldNames = self.reader.next()
         self.__dict = {}

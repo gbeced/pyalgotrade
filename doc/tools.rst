@@ -8,6 +8,14 @@ Yahoo! Finance
     :members:
     :show-inheritance:
 
+Quandl
+------
+
+.. automodule:: pyalgotrade.tools.quandl
+    :members:
+    :show-inheritance:
+
+
 BarFeed resampling
 ------------------
 

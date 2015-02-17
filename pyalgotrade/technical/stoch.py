@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
 from pyalgotrade.technical import ma
 
 
@@ -28,22 +29,13 @@ class BarWrapper(object):
         self.__useAdjusted = useAdjusted
 
     def getLow(self, bar_):
-        if self.__useAdjusted:
-            return bar_.getAdjLow()
-        else:
-            return bar_.getLow()
+        return bar_.getLow(self.__useAdjusted)
 
     def getHigh(self, bar_):
-        if self.__useAdjusted:
-            return bar_.getAdjHigh()
-        else:
-            return bar_.getHigh()
+        return bar_.getHigh(self.__useAdjusted)
 
     def getClose(self, bar_):
-        if self.__useAdjusted:
-            return bar_.getAdjClose()
-        else:
-            return bar_.getClose()
+        return bar_.getClose(self.__useAdjusted)
 
 
 def get_low_high_values(barWrapper, bars):
@@ -73,7 +65,8 @@ class SOEventWindow(technical.EventWindow):
 
 
 class StochasticOscillator(technical.EventBasedFilter):
-    """Stochastic Oscillator filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillato.
+    """Stochastic Oscillator filter as described in
+    http://stockcharts.com/school/doku.php?st=stochastic+oscillator&id=chart_school:technical_indicators:stochastic_oscillator_fast_slow_and_full.
     Note that the value returned by this filter is %K. To access %D use :meth:`getD`.
 
     :param barDataSeries: The BarDataSeries instance being filtered.
@@ -91,6 +84,9 @@ class StochasticOscillator(technical.EventBasedFilter):
 
     def __init__(self, barDataSeries, period, dSMAPeriod=3, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
         assert(dSMAPeriod > 1)
+        if not isinstance(barDataSeries, bards.BarDataSeries):
+            raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
+
         technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
         self.__d = ma.SMA(self, dSMAPeriod, maxLen)
 

@@ -2,7 +2,7 @@
 
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,19 +24,21 @@ except ImportError:
 
 setup(
     name='PyAlgoTrade',
-    version='0.14',
+    version='0.16',
     description='Python Algorithmic Trading',
     long_description='Python library for backtesting stock trading strategies.',
     author='Gabriel Martin Becedillas Ruiz',
     author_email='pyalgotrade@gmail.com',
     url='http://gbeced.github.io/pyalgotrade/',
-    download_url='http://sourceforge.net/projects/pyalgotrade/files/0.14/PyAlgoTrade-0.14.tar.gz/download',
-    packages=['pyalgotrade',
+    download_url='http://sourceforge.net/projects/pyalgotrade/files/0.16/PyAlgoTrade-0.16.tar.gz/download',
+    packages=[
+        'pyalgotrade',
         'pyalgotrade.barfeed',
+        'pyalgotrade.bitcoincharts',
+        'pyalgotrade.bitstamp',
         'pyalgotrade.broker',
         'pyalgotrade.dataseries',
         'pyalgotrade.feed',
-        'pyalgotrade.mtgox',
         'pyalgotrade.optimizer',
         'pyalgotrade.stratanalyzer',
         'pyalgotrade.strategy',
@@ -44,8 +46,19 @@ setup(
         'pyalgotrade.technical',
         'pyalgotrade.tools',
         'pyalgotrade.twitter',
-        'pyalgotrade.utils'],
+        'pyalgotrade.utils',
+        'pyalgotrade.websocket',
+        'pyalgotrade.xignite',
+    ],
     install_requires=[
         'numpy',
-        'pytz']
+        'pytz',
+    ],
+    extras_require={
+        'Scipy':  ["scipy"],
+        'TALib':  ["Cython", "TA-Lib"],
+        'Plotting':  ["matplotlib"],
+        'Bitstamp':  ["ws4py", "tornado"],
+        'Twitter':  ["tweepy"],
+    },
 )

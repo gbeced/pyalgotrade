@@ -2,9 +2,10 @@ from pyalgotrade import strategy
 from pyalgotrade import plotter
 from pyalgotrade.tools import yahoofinance
 from pyalgotrade.technical import bollinger
+from pyalgotrade.stratanalyzer import sharpe
 
 
-class MyStrategy(strategy.BacktestingStrategy):
+class BBands(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, bBandsPeriod):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.__instrument = instrument
@@ -23,9 +24,9 @@ class MyStrategy(strategy.BacktestingStrategy):
         bar = bars[self.__instrument]
         if shares == 0 and bar.getClose() < lower:
             sharesToBuy = int(self.getBroker().getCash(False) / bar.getClose())
-            self.order(self.__instrument, sharesToBuy)
+            self.marketOrder(self.__instrument, sharesToBuy)
         elif shares > 0 and bar.getClose() > upper:
-            self.order(self.__instrument, -1*shares)
+            self.marketOrder(self.__instrument, -1*shares)
 
 
 def main(plot):
@@ -35,19 +36,22 @@ def main(plot):
     # Download the bars.
     feed = yahoofinance.build_feed([instrument], 2011, 2012, ".")
 
-    myStrategy = MyStrategy(feed, instrument, bBandsPeriod)
+    strat = BBands(feed, instrument, bBandsPeriod)
+    sharpeRatioAnalyzer = sharpe.SharpeRatio()
+    strat.attachAnalyzer(sharpeRatioAnalyzer)
 
     if plot:
-        plt = plotter.StrategyPlotter(myStrategy, True, True, True)
-        plt.getInstrumentSubplot(instrument).addDataSeries("upper", myStrategy.getBollingerBands().getUpperBand())
-        plt.getInstrumentSubplot(instrument).addDataSeries("middle", myStrategy.getBollingerBands().getMiddleBand())
-        plt.getInstrumentSubplot(instrument).addDataSeries("lower", myStrategy.getBollingerBands().getLowerBand())
+        plt = plotter.StrategyPlotter(strat, True, True, True)
+        plt.getInstrumentSubplot(instrument).addDataSeries("upper", strat.getBollingerBands().getUpperBand())
+        plt.getInstrumentSubplot(instrument).addDataSeries("middle", strat.getBollingerBands().getMiddleBand())
+        plt.getInstrumentSubplot(instrument).addDataSeries("lower", strat.getBollingerBands().getLowerBand())
 
-    myStrategy.run()
-    print "Result: %.2f" % myStrategy.getResult()
+    strat.run()
+    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
 
     if plot:
         plt.plot()
+
 
 if __name__ == "__main__":
     main(True)

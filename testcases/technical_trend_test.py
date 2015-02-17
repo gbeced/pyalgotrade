@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
-from pyalgotrade.technical import trend
+import common
+
+from pyalgotrade.technical import linreg
 from pyalgotrade import dataseries
 
 
-class SlopeTest(unittest.TestCase):
+class SlopeTest(common.TestCase):
     def __buildSlope(self, values, period, slopeMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
-        ret = trend.Slope(seqDS, period, slopeMaxLen)
+        ret = linreg.Slope(seqDS, period, slopeMaxLen)
         for value in values:
             seqDS.append(value)
         return ret
@@ -45,10 +46,10 @@ class SlopeTest(unittest.TestCase):
         self.assertEqual(slope[1], -1.0)
 
 
-class TrendTest(unittest.TestCase):
+class TrendTest(common.TestCase):
     def __buildTrend(self, values, trendDays, positiveThreshold, negativeThreshold, trendMaxLen=dataseries.DEFAULT_MAX_LEN):
         seqDS = dataseries.SequenceDataSeries()
-        ret = trend.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold, trendMaxLen)
+        ret = linreg.Trend(seqDS, trendDays, positiveThreshold, negativeThreshold, trendMaxLen)
         for value in values:
             seqDS.append(value)
         return ret

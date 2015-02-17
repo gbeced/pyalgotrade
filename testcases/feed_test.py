@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,17 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 
 
 # This will test both the feed and subject interface.
 def tstBaseFeedInterface(testCase, feed):
     # This tests the observer.Subject interface.
-    dispatcher = observer.Dispatcher()
-    dispatcher.addSubject(feed)
-    dispatcher.run()
+    disp = dispatcher.Dispatcher()
+    disp.addSubject(feed)
+    disp.run()
 
     # This tests the feed.BaseFeed interface.
-    feed.isRealTime()
     feed.createDataSeries("any", 10)
     feed.getNextValues()

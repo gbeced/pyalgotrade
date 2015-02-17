@@ -2,22 +2,24 @@ Release checklist
 
 [ ] Run flake8 (flake8 --exclude=doc . | grep -v "line too long")
 [ ] Run testcases on Mac and Windows.
+[ ] Check code coverage.
 [ ] Update CHANGELOG.
 [ ] Update version in __init__.py.
 [ ] Update version in setup.py.
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
 [ ] Rebuild and review documentation.
-[ ] Test GoogleApp Engine support. Look for errors in the logs.
 [ ] Run testcases using the installed lib.
 [ ] Run tutorial examples from the Optimizing section using the installed lib.
 [ ] Run samples/tutorial-5.py using the installed lib.
 [ ] Run samples/compinv-3.py using the installed lib.
-[ ] Run samples/tutorial_mtgox_2.py using the installed lib. Check disconnection detection.
-[ ] Run samples/tutorial_twitter_mtgox.py using the installed lib.
+[ ] Run samples/tutorial_bitstamp_1.py using the installed lib. Check disconnection detection.
+[ ] Run samples/tutorial_twitter_bitstamp.py using the installed lib.
+[ ] Run samples/tutorial_xignite_1.py using the installed lib.
 [ ] Run samples/eventstudy.py using the installed lib.
 
 [ ] Update the website (doc + package).
+[ ] Update README.md.
 [ ] Build package and upload to sourceforge.
 [ ] Update PyPi (both PKG-INFO and upload file using https://pypi.python.org/pypi?%3Aaction=submit_form).
 [ ] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
@@ -26,4 +28,4 @@ Release checklist
 [ ] Commit and tag (git tag v0.x-rtm -m "Version 0.x").
 [ ] Push (git push; git push --tags).
 [ ] Push the website (git push).
-[ ] Tweet about it.
+[ ] Announce on Google Groups and Twitter.

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +18,54 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
+import common
 
 from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
 
 
-class TestCase(unittest.TestCase):
+class HelpersTestCase(common.TestCase):
+    def test_get_stripped_left(self):
+        v1, v2 = cross._get_stripped([1, 2, 3], [1], True)
+        self.assertEqual(v1, [1])
+        self.assertEqual(v2, [1])
+
+        v1, v2 = cross._get_stripped([1], [1, 2, 3], True)
+        self.assertEqual(v1, [1])
+        self.assertEqual(v2, [1])
+
+        v1, v2 = cross._get_stripped([1, 2, 3], [1, 2], True)
+        self.assertEqual(v1, [1, 2])
+        self.assertEqual(v2, [1, 2])
+
+        v1, v2 = cross._get_stripped([1, 2], [1, 2, 3], True)
+        self.assertEqual(v1, [1, 2])
+        self.assertEqual(v2, [1, 2])
+
+    def test_get_stripped_right(self):
+        v1, v2 = cross._get_stripped([1, 2, 3], [1], False)
+        self.assertEqual(v1, [3])
+        self.assertEqual(v2, [1])
+
+        v1, v2 = cross._get_stripped([1], [1, 2, 3], False)
+        self.assertEqual(v1, [1])
+        self.assertEqual(v2, [3])
+
+        v1, v2 = cross._get_stripped([1, 2, 3], [1, 2], False)
+        self.assertEqual(v1, [2, 3])
+        self.assertEqual(v2, [1, 2])
+
+        v1, v2 = cross._get_stripped([1, 2], [1, 2, 3], False)
+        self.assertEqual(v1, [1, 2])
+        self.assertEqual(v2, [2, 3])
+
+    def test_compute_diff(self):
+        self.assertEqual(cross.compute_diff([1, 1, 1], [0, 1, 2]), [1, 0, -1])
+        self.assertEqual(cross.compute_diff([0, 1, 2], [1, 1, 1]), [-1, 0, 1])
+
+
+class TestCase(common.TestCase):
     def __buildSeqDS(self, values):
         ret = dataseries.SequenceDataSeries()
         for value in values:
@@ -144,3 +184,10 @@ class TestCase(unittest.TestCase):
                 self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 1)
             else:
                 self.assertEqual(cross.cross_above(sma1[:], sma2[:], -2, None), 0)
+
+    def testWithLists(self):
+        self.assertEqual(cross.cross_above([1, 2], [1, 1], -2), 0)
+        self.assertEqual(cross.cross_above([0, 1, 2], [1, 1, 1], -3), 1)
+        self.assertEqual(cross.cross_above([0, 0, 0, 1, 2], [1, 1, 1], -3), 1)
+        self.assertEqual(cross.cross_above([0, 0, 0, 1, 2], [1, 1], -3), 0)
+        self.assertEqual(cross.cross_above([0, 0, 0, 0, 2], [1, 1], -3), 1)

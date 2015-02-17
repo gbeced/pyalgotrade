@@ -55,7 +55,7 @@ class OrdersFile:
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, cash, ordersFile, useAdjustedClose):
         # Suscribe to the feed bars event before the broker just to place the orders properly.
-        feed.getNewBarsEvent().subscribe(self.__onBarsBeforeBroker)
+        feed.getNewValuesEvent().subscribe(self.__onBarsBeforeBroker)
         strategy.BacktestingStrategy.__init__(self, feed, cash)
         self.__ordersFile = ordersFile
         self.setUseAdjustedValues(useAdjustedClose)
@@ -65,9 +65,9 @@ class MyStrategy(strategy.BacktestingStrategy):
     def __onBarsBeforeBroker(self, dateTime, bars):
         for instrument, action, quantity in self.__ordersFile.getOrders(dateTime):
             if action.lower() == "buy":
-                self.order(instrument, quantity, onClose=True)
+                self.marketOrder(instrument, quantity, onClose=True)
             else:
-                self.order(instrument, quantity*-1, onClose=True)
+                self.marketOrder(instrument, quantity*-1, onClose=True)
 
     def onOrderUpdated(self, order):
         if order.isCanceled():
@@ -75,7 +75,7 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         portfolioValue = self.getBroker().getEquity()
-        print "%s: Portfolio value: $%.2f" % (bars.getDateTime(), portfolioValue)
+        self.info("Portfolio value: $%.2f" % (portfolioValue))
 
 
 def main():

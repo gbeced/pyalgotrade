@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.utils import dt
 from pyalgotrade import bar
@@ -48,8 +47,9 @@ def parse_date(date):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, dailyBarTime, timezone=None, sanitize=False):
+    def __init__(self, dailyBarTime, frequency, timezone=None, sanitize=False):
         self.__dailyBarTime = dailyBarTime
+        self.__frequency = frequency
         self.__timezone = timezone
         self.__sanitize = sanitize
 
@@ -89,12 +89,14 @@ class RowParser(csvfeed.RowParser):
             if high < close:
                 high = close
 
-        return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose)
+        return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
 
 
 class Feed(csvfeed.BarFeed):
     """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
 
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
+        are supported.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
@@ -106,14 +108,17 @@ class Feed(csvfeed.BarFeed):
         When working with multiple instruments:
 
             * If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.
-            * If any of the instruments loaded are from different timezones, then the timezone parameter must be set.
+            * If any of the instruments loaded are in different timezones, then the timezone parameter must be set.
     """
 
-    def __init__(self, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
         if isinstance(timezone, int):
             raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 
-        csvfeed.BarFeed.__init__(self, barfeed.Frequency.DAY, maxLen)
+        if frequency not in [bar.Frequency.DAY, bar.Frequency.WEEK]:
+            raise Exception("Invalid frequency.")
+
+        csvfeed.BarFeed.__init__(self, frequency, maxLen)
         self.__timezone = timezone
         self.__sanitizeBars = False
 
@@ -140,5 +145,6 @@ class Feed(csvfeed.BarFeed):
 
         if timezone is None:
             timezone = self.__timezone
-        rowParser = RowParser(self.getDailyBarTime(), timezone, self.__sanitizeBars)
+
+        rowParser = RowParser(self.getDailyBarTime(), self.getFrequency(), timezone, self.__sanitizeBars)
         csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)

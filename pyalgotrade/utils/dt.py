@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 """
 
 import datetime
-import calendar
 import pytz
 
 
@@ -28,11 +27,18 @@ def datetime_is_naive(dateTime):
     return dateTime.tzinfo is None or dateTime.tzinfo.utcoffset(dateTime) is None
 
 
+# Remove timezone information.
+def unlocalize(dateTime):
+    return dateTime.replace(tzinfo=None)
+
+
 def localize(dateTime, timeZone):
     """Returns a datetime adjusted to a timezone:
 
-     * If dateTime is a naive datetime (datetime with no timezone information), timezone information is added but date and time remains the same.
-     * If dateTime is not a naive datetime, a datetime object with new tzinfo attribute is returned, adjusting the date and time data so the result is the same UTC time.
+     * If dateTime is a naive datetime (datetime with no timezone information), timezone information is added but date
+       and time remains the same.
+     * If dateTime is not a naive datetime, a datetime object with new tzinfo attribute is returned, adjusting the date
+       and time data so the result is the same UTC time.
     """
 
     if datetime_is_naive(dateTime):
@@ -48,7 +54,8 @@ def as_utc(dateTime):
 
 def datetime_to_timestamp(dateTime):
     """ Converts a datetime.datetime to a UTC timestamp."""
-    return calendar.timegm(dateTime.utctimetuple())
+    diff = as_utc(dateTime) - epoch_utc
+    return diff.total_seconds()
 
 
 def timestamp_to_datetime(timeStamp, localized=True):
@@ -57,3 +64,22 @@ def timestamp_to_datetime(timeStamp, localized=True):
     if localized:
         ret = localize(ret, pytz.utc)
     return ret
+
+
+def get_first_monday(year):
+    ret = datetime.date(year, 1, 1)
+    if ret.weekday() != 0:
+        diff = 7 - ret.weekday()
+        ret = ret + datetime.timedelta(days=diff)
+    return ret
+
+
+def get_last_monday(year):
+    ret = datetime.date(year, 12, 31)
+    if ret.weekday() != 0:
+        diff = ret.weekday() * -1
+        ret = ret + datetime.timedelta(days=diff)
+    return ret
+
+
+epoch_utc = as_utc(datetime.datetime(1970, 1, 1))

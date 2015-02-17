@@ -1,0 +1,6 @@
+scipy
+statsmodels
+matplotlib
+ws4py
+tornado
+tweepy

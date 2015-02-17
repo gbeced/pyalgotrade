@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
-import pyalgotrade.bar
 
 
 class Line(object):
@@ -106,7 +105,7 @@ class LineBreak(dataseries.SequenceDataSeries):
 
         if len(self) > 0:
             lastLine = self[-1]
-            close = pyalgotrade.bar.get_close(bar, self.__useAdjustedValues)
+            close = bar.getClose(self.__useAdjustedValues)
             if lastLine.isWhite():
                 if close > lastLine.getHigh():
                     # Price extends in the same direction
@@ -123,9 +122,9 @@ class LineBreak(dataseries.SequenceDataSeries):
                     ret = Line(lastLine.getHigh(), close, bar.getDateTime(), True)
         else:
             white = False
-            if pyalgotrade.bar.get_close(bar, self.__useAdjustedValues) >= pyalgotrade.bar.get_open(bar, self.__useAdjustedValues):
+            if bar.getClose(self.__useAdjustedValues) >= bar.getOpen(self.__useAdjustedValues):
                 white = True
-            ret = Line(pyalgotrade.bar.get_low(bar, self.__useAdjustedValues), pyalgotrade.bar.get_high(bar, self.__useAdjustedValues), bar.getDateTime(), white)
+            ret = Line(bar.getLow(self.__useAdjustedValues), bar.getHigh(self.__useAdjustedValues), bar.getDateTime(), white)
         return ret
 
     def setMaxLen(self, maxLen):

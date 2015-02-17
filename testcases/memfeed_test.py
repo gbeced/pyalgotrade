@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
 
+import common
+
 from pyalgotrade.feed import memfeed
-from pyalgotrade import observer
+from pyalgotrade import dispatcher
 import feed_test
 
 
-class MemFeedTestCase(unittest.TestCase):
+class MemFeedTestCase(common.TestCase):
     def testBaseFeedInterface(self):
         values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in xrange(100)]
         feed = memfeed.MemFeed()
@@ -44,11 +45,38 @@ class MemFeedTestCase(unittest.TestCase):
         self.assertEqual(len(feed["i"]), 0)
         self.assertFalse("dt" in feed)
 
-        dispatcher = observer.Dispatcher()
-        dispatcher.addSubject(feed)
-        dispatcher.run()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
 
         self.assertTrue("i" in feed)
         self.assertFalse("dt" in feed)
         self.assertEqual(feed["i"][0], 0)
         self.assertEqual(feed["i"][-1], 99)
+
+    def testReset(self):
+        key = "i"
+        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {key: i}) for i in xrange(100)]
+
+        feed = memfeed.MemFeed()
+        feed.addValues(values)
+
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
+
+        keys = feed.getKeys()
+        values = feed[key]
+
+        feed.reset()
+        disp = dispatcher.Dispatcher()
+        disp.addSubject(feed)
+        disp.run()
+        reloadedKeys = feed.getKeys()
+        reloadedValues = feed[key]
+
+        self.assertEqual(keys, reloadedKeys)
+        self.assertNotEqual(values, reloadedValues)
+        self.assertEqual(len(values), len(reloadedValues))
+        for i in range(len(values)):
+            self.assertEqual(values[i], reloadedValues[i])

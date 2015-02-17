@@ -1,34 +1,34 @@
-Final portfolio value: $1075.17
-Cumulative returns: 7.52 %
-Sharpe ratio: 0.23
-Max. drawdown: 9.91 %
+Final portfolio value: $1295887.22
+Cumulative returns: 29.59 %
+Sharpe ratio: 0.70
+Max. drawdown: 24.53 %
 Longest drawdown duration: 277 days, 0:00:00
 
 Total trades: 13
-Avg. profit: $ 4
-Profits std. dev.: $38
-Max. profit: $121
-Min. profit: $-28
+Avg. profit: $14437
+Profits std. dev.: $127539
+Max. profit: $420866
+Min. profit: $-89320
 Avg. return:  2 %
 Returns std. dev.: 13 %
 Max. return: 46 %
 Min. return: -7 %
 
 Profitable trades: 3
-Avg. profit: $59
-Profits std. dev.: $44
-Max. profit: $121
-Min. profit: $23
+Avg. profit: $197053
+Profits std. dev.: $158987
+Max. profit: $420866
+Min. profit: $66537
 Avg. return: 21 %
 Returns std. dev.: 18 %
 Max. return: 46 %
 Min. return:  6 %
 
 Unprofitable trades: 10
-Avg. loss: $-13
-Losses std. dev.: $ 7
-Max. loss: $-28
-Min. loss: $-2
+Avg. loss: $-40348
+Losses std. dev.: $23601
+Max. loss: $-89320
+Min. loss: $-4516
 Avg. return: -3 %
 Returns std. dev.:  2 %
 Max. return: -0 %

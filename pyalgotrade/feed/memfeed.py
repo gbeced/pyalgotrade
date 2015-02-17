@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,10 @@ class MemFeed(feed.BaseFeed):
         self.__values = []
         self.__nextIdx = 0
 
+    def reset(self):
+        self.__nextIdx = 0
+        feed.BaseFeed.reset(self)
+
     def start(self):
         pass
 
@@ -49,9 +53,6 @@ class MemFeed(feed.BaseFeed):
             ret = self.__values[self.__nextIdx][0]
         return ret
 
-    def isRealTime(self):
-        return False
-
     def createDataSeries(self, key, maxLen):
         return dataseries.SequenceDataSeries(maxLen)
 
@@ -62,7 +63,7 @@ class MemFeed(feed.BaseFeed):
             self.__nextIdx += 1
         return ret
 
-    # Add values to the feed. values should be a sequence of tupes. The tupes should have two elements:
+    # Add values to the feed. values should be a sequence of tuples. The tupes should have two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
     def addValues(self, values):

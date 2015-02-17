@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -107,10 +107,10 @@ class TwitterFeed(observer.Subject):
 
     def __threadMain(self):
         try:
-            logger.info("Initializing Twitter client.")
+            logger.info("Initializing client.")
             self.__stream.filter(track=self.__track, follow=self.__follow, languages=self.__languages)
         finally:
-            logger.info("Twitter client finished.")
+            logger.info("Client finished.")
             self.__running = False
 
     def __dispatchImpl(self):
@@ -141,7 +141,7 @@ class TwitterFeed(observer.Subject):
     def stop(self):
         try:
             if self.__thread is not None and self.__thread.is_alive():
-                logger.info("Shutting down Twitter client.")
+                logger.info("Shutting down client.")
                 self.__stream.disconnect()
         except Exception, e:
             logger.error("Error disconnecting stream: %s." % (str(e)))
@@ -155,9 +155,12 @@ class TwitterFeed(observer.Subject):
         return not self.__running
 
     def dispatch(self):
+        ret = False
         dispatched = TwitterFeed.MAX_EVENTS_PER_DISPATCH
         while self.__dispatchImpl() and dispatched > 0:
+            ret = True
             dispatched -= 1
+        return ret
 
     def peekDateTime(self):
         return None

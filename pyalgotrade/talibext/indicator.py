@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,15 +61,15 @@ def bar_ds_volume_to_numpy(barDs, count):
 
 
 # Calls a talib function with the last values of a dataseries.
-def call_talib_with_ds(ds, count, talibFunc, *parameters):
+def call_talib_with_ds(ds, count, talibFunc, *args, **kwargs):
     data = value_ds_to_numpy(ds, count)
     if data is None:
         return None
-    return talibFunc(data, *parameters)
+    return talibFunc(data, *args, **kwargs)
 
 
 # hlcv: High, Low, Close and Volume.
-def call_talib_with_hlcv(barDs, count, talibFunc, *parameters):
+def call_talib_with_hlcv(barDs, count, talibFunc, *args, **kwargs):
     high = bar_ds_high_to_numpy(barDs, count)
     if high is None:
         return None
@@ -86,10 +86,10 @@ def call_talib_with_hlcv(barDs, count, talibFunc, *parameters):
     if volume is None:
         return None
 
-    return talibFunc(high, low, close, volume, *parameters)
+    return talibFunc(high, low, close, volume, *args, **kwargs)
 
 
-def call_talib_with_hlc(barDs, count, talibFunc, *parameters):
+def call_talib_with_hlc(barDs, count, talibFunc, *args, **kwargs):
     high = bar_ds_high_to_numpy(barDs, count)
     if high is None:
         return None
@@ -102,10 +102,10 @@ def call_talib_with_hlc(barDs, count, talibFunc, *parameters):
     if close is None:
         return None
 
-    return talibFunc(high, low, close, *parameters)
+    return talibFunc(high, low, close, *args, **kwargs)
 
 
-def call_talib_with_ohlc(barDs, count, talibFunc, *parameters):
+def call_talib_with_ohlc(barDs, count, talibFunc, *args, **kwargs):
     open_ = bar_ds_open_to_numpy(barDs, count)
     if open_ is None:
         return None
@@ -122,10 +122,10 @@ def call_talib_with_ohlc(barDs, count, talibFunc, *parameters):
     if close is None:
         return None
 
-    return talibFunc(open_, high, low, close, *parameters)
+    return talibFunc(open_, high, low, close, *args, **kwargs)
 
 
-def call_talib_with_hl(barDs, count, talibFunc, *parameters):
+def call_talib_with_hl(barDs, count, talibFunc, *args, **kwargs):
     high = bar_ds_high_to_numpy(barDs, count)
     if high is None:
         return None
@@ -134,7 +134,7 @@ def call_talib_with_hl(barDs, count, talibFunc, *parameters):
     if low is None:
         return None
 
-    return talibFunc(high, low, *parameters)
+    return talibFunc(high, low, *args, **kwargs)
 
 
 ######################################################################

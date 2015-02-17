@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,76 +18,126 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
+from pyalgotrade import warninghelpers
+
+
+class Frequency(object):
+
+    """Enum like class for bar frequencies. Valid values are:
+
+    * **Frequency.TRADE**: The bar represents a single trade.
+    * **Frequency.SECOND**: The bar summarizes the trading activity during 1 second.
+    * **Frequency.MINUTE**: The bar summarizes the trading activity during 1 minute.
+    * **Frequency.HOUR**: The bar summarizes the trading activity during 1 hour.
+    * **Frequency.DAY**: The bar summarizes the trading activity during 1 day.
+    * **Frequency.WEEK**: The bar summarizes the trading activity during 1 week.
+    * **Frequency.MONTH**: The bar summarizes the trading activity during 1 month.
+    """
+
+    # It is important for frequency values to get bigger for bigger windows.
+    TRADE = -1
+    SECOND = 1
+    MINUTE = 60
+    HOUR = 60*60
+    DAY = 24*60*60
+    WEEK = 24*60*60*7
+    MONTH = 24*60*60*31
+
 
 class Bar(object):
+
     """A Bar is a summary of the trading activity for a security in a given period.
 
     .. note::
         This is a base class and should not be used directly.
     """
 
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def setUseAdjustedValue(self, useAdjusted):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def getUseAdjValue(self):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
     def getDateTime(self):
         """Returns the :class:`datetime.datetime`."""
         raise NotImplementedError()
 
-    def getOpen(self):
+    @abc.abstractmethod
+    def getOpen(self, adjusted=False):
         """Returns the opening price."""
         raise NotImplementedError()
 
-    def getHigh(self):
+    @abc.abstractmethod
+    def getHigh(self, adjusted=False):
         """Returns the highest price."""
         raise NotImplementedError()
 
-    def getLow(self):
+    @abc.abstractmethod
+    def getLow(self, adjusted=False):
         """Returns the lowest price."""
         raise NotImplementedError()
 
-    def getClose(self):
+    @abc.abstractmethod
+    def getClose(self, adjusted=False):
         """Returns the closing price."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getVolume(self):
         """Returns the volume."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getAdjClose(self):
         """Returns the adjusted closing price."""
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def getFrequency(self):
+        """The bar's period."""
         raise NotImplementedError()
 
     def getTypicalPrice(self):
         """Returns the typical price."""
         return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
 
-    def getSessionClose(self):
-        # Returns True if this is the last bar for the session, or False otherwise.
-        raise NotImplementedError()
-
-    def setSessionClose(self, sessionClose):
-        raise NotImplementedError()
-
-    def getBarsTillSessionClose(self):
-        raise NotImplementedError()
-
-    def setBarsTillSessionClose(self, barsTillSessionClose):
+    @abc.abstractmethod
+    def getPrice(self):
+        """Returns the closing or adjusted closing price."""
         raise NotImplementedError()
 
 
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__open', '__close', '__high', '__low', '__volume', '__adjClose', '__sessionClose', '__barsTillSessionClose')
+    __slots__ = (
+        '__dateTime',
+        '__open',
+        '__close',
+        '__high',
+        '__low',
+        '__volume',
+        '__adjClose',
+        '__frequency',
+        '__useAdjustedValue'
+    )
 
-    def __init__(self, dateTime, open_, high, low, close, volume, adjClose):
-        if high < open_:
-            raise Exception("high < open on %s" % (dateTime))
+    def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency):
         if high < low:
             raise Exception("high < low on %s" % (dateTime))
-        if high < close:
+        elif high < open_:
+            raise Exception("high < open on %s" % (dateTime))
+        elif high < close:
             raise Exception("high < close on %s" % (dateTime))
-        if low > open_:
+        elif low > open_:
             raise Exception("low > open on %s" % (dateTime))
-        if low > high:
-            raise Exception("low > high on %s" % (dateTime))
-        if low > close:
+        elif low > close:
             raise Exception("low > close on %s" % (dateTime))
 
         self.__dateTime = dateTime
@@ -97,62 +147,121 @@ class BasicBar(Bar):
         self.__low = low
         self.__volume = volume
         self.__adjClose = adjClose
-        self.__sessionClose = False
-        self.__barsTillSessionClose = None
+        self.__frequency = frequency
+        self.__useAdjustedValue = False
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__sessionClose, self.__barsTillSessionClose) = state
+        (self.__dateTime,
+            self.__open,
+            self.__close,
+            self.__high,
+            self.__low,
+            self.__volume,
+            self.__adjClose,
+            self.__frequency,
+            self.__useAdjustedValue) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__open, self.__close, self.__high, self.__low, self.__volume, self.__adjClose, self.__sessionClose, self.__barsTillSessionClose)
+        return (
+            self.__dateTime,
+            self.__open,
+            self.__close,
+            self.__high,
+            self.__low,
+            self.__volume,
+            self.__adjClose,
+            self.__frequency,
+            self.__useAdjustedValue
+        )
+
+    def setUseAdjustedValue(self, useAdjusted):
+        if useAdjusted and self.__adjClose is None:
+            raise Exception("Adjusted close is not available")
+        self.__useAdjustedValue = useAdjusted
+
+    def getUseAdjValue(self):
+        return self.__useAdjustedValue
 
     def getDateTime(self):
         return self.__dateTime
 
-    def getOpen(self):
-        return self.__open
+    def getOpen(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose * self.__open / float(self.__close)
+        else:
+            return self.__open
 
-    def getHigh(self):
-        return self.__high
+    def getHigh(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose * self.__high / float(self.__close)
+        else:
+            return self.__high
 
-    def getLow(self):
-        return self.__low
+    def getLow(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose * self.__low / float(self.__close)
+        else:
+            return self.__low
 
-    def getClose(self):
-        return self.__close
+    def getClose(self, adjusted=False):
+        if adjusted:
+            if self.__adjClose is None:
+                raise Exception("Adjusted close is missing")
+            return self.__adjClose
+        else:
+            return self.__close
 
     def getVolume(self):
         return self.__volume
 
     def getAdjOpen(self):
-        return self.__adjClose * self.__open / float(self.__close)
+        # Deprecated in 0.15
+        warninghelpers.deprecation_warning(
+            "The getAdjOpen method will be deprecated in the next version. "
+            "Please use the getOpen(True) instead.",
+            stacklevel=2
+        )
+        return self.getOpen(True)
 
     def getAdjHigh(self):
-        return self.__adjClose * self.__high / float(self.__close)
+        # Deprecated in 0.15
+        warninghelpers.deprecation_warning(
+            "The getAdjHigh method will be deprecated in the next version. "
+            "Please use the getHigh(True) instead.",
+            stacklevel=2
+        )
+        return self.getHigh(True)
 
     def getAdjLow(self):
-        return self.__adjClose * self.__low / float(self.__close)
+        # Deprecated in 0.15
+        warninghelpers.deprecation_warning(
+            "The getAdjLow method will be deprecated in the next version. "
+            "Please use the getLow(True) instead.",
+            stacklevel=2
+        )
+        return self.getLow(True)
 
     def getAdjClose(self):
         return self.__adjClose
 
-    def getSessionClose(self):
-        # Returns True if this is the last bar for the session, or False otherwise.
-        return self.__sessionClose
+    def getFrequency(self):
+        return self.__frequency
 
-    def setSessionClose(self, sessionClose):
-        self.__sessionClose = sessionClose
-        if sessionClose:
-            self.__barsTillSessionClose = 0
-
-    def getBarsTillSessionClose(self):
-        return self.__barsTillSessionClose
-
-    def setBarsTillSessionClose(self, barsTillSessionClose):
-        self.__barsTillSessionClose = barsTillSessionClose
+    def getPrice(self):
+        if self.__useAdjustedValue:
+            return self.__adjClose
+        else:
+            return self.__close
 
 
 class Bars(object):
+
     """A group of :class:`Bar` objects.
 
     :param barDict: A map of instrument to :class:`Bar` objects.
@@ -161,6 +270,7 @@ class Bars(object):
     .. note::
         All bars must have the same datetime.
     """
+
     def __init__(self, barDict):
         if len(barDict) == 0:
             raise Exception("No bars supplied")
@@ -173,13 +283,19 @@ class Bars(object):
                 firstDateTime = currentBar.getDateTime()
                 firstInstrument = instrument
             elif currentBar.getDateTime() != firstDateTime:
-                raise Exception("Bar data times are not in sync. %s %s != %s %s" % (instrument, currentBar.getDateTime(), firstInstrument, firstDateTime))
+                raise Exception("Bar data times are not in sync. %s %s != %s %s" % (
+                    instrument,
+                    currentBar.getDateTime(),
+                    firstInstrument,
+                    firstDateTime
+                ))
 
         self.__barDict = barDict
         self.__dateTime = firstDateTime
 
     def __getitem__(self, instrument):
-        """Returns the :class:`pyalgotrade.bar.Bar` for the given instrument. If the instrument is not found an exception is raised."""
+        """Returns the :class:`pyalgotrade.bar.Bar` for the given instrument.
+        If the instrument is not found an exception is raised."""
         return self.__barDict[instrument]
 
     def __contains__(self, instrument):
@@ -203,31 +319,3 @@ class Bars(object):
     def getBar(self, instrument):
         """Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if the instrument is not found."""
         return self.__barDict.get(instrument, None)
-
-
-def get_open(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjOpen()
-    else:
-        return bar.getOpen()
-
-
-def get_high(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjHigh()
-    else:
-        return bar.getHigh()
-
-
-def get_low(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjLow()
-    else:
-        return bar.getLow()
-
-
-def get_close(bar, useAdjusted):
-    if useAdjusted:
-        return bar.getAdjClose()
-    else:
-        return bar.getClose()

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import unittest
 import datetime
+
+import common
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
@@ -27,7 +28,7 @@ from pyalgotrade.dataseries import aligned
 from pyalgotrade import bar
 
 
-class TestSequenceDataSeries(unittest.TestCase):
+class TestSequenceDataSeries(common.TestCase):
     def testEmpty(self):
         ds = dataseries.SequenceDataSeries()
         self.assertTrue(len(ds) == 0)
@@ -140,7 +141,7 @@ class TestSequenceDataSeries(unittest.TestCase):
         self.assertEqual(ds[-1], 99)
 
 
-class TestBarDataSeries(unittest.TestCase):
+class TestBarDataSeries(common.TestCase):
     def testEmpty(self):
         ds = bards.BarDataSeries()
         with self.assertRaises(IndexError):
@@ -154,16 +155,18 @@ class TestBarDataSeries(unittest.TestCase):
         ds = bards.BarDataSeries()
         for i in range(10):
             now = datetime.datetime.now() + datetime.timedelta(seconds=i)
-            ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0))
+            ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
             # Adding the same datetime twice should fail
-            self.assertRaises(Exception, ds.append, bar.BasicBar(now, 0, 0, 0, 0, 0, 0))
+            with self.assertRaises(Exception):
+                ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
             # Adding a previous datetime should fail
-            self.assertRaises(Exception, ds.append, bar.BasicBar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0))
+            with self.assertRaises(Exception):
+                ds.append(bar.BasicBar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
 
     def testNonEmpty(self):
         ds = bards.BarDataSeries()
         for i in range(10):
-            ds.append(bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0))
+            ds.append(bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
 
         for i in range(0, 10):
             self.assertTrue(ds[i].getOpen() == 0)
@@ -175,7 +178,7 @@ class TestBarDataSeries(unittest.TestCase):
     def testNestedDataSeries(self):
         ds = bards.BarDataSeries()
         for i in range(10):
-            ds.append(bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3))
+            ds.append(bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND))
 
         self.__testGetValue(ds.getOpenDataSeries(), 10, 2)
         self.__testGetValue(ds.getCloseDataSeries(), 10, 3)
@@ -183,12 +186,13 @@ class TestBarDataSeries(unittest.TestCase):
         self.__testGetValue(ds.getLowDataSeries(), 10, 1)
         self.__testGetValue(ds.getVolumeDataSeries(), 10, 10)
         self.__testGetValue(ds.getAdjCloseDataSeries(), 10, 3)
+        self.__testGetValue(ds.getPriceDataSeries(), 10, 3)
 
     def testSeqLikeOps(self):
         seq = []
         ds = bards.BarDataSeries()
         for i in range(10):
-            bar_ = bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3)
+            bar_ = bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND)
             ds.append(bar_)
             seq.append(bar_)
 
@@ -202,14 +206,14 @@ class TestBarDataSeries(unittest.TestCase):
         ds = bards.BarDataSeries()
         firstDt = datetime.datetime.now()
         for i in range(10):
-            ds.append(bar.BasicBar(firstDt + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3))
+            ds.append(bar.BasicBar(firstDt + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND))
 
         for i in range(10):
             self.assertEqual(ds[i].getDateTime(), ds.getDateTimes()[i])
             self.assertEqual(ds.getDateTimes()[i], firstDt + datetime.timedelta(seconds=i))
 
 
-class TestDateAlignedDataSeries(unittest.TestCase):
+class TestDateAlignedDataSeries(common.TestCase):
     def testNotAligned(self):
         size = 20
         ds1 = dataseries.SequenceDataSeries()

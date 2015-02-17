@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import broker
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-from matplotlib import finance
-from matplotlib import dates
 
 
 def get_last_value(dataSeries):
@@ -35,40 +33,6 @@ def get_last_value(dataSeries):
     except IndexError:
         pass
     return ret
-
-
-def _min(value1, value2):
-    if value1 is None:
-        return value2
-    elif value2 is None:
-        return value1
-    else:
-        return min(value1, value2)
-
-
-def _max(value1, value2):
-    if value1 is None:
-        return value2
-    elif value2 is None:
-        return value1
-    else:
-        return max(value1, value2)
-
-
-def _adjustXAxis(mplSubplots):
-    minX = None
-    maxX = None
-
-    # Calculate min and max x values.
-    for mplSubplot in mplSubplots:
-        axis = mplSubplot.axis()
-        minX = _min(minX, axis[0])
-        maxX = _max(maxX, axis[1])
-
-    for mplSubplot in mplSubplots:
-        axis = mplSubplot.axis()
-        axis = (minX, maxX, axis[2], axis[3])
-        mplSubplot.axis(axis)
 
 
 def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
@@ -140,58 +104,98 @@ class SellMarker(Series):
 
 
 class CustomMarker(Series):
+    def __init__(self):
+        Series.__init__(self)
+        self.__marker = "o"
+
     def needColor(self):
         return True
 
+    def setMarker(self, marker):
+        self.__marker = marker
+
     def getMarker(self):
-        return "o"
+        return self.__marker
 
 
 class LineMarker(Series):
+    def __init__(self):
+        Series.__init__(self)
+        self.__marker = " "
+
     def needColor(self):
         return True
 
+    def setMarker(self, marker):
+        self.__marker = marker
+
     def getMarker(self):
-        return " "
+        return self.__marker
 
 
 class InstrumentMarker(Series):
-    marker = " "
-
     def __init__(self):
         Series.__init__(self)
-        self.__useCandleSticks = False
-        self.__useAdjClose = False
+        self.__useAdjClose = None
+        self.__marker = " "
 
     def needColor(self):
-        return not self.__useCandleSticks
+        return True
+
+    def setMarker(self, marker):
+        self.__marker = marker
 
     def getMarker(self):
-        return InstrumentMarker.marker
+        return self.__marker
 
     def setUseAdjClose(self, useAdjClose):
+        # Force close/adj_close instead of price.
         self.__useAdjClose = useAdjClose
 
     def getValue(self, dateTime):
         # If not using candlesticks, the return the closing price.
         ret = Series.getValue(self, dateTime)
-        if not self.__useCandleSticks and ret is not None:
-            if self.__useAdjClose:
+        if ret is not None:
+            if self.__useAdjClose is None:
+                ret = ret.getPrice()
+            elif self.__useAdjClose:
                 ret = ret.getAdjClose()
             else:
                 ret = ret.getClose()
         return ret
 
     def plot(self, mplSubplot, dateTimes, color):
-        if self.__useCandleSticks:
-            values = []
-            for dateTime in dateTimes:
-                bar = self.getValue(dateTime)
-                if bar:
-                    values.append((dates.date2num(dateTime), bar.getOpen(), bar.getClose(), bar.getHigh(), bar.getLow()))
-            finance.candlestick(mplSubplot, values, width=0.5, colorup='g', colordown='r',)
+        Series.plot(self, mplSubplot, dateTimes, color)
+
+
+class HistogramMarker(Series):
+    def needColor(self):
+        return True
+
+    def getColorForValue(self, value, default):
+        return default
+
+    def plot(self, mplSubplot, dateTimes, color):
+        validDateTimes = []
+        values = []
+        colors = []
+        for dateTime in dateTimes:
+            value = self.getValue(dateTime)
+            if value is not None:
+                validDateTimes.append(dateTime)
+                values.append(value)
+                colors.append(self.getColorForValue(value, color))
+        mplSubplot.bar(validDateTimes, values, color=colors)
+
+
+class MACDMarker(HistogramMarker):
+    def getColorForValue(self, value, default):
+        ret = default
+        if value >= 0:
+            ret = "g"
         else:
-            Series.plot(self, mplSubplot, dateTimes, color)
+            ret = "r"
+        return ret
 
 
 class Subplot(object):
@@ -213,24 +217,35 @@ class Subplot(object):
     def isEmpty(self):
         return len(self.__series) == 0
 
-    def addDataSeries(self, label, dataSeries):
-        """Adds a DataSeries to the subplot.
+    def addDataSeries(self, label, dataSeries, defaultClass=LineMarker):
+        """Add a DataSeries to the subplot.
 
         :param label: A name for the DataSeries values.
         :type label: string.
         :param dataSeries: The DataSeries to add.
         :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
         """
-        self.addCallback(label, lambda bars: get_last_value(dataSeries))
+        callback = lambda bars: get_last_value(dataSeries)
+        self.__callbacks[callback] = self.getSeries(label, defaultClass)
 
-    def addCallback(self, label, callback):
-        """Adds a callback that will be called on each bar.
+    def addCallback(self, label, callback, defaultClass=LineMarker):
+        """Add a callback that will be called on each bar.
 
         :param label: A name for the series values.
         :type label: string.
         :param callback: A function that receives a :class:`pyalgotrade.bar.Bars` instance as a parameter and returns a number or None.
         """
-        self.__callbacks[callback] = self.getSeries(label)
+        self.__callbacks[callback] = self.getSeries(label, defaultClass)
+
+    def addLine(self, label, level):
+        """Add a horizontal line to the plot.
+
+        :param label: A label.
+        :type label: string.
+        :param level: The position for the line.
+        :type level: int/float.
+        """
+        self.addCallback(label, lambda x: level)
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()
@@ -282,10 +297,11 @@ class InstrumentSubplot(Subplot):
             dateTime = bars.getDateTime()
             self.__instrumentSeries.addValue(dateTime, bar)
 
-    def onOrderUpdated(self, broker_, order):
-        if self.__plotBuySell and order.isFilled() and order.getInstrument() == self.__instrument:
+    def onOrderEvent(self, broker_, orderEvent):
+        order = orderEvent.getOrder()
+        if self.__plotBuySell and orderEvent.getEventType() in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED) and order.getInstrument() == self.__instrument:
             action = order.getAction()
-            execInfo = order.getExecutionInfo()
+            execInfo = orderEvent.getEventInfo()
             if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
                 self.getSeries("Buy", BuyMarker).addValue(execInfo.getDateTime(), execInfo.getPrice())
             elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
@@ -308,7 +324,6 @@ class StrategyPlotter(object):
     def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True):
         self.__dateTimes = set()
 
-        self.__useAdjustedValues = strat.getUseAdjustedValues()
         self.__plotAllInstruments = plotAllInstruments
         self.__plotBuySell = plotBuySell
         self.__barSubplots = {}
@@ -318,7 +333,7 @@ class StrategyPlotter(object):
             self.__portfolioSubplot = Subplot()
 
         strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
-        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderUpdated)
+        strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
 
     def __checkCreateInstrumentSubplot(self, instrument):
         if instrument not in self.__barSubplots:
@@ -346,10 +361,10 @@ class StrategyPlotter(object):
             # This is in case additional dataseries were added to the portfolio subplot.
             self.__portfolioSubplot.onBars(bars)
 
-    def __onOrderUpdated(self, broker_, order):
+    def __onOrderEvent(self, broker_, orderEvent):
         # Notify BarSubplots
         for subplot in self.__barSubplots.values():
-            subplot.onOrderUpdated(broker_, order)
+            subplot.onOrderEvent(broker_, orderEvent)
 
     def getInstrumentSubplot(self, instrument):
         """Returns the InstrumentSubplot for a given instrument
@@ -360,7 +375,6 @@ class StrategyPlotter(object):
             ret = self.__barSubplots[instrument]
         except KeyError:
             ret = InstrumentSubplot(instrument, self.__plotBuySell)
-            ret.setUseAdjClose(self.__useAdjustedValues)
             self.__barSubplots[instrument] = ret
         return ret
 
@@ -396,16 +410,14 @@ class StrategyPlotter(object):
             subplots.append(self.__portfolioSubplot)
 
         # Build each subplot.
-        fig = plt.figure()
+        fig, axes = plt.subplots(nrows=len(subplots), sharex=True, squeeze=False)
         mplSubplots = []
-        subplotIndex = 0
-        for subplot in subplots:
+        for i, subplot in enumerate(subplots):
+            axesSubplot = axes[i][0]
             if not subplot.isEmpty():
-                mplSubplot = fig.add_subplot(len(subplots), 1, subplotIndex + 1)
-                mplSubplots.append(mplSubplot)
-                subplot.plot(mplSubplot, dateTimes)
-                mplSubplot.grid(True)
-                subplotIndex += 1
+                mplSubplots.append(axesSubplot)
+                subplot.plot(axesSubplot, dateTimes)
+                axesSubplot.grid(True)
 
         return (fig, mplSubplots)
 
@@ -432,8 +444,5 @@ class StrategyPlotter(object):
         """
 
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
-        _adjustXAxis(mplSubplots)
         fig.autofmt_xdate()
-
-        # Display
         plt.show()

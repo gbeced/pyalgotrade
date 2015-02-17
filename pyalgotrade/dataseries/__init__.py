@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
+
 from pyalgotrade import observer
 from pyalgotrade.utils import collections
 
@@ -33,6 +35,9 @@ class DataSeries(object):
         This is a base class and should not be used directly.
     """
 
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def __len__(self):
         """Returns the number of elements in the data series."""
         raise NotImplementedError()
@@ -52,9 +57,11 @@ class DataSeries(object):
             raise TypeError("Invalid argument type")
 
     # This is similar to __getitem__ for ints, but it shouldn't raise for invalid positions.
+    @abc.abstractmethod
     def getValueAbsolute(self, pos):
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def getDateTimes(self):
         """Returns a list of :class:`datetime.datetime` associated with each value."""
         raise NotImplementedError()
@@ -75,7 +82,6 @@ class SequenceDataSeries(DataSeries):
         self.__newValueEvent = observer.Event()
         self.__values = collections.ListDeque(maxLen)
         self.__dateTimes = collections.ListDeque(maxLen)
-        self.__maxLen = maxLen
 
     def __len__(self):
         return len(self.__values)

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import abc
 import datetime
 
 from pyalgotrade.utils import dt
@@ -28,23 +29,33 @@ from pyalgotrade import dataseries
 
 # Interface for csv row parsers.
 class RowParser(object):
+
+    __metaclass__ = abc.ABCMeta
+
     # Parses a row and returns a tuple with with two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
+    @abc.abstractmethod
     def parseRow(self, csvRowDict):
         raise NotImplementedError()
 
     # Returns a list of field names. If None, then the first row in the CSV should have the field names.
+    @abc.abstractmethod
     def getFieldNames(self):
         raise NotImplementedError()
 
     # Returns the delimiter.
+    @abc.abstractmethod
     def getDelimiter(self):
         raise NotImplementedError()
 
 
 # Interface for bar filters.
 class RowFilter(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def includeRow(self, dateTime, values):
         raise NotImplementedError()
 
@@ -138,7 +149,7 @@ class Feed(BaseFeed):
     :type converter: function.
     :param delimiter: The string used to separate values.
     :type delimiter: string.
-    :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
+    :param timezone: The timezone to use to localize datetimes. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.

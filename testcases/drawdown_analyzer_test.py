@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2013 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,18 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import barfeed
+import datetime
+
+import common
+import strategy_test
+
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade import broker
 from pyalgotrade import bar
-
-import strategy_test
-import common
-
-import unittest
-import datetime
 
 
 def build_bars_from_closing_prices(closingPrices):
@@ -37,13 +35,18 @@ def build_bars_from_closing_prices(closingPrices):
 
     nextDateTime = datetime.datetime.now()
     for closePrice in closingPrices:
-        bar_ = bar.BasicBar(nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice)
+        bar_ = bar.BasicBar(nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice, bar.Frequency.DAY)
         ret.append(bar_)
         nextDateTime = nextDateTime + datetime.timedelta(days=1)
     return ret
 
 
-class DDHelperCase(unittest.TestCase):
+class TestBarFeed(membf.BarFeed):
+    def barsHaveAdjClose(self):
+        raise NotImplementedError()
+
+
+class DDHelperCase(common.TestCase):
     def testNoDrawDown1(self):
         helper = drawdown.DrawDownHelper()
         helper.update(datetime.datetime.now(), 10, 10)
@@ -175,7 +178,7 @@ class DDHelperCase(unittest.TestCase):
         self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=1))
 
 
-class AnalyzerTestCase(unittest.TestCase):
+class AnalyzerTestCase(common.TestCase):
     def testNoTrades(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
@@ -188,7 +191,7 @@ class AnalyzerTestCase(unittest.TestCase):
 
         strat.run()
         self.assertTrue(strat.getBroker().getCash() == 1000)
-        self.assertTrue(strat.getOrderUpdatedEvents() == 0)
+        self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
         self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta())
 
@@ -215,7 +218,7 @@ class AnalyzerTestCase(unittest.TestCase):
         strat.run()
 
         self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
-        self.assertTrue(strat.getOrderUpdatedEvents() == 4)
+        self.assertEqual(strat.orderUpdatedCalls, 4)
         self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
         self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta(days=623))
 
@@ -226,7 +229,7 @@ class AnalyzerTestCase(unittest.TestCase):
         self.__testIGE_BrokerImpl(2)
 
     def __testManualImpl(self, closingPrices, cash):
-        barFeed = membf.BarFeed(barfeed.Frequency.DAY)
+        barFeed = TestBarFeed(bar.Frequency.DAY)
         bars = build_bars_from_closing_prices(closingPrices)
         barFeed.addBarsFromSequence("orcl", bars)
 

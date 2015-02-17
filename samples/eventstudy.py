@@ -29,14 +29,14 @@ class BuyOnGap(eventprofiler.Predicate):
         if self.__stdDev[instrument][-1] is not None:
             prevBar = bards[-2]
             currBar = bards[-1]
-            low2OpenRet = (currBar.getAdjOpen() - prevBar.getAdjLow()) / float(prevBar.getAdjLow())
+            low2OpenRet = (currBar.getOpen(True) - prevBar.getLow(True)) / float(prevBar.getLow(True))
             if low2OpenRet < (self.__returns[instrument][-1] - self.__stdDev[instrument][-1]):
                 ret = True
         return ret
 
     def __aboveSMA(self, instrument, bards):
         ret = False
-        if self.__ma[instrument][-1] is not None and bards[-1].getAdjOpen() > self.__ma[instrument][-1]:
+        if self.__ma[instrument][-1] is not None and bards[-1].getOpen(True) > self.__ma[instrument][-1]:
             ret = True
         return ret
 
