@@ -164,9 +164,6 @@ class InstrumentMarker(Series):
                 ret = ret.getClose()
         return ret
 
-    def plot(self, mplSubplot, dateTimes, color):
-        Series.plot(self, mplSubplot, dateTimes, color)
-
 
 class HistogramMarker(Series):
     def needColor(self):
