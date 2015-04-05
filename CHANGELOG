@@ -4,6 +4,7 @@ Version 0.17 (TBD)
 . [FIX] Close connections ASAP to avoid running out of file descriptors when GC gets delayed. Thanks Tibor Kiss for reporting and fixing this.
 . [FIX] Fail when placing Market-On-Close orders when backtesting with intraday data. Right now this is not supported.
 . [FIX] Bitstamp backtesting broker was allowing trades below $5.
+. [FIX] Updated default Bitstamp fee to 0.25%.
 
 Version 0.16 (31/Aug/2014)
 . [NEW] Added support for live trading Bitcoin strategies through Bitstamp.

@@ -27,8 +27,10 @@ from pyalgotrade.bitstamp import livebroker
 
 LiveBroker = livebroker.LiveBroker
 
-# In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the BarFeed.
-# It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the strategy.
+# In a backtesting or paper-trading scenario the BacktestingBroker dispatches events while processing events from the
+# BarFeed.
+# It is guaranteed to process BarFeed events before the strategy because it connects to BarFeed events before the
+# strategy.
 
 
 class BacktestingBroker(backtesting.Broker):
@@ -40,7 +42,7 @@ class BacktestingBroker(backtesting.Broker):
     :type cash: int/float.
     :param barFeed: The bar feed that will provide the bars.
     :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
-    :param fee: The fee percentage for each order. Defaults to 0.5%.
+    :param fee: The fee percentage for each order. Defaults to 0.25%.
     :type fee: float.
 
     .. note::
@@ -50,7 +52,7 @@ class BacktestingBroker(backtesting.Broker):
         * SELL_SHORT orders are mapped to SELL orders.
     """
 
-    def __init__(self, cash, barFeed, fee=0.005):
+    def __init__(self, cash, barFeed, fee=0.0025):
         commission = backtesting.TradePercentage(fee)
         backtesting.Broker.__init__(self, cash, barFeed, commission)
 

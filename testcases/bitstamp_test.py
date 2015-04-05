@@ -459,7 +459,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 10)
 
-        brk = broker.PaperTradingBroker(10.05, barFeed)
+        brk = broker.PaperTradingBroker(10.025, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
@@ -519,7 +519,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
         self.assertEquals(strat.errors, 1)
         self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(brk.getCash(), 9.95)
+        self.assertEquals(brk.getCash(), 10)
 
 
 class LiveTradingTestCase(tc_common.TestCase):
