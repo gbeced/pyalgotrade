@@ -5,6 +5,7 @@ Version 0.17 (TBD)
 . [FIX] Fail when placing Market-On-Close orders when backtesting with intraday data. Right now this is not supported.
 . [FIX] Bitstamp backtesting broker was allowing trades below $5.
 . [FIX] Updated default Bitstamp fee to 0.25%.
+. [BREAKING CHANGE] Backtesting broker fill strategies moved to pyalgotrade.broker.fillstrategy module.
 
 Version 0.16 (31/Aug/2014)
 . [NEW] Added support for live trading Bitcoin strategies through Bitstamp.

@@ -24,6 +24,7 @@ import common
 
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
+from pyalgotrade.broker import fillstrategy
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 
@@ -155,66 +156,66 @@ class BrokerTestCase(BaseTestCase):
     def testStopOrderTriggerBuy(self):
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is below
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 5, 5, 5)[BaseTestCase.TestInstrument]), None)
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 6, 4, 5)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 5, 5, 5)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 6, 4, 5)[BaseTestCase.TestInstrument]), None)
         # High touches
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 10, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 10, 4, 9)[BaseTestCase.TestInstrument]), 10)
         # High penetrates
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 11, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(5, 11, 4, 9)[BaseTestCase.TestInstrument]), 10)
         # Open touches
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
         # Open is above
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(11, 12, 4, 9)[BaseTestCase.TestInstrument]), 11)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(11, 12, 4, 9)[BaseTestCase.TestInstrument]), 11)
         # Bar gaps above
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(12, 13, 11, 12)[BaseTestCase.TestInstrument]), 12)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(12, 13, 11, 12)[BaseTestCase.TestInstrument]), 12)
 
     def testStopOrderTriggerSell(self):
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is above
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 15, 15, 15)[BaseTestCase.TestInstrument]), None)
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 11, 15)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 15, 15, 15)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 11, 15)[BaseTestCase.TestInstrument]), None)
         # Low touches
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 10, 11)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 10, 11)[BaseTestCase.TestInstrument]), 10)
         # Low penetrates
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 9, 11)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(15, 16, 9, 11)[BaseTestCase.TestInstrument]), 10)
         # Open touches
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
         # Open is below
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(9, 12, 4, 9)[BaseTestCase.TestInstrument]), 9)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(9, 12, 4, 9)[BaseTestCase.TestInstrument]), 9)
         # Bar gaps below
-        self.assertEqual(backtesting.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(8, 9, 6, 9)[BaseTestCase.TestInstrument]), 8)
+        self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(8, 9, 6, 9)[BaseTestCase.TestInstrument]), 8)
 
     def testLimitOrderTriggerBuy(self):
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is above
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 15, 15, 15)[BaseTestCase.TestInstrument]), None)
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 11, 15)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 15, 15, 15)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 11, 15)[BaseTestCase.TestInstrument]), None)
         # Low touches
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 10, 11)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 10, 11)[BaseTestCase.TestInstrument]), 10)
         # Low penetrates
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 9, 11)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(15, 16, 9, 11)[BaseTestCase.TestInstrument]), 10)
         # Open touches
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
         # Open is below
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(9, 12, 4, 9)[BaseTestCase.TestInstrument]), 9)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(9, 12, 4, 9)[BaseTestCase.TestInstrument]), 9)
         # Bar gaps below
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(8, 9, 6, 9)[BaseTestCase.TestInstrument]), 8)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBars(8, 9, 6, 9)[BaseTestCase.TestInstrument]), 8)
 
     def testLimitOrderTriggerSell(self):
         barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is below
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 5, 5, 5)[BaseTestCase.TestInstrument]), None)
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 6, 4, 5)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 5, 5, 5)[BaseTestCase.TestInstrument]), None)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 6, 4, 5)[BaseTestCase.TestInstrument]), None)
         # High touches
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 10, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 10, 4, 9)[BaseTestCase.TestInstrument]), 10)
         # High penetrates
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 11, 4, 9)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(5, 11, 4, 9)[BaseTestCase.TestInstrument]), 10)
         # Open touches
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(10, 10, 10, 10)[BaseTestCase.TestInstrument]), 10)
         # Open is above
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(11, 12, 4, 9)[BaseTestCase.TestInstrument]), 11)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(11, 12, 4, 9)[BaseTestCase.TestInstrument]), 11)
         # Bar gaps above
-        self.assertEqual(backtesting.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(12, 13, 11, 12)[BaseTestCase.TestInstrument]), 12)
+        self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBars(12, 13, 11, 12)[BaseTestCase.TestInstrument]), 12)
 
     def testOneCancelsAnother(self):
         orders = {}
