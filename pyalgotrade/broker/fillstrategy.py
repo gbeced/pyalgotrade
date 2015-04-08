@@ -106,14 +106,14 @@ class FillStrategy(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def onBars(self, broker_, dateTime, bars):
+    def onBars(self, broker_, bars):
         """
         Override (optional) to get notified when the broker is about to process new bars.
 
         :param broker_: The broker.
         :type broker_: :class:`Broker`.
-        :param datetime: The current datetime.
-        :type datetime: datetime.datetime.
+        :param bars: The current bars.
+        :type bars: :class:`pyalgotrade.bar.Bars`.
         """
         pass
 
@@ -230,7 +230,7 @@ class DefaultStrategy(FillStrategy):
         self.__volumeLimit = volumeLimit
         self.__volumeLeft = {}
 
-    def onBars(self, broker_, dateTime, bars):
+    def onBars(self, broker_, bars):
         # Update the volume available for each instrument.
         volumeLeft = {}
         for instrument in bars.getInstruments():
