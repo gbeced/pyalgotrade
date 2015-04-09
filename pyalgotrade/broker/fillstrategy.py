@@ -226,7 +226,7 @@ class DefaultStrategy(FillStrategy):
     """
 
     def __init__(self, volumeLimit=0.25):
-        assert(volumeLimit > 0 and volumeLimit <= 1)
+        assert volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
         self.__volumeLimit = volumeLimit
         self.__volumeLeft = {}
 
@@ -247,6 +247,8 @@ class DefaultStrategy(FillStrategy):
     def onOrderFilled(self, broker_, order):
         # Update the volume left.
         if self.__volumeLimit is not None:
+            assert self.__volumeLeft[order.getInstrument()] >= order.getExecutionInfo().getQuantity(), \
+                "Invalid fill quantity. Not enough volume left %s" % (self.__volumeLeft[order.getInstrument()])
             self.__volumeLeft[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
                 self.__volumeLeft[order.getInstrument()] - order.getExecutionInfo().getQuantity()
             )

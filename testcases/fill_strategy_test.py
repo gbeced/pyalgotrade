@@ -19,11 +19,13 @@
 """
 
 import unittest
+import datetime
 
 import broker_backtesting_test
 
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy
+from pyalgotrade.broker import backtesting
 from pyalgotrade import bar
 
 
@@ -95,3 +97,31 @@ class FreeFunctionsTestCase(BaseTestCase):
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(11, 12, 4, 9)), 11)
         # Bar gaps above
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(12, 13, 11, 12)), 12)
+
+
+class DefaultStrategyTestCase(BaseTestCase):
+    def setUp(self):
+        BaseTestCase.setUp(self)
+        self.barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        self.strategy = fillstrategy.DefaultStrategy()
+
+    def __getFilledMarketOrder(self, quantity, price):
+        order = backtesting.MarketOrder(
+            broker.Order.Action.BUY,
+            BaseTestCase.TestInstrument,
+            quantity,
+            False,
+            broker.IntegerTraits()
+        )
+        order.setState(broker.Order.State.ACCEPTED)
+        order.addExecutionInfo(broker.OrderExecutionInfo(price, quantity, 0, datetime.datetime.now()))
+        return order
+
+    def testVolumeLimitPerBar(self):
+        volume = 100
+        self.strategy.onBars(None, self.barsBuilder.nextBars(11, 12, 4, 9, volume))
+        self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 25)
+        self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(24, 11))
+        self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
+        with self.assertRaisesRegexp(Exception, "Invalid fill quantity. Not enough volume left 1"):
+            self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(25, 11))
