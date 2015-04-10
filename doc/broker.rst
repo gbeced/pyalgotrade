@@ -16,6 +16,10 @@ Backtesting module and classes
     :members: Commission, NoCommission, FixedPerTrade, TradePercentage, Broker
     :show-inheritance:
 
+.. automodule:: pyalgotrade.broker.slippage
+    :members: SlippageModel, NoSlippage
+    :show-inheritance:
+
 .. automodule:: pyalgotrade.broker.fillstrategy
     :members: FillStrategy, DefaultStrategy
     :show-inheritance:

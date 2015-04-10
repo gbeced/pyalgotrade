@@ -121,7 +121,13 @@ class DefaultStrategyTestCase(BaseTestCase):
         volume = 100
         self.strategy.onBars(None, self.barsBuilder.nextBars(11, 12, 4, 9, volume))
         self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 25)
+        self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 0)
+
         self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(24, 11))
         self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
+        self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
+
         with self.assertRaisesRegexp(Exception, "Invalid fill quantity. Not enough volume left 1"):
             self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(25, 11))
+        self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
+        self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)

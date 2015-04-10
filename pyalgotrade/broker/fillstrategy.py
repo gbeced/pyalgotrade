@@ -22,6 +22,7 @@ import abc
 
 from pyalgotrade import broker
 import pyalgotrade.bar
+import slippage
 
 
 # Returns the trigger price for a Limit or StopLimit order, or None if the limit price was not yet penetrated.
@@ -111,9 +112,9 @@ class FillStrategy(object):
         Override (optional) to get notified when the broker is about to process new bars.
 
         :param broker_: The broker.
-        :type broker_: :class:`Broker`.
+        :type broker_: :class:`Broker`
         :param bars: The current bars.
-        :type bars: :class:`pyalgotrade.bar.Bars`.
+        :type bars: :class:`pyalgotrade.bar.Bars`
         """
         pass
 
@@ -122,9 +123,9 @@ class FillStrategy(object):
         Override (optional) to get notified when an order was filled, or partially filled.
 
         :param broker_: The broker.
-        :type broker_: :class:`Broker`.
+        :type broker_: :class:`Broker`
         :param order: The order filled.
-        :type order: :class:`pyalgotrade.broker.Order`.
+        :type order: :class:`pyalgotrade.broker.Order`
         """
         pass
 
@@ -134,11 +135,11 @@ class FillStrategy(object):
         at the given time.
 
         :param broker_: The broker.
-        :type broker_: :class:`Broker`.
+        :type broker_: :class:`Broker`
         :param order: The order.
-        :type order: :class:`pyalgotrade.broker.MarketOrder`.
+        :type order: :class:`pyalgotrade.broker.MarketOrder`
         :param bar: The current bar.
-        :type bar: :class:`pyalgotrade.bar.Bar`.
+        :type bar: :class:`pyalgotrade.bar.Bar`
         :rtype: A :class:`FillInfo` or None if the order should not be filled.
         """
         raise NotImplementedError()
@@ -149,11 +150,11 @@ class FillStrategy(object):
         at the given time.
 
         :param broker_: The broker.
-        :type broker_: :class:`Broker`.
+        :type broker_: :class:`Broker`
         :param order: The order.
-        :type order: :class:`pyalgotrade.broker.LimitOrder`.
+        :type order: :class:`pyalgotrade.broker.LimitOrder`
         :param bar: The current bar.
-        :type bar: :class:`pyalgotrade.bar.Bar`.
+        :type bar: :class:`pyalgotrade.bar.Bar`
         :rtype: A :class:`FillInfo` or None if the order should not be filled.
         """
         raise NotImplementedError()
@@ -164,11 +165,11 @@ class FillStrategy(object):
         at the given time.
 
         :param broker_: The broker.
-        :type broker_: :class:`Broker`.
+        :type broker_: :class:`Broker`
         :param order: The order.
-        :type order: :class:`pyalgotrade.broker.StopOrder`.
+        :type order: :class:`pyalgotrade.broker.StopOrder`
         :param bar: The current bar.
-        :type bar: :class:`pyalgotrade.bar.Bar`.
+        :type bar: :class:`pyalgotrade.bar.Bar`
         :rtype: A :class:`FillInfo` or None if the order should not be filled.
         """
         raise NotImplementedError()
@@ -179,11 +180,11 @@ class FillStrategy(object):
         at the given time.
 
         :param broker_: The broker.
-        :type broker_: :class:`Broker`.
+        :type broker_: :class:`Broker`
         :param order: The order.
-        :type order: :class:`pyalgotrade.broker.StopLimitOrder`.
+        :type order: :class:`pyalgotrade.broker.StopLimitOrder`
         :param bar: The current bar.
-        :type bar: :class:`pyalgotrade.bar.Bar`.
+        :type bar: :class:`pyalgotrade.bar.Bar`
         :rtype: A :class:`FillInfo` or None if the order should not be filled.
         """
         raise NotImplementedError()
@@ -194,7 +195,7 @@ class DefaultStrategy(FillStrategy):
     Default fill strategy.
 
     :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
-    :type volumeLimit: float.
+    :type volumeLimit: float
 
     This strategy works as follows:
 
@@ -220,29 +221,38 @@ class DefaultStrategy(FillStrategy):
 
     .. note::
         * This is the default strategy used by the Broker.
+        * It uses :class:`pyalgotrade.broker.slippage.NoSlippage` slippage model by default.
         * If volumeLimit is 0.25, and a certain bar's volume is 100, then no more than 25 shares can be used by all
           orders that get processed at that bar.
         * If using trade bars, then all the volume from that bar can be used.
     """
 
     def __init__(self, volumeLimit=0.25):
-        assert volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
-        self.__volumeLimit = volumeLimit
         self.__volumeLeft = {}
+        self.__volumeUsed = {}
+        self.setVolumeLimit(volumeLimit)
+        self.setSlippageModel(slippage.NoSlippage())
 
     def onBars(self, broker_, bars):
-        # Update the volume available for each instrument.
         volumeLeft = {}
+
         for instrument in bars.getInstruments():
             bar = bars[instrument]
+            # Update the volume available for each instrument.
             if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
                 volumeLeft[instrument] = bar.getVolume()
             elif self.__volumeLimit is not None:
                 volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
+            # Update the volume used for each instrument.
+            self.__volumeUsed[instrument] = 0.0
+
         self.__volumeLeft = volumeLeft
 
     def getVolumeLeft(self):
         return self.__volumeLeft
+
+    def getVolumeUsed(self):
+        return self.__volumeUsed
 
     def onOrderFilled(self, broker_, order):
         # Update the volume left.
@@ -253,8 +263,30 @@ class DefaultStrategy(FillStrategy):
                 self.__volumeLeft[order.getInstrument()] - order.getExecutionInfo().getQuantity()
             )
 
+        # Update the volume used.
+        self.__volumeUsed[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
+            self.__volumeUsed[order.getInstrument()] + order.getExecutionInfo().getQuantity()
+        )
+
     def setVolumeLimit(self, volumeLimit):
+        """
+        Set the volume limit.
+
+        :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
+        :type volumeLimit: float
+        """
+        assert volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
         self.__volumeLimit = volumeLimit
+
+    def setSlippageModel(self, slippageModel):
+        """
+        Set the slippage model to use.
+
+        :param slippageModel: The slippage model.
+        :type slippageModel: :class:`pyalgotrade.broker.slippage.SlippageModel`
+        """
+
+        self.__slippageModel = slippageModel
 
     def __calculateFillSize(self, broker_, order, bar):
         ret = 0
@@ -292,6 +324,9 @@ class DefaultStrategy(FillStrategy):
         else:
             price = bar.getOpen(broker_.getUseAdjustedValues())
         if price is not None:
+            price = self.__slippageModel.calculatePrice(
+                order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+            )
             ret = FillInfo(price, fillSize)
         return ret
 
@@ -341,6 +376,9 @@ class DefaultStrategy(FillStrategy):
             else:
                 price = bar.getOpen(broker_.getUseAdjustedValues())
 
+            price = self.__slippageModel.calculatePrice(
+                order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+            )
             ret = FillInfo(price, fillSize)
         return ret
 

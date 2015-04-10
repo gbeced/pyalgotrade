@@ -1,5 +1,6 @@
 Version 0.17 (TBD)
 . [NEW] Hurst exponent technical indicator (pyalgotrade.technical.hurst.HurstExponent).
+. [NEW] Added support for slippage models (pyalgotrade.broker.slippage).
 . [FIX] Automatically reconnect bitstamp feed if the connection gets closed.
 . [FIX] Close connections ASAP to avoid running out of file descriptors when GC gets delayed. Thanks Tibor Kiss for reporting and fixing this.
 . [FIX] Fail when placing Market-On-Close orders when backtesting with intraday data. Right now this is not supported.
