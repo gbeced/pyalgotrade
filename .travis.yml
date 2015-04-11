@@ -12,7 +12,7 @@ before_install:
 # Check https://github.com/statsmodels/statsmodels/issues/2184 for scipy==0.14
 install:
 #  - pip install scipy==0.14 | awk 'NR % 250 == 0'
-  - pip install scipy==0.14
+  - pip install scipy
   - pip list
   - pip install .
   - pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
