@@ -51,18 +51,22 @@ class TestCase(common.TestCase):
         self.assertEquals(round(h), 0)
 
     def testRandomWalk(self):
-        values = np.cumsum(np.random.randn(1000)) + 1000
-        hds = build_hurst(values, 500, 20)
-        self.assertGreater(round(hds[-1], 1), 0.4)
-        self.assertLess(round(hds[-1], 1), 0.6)
+        num_values = 10000
+        values = np.cumsum(np.random.randn(num_values)) + 1000
+        hds = build_hurst(values, num_values - 10, 20)
+        self.assertEquals(round(hds[-1], 1), 0.5)
+        self.assertEquals(round(hds[-2], 1), 0.5)
 
     def testTrending(self):
-        values = np.cumsum(np.random.randn(1000) + 10) + 1000
-        hds = build_hurst(values, 500, 20)
-        self.assertGreater(round(hds[-1], 1), 0.9)
-        self.assertLess(round(hds[-1], 1), 1.1)
+        num_values = 10000
+        values = np.cumsum(np.random.randn(num_values) + 10) + 1000
+        hds = build_hurst(values, num_values - 10, 20)
+        self.assertEquals(round(hds[-1], 1), 1)
+        self.assertEquals(round(hds[-2], 1), 1)
 
     def testMeanRev(self):
-        values = np.random.randn(1000) + 100
-        hds = build_hurst(values, 500, 20)
-        self.assertEquals(round(hds[-1]), 0)
+        num_values = 10000
+        values = np.random.randn(num_values) + 100
+        hds = build_hurst(values, num_values - 10, 20)
+        self.assertEquals(round(hds[-1], 1), 0)
+        self.assertEquals(round(hds[-2], 1), 0)
