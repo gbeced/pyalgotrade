@@ -275,7 +275,9 @@ class DefaultStrategy(FillStrategy):
         :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
         :type volumeLimit: float
         """
-        assert volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
+
+        if volumeLimit is not None:
+            assert volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
         self.__volumeLimit = volumeLimit
 
     def setSlippageModel(self, slippageModel):
