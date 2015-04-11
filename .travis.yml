@@ -2,20 +2,19 @@ language: python
 python:
   - "2.7"
 
+virtualenv:
+    system_site_packages: true
+
 before_install:
   - sudo apt-get install gfortran libopenblas-dev liblapack-dev
+  - sudo pip install numpy
+  - sudo apt-get install python-scipy
+  - sudo pip install pandas
+  - sudo pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
-# command to install dependencies
-# pip install scipy takes a lot of time and generates a lot of output. I want to get some output printed
-# just to avoid the job from getting stopped.
-# 
-# Check https://github.com/statsmodels/statsmodels/issues/2184 for scipy==0.14
 install:
-#  - pip install scipy==0.14 | awk 'NR % 250 == 0'
-  - pip install scipy
   - pip list
   - pip install .
-  - pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
 # command to run tests
 # optimizer_testcase is ignored because it gets blocked in Travis.
