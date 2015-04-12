@@ -9,10 +9,15 @@ before_install:
   - sudo apt-get install gfortran libopenblas-dev liblapack-dev
   - sudo pip install numpy
   - sudo apt-get install python-scipy
+  # statsmodels dependencies
   - sudo pip install pandas
   - sudo pip install patsy
-  - sudo pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
+  # TA-Lib dependencies
+  - ./install_talib_deps.sh
+  # Code coverage reports
   - sudo pip install coveralls
+  # PyAlgoTrade dependencies
+  - sudo pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
 install:
   - pip list
@@ -21,9 +26,8 @@ install:
 # command to run tests
 # optimizer_testcase is ignored because it gets blocked in Travis.
 # twitter_test is ignored because it requires credentials.
-# talib_test is ignored until I get it to work on Travis.
 script:
-  - nosetests --ignore-files=optimizer_testcase --ignore-files=twitter_test --ignore-files=talib_test --with-coverage --cover-package=pyalgotrade
+  - nosetests --ignore-files=optimizer_testcase --ignore-files=twitter_test --with-coverage --cover-package=pyalgotrade
 
 after_success:
   - coveralls
