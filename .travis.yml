@@ -10,6 +10,7 @@ before_install:
   - sudo pip install numpy
   - sudo apt-get install python-scipy
   - sudo pip install pandas
+  - sudo pip install patsy
   - sudo pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
 
 install:
