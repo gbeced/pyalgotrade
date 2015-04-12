@@ -13,7 +13,7 @@ before_install:
   - sudo pip install pandas
   - sudo pip install patsy
   # TA-Lib dependencies
-  - ./install_talib_deps.sh
+  - ./travis/install_talib_deps.sh
   # Code coverage reports
   - sudo pip install coveralls
   # PyAlgoTrade dependencies
