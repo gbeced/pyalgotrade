@@ -4,7 +4,7 @@ PyAlgoTrade
 [![version status](https://pypip.in/v/pyalgotrade/badge.png)](https://pypi.python.org/pypi/pyalgotrade)
 [![downloads](https://pypip.in/d/pyalgotrade/badge.png)](https://pypi.python.org/pypi/pyalgotrade)
 [![build status](https://travis-ci.org/gbeced/pyalgotrade.png?branch=master)](https://travis-ci.org/gbeced/pyalgotrade)
-[![Coverage Status](https://coveralls.io/repos/gbeced/pyalgotrade/badge.png)](https://coveralls.io/r/gbeced/pyalgotrade)
+[![Coverage Status](https://coveralls.io/repos/gbeced/pyalgotrade/badge.svg?branch=master)](https://coveralls.io/r/gbeced/pyalgotrade?branch=master)
 
 
 PyAlgoTrade is an **event driven algorithmic trading** Python library. Although the initial focus
