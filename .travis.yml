@@ -27,6 +27,7 @@ install:
 # optimizer_testcase is ignored because it gets blocked in Travis.
 # twitter_test is ignored because it requires credentials.
 script:
+  - export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
   - nosetests --ignore-files=optimizer_testcase --ignore-files=twitter_test --with-coverage --cover-package=pyalgotrade
 
 after_success:
