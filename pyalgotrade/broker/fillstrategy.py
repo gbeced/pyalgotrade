@@ -312,7 +312,7 @@ class DefaultStrategy(FillStrategy):
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
             broker_.getLogger().debug(
-                "Not enough volume to fill %s market order [%s] for %d share/s" % (
+                "Not enough volume to fill %s market order [%s] for %s share/s" % (
                     order.getInstrument(),
                     order.getId(),
                     order.getRemaining()
@@ -335,7 +335,7 @@ class DefaultStrategy(FillStrategy):
     def fillLimitOrder(self, broker_, order, bar):
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
-            broker_.getLogger().debug("Not enough volume to fill %s limit order [%s] for %d share/s" % (
+            broker_.getLogger().debug("Not enough volume to fill %s limit order [%s] for %s share/s" % (
                 order.getInstrument(), order.getId(), order.getRemaining())
             )
             return None
@@ -364,7 +364,7 @@ class DefaultStrategy(FillStrategy):
         if order.getStopHit():
             fillSize = self.__calculateFillSize(broker_, order, bar)
             if fillSize == 0:
-                broker_.getLogger().debug("Not enough volume to fill %s stop order [%s] for %d share/s" % (
+                broker_.getLogger().debug("Not enough volume to fill %s stop order [%s] for %s share/s" % (
                     order.getInstrument(),
                     order.getId(),
                     order.getRemaining()
@@ -402,7 +402,7 @@ class DefaultStrategy(FillStrategy):
         if order.getStopHit():
             fillSize = self.__calculateFillSize(broker_, order, bar)
             if fillSize == 0:
-                broker_.getLogger().debug("Not enough volume to fill %s stop limit order [%s] for %d share/s" % (
+                broker_.getLogger().debug("Not enough volume to fill %s stop limit order [%s] for %s share/s" % (
                     order.getInstrument(),
                     order.getId(),
                     order.getRemaining()
