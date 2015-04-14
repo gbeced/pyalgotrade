@@ -238,12 +238,13 @@ class DefaultStrategy(FillStrategy):
 
         for instrument in bars.getInstruments():
             bar = bars[instrument]
-            # Update the volume available for each instrument.
+            # Reset the volume available for each instrument.
             if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
                 volumeLeft[instrument] = bar.getVolume()
             elif self.__volumeLimit is not None:
+                # We can't round here because there is not order to request the instrument traits.
                 volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
-            # Update the volume used for each instrument.
+            # Reset the volume used for each instrument.
             self.__volumeUsed[instrument] = 0.0
 
         self.__volumeLeft = volumeLeft
