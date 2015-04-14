@@ -295,15 +295,14 @@ class DefaultStrategy(FillStrategy):
 
         # If self.__volumeLimit is None then allow all the order to get filled.
         if self.__volumeLimit is not None:
-            volumeLeft = self.__volumeLeft.get(order.getInstrument(), 0)
+            maxVolume = self.__volumeLeft.get(order.getInstrument(), 0)
+            maxVolume = order.getInstrumentTraits().roundQuantity(maxVolume)
         else:
-            volumeLeft = order.getRemaining()
-
-        volumeLeft = order.getInstrumentTraits().roundQuantity(volumeLeft)
+            maxVolume = order.getRemaining()
 
         if not order.getAllOrNone():
-            ret = min(volumeLeft, order.getRemaining())
-        elif order.getRemaining() <= volumeLeft:
+            ret = min(maxVolume, order.getRemaining())
+        elif order.getRemaining() <= maxVolume:
             ret = order.getRemaining()
 
         return ret
