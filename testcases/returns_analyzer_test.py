@@ -420,7 +420,7 @@ class AnalyzerTestCase(common.TestCase):
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
         strat.run()
-        finalValue = strat.getBroker().getValue()
+        finalValue = strat.getBroker().getEquity()
 
         self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 4), round((finalValue - initialValue) / float(initialValue), 4))
 

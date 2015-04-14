@@ -319,15 +319,6 @@ class Broker(broker.Broker):
                 ret += instrumentPrice * shares
         return ret
 
-    def getValue(self, deprecated=None):
-        if deprecated is not None:
-            warninghelpers.deprecation_warning(
-                "The bars parameter is no longer used and will be removed in the next version.",
-                stacklevel=2
-            )
-
-        return self.__getEquityWithBars(self.__barFeed.getCurrentBars())
-
     def getEquity(self):
         """Returns the portfolio value (cash + shares)."""
         return self.__getEquityWithBars(self.__barFeed.getCurrentBars())
