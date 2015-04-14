@@ -323,7 +323,7 @@ class Broker(broker.Broker):
         """Returns the portfolio value (cash + shares)."""
         return self.__getEquityWithBars(self.__barFeed.getCurrentBars())
 
-    # Tries to commit an order execution. Returns True if the order was commited, or False is there is not enough cash.
+    # Tries to commit an order execution.
     def commitOrderExecution(self, order, dateTime, fillInfo):
         price = fillInfo.getPrice()
         quantity = fillInfo.getQuantity()
