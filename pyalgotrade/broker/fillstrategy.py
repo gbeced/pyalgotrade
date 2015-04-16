@@ -238,12 +238,13 @@ class DefaultStrategy(FillStrategy):
 
         for instrument in bars.getInstruments():
             bar = bars[instrument]
-            # Update the volume available for each instrument.
+            # Reset the volume available for each instrument.
             if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
                 volumeLeft[instrument] = bar.getVolume()
             elif self.__volumeLimit is not None:
+                # We can't round here because there is not order to request the instrument traits.
                 volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
-            # Update the volume used for each instrument.
+            # Reset the volume used for each instrument.
             self.__volumeUsed[instrument] = 0.0
 
         self.__volumeLeft = volumeLeft
@@ -295,24 +296,24 @@ class DefaultStrategy(FillStrategy):
 
         # If self.__volumeLimit is None then allow all the order to get filled.
         if self.__volumeLimit is not None:
-            volumeLeft = self.__volumeLeft.get(order.getInstrument(), 0)
+            maxVolume = self.__volumeLeft.get(order.getInstrument(), 0)
+            maxVolume = order.getInstrumentTraits().roundQuantity(maxVolume)
         else:
-            volumeLeft = order.getRemaining()
-
-        volumeLeft = order.getInstrumentTraits().roundQuantity(volumeLeft)
+            maxVolume = order.getRemaining()
 
         if not order.getAllOrNone():
-            ret = min(volumeLeft, order.getRemaining())
-        elif order.getRemaining() <= volumeLeft:
+            ret = min(maxVolume, order.getRemaining())
+        elif order.getRemaining() <= maxVolume:
             ret = order.getRemaining()
 
         return ret
 
     def fillMarketOrder(self, broker_, order, bar):
+        # Calculate the fill size for the order.
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
             broker_.getLogger().debug(
-                "Not enough volume to fill %s market order [%s] for %d share/s" % (
+                "Not enough volume to fill %s market order [%s] for %s share/s" % (
                     order.getInstrument(),
                     order.getId(),
                     order.getRemaining()
@@ -320,22 +321,23 @@ class DefaultStrategy(FillStrategy):
             )
             return None
 
-        ret = None
+        # Unless its a fill-on-close order, use the open price.
         if order.getFillOnClose():
             price = bar.getClose(broker_.getUseAdjustedValues())
         else:
             price = bar.getOpen(broker_.getUseAdjustedValues())
-        if price is not None:
-            price = self.__slippageModel.calculatePrice(
-                order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
-            )
-            ret = FillInfo(price, fillSize)
-        return ret
+        assert price is not None
+
+        price = self.__slippageModel.calculatePrice(
+            order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+        )
+        return FillInfo(price, fillSize)
 
     def fillLimitOrder(self, broker_, order, bar):
+        # Calculate the fill size for the order.
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
-            broker_.getLogger().debug("Not enough volume to fill %s limit order [%s] for %d share/s" % (
+            broker_.getLogger().debug("Not enough volume to fill %s limit order [%s] for %s share/s" % (
                 order.getInstrument(), order.getId(), order.getRemaining())
             )
             return None
@@ -362,9 +364,10 @@ class DefaultStrategy(FillStrategy):
 
         # If the stop price was hit, check if we can fill the market order.
         if order.getStopHit():
+            # Calculate the fill size for the order.
             fillSize = self.__calculateFillSize(broker_, order, bar)
             if fillSize == 0:
-                broker_.getLogger().debug("Not enough volume to fill %s stop order [%s] for %d share/s" % (
+                broker_.getLogger().debug("Not enough volume to fill %s stop order [%s] for %s share/s" % (
                     order.getInstrument(),
                     order.getId(),
                     order.getRemaining()
@@ -377,6 +380,7 @@ class DefaultStrategy(FillStrategy):
                 price = stopPriceTrigger
             else:
                 price = bar.getOpen(broker_.getUseAdjustedValues())
+            assert price is not None
 
             price = self.__slippageModel.calculatePrice(
                 order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
@@ -400,9 +404,10 @@ class DefaultStrategy(FillStrategy):
 
         # If the stop price was hit, check if we can fill the limit order.
         if order.getStopHit():
+            # Calculate the fill size for the order.
             fillSize = self.__calculateFillSize(broker_, order, bar)
             if fillSize == 0:
-                broker_.getLogger().debug("Not enough volume to fill %s stop limit order [%s] for %d share/s" % (
+                broker_.getLogger().debug("Not enough volume to fill %s stop limit order [%s] for %s share/s" % (
                     order.getInstrument(),
                     order.getId(),
                     order.getRemaining()

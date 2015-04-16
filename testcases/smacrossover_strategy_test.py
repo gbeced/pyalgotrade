@@ -97,7 +97,7 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
             self.__shortPos = self.enterShortPosition(bars)
 
     def onFinish(self, bars):
-        self.__finalValue = self.getBroker().getValue()
+        self.__finalValue = self.getBroker().getEquity()
 
 
 class MarketOrderStrategy(SMACrossOverStrategy):
