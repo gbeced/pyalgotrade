@@ -328,9 +328,11 @@ class DefaultStrategy(FillStrategy):
             price = bar.getOpen(broker_.getUseAdjustedValues())
         assert price is not None
 
-        price = self.__slippageModel.calculatePrice(
-            order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
-        )
+        # Don't slip prices when the bar represents the trading activity of a single trade.
+        if bar.getFrequency() != pyalgotrade.bar.Frequency.TRADE:
+            price = self.__slippageModel.calculatePrice(
+                order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+            )
         return FillInfo(price, fillSize)
 
     def fillLimitOrder(self, broker_, order, bar):
@@ -382,9 +384,11 @@ class DefaultStrategy(FillStrategy):
                 price = bar.getOpen(broker_.getUseAdjustedValues())
             assert price is not None
 
-            price = self.__slippageModel.calculatePrice(
-                order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
-            )
+            # Don't slip prices when the bar represents the trading activity of a single trade.
+            if bar.getFrequency() != pyalgotrade.bar.Frequency.TRADE:
+                price = self.__slippageModel.calculatePrice(
+                    order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+                )
             ret = FillInfo(price, fillSize)
         return ret
 
