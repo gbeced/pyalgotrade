@@ -17,7 +17,7 @@ Backtesting module and classes
     :show-inheritance:
 
 .. automodule:: pyalgotrade.broker.slippage
-    :members: SlippageModel, NoSlippage
+    :members: SlippageModel, NoSlippage, VolumeShareSlippage
     :show-inheritance:
 
 .. automodule:: pyalgotrade.broker.fillstrategy
