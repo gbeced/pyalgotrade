@@ -49,10 +49,10 @@ class ToolsTestCase(common.TestCase):
         bf = yahoofeed.Feed(frequency=bar.Frequency.WEEK)
         bf.addBarsFromCSV(instrument, path)
         bf.loadAll()
-        self.assertEqual(bf[instrument][-1].getOpen(), 557.46)
-        self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
-        self.assertEqual(bf[instrument][-1].getLow(), 540.43)
-        self.assertEqual(bf[instrument][-1].getClose(), 540.98)
+        self.assertEqual(round(bf[instrument][-1].getOpen(), 2), 557.46)
+        self.assertEqual(round(bf[instrument][-1].getHigh(), 2), 561.28)
+        self.assertEqual(round(bf[instrument][-1].getLow(), 2), 540.43)
+        self.assertEqual(round(bf[instrument][-1].getClose(), 2), 540.98)
         self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))
 
     def testBuildDailyFeed(self):
@@ -68,8 +68,8 @@ class ToolsTestCase(common.TestCase):
             instrument = "aapl"
             bf = yahoofinance.build_feed([instrument], 2013, 2013, storage=tmpPath, frequency=bar.Frequency.WEEK)
             bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getOpen(), 557.46)
-            self.assertEqual(bf[instrument][-1].getHigh(), 561.28)
-            self.assertEqual(bf[instrument][-1].getLow(), 540.43)
-            self.assertEqual(bf[instrument][-1].getClose(), 540.98)
+            self.assertEqual(round(bf[instrument][-1].getOpen(), 2), 557.46)
+            self.assertEqual(round(bf[instrument][-1].getHigh(), 2), 561.28)
+            self.assertEqual(round(bf[instrument][-1].getLow(), 2), 540.43)
+            self.assertEqual(round(bf[instrument][-1].getClose(), 2), 540.98)
             self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))

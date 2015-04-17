@@ -55,3 +55,29 @@ class NoSlippage(SlippageModel):
 
     def calculatePrice(self, order, price, quantity, bar, volumeUsed):
         return price
+
+
+class VolumeShareSlippage(SlippageModel):
+    """
+    A volume share slippage model as defined in Zipline's VolumeShareSlippage model.
+    The slippage is calculated by multiplying the price impact constant by the square of the ratio of the order
+    to the total volume.
+
+    Check https://www.quantopian.com/help#ide-slippage for more details.
+
+    :param priceImpact: Defines how large of an impact your order will have on the backtester's price calculation.
+    :type priceImpact: float.
+    """
+
+    def __init__(self, priceImpact=0.1):
+        self.__priceImpact = priceImpact
+
+    def calculatePrice(self, order, price, quantity, bar, volumeUsed):
+        totalVolume = volumeUsed + quantity
+        volumeShare = totalVolume / float(bar.getVolume())
+        impactPct = volumeShare ** 2 * self.__priceImpact
+        if order.isBuy():
+            ret = price * (1 + impactPct)
+        else:
+            ret = price * (1 - impactPct)
+        return ret
