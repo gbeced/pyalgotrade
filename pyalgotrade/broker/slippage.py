@@ -73,6 +73,8 @@ class VolumeShareSlippage(SlippageModel):
         self.__priceImpact = priceImpact
 
     def calculatePrice(self, order, price, quantity, bar, volumeUsed):
+        assert bar.getVolume(), "Can't use 0 volume bars with VolumeShareSlippage"
+
         totalVolume = volumeUsed + quantity
         volumeShare = totalVolume / float(bar.getVolume())
         impactPct = volumeShare ** 2 * self.__priceImpact
