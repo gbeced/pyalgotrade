@@ -107,8 +107,6 @@ class WebSocketClient(client.WebSocketClientBase):
             self.onConnectionEstablished(Event(msg, True))
         elif eventType == "pusher_internal:subscription_succeeded":
             self.onSubscriptionSucceeded(Event(msg, True))
-        elif eventType == "pusher_internal:subscription_error":
-            self.onSubscriptionError(Event(msg, True))
         else:
             # If we can't handle the message, notify the most concrete class.
             self.onUnknownEvent(Event(msg, False))
@@ -121,9 +119,6 @@ class WebSocketClient(client.WebSocketClientBase):
 
     def onSubscriptionSucceeded(self, event):
         pass
-
-    def onSubscriptionError(self, event):
-        raise NotImplementedError()
 
     def onError(self, event):
         raise NotImplementedError()

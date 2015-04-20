@@ -137,9 +137,6 @@ class WebSocketClient(pusher.WebSocketClient):
         self.subscribeChannel("order_book")
         self.__queue.put((WebSocketClient.ON_CONNECTED, None))
 
-    def onSubscriptionError(self, event):
-        common.logger.error("Channel subscription error: %s" % (event))
-
     def onError(self, event):
         common.logger.error("Error: %s" % (event))
 
