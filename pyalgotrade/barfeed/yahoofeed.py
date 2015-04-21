@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade.barfeed import csvfeed
+from pyalgotrade.barfeed import common
 from pyalgotrade.utils import dt
 from pyalgotrade import bar
 from pyalgotrade import dataseries
@@ -80,14 +81,7 @@ class RowParser(csvfeed.RowParser):
         adjClose = float(csvRowDict["Adj Close"])
 
         if self.__sanitize:
-            if low > open_:
-                low = open_
-            if low > close:
-                low = close
-            if high < open_:
-                high = open_
-            if high < close:
-                high = close
+            open_, high, low, close = common.sanitize_ohlc(open_, high, low, close)
 
         return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
 

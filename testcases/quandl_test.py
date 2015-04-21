@@ -153,3 +153,21 @@ class ToolsTestCase(common.TestCase):
             # Not checking against a specific value since this is going to change
             # as time passes by.
             self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+
+    def testInvalidInstrument(self):
+        instrument = "inexistent"
+
+        # Don't skip errors.
+        with self.assertRaisesRegexp(Exception, "HTTP Error 404: Not Found"):
+            with common.TmpDir() as tmpPath:
+                quandl.build_feed(
+                    instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token
+                )
+
+        # Skip errors.
+        with common.TmpDir() as tmpPath:
+            bf = quandl.build_feed(
+                instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token, skipErrors=True
+            )
+            bf.loadAll()
+            self.assertNotIn(instrument, bf)

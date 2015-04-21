@@ -125,9 +125,6 @@ class Slope(technical.EventBasedFilter):
     def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
         technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period), maxLen)
 
-    def getTrendDays(self):
-        return self.getWindowSize()
-
 
 class TrendEventWindow(SlopeEventWindow):
     def __init__(self, windowSize, positiveThreshold, negativeThreshold):

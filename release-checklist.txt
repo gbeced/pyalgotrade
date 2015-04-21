@@ -2,7 +2,7 @@ Release checklist
 
 [ ] Run flake8 (flake8 --exclude=doc . | grep -v "line too long")
 [ ] Run testcases on Mac and Windows.
-[ ] Check code coverage.
+[ ] Check that code coverage is >= 89 %.
 [ ] Update CHANGELOG.
 [ ] Update version in __init__.py.
 [ ] Update version in setup.py.
