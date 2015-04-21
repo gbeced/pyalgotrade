@@ -73,3 +73,19 @@ class ToolsTestCase(common.TestCase):
             self.assertEqual(round(bf[instrument][-1].getLow(), 2), 540.43)
             self.assertEqual(round(bf[instrument][-1].getClose(), 2), 540.98)
             self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))
+
+    def testInvalidDates(self):
+        instrument = "orcl"
+
+        # Don't skip errors.
+        with self.assertRaisesRegexp(Exception, "HTTP Error 404: Not Found"):
+            with common.TmpDir() as tmpPath:
+                bf = yahoofinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
+
+        # Skip errors.
+        with common.TmpDir() as tmpPath:
+            bf = yahoofinance.build_feed(
+                [instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY, skipErrors=True
+            )
+            bf.loadAll()
+            self.assertNotIn(instrument, bf)

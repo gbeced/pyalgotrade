@@ -22,8 +22,9 @@ import os
 
 import common
 
-from pyalgotrade.tools import googlefinance
+from pyalgotrade import bar
 from pyalgotrade.barfeed import googlefeed
+from pyalgotrade.tools import googlefinance
 
 
 class ToolsTestCase(common.TestCase):
@@ -46,3 +47,19 @@ class ToolsTestCase(common.TestCase):
             bf.loadAll()
             self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
             self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+
+    def testInvalidInstrument(self):
+        instrument = "inexistent"
+
+        # Don't skip errors.
+        with self.assertRaisesRegexp(Exception, "HTTP Error 400: Bad Request"):
+            with common.TmpDir() as tmpPath:
+                bf = googlefinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
+
+        # Skip errors.
+        with common.TmpDir() as tmpPath:
+            bf = googlefinance.build_feed(
+                [instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY, skipErrors=True
+            )
+            bf.loadAll()
+            self.assertNotIn(instrument, bf)
