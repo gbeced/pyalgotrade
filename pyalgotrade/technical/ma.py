@@ -23,18 +23,6 @@ from pyalgotrade import technical
 from pyalgotrade import dataseries
 
 
-def calculate_sma(values, begin, end):
-    accum = 0
-    for i in xrange(begin, end):
-        value = values[i]
-        if value is None:
-            return None
-        accum += value
-
-    ret = accum / float(end - begin)
-    return ret
-
-
 # This is the formula I'm using to calculate the averages based on previous ones.
 # 1 2 3 4
 # x x x
