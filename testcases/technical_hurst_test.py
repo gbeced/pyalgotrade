@@ -26,9 +26,9 @@ from pyalgotrade.technical import hurst
 from pyalgotrade import dataseries
 
 
-def build_hurst(values, period, lags):
+def build_hurst(values, period, minLags, maxLags):
     ds = dataseries.SequenceDataSeries()
-    ret = hurst.HurstExponent(ds, period, lags)
+    ret = hurst.HurstExponent(ds, period, minLags, maxLags)
     for value in values:
         ds.append(value)
     return ret
@@ -37,36 +37,36 @@ def build_hurst(values, period, lags):
 class TestCase(common.TestCase):
     def testHurstExpFunRandomWalk(self):
         values = np.cumsum(np.random.randn(50000)) + 1000
-        h = hurst.hurst_exp(np.log10(values), 20)
+        h = hurst.hurst_exp(np.log10(values), 2, 20)
         self.assertEquals(round(h, 1), 0.5)
 
     def testHurstExpFunTrending(self):
         values = np.cumsum(np.random.randn(50000)+1) + 1000
-        h = hurst.hurst_exp(np.log10(values), 20)
+        h = hurst.hurst_exp(np.log10(values), 2, 20)
         self.assertEquals(round(h), 1)
 
     def testHurstExpFunMeanRev(self):
         values = (np.random.randn(50000)) + 1000
-        h = hurst.hurst_exp(np.log10(values), 20)
+        h = hurst.hurst_exp(np.log10(values), 2, 20)
         self.assertEquals(round(h), 0)
 
     def testRandomWalk(self):
         num_values = 10000
         values = np.cumsum(np.random.randn(num_values)) + 1000
-        hds = build_hurst(values, num_values - 10, 20)
+        hds = build_hurst(values, num_values - 10, 2, 20)
         self.assertEquals(round(hds[-1], 1), 0.5)
         self.assertEquals(round(hds[-2], 1), 0.5)
 
     def testTrending(self):
         num_values = 10000
         values = np.cumsum(np.random.randn(num_values) + 10) + 1000
-        hds = build_hurst(values, num_values - 10, 20)
+        hds = build_hurst(values, num_values - 10, 2, 20)
         self.assertEquals(round(hds[-1], 1), 1)
         self.assertEquals(round(hds[-2], 1), 1)
 
     def testMeanRev(self):
         num_values = 10000
         values = np.random.randn(num_values) + 100
-        hds = build_hurst(values, num_values - 10, 20)
+        hds = build_hurst(values, num_values - 10, 2, 20)
         self.assertEquals(round(hds[-1], 1), 0)
         self.assertEquals(round(hds[-2], 1), 0)

@@ -25,12 +25,12 @@ from pyalgotrade import dataseries
 
 
 # Code Tom Starke for the Hurst Exponent.
-def hurst_exp(p, lags):
+def hurst_exp(p, minLags, maxLags):
     tau = []
     lagvec = []
 
     #  Step through the different lags
-    for lag in range(2, lags):
+    for lag in range(minLags, maxLags):
         #  produce price difference with lag
         pp = np.subtract(p[lag:], p[:-lag])
         #  Write the different lags into a vector
@@ -45,9 +45,10 @@ def hurst_exp(p, lags):
 
 
 class HurstExponentEventWindow(technical.EventWindow):
-    def __init__(self, period, lags, logValues=True):
+    def __init__(self, period, minLags, maxLags, logValues=True):
         technical.EventWindow.__init__(self, period)
-        self.__lags = lags
+        self.__minLags = minLags
+        self.__maxLags = maxLags
         self.__logValues = logValues
 
     def onNewValue(self, dateTime, value):
@@ -58,7 +59,7 @@ class HurstExponentEventWindow(technical.EventWindow):
     def getValue(self):
         ret = None
         if self.windowFull():
-            ret = hurst_exp(self.getValues(), self.__lags)
+            ret = hurst_exp(self.getValues(), self.__minLags, self.__maxLags)
         return ret
 
 
@@ -69,20 +70,24 @@ class HurstExponent(technical.EventBasedFilter):
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param period: The number of values to use to calculate the hurst exponent.
     :type period: int.
-    :param lags: The number of lags to use. Must be > 2.
-    :type lags: int.
+    :param minLags: The minimum number of lags to use. Must be >= 2.
+    :type minLags: int.
+    :param maxLags: The maximum number of lags to use. Must be > minLags.
+    :type maxLags: int.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
         from the opposite end.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, lags, logValues=True, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, minLags=2, maxLags=20, logValues=True, maxLen=dataseries.DEFAULT_MAX_LEN):
         assert period > 0, "period must be > 0"
-        assert lags > 2, "lags must be > 2"
+        assert minLags >= 2, "minLags must be >= 2"
+        assert maxLags > minLags, "maxLags must be > minLags"
+
         technical.EventBasedFilter.__init__(
             self,
             dataSeries,
-            HurstExponentEventWindow(period, lags, logValues),
+            HurstExponentEventWindow(period, minLags, maxLags, logValues),
             maxLen
         )
