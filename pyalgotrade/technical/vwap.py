@@ -60,8 +60,9 @@ class VWAP(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen=dataseries.DEFAULT_MAX_LEN):
-        if not isinstance(dataSeries, bards.BarDataSeries):
-            raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
+        assert isinstance(dataSeries, bards.BarDataSeries), \
+            "dataSeries must be a dataseries.bards.BarDataSeries instance"
+
         technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
 
     def getPeriod(self):

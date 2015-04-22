@@ -102,7 +102,5 @@ def resample_to_csv(barFeed, frequency, csvFile):
             * bar.Frequency.MONTH
     """
 
-    if frequency > 0:
-        resample_impl(barFeed, frequency, csvFile)
-    else:
-        raise Exception("Invalid frequency")
+    assert frequency > 0, "Invalid frequency"
+    resample_impl(barFeed, frequency, csvFile)

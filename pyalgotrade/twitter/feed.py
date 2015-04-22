@@ -85,12 +85,9 @@ class TwitterFeed(observer.Subject):
     MAX_EVENTS_PER_DISPATCH = 50
 
     def __init__(self, consumerKey, consumerSecret, accessToken, accessTokenSecret, track=[], follow=[], languages=[]):
-        if not isinstance(track, list):
-            raise Exception("track must be a list")
-        if not isinstance(follow, list):
-            raise Exception("follow must be a list")
-        if not isinstance(languages, list):
-            raise Exception("languages must be a list")
+        assert isinstance(track, list), "track must be a list"
+        assert isinstance(follow, list), "follow must be a list"
+        assert isinstance(languages, list), "languages must be a list"
 
         self.__event = observer.Event()
         self.__queue = Queue.Queue()
