@@ -63,7 +63,7 @@ class UtilsTestCase(common.TestCase):
         self.assertEqual(utils.safe_max(2, 1.1), 2)
 
 
-class CollectionsTestCase(common.TestCase):
+class IntersectTestCase(common.TestCase):
     def testEmptyIntersection(self):
         values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
         self.assertEqual(len(values), 0)
@@ -182,9 +182,15 @@ class CollectionsTestCase(common.TestCase):
         self.assertEqual(ix1, range(size))
         self.assertEqual(ix1, ix2)
 
-    def testNumPyDeque(self):
-        d = collections.NumPyDeque(10)
+
+class CollectionTestCaseBase(common.TestCase):
+    def buildCollection(self, maxLen):
+        raise NotImplementedError()
+
+    def _testBasicOpsImpl(self):
+        d = self.buildCollection(10)
         self.assertEqual(len(d), 0)
+        self.assertEqual(d.getMaxLen(), 10)
 
         for i in range(10):
             d.append(i)
@@ -192,7 +198,6 @@ class CollectionsTestCase(common.TestCase):
         self.assertEqual(d[9], 9)
         self.assertEqual(d[-1], 9)
         self.assertEqual(d[-2], 8)
-        self.assertEqual(d[0:3].sum(), 3)
 
         for i in range(3):
             d.append(i)
@@ -202,9 +207,10 @@ class CollectionsTestCase(common.TestCase):
         self.assertEqual(d[-1], 2)
         self.assertEqual(d[-2], 1)
 
-    def testNumPyDequeResize(self):
-        d = collections.NumPyDeque(10)
+    def _testResizeImpl(self):
+        d = self.buildCollection(10)
 
+        # Fill the array.
         self.assertEqual(len(d), 0)
         for i in range(20):
             d.append(i)
@@ -213,22 +219,99 @@ class CollectionsTestCase(common.TestCase):
         self.assertEqual(d[-1], 19)
         self.assertEqual(len(d), 10)
 
+        # Shrink the array.
         d.resize(5)
         self.assertEqual(len(d), 5)
-        self.assertEqual(d[-0], 10)
-        self.assertEqual(d[4], 14)
-        self.assertEqual(d[-1], 14)
+        self.assertEqual(d[0], 15)
+        self.assertEqual(d[4], 19)
+        self.assertEqual(d[-1], 19)
 
+        # Grow the array.
         d.resize(10)
         self.assertEqual(len(d), 5)
-        self.assertEqual(d[-0], 10)
-        self.assertEqual(d[4], 14)
-        self.assertEqual(d[-1], 14)
+        self.assertEqual(d[0], 15)
+        self.assertEqual(d[4], 19)
+        self.assertEqual(d[-1], 19)
 
-        d.append(15)
+        # Add one element.
+        d.append(20)
         self.assertEqual(len(d), 6)
-        self.assertEqual(d[5], 15)
-        self.assertEqual(d[-1], 15)
+        self.assertEqual(d[0], 15)
+        self.assertEqual(d[1], 16)
+        self.assertEqual(d[2], 17)
+        self.assertEqual(d[3], 18)
+        self.assertEqual(d[4], 19)
+        self.assertEqual(d[5], 20)
+        self.assertEqual(d[-1], 20)
+
+        # No resize
+        d.resize(10)
+        self.assertEqual(d[0], 15)
+        self.assertEqual(d[5], 20)
+        self.assertEqual(d[-1], 20)
+
+        # Shrink it back.
+        d.resize(4)
+        self.assertEqual(len(d), 4)
+        self.assertEqual(d[0], 17)
+        self.assertEqual(d[3], 20)
+        self.assertEqual(d[-1], 20)
+
+    def _testResizeEmptyImpl(self):
+        d = self.buildCollection(10)
+        self.assertEqual(len(d), 0)
+
+        # No resize
+        d.resize(10)
+
+        # Shrink the array.
+        d.resize(5)
+        self.assertEqual(len(d), 0)
+
+        # Grow the array.
+        d.resize(10)
+        self.assertEqual(len(d), 0)
+
+        # Add one element.
+        d.append(20)
+        self.assertEqual(len(d), 1)
+        self.assertEqual(d[0], 20)
+        self.assertEqual(d[-1], 20)
+
+
+class NumPyDequeTestCase(CollectionTestCaseBase):
+    def buildCollection(self, maxLen):
+        return collections.NumPyDeque(maxLen)
+
+    def testBasicOps(self):
+        CollectionTestCaseBase._testBasicOpsImpl(self)
+
+    def testResize(self):
+        CollectionTestCaseBase._testResizeImpl(self)
+
+    def testResizeEmpty(self):
+        CollectionTestCaseBase._testResizeEmptyImpl(self)
+
+    def testSum(self):
+        d = collections.NumPyDeque(10)
+
+        for i in range(10):
+            d.append(i)
+        self.assertEqual(d[0:3].sum(), 3)
+
+
+class ListDequeTestCase(CollectionTestCaseBase):
+    def buildCollection(self, maxLen):
+        return collections.ListDeque(maxLen)
+
+    def testBasicOps(self):
+        CollectionTestCaseBase._testBasicOpsImpl(self)
+
+    def testResize(self):
+        CollectionTestCaseBase._testResizeImpl(self)
+
+    def testResizeEmpty(self):
+        CollectionTestCaseBase._testResizeEmptyImpl(self)
 
 
 class DateTimeTestCase(common.TestCase):

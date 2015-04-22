@@ -59,8 +59,7 @@ def intersect(values1, values2, skipNone=False):
 # Like a collections.deque but using a numpy.array.
 class NumPyDeque(object):
     def __init__(self, maxLen, dtype=float):
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+        assert maxLen > 0, "Invalid maximum length"
 
         self.__values = np.empty(maxLen, dtype=dtype)
         self.__maxLen = maxLen
@@ -88,10 +87,14 @@ class NumPyDeque(object):
         return ret
 
     def resize(self, maxLen):
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+        assert maxLen > 0, "Invalid maximum length"
 
-        self.__values = np.resize(self.__values, maxLen)
+        # Create empty, copy last values and swap.
+        values = np.empty(maxLen, dtype=self.__values.dtype)
+        lastValues = self.__values[0:self.__nextPos]
+        values[0:min(maxLen, len(lastValues))] = lastValues[-1*min(maxLen, len(lastValues)):]
+        self.__values = values
+
         self.__maxLen = maxLen
         if self.__nextPos >= self.__maxLen:
             self.__nextPos = self.__maxLen
@@ -107,9 +110,8 @@ class NumPyDeque(object):
 # 1: Random access is slower.
 # 2: Slicing is not supported.
 class ListDeque(object):
-    def __init__(self, maxLen, dtype=float):
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+    def __init__(self, maxLen):
+        assert maxLen > 0, "Invalid maximum length"
 
         self.__values = []
         self.__maxLen = maxLen
@@ -127,12 +129,10 @@ class ListDeque(object):
         return self.__values
 
     def resize(self, maxLen):
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+        assert maxLen > 0, "Invalid maximum length"
 
         self.__maxLen = maxLen
-        if len(self.__values) > maxLen:
-            self.__values = self.__values[-1*maxLen:]
+        self.__values = self.__values[-1*maxLen:]
 
     def __len__(self):
         return len(self.__values)
