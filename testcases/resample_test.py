@@ -38,47 +38,95 @@ from pyalgotrade import resamplebase
 
 
 class IntraDayRange(common.TestCase):
-    def testMinuteRange(self):
+    def __testMinuteRangeImpl(self, timezone=None):
         freq = bar.Frequency.MINUTE
+
         begin = datetime.datetime(2011, 1, 1, 1, 1)
+        end = datetime.datetime(2011, 1, 1, 1, 2)
+        if timezone is not None:
+            begin = dt.localize(begin, timezone)
+            end = dt.localize(end, timezone)
+
         r = resamplebase.build_range(begin + datetime.timedelta(seconds=5), freq)
         self.assertEqual(r.getBeginning(), begin)
         for i in range(freq):
             self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
         self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
-        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 1, 2))
+        self.assertEqual(r.getEnding(), end)
+
+    def __testFiveMinuteRangeImpl(self, timezone=None):
+        freq = 60*5
+
+        begin = datetime.datetime(2011, 1, 1, 1)
+        end = datetime.datetime(2011, 1, 1, 1, 5)
+        if timezone is not None:
+            begin = dt.localize(begin, timezone)
+            end = dt.localize(end, timezone)
+
+        r = resamplebase.build_range(begin + datetime.timedelta(seconds=120), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), end)
+
+    def __testHourRangeImpl(self, timezone=None):
+        freq = bar.Frequency.HOUR
+
+        begin = datetime.datetime(2011, 1, 1, 16)
+        end = datetime.datetime(2011, 1, 1, 17)
+        if timezone is not None:
+            begin = dt.localize(begin, timezone)
+            end = dt.localize(end, timezone)
+
+        r = resamplebase.build_range(begin + datetime.timedelta(seconds=120), freq)
+        self.assertEqual(r.getBeginning(), begin)
+        for i in range(freq):
+            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
+        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
+        self.assertEqual(r.getEnding(), end)
+
+    def testMinuteRange(self):
+        self.__testMinuteRangeImpl()
+
+    def testMinuteRangeLocalized(self):
+        self.__testMinuteRangeImpl(marketsession.NASDAQ.timezone)
 
     def testFiveMinuteRange(self):
-        freq = 60*5
-        begin = datetime.datetime(2011, 1, 1, 1)
-        r = resamplebase.build_range(begin + datetime.timedelta(seconds=120), freq)
-        self.assertEqual(r.getBeginning(), begin)
-        for i in range(freq):
-            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
-        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
-        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 1, 5))
+        self.__testFiveMinuteRangeImpl()
+
+    def testFiveMinuteRangeLocalized(self):
+        self.__testFiveMinuteRangeImpl(marketsession.NASDAQ.timezone)
 
     def testHourRange(self):
-        freq = bar.Frequency.HOUR
-        begin = datetime.datetime(2011, 1, 1, 16)
-        r = resamplebase.build_range(begin + datetime.timedelta(seconds=120), freq)
-        self.assertEqual(r.getBeginning(), begin)
-        for i in range(freq):
-            self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
-        self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
-        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 1, 17))
+        self.__testHourRangeImpl()
+
+    def testHourRangeLocalized(self):
+        self.__testHourRangeImpl(marketsession.NASDAQ.timezone)
 
 
 class DayRange(common.TestCase):
-    def testOk(self):
+    def __testImpl(self, timezone=None):
         freq = bar.Frequency.DAY
+
         begin = datetime.datetime(2011, 1, 1)
+        end = datetime.datetime(2011, 1, 2)
+        if timezone is not None:
+            begin = dt.localize(begin, timezone)
+            end = dt.localize(end, timezone)
+
         r = resamplebase.build_range(begin + datetime.timedelta(hours=5, minutes=25), freq)
         self.assertEqual(r.getBeginning(), begin)
         for i in range(freq):
             self.assertTrue(r.belongs(begin + datetime.timedelta(seconds=i)))
         self.assertFalse(r.belongs(begin + datetime.timedelta(seconds=freq+1)))
-        self.assertEqual(r.getEnding(), datetime.datetime(2011, 1, 2))
+        self.assertEqual(r.getEnding(), end)
+
+    def testOk(self):
+        self.__testImpl()
+
+    def testLocalizedOk(self):
+        self.__testImpl(marketsession.NASDAQ.timezone)
 
 
 class MonthRange(common.TestCase):

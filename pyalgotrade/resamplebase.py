@@ -41,14 +41,14 @@ class TimeRange(object):
 
 class IntraDayRange(TimeRange):
     def __init__(self, dateTime, frequency):
-        assert(isinstance(frequency, int))
-        assert(frequency > 1)
-        assert(frequency < bar.Frequency.DAY)
+        assert isinstance(frequency, int)
+        assert frequency > 1
+        assert frequency < bar.Frequency.DAY
 
         ts = int(dt.datetime_to_timestamp(dateTime))
         slot = int(ts / frequency)
         slotTs = slot * frequency
-        self.__begin = dt.timestamp_to_datetime(slotTs, False)
+        self.__begin = dt.timestamp_to_datetime(slotTs, not dt.datetime_is_naive(dateTime))
         if not dt.datetime_is_naive(dateTime):
             self.__begin = dt.localize(self.__begin, dateTime.tzinfo)
         self.__end = self.__begin + datetime.timedelta(seconds=frequency)
