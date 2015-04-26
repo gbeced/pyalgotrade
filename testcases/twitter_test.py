@@ -18,10 +18,14 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import os
 import datetime
 
 import common
-import twitter_credentials
+try:
+    import credentials
+except:
+    pass
 
 from pyalgotrade import dispatcher
 from pyalgotrade.twitter import feed as twitterfeed
@@ -45,14 +49,22 @@ class TwitterFeedTestCase(common.TestCase):
                 disp.stop()
 
         # Create a twitter feed to track BitCoin related events.
-        consumer_key = twitter_credentials.consumer_key
-        consumer_secret = twitter_credentials.consumer_secret
-        access_token = twitter_credentials.access_token
-        access_token_secret = twitter_credentials.access_token_secret
+        consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
+        consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
+        access_token = os.getenv("TWITTER_ACCESS_TOKEN")
+        access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
         track = ["bitcoin", "btc"]
         follow = []
         languages = ["en"]
-        twitterFeed = twitterfeed.TwitterFeed(consumer_key, consumer_secret, access_token, access_token_secret, track, follow, languages)
+        twitterFeed = twitterfeed.TwitterFeed(
+            consumer_key,
+            consumer_secret,
+            access_token,
+            access_token_secret,
+            track,
+            follow,
+            languages
+        )
 
         disp.addSubject(twitterFeed)
         twitterFeed.subscribe(on_tweet)
