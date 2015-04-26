@@ -25,16 +25,18 @@ before_install:
   - sudo pip install coveralls
   # PyAlgoTrade dependencies
   - sudo pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
+  # Work around for multiprocessing permission bug with Travis
+  - sudo rm -rf /dev/shm
+  - sudo ln -s /run/shm /dev/shm
 
 install:
   - pip list
   - pip install .
 
 # command to run tests
-# optimizer_testcase is ignored because it gets blocked in Travis.
 script:
   - export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-  - nosetests --ignore-files=optimizer_testcase --with-coverage --cover-package=pyalgotrade
+  - nosetests --with-coverage --cover-package=pyalgotrade
 
 after_success:
   - coveralls
