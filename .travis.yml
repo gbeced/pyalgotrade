@@ -31,10 +31,9 @@ install:
   - pip install .
 
 # command to run tests
-# optimizer_testcase is ignored because it gets blocked in Travis.
 script:
   - export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-  - nosetests --ignore-files=optimizer_testcase --with-coverage --cover-package=pyalgotrade
+  - nosetests --with-coverage --cover-package=pyalgotrade
 
 after_success:
   - coveralls
