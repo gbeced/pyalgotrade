@@ -30,7 +30,6 @@ class WebSocketClient(pusher.WebSocketClient):
         pusher.WebSocketClient .__init__(self, "de504dc5763aeef9ff52", maxInactivity=1)
         self.__errors = 0
         self.__unknown_events = 0
-        self.__stopped = False
         self.__connected = None
 
     def __checkStop(self):
@@ -42,7 +41,6 @@ class WebSocketClient(pusher.WebSocketClient):
         if self.__connected is None or (datetime.datetime.now() - self.__connected).total_seconds() < 3:
             return
 
-        self.__stopped = True
         self.close()
 
     def onConnectionEstablished(self, event):
@@ -80,6 +78,7 @@ class TestCase(unittest.TestCase):
         thread = WebSocketClientThread()
         thread.start()
         thread.join(30)
+        # After 30 seconds the thread should have finished.
         if thread.isAlive():
             thread.stop()
             self.assertTrue(False)
