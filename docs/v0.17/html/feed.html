@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>feed – Basic feeds &mdash; PyAlgoTrade 0.17 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.17',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.17 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="barfeed – Bar providers" href="barfeed.html" />
+    <link rel="prev" title="dataseries – Basic dataseries classes" href="dataseries.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="barfeed.html" title="barfeed – Bar providers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dataseries.html" title="dataseries – Basic dataseries classes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.17 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="feed-basic-feeds">
+<h1>feed &#8211; Basic feeds<a class="headerlink" href="#feed-basic-feeds" title="Permalink to this headline">¶</a></h1>
+<p>Feeds are time series data providing abstractions.
+When these are included in the event dispatch loop, they emit an event as new data is available.
+Feeds are also responsible for updating the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> associated
+with each piece of data that the feed provides.</p>
+<p><strong>This package has basic feeds. For bar feeds refer to the</strong> <a class="reference internal" href="barfeed.html#barfeed-label"><em>barfeed &#8211; Bar providers</em></a> <strong>section.</strong></p>
+<span class="target" id="module-pyalgotrade.feed"></span><dl class="class">
+<dt id="pyalgotrade.feed.BaseFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.feed.</tt><tt class="descname">BaseFeed</tt><big>(</big><em>maxLen</em><big>)</big><a class="headerlink" href="#pyalgotrade.feed.BaseFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.observer.Subject</span></tt></p>
+<p>Base class for feeds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that each <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+from the opposite end.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.feed.BaseFeed.__contains__">
+<tt class="descname">__contains__</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#pyalgotrade.feed.BaseFeed.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if a <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> for the given key is available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.feed.BaseFeed.__getitem__">
+<tt class="descname">__getitem__</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#pyalgotrade.feed.BaseFeed.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> for a given key.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.feed.BaseFeed.getNewValuesEvent">
+<tt class="descname">getNewValuesEvent</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.feed.BaseFeed.getNewValuesEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the event that will be emitted when new values are available.
+To subscribe you need to pass in a callable object that receives two parameters:</p>
+<ol class="arabic simple">
+<li>A <tt class="xref py py-class docutils literal"><span class="pre">datetime.datetime</span></tt> instance.</li>
+<li>The new value.</li>
+</ol>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="module-pyalgotrade.feed.csvfeed">
+<span id="csv-support"></span><h2>CSV support<a class="headerlink" href="#module-pyalgotrade.feed.csvfeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.feed.csvfeed.Feed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.feed.csvfeed.</tt><tt class="descname">Feed</tt><big>(</big><em>dateTimeColumn</em>, <em>dateTimeFormat</em>, <em>converter=None</em>, <em>delimiter='</em>, <em>'</em>, <em>timezone=None</em>, <em>maxLen=1024</em><big>)</big><a class="headerlink" href="#pyalgotrade.feed.csvfeed.Feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.feed.csvfeed.BaseFeed</span></tt></p>
+<p>A feed that loads values from CSV formatted files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dateTimeColumn</strong> (<em>string.</em>) &#8211; The name of the column that has the datetime information.</li>
+<li><strong>dateTimeFormat</strong> (<em>string.</em>) &#8211; The datetime format. datetime.datetime.strptime will be used to parse the column.</li>
+<li><strong>converter</strong> (<em>function.</em>) &#8211; A function with two parameters (column name and value) used to convert the string
+value to something else. The default coverter will try to convert the value to a float. If that fails
+the original string is returned.</li>
+<li><strong>delimiter</strong> (<em>string.</em>) &#8211; The string used to separate values.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The timezone to use to localize datetimes. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that each <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.DataSeries" title="pyalgotrade.dataseries.DataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.DataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.feed.csvfeed.Feed.addValuesFromCSV">
+<tt class="descname">addValuesFromCSV</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pyalgotrade.feed.csvfeed.Feed.addValuesFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads values from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>string.</em>) &#8211; The path to the CSV file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="csv-support-example">
+<h2>CSV support Example<a class="headerlink" href="#csv-support-example" title="Permalink to this headline">¶</a></h2>
+<p>A file with the following format</p>
+<div class="highlight-python"><pre>Date,USD,GBP,EUR
+2013-09-29,1333.0,831.203,986.75
+2013-09-22,1349.25,842.755,997.671
+2013-09-15,1318.5,831.546,993.969
+2013-09-08,1387.0,886.885,1052.911
+.
+.
+.</pre>
+</div>
+<p>can be loaded like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade.feed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+
+<span class="n">feed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">(</span><span class="s">&quot;Date&quot;</span><span class="p">,</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addValuesFromCSV</span><span class="p">(</span><span class="s">&quot;quandl_gold_2.csv&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">dateTime</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">feed</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">dateTime</span><span class="p">,</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>and the output should look like this:</p>
+<div class="highlight-python"><pre>1968-04-07 00:00:00 {'USD': 37.0, 'GBP': 15.3875, 'EUR': ''}
+1968-04-14 00:00:00 {'USD': 38.0, 'GBP': 15.8208, 'EUR': ''}
+1968-04-21 00:00:00 {'USD': 37.65, 'GBP': 15.6833, 'EUR': ''}
+1968-04-28 00:00:00 {'USD': 38.65, 'GBP': 16.1271, 'EUR': ''}
+1968-05-05 00:00:00 {'USD': 39.1, 'GBP': 16.3188, 'EUR': ''}
+1968-05-12 00:00:00 {'USD': 39.6, 'GBP': 16.5625, 'EUR': ''}
+1968-05-19 00:00:00 {'USD': 41.5, 'GBP': 17.3958, 'EUR': ''}
+1968-05-26 00:00:00 {'USD': 41.75, 'GBP': 17.5104, 'EUR': ''}
+1968-06-02 00:00:00 {'USD': 41.95, 'GBP': 17.6, 'EUR': ''}
+1968-06-09 00:00:00 {'USD': 41.25, 'GBP': 17.3042, 'EUR': ''}
+.
+.
+.
+2013-07-28 00:00:00 {'USD': 1331.0, 'GBP': 864.23, 'EUR': 1001.505}
+2013-08-04 00:00:00 {'USD': 1309.25, 'GBP': 858.637, 'EUR': 986.921}
+2013-08-11 00:00:00 {'USD': 1309.0, 'GBP': 843.156, 'EUR': 979.79}
+2013-08-18 00:00:00 {'USD': 1369.25, 'GBP': 875.424, 'EUR': 1024.964}
+2013-08-25 00:00:00 {'USD': 1377.5, 'GBP': 885.738, 'EUR': 1030.6}
+2013-09-01 00:00:00 {'USD': 1394.75, 'GBP': 901.292, 'EUR': 1055.749}
+2013-09-08 00:00:00 {'USD': 1387.0, 'GBP': 886.885, 'EUR': 1052.911}
+2013-09-15 00:00:00 {'USD': 1318.5, 'GBP': 831.546, 'EUR': 993.969}
+2013-09-22 00:00:00 {'USD': 1349.25, 'GBP': 842.755, 'EUR': 997.671}
+2013-09-29 00:00:00 {'USD': 1333.0, 'GBP': 831.203, 'EUR': 986.75}
+</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">feed &#8211; Basic feeds</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.feed.csvfeed">CSV support</a></li>
+<li><a class="reference internal" href="#csv-support-example">CSV support Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dataseries.html"
+                        title="previous chapter">dataseries &#8211; Basic dataseries classes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="barfeed.html"
+                        title="next chapter">barfeed &#8211; Bar providers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/feed.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="barfeed.html" title="barfeed – Bar providers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dataseries.html" title="dataseries – Basic dataseries classes"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.17 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

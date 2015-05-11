@@ -50,7 +50,30 @@
 
     <div class="container">
 
-		<h2>Current version: 0.16 (31/Aug/2014)</h2>
+		<h2>Current version: 0.17 (10/May/2015)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.17/PyAlgoTrade-0.17.tar.gz/download">PyAlgoTrade-0.17.tar.gz</a>
+		<h3>New features</h3>
+		<ul>
+				<li>Hurst exponent technical indicator (pyalgotrade.technical.hurst.HurstExponent).</li>
+				<li>Added support for slippage models (pyalgotrade.broker.slippage) including a VolumeShareSlippage model like the one in Zipline (https://github.com/quantopian/zipline).</li>
+		</ul>
+		<h3>Bug fixes</h3>
+		<ul>
+				<li>Automatically reconnect Bitstamp feed if the connection gets closed.</li>
+				<li>Close connections ASAP to avoid running out of file descriptors when GC gets delayed. Thanks Tibor Kiss for reporting and fixing this.</li>
+				<li>Fail when placing Market-On-Close orders when backtesting with intraday data. Right now this is not supported.</li>
+				<li>Bitstamp backtesting broker was allowing trades below $5.</li>
+				<li>Updated default Bitstamp fee to 0.25%.</li>
+				<li>Fixed a bug when resampling localized intraday datetimes.</li>
+		</ul>
+		<h3>Breaking changes</h3>
+		<ul>
+				<li>Backtesting broker fill strategies moved to pyalgotrade.broker.fillstrategy module.</li>
+		</ul>
+
+		<hr>
+
+		<h2>Version 0.16 (31/Aug/2014)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.16/PyAlgoTrade-0.16.tar.gz/download">PyAlgoTrade-0.16.tar.gz</a>
 		<h3>New features</h3>
 		<ul>
@@ -76,9 +99,7 @@
 			<li>Strategy.onOrderUpdated now gets called for all order events, including those generated using the position interface.</li>
 		</ul>
 
-		<hr>
-
-		<h2>Current version: 0.15 (30/Mar/2014)</h2>
+		<h2>Version 0.15 (30/Mar/2014)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.15/PyAlgoTrade-0.15.tar.gz/download">PyAlgoTrade-0.15.tar.gz</a>
 		<h3>New features</h3>
 		<ul>

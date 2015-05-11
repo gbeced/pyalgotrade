@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>marketsession – Market sessions &mdash; PyAlgoTrade 0.17 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.17',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.17 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="Tools" href="tools.html" />
+    <link rel="prev" title="optimizer – Parallel optimizers" href="optimizer.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="Tools"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="optimizer.html" title="optimizer – Parallel optimizers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.17 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.marketsession">
+<span id="marketsession-market-sessions"></span><h1>marketsession &#8211; Market sessions<a class="headerlink" href="#module-pyalgotrade.marketsession" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.marketsession.MarketSession">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">MarketSession</tt><a class="headerlink" href="#pyalgotrade.marketsession.MarketSession" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for market sessions.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="classmethod">
+<dt id="pyalgotrade.marketsession.MarketSession.getTimezone">
+<em class="property">classmethod </em><tt class="descname">getTimezone</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.marketsession.MarketSession.getTimezone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the pytz timezone for the market session.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.NASDAQ">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">NASDAQ</tt><a class="headerlink" href="#pyalgotrade.marketsession.NASDAQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>NASDAQ market session.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.NYSE">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">NYSE</tt><a class="headerlink" href="#pyalgotrade.marketsession.NYSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>New York Stock Exchange market session.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.USEquities">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">USEquities</tt><a class="headerlink" href="#pyalgotrade.marketsession.USEquities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>US Equities market session.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.MERVAL">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">MERVAL</tt><a class="headerlink" href="#pyalgotrade.marketsession.MERVAL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>Buenos Aires (Argentina) market session.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.BOVESPA">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">BOVESPA</tt><a class="headerlink" href="#pyalgotrade.marketsession.BOVESPA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>BOVESPA (Brazil) market session.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.FTSE">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">FTSE</tt><a class="headerlink" href="#pyalgotrade.marketsession.FTSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>London Stock Exchange market session.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.marketsession.TSE">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.marketsession.</tt><tt class="descname">TSE</tt><a class="headerlink" href="#pyalgotrade.marketsession.TSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.marketsession.MarketSession" title="pyalgotrade.marketsession.MarketSession"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.marketsession.MarketSession</span></tt></a></p>
+<p>Tokyo Stock Exchange market session.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="optimizer.html"
+                        title="previous chapter">optimizer &#8211; Parallel optimizers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tools.html"
+                        title="next chapter">Tools</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/marketsession.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="Tools"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="optimizer.html" title="optimizer – Parallel optimizers"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.17 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
