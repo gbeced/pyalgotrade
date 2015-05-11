@@ -17,7 +17,7 @@ and **live trading** is now possible using:
 
  * [Bitstamp](https://www.bitstamp.net/) for Bitcoins
 
-To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.16/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.16/html/index.html).
+To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.17/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.17/html/index.html).
 
 Main Features
 -------------
@@ -26,8 +26,8 @@ Main Features
  * Supports Market, Limit, Stop and StopLimit orders.
  * Supports any type of time-series data in CSV format like Yahoo! Finance, Google Finance, Quandl and NinjaTrader.
  * [Xignite](https://www.xignite.com/) realtime feed.
- * Bitcoin support through [Bitstamp](https://www.bitstamp.net/).
- * Technical indicators and filters like SMA, WMA, EMA, RSI, Bollinger Bands and others.
+ * Bitcoin trading support through [Bitstamp](https://www.bitstamp.net/).
+ * Technical indicators and filters like SMA, WMA, EMA, RSI, Bollinger Bands, Hurst exponent and others.
  * Performance metrics like Sharpe ratio and drawdown analysis.
  * Handling Twitter events in realtime.
  * Event profiler.
