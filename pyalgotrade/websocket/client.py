@@ -26,7 +26,7 @@ import tornado
 import pyalgotrade.logger
 
 
-logger = pyalgotrade.logger.getLogger("websocket")
+logger = pyalgotrade.logger.getLogger("websocket.client")
 
 
 # This class is responsible for sending keep alive messages and detecting disconnections
