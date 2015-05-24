@@ -78,7 +78,7 @@ class ToolsTestCase(common.TestCase):
         instrument = "orcl"
 
         # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "HTTP Error 404: Not Found"):
+        with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
             with common.TmpDir() as tmpPath:
                 bf = yahoofinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
 

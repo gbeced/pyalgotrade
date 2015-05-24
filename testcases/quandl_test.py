@@ -158,7 +158,7 @@ class ToolsTestCase(common.TestCase):
         instrument = "inexistent"
 
         # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "HTTP Error 404: Not Found"):
+        with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
             with common.TmpDir() as tmpPath:
                 quandl.build_feed(
                     instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token
