@@ -21,6 +21,9 @@
 import csv
 import requests
 
+import logging
+logging.getLogger("requests").setLevel(logging.ERROR)
+
 
 # A faster (but limited) version of csv.DictReader
 class FastDictReader(object):
