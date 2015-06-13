@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+# Check https://docs.exchange.coinbase.com/
+
 import json
 
 import pyalgotrade
