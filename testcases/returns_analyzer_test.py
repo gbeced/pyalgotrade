@@ -451,3 +451,9 @@ class AnalyzerTestCase(common.TestCase):
         strat.run()
         self.assertEqual(stratAnalyzer.getReturns()[0], 0)
         self.assertEqual(stratAnalyzer.getReturns()[1], (32.00 - 25.25) / 1000)
+
+        # Check date times.
+        datetimes = barFeed[AnalyzerTestCase.TestInstrument].getDateTimes()
+        for i in [0, -1]:
+            self.assertEqual(stratAnalyzer.getReturns().getDateTimes()[i], datetimes[i])
+            self.assertEqual(stratAnalyzer.getCumulativeReturns().getDateTimes()[i], datetimes[i])
