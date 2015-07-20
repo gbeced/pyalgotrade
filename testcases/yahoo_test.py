@@ -37,8 +37,8 @@ class ToolsTestCase(common.TestCase):
         bf = yahoofeed.Feed()
         bf.addBarsFromCSV(instrument, path)
         bf.loadAll()
-        self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-        self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        self.assertEqual(round(bf[instrument][-1].getOpen(), 2), 31.22)
+        self.assertEqual(round(bf[instrument][-1].getClose(), 2), 31.30)
 
     def testDownloadAndParseWeekly(self):
         instrument = "aapl"
@@ -60,8 +60,8 @@ class ToolsTestCase(common.TestCase):
             instrument = "orcl"
             bf = yahoofinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
             bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+            self.assertEqual(round(bf[instrument][-1].getOpen(), 2), 31.22)
+            self.assertEqual(round(bf[instrument][-1].getClose(), 2), 31.30)
 
     def testBuildWeeklyFeed(self):
         with common.TmpDir() as tmpPath:

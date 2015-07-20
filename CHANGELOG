@@ -1,3 +1,6 @@
+Version 0.18 (TBD)
+. [NEW] Returns analyzer now store datetimes along with each sample. Thanks MatthiasKauer for implementing this.
+
 Version 0.17 (10/May/2015)
 . [NEW] Hurst exponent technical indicator (pyalgotrade.technical.hurst.HurstExponent).
 . [NEW] Added support for slippage models (pyalgotrade.broker.slippage) including a VolumeShareSlippage model like the one in Zipline (https://github.com/quantopian/zipline).
