@@ -48,7 +48,10 @@ class Dispatcher(object):
         return self.__subjects
 
     def addSubject(self, subject):
-        assert(subject not in self.__subjects)
+        # Skip the subject if it was already added.
+        if subject in self.__subjects:
+            return
+
         if subject.getDispatchPriority() is None:
             self.__subjects.append(subject)
         else:
