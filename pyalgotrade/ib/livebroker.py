@@ -4,22 +4,23 @@
 '''
 TODO:
 
-    - Deal with multiple currencies
-    - Test all order types
+    - DONE - Deal with multiple currencies
     - DONE - Test in a live trading situation
     - Deal with problems connecting to API
+    - Test all order types
 
 '''
 
 
 """
-.. moduleauthor:: Kimble Young <kimbleyoung at yahoo dot com dot au>
+.. moduleauthor:: Kimble Young <kbcool@gmail.com>
 """
 
 import threading
 import time
 import Queue
 import datetime
+import random
 
 from pyalgotrade import broker
 from pyalgotrade.utils import dt
@@ -102,7 +103,7 @@ class LiveBroker(broker.Broker):
     :param marketOptions: configure asset type, currency and routing - see https://www.interactivebrokers.com/en/software/api/apiguide/java/contract.htm
     :type marketOptions: dict.    
     :param debug: have ibPy spit out all messages to screen (very noisy)
-    :type port: bool.
+    :type debug: bool.
 
 
     .. note::
@@ -119,8 +120,12 @@ class LiveBroker(broker.Broker):
             self.__debug = False
 
         self.__stop = False
+        clientId = clientId=random.randint(1,10000)+10000
 
-        self.__ib = ibConnection(host=host,port=port,clientId=13679)
+        print "connecting to %s on port %d using %d" % (host,port,clientId)
+        
+
+        self.__ib = ibConnection(host=host,port=port,clientId=clientId)
 
         #register all the callback handlers
         self.__ib.registerAll(self.__debugHandler)
@@ -136,6 +141,24 @@ class LiveBroker(broker.Broker):
         self.__shares = {}
         self.__activeOrders = {}
         self.__nextOrderId = 0
+
+        #parse marketoptions and set defaults
+        self.__marketOptions = {}
+
+        if marketOptions.get('assetType') == None:
+            self.__marketOptions['assetType'] = 'STK'
+        else:
+            self.__marketOptions['assetType'] = marketOptions['assetType']
+
+        if marketOptions.get('currency') == None:
+            self.__marketOptions['currency'] = 'GBP'
+        else:
+            self.__marketOptions['currency'] = marketOptions['currency']
+
+        if marketOptions.get('routing') == None:
+            self.__marketOptions['routing'] = 'SMART'
+        else:
+            self.__marketOptions['routing'] = marketOptions['routing']
 
     def __disconnectHandler(self,msg):
         print "disconnected. reconnecting"
@@ -188,19 +211,14 @@ class LiveBroker(broker.Broker):
 
     #subscribes for regular account balances which are sent to portfolio and account handlers
     def refreshAccountBalance(self):
-        """Refreshes cash and BTC balance."""
-
-        #self.__stop = True  # Stop running in case of errors.
-        print("Retrieving account balance.")
+        #print("Retrieving account balance.")
         self.__ib.reqAccountUpdates(1,'')
         
 
 
     def refreshOpenOrders(self):
-        print("Refreshing open orders")
+        #print("Refreshing open orders")
         self.__ib.reqAllOpenOrders()
-
-        #implemented in the 
 
 
     def _startTradeMonitor(self):
@@ -215,7 +233,7 @@ class LiveBroker(broker.Broker):
     def stop(self):
         self.__stop = True
         self.__ib.disconnect()
-        print("Shutting down IB connection")
+        #print("Shutting down IB connection")
         #self.__tradeMonitor.stop()
 
     def join(self):
@@ -266,9 +284,11 @@ class LiveBroker(broker.Broker):
             ibOrder = Order()
 
             ibContract.m_symbol = order.getInstrument()
-            ibContract.m_secType = 'STK'
-            ibContract.m_currency = 'GBP'
-            ibContract.m_exchange = 'SMART'
+
+
+            ibContract.m_secType = self.__marketOptions['assetType']
+            ibContract.m_currency = self.__marketOptions['currency']
+            ibContract.m_exchange = self.__marketOptions['routing']
 
             ibOrder.m_totalQuantity = order.getQuantity()
             if order.getAction() == (broker.Order.Action.BUY or broker.Order.Action.BUY_TO_COVER):
@@ -362,8 +382,8 @@ class LiveBroker(broker.Broker):
         self._unregisterOrder(order)
         order.switchState(broker.Order.State.CANCELED)
 
-        # Update cash and shares. - not needed
-        #self.refreshAccountBalance()
+        # Update cash and shares. - might not be needed
+        self.refreshAccountBalance()
 
         # Notify that the order was canceled.
         self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
