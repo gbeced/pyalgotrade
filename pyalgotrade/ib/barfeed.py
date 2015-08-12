@@ -18,7 +18,7 @@ import threading
 import Queue
 import random
 import sys
-
+import pytz
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
@@ -37,36 +37,6 @@ from ib.opt import ibConnection, message
 
 def utcnow():
     return dt.as_utc(datetime.datetime.utcnow())
-
-
-def build_bar(barMsg, identifier,frequency):
-    # "StartDate": "3/19/2014"
-    # "StartTime": "9:55:00 AM"
-    # "EndDate": "3/19/2014"
-    # "EndTime": "10:00:00 AM"
-    # "UTCOffset": 0
-    # "Open": 31.71
-    # "High": 31.71
-    # "Low": 31.68
-    # "Close": 31.69
-    # "Volume": 2966
-    # "Trades": 19
-    # "TWAP": 31.6929
-    # "VWAP": 31.693
-
-    #Note date/time is local time not market time
-    #Also for some weird reason IB is sending bars with finished in the date so why not just ignore
-
-    try:
-        startDateTime = datetime.datetime.fromtimestamp(int(barMsg.date)).strftime("%m/%d/%Y %I:%M:%S %p")
-    except:
-        return None
-
-    #instrument, exchange = api.parse_instrument_exchange(identifier)
-    #startDateTime = api.to_market_datetime(startDateTime, exchange)
-    print barMsg
-
-    return bar.BasicBar(startDateTime, float(barMsg.open), float(barMsg.high), float(barMsg.low), float(barMsg.close), int(barMsg.volume), None, frequency)
 
 
 def makeContract(contractTuple):
@@ -137,7 +107,7 @@ class LiveFeed(barfeed.BaseBarFeed):
             Note: That instrument numbers and frequency affect pacing rules. Keep it to 3 instruments with a 1 minute bar to avoid pacing. Daily hits could include as many as 60 instruments as the limit is 60 calls within a ten minute period. We make one request per instrument for the warmup bars and then one per instrument every frequency seconds. See here for more info on pacing - https://www.interactivebrokers.com/en/software/api/apiguide/tables/historical_data_limitations.htm
 
         '''
-        if self.__frequency not in [60,120,300,900,1800]:
+        if self.__frequency not in [60,120,300,900,1800,3600,86400]:
             raise Exception("Please use a frequency of 1,2,5,15,30,60 minutes or 1 day")
 
         #builds up a list of quotes
@@ -146,6 +116,8 @@ class LiveFeed(barfeed.BaseBarFeed):
 
         #keep track of latest timestamp on any bars for requesting next set
         self.__lastBarStamp = 0
+        self.__currentBarStamp = 0
+        self.__synchronised = False #have we synced to IB's bar pace yet?
 
         if debug == False:
             self.__debug = False
@@ -217,6 +189,51 @@ class LiveFeed(barfeed.BaseBarFeed):
         print "__init finished"
 
 
+    def __build_bar(self,barMsg, identifier,frequency):
+        # "StartDate": "3/19/2014"
+        # "StartTime": "9:55:00 AM"
+        # "EndDate": "3/19/2014"
+        # "EndTime": "10:00:00 AM"
+        # "UTCOffset": 0
+        # "Open": 31.71
+        # "High": 31.71
+        # "Low": 31.68
+        # "Close": 31.69
+        # "Volume": 2966
+        # "Trades": 19
+        # "TWAP": 31.6929
+        # "VWAP": 31.693
+
+        #Note date/time is local time not market time
+        #Also for some weird reason IB is sending bars with finished in the date so why not just ignore
+
+        ts = 0
+
+        try:
+            if len(barMsg.date) == 8:   #it's not a unix timestamp it's something like 20150812 (YYYYMMDD) which means this was a daily bar
+                date = datetime.datetime.strptime(barMsg.date,'%Y%m%d')
+
+                (offset, tz) = self.__marketCloseTime(self.__marketOptions['currency'])
+                date = date + offset
+                date = tz.localize(date)
+                print "date %s" % date
+                ts = int((date - datetime.datetime(1970,1,1,tzinfo=pytz.utc)).total_seconds()) #probably going to have timezone issues
+                print "ts %d" % ts
+
+            else:
+                ts = int(barMsg.date)
+            startDateTime = datetime.datetime.fromtimestamp(ts).strftime("%m/%d/%Y %I:%M:%S %p")
+            print barMsg
+            self.__currentBarStamp = ts
+            return bar.BasicBar(startDateTime, float(barMsg.open), float(barMsg.high), float(barMsg.low), float(barMsg.close), int(barMsg.volume), None, frequency)
+        except:
+            return None
+        
+        
+
+        
+
+
     def __requestWarmupBars(self):
         #work out what duration and barSize to use
 
@@ -286,6 +303,9 @@ class LiveFeed(barfeed.BaseBarFeed):
 
             print "requesting %s of data with a bar size of %s for %s using enddate of %s" % (lookbackDuration,barSize,self.__contracts[tickId], endDate)
             
+            #prevent race condition here with threading
+            lastBarTS = self.__lastBarStamp 
+
             self.__ib.reqHistoricalData(tickId,
                                           self.__contracts[tickId],
                                           '',
@@ -295,25 +315,29 @@ class LiveFeed(barfeed.BaseBarFeed):
                                           1,
                                           2)
             
-        #start the timer and do it all over again
-        self.__timer = threading.Timer(self.__frequency,self.__requestBars)
+        #start the timer and do it all over again 
+        if not self.__synchronised:
+            delay = self.__calculateSyncDelay(self.__lastBarStamp)
+            self.__synchronised = True
+        else:
+            delay = self.__frequency
+
+        self.__timer = threading.Timer(delay,self.__requestBars)
         self.__timer.start()
-        print "requested bars"
+        print "requesting bars in %d seconds." % (self.__frequency)
 
     def __debugHandler(self,msg):
         if self.__debug:
             print msg
 
     def __errorHandler(self,msg):
-        print("Could not contact IB API check connectivity")
+        print "IB Error: %s" % msg.errorMsg
+        #print("Could not contact IB API check connectivity")
 
     def __historicalBarsHandler(self,msg):
         '''
         deal with warmup bars first then switch to requesting real time bars. Make sure you deal with end of bars properly and cross fingers there's no loss of data
         '''
-
-
-
 
         #we get one stock per message here so we need to build a set of bars and only add to queue when all quotes received for all stocks
         #if we ever miss one this thing is going to completely out of whack and either not return anything or go out of order so we also need to be able to say
@@ -321,9 +345,7 @@ class LiveFeed(barfeed.BaseBarFeed):
         #print "stock: %s - time %s open %.2f hi %.2f, low %.2f close %.2f volume %.2f" % (self.__instruments[msg.reqId],msg.time, msg.open, msg.high,msg.low,msg.close,msg.volume)
         barDict = {}
 
-        stockBar = build_bar(msg, self.__instruments[msg.reqId],self.__frequency)
-
-    
+        stockBar = self.__build_bar(msg, self.__instruments[msg.reqId],self.__frequency) 
 
         if self.__inWarmup:
             print "warming up"
@@ -367,11 +389,22 @@ class LiveFeed(barfeed.BaseBarFeed):
                 #TODO - potentially we may need to use the last bar to work out the end date for the bars - last bar date + frequency 
                 self.__inWarmup = False
 
+                #sync ourselves to the server's pace
+                #and ensure we're requesting the bars as soon as they are available (10 second lag added on purpose to allow IB to catchup) rather than any lag caused by startup timing
+                
+                '''
+                if stockBar != None and int(msg.date) > self.__lastBarStamp:
+                    lastBarStamp = int(msg.date) 
+                else:
+                    lastBarStamp = self.__lastBarStamp
+                '''
 
+                delay = self.__calculateSyncDelay(self.__currentBarStamp)
+                self.__synchronised = True
 
-                self.__timer = threading.Timer(self.__frequency,self.__requestBars)
+                self.__timer = threading.Timer(delay,self.__requestBars)
                 self.__timer.start()
-                print "finished warmup and pushed all bars to queue - entering normal bar mode - requesting every %d frequency seconds" % self.__frequency
+                print "finished warmup and pushed all bars to queue - entering normal bar mode - requesting every %d frequency seconds with an initial delay of %d. Last bar was at %d and it is currently %d" % (self.__frequency,delay,self.__currentBarStamp, int(time.time()))
                 #print "not really - uncomment the line above"
 
             #no idea what to do if we missed the end message on the warmup - will never get past here
@@ -390,12 +423,28 @@ class LiveFeed(barfeed.BaseBarFeed):
                 self.__queue.put(bars)
                 self.__currentBar = {}
 
+    
         #keep lastBarStamp at latest unix timestamp so we can use it for the enddate of requesthistoricalbars call
         if stockBar != None and int(msg.date) > self.__lastBarStamp:
-            self.__lastBarStamp = int(msg.date)        
+            self.__lastBarStamp = int(msg.date)   
 
     ######################################################################
     # observer.Subject interface
+    def __calculateSyncDelay(self,lastBarTS):
+        now = int(time.time())
+        delay=0
+        if lastBarTS > 0:    
+            delay = ((lastBarTS + self.__frequency) - now) + 10
+        else:
+            delay = self.__frequency
+
+        return delay
+
+    #needed for daily bars so we can pick up at the next day's close returns timedelta and timezone
+    def __marketCloseTime(self,currency):
+        if currency == 'AUD':
+            return [datetime.timedelta(hours=16),pytz.timezone('Australia/Sydney')]
+
 
     def start(self):
         pass
@@ -422,6 +471,7 @@ class LiveFeed(barfeed.BaseBarFeed):
 
     def barsHaveAdjClose(self):
         return False
+
 
     #todo implement in IB
     def getNextBars(self):
