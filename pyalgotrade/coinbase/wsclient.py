@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-# Check https://docs.exchange.coinbase.com/
+# Coinbase protocol reference: Check https://docs.exchange.coinbase.com/
 
 import json
 
@@ -28,7 +28,7 @@ import pyalgotrade.logger
 from pyalgotrade.coinbase import messages
 
 
-logger = pyalgotrade.logger.getLogger("coinbase.wsclient")
+logger = pyalgotrade.logger.getLogger(__name__)
 
 
 class KeepAliveMgr(client.KeepAliveMgr):
@@ -39,14 +39,15 @@ class KeepAliveMgr(client.KeepAliveMgr):
         return False
 
 
-class WebSocketClientBase(client.WebSocketClientBase):
+class WebSocketClient(client.WebSocketClientBase):
     URL = "wss://ws-feed.exchange.coinbase.com"
     MAX_INACTIVITY = 120
+    PRODUCT_ID = "BTC-USD"
 
     def __init__(self):
-        super(WebSocketClientBase, self).__init__(WebSocketClientBase.URL)
+        super(WebSocketClient, self).__init__(WebSocketClient.URL)
         self.__last_sequence_nr = None
-        self.setKeepAliveMgr(KeepAliveMgr(self, WebSocketClientBase.MAX_INACTIVITY, 1))
+        self.setKeepAliveMgr(KeepAliveMgr(self, WebSocketClient.MAX_INACTIVITY, 0.1))
 
     def __checkSequenceMismatch(self, msgDict):
         sequence_nr = msgDict.get("sequence")
@@ -67,10 +68,9 @@ class WebSocketClientBase(client.WebSocketClientBase):
         self.send(json.dumps(msgDict))
 
     def onOpened(self):
-        logger.info("Connection opened.")
         self.sendJSON({
             "type": "subscribe",
-            "product_id": "BTC-USD"
+            "product_id": WebSocketClient.PRODUCT_ID
         })
 
     def onMessage(self, msgDict):
@@ -80,44 +80,41 @@ class WebSocketClientBase(client.WebSocketClientBase):
             self.onError(msgDict.get("message"))
         else:
             self.__checkSequenceMismatch(msgDict)
-            logger.info(msgDict)
 
             if msg_type == "received":
-                self.onReceived(messages.Received(msgDict))
+                self.onOrderReceived(messages.Received(msgDict))
             elif msg_type == "open":
-                self.onOpen(messages.Open(msgDict))
+                self.onOrderOpen(messages.Open(msgDict))
             elif msg_type == "done":
-                self.onDone(messages.Done(msgDict))
+                self.onOrderDone(messages.Done(msgDict))
             elif msg_type == "match":
-                self.onMatch(messages.Match(msgDict))
+                self.onOrderMatch(messages.Match(msgDict))
             elif msg_type == "change":
-                self.onChange(messages.Change(msgDict))
+                self.onOrderChange(messages.Change(msgDict))
             else:
                 self.onUnknownMessage(msgDict)
 
-    ######################################################################
-    # Coinbase specific
+    def onError(self, message):
+        logger.error(message)
+
+    def onUnknownMessage(self, msgDict):
+        logger.warning("Unknown message %s" % msgDict)
 
     def onSequenceMismatch(self, lastValidSequence, currentSequence):
         logger.warning("Sequence jumped from %s to %s" % (lastValidSequence, currentSequence))
 
-    def onUnknownMessage(self, msgDict):
-        logger.warning("Unknown message: %s" % (msgDict))
-
-    def onReceived(self, msg):
+    def onOrderReceived(self, msg):
         pass
 
-    def onOpen(self, msg):
+    def onOrderOpen(self, msg):
         pass
 
-    def onDone(self, msg):
+    def onOrderDone(self, msg):
         pass
 
-    def onMatch(self, msg):
+    def onOrderMatch(self, msg):
         pass
 
-    def onChange(self, msg):
+    def onOrderChange(self, msg):
         pass
 
-    def onError(self, message):
-        logger.error(message)
