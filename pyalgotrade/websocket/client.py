@@ -151,7 +151,10 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
         tornado.ioloop.IOLoop.instance().start()
 
     def stopClient(self):
-        self.close_connection()
+        try:
+            self.close_connection()
+        except Exception, e:
+            logger.warning("Failed to close connection")
 
     ######################################################################
     # Overrides

@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-# Check https://docs.exchange.coinbase.com/
+# Coinbase protocol reference: Check https://docs.exchange.coinbase.com/
 
 import common
 
@@ -42,10 +42,10 @@ class Received(Message):
         return self.getDict()["order_id"]
 
     def getSize(self):
-        return self.getDict()["size"]
+        return float(self.getDict()["size"])
 
     def getPrice(self):
-        return self.getDict()["price"]
+        return float(self.getDict()["price"])
 
     def getSide(self):
         return self.getDict()["side"]
@@ -56,7 +56,7 @@ class Open(Message):
         return self.getDict()["order_id"]
 
     def getPrice(self):
-        return self.getDict()["price"]
+        return float(self.getDict()["price"])
 
     def getRemainingSize(self):
         return self.getDict()["remaining_size"]
@@ -67,7 +67,7 @@ class Open(Message):
 
 class Done(Message):
     def getPrice(self):
-        return self.getDict()["price"]
+        return float(self.getDict()["price"])
 
     def getOrderId(self):
         return self.getDict()["order_id"]
@@ -79,7 +79,7 @@ class Done(Message):
         return self.getDict()["side"]
 
     def getRemainingSize(self):
-        return self.getDict()["remaining_size"]
+        return float(self.getDict()["remaining_size"])
 
 
 class Match(Message):
@@ -93,10 +93,10 @@ class Match(Message):
         return self.getDict()["taker_order_id"]
 
     def getSize(self):
-        return self.getDict()["size"]
+        return float(self.getDict()["size"])
 
     def getPrice(self):
-        return self.getDict()["price"]
+        return float(self.getDict()["price"])
 
     def getSide(self):
         return self.getDict()["side"]
@@ -107,13 +107,13 @@ class Change(Message):
         return self.getDict()["order_id"]
 
     def getNewSize(self):
-        return self.getDict()["new_size"]
+        return float(self.getDict()["new_size"])
 
     def getOldSize(self):
-        return self.getDict()["old_size"]
+        return float(self.getDict()["old_size"])
 
     def getPrice(self):
-        return self.getDict()["price"]
+        return float(self.getDict()["price"])
 
     def getSide(self):
         return self.getDict()["side"]

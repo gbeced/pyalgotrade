@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-# Check https://docs.exchange.coinbase.com/
+# Coinbase protocol reference: Check https://docs.exchange.coinbase.com/
 
 import logging
 logging.getLogger("requests").setLevel(logging.ERROR)
@@ -27,7 +27,7 @@ import requests
 import pyalgotrade.logger
 
 
-logger = pyalgotrade.logger.getLogger("coinbase.httpclient")
+logger = pyalgotrade.logger.getLogger(__name__)
 
 
 class OrderBookLevel(object):
