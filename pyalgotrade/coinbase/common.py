@@ -21,5 +21,8 @@
 import dateutil.parser
 
 
+btc_symbol = "BTC"
+
+
 def parse_timestamp(timestamp):
     return dateutil.parser.parse(timestamp)
