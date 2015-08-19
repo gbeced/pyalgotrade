@@ -61,7 +61,7 @@ setup(
         'TALib':  ["Cython", "TA-Lib"],
         'Plotting':  ["matplotlib"],
         'Bitstamp':  ["ws4py>=0.3.4", "tornado"],
-        'Coinbase':  ["ws4py>=0.3.4", "tornado"],
+        'Coinbase':  ["ws4py>=0.3.4", "tornado", "bintrees"],
         'Twitter':  ["tweepy"],
     },
 )
