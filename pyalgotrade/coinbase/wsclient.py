@@ -42,27 +42,27 @@ class KeepAliveMgr(client.KeepAliveMgr):
 class WebSocketClient(client.WebSocketClientBase):
     URL = "wss://ws-feed.exchange.coinbase.com"
     MAX_INACTIVITY = 120
-    PRODUCT_ID = "BTC-USD"
 
-    def __init__(self):
+    def __init__(self, productId):
         super(WebSocketClient, self).__init__(WebSocketClient.URL)
-        self.__last_sequence_nr = None
+        self.__productId = productId
+        self.__lastSequenceNr = None
         self.setKeepAliveMgr(KeepAliveMgr(self, WebSocketClient.MAX_INACTIVITY, 0.1))
 
     def __checkSequenceMismatch(self, msgDict):
         sequence_nr = msgDict.get("sequence")
         if sequence_nr is None:
             logger.error("Sequence missing in message %s" % msgDict)
-        elif self.__last_sequence_nr is None:
+        elif self.__lastSequenceNr is None:
             # This is for the first message received.
-            self.__last_sequence_nr = sequence_nr
-        elif sequence_nr > self.__last_sequence_nr:
-            diff = sequence_nr - self.__last_sequence_nr
+            self.__lastSequenceNr = sequence_nr
+        elif sequence_nr > self.__lastSequenceNr:
+            diff = sequence_nr - self.__lastSequenceNr
             if diff != 1:
-                self.onSequenceMismatch(self.__last_sequence_nr, sequence_nr)
-            self.__last_sequence_nr = sequence_nr
+                self.onSequenceMismatch(self.__lastSequenceNr, sequence_nr)
+            self.__lastSequenceNr = sequence_nr
         else:
-            self.onSequenceMismatch(self.__last_sequence_nr, sequence_nr)
+            self.onSequenceMismatch(self.__lastSequenceNr, sequence_nr)
 
     def sendJSON(self, msgDict):
         self.send(json.dumps(msgDict))
@@ -70,7 +70,7 @@ class WebSocketClient(client.WebSocketClientBase):
     def onOpened(self):
         self.sendJSON({
             "type": "subscribe",
-            "product_id": WebSocketClient.PRODUCT_ID
+            "product_id": self.__productId
         })
 
     def onMessage(self, msgDict):

@@ -67,6 +67,7 @@ setup(
         "tornado",
         "tweepy",
         "ws4py>=0.3.4",
+        "bintrees",
     ],
     extras_require={
         "TALib":  ["Cython", "TA-Lib"],

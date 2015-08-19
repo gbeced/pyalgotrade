@@ -95,8 +95,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     """
 
     def __init__(self, coinbaseClient, maxLen=dataseries.DEFAULT_MAX_LEN):
-        if not isinstance(maxLen, int):
-            raise Exception("Invalid type for maxLen parameter")
+        assert isinstance(maxLen, int)
 
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__bars = []
