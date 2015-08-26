@@ -59,7 +59,7 @@ class Open(Message):
         return float(self.getDict()["price"])
 
     def getRemainingSize(self):
-        return self.getDict()["remaining_size"]
+        return float(self.getDict()["remaining_size"])
 
     def getSide(self):
         return self.getDict()["side"]
@@ -80,6 +80,9 @@ class Done(Message):
 
     def getRemainingSize(self):
         return float(self.getDict()["remaining_size"])
+
+    def hasSize(self):
+        return float(self.getDict().get("remaining_size", 0.0)) > 0
 
 
 class Match(Message):

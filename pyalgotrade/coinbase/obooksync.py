@@ -52,6 +52,10 @@ class PriceLevelList(object):
         self.__ascOrder = ascOrder
         self.__values = bintrees.FastRBTree()
 
+    def addFromOrderBookLevels(self, orderBookLevels):
+        for orderBookLevel in orderBookLevels:
+            self.add(orderBookLevel.getPrice(), orderBookLevel.getSize())
+
     def add(self, price, size):
         level = self.__values.set_default(price, PriceLevel(price))
         level.add(size)
@@ -77,18 +81,77 @@ class OrderBookSync(object):
         self.__lastSequenceNr = orderBook.getSequence()
         self.__bids = PriceLevelList(False)
         self.__asks = PriceLevelList(True)
+        self.__bids.addFromOrderBookLevels(orderBook.getBids())
+        self.__asks.addFromOrderBookLevels(orderBook.getAsks())
+        self.__inOrderBook = bintrees.FastRBTree()
+
+        # Load order ids.
+        for side in ["bids", "asks"]:
+            for order_info in orderBook.getDict()[side]:
+                order_id = order_info[2]
+                self.__inOrderBook.set_default(order_id, True)
+
+    def __checkMsgSequence(self, msg):
+        ret = False
+        if msg.getSequence() > self.__lastSequenceNr:
+            self.__lastSequenceNr = msg.getSequence()
+            ret = True
+        return ret
+
+    def __getList(self, side):
+        assert side in ["buy", "sell"]
+        if side == "buy":
+            return self.__bids
+        else:
+            return self.__asks
+
+    def getBids(self):
+        return self.__bids
+
+    def getAsks(self):
+        return self.__asks
 
     def onOrderReceived(self, msg):
-        pass
+        self.__checkMsgSequence(msg)
 
     def onOrderOpen(self, msg):
-        pass
+        ret = False
+        if self.__checkMsgSequence(msg):
+            self.__inOrderBook.set_default(msg.getOrderId(), True)
+
+            size = msg.getRemainingSize()
+            price = msg.getPrice()
+            self.__getList(msg.getSide()).add(price, size)
+            ret = True
+        return ret
 
     def onOrderDone(self, msg):
-        pass
+        ret = False
+        if self.__checkMsgSequence(msg) and msg.hasSize():
+            # assert self.__inOrderBook.get(msg.getOrderId()) is True
+            self.__inOrderBook.discard(msg.getOrderId())
+
+            size = msg.getRemainingSize()
+            price = msg.getPrice()
+            self.__getList(msg.getSide()).remove(price, size)
+            ret = True
+        return ret
 
     def onOrderMatch(self, msg):
-        pass
+        ret = False
+        if self.__checkMsgSequence(msg):
+            size = msg.getSize()
+            price = msg.getPrice()
+            self.__getList(msg.getSide()).remove(price, size)
+            ret = True
+        return ret
 
     def onOrderChange(self, msg):
-        pass
+        ret = False
+        if self.__checkMsgSequence(msg) and self.__inOrderBook.get(msg.getOrderId()) is True:
+            size = msg.getOldSize() - msg.getNewSize()
+            if size > 0:
+                price = msg.getPrice()
+                self.__getList(msg.getSide()).remove(price, size)
+                ret = True
+        return ret

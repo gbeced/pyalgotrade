@@ -144,3 +144,8 @@ class PriveLevelListTestCase(unittest.TestCase):
 
     def testAsksRandomValues(self):
         self.__testRandomValuesImpl(True)
+
+    def testInvalidRemoveFails(self):
+        levelList = obooksync.PriceLevelList(True)
+        with self.assertRaisesRegexp(AssertionError, "No price level for 10"):
+            levelList.remove(10, 1)

@@ -35,13 +35,10 @@ class OrderBookLevel(object):
         self.__values = values
 
     def getPrice(self):
-        return self.__values[0]
+        return float(self.__values[0])
 
     def getSize(self):
-        return self.__values[1]
-
-    def getNumOrders(self):
-        return self.__values[2]
+        return float(self.__values[1])
 
 
 class OrderBook(object):
