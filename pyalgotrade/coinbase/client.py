@@ -26,31 +26,10 @@ from pyalgotrade import observer
 import pyalgotrade.logger
 from pyalgotrade.coinbase import httpclient
 from pyalgotrade.coinbase import wsclient
+from pyalgotrade.coinbase import obooksync
+
 
 logger = pyalgotrade.logger.getLogger(__name__)
-
-
-# https://docs.exchange.coinbase.com/#real-time-order-book
-class OrderBookSync(object):
-    def __init__(self, orderBook):
-        self.__lastSequenceNr = orderBook.getSequence()
-        self.__bids = []
-        self.__asks = []
-
-    def onOrderReceived(self, msg):
-        pass
-
-    def onOrderOpen(self, msg):
-        pass
-
-    def onOrderDone(self, msg):
-        pass
-
-    def onOrderMatch(self, msg):
-        pass
-
-    def onOrderChange(self, msg):
-        pass
 
 
 class WebSocketClient(wsclient.WebSocketClient):
@@ -137,6 +116,13 @@ class WebSocketClientThread(threading.Thread):
 class Client(observer.Subject):
     QUEUE_TIMEOUT = 0.01
     WAIT_CONNECT_POLL_FREQUENCY = 0.5
+    ORDER_BOOK_EVENT_DISPATCH = {
+        WebSocketClient.Event.ORDER_MATCH: obooksync.OrderBookSync.onOrderMatch,
+        WebSocketClient.Event.ORDER_RECEIVED: obooksync.OrderBookSync.onOrderReceived,
+        WebSocketClient.Event.ORDER_OPEN: obooksync.OrderBookSync.onOrderOpen,
+        WebSocketClient.Event.ORDER_DONE: obooksync.OrderBookSync.onOrderDone,
+        WebSocketClient.Event.ORDER_CHANGE: obooksync.OrderBookSync.onOrderChange,
+    }
 
     def __init__(self, productId="BTC-USD"):
         self.__productId = productId
@@ -146,6 +132,7 @@ class Client(observer.Subject):
         self.__orderBookEvents = observer.Event()
         self.__wsClientThread = None
         self.__lastSeqNr = 0
+        self.__oBookSync = None
 
     def __connectWS(self, retry):
         assert self.__wsClientThread is None
@@ -158,20 +145,38 @@ class Client(observer.Subject):
             if self.__wsClientThread.isConnected() or not retry:
                 break
 
-    def __refreshOrderBook(self):
-        pass
+    def refreshOrderBook(self):
+        logger.info("Refreshing order book...")
+        obook = self.__httpClient.getOrderBook(product=self.__productId, level=3)
+        self.__oBookSync = obooksync.OrderBookSync(obook)
+        logger.info("Finished refreshing order book")
 
     def __onConnected(self):
+        self.refreshOrderBook()
         # TODO: Generate an event so broker can refresh.
-        pass
 
     def __onDisconnected(self):
         if not self.__stopped:
             self.__wsClientThread = None
+            self.__oBookSync = None
             self.__connectWS(True)
+
+    def __onSeqNrMismatch(self):
+        self.refreshOrderBook()
 
     def __onOrderEvent(self, eventType, eventData):
         self.__orderEvents.emit(eventData)
+
+        # Update order book
+        method = Client.ORDER_BOOK_EVENT_DISPATCH.get(eventType)
+        assert method is not None
+        updated = method(self.__oBookSync, eventData)
+        if updated:
+            print "Order book updated"
+            asks = self.__oBookSync.getAsks().getValues(maxValues=1)
+            bids = self.__oBookSync.getBids().getValues(maxValues=1)
+            print "Asks:", asks[0].getSize(), asks[0].getPrice()
+            print "Bids:", bids[0].getSize(), bids[0].getPrice()
 
     def getHTTPClient(self):
         return self.__httpClient
@@ -222,7 +227,7 @@ class Client(observer.Subject):
             ]:
                 self.__onOrderEvent(eventType, eventData)
             elif eventType == WebSocketClient.Event.SEQ_NR_MISMATCH:
-                pass
+                self.__onSeqNrMismatch()
             else:
                 logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
                 ret = False
