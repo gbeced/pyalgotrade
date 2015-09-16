@@ -81,7 +81,7 @@ class Done(Message):
     def getRemainingSize(self):
         return float(self.getDict()["remaining_size"])
 
-    def hasSize(self):
+    def hasRemainingSize(self):
         return float(self.getDict().get("remaining_size", 0.0)) > 0
 
 

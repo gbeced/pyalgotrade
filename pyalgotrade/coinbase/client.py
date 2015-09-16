@@ -32,6 +32,27 @@ from pyalgotrade.coinbase import obooksync
 logger = pyalgotrade.logger.getLogger(__name__)
 
 
+def pricelevels_to_obooklevels(priceLevels, maxValues):
+    return map(
+        lambda level: httpclient.OrderBookLevel((level.getPrice(), level.getSize())),
+        priceLevels.getValues(maxValues=maxValues)
+    )
+
+
+class RealTimeOrderBook(object):
+    def __init__(self, orderBookSync):
+        self.__orderBookSync = orderBookSync
+
+    def getSequence(self):
+        return self.__orderBookSync.getSequence()
+
+    def getBids(self, maxValues=20):
+        return pricelevels_to_obooklevels(self.__orderBookSync.getBids(), maxValues)
+
+    def getAsks(self, maxValues=20):
+        return pricelevels_to_obooklevels(self.__orderBookSync.getAsks(), maxValues)
+
+
 class WebSocketClient(wsclient.WebSocketClient):
     class Event:
         CONNECTED = 1
@@ -172,11 +193,7 @@ class Client(observer.Subject):
         assert method is not None
         updated = method(self.__oBookSync, eventData)
         if updated:
-            print "Order book updated"
-            asks = self.__oBookSync.getAsks().getValues(maxValues=1)
-            bids = self.__oBookSync.getBids().getValues(maxValues=1)
-            print "Asks:", asks[0].getSize(), asks[0].getPrice()
-            print "Bids:", bids[0].getSize(), bids[0].getPrice()
+            self.__orderBookEvents.emit(RealTimeOrderBook(self.__oBookSync))
 
     def getHTTPClient(self):
         return self.__httpClient
