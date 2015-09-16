@@ -21,8 +21,11 @@
 import unittest
 import time
 import random
+import json
 
 from pyalgotrade.coinbase import obooksync
+from pyalgotrade.coinbase import httpclient
+from pyalgotrade.coinbase import messages
 
 
 class PriceLevelTestCase(unittest.TestCase):
@@ -56,7 +59,7 @@ class PriceLevelTestCase(unittest.TestCase):
         self.assertTrue(level.isEmpty(), "using seed %s" % (seed))
 
 
-class PriveLevelListTestCase(unittest.TestCase):
+class PriceLevelListTestCase(unittest.TestCase):
     def testBidsOneLevel(self):
         bids = obooksync.PriceLevelList(False)
 
@@ -149,3 +152,48 @@ class PriveLevelListTestCase(unittest.TestCase):
         levelList = obooksync.PriceLevelList(True)
         with self.assertRaisesRegexp(AssertionError, "No price level for 10"):
             levelList.remove(10, 1)
+
+
+class OrderBookSyncTestCase(unittest.TestCase):
+    def __loadOrderBook(self, jsonFileName):
+        with open(jsonFileName, "r") as f:
+            return httpclient.OrderBook(json.loads(f.read()))
+
+    def __comparePriceLevelList(self, first, second):
+        maxValues = 10000
+        valuesFirst = first.getValues(maxValues=maxValues)
+        valuesSecond = second.getValues(maxValues=maxValues)
+        self.assertEqual(len(valuesFirst), len(valuesSecond))
+        for i in range(len(valuesFirst)):
+            self.assertEqual(valuesFirst[i].getPrice(), valuesSecond[i].getPrice())
+            self.assertEqual(valuesFirst[i].getSize(), valuesSecond[i].getSize())
+
+    def __compareOrderBookSync(self, first, second):
+        self.__comparePriceLevelList(first.getAsks(), second.getAsks())
+        self.__comparePriceLevelList(first.getBids(), second.getBids())
+
+    def testOrderBookEventsSync(self):
+        # Load starting order book and replay events.
+        obookSync = obooksync.OrderBookSync(self.__loadOrderBook("coinbase_obook_begin.json"))
+        with open("coinbase_messages.json", "r") as f:
+            for line in f:
+                line = line.strip()
+                msgDict = json.loads(line)
+                msg_type = msgDict.get("type")
+                if msg_type == "received":
+                    obookSync.onOrderReceived(messages.Received(msgDict))
+                elif msg_type == "open":
+                    obookSync.onOrderOpen(messages.Open(msgDict))
+                elif msg_type == "done":
+                    obookSync.onOrderDone(messages.Done(msgDict))
+                elif msg_type == "match":
+                    obookSync.onOrderMatch(messages.Match(msgDict))
+                elif msg_type == "change":
+                    obookSync.onOrderChange(messages.Change(msgDict))
+                else:
+                    self.assertTrue(False, "Unknown message type")
+
+        # Compare to final order book.
+        expectedOBookSync = obooksync.OrderBookSync(self.__loadOrderBook("coinbase_obook_end.json"))
+        self.__compareOrderBookSync(obookSync, expectedOBookSync)
+

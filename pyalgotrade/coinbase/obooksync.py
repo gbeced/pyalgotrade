@@ -94,6 +94,7 @@ class OrderBookSync(object):
     def __checkMsgSequence(self, msg):
         ret = False
         if msg.getSequence() > self.__lastSequenceNr:
+            assert msg.getSequence() - 1 == self.__lastSequenceNr
             self.__lastSequenceNr = msg.getSequence()
             ret = True
         return ret
@@ -105,6 +106,9 @@ class OrderBookSync(object):
         else:
             return self.__asks
 
+    def getSequence(self):
+        return self.__lastSequenceNr
+
     def getBids(self):
         return self.__bids
 
@@ -112,6 +116,8 @@ class OrderBookSync(object):
         return self.__asks
 
     def onOrderReceived(self, msg):
+        # The received message does not indicate a resting order on the order book.
+        # It simply indicates a new incoming order which as been accepted by the matching engine for processing.
         self.__checkMsgSequence(msg)
 
     def onOrderOpen(self, msg):
@@ -127,14 +133,15 @@ class OrderBookSync(object):
 
     def onOrderDone(self, msg):
         ret = False
-        if self.__checkMsgSequence(msg) and msg.hasSize():
-            # assert self.__inOrderBook.get(msg.getOrderId()) is True
-            self.__inOrderBook.discard(msg.getOrderId())
+        if self.__checkMsgSequence(msg):
+            inOrderBook = self.__inOrderBook.get(msg.getOrderId())
 
-            size = msg.getRemainingSize()
-            price = msg.getPrice()
-            self.__getList(msg.getSide()).remove(price, size)
-            ret = True
+            if inOrderBook and msg.hasRemainingSize():
+                self.__inOrderBook.discard(msg.getOrderId())
+                size = msg.getRemainingSize()
+                price = msg.getPrice()
+                self.__getList(msg.getSide()).remove(price, size)
+                ret = True
         return ret
 
     def onOrderMatch(self, msg):
