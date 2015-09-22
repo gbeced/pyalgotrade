@@ -26,6 +26,7 @@ import json
 from pyalgotrade.coinbase import obooksync
 from pyalgotrade.coinbase import httpclient
 from pyalgotrade.coinbase import messages
+import common
 
 
 class PriceLevelTestCase(unittest.TestCase):
@@ -174,8 +175,10 @@ class OrderBookSyncTestCase(unittest.TestCase):
 
     def testOrderBookEventsSync(self):
         # Load starting order book and replay events.
-        obookSync = obooksync.OrderBookSync(self.__loadOrderBook("coinbase_obook_begin.json"))
-        with open("coinbase_messages.json", "r") as f:
+        obookSync = obooksync.OrderBookSync(self.__loadOrderBook(
+            common.get_data_file_path("coinbase_obook_begin.json"))
+        )
+        with open(common.get_data_file_path("coinbase_messages.json"), "r") as f:
             for line in f:
                 line = line.strip()
                 msgDict = json.loads(line)
@@ -194,6 +197,7 @@ class OrderBookSyncTestCase(unittest.TestCase):
                     self.assertTrue(False, "Unknown message type")
 
         # Compare to final order book.
-        expectedOBookSync = obooksync.OrderBookSync(self.__loadOrderBook("coinbase_obook_end.json"))
+        expectedOBookSync = obooksync.OrderBookSync(
+            self.__loadOrderBook(common.get_data_file_path("coinbase_obook_end.json"))
+        )
         self.__compareOrderBookSync(obookSync, expectedOBookSync)
-

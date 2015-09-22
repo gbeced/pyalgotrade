@@ -22,13 +22,8 @@
 
 import json
 
-import pyalgotrade
 from pyalgotrade.websocket import client
-import pyalgotrade.logger
 from pyalgotrade.coinbase import messages
-
-
-logger = pyalgotrade.logger.getLogger(__name__)
 
 
 class KeepAliveMgr(client.KeepAliveMgr):
@@ -43,17 +38,16 @@ class WebSocketClient(client.WebSocketClientBase):
     URL = "wss://ws-feed.exchange.coinbase.com"
     MAX_INACTIVITY = 120
 
-    def __init__(self, productId):
-        super(WebSocketClient, self).__init__(WebSocketClient.URL)
+    def __init__(self, productId, url=URL):
+        super(WebSocketClient, self).__init__(url)
         self.__productId = productId
         self.__lastSequenceNr = None
         self.setKeepAliveMgr(KeepAliveMgr(self, WebSocketClient.MAX_INACTIVITY, 0.1))
 
     def __checkSequenceMismatch(self, msgDict):
         sequence_nr = msgDict.get("sequence")
-        if sequence_nr is None:
-            logger.error("Sequence missing in message %s" % msgDict)
-        elif self.__lastSequenceNr is None:
+        assert sequence_nr is not None, "Sequence number is missing"
+        if self.__lastSequenceNr is None:
             # This is for the first message received.
             self.__lastSequenceNr = sequence_nr
         elif sequence_nr > self.__lastSequenceNr:
@@ -94,14 +88,14 @@ class WebSocketClient(client.WebSocketClientBase):
             else:
                 self.onUnknownMessage(msgDict)
 
-    def onError(self, message):
-        logger.error(message)
+    def onError(self, errorMsg):
+        pass
 
     def onUnknownMessage(self, msgDict):
-        logger.warning("Unknown message %s" % msgDict)
+        pass
 
     def onSequenceMismatch(self, lastValidSequence, currentSequence):
-        logger.warning("Sequence jumped from %s to %s" % (lastValidSequence, currentSequence))
+        pass
 
     def onOrderReceived(self, msg):
         pass

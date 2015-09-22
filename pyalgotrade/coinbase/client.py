@@ -64,8 +64,8 @@ class WebSocketClient(wsclient.WebSocketClient):
         ORDER_CHANGE = 7
         SEQ_NR_MISMATCH = 8
 
-    def __init__(self, productId):
-        super(WebSocketClient, self).__init__(productId)
+    def __init__(self, productId, url):
+        super(WebSocketClient, self).__init__(productId, url)
         self.__queue = Queue.Queue()
 
     def getQueue(self):
@@ -78,6 +78,7 @@ class WebSocketClient(wsclient.WebSocketClient):
 
     def onClosed(self, code, reason):
         logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
     def onDisconnectionDetected(self):
         logger.warning("Disconnection detected.")
@@ -87,8 +88,14 @@ class WebSocketClient(wsclient.WebSocketClient):
     ######################################################################
     # Coinbase specific
 
+    def onError(self, errorMsg):
+        logger.error(errorMsg)
+
+    def onUnknownMessage(self, msgDict):
+        logger.warning("Unknown message %s" % msgDict)
+
     def onSequenceMismatch(self, lastValidSequence, currentSequence):
-        super(WebSocketClient, self).onSequenceMismatch()
+        logger.warning("Sequence jumped from %s to %s" % (lastValidSequence, currentSequence))
         self.__queue.put((WebSocketClient.Event.SEQ_NR_MISMATCH, currentSequence))
 
     def onOrderReceived(self, msg):
@@ -108,9 +115,9 @@ class WebSocketClient(wsclient.WebSocketClient):
 
 
 class WebSocketClientThread(threading.Thread):
-    def __init__(self, productId):
+    def __init__(self, productId, url):
         threading.Thread.__init__(self)
-        self.__wsClient = WebSocketClient(productId)
+        self.__wsClient = WebSocketClient(productId, url)
 
     def isConnected(self):
         return self.__wsClient.isConnected()
@@ -145,21 +152,20 @@ class Client(observer.Subject):
         WebSocketClient.Event.ORDER_CHANGE: obooksync.OrderBookSync.onOrderChange,
     }
 
-    def __init__(self, productId="BTC-USD"):
+    def __init__(self, productId="BTC-USD", wsURL=wsclient.WebSocketClient.URL, apiURL=httpclient.HTTPClient.API_URL):
         self.__productId = productId
         self.__stopped = False
-        self.__httpClient = httpclient.HTTPClient()
+        self.__httpClient = httpclient.HTTPClient(apiURL)
         self.__orderEvents = observer.Event()
         self.__orderBookEvents = observer.Event()
         self.__wsClientThread = None
         self.__lastSeqNr = 0
         self.__oBookSync = None
+        self.__wsURL = wsURL
 
     def __connectWS(self, retry):
-        assert self.__wsClientThread is None
-
         while True:
-            self.__wsClientThread = WebSocketClientThread(self.__productId)
+            self.__wsClientThread = WebSocketClientThread(self.__productId, self.__wsURL)
             self.__wsClientThread.start()
             while self.__wsClientThread.is_alive() and not self.__wsClientThread.isConnected():
                 time.sleep(Client.WAIT_CONNECT_POLL_FREQUENCY)
@@ -167,19 +173,19 @@ class Client(observer.Subject):
                 break
 
     def refreshOrderBook(self):
-        logger.info("Refreshing order book...")
+        logger.info("Retrieving order book...")
         obook = self.__httpClient.getOrderBook(product=self.__productId, level=3)
         self.__oBookSync = obooksync.OrderBookSync(obook)
-        logger.info("Finished refreshing order book")
+        logger.info("Finished retrieving order book")
 
     def __onConnected(self):
         self.refreshOrderBook()
-        # TODO: Generate an event so broker can refresh.
 
     def __onDisconnected(self):
+        logger.info("Waiting for websocket client to finish.")
+        self.__wsClientThread.join()
+        logger.info("Done")
         if not self.__stopped:
-            self.__wsClientThread = None
-            self.__oBookSync = None
             self.__connectWS(True)
 
     def __onSeqNrMismatch(self):
@@ -214,8 +220,8 @@ class Client(observer.Subject):
 
     def stop(self):
         if self.__wsClientThread is not None:
-            self.__wsClientThread.stop()
             self.__stopped = True
+            self.__wsClientThread.stop()
 
     def join(self):
         if self.__wsClientThread is not None:

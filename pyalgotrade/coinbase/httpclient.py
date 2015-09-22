@@ -59,16 +59,19 @@ class OrderBook(object):
 
 
 class HTTPClient(object):
+    API_URL = "https://api.exchange.coinbase.com"
     USER_AGENT = "PyAlgoTrade"
     REQUEST_TIMEOUT = 30
-    API_URL = "https://api.exchange.coinbase.com"
+
+    def __init__(self, url=API_URL):
+        self.__url = url
 
     def _get(self, path, url_params):
         headers = {}
         headers["User-Agent"] = HTTPClient.USER_AGENT
         headers["Content-Type"] = "application/json"
 
-        url = HTTPClient.API_URL + path
+        url = self.__url + path
         response = requests.get(url, headers=headers, params=url_params, timeout=HTTPClient.REQUEST_TIMEOUT)
         response.raise_for_status()
         return response
