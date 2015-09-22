@@ -136,13 +136,15 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
         self.onOpened()
 
     def closed(self, code, reason=None):
+        wasConnected = self.__connected
         self.__connected = False
         if self.__keepAliveMgr:
             self.__keepAliveMgr.stop()
             self.__keepAliveMgr = None
         tornado.ioloop.IOLoop.instance().stop()
 
-        self.onClosed(code, reason)
+        if wasConnected:
+            self.onClosed(code, reason)
 
     def isConnected(self):
         return self.__connected
