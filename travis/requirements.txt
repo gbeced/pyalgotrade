@@ -5,3 +5,4 @@ matplotlib
 ws4py
 tornado
 tweepy
+bintrees
