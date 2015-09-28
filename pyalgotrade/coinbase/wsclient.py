@@ -88,27 +88,27 @@ class WebSocketClient(client.WebSocketClientBase):
             else:
                 self.onUnknownMessage(msgDict)
 
-    def onError(self, errorMsg):
+    def onError(self, errorMsg): # pragma: no cover
         pass
 
-    def onUnknownMessage(self, msgDict):
+    def onUnknownMessage(self, msgDict): # pragma: no cover
         pass
 
-    def onSequenceMismatch(self, lastValidSequence, currentSequence):
+    def onSequenceMismatch(self, lastValidSequence, currentSequence): # pragma: no cover
         pass
 
-    def onOrderReceived(self, msg):
+    def onOrderReceived(self, msg): # pragma: no cover
         pass
 
-    def onOrderOpen(self, msg):
+    def onOrderOpen(self, msg): # pragma: no cover
         pass
 
-    def onOrderDone(self, msg):
+    def onOrderDone(self, msg): # pragma: no cover
         pass
 
-    def onOrderMatch(self, msg):
+    def onOrderMatch(self, msg): # pragma: no cover
         pass
 
-    def onOrderChange(self, msg):
+    def onOrderChange(self, msg): # pragma: no cover
         pass
 
