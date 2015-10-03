@@ -96,6 +96,17 @@ class Order(object):
         SELL = 3
         SELL_SHORT = 4
 
+        @classmethod
+        def toString(cls, action):
+            if action == cls.BUY:
+                return "BUY"
+            elif action == cls.BUY_TO_COVER:
+                return "BUY_TO_COVER"
+            elif action == cls.SELL:
+                return "SELL"
+            elif action == cls.SELL_SHORT:
+                return "SELL_SHORT"
+
     class State(object):
         INITIAL = 1  # Initial state.
         SUBMITTED = 2  # Order has been submitted.
@@ -126,6 +137,17 @@ class Order(object):
         LIMIT = 2
         STOP = 3
         STOP_LIMIT = 4
+
+        @classmethod
+        def toString(cls, type):
+            if type == cls.MARKET:
+                return "MARKET"
+            elif type == cls.LIMIT:
+                return "LIMIT"
+            elif type == cls.STOP:
+                return "STOP"
+            elif type == cls.STOP_LIMIT:
+                return "STOP_LIMIT"
 
     # Valid state transitions.
     VALID_TRANSITIONS = {
