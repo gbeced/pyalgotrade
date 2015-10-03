@@ -367,10 +367,10 @@ class Broker(broker.Broker):
             # Notify the order update
             if order.isFilled():
                 self._unregisterOrder(order)
-                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.FILLED, orderExecutionInfo))
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.FILLED, orderExecutionInfo, self._getCurrentDateTime()))
             elif order.isPartiallyFilled():
                 self.notifyOrderEvent(
-                    broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo)
+                    broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo, self._getCurrentDateTime())
                 )
             else:
                 assert(False)
@@ -405,7 +405,7 @@ class Broker(broker.Broker):
                 ret = False
                 self._unregisterOrder(order)
                 order.switchState(broker.Order.State.CANCELED)
-                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired", self._getCurrentDateTime()))
 
         return ret
 
@@ -421,7 +421,7 @@ class Broker(broker.Broker):
             if expired:
                 self._unregisterOrder(order)
                 order.switchState(broker.Order.State.CANCELED)
-                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired", self._getCurrentDateTime()))
 
     def __processOrder(self, order, bar_):
         if not self.__preProcessOrder(order, bar_):
@@ -444,7 +444,7 @@ class Broker(broker.Broker):
             if order.isSubmitted():
                 order.setAcceptedDateTime(bar_.getDateTime())
                 order.switchState(broker.Order.State.ACCEPTED)
-                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.ACCEPTED, None))
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.ACCEPTED, None, self._getCurrentDateTime()))
 
             if order.isActive():
                 # This may trigger orders to be added/removed from __activeOrders.
@@ -517,5 +517,5 @@ class Broker(broker.Broker):
         self._unregisterOrder(activeOrder)
         activeOrder.switchState(broker.Order.State.CANCELED)
         self.notifyOrderEvent(
-            broker.OrderEvent(activeOrder, broker.OrderEvent.Type.CANCELED, "User requested cancellation")
+            broker.OrderEvent(activeOrder, broker.OrderEvent.Type.CANCELED, "User requested cancellation", self._getCurrentDateTime())
         )
