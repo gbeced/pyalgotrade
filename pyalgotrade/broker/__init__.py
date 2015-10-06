@@ -140,14 +140,14 @@ class Order(object):
         STOP_LIMIT = 4
 
         @classmethod
-        def toString(cls, type):
-            if type == cls.MARKET:
+        def toString(cls, val):
+            if val == cls.MARKET:
                 return "MARKET"
-            elif type == cls.LIMIT:
+            elif val == cls.LIMIT:
                 return "LIMIT"
-            elif type == cls.STOP:
+            elif val == cls.STOP:
                 return "STOP"
-            elif type == cls.STOP_LIMIT:
+            elif val == cls.STOP_LIMIT:
                 return "STOP_LIMIT"
 
     # Valid state transitions.
@@ -482,14 +482,14 @@ class OrderEvent(object):
         FILLED = 4  # Order has been completely filled.
 
         @classmethod
-        def toString(cls, type):
-            if type == ACCEPTED: 
+        def toString(cls, val):
+            if val == cls.ACCEPTED: 
                 return "ACCEPTED"
-            elif type == CANCELED:
+            elif val == cls.CANCELED:
                 return "CANCELLED"
-            elif type == PARTIALLY_FILLED: 
+            elif val == cls.PARTIALLY_FILLED: 
                 return "PARTIALLY_FILLED"
-            elif type == FILLED:
+            elif val == cls.FILLED:
                 return "FILLED"
 
     def __init__(self, order, eventyType, eventInfo, timestamp = datetime.now().time()):
