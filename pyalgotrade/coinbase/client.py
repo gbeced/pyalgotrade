@@ -118,6 +118,10 @@ class WebSocketClientThread(threading.Thread):
     def __init__(self, productId, url):
         threading.Thread.__init__(self)
         self.__wsClient = WebSocketClient(productId, url)
+        self.__runEvent = threading.Event()
+
+    def waitRunning(self, timeout):
+        return self.__runEvent.wait(timeout)
 
     def isConnected(self):
         return self.__wsClient.isConnected()
@@ -128,9 +132,10 @@ class WebSocketClientThread(threading.Thread):
     def start(self):
         logger.info("Connecting websocket client.")
         self.__wsClient.connect()
-        threading.Thread.start(self)
+        super(WebSocketClientThread, self).start()
 
     def run(self):
+        self.__runEvent.set()
         self.__wsClient.startClient()
 
     def stop(self):
@@ -165,10 +170,16 @@ class Client(observer.Subject):
 
     def __connectWS(self, retry):
         while True:
+            # Start the client thread and wait a couple of seconds seconds until it starts running
             self.__wsClientThread = WebSocketClientThread(self.__productId, self.__wsURL)
             self.__wsClientThread.start()
+            self.__wsClientThread.waitRunning(5)
+
+            # While the thread is alive, wait until it gets connected.
             while self.__wsClientThread.is_alive() and not self.__wsClientThread.isConnected():
                 time.sleep(Client.WAIT_CONNECT_POLL_FREQUENCY)
+
+            # Check if the thread is not connected and we should retry.
             if self.__wsClientThread.isConnected() or not retry:
                 break
 
@@ -219,9 +230,12 @@ class Client(observer.Subject):
             raise Exception("Failed to connect websocket client")
 
     def stop(self):
-        if self.__wsClientThread is not None:
-            self.__stopped = True
-            self.__wsClientThread.stop()
+        try:
+            if self.__wsClientThread is not None:
+                self.__stopped = True
+                self.__wsClientThread.stop()
+        except Exception:
+            logger.exception("Error stopping client thread")
 
     def join(self):
         if self.__wsClientThread is not None:
