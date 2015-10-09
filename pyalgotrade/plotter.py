@@ -19,7 +19,7 @@
 """
 
 import collections
-
+import  numpy as np
 import broker
 
 import matplotlib.pyplot as plt
@@ -74,11 +74,17 @@ class Series(object):
     def needColor(self):
         raise NotImplementedError()
 
-    def plot(self, mplSubplot, dateTimes, color):
+
+
+    def plot(self, mplSubplot, dateTimes, ind, color):
         values = []
         for dateTime in dateTimes:
             values.append(self.getValue(dateTime))
-        mplSubplot.plot(dateTimes, values, color=color, marker=self.getMarker())
+        mplSubplot.plot(ind, values, color=color, marker=self.getMarker())
+        def format_date(x, pos=None):
+            thisind = np.clip(int(x+0.5), 0, len(dateTimes)-1)
+            return dateTimes[thisind].strftime('%Y-%m-%d %H:%M:%S')
+        mplSubplot.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
 
 
 class BuyMarker(Series):
@@ -264,12 +270,12 @@ class Subplot(object):
         # Don't scale the Y axis
         mplSubplot.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
 
-    def plot(self, mplSubplot, dateTimes):
+    def plot(self, mplSubplot, dateTimes, ind):
         for series in self.__series.values():
             color = None
             if series.needColor():
                 color = self.__getColor(series)
-            series.plot(mplSubplot, dateTimes, color)
+            series.plot(mplSubplot, dateTimes, ind, color)
 
         # Legend
         mplSubplot.legend(self.__series.keys(), shadow=True, loc="best")
@@ -399,6 +405,13 @@ class StrategyPlotter(object):
     def __buildFigureImpl(self, fromDateTime=None, toDateTime=None):
         dateTimes = _filter_datetimes(self.__dateTimes, fromDateTime, toDateTime)
         dateTimes.sort()
+        # we'll write a custom formatter
+        N = len(dateTimes)
+        ind = np.arange(N)  # the evenly spaced plot indices
+        def format_date(x, pos=None):
+            thisind = np.clip(int(x+0.5), 0, N-1)
+            return r.dateTimes[thisind].strftime('%Y-%mm-%dd %H:%M:%S')
+
 
         subplots = []
         subplots.extend(self.__barSubplots.values())
@@ -413,7 +426,7 @@ class StrategyPlotter(object):
             axesSubplot = axes[i][0]
             if not subplot.isEmpty():
                 mplSubplots.append(axesSubplot)
-                subplot.plot(axesSubplot, dateTimes)
+                subplot.plot(axesSubplot,dateTimes,ind)
                 axesSubplot.grid(True)
 
         return (fig, mplSubplots)
