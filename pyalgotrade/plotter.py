@@ -76,16 +76,21 @@ class Series(object):
 
 
 
-    def plot(self, mplSubplot, dateTimes, ind, color):
+    def plot(self, mplSubplot, dateTimes, color, valid_only=True):
         values = []
         for dateTime in dateTimes:
             values.append(self.getValue(dateTime))
-        mplSubplot.plot(ind, values, color=color, marker=self.getMarker())
-        def format_date(x, pos=None):
-            thisind = np.clip(int(x+0.5), 0, len(dateTimes)-1)
-            return dateTimes[thisind].strftime('%Y-%m-%d %H:%M:%S')
-        mplSubplot.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
-
+        if(valid_only):
+            # we'll write a custom formatter
+            N = len(dateTimes)
+            ind = np.arange(N)  # the evenly spaced plot indices
+            mplSubplot.plot(ind, values, color=color, marker=self.getMarker())
+            def format_date(x, pos=None):
+                thisind = np.clip(int(x+0.5), 0, len(dateTimes)-1)
+                return dateTimes[thisind].strftime('%Y-%m-%d %H:%M:%S')
+            mplSubplot.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
+        else:
+            mplSubplot.plot(dateTimes, values, color=color, marker=self.getMarker())
 
 class BuyMarker(Series):
     def getColor(self):
@@ -270,12 +275,12 @@ class Subplot(object):
         # Don't scale the Y axis
         mplSubplot.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
 
-    def plot(self, mplSubplot, dateTimes, ind):
+    def plot(self, mplSubplot, dateTimes):
         for series in self.__series.values():
             color = None
             if series.needColor():
                 color = self.__getColor(series)
-            series.plot(mplSubplot, dateTimes, ind, color)
+            series.plot(mplSubplot, dateTimes, color)
 
         # Legend
         mplSubplot.legend(self.__series.keys(), shadow=True, loc="best")
@@ -405,13 +410,6 @@ class StrategyPlotter(object):
     def __buildFigureImpl(self, fromDateTime=None, toDateTime=None):
         dateTimes = _filter_datetimes(self.__dateTimes, fromDateTime, toDateTime)
         dateTimes.sort()
-        # we'll write a custom formatter
-        N = len(dateTimes)
-        ind = np.arange(N)  # the evenly spaced plot indices
-        def format_date(x, pos=None):
-            thisind = np.clip(int(x+0.5), 0, N-1)
-            return r.dateTimes[thisind].strftime('%Y-%mm-%dd %H:%M:%S')
-
 
         subplots = []
         subplots.extend(self.__barSubplots.values())
@@ -426,7 +424,7 @@ class StrategyPlotter(object):
             axesSubplot = axes[i][0]
             if not subplot.isEmpty():
                 mplSubplots.append(axesSubplot)
-                subplot.plot(axesSubplot,dateTimes,ind)
+                subplot.plot(axesSubplot,dateTimes)
                 axesSubplot.grid(True)
 
         return (fig, mplSubplots)
