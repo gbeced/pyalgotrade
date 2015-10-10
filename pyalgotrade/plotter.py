@@ -74,8 +74,6 @@ class Series(object):
     def needColor(self):
         raise NotImplementedError()
 
-
-
     def plot(self, mplSubplot, dateTimes, color, valid_only=True):
         values = []
         for dateTime in dateTimes:
@@ -85,7 +83,7 @@ class Series(object):
             N = len(dateTimes)
             ind = np.arange(N)  # the evenly spaced plot indices
             mplSubplot.plot(ind, values, color=color, marker=self.getMarker())
-            def format_date(x, pos=None):
+            def format_date(x):
                 thisind = np.clip(int(x+0.5), 0, len(dateTimes)-1)
                 return dateTimes[thisind].strftime('%Y-%m-%d %H:%M:%S')
             mplSubplot.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
@@ -183,7 +181,7 @@ class HistogramMarker(Series):
     def getColorForValue(self, value, default):
         return default
 
-    def plot(self, mplSubplot, dateTimes, color):
+    def plot(self, mplSubplot, dateTimes, color, valid_onl=True):
         validDateTimes = []
         values = []
         colors = []
@@ -424,7 +422,7 @@ class StrategyPlotter(object):
             axesSubplot = axes[i][0]
             if not subplot.isEmpty():
                 mplSubplots.append(axesSubplot)
-                subplot.plot(axesSubplot,dateTimes)
+                subplot.plot(axesSubplot, dateTimes)
                 axesSubplot.grid(True)
 
         return (fig, mplSubplots)
