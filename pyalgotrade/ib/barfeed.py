@@ -1,16 +1,15 @@
-# Interactive brokers live feed module
-# Code snippets here:
-#
-# https://groups.google.com/forum/#!topic/ibpy-discuss/QQ1rWvasW0Y
-# multiple feeds - http://www.mediafire.com/view/47ig9v98bokzajl/getMultipleMarketData.py
-# using a python queue - https://groups.google.com/forum/#!topic/ibpy-discuss/5l0LFm1ehpc
-#
-# IB live bars only gives 5 second bars - implement this first and test then look at queueing up bars and calculating high, low etc for the requested period - day week etc
-#
-# TODO support different frequencies by resampling bars
-# TODO - bars are delayed by one bar frequency - make them trigger immediately - to do this we need to grab date of last bar before requesting next lot of historicla bars and flush bars on date=finished-20150802
-# TODO - History - how can we request x bars of history to feed warmup MAs etc
-# TEST - currently only does GPB currency stocks - how to specify different currencies, exchanges and instruments (stock, currency etc)
+"""
+Interactive brokers live feed module
+
+Requires:
+- ibPy - https://github.com/blampe/IbPy
+- trader work station or IB Gateway - https://www.interactivebrokers.com/en/?f=%2Fen%2Fsoftware%2Fibapi.php&ns=T
+
+PyAlgoTrade
+ib live broker
+
+.. moduleauthor:: Kimble Young <kbcool@gmail.com>
+"""
 
 import time
 import datetime
@@ -30,9 +29,6 @@ from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 from ib.opt import ibConnection, message
 
-
-#does this line work?
-#logger = pyalgotrade.logger.getLogger("ib")
 
 
 def utcnow():
@@ -164,8 +160,7 @@ class LiveFeed(barfeed.BaseBarFeed):
             contractDict[tickId] = (self.__instruments[tickId], self.__marketOptions['assetType'], self.__marketOptions['routing'], self.__marketOptions['currency'], '', 0.0, '')
             stkContract = makeContract(contractDict[tickId])
             self.__contracts.append(stkContract)
-            #self.__ib.reqRealTimeBars(tickId, stkContract, 5,'MIDPOINT',0)
-            #print "subscribing to %s" % self.__instruments[tickId]
+
 
         
         #warming up?
@@ -179,14 +174,11 @@ class LiveFeed(barfeed.BaseBarFeed):
 
             self.__numWarmupBars = warmupBars
             self.__inWarmup = True
-            print "requesting warmup"
             self.__requestWarmupBars()
         else:
             #start the clock
-            print "requesting live bars"
             self.__requestBars()
         
-        print "__init finished"
 
 
     def __build_bar(self,barMsg, identifier,frequency):
@@ -216,14 +208,11 @@ class LiveFeed(barfeed.BaseBarFeed):
                 (offset, tz) = self.__marketCloseTime(self.__marketOptions['currency'])
                 date = date + offset
                 date = tz.localize(date)
-                print "date %s" % date
                 ts = int((date - datetime.datetime(1970,1,1,tzinfo=pytz.utc)).total_seconds()) #probably going to have timezone issues
-                print "ts %d" % ts
 
             else:
                 ts = int(barMsg.date)
             startDateTime = datetime.datetime.fromtimestamp(ts).strftime("%m/%d/%Y %I:%M:%S %p")
-            print barMsg
             self.__currentBarStamp = ts
             return bar.BasicBar(startDateTime, float(barMsg.open), float(barMsg.high), float(barMsg.low), float(barMsg.close), int(barMsg.volume), None, frequency)
         except:
@@ -265,11 +254,12 @@ class LiveFeed(barfeed.BaseBarFeed):
     #adds whatever bars we have to queue and requests new ones so bars can go missing here
     def __requestBars(self):
 
-        #push old bars into queue if any remaining - this might cause problems
+        #push old bars into queue if any remaining - this might cause problems - commenting out to determine if this is the cause
+        '''
         if len(self.__currentBar) > 0:
             bars = bar.Bars(self.__currentBar)
             self.__queue.put(bars)
-
+        '''
         self.__currentBar = {}
 
 
@@ -300,8 +290,6 @@ class LiveFeed(barfeed.BaseBarFeed):
                 #endDate = time.strftime("%Y%m%d %H:%M:%S GMT", time.gmtime(self.__lastBarStamp + (self.__frequency * 2)-1))   
                 endDate = time.strftime("%Y%m%d %H:%M:%S GMT", time.gmtime(self.__lastBarStamp + self.__frequency))   
             
-
-            print "requesting %s of data with a bar size of %s for %s using enddate of %s" % (lookbackDuration,barSize,self.__contracts[tickId], endDate)
             
             #prevent race condition here with threading
             lastBarTS = self.__lastBarStamp 
@@ -324,15 +312,14 @@ class LiveFeed(barfeed.BaseBarFeed):
 
         self.__timer = threading.Timer(delay,self.__requestBars)
         self.__timer.start()
-        print "requesting bars in %d seconds." % (self.__frequency)
 
     def __debugHandler(self,msg):
         if self.__debug:
             print msg
 
     def __errorHandler(self,msg):
-        print "IB Error: %s" % msg.errorMsg
-        #print("Could not contact IB API check connectivity")
+        if self.__debug:
+            print msg
 
     def __historicalBarsHandler(self,msg):
         '''
@@ -348,17 +335,13 @@ class LiveFeed(barfeed.BaseBarFeed):
         stockBar = self.__build_bar(msg, self.__instruments[msg.reqId],self.__frequency) 
 
         if self.__inWarmup:
-            print "warming up"
 
             #non bar means feed has finished or worst case data error but haven't seen one of these yet
             if stockBar == None:
                 self.__stockFinishedWarmup[self.__instruments[msg.reqId]] = True
-                print "bar finished warmup"
             else:
-                print "got historical warmup bar"
                 self.__warmupBars[self.__instruments[msg.reqId]].append(stockBar)
             
-            print self.__stockFinishedWarmup
             finishedWarmup = True
             for stock in self.__stockFinishedWarmup:
                 if self.__stockFinishedWarmup[stock] == False:
@@ -366,7 +349,6 @@ class LiveFeed(barfeed.BaseBarFeed):
 
             #all stocks have returned all warmup bars - now we take the n most recent warmup bars and return them in order
             if finishedWarmup:
-                print "finished warmup"
 
                 #truncate the list to recent
                 for stock in self.__warmupBars:
@@ -374,10 +356,8 @@ class LiveFeed(barfeed.BaseBarFeed):
 
 
                 for i in range(0,self.__numWarmupBars):
-                    print i
                     currentBars = {}
                     for stock in self.__instruments:
-                        print "len of bars for stock %s - %d" % (stock,len(self.__warmupBars[stock]))
                         currentBars[stock] = self.__warmupBars[stock][i]
 
 
@@ -404,14 +384,10 @@ class LiveFeed(barfeed.BaseBarFeed):
 
                 self.__timer = threading.Timer(delay,self.__requestBars)
                 self.__timer.start()
-                print "finished warmup and pushed all bars to queue - entering normal bar mode - requesting every %d frequency seconds with an initial delay of %d. Last bar was at %d and it is currently %d" % (self.__frequency,delay,self.__currentBarStamp, int(time.time()))
-                #print "not really - uncomment the line above"
 
-            #no idea what to do if we missed the end message on the warmup - will never get past here
+                #no idea what to do if we missed the end message on the warmup - will never get past here
         else:
             #normal operating mode 
-            #TODO - when all bars flushed through add to queue - looks like it might be happening given we check for all bars below
-
             #below is the live bar code - ignore bars with a date past the last bar stamp
             if stockBar != None and int(msg.date) > self.__lastBarStamp:
                 self.__currentBar[self.__instruments[msg.reqId]] = stockBar
@@ -473,7 +449,6 @@ class LiveFeed(barfeed.BaseBarFeed):
         return False
 
 
-    #todo implement in IB
     def getNextBars(self):
         ret = None
         try:
