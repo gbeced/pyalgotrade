@@ -1,18 +1,12 @@
-# PyAlgoTrade
-# ib live broker
-
-'''
-TODO:
-
-    - DONE - Deal with multiple currencies
-    - DONE - Test in a live trading situation
-    - Deal with problems connecting to API
-    - Test all order types
-
-'''
-
-
 """
+
+PyAlgoTrade
+ib live broker
+
+Requires:
+- ibPy - https://github.com/blampe/IbPy
+- trader work station or IB Gateway - https://www.interactivebrokers.com/en/?f=%2Fen%2Fsoftware%2Fibapi.php&ns=T
+
 .. moduleauthor:: Kimble Young <kbcool@gmail.com>
 """
 
@@ -33,11 +27,9 @@ from ib.opt import ibConnection, message
 
 #build order object from IB API's definition of an open order which has a contract and order attribute
 def build_order_from_open_order(openOrder, instrumentTraits):
-    #print openOrder
     #order_id = openOrder.order.m_permId   #we use the TWS id for the order rather than our id - not sure this is a good idea but its apparently consistent across sessions - https://www.interactivebrokers.com/en/software/api/apiguide/java/order.htm
     order_id = openOrder.order.m_orderId
     #doesn't seem to be a useable date/time for orders so going to use current time
-    #order_time = openOrder.order.m_activeStartTime
     order_time = dt.as_utc(datetime.datetime.now())
 
     order_type = openOrder.order.m_orderType     #stop, limit, stoplimit, market
@@ -50,10 +42,6 @@ def build_order_from_open_order(openOrder, instrumentTraits):
     order_auxprice = openOrder.order.m_auxPrice
     contract_symbol = openOrder.contract.m_symbol
 
-    #what else do we need?
-
-    print "ORDER TIME: %s" % order_time
-    print "ORDER ID %s" %order_id
 
     if order_action == 'BUY':
         action = broker.Order.Action.BUY
@@ -84,11 +72,87 @@ def build_order_from_open_order(openOrder, instrumentTraits):
     return ret
 
 
-#Aussie shares only go to 2 or maybe 3 decimal places - US stocks might do 4 but pretty sure it doesn't get finer grained
-#later on we may need to do symbol lookup to work this out for now we'll hard code
+#roundQuantity is the number of decimal places in an asset quantity - for stocks this can only be a whole number (at least in US/AU/UK etc) and IB also requires an integer so force it
 class EquityTraits(broker.InstrumentTraits):
     def roundQuantity(self, quantity):
-        return round(quantity, 4)
+        return int(quantity)
+
+
+
+
+class LiveOrder(object):
+    def __init__(self):
+        self.__accepted = None
+
+    def setAcceptedDateTime(self, dateTime):
+        self.__accepted = dateTime
+
+    def getAcceptedDateTime(self):
+        return self.__accepted
+
+    # Override to call the fill strategy using the concrete order type.
+    # return FillInfo or None if the order should not be filled.
+    def process(self, broker_, bar_):
+        raise NotImplementedError()
+
+
+class MarketOrder(broker.MarketOrder, LiveOrder):
+    def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
+        broker.MarketOrder.__init__(self, action, instrument, quantity, onClose, instrumentTraits)
+        LiveOrder.__init__(self)
+
+    def process(self, broker_, bar_):
+        return broker_.getFillStrategy().fillMarketOrder(broker_, self, bar_)
+
+
+class LimitOrder(broker.LimitOrder, LiveOrder):
+    def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
+        broker.LimitOrder.__init__(self, action, instrument, limitPrice, quantity, instrumentTraits)
+        LiveOrder.__init__(self)
+
+    def process(self, broker_, bar_):
+        return broker_.getFillStrategy().fillLimitOrder(broker_, self, bar_)
+
+
+class StopOrder(broker.StopOrder, LiveOrder):
+    def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
+        broker.StopOrder.__init__(self, action, instrument, stopPrice, quantity, instrumentTraits)
+        LiveOrder.__init__(self)
+        self.__stopHit = False
+
+    def process(self, broker_, bar_):
+        return broker_.getFillStrategy().fillStopOrder(broker_, self, bar_)
+
+    def setStopHit(self, stopHit):
+        self.__stopHit = stopHit
+
+    def getStopHit(self):
+        return self.__stopHit
+
+
+# http://www.sec.gov/answers/stoplim.htm
+# http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
+class StopLimitOrder(broker.StopLimitOrder, LiveOrder):
+    def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
+        broker.StopLimitOrder.__init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits)
+        LiveOrder.__init__(self)
+        self.__stopHit = False  # Set to true when the limit order is activated (stop price is hit)
+
+    def setStopHit(self, stopHit):
+        self.__stopHit = stopHit
+
+    def getStopHit(self):
+        return self.__stopHit
+
+    def isLimitOrderActive(self):
+        # TODO: Deprecated since v0.15. Use getStopHit instead.
+        return self.__stopHit
+
+    def process(self, broker_, bar_):
+        return broker_.getFillStrategy().fillStopLimitOrder(broker_, self, bar_)
+
+
+
 
 
 class LiveBroker(broker.Broker):
@@ -122,7 +186,6 @@ class LiveBroker(broker.Broker):
         self.__stop = False
         clientId = clientId=random.randint(1,10000)+10000
 
-        print "connecting to %s on port %d using %d" % (host,port,clientId)
         
 
         self.__ib = ibConnection(host=host,port=port,clientId=clientId)
@@ -134,6 +197,7 @@ class LiveBroker(broker.Broker):
         self.__ib.register(self.__openOrderHandler, 'OpenOrder')
         self.__ib.register(self.__disconnectHandler,'ConnectionClosed')
         self.__ib.register(self.__nextIdHandler,'NextValidId')
+        self.__ib.register(self.__orderStatusHandler,'OrderStatus')
 
         self.__ib.connect()
 
@@ -141,6 +205,7 @@ class LiveBroker(broker.Broker):
         self.__shares = {}
         self.__activeOrders = {}
         self.__nextOrderId = 0
+
 
         #parse marketoptions and set defaults
         self.__marketOptions = {}
@@ -160,42 +225,80 @@ class LiveBroker(broker.Broker):
         else:
             self.__marketOptions['routing'] = marketOptions['routing']
 
+        self.refreshAccountBalance()
+        self.refreshOpenOrders()
+
     def __disconnectHandler(self,msg):
-        print "disconnected. reconnecting"
         self.__ib.reconnect()
 
     #prints all messages from IB API
     def __debugHandler(self,msg): 
-        #not sure where to pick this one up from
         if self.__debug: print msg
 
     def __nextIdHandler(self,msg):
         self.__nextOrderId = msg.orderId
-        print "next valid id called %d " % msg.orderId
+
+
+    #listen for orders to be fulfilled or cancelled
+    def __orderStatusHandler(self,msg):
+
+
+        order = self.__activeOrders.get(msg.orderId)
+        if order == None:
+            #print "No active order found"
+            return
+
+        #watch out for dupes - don't submit state changes or events if they were already submitted
+
+        eventType = None
+        if msg.status == 'Filled' and order.getState() != broker.Order.State.FILLED:
+            eventType = broker.OrderEvent.Type.FILLED
+            self._unregisterOrder(order)
+            #order.setState(broker.Order.State.FILLED)
+        if msg.status == 'Submitted' and msg.filled > 0:
+            eventType = broker.OrderEvent.Type.PARTIALLY_FILLED
+            #may already be partially filled
+            #if order.getState() != broker.Order.State.PARTIALLY_FILLED:
+            #    order.setState(broker.Order.State.PARTIALLY_FILLED)
+        if msg.status == 'Cancelled' and order.getState() != broker.Order.State.CANCELED:
+            #self._unregisterOrder(order)
+            eventType = broker.OrderEvent.Type.CANCELED
+            #order.setState(broker.Order.State.CANCELED)
+
+        orderExecutionInfo = None
+        if eventType == broker.OrderEvent.Type.FILLED or eventType == broker.OrderEvent.Type.PARTIALLY_FILLED:
+            orderExecutionInfo = broker.OrderExecutionInfo(msg.avgFillPrice, abs(msg.filled), 0, datetime.datetime.now())
+
+            print "orderExecutionInfo"
+            order.addExecutionInfo(orderExecutionInfo)
+
+            if order.isFilled():
+                #self._unregisterOrder(order)
+                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.FILLED, orderExecutionInfo))
+            elif order.isPartiallyFilled():
+                self.notifyOrderEvent(
+                    broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo)
+                )            
+
+
 
     #get account messages like cash value etc
     def __accountHandler(self,msg):
         #FYI this is not necessarily USD - probably AUD for me as it's the base currency so if you're buying international stocks need to keep this in mind
         #self.__cash = round(balance.getUSDAvailable(), 2)
-        #print msg.key, msg.value , msg.currency
         if msg.key == 'TotalCashBalance' and msg.currency == 'USD':
             self.__cash = round(float(msg.value))
 
-        #if self.__cash > 0:
-        #    print "cash %.2f" % self.__cash
-
     #get portfolio messages - stock, price, purchase price etc
     def __portfolioHandler(self,msg):
-        #print "%s:%s" % (msg.contract.m_symbol, msg.contract.m_primaryExch)
-        #print msg.position
         self.__shares[msg.contract.m_symbol] = msg.position
 
     def __openOrderHandler(self,msg):
+        #Do nothing now but might want to use this to pick up open orders at start (eg in case of shutdown or crash)
         #note if you want to test this make sure you actually have an open order otherwise it's never called
-        print "__openOrderHandler() called"
         #Remember this is called once per open order so if you have 3 open orders it's called 3 times
-        self._registerOrder(build_order_from_open_order(msg, self.getInstrumentTraits(msg.contract.m_symbol)))
-
+        #self._registerOrder(build_order_from_open_order(msg, self.getInstrumentTraits(msg.contract.m_symbol)))
+        pass
 
     def _registerOrder(self, order):
         #can be registered multiple times - just overwrites
@@ -211,13 +314,11 @@ class LiveBroker(broker.Broker):
 
     #subscribes for regular account balances which are sent to portfolio and account handlers
     def refreshAccountBalance(self):
-        #print("Retrieving account balance.")
         self.__ib.reqAccountUpdates(1,'')
         
 
 
     def refreshOpenOrders(self):
-        #print("Refreshing open orders")
         self.__ib.reqAllOpenOrders()
 
 
@@ -227,14 +328,11 @@ class LiveBroker(broker.Broker):
 
     # BEGIN observer.Subject interface
     def start(self):
-        self.refreshAccountBalance()
-        self.refreshOpenOrders()
+        return
 
     def stop(self):
         self.__stop = True
         self.__ib.disconnect()
-        #print("Shutting down IB connection")
-        #self.__tradeMonitor.stop()
 
     def join(self):
         pass
@@ -276,9 +374,6 @@ class LiveBroker(broker.Broker):
 
     def submitOrder(self, order):
         if order.isInitial():
-            # Override user settings based on Bitstamp limitations.
-            #order.setAllOrNone(False)
-            #order.setGoodTillCanceled(True)
 
             ibContract = Contract()
             ibOrder = Order()
@@ -316,8 +411,6 @@ class LiveBroker(broker.Broker):
                 ibOrder.m_allOrNone = 1
             else:
                 ibOrder.m_allOrNone = 0
-
-
 
             self.__ib.placeOrder(self.__nextOrderId, ibContract, ibOrder)
 
@@ -376,8 +469,6 @@ class LiveBroker(broker.Broker):
         if activeOrder.isFilled():
             raise Exception("Can't cancel order that has already been filled")
 
-        #self.__httpClient.cancelOrder(order.getId())
-        print "cancelling %s " % order.getId()
         self.__ib.cancelOrder(order.getId())
         self._unregisterOrder(order)
         order.switchState(broker.Order.State.CANCELED)
