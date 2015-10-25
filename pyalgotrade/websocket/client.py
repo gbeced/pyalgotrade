@@ -154,7 +154,8 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
 
     def stopClient(self):
         try:
-            self.close()
+            if self.__connected:
+                self.close()
             self.close_connection()
         except Exception, e:
             logger.warning("Failed to close connection")
