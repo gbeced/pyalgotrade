@@ -1,5 +1,6 @@
 TA-Lib
 scipy
+pandas
 statsmodels==0.5.0
 matplotlib
 ws4py
