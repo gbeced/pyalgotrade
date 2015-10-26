@@ -110,9 +110,6 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     def getCurrentDateTime(self):
         return datetime.datetime.now()
 
-    def enableReconection(self, enableReconnection):
-        self.__enableReconnection = enableReconnection
-
     def barsHaveAdjClose(self):
         return False
 

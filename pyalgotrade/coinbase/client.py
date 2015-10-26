@@ -34,12 +34,32 @@ logger = pyalgotrade.logger.getLogger(__name__)
 
 def pricelevels_to_obooklevels(priceLevels, maxValues):
     return map(
-        lambda level: httpclient.OrderBookLevel((level.getPrice(), level.getSize())),
+        lambda level: OrderBookLevel(level.getPrice(), level.getSize()),
         priceLevels.getValues(maxValues=maxValues)
     )
 
 
+class OrderBookLevel(object):
+    """An order book level."""
+
+    def __init__(self, price, size):
+        self.__price = price
+        self.__size = size
+
+    def getPrice(self):
+        """Returns the price."""
+        return float(self.__price)
+
+    def getSize(self):
+        """Returns the size."""
+        return float(self.__size)
+
+
 class RealTimeOrderBook(object):
+    """
+    The order book.
+    """
+
     def __init__(self, orderBookSync):
         self.__orderBookSync = orderBookSync
 
@@ -47,9 +67,21 @@ class RealTimeOrderBook(object):
         return self.__orderBookSync.getSequence()
 
     def getBids(self, maxValues=20):
+        """
+        Returns the bids.
+
+        :param maxValues: The maximum number of bids to return.
+        :rtype: List of :class:`pyalgotrade.coinbase.client.OrderBookLevel` instances.
+        """
         return pricelevels_to_obooklevels(self.__orderBookSync.getBids(), maxValues)
 
     def getAsks(self, maxValues=20):
+        """
+        Returns the asks.
+
+        :param maxValues: The maximum number of asks to return.
+        :rtype: List of :class:`pyalgotrade.coinbase.client.OrderBookLevel` instances.
+        """
         return pricelevels_to_obooklevels(self.__orderBookSync.getAsks(), maxValues)
 
 
@@ -147,6 +179,15 @@ class WebSocketClientThread(threading.Thread):
 
 
 class Client(observer.Subject):
+
+    """Interface with Coinbase exchange.
+
+    :param productId:
+    :param wsURL:
+    :param apiURL:
+
+    """
+
     QUEUE_TIMEOUT = 0.01
     WAIT_CONNECT_POLL_FREQUENCY = 0.5
     ORDER_BOOK_EVENT_DISPATCH = {
@@ -220,7 +261,12 @@ class Client(observer.Subject):
 
     def getOrderBookEvents(self):
         """
-        Returns the events endpoint for Level 2 order book updates.
+        Returns the event that will be emitted when the orderbook gets updated.
+
+        Eventh handlers should receive one parameter:
+         1. A :class:`pyalgotrade.coinbase.client.RealTimeOrderBook` instance.
+
+        :rtype: :class:`pyalgotrade.observer.Event`.
         """
         return self.__orderBookEvents
 
