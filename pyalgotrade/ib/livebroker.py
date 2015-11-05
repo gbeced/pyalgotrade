@@ -77,6 +77,10 @@ class EquityTraits(broker.InstrumentTraits):
     def roundQuantity(self, quantity):
         return int(quantity)
 
+    #price is to 2 decimal points  (US markets and ASX are two decimal places for stocks exceeding $1)
+    def roundPrice(self, price):
+        return round(price,2)
+
 
 
 
@@ -385,7 +389,7 @@ class LiveBroker(broker.Broker):
             ibContract.m_currency = self.__marketOptions['currency']
             ibContract.m_exchange = self.__marketOptions['routing']
 
-            ibOrder.m_totalQuantity = order.getQuantity()
+            ibOrder.m_totalQuantity = order.getInstrumentTraits().roundQuantity(order.getQuantity())
             if order.getAction() == (broker.Order.Action.BUY or broker.Order.Action.BUY_TO_COVER):
                 ibOrder.m_action = 'BUY'
             elif order.getAction() == broker.Order.Action.SELL:
@@ -394,6 +398,10 @@ class LiveBroker(broker.Broker):
                 ibOrder.m_action = 'SELL'
 
 
+            '''
+                order_limprice = openOrder.order.m_lmtPrice
+                order_auxprice = openOrder.order.m_auxPrice
+            '''
             if order.getType() == broker.Order.Type.MARKET:                
                 if order.getFillOnClose():
                     ibOrder.m_orderType = 'MOC'
@@ -401,16 +409,27 @@ class LiveBroker(broker.Broker):
                     ibOrder.m_orderType = 'MKT'
             elif order.getType() == broker.Order.Type.LIMIT:
                 ibOrder.m_orderType = 'LMT'
+                ibOrder.m_lmtPrice = order.getInstrumentTraits().roundPrice(order.getLimitPrice())
             elif order.getType() == broker.Order.Type.STOP:
                 ibOrder.m_orderType = 'STP'
+                ibOrder.m_auxPrice = order.getInstrumentTraits().roundPrice(order.getStopPrice())
             elif order.getType() == broker.Order.Type.STOP_LIMIT:
                 ibOrder.m_orderType = 'STP LMT'
+                ibOrder.m_lmtPrice = order.getInstrumentTraits().roundPrice(order.getLimitPrice())
+                ibOrder.m_auxPrice = order.getInstrumentTraits().roundPrice(order.getStopPrice())
+
             
 
             if order.getAllOrNone() == True:
                 ibOrder.m_allOrNone = 1
             else:
                 ibOrder.m_allOrNone = 0
+
+
+            if order.getGoodTillCanceled() == True:
+                ibOrder.m_tif = 'GTC'
+            else:
+                ibOrder.m_tif = 'DAY'
 
             self.__ib.placeOrder(self.__nextOrderId, ibContract, ibOrder)
 
@@ -451,7 +470,7 @@ class LiveBroker(broker.Broker):
 
         instrumentTraits = self.getInstrumentTraits(instrument)
 
-        return broker.LimitOrder(action, instrument, stopPrice, quantity, instrumentTraits)
+        return broker.StopOrder(action, instrument, stopPrice, quantity, instrumentTraits)
 
     def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
         #IB doesn't support buy to cover
