@@ -70,9 +70,6 @@ class BaseStrategy(object):
         # Initialize logging.
         self.__logger = logger.getLogger(BaseStrategy.LOGGER_NAME)
 
-        print "###WARNING####"
-        print "###USING LOCAL PYALGOTRADE INSTEAD OF SYSTEM####"
-
     # Only valid for testing purposes.
     def _setBroker(self, broker):
         self.__broker = broker
@@ -501,7 +498,6 @@ class BaseStrategy(object):
         self.onIdle()
 
     def __onOrderEvent(self, broker_, orderEvent):
-        print "####strategy::_onOrderEvent called####"
         order = orderEvent.getOrder()
         pos = self.__orderToPosition.get(order.getId(), None)
         self.onOrderUpdated(order)
@@ -509,10 +505,8 @@ class BaseStrategy(object):
             # Unlink the order from the position if its not active anymore.
             if not order.isActive():
                 self.unregisterPositionOrder(pos, order)
-            print "###calling position.onOrderEvent()###"
+                
             pos.onOrderEvent(orderEvent)
-        else:
-            print "###Pos == None - problem here?!###"
 
     def __onBars(self, dateTime, bars):
         # THE ORDER HERE IS VERY IMPORTANT

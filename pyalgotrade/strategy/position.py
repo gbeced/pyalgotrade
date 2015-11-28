@@ -50,9 +50,6 @@ class WaitingEntryState(PositionState):
 
     def onOrderEvent(self, position, orderEvent):
         # Only entry order events are valid in this state.
-        #print "%%%%ONORDEREVENT%%%%%%   event type = %d" % orderEvent.getEventType() 
-        print "Class that is handling Position::onOrderEvent() is %s" % self.__class__.__name__
-
         assert(position.getEntryOrder().getId() == orderEvent.getOrder().getId())
 
         if orderEvent.getEventType() in (broker.OrderEvent.Type.FILLED, broker.OrderEvent.Type.PARTIALLY_FILLED):
@@ -74,7 +71,6 @@ class WaitingEntryState(PositionState):
 
 class OpenState(PositionState):
     def onEnter(self, position):
-        print "#############Switched to open state###############"
         entryDateTime = position.getEntryOrder().getExecutionInfo().getDateTime()
         position.setEntryDateTime(entryDateTime)
 
@@ -83,7 +79,6 @@ class OpenState(PositionState):
         pass
 
     def onOrderEvent(self, position, orderEvent):
-        print "Class that is handling Position::onOrderEvent() is %s" % self.__class__.__name__
         if position.getExitOrder() and position.getExitOrder().getId() == orderEvent.getOrder().getId():
             if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED:
                 if position.getShares() == 0:
@@ -102,7 +97,6 @@ class OpenState(PositionState):
         return True
 
     def exit(self, position, stopPrice=None, limitPrice=None, goodTillCanceled=None):
-        print "position:exit() called"
         assert(position.getShares() != 0)
 
         # Fail if a previous exit order is active.
