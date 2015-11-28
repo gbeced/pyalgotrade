@@ -130,6 +130,8 @@ class LiveFeed(barfeed.BaseBarFeed):
 
         self.__ib.register(self.__historicalBarsHandler, message.historicalData)
         self.__ib.register(self.__errorHandler, message.error)
+        self.__ib.register(self.__disconnectHandler, 'ConnectionClosed')
+
         self.__ib.registerAll(self.__debugHandler)
 
         self.__ib.connect()
@@ -202,17 +204,18 @@ class LiveFeed(barfeed.BaseBarFeed):
         ts = 0
 
         try:
+            (offset, tz) = self.__marketCloseTime(self.__marketOptions['currency'])
             if len(barMsg.date) == 8:   #it's not a unix timestamp it's something like 20150812 (YYYYMMDD) which means this was a daily bar
                 date = datetime.datetime.strptime(barMsg.date,'%Y%m%d')
 
-                (offset, tz) = self.__marketCloseTime(self.__marketOptions['currency'])
+                
                 date = date + offset
                 date = tz.localize(date)
                 ts = int((date - datetime.datetime(1970,1,1,tzinfo=pytz.utc)).total_seconds()) #probably going to have timezone issues
 
             else:
                 ts = int(barMsg.date)
-            startDateTime = datetime.datetime.fromtimestamp(ts).strftime("%m/%d/%Y %I:%M:%S %p")
+            startDateTime = dt.localize(datetime.datetime.fromtimestamp(ts,tz),tz)
             self.__currentBarStamp = ts
             return bar.BasicBar(startDateTime, float(barMsg.open), float(barMsg.high), float(barMsg.low), float(barMsg.close), int(barMsg.volume), None, frequency)
         except:
@@ -310,8 +313,14 @@ class LiveFeed(barfeed.BaseBarFeed):
         else:
             delay = self.__frequency
 
+        #print "Sleeping for %d seconds for next bar" % delay
         self.__timer = threading.Timer(delay,self.__requestBars)
+        self.__timer.daemon = True
         self.__timer.start()
+
+    def __disconnectHandler(self,msg):
+        self.__ib.reconnect()
+
 
     def __debugHandler(self,msg):
         if self.__debug:
@@ -332,15 +341,20 @@ class LiveFeed(barfeed.BaseBarFeed):
         #print "stock: %s - time %s open %.2f hi %.2f, low %.2f close %.2f volume %.2f" % (self.__instruments[msg.reqId],msg.time, msg.open, msg.high,msg.low,msg.close,msg.volume)
         barDict = {}
 
-        stockBar = self.__build_bar(msg, self.__instruments[msg.reqId],self.__frequency) 
+        instrument = self.__instruments[msg.reqId]
+
+        stockBar = self.__build_bar(msg, instrument,self.__frequency)
 
         if self.__inWarmup:
 
             #non bar means feed has finished or worst case data error but haven't seen one of these yet
             if stockBar == None:
-                self.__stockFinishedWarmup[self.__instruments[msg.reqId]] = True
+                self.__stockFinishedWarmup[instrument] = True
             else:
-                self.__warmupBars[self.__instruments[msg.reqId]].append(stockBar)
+                self.__warmupBars[instrument].append(stockBar)
+                #prevents duplicate bar error when moving to live mode
+                if stockBar != None and int(msg.date) > self.__lastBarStamp:
+                    self.__lastBarStamp = int(msg.date)
             
             finishedWarmup = True
             for stock in self.__stockFinishedWarmup:
@@ -382,7 +396,9 @@ class LiveFeed(barfeed.BaseBarFeed):
                 delay = self.__calculateSyncDelay(self.__currentBarStamp)
                 self.__synchronised = True
 
+                print "Sleeping for %d seconds for next bar" % delay
                 self.__timer = threading.Timer(delay,self.__requestBars)
+                self.__timer.daemon = True
                 self.__timer.start()
 
                 #no idea what to do if we missed the end message on the warmup - will never get past here
@@ -399,10 +415,10 @@ class LiveFeed(barfeed.BaseBarFeed):
                 self.__queue.put(bars)
                 self.__currentBar = {}
 
-    
-        #keep lastBarStamp at latest unix timestamp so we can use it for the enddate of requesthistoricalbars call
-        if stockBar != None and int(msg.date) > self.__lastBarStamp:
-            self.__lastBarStamp = int(msg.date)   
+                #keep lastBarStamp at latest unix timestamp so we can use it for the enddate of requesthistoricalbars call
+                if stockBar != None and int(msg.date) > self.__lastBarStamp:
+                    self.__lastBarStamp = int(msg.date)                
+
 
     ######################################################################
     # observer.Subject interface
@@ -417,9 +433,14 @@ class LiveFeed(barfeed.BaseBarFeed):
         return delay
 
     #needed for daily bars so we can pick up at the next day's close returns timedelta and timezone
+    #time delta is how long after close to next open so 24hrs - opening hours - eg ASX is open 10 - 4 - 8 hours so 24 - 8 is 16
     def __marketCloseTime(self,currency):
         if currency == 'AUD':
             return [datetime.timedelta(hours=16),pytz.timezone('Australia/Sydney')]
+        if currency == 'USD':
+            return [datetime.timedelta(hours=15,minutes=30),pytz.timezone('America/New_York')]
+        if currency == 'GBP':
+            return [datetime.timedelta(hours=14,minutes=30),pytz.timezone('Europe/London')]                        
 
 
     def start(self):
