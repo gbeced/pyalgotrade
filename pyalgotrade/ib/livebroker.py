@@ -17,11 +17,16 @@ import datetime
 import random
 
 from pyalgotrade import broker
+from pyalgotrade.strategy import position
 from pyalgotrade.utils import dt
 
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 from ib.opt import ibConnection, message
+from pdb import set_trace as bp
+
+
+
 
 
 
@@ -199,6 +204,7 @@ class LiveBroker(broker.Broker):
         self.__ib.register(self.__accountHandler,'UpdateAccountValue')
         self.__ib.register(self.__portfolioHandler,'UpdatePortfolio')
         self.__ib.register(self.__openOrderHandler, 'OpenOrder')
+        #self.__ib.register(self.__positionHandler, 'Position')
         self.__ib.register(self.__disconnectHandler,'ConnectionClosed')
         self.__ib.register(self.__nextIdHandler,'NextValidId')
         self.__ib.register(self.__orderStatusHandler,'OrderStatus')
@@ -207,8 +213,10 @@ class LiveBroker(broker.Broker):
 
         self.__cash = 0
         self.__shares = {}
+        self.__detailedShares = {}
         self.__activeOrders = {}
         self.__nextOrderId = 0
+        self.__initialPositions = []
 
 
         #parse marketoptions and set defaults
@@ -232,6 +240,11 @@ class LiveBroker(broker.Broker):
         self.refreshAccountBalance()
         self.refreshOpenOrders()
 
+        self.__ib.reqPositions()
+
+        #give ib time to get back to us
+        time.sleep(2)
+
     def __disconnectHandler(self,msg):
         self.__ib.reconnect()
 
@@ -242,14 +255,33 @@ class LiveBroker(broker.Broker):
     def __nextIdHandler(self,msg):
         self.__nextOrderId = msg.orderId
 
+    '''
+    #build position array from ib object (NOTE: This isn't a pyalgotrade position it's an array with enough details hopefully to build one)
+    def build_position_from_open_position(self,msg):
+        #return pyalgotrade.strategy.position.LongPosition(self., instrument, stopPrice, None, quantity, goodTillCanceled, allOrNone)
+        return {
+            'stock': 'STW',
+            'shortLong': 'long',
+            'quantity': 500,
+            'price': 31.63
+        }
+        pass
+
+    #creates positions and hopefully tells the strategy on startup
+    #great for error recovery
+    def __positionHandler(self,msg):
+        self.__initialPositions.append(self.build_position_from_open_position(msg))
+        print "GOT POSITIONS"
+
+    def getInitialPositions(self):
+        return self.__initialPositions
+
+    '''
 
     #listen for orders to be fulfilled or cancelled
     def __orderStatusHandler(self,msg):
-
-
         order = self.__activeOrders.get(msg.orderId)
         if order == None:
-            #print "No active order found"
             return
 
         #watch out for dupes - don't submit state changes or events if they were already submitted
@@ -273,7 +305,6 @@ class LiveBroker(broker.Broker):
         if eventType == broker.OrderEvent.Type.FILLED or eventType == broker.OrderEvent.Type.PARTIALLY_FILLED:
             orderExecutionInfo = broker.OrderExecutionInfo(msg.avgFillPrice, abs(msg.filled), 0, datetime.datetime.now())
 
-            print "orderExecutionInfo"
             order.addExecutionInfo(orderExecutionInfo)
 
             if order.isFilled():
@@ -283,7 +314,7 @@ class LiveBroker(broker.Broker):
                 self.notifyOrderEvent(
                     broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo)
                 )            
-
+            
 
 
     #get account messages like cash value etc
@@ -297,18 +328,26 @@ class LiveBroker(broker.Broker):
     def __portfolioHandler(self,msg):
         self.__shares[msg.contract.m_symbol] = msg.position
 
+        self.__detailedShares[msg.contract.m_symbol] = {    'shares': msg.position,             #number of units
+                                                            'marketPrice': msg.marketPrice,     #current price on market
+                                                            'entryPrice': msg.averageCost,      #cost per unit at acquistion (unfortunately minus commissions)
+                                                            'PL': msg.unrealizedPNL             #unrealised profit and loss
+                                                        }
+
     def __openOrderHandler(self,msg):
         #Do nothing now but might want to use this to pick up open orders at start (eg in case of shutdown or crash)
         #note if you want to test this make sure you actually have an open order otherwise it's never called
         #Remember this is called once per open order so if you have 3 open orders it's called 3 times
-        #self._registerOrder(build_order_from_open_order(msg, self.getInstrumentTraits(msg.contract.m_symbol)))
-        pass
+        
+        self._registerOrder(build_order_from_open_order(msg, self.getInstrumentTraits(msg.contract.m_symbol)))
 
     def _registerOrder(self, order):
-        #can be registered multiple times - just overwrites
-        #assert(order.getId() not in self.__activeOrders)
+
         assert(order.getId() is not None)
-        self.__activeOrders[order.getId()] = order
+
+        #need to make sure order doesn't overwrite as we may lose information
+        if order.getId() not in self.__activeOrders:
+            self.__activeOrders[order.getId()] = order
 
     def _unregisterOrder(self, order):
         assert(order.getId() in self.__activeOrders)
@@ -373,6 +412,10 @@ class LiveBroker(broker.Broker):
     def getPositions(self):
         return self.__shares
 
+    #positions is just stock and number of shares - detailed positions includes cost and p/l info
+    def getDetailedPositions(self):
+        return self.__detailedShares
+
     def getActiveOrders(self, instrument=None):
         return self.__activeOrders.values()
 
@@ -397,11 +440,6 @@ class LiveBroker(broker.Broker):
             elif order.getAction() == broker.Order.Action.SELL_SHORT:
                 ibOrder.m_action = 'SELL'
 
-
-            '''
-                order_limprice = openOrder.order.m_lmtPrice
-                order_auxprice = openOrder.order.m_auxPrice
-            '''
             if order.getType() == broker.Order.Type.MARKET:                
                 if order.getFillOnClose():
                     ibOrder.m_orderType = 'MOC'
