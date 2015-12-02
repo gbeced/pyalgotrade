@@ -7,6 +7,8 @@ Requires:
 - ibPy - https://github.com/blampe/IbPy
 - trader work station or IB Gateway - https://www.interactivebrokers.com/en/?f=%2Fen%2Fsoftware%2Fibapi.php&ns=T
 
+Disclaimer: No warranty express or implied is offered for this code
+
 .. moduleauthor:: Kimble Young <kbcool@gmail.com>
 """
 
@@ -168,7 +170,6 @@ class LiveBroker(broker.Broker):
     """An IB live broker.
 
     :param host: host to connect to default localhost
-    :type clientId: string.
     :param host: hostname running your IB API - usually localhost
     :type host: string.
     :param port: port of server running your IB - usually 7496
@@ -177,6 +178,8 @@ class LiveBroker(broker.Broker):
     :type marketOptions: dict.    
     :param debug: have ibPy spit out all messages to screen (very noisy)
     :type debug: bool.
+    :param clientId: client id to use - set this to an integer between 1 and 999 (reserved) if you want to be able modify an order that was submitted on a previous session
+    :type clientId: int.
 
 
     .. note::
@@ -184,7 +187,7 @@ class LiveBroker(broker.Broker):
         * No stop losses, hedging etc - very simple right now 
     """
 
-    def __init__(self, host="localhost", port=7496, marketOptions={'assetType':'STK', 'currency':'GBP','routing': 'SMART'}, debug=False):
+    def __init__(self, host="localhost", port=7496, marketOptions={'assetType':'STK', 'currency':'GBP','routing': 'SMART'}, debug=False, clientId = None):
         broker.Broker.__init__(self)
 
         if debug:
@@ -193,11 +196,14 @@ class LiveBroker(broker.Broker):
             self.__debug = False
 
         self.__stop = False
-        clientId = clientId=random.randint(1,10000)+10000
 
+        
+        if clientId == None:
+            clientId = random.randint(1000,10000)
         
 
         self.__ib = ibConnection(host=host,port=port,clientId=clientId)
+        #self.__ib = ibConnection(host=host,port=port)
 
         #register all the callback handlers
         self.__ib.registerAll(self.__debugHandler)
@@ -300,6 +306,11 @@ class LiveBroker(broker.Broker):
             #self._unregisterOrder(order)
             eventType = broker.OrderEvent.Type.CANCELED
             #order.setState(broker.Order.State.CANCELED)
+            self._unregisterOrder(order)
+            order.switchState(broker.Order.State.CANCELED)
+
+            # Notify that the order was canceled.
+            self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
 
         orderExecutionInfo = None
         if eventType == broker.OrderEvent.Type.FILLED or eventType == broker.OrderEvent.Type.PARTIALLY_FILLED:
@@ -527,6 +538,10 @@ class LiveBroker(broker.Broker):
             raise Exception("Can't cancel order that has already been filled")
 
         self.__ib.cancelOrder(order.getId())
+
+
+        #DO NOT DO THE BELOW:
+        '''
         self._unregisterOrder(order)
         order.switchState(broker.Order.State.CANCELED)
 
@@ -535,5 +550,6 @@ class LiveBroker(broker.Broker):
 
         # Notify that the order was canceled.
         self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "User requested cancellation"))
+        '''
 
     # END broker.Broker interface
