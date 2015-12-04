@@ -20,6 +20,7 @@
 
 from pyalgotrade import utils
 from pyalgotrade import observer
+from pyalgotrade import dispatchprio
 
 
 # This class is responsible for dispatching events from multiple subjects, synchronizing them if necessary.
@@ -52,16 +53,19 @@ class Dispatcher(object):
         if subject in self.__subjects:
             return
 
-        if subject.getDispatchPriority() is None:
+        # If the subject has no specific dispatch priority put it right at the end.
+        if subject.getDispatchPriority() is dispatchprio.LAST:
             self.__subjects.append(subject)
         else:
-            # Find the position for the subject's priority.
+            # Find the position according to the subject's priority.
             pos = 0
             for s in self.__subjects:
-                if s.getDispatchPriority() is None or subject.getDispatchPriority() < s.getDispatchPriority():
+                if s.getDispatchPriority() is dispatchprio.LAST or subject.getDispatchPriority() < s.getDispatchPriority():
                     break
                 pos += 1
             self.__subjects.insert(pos, subject)
+
+        subject.onDispatcherRegistered(self)
 
     # Return True if events were dispatched.
     def __dispatchSubject(self, subject, currEventDateTime):

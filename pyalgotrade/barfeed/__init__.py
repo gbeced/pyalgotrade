@@ -24,6 +24,7 @@ from pyalgotrade import bar
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
+from pyalgotrade import dispatchprio
 
 
 # This is only for backward compatibility since Frequency used to be defined here and not in bar.py.
@@ -147,6 +148,9 @@ class BaseBarFeed(feed.BaseFeed):
         if instrument is None:
             instrument = self.__defaultInstrument
         return self[instrument]
+
+    def getDispatchPriority(self):
+        return dispatchprio.BAR_FEED
 
 
 # This class is used by the optimizer module. The barfeed is already built on the server side,
