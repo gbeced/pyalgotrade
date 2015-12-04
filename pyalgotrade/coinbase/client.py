@@ -23,6 +23,7 @@ import Queue
 import time
 
 from pyalgotrade import observer
+from pyalgotrade import dispatchprio
 import pyalgotrade.logger
 from pyalgotrade.coinbase import httpclient
 from pyalgotrade.coinbase import wsclient
@@ -321,3 +322,7 @@ class Client(observer.Subject):
 
     def peekDateTime(self):
         return None
+
+    def getDispatchPriority(self):
+        # Dispatch events before the broker and barfeed.
+        return min(dispatchprio.BROKER, dispatchprio.BAR_FEED) - 1

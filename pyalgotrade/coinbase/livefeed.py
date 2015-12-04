@@ -101,6 +101,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         self.__bars = []
         self.registerInstrument(common.btc_symbol)
         self.__stopped = False
+        self.__coinbaseClient = coinbaseClient
         coinbaseClient.getOrderEvents().subscribe(self.__onOrderEvent)
 
     def __onOrderEvent(self, orderEvent):
@@ -122,6 +123,10 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         # Return None since this is a realtime subject.
         return None
+
+    def onDispatcherRegistered(self, dispatcher):
+        # Ensure that the client registered.
+        dispatcher.addSubject(self.__coinbaseClient)
 
     def start(self):
         pass
