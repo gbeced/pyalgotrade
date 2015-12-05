@@ -20,9 +20,16 @@
 
 import dateutil.parser
 
+from pyalgotrade import broker
 
-btc_symbol = "BTC"
+
+btc_symbol = "BTC-USD"
 
 
 def parse_timestamp(timestamp):
     return dateutil.parser.parse(timestamp)
+
+
+class BTCTraits(broker.InstrumentTraits):
+    def roundQuantity(self, quantity):
+        return round(quantity, 8)

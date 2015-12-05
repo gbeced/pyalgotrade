@@ -28,6 +28,7 @@ import pyalgotrade.logger
 from pyalgotrade.coinbase import httpclient
 from pyalgotrade.coinbase import wsclient
 from pyalgotrade.coinbase import obooksync
+from pyalgotrade.coinbase import common
 
 
 logger = pyalgotrade.logger.getLogger(__name__)
@@ -183,9 +184,9 @@ class Client(observer.Subject):
 
     """Interface with Coinbase exchange.
 
-    :param productId:
-    :param wsURL:
-    :param apiURL:
+    :param productId: The id of the product to trade.
+    :param wsURL: Websocket feed url.
+    :param apiURL: Rest API endpoint url.
 
     """
 
@@ -199,7 +200,7 @@ class Client(observer.Subject):
         WebSocketClient.Event.ORDER_CHANGE: obooksync.OrderBookSync.onOrderChange,
     }
 
-    def __init__(self, productId="BTC-USD", wsURL=wsclient.WebSocketClient.URL, apiURL=httpclient.HTTPClient.API_URL):
+    def __init__(self, productId=common.btc_symbol, wsURL=wsclient.WebSocketClient.URL, apiURL=httpclient.HTTPClient.API_URL):
         self.__productId = productId
         self.__stopped = False
         self.__httpClient = httpclient.HTTPClient(apiURL)

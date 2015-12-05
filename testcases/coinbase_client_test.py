@@ -21,6 +21,7 @@
 import unittest
 import datetime
 
+from pyalgotrade.coinbase import common
 from pyalgotrade.coinbase import client
 from pyalgotrade.coinbase import livefeed
 from pyalgotrade import dispatcher
@@ -33,7 +34,6 @@ class ClientTestCase(unittest.TestCase):
         self.dispatcher.getIdleEvent().subscribe(self.__onIdle)
 
         self.client = client.Client()
-        self.dispatcher.addSubject(self.client)
 
         self.feed = livefeed.LiveTradeFeed(self.client)
         self.dispatcher.addSubject(self.feed)
@@ -65,7 +65,7 @@ class ClientTestCase(unittest.TestCase):
             check_done()
 
         def on_bars(datetime, bars):
-            bar = bars["BTC"]
+            bar = bars[common.btc_symbol]
             self.assertIsNotNone(bar.getMatchMsg())
             self.assertIsNotNone(bar.getTypicalPrice())
             self.assertIsNotNone(bar.getPrice())

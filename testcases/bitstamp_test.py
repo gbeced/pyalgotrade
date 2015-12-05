@@ -25,6 +25,7 @@ import Queue
 import json
 
 import common as tc_common
+import test_strategy
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -184,14 +185,11 @@ class TestingLiveBroker(broker.LiveBroker):
         return self.__httpClient
 
 
-class TestStrategy(strategy.BaseStrategy):
+class TestStrategy(test_strategy.BaseTestStrategy):
     def __init__(self, feed, brk):
-        strategy.BaseStrategy.__init__(self, feed, brk)
+        super(TestStrategy, self).__init__(feed, brk)
         self.bid = None
         self.ask = None
-        self.posExecutionInfo = []
-        self.ordersUpdated = []
-        self.orderExecutionInfo = []
 
         # Subscribe to order book update events to get bid/ask prices to trade.
         feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
@@ -203,22 +201,6 @@ class TestStrategy(strategy.BaseStrategy):
         if bid != self.bid or ask != self.ask:
             self.bid = bid
             self.ask = ask
-
-    def onOrderUpdated(self, order):
-        self.ordersUpdated.append(order)
-        self.orderExecutionInfo.append(order.getExecutionInfo())
-
-    def onEnterOk(self, position):
-        self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
-
-    def onEnterCanceled(self, position):
-        self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
-
-    def onExitOk(self, position):
-        self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
-
-    def onExitCanceled(self, position):
-        self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
 
 
 class InstrumentTraitsTestCase(tc_common.TestCase):
