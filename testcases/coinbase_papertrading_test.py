@@ -20,23 +20,35 @@
 
 import unittest
 
-from pyalgotrade import dispatcher
+import test_strategy
 from pyalgotrade.coinbase import client
 from pyalgotrade.coinbase import livefeed
+from pyalgotrade.coinbase import broker
+from pyalgotrade.coinbase import common
 
 
 class PaperTradingTestCase(unittest.TestCase):
     def testBuyAndSell(self):
-        disp = dispatcher.Dispatcher()
+
+        class Strategy(test_strategy.BaseTestStrategy):
+            def __init__(self, barFeed, broker):
+                super(Strategy, self).__init__(barFeed, broker)
+                self.pos = None
+
+            def onBars(self, bars):
+                if self.pos is None:
+                    self.pos = self.enterLong(common.btc_symbol, 0.1, goodTillCanceled=True)
+                elif self.pos.isOpen():
+                    if self.pos.entryFilled() and not self.pos.exitActive():
+                        self.pos.exitMarket(goodTillCanceled=True)
+                else:
+                    self.stop()
+
         coinbaseCli = client.Client()
-        feed = livefeed.LiveTradeFeed(coinbaseCli)
-
-        disp.addSubject(coinbaseCli)
-        disp.addSubject(feed)
-
-        try:
-            disp.run()
-        finally:
-            disp.stop()
-
-
+        barFeed = livefeed.LiveTradeFeed(coinbaseCli)
+        brk = broker.BacktestingBroker(1000, barFeed)
+        strat = Strategy(barFeed, brk)
+        strat.run()
+        self.assertTrue(len(strat.posExecutionInfo) > 0)
+        self.assertTrue(len(strat.ordersUpdated) > 0)
+        self.assertTrue(len(strat.orderExecutionInfo) > 0)

@@ -17,3 +17,14 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+
+from pyalgotrade.broker import backtesting
+from pyalgotrade.coinbase import common
+
+
+class BacktestingBroker(backtesting.Broker):
+    def __init__(self, cash, barFeed):
+        backtesting.Broker.__init__(self, cash, barFeed)
+
+    def getInstrumentTraits(self, instrument):
+        return common.BTCTraits()

@@ -4,6 +4,7 @@ Version 0.20 (20/Aug/2018)
 . [NEW] Added an option to support skipping errors while parsing CSV files.
 . [NEW] Added batchSize parameter to optimizer component. Thanks micmicmichael for implementing this.
 . [NEW] Added savePlot to the plotter to save the plot to a file. Thanks Kimble Young for implementing this.
+. [NEW] Added support for Coinbase papertrading.
 . [FIX] Fixed a bug in the Event class when unsubscribing and re-subscribing while emitting. Thanks pjz for reporting this.
 . [FIX] Fixed a race condition in the local optimizer that was sometimes getting blocked waiting for workers.
 . [FIX] Fixed a bug while generating nonces for Bitstamp. Thanks pjz for reporting this.
