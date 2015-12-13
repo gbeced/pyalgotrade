@@ -443,3 +443,10 @@ class StrategyPlotter(object):
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
         fig.autofmt_xdate()
         plt.show()
+
+    def savePlot(self,filename, fromDateTime=None, toDateTime=None):
+
+        fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
+        fig.autofmt_xdate()
+
+        fig.savefig(filename, bb_inches='tight')
