@@ -33,22 +33,24 @@ class PaperTradingTestCase(unittest.TestCase):
         class Strategy(test_strategy.BaseTestStrategy):
             def __init__(self, barFeed, broker):
                 super(Strategy, self).__init__(barFeed, broker)
-                self.pos = None
+                self.buyOrder = None
+                self.sellOrder = None
 
             def onBars(self, bars):
-                if self.pos is None:
-                    self.pos = self.enterLong(common.btc_symbol, 0.1, goodTillCanceled=True)
-                elif self.pos.isOpen():
-                    if self.pos.entryFilled() and not self.pos.exitActive():
-                        self.pos.exitMarket(goodTillCanceled=True)
-                else:
-                    self.stop()
+                if self.buyOrder is None:
+                    self.buyOrder = self.marketOrder(common.btc_symbol, 0.1, goodTillCanceled=True)
+                elif self.buyOrder.isFilled():
+                    if self.sellOrder is None:
+                        self.sellOrder = self.marketOrder(common.btc_symbol, -0.1, goodTillCanceled=True)
+                    elif self.sellOrder.isFilled():
+                        self.stop()
 
         coinbaseCli = client.Client()
         barFeed = livefeed.LiveTradeFeed(coinbaseCli)
         brk = broker.BacktestingBroker(1000, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
-        self.assertTrue(len(strat.posExecutionInfo) > 0)
-        self.assertTrue(len(strat.ordersUpdated) > 0)
-        self.assertTrue(len(strat.orderExecutionInfo) > 0)
+        self.assertGreaterEqual(len(strat.ordersUpdated), 2)
+        self.assertGreaterEqual(len(strat.orderExecutionInfo), 2)
+        self.assertTrue(strat.buyOrder.isFilled())
+        self.assertTrue(strat.sellOrder.isFilled())
