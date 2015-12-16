@@ -35,10 +35,9 @@ class KeepAliveMgr(client.KeepAliveMgr):
 
 
 class WebSocketClient(client.WebSocketClientBase):
-    URL = "wss://ws-feed.exchange.coinbase.com"
     MAX_INACTIVITY = 120
 
-    def __init__(self, productId, url=URL):
+    def __init__(self, productId, url):
         super(WebSocketClient, self).__init__(url)
         self.__productId = productId
         self.__lastSequenceNr = None
