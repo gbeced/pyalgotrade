@@ -22,8 +22,8 @@ import pyalgotrade.logger
 from pyalgotrade import broker
 
 
-btc_symbol = "BTC"
 logger = pyalgotrade.logger.getLogger("bitstamp")
+btc_symbol = "BTC"
 
 
 class BTCTraits(broker.InstrumentTraits):

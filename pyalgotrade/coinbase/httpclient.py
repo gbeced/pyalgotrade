@@ -59,11 +59,10 @@ class OrderBook(object):
 
 
 class HTTPClient(object):
-    API_URL = "https://api.exchange.coinbase.com"
     USER_AGENT = "PyAlgoTrade"
     REQUEST_TIMEOUT = 30
 
-    def __init__(self, url=API_URL):
+    def __init__(self, url):
         self.__url = url
 
     def _get(self, path, url_params):
@@ -76,7 +75,7 @@ class HTTPClient(object):
         response.raise_for_status()
         return response
 
-    def getOrderBook(self, product="BTC-USD", level=1):
+    def getOrderBook(self, product, level=1):
         path = "/products/%s/book" % product
         url_params = {
             "level": level

@@ -34,6 +34,13 @@ from pyalgotrade.coinbase import common
 logger = pyalgotrade.logger.getLogger(__name__)
 
 
+REST_API_URL = "https://api.exchange.coinbase.com"
+WEBSOCKET_FEED_URL = "wss://ws-feed.exchange.coinbase.com"
+# https://public.sandbox.exchange.coinbase.com/
+SANDBOX_REST_API_URL = "https://api-public.sandbox.exchange.coinbase.com"
+SANDBOX_WEBSOCKET_FEED_URL = "wss://ws-feed-public.sandbox.exchange.coinbase.com"
+
+
 def pricelevels_to_obooklevels(priceLevels, maxValues):
     return map(
         lambda level: OrderBookLevel(level.getPrice(), level.getSize()),
@@ -186,8 +193,7 @@ class Client(observer.Subject):
 
     :param productId: The id of the product to trade.
     :param wsURL: Websocket feed url.
-    :param apiURL: Rest API endpoint url.
-
+    :param apiURL: Rest API url.
     """
 
     QUEUE_TIMEOUT = 0.01
@@ -200,7 +206,7 @@ class Client(observer.Subject):
         WebSocketClient.Event.ORDER_CHANGE: obooksync.OrderBookSync.onOrderChange,
     }
 
-    def __init__(self, productId=common.btc_symbol, wsURL=wsclient.WebSocketClient.URL, apiURL=httpclient.HTTPClient.API_URL):
+    def __init__(self, productId=common.btc_symbol, wsURL=WEBSOCKET_FEED_URL, apiURL=REST_API_URL):
         self.__productId = productId
         self.__stopped = False
         self.__httpClient = httpclient.HTTPClient(apiURL)
