@@ -28,7 +28,7 @@ from pyalgotrade.coinbase import common
 
 
 class PaperTradingTestCase(unittest.TestCase):
-    def testBuyAndSell(self):
+    def testBuyAndSellMarket(self):
 
         class Strategy(test_strategy.BaseTestStrategy):
             def __init__(self, barFeed, broker):
@@ -50,7 +50,10 @@ class PaperTradingTestCase(unittest.TestCase):
         brk = broker.BacktestingBroker(1000, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
+
         self.assertGreaterEqual(len(strat.ordersUpdated), 2)
         self.assertGreaterEqual(len(strat.orderExecutionInfo), 2)
         self.assertTrue(strat.buyOrder.isFilled())
+        self.assertGreater(strat.buyOrder.getCommissions(), 0)
         self.assertTrue(strat.sellOrder.isFilled())
+        self.assertGreater(strat.sellOrder.getCommissions(), 0)
