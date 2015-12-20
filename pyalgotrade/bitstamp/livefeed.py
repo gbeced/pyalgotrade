@@ -250,9 +250,12 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return self.__stopped
 
     def getOrderBookUpdateEvent(self):
-        """Returns the event that will be emitted as new trades are received from Bitstamp.
-        To subscribe to this event you need to pass in a callable object that receives one parameter:
+        """
+        Returns the event that will be emitted when the orderbook gets updated.
 
-        1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
+        Eventh handlers should receive one parameter:
+         1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
+
+        :rtype: :class:`pyalgotrade.observer.Event`.
         """
         return self.__orderBookUpdateEvent

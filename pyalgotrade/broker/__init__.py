@@ -22,6 +22,7 @@ import abc
 
 from pyalgotrade import observer
 from pyalgotrade import warninghelpers
+from pyalgotrade import dispatchprio
 
 
 # This class is used to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
@@ -492,6 +493,9 @@ class Broker(observer.Subject):
 
     def __init__(self):
         self.__orderEvent = observer.Event()
+
+    def getDispatchPriority(self):
+        return dispatchprio.BROKER
 
     def notifyOrderEvent(self, orderEvent):
         self.__orderEvent.emit(self, orderEvent)

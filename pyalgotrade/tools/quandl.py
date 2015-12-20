@@ -18,20 +18,20 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import urllib
-import urllib2
 import datetime
 import os
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
 
 from pyalgotrade.utils import dt
+from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
 
 
 # http://www.quandl.com/help/api
 
 def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
+    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
     params = {
         "trim_start": begin.strftime("%Y-%m-%d"),
         "trim_end": end.strftime("%Y-%m-%d"),
@@ -40,20 +40,7 @@ def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
     if authToken is not None:
         params["auth_token"] = authToken
 
-    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
-    url = "%s?%s" % (url, urllib.urlencode(params))
-
-    f = urllib2.urlopen(url)
-    if f.headers['Content-Type'] != 'text/csv':
-        raise Exception("Failed to download data: %s" % f.getcode())
-    buff = f.read()
-    f.close()
-
-    # Remove the BOM
-    while not buff[0].isalnum():
-        buff = buff[1:]
-
-    return buff
+    return csvutils.download_csv(url, params)
 
 
 def download_daily_bars(sourceCode, tableCode, year, csvFile, authToken=None):

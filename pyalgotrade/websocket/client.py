@@ -26,7 +26,7 @@ import tornado
 import pyalgotrade.logger
 
 
-logger = pyalgotrade.logger.getLogger("websocket")
+logger = pyalgotrade.logger.getLogger("websocket.client")
 
 
 # This class is responsible for sending keep alive messages and detecting disconnections
@@ -136,13 +136,15 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
         self.onOpened()
 
     def closed(self, code, reason=None):
+        wasConnected = self.__connected
         self.__connected = False
         if self.__keepAliveMgr:
             self.__keepAliveMgr.stop()
             self.__keepAliveMgr = None
         tornado.ioloop.IOLoop.instance().stop()
 
-        self.onClosed(code, reason)
+        if wasConnected:
+            self.onClosed(code, reason)
 
     def isConnected(self):
         return self.__connected
@@ -151,7 +153,12 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
         tornado.ioloop.IOLoop.instance().start()
 
     def stopClient(self):
-        self.close_connection()
+        try:
+            if self.__connected:
+                self.close()
+            self.close_connection()
+        except Exception, e:
+            logger.warning("Failed to close connection")
 
     ######################################################################
     # Overrides

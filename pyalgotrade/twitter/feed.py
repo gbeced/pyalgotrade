@@ -161,6 +161,3 @@ class TwitterFeed(observer.Subject):
 
     def peekDateTime(self):
         return None
-
-    def getDispatchPriority(self):
-        return None

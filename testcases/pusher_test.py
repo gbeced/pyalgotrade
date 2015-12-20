@@ -72,6 +72,9 @@ class WebSocketClientThread(threading.Thread):
         self.__wsclient.connect()
         self.__wsclient.startClient()
 
+    def stop(self):
+        self.__wsclient.stop()
+
 
 class TestCase(unittest.TestCase):
     def test_pusher(self):

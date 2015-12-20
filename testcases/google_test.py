@@ -19,6 +19,7 @@
 """
 
 import os
+import datetime
 
 import common
 
@@ -31,20 +32,21 @@ class ToolsTestCase(common.TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
 
-        common.init_temp_path()
-        path = os.path.join(common.get_temp_path(), "orcl-2010.csv")
-        googlefinance.download_daily_bars(instrument, 2010, path)
-        bf = googlefeed.Feed()
-        bf.addBarsFromCSV(instrument, path)
-        bf.loadAll()
-        self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-        self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        with common.TmpDir() as tmp_path:
+            path = os.path.join(tmp_path, "orcl-2010.csv")
+            googlefinance.download_daily_bars(instrument, 2010, path)
+            bf = googlefeed.Feed()
+            bf.addBarsFromCSV(instrument, path)
+            bf.loadAll()
+            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEqual(bf[instrument][-1].getClose(), 31.30)
 
     def testBuildDailyFeed(self):
         with common.TmpDir() as tmpPath:
             instrument = "orcl"
             bf = googlefinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
             bf.loadAll()
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
             self.assertEqual(bf[instrument][-1].getClose(), 31.30)
 
@@ -52,7 +54,7 @@ class ToolsTestCase(common.TestCase):
         instrument = "inexistent"
 
         # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "HTTP Error 400: Bad Request"):
+        with self.assertRaisesRegexp(Exception, "400 Client Error: Bad Request"):
             with common.TmpDir() as tmpPath:
                 bf = googlefinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
 

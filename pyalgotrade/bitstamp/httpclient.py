@@ -22,14 +22,14 @@ import time
 import datetime
 import hmac
 import hashlib
-import urllib
-import urllib2
-import json
+import requests
 import threading
-
 
 from pyalgotrade.utils import dt
 from pyalgotrade.bitstamp import common
+
+import logging
+logging.getLogger("requests").setLevel(logging.ERROR)
 
 
 def parse_datetime(dateTime):
@@ -147,8 +147,7 @@ class HTTPClient(object):
         data["signature"] = signature
         data["nonce"] = nonce
 
-        post_data = urllib.urlencode(data)
-        return (post_data, headers)
+        return (data, headers)
 
     def _post(self, url, params):
         common.logger.debug("POST to %s with params %s" % (url, str(params)))
@@ -157,10 +156,10 @@ class HTTPClient(object):
         # sending them in the wrong order.
         with self.__lock:
             data, headers = self._buildQuery(params)
-            req = urllib2.Request(url, data, headers)
-            response = urllib2.urlopen(req, data, timeout=HTTPClient.REQUEST_TIMEOUT)
+            response = requests.post(url, headers=headers, data=data, timeout=HTTPClient.REQUEST_TIMEOUT)
+            response.raise_for_status()
 
-        jsonResponse = json.loads(response.read())
+        jsonResponse = response.json()
 
         # Check for errors.
         if isinstance(jsonResponse, dict):

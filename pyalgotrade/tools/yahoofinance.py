@@ -18,7 +18,6 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import urllib2
 import os
 import datetime
 
@@ -26,6 +25,7 @@ import pyalgotrade.logger
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.utils import dt
+from pyalgotrade.utils import csvutils
 
 
 def __adjust_month(month):
@@ -37,18 +37,7 @@ def __adjust_month(month):
 
 def download_csv(instrument, begin, end, frequency):
     url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv" % (instrument, __adjust_month(begin.month), begin.day, begin.year, __adjust_month(end.month), end.day, end.year, frequency)
-
-    f = urllib2.urlopen(url)
-    if f.headers['Content-Type'] != 'text/csv':
-        raise Exception("Failed to download data: %s" % f.getcode())
-    buff = f.read()
-    f.close()
-
-    # Remove the BOM
-    while not buff[0].isalnum():
-        buff = buff[1:]
-
-    return buff
+    return csvutils.download_csv(url)
 
 
 def download_daily_bars(instrument, year, csvFile):

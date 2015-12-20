@@ -20,33 +20,25 @@
 .. moduleauthor:: Maciej Żok <maciek.zok@gmail.com>
 """
 
-import urllib2
 import os
 import datetime
 
 import pyalgotrade.logger
 from pyalgotrade import bar
 from pyalgotrade.barfeed import googlefeed
+from pyalgotrade.utils import csvutils
 
 
 def download_csv(instrument, begin, end):
     url = "http://www.google.com/finance/historical"
-    url += "?q={quote}".format(quote=instrument)
-    url += "&startdate={date}".format(date=begin.strftime("%b+%d,+%Y"))
-    url += "&enddate={date}".format(date=end.strftime("%b+%d,+%Y"))
-    url += "&output=csv"
+    params = {
+        "q": instrument,
+        "startdate": begin.strftime("%Y-%m-%d"),
+        "enddate": end.strftime("%Y-%m-%d"),
+        "output": "csv",
+    }
 
-    f = urllib2.urlopen(url)
-    if f.headers['Content-Type'] != 'application/vnd.ms-excel':
-        raise Exception("Failed to download data: %s" % f.getcode())
-    buff = f.read()
-    f.close()
-
-    # Remove the BOM
-    while not buff[0].isalnum():
-        buff = buff[1:]
-
-    return buff
+    return csvutils.download_csv(url, url_params=params, content_type="application/vnd.ms-excel")
 
 
 def download_daily_bars(instrument, year, csvFile):
