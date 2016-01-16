@@ -113,3 +113,13 @@ class TestCase(common.TestCase):
         for i in xrange(3):
             self.assertEqual(round(stochFilter[i], 4), kValues[i])
             self.assertEqual(round(stochFilter.getD()[i], 4), dValues[i])
+
+    def testZeroDivision(self):
+        highPrices = [1, 1, 1]
+        lowPrices = [1, 1, 1]
+        closePrices = [1, 1, 1]
+
+        barDS = bards.BarDataSeries()
+        stochFilter = stoch.StochasticOscillator(barDS, 2, 2)
+        self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
+        self.assertEqual(stochFilter[-1], 0)

@@ -24,28 +24,14 @@ from pyalgotrade.dataseries import bards
 from pyalgotrade.technical import ma
 
 
-class BarWrapper(object):
-    def __init__(self, useAdjusted):
-        self.__useAdjusted = useAdjusted
-
-    def getLow(self, bar_):
-        return bar_.getLow(self.__useAdjusted)
-
-    def getHigh(self, bar_):
-        return bar_.getHigh(self.__useAdjusted)
-
-    def getClose(self, bar_):
-        return bar_.getClose(self.__useAdjusted)
-
-
-def get_low_high_values(barWrapper, bars):
+def get_low_high_values(useAdjusted, bars):
     currBar = bars[0]
-    lowestLow = barWrapper.getLow(currBar)
-    highestHigh = barWrapper.getHigh(currBar)
+    lowestLow = currBar.getLow(useAdjusted)
+    highestHigh = currBar.getHigh(useAdjusted)
     for i in range(len(bars)):
         currBar = bars[i]
-        lowestLow = min(lowestLow, barWrapper.getLow(currBar))
-        highestHigh = max(highestHigh, barWrapper.getHigh(currBar))
+        lowestLow = min(lowestLow, currBar.getLow(useAdjusted))
+        highestHigh = max(highestHigh, currBar.getHigh(useAdjusted))
     return (lowestLow, highestHigh)
 
 
@@ -53,14 +39,18 @@ class SOEventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
         technical.EventWindow.__init__(self, period, dtype=object)
-        self.__barWrapper = BarWrapper(useAdjustedValues)
+        self.__useAdjusted = useAdjustedValues
 
     def getValue(self):
         ret = None
         if self.windowFull():
-            lowestLow, highestHigh = get_low_high_values(self.__barWrapper, self.getValues())
-            currentClose = self.__barWrapper.getClose(self.getValues()[-1])
-            ret = (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100
+            lowestLow, highestHigh = get_low_high_values(self.__useAdjusted, self.getValues())
+            currentClose = self.getValues()[-1].getClose(self.__useAdjusted)
+            closeDelta = currentClose - lowestLow
+            if closeDelta:
+                ret = closeDelta / float(highestHigh - lowestLow) * 100
+            else:
+                ret = 0.0
         return ret
 
 
