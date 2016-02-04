@@ -242,7 +242,7 @@ class DefaultStrategy(FillStrategy):
             if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
                 volumeLeft[instrument] = bar.getVolume()
             elif self.__volumeLimit is not None:
-                # We can't round here because there is not order to request the instrument traits.
+                # We can't round here because there is no order to request the instrument traits.
                 volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
             # Reset the volume used for each instrument.
             self.__volumeUsed[instrument] = 0.0
@@ -258,10 +258,13 @@ class DefaultStrategy(FillStrategy):
     def onOrderFilled(self, broker_, order):
         # Update the volume left.
         if self.__volumeLimit is not None:
-            assert self.__volumeLeft[order.getInstrument()] >= order.getExecutionInfo().getQuantity(), \
-                "Invalid fill quantity. Not enough volume left %s" % (self.__volumeLeft[order.getInstrument()])
+            # We round the volume left here becuase it was not rounded when it was initialized.
+            volumeLeft = order.getInstrumentTraits().roundQuantity(self.__volumeLeft[order.getInstrument()])
+            fillQuantity = order.getExecutionInfo().getQuantity()
+            assert volumeLeft >= fillQuantity, \
+                "Invalid fill quantity %s. Not enough volume left %s" % (fillQuantity, volumeLeft)
             self.__volumeLeft[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
-                self.__volumeLeft[order.getInstrument()] - order.getExecutionInfo().getQuantity()
+                volumeLeft - fillQuantity
             )
 
         # Update the volume used.
