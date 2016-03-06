@@ -3,6 +3,7 @@ Version 0.18 (TBD)
 . [FIX] Fixed zero division error in StochasticOscillator. Thanks Blake Jennings for reporting this.
 . [FIX] Fixed a rounding bug in the default fill strategy when calculating the volume left for a given instrument. Thanks Markus Trenkwalder for reporting this.
 . [FIX] Was not logging properly in backtesting broker when shares are not integers.
+. [FIX] Added exception handling to optimizer module. Thanks Sergey Cheparev for reporting this.
 
 Version 0.17 (10/May/2015)
 . [NEW] Hurst exponent technical indicator (pyalgotrade.technical.hurst.HurstExponent).

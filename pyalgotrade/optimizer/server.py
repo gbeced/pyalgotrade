@@ -216,8 +216,11 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
             # Show the best result.
             bestJob = self.getBestJob()
             if bestJob:
-                self.getLogger().info("Best final result %s with parameters: %s from client %s" % (bestJob.getBestResult(), bestJob.getBestParameters(), bestJob.getBestWorkerName()))
-                ret = Results(bestJob.getBestParameters(), bestJob.getBestResult())
+                if bestJob.getBestResult() is not None:
+                    self.getLogger().info("Best final result %s with parameters: %s from client %s" % (bestJob.getBestResult(), bestJob.getBestParameters(), bestJob.getBestWorkerName()))
+                    ret = Results(bestJob.getBestParameters(), bestJob.getBestResult())
+                else:
+                    self.getLogger().error("No results. All jobs failed")
             else:
                 self.getLogger().error("No jobs processed")
         finally:

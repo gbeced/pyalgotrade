@@ -90,7 +90,11 @@ class Worker(object):
             feed = barfeed.OptimizerBarFeed(barsFreq, instruments, bars)
             # Run the strategy.
             self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
-            result = self.runStrategy(feed, *parameters)
+            result = None
+            try:
+                result = self.runStrategy(feed, *parameters)
+            except Exception, e:
+                self.getLogger().exception("Error running strategy with parameters %s: %s" % (str(parameters), e))
             self.getLogger().info("Result %s" % result)
             if bestResult is None or result > bestResult:
                 bestResult = result
