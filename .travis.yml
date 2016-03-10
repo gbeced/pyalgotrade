@@ -1,10 +1,3 @@
-language: python
-python:
-  - "2.7"
-
-virtualenv:
-    system_site_packages: true
-
 env:
   global:
     - secure: "YgngWTEKD6bUVgExTN8vWYCq7mrMKsVVqZaWIsepRziU++K1e9iBuQrSspQbyrdsKMqKMyMnsM3ru7M6+D0F+p/BC4gyWg6N+wn3RoqrWidyutejibsobDJnS3EsSfo4cJUFcoAOzzuXK+Du0yUZPNBxjJdF/NA1C8vDg0YAmzs="
@@ -12,29 +5,25 @@ env:
     - secure: "oAUaWICTHks6N/RNFZbF/NJE+1mB45DRZu1uvzKN5EhEp+Qys6LGHm1yZLI1sMAfwYrLro1oxNGpxD26hoMDjy2bDyBNZj59i2M7Eeo9juY3wR2sz0tKuvEdMdbuhMGyDgvXV6xlqO10hHeUUwbJOyxcQxmcp0c33B0Jse3m+pI="
     - secure: "OrR5+l3HzjKWQtVRUIHB1uLCFtRt1wNAQxJjoL6mufBMIigcpMnE2QzsoP9ywSgew8St4nFMGaL/xxR/RYTi59c6fVRh8zGg/JYMSYtr4UM8M2Gk0vSYmo3JO9OihOxn3JWbF4606vzEgqtjMT9qojo3Xx/d0Hp9br5s/wwe1oQ="
 
-before_install:
-  - sudo apt-get install gfortran libopenblas-dev liblapack-dev
-  - sudo pip install numpy
-  - sudo apt-get install python-scipy
-  # statsmodels dependencies
-  - sudo pip install pandas
-  - sudo pip install patsy
-  # TA-Lib dependencies
-  - ./travis/install_talib_deps.sh
-  # Code coverage reports
-  - sudo pip install coveralls
-  # PyAlgoTrade dependencies
-  - sudo pip install --allow-external=TA-Lib --allow-unverified=TA-Lib -r travis/requirements.txt
+sudo: required
 
-install:
-  - pip list
-  - pip install .
+language: python
+python:
+  - "2.7"
+
+services:
+  - docker
+
+before_install:
+  - docker pull gbecedillas/pyalgotrade:0.17
+#  - docker run gbecedillas/pyalgotrade:0.17
+#  - sudo pip install coveralls
 
 # command to run tests
 # optimizer_testcase is ignored because it gets blocked in Travis.
 script:
-  - export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-  - nosetests --ignore-files=optimizer_testcase --with-coverage --cover-package=pyalgotrade
+#    - export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+#    - nosetests --ignore-files=optimizer_testcase --with-coverage --cover-package=pyalgotrade
 
-after_success:
-  - coveralls
+#after_success:
+#  - coveralls

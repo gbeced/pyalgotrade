@@ -1,6 +1,7 @@
 *pyc
 MANIFEST
 doc/_build
+.idea
 
 dist
 build
