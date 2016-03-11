@@ -1,7 +1,0 @@
-TA-Lib
-scipy
-statsmodels==0.5.0
-matplotlib
-ws4py
-tornado
-tweepy

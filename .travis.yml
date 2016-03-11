@@ -16,14 +16,12 @@ services:
 
 before_install:
   - docker pull gbecedillas/pyalgotrade:0.17
-#  - docker run gbecedillas/pyalgotrade:0.17
-#  - sudo pip install coveralls
+  - cp travis/Dockerfile .
+  - docker build -t testcases .
 
-# command to run tests
-# optimizer_testcase is ignored because it gets blocked in Travis.
 script:
-#    - export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-#    - nosetests --ignore-files=optimizer_testcase --with-coverage --cover-package=pyalgotrade
+# TODO: Pass TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN and TWITTER_ACCESS_TOKEN_SECRET to docker.
+  - docker run --name testcases testcases /bin/bash -c "cd /tmp/testcases; ./run_tests.sh"
 
-#after_success:
-#  - coveralls
+# after_success:
+#   - coveralls

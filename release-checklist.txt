@@ -8,6 +8,7 @@ Release checklist
 [ ] Update version in setup.py.
 [ ] Update version in docker/build.sh.
 [ ] Update version in docker/Dockerfile
+[ ] Update version in travis/Dockerfile
 [ ] Update version in .travis.yml.
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
