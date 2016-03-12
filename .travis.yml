@@ -17,8 +17,6 @@ services:
 before_install:
   - docker pull gbecedillas/pyalgotrade:0.17
   - cp travis/Dockerfile .
-  - ls -al
-  - ls -al travis
   - docker build -t testcases .
 
 script:
