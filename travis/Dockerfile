@@ -10,4 +10,3 @@ COPY coverage.cfg /tmp/testcases/
 COPY setup.cfg /tmp/testcases/
 COPY testcases /tmp/testcases/
 COPY samples /tmp/testcases/
-
