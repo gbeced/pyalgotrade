@@ -18,6 +18,7 @@ before_install:
   - docker pull gbecedillas/pyalgotrade:0.17
   - cp travis/Dockerfile .
   - docker build -t testcases .
+  - sudo pip install coveralls
 
 script:
   - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
