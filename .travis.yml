@@ -20,7 +20,7 @@ before_install:
   - docker build -t testcases .
 
 script:
-  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET testcases /bin/bash -c "cd /tmp/testcases; ./run_tests.sh"
+  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
 
 # after_success:
 #   - coveralls
