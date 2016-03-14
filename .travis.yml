@@ -24,6 +24,8 @@ script:
   - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
 
 after_success:
-  - docker cp testcases:/tmp/pyalgotrade/pyalgotrade .
   - docker cp testcases:/tmp/pyalgotrade/.coverage .
+  # .coverage file has absolute paths in it, so we need to put the source in the right path for coveralls to find it.
+  - mkdir /tmp/pyalgotrade
+  - docker cp testcases:/tmp/pyalgotrade/pyalgotrade /tmp/pyalgotrade/pyalgotrade
   - coveralls
