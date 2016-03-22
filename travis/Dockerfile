@@ -2,7 +2,7 @@ FROM gbecedillas/pyalgotrade:0.17
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
 RUN pip install nose
-RUN pip install coveralls
+RUN pip install nose-cov
 
 RUN mkdir /tmp/pyalgotrade
 
