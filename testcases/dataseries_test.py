@@ -403,3 +403,23 @@ class TestDateAlignedDataSeries(common.TestCase):
         ds2.appendWithDateTime(now + datetime.timedelta(seconds=4), 4)
         self.assertEqual(ads1[:], [2, 3])
         self.assertEqual(ads2[:], [2, 3])
+
+
+class TestUpdatedDefaultMaxLen(common.TestCase):
+    def setUp(self):
+        super(TestUpdatedDefaultMaxLen, self).setUp()
+        self.__default_max_len = dataseries.DEFAULT_MAX_LEN
+        dataseries.DEFAULT_MAX_LEN = 2048
+
+    def tearDown(self):
+        super(TestUpdatedDefaultMaxLen, self).tearDown()
+        dataseries.DEFAULT_MAX_LEN = self.__default_max_len
+
+    def testMaxLen(self):
+        ds = dataseries.SequenceDataSeries()
+        for i in range(3000):
+            ds.append(i)
+        self.assertEqual(len(ds), 2048)
+        self.assertEqual(ds[0], 952)
+        self.assertEqual(ds[-1], 2999)
+
