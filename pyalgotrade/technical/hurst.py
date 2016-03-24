@@ -21,7 +21,6 @@
 import numpy as np
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 # Code Tom Starke for the Hurst Exponent.
@@ -76,11 +75,11 @@ class HurstExponent(technical.EventBasedFilter):
     :type maxLags: int.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
-        from the opposite end.
+        from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, minLags=2, maxLags=20, logValues=True, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, minLags=2, maxLags=20, logValues=True, maxLen=None):
         assert period > 0, "period must be > 0"
         assert minLags >= 2, "minLags must be >= 2"
         assert maxLags > minLags, "maxLags must be > minLags"

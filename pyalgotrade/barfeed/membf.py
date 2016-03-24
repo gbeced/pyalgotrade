@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import barfeed
-from pyalgotrade import dataseries
 from pyalgotrade import bar
 from pyalgotrade import utils
 
@@ -32,7 +31,7 @@ from pyalgotrade import utils
 # - Forward the call to start() if they override it.
 
 class BarFeed(barfeed.BaseBarFeed):
-    def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency, maxLen=None):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
         self.__bars = {}
         self.__nextPos = {}

@@ -25,7 +25,7 @@ from pyalgotrade import dataseries
 
 
 class TestCase(common.TestCase):
-    def __buildRatio(self, values, ratioMaxLen=dataseries.DEFAULT_MAX_LEN):
+    def __buildRatio(self, values, ratioMaxLen=None):
         seqDS = dataseries.SequenceDataSeries()
         ret = ratio.Ratio(seqDS, ratioMaxLen)
         for value in values:

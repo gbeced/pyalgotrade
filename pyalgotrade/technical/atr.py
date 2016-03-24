@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
 
@@ -69,11 +68,12 @@ class ATR(technical.EventBasedFilter):
     :param useAdjustedValues: True to use adjusted Low/High/Close values.
     :type useAdjustedValues: boolean.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, barDataSeries, period, useAdjustedValues=False, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 

@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 class StdDevEventWindow(technical.EventWindow):
@@ -45,11 +44,12 @@ class StdDev(technical.EventBasedFilter):
     :param ddof: Delta degrees of freedom.
     :type ddof: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, ddof=0, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, ddof=0, maxLen=None):
         technical.EventBasedFilter.__init__(self, dataSeries, StdDevEventWindow(period, ddof), maxLen)
 
 
@@ -80,9 +80,10 @@ class ZScore(technical.EventBasedFilter):
     :param ddof: Delta degrees of freedom to use for the standard deviation.
     :type ddof: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, ddof=0, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, ddof=0, maxLen=None):
         technical.EventBasedFilter.__init__(self, dataSeries, ZScoreEventWindow(period, ddof), maxLen)

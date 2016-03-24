@@ -21,7 +21,7 @@
 from pyalgotrade import dataseries
 
 
-def datetime_aligned(ds1, ds2, maxLen=dataseries.DEFAULT_MAX_LEN):
+def datetime_aligned(ds1, ds2, maxLen=None):
     """
     Returns two dataseries that exhibit only those values whose datetimes are in both dataseries.
 
@@ -30,7 +30,8 @@ def datetime_aligned(ds1, ds2, maxLen=dataseries.DEFAULT_MAX_LEN):
     :param ds2: A DataSeries instance.
     :type ds2: :class:`DataSeries`.
     :param maxLen: The maximum number of values to hold for the returned :class:`DataSeries`.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
     aligned1 = dataseries.SequenceDataSeries(maxLen)

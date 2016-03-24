@@ -20,7 +20,6 @@
 
 import numpy as np
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 # This is the formula I'm using to calculate the averages based on previous ones.
@@ -72,10 +71,11 @@ class SMA(technical.EventBasedFilter):
     :param period: The number of values to use to calculate the SMA.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, maxLen=None):
         technical.EventBasedFilter.__init__(self, dataSeries, SMAEventWindow(period), maxLen)
 
 
@@ -108,11 +108,12 @@ class EMA(technical.EventBasedFilter):
     :param period: The number of values to use to calculate the EMA. Must be an integer greater than 1.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, maxLen=None):
         technical.EventBasedFilter.__init__(self, dataSeries, EMAEventWindow(period), maxLen)
 
 
@@ -139,9 +140,10 @@ class WMA(technical.EventBasedFilter):
     :param weights: A list of int/float with the weights.
     :type weights: list.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, weights, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, weights, maxLen=None):
         technical.EventBasedFilter.__init__(self, dataSeries, WMAEventWindow(weights), maxLen)

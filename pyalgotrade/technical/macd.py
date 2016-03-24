@@ -34,10 +34,11 @@ class MACD(dataseries.SequenceDataSeries):
     :param signalEMA: The number of values to use to calculate the signal EMA.
     :type signalEMA: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA, maxLen=None):
         assert(fastEMA > 0)
         assert(slowEMA > 0)
         assert(fastEMA < slowEMA)
