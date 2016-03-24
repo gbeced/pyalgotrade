@@ -3,7 +3,7 @@ Introduction
 
 PyAlgoTrade is an event driven algorithmic trading Python library with support for:
  * Backtesting with historical data from CSV files.
- * Paper trading using :ref:`Xignite <xignite-tutorial-label>` and :ref:`Bitstamp <bitstamp-tutorial-label>` live feeds.
+ * Paper trading using :ref:`Bitstamp <bitstamp-tutorial-label>` live feeds.
  * Real trading on Bitstamp.
 
 It should also make it easy to optimize a strategy using multiple computers.
