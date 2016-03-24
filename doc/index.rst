@@ -16,7 +16,6 @@ Contents:
     code
     tools
     eventprofiler
-    xignite
     bitcoin
     twitter
     talib
