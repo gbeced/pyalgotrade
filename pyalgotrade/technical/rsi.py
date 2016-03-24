@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 # RSI = 100 - 100 / (1 + RS)
@@ -133,9 +132,10 @@ class RSI(technical.EventBasedFilter):
     :param period: The period. Note that if period is **n**, then **n+1** values are used. Must be > 1.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, maxLen=None):
         technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)

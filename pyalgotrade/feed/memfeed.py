@@ -23,7 +23,7 @@ from pyalgotrade import dataseries
 
 
 class MemFeed(feed.BaseFeed):
-    def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, maxLen=None):
         feed.BaseFeed.__init__(self, maxLen)
         self.__values = []
         self.__nextIdx = 0

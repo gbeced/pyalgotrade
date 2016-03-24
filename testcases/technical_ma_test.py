@@ -34,7 +34,7 @@ def safe_round(number, ndigits):
 
 
 class SMATestCase(common.TestCase):
-    def __buildSMA(self, period, values, smaMaxLen=dataseries.DEFAULT_MAX_LEN):
+    def __buildSMA(self, period, values, smaMaxLen=None):
         seqDs = dataseries.SequenceDataSeries()
         ret = ma.SMA(seqDs, period, smaMaxLen)
         for value in values:
@@ -151,7 +151,7 @@ class SMATestCase(common.TestCase):
 
 
 class WMATestCase(common.TestCase):
-    def __buildWMA(self, weights, values, seqMaxLen=dataseries.DEFAULT_MAX_LEN, wmaMaxLen=dataseries.DEFAULT_MAX_LEN):
+    def __buildWMA(self, weights, values, seqMaxLen=None, wmaMaxLen=None):
         seqDS = dataseries.SequenceDataSeries(maxLen=seqMaxLen)
         ret = ma.WMA(seqDS, weights, wmaMaxLen)
         for value in values:

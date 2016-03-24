@@ -24,7 +24,6 @@ import datetime
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.feed import memfeed
-from pyalgotrade import dataseries
 
 
 # Interface for csv row parsers.
@@ -74,7 +73,7 @@ class DateRangeFilter(RowFilter):
 
 
 class BaseFeed(memfeed.MemFeed):
-    def __init__(self, rowParser, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, rowParser, maxLen=None):
         memfeed.MemFeed.__init__(self, maxLen)
         self.__rowParser = rowParser
         self.__rowFilter = None
@@ -152,11 +151,12 @@ class Feed(BaseFeed):
     :param timezone: The timezone to use to localize datetimes. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dateTimeColumn, dateTimeFormat, converter=None, delimiter=",", timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dateTimeColumn, dateTimeFormat, converter=None, delimiter=",", timezone=None, maxLen=None):
         if converter is None:
             converter = float_or_string
         self.__rowParser = BasicRowParser(dateTimeColumn, dateTimeFormat, converter, delimiter, timezone)

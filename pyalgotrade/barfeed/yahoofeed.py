@@ -22,7 +22,6 @@ from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.barfeed import common
 from pyalgotrade.utils import dt
 from pyalgotrade import bar
-from pyalgotrade import dataseries
 
 import datetime
 
@@ -94,7 +93,8 @@ class Feed(csvfeed.BarFeed):
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
@@ -105,7 +105,7 @@ class Feed(csvfeed.BarFeed):
             * If any of the instruments loaded are in different timezones, then the timezone parameter must be set.
     """
 
-    def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=None):
         if isinstance(timezone, int):
             raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
 

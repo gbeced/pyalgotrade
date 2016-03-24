@@ -21,7 +21,6 @@
 import abc
 
 from pyalgotrade import bar
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
 from pyalgotrade import dispatchprio
@@ -37,14 +36,14 @@ class BaseBarFeed(feed.BaseFeed):
     :param frequency: The bars frequency. Valid values defined in :class:`pyalgotrade.bar.Frequency`.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
-        from the opposite end.
+        from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency, maxLen=None):
         feed.BaseFeed.__init__(self, maxLen)
         self.__frequency = frequency
         self.__useAdjustedValues = False
@@ -156,7 +155,7 @@ class BaseBarFeed(feed.BaseFeed):
 # This class is used by the optimizer module. The barfeed is already built on the server side,
 # and the bars are sent back to workers.
 class OptimizerBarFeed(BaseBarFeed):
-    def __init__(self, frequency, instruments, bars, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency, instruments, bars, maxLen=None):
         BaseBarFeed.__init__(self, frequency, maxLen)
         for instrument in instruments:
             self.registerInstrument(instrument)

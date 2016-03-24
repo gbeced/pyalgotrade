@@ -130,7 +130,7 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
             * bar.Frequency.MONTH
     """
 
-    def __init__(self, dataSeries, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, frequency, maxLen=None):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
@@ -152,7 +152,7 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
 
 
 class ResampledDataSeries(dataseries.SequenceDataSeries, DSResampler):
-    def __init__(self, dataSeries, frequency, aggfun, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, frequency, aggfun, maxLen=None):
         dataseries.SequenceDataSeries.__init__(self, maxLen)
         DSResampler.__init__(self, dataSeries, frequency)
         self.__aggfun = aggfun

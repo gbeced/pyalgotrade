@@ -25,11 +25,12 @@ class BarDataSeries(dataseries.SequenceDataSeries):
     """A DataSeries of :class:`pyalgotrade.bar.Bar` instances.
 
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, maxLen=None):
         dataseries.SequenceDataSeries.__init__(self, maxLen)
         self.__openDS = dataseries.SequenceDataSeries(maxLen)
         self.__closeDS = dataseries.SequenceDataSeries(maxLen)

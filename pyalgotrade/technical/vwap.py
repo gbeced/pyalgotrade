@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
 
@@ -55,11 +54,12 @@ class VWAP(technical.EventBasedFilter):
     :param useTypicalPrice: True if the typical price should be used instead of the closing price.
     :type useTypicalPrice: boolean.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen=None):
         assert isinstance(dataSeries, bards.BarDataSeries), \
             "dataSeries must be a dataseries.bards.BarDataSeries instance"
 

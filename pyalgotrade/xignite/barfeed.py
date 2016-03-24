@@ -25,7 +25,6 @@ import Queue
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
-from pyalgotrade import dataseries
 from pyalgotrade import resamplebase
 import pyalgotrade.logger
 from pyalgotrade.utils import dt
@@ -170,7 +169,8 @@ class LiveFeed(barfeed.BaseBarFeed):
         This is necessary because the bar may not be immediately available.
     :type apiCallDelay: int.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note:: Valid exchange suffixes are:
@@ -184,7 +184,7 @@ class LiveFeed(barfeed.BaseBarFeed):
 
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, apiToken, identifiers, frequency, apiCallDelay=30, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, apiToken, identifiers, frequency, apiCallDelay=30, maxLen=None):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
         if not isinstance(identifiers, list):
             raise Exception("identifiers must be a list")

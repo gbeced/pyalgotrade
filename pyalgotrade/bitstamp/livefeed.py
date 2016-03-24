@@ -23,7 +23,6 @@ import time
 import Queue
 
 from pyalgotrade import bar
-from pyalgotrade import dataseries
 from pyalgotrade import barfeed
 from pyalgotrade import observer
 from pyalgotrade.bitstamp import common
@@ -93,7 +92,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
-        from the opposite end.
+        from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
@@ -102,10 +101,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
-        if not isinstance(maxLen, int):
-            raise Exception("Invalid type for maxLen parameter")
-
+    def __init__(self, maxLen=None):
         barfeed.BaseBarFeed.__init__(self, bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
         self.registerInstrument(common.btc_symbol)

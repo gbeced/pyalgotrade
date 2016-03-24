@@ -21,7 +21,6 @@
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
-from pyalgotrade import dataseries
 from pyalgotrade import bar
 
 import datetime
@@ -95,7 +94,7 @@ class BarFeed(membf.BarFeed):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency, maxLen=None):
         membf.BarFeed.__init__(self, frequency, maxLen)
         self.__barFilter = None
         self.__dailyTime = datetime.time(0, 0, 0)
@@ -187,7 +186,8 @@ class GenericBarFeed(BarFeed):
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
@@ -199,7 +199,7 @@ class GenericBarFeed(BarFeed):
          * If any of the instruments loaded are in different timezones, then the timezone parameter should be set.
     """
 
-    def __init__(self, frequency, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, frequency, timezone=None, maxLen=None):
         BarFeed.__init__(self, frequency, maxLen)
         self.__timezone = timezone
         # Assume bars don't have adjusted close. This will be set to True after

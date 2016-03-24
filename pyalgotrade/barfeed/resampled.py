@@ -16,7 +16,6 @@
 
 
 from pyalgotrade import barfeed
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import resampled
 from pyalgotrade import resamplebase
 from pyalgotrade import bar
@@ -52,7 +51,7 @@ class BarsGrouper(resamplebase.Grouper):
 
 class ResampledBarFeed(barfeed.BaseBarFeed):
 
-    def __init__(self, barFeed, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, barFeed, frequency, maxLen=None):
         barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
 
         if not isinstance(barFeed, barfeed.BaseBarFeed):
