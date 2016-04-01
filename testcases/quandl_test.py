@@ -171,3 +171,12 @@ class ToolsTestCase(common.TestCase):
             )
             bf.loadAll()
             self.assertNotIn(instrument, bf)
+
+    def testMapColumnNames(self):
+        with common.TmpDir() as tmpPath:
+            bf = quandl.build_feed("YAHOO", ["AAPL"], 2010, 2010, tmpPath, columnNames={"adj_close": "Adjusted Close"})
+            bf.setUseAdjustedValues(True)
+            bf.loadAll()
+            self.assertEquals(bf["AAPL"][-1].getClose(), 322.560013)
+            self.assertEquals(bf["AAPL"][-1].getAdjClose(), 42.674196)
+            self.assertEquals(bf["AAPL"][-1].getPrice(), 42.674196 )
