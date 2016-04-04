@@ -47,6 +47,8 @@ class BaseFeed(observer.Subject):
     """
 
     def __init__(self, maxLen):
+        super(BaseFeed, self).__init__()
+
         maxLen = dataseries.get_checked_max_len(maxLen)
 
         self.__ds = {}

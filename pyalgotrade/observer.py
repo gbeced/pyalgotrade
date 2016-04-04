@@ -67,6 +67,9 @@ class Event(object):
 class Subject(object):
     __metaclass__ = abc.ABCMeta
 
+    def __init__(self):
+        self.__dispatchPrio = dispatchprio.LAST
+
     # This may raise.
     @abc.abstractmethod
     def start(self):
@@ -101,8 +104,11 @@ class Subject(object):
 
     def getDispatchPriority(self):
         # Returns a priority used to sort subjects within the dispatch queue.
-        # The return value should never change.
-        return dispatchprio.LAST
+        # The return value should never change once this subject is added to the dispatcher.
+        return self.__dispatchPrio
+
+    def setDispatchPriority(self, dispatchPrio):
+        self.__dispatchPrio = dispatchPrio
 
     def onDispatcherRegistered(self, dispatcher):
         # Called when the subject is registered with a dispatcher.

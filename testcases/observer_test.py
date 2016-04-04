@@ -29,6 +29,7 @@ from pyalgotrade import dispatcher
 
 class NonRealtimeFeed(observer.Subject):
     def __init__(self, datetimes, priority=None):
+        super(NonRealtimeFeed, self).__init__()
         self.__datetimes = datetimes
         self.__event = observer.Event()
         self.__priority = priority
@@ -62,6 +63,7 @@ class NonRealtimeFeed(observer.Subject):
 
 class RealtimeFeed(observer.Subject):
     def __init__(self, datetimes, priority=None):
+        super(RealtimeFeed, self).__init__()
         self.__datetimes = datetimes
         self.__event = observer.Event()
         self.__priority = priority

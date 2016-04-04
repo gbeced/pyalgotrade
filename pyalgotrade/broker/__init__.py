@@ -492,6 +492,7 @@ class Broker(observer.Subject):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
+        super(Broker, self).__init__()
         self.__orderEvent = observer.Event()
 
     def getDispatchPriority(self):

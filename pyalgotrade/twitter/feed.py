@@ -89,6 +89,8 @@ class TwitterFeed(observer.Subject):
         assert isinstance(follow, list), "follow must be a list"
         assert isinstance(languages, list), "languages must be a list"
 
+        super(TwitterFeed, self).__init__()
+
         self.__event = observer.Event()
         self.__queue = Queue.Queue()
         self.__thread = None
