@@ -175,7 +175,7 @@ class OptimizerBarFeed(BaseBarFeed):
         return self.__barsHaveAdjClose
 
     def start(self):
-        pass
+        super(OptimizerBarFeed, self).start()
 
     def stop(self):
         pass

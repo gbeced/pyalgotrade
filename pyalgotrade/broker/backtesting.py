@@ -468,7 +468,7 @@ class Broker(broker.Broker):
             self.__onBarsImpl(order, bars)
 
     def start(self):
-        pass
+        super(Broker, self).start()
 
     def stop(self):
         pass

@@ -106,7 +106,7 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         return None
 
     def start(self):
-        pass
+        super(ResampledBarFeed, self).start()
 
     def stop(self):
         pass

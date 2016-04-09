@@ -129,6 +129,7 @@ class TwitterFeed(observer.Subject):
         return self.__event.subscribe(callback)
 
     def start(self):
+        super(TwitterFeed, self).start()
         if self.__thread is not None:
             raise Exception("Already running")
 

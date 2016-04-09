@@ -211,6 +211,7 @@ class LiveBroker(broker.Broker):
 
     # BEGIN observer.Subject interface
     def start(self):
+        super(LiveBroker, self).start()
         self.refreshAccountBalance()
         self.refreshOpenOrders()
         self._startTradeMonitor()

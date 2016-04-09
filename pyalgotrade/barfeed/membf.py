@@ -49,6 +49,7 @@ class BarFeed(barfeed.BaseBarFeed):
         return self.__currDateTime
 
     def start(self):
+        super(BarFeed, self).start()
         self.__started = True
 
     def stop(self):

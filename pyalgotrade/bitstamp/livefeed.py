@@ -211,6 +211,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     # This may raise.
     def start(self):
+        super(LiveTradeFeed, self).start()
         if self.__thread is not None:
             raise Exception("Already running")
         elif not self.__initializeClient():

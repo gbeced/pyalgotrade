@@ -38,7 +38,7 @@ class NonRealtimeFeed(observer.Subject):
         return self.__event
 
     def start(self):
-        pass
+        super(NonRealtimeFeed, self).start()
 
     def stop(self):
         pass
@@ -72,7 +72,7 @@ class RealtimeFeed(observer.Subject):
         return self.__event
 
     def start(self):
-        pass
+        super(RealtimeFeed, self).start()
 
     def stop(self):
         pass
