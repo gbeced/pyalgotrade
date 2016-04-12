@@ -44,7 +44,7 @@ class BaseBarFeed(feed.BaseFeed):
     """
 
     def __init__(self, frequency, maxLen=None):
-        feed.BaseFeed.__init__(self, maxLen)
+        super(BaseBarFeed, self).__init__(maxLen)
         self.__frequency = frequency
         self.__useAdjustedValues = False
         self.__defaultInstrument = None
@@ -156,7 +156,7 @@ class BaseBarFeed(feed.BaseFeed):
 # and the bars are sent back to workers.
 class OptimizerBarFeed(BaseBarFeed):
     def __init__(self, frequency, instruments, bars, maxLen=None):
-        BaseBarFeed.__init__(self, frequency, maxLen)
+        super(OptimizerBarFeed, self).__init__(frequency, maxLen)
         for instrument in instruments:
             self.registerInstrument(instrument)
         self.__bars = bars

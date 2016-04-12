@@ -24,7 +24,8 @@ from pyalgotrade import dataseries
 
 class MemFeed(feed.BaseFeed):
     def __init__(self, maxLen=None):
-        feed.BaseFeed.__init__(self, maxLen)
+        super(MemFeed, self).__init__(maxLen)
+
         self.__values = []
         self.__nextIdx = 0
 

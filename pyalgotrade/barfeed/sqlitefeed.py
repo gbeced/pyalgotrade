@@ -141,7 +141,8 @@ class Database(dbfeed.Database):
 
 class Feed(membf.BarFeed):
     def __init__(self, dbFilePath, frequency, maxLen=None):
-        membf.BarFeed.__init__(self, frequency, maxLen)
+        super(Feed, self).__init__(frequency, maxLen)
+
         self.__db = Database(dbFilePath)
 
     def barsHaveAdjClose(self):

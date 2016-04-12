@@ -74,7 +74,8 @@ class DateRangeFilter(RowFilter):
 
 class BaseFeed(memfeed.MemFeed):
     def __init__(self, rowParser, maxLen=None):
-        memfeed.MemFeed.__init__(self, maxLen)
+        super(BaseFeed, self).__init__(maxLen)
+
         self.__rowParser = rowParser
         self.__rowFilter = None
 
@@ -160,7 +161,8 @@ class Feed(BaseFeed):
         if converter is None:
             converter = float_or_string
         self.__rowParser = BasicRowParser(dateTimeColumn, dateTimeFormat, converter, delimiter, timezone)
-        BaseFeed.__init__(self, self.__rowParser, maxLen)
+
+        super(Feed, self).__init__(self.__rowParser, maxLen)
 
     def addValuesFromCSV(self, path):
         """Loads values from a file.

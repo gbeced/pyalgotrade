@@ -118,7 +118,8 @@ class Feed(csvfeed.BarFeed):
         if frequency not in [bar.Frequency.DAY]:
             raise Exception("Invalid frequency.")
 
-        csvfeed.BarFeed.__init__(self, frequency, maxLen)
+        super(Feed, self).__init__(frequency, maxLen)
+
         self.__timezone = timezone
         self.__sanitizeBars = False
 

@@ -32,7 +32,8 @@ from pyalgotrade import utils
 
 class BarFeed(barfeed.BaseBarFeed):
     def __init__(self, frequency, maxLen=None):
-        barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
+        super(BarFeed, self).__init__(frequency, maxLen)
+
         self.__bars = {}
         self.__nextPos = {}
         self.__started = False

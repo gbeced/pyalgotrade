@@ -95,7 +95,8 @@ class BarFeed(membf.BarFeed):
     """
 
     def __init__(self, frequency, maxLen=None):
-        membf.BarFeed.__init__(self, frequency, maxLen)
+        super(BarFeed, self).__init__(frequency, maxLen)
+
         self.__barFilter = None
         self.__dailyTime = datetime.time(0, 0, 0)
 
@@ -200,7 +201,8 @@ class GenericBarFeed(BarFeed):
     """
 
     def __init__(self, frequency, timezone=None, maxLen=None):
-        BarFeed.__init__(self, frequency, maxLen)
+        super(GenericBarFeed, self).__init__(frequency, maxLen)
+
         self.__timezone = timezone
         # Assume bars don't have adjusted close. This will be set to True after
         # loading the first file if the adj_close column is there.
