@@ -139,6 +139,7 @@ class GenericRowParser(RowParser):
         self.__closeColName = columnNames["close"]
         self.__volumeColName = columnNames["volume"]
         self.__adjCloseColName = columnNames["adj_close"]
+        self.__columnNames = columnNames
 
     def _parseDate(self, dateString):
         ret = datetime.datetime.strptime(dateString, self.__dateTimeFormat)
@@ -173,7 +174,16 @@ class GenericRowParser(RowParser):
             if len(adjCloseValue) > 0:
                 adjClose = float(adjCloseValue)
                 self.__haveAdjClose = True
-        return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
+
+        # Extra columns
+        extra = {}
+        for k, v in csvRowDict.iteritems():
+            if k not in self.__columnNames:
+                extra[k] = csvutils.float_or_string(v)
+
+        return bar.BasicBar(
+            dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra
+        )
 
 
 class GenericBarFeed(BarFeed):

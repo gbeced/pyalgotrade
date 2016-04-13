@@ -38,7 +38,15 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__lowDS = dataseries.SequenceDataSeries(maxLen)
         self.__volumeDS = dataseries.SequenceDataSeries(maxLen)
         self.__adjCloseDS = dataseries.SequenceDataSeries(maxLen)
+        self.__extraDS = {}
         self.__useAdjustedValues = False
+
+    def __getOrCreateExtraDS(self, name):
+        ret = self.__extraDS.get(name)
+        if ret is None:
+            ret = dataseries.SequenceDataSeries(self.getMaxLen())
+            self.__extraDS[name] = ret
+        return ret
 
     def setUseAdjustedValues(self, useAdjusted):
         self.__useAdjustedValues = useAdjusted
@@ -50,13 +58,20 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         assert(dateTime is not None)
         assert(bar is not None)
         bar.setUseAdjustedValue(self.__useAdjustedValues)
-        dataseries.SequenceDataSeries.appendWithDateTime(self, dateTime, bar)
+
+        super(BarDataSeries, self).appendWithDateTime(dateTime, bar)
+
         self.__openDS.appendWithDateTime(dateTime, bar.getOpen())
         self.__closeDS.appendWithDateTime(dateTime, bar.getClose())
         self.__highDS.appendWithDateTime(dateTime, bar.getHigh())
         self.__lowDS.appendWithDateTime(dateTime, bar.getLow())
         self.__volumeDS.appendWithDateTime(dateTime, bar.getVolume())
         self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
+
+        # Process extra columns.
+        for name, value in bar.getExtraColumns().iteritems():
+            extraDS = self.__getOrCreateExtraDS(name)
+            extraDS.appendWithDateTime(dateTime, value)
 
     def getOpenDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the open prices."""
@@ -88,3 +103,8 @@ class BarDataSeries(dataseries.SequenceDataSeries):
             return self.__adjCloseDS
         else:
             return self.__closeDS
+
+    def getExtraDataSeries(self, name):
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` for an extra column."""
+        return self.__getOrCreateExtraDS(name)
+

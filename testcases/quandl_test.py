@@ -180,3 +180,16 @@ class ToolsTestCase(common.TestCase):
             self.assertEquals(bf["AAPL"][-1].getClose(), 322.560013)
             self.assertEquals(bf["AAPL"][-1].getAdjClose(), 42.674196)
             self.assertEquals(bf["AAPL"][-1].getPrice(), 42.674196 )
+
+    def testExtraColumns(self):
+        with common.TmpDir() as tmpPath:
+            columnNames = {
+                "open": "Last",
+                "close": "Last"
+            }
+            bf = quandl.build_feed("BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames)
+            bf.loadAll()
+            self.assertEquals(bf["USD"][-1].getExtraColumns()["Bid"], 319.19)
+            self.assertEquals(bf["USD"][-1].getExtraColumns()["Ask"], 319.63)
+            bids = bf["USD"].getExtraDataSeries("Bid")
+            self.assertEquals(bids[-1], 319.19)

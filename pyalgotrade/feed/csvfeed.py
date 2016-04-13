@@ -129,11 +129,7 @@ class BasicRowParser(RowParser):
 
 
 def float_or_string(column, value):
-    try:
-        ret = float(value)
-    except Exception:
-        ret = value
-    return ret
+    return csvutils.float_or_string(value)
 
 
 class Feed(BaseFeed):

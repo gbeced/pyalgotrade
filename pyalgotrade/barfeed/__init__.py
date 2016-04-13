@@ -126,7 +126,7 @@ class BaseBarFeed(feed.BaseFeed):
         return self.__lastBars.get(instrument, None)
 
     def getDefaultInstrument(self):
-        """Returns the default instrument."""
+        """Returns the last instrument registered."""
         return self.__defaultInstrument
 
     def getRegisteredInstruments(self):
