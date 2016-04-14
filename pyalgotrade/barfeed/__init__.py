@@ -54,7 +54,7 @@ class BaseBarFeed(feed.BaseFeed):
     def reset(self):
         self.__currentBars = None
         self.__lastBars = {}
-        feed.BaseFeed.reset(self)
+        super(BaseBarFeed, self).reset()
 
     def setUseAdjustedValues(self, useAdjusted):
         if useAdjusted and not self.barsHaveAdjClose():

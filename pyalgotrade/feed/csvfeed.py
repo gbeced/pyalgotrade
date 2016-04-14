@@ -166,7 +166,7 @@ class Feed(BaseFeed):
         :param path: The path to the CSV file.
         :type path: string.
         """
-        return BaseFeed.addValuesFromCSV(self, path)
+        return super(Feed, self).addValuesFromCSV(path)
 
     def setDateRange(self, fromDateTime, toDateTime):
         self.setRowFilter(DateRangeFilter(fromDateTime, toDateTime))

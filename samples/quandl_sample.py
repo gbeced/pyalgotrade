@@ -7,7 +7,7 @@ import datetime
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, quandlFeed, instrument):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(MyStrategy, self).__init__(feed)
         self.setUseAdjustedValues(True)
         self.__instrument = instrument
 

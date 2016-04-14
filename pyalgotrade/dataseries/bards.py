@@ -31,7 +31,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
     """
 
     def __init__(self, maxLen=None):
-        dataseries.SequenceDataSeries.__init__(self, maxLen)
+        super(BarDataSeries, self).__init__(maxLen)
         self.__openDS = dataseries.SequenceDataSeries(maxLen)
         self.__closeDS = dataseries.SequenceDataSeries(maxLen)
         self.__highDS = dataseries.SequenceDataSeries(maxLen)

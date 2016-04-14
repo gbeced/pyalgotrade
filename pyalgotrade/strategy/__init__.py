@@ -617,4 +617,4 @@ class Strategy(BacktestingStrategy):
     def __init__(self, *args, **kwargs):
         # Deprecated since v0.13
         warninghelpers.deprecation_warning("Strategy class will be deprecated in the next version. Please use BaseStrategy or BacktestingStrategy instead.", stacklevel=2)
-        BacktestingStrategy.__init__(self, *args, **kwargs)
+        super(Strategy, self).__init__(*args, **kwargs)

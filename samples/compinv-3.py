@@ -56,7 +56,7 @@ class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, cash, ordersFile, useAdjustedClose):
         # Suscribe to the feed bars event before the broker just to place the orders properly.
         feed.getNewValuesEvent().subscribe(self.__onBarsBeforeBroker)
-        strategy.BacktestingStrategy.__init__(self, feed, cash)
+        super(MyStrategy, self).__init__(feed, cash)
         self.__ordersFile = ordersFile
         self.setUseAdjustedValues(useAdjustedClose)
         # We will allow buying more shares than cash allows.

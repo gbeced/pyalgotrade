@@ -24,7 +24,7 @@ from pyalgotrade.dataseries import bards
 
 class VWAPEventWindow(technical.EventWindow):
     def __init__(self, windowSize, useTypicalPrice):
-        technical.EventWindow.__init__(self, windowSize, dtype=object)
+        super(VWAPEventWindow, self).__init__(windowSize, dtype=object)
         self.__useTypicalPrice = useTypicalPrice
 
     def getValue(self):
@@ -63,7 +63,7 @@ class VWAP(technical.EventBasedFilter):
         assert isinstance(dataSeries, bards.BarDataSeries), \
             "dataSeries must be a dataseries.bards.BarDataSeries instance"
 
-        technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
+        super(VWAP, self).__init__(dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
 
     def getPeriod(self):
         return self.getWindowSize()

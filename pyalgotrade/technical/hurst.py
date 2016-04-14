@@ -45,7 +45,7 @@ def hurst_exp(p, minLags, maxLags):
 
 class HurstExponentEventWindow(technical.EventWindow):
     def __init__(self, period, minLags, maxLags, logValues=True):
-        technical.EventWindow.__init__(self, period)
+        super(HurstExponentEventWindow, self).__init__(period)
         self.__minLags = minLags
         self.__maxLags = maxLags
         self.__logValues = logValues
@@ -53,7 +53,7 @@ class HurstExponentEventWindow(technical.EventWindow):
     def onNewValue(self, dateTime, value):
         if value is not None and self.__logValues:
             value = np.log10(value)
-        technical.EventWindow.onNewValue(self, dateTime, value)
+        super(HurstExponentEventWindow, self).onNewValue(dateTime, value)
 
     def getValue(self):
         ret = None
@@ -84,8 +84,7 @@ class HurstExponent(technical.EventBasedFilter):
         assert minLags >= 2, "minLags must be >= 2"
         assert maxLags > minLags, "maxLags must be > minLags"
 
-        technical.EventBasedFilter.__init__(
-            self,
+        super(HurstExponent, self).__init__(
             dataSeries,
             HurstExponentEventWindow(period, minLags, maxLags, logValues),
             maxLen

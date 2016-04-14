@@ -23,7 +23,7 @@ from pyalgotrade import technical
 
 class CumRetEventWindow(technical.EventWindow):
     def __init__(self):
-        technical.EventWindow.__init__(self, 2)
+        super(CumRetEventWindow, self).__init__(2)
         self.__prevCumRet = 0
 
     def getValue(self):
@@ -50,4 +50,4 @@ class CumulativeReturn(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, maxLen=None):
-        technical.EventBasedFilter.__init__(self, dataSeries, CumRetEventWindow(), maxLen)
+        super(CumulativeReturn, self).__init__(dataSeries, CumRetEventWindow(), maxLen)

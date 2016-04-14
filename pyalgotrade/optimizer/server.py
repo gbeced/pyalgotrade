@@ -27,7 +27,7 @@ import pyalgotrade.logger
 
 class AutoStopThread(threading.Thread):
     def __init__(self, server):
-        threading.Thread.__init__(self)
+        super(AutoStopThread, self).__init__()
         self.__server = server
 
     def run(self):

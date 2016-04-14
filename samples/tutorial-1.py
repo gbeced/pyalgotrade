@@ -4,7 +4,7 @@ from pyalgotrade.barfeed import yahoofeed
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(MyStrategy, self).__init__(feed)
         self.__instrument = instrument
 
     def onBars(self, bars):

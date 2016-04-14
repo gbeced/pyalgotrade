@@ -72,7 +72,7 @@ class Formatter(logging.Formatter):
             newDateTime = Formatter.DATETIME_HOOK()
 
         if newDateTime is None:
-            ret = logging.Formatter.formatTime(self, record, datefmt)
+            ret = super(Formatter, self).formatTime(record, datefmt)
         else:
             ret = str(newDateTime)
         return ret

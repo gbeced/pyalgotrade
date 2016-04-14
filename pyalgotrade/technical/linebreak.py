@@ -78,7 +78,7 @@ class LineBreak(dataseries.SequenceDataSeries):
         if dataseries.get_checked_max_len(maxLen) < reversalLines:
             raise Exception("maxLen can't be smaller than reversalLines")
 
-        dataseries.SequenceDataSeries.__init__(self, maxLen)
+        super(LineBreak, self).__init__(maxLen)
 
         self.__reversalLines = reversalLines
         self.__useAdjustedValues = useAdjustedValues
@@ -131,4 +131,4 @@ class LineBreak(dataseries.SequenceDataSeries):
     def setMaxLen(self, maxLen):
         if maxLen < self.__reversalLines:
             raise Exception("maxLen can't be smaller than reversalLines")
-        dataseries.SequenceDataSeries.setMaxLen(self, maxLen)
+        super(LineBreak, self).setMaxLen(maxLen)

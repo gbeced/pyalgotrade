@@ -7,7 +7,7 @@ from pyalgotrade.technical import cross
 
 class Strategy(strategy.BaseStrategy):
     def __init__(self, feed, brk):
-        strategy.BaseStrategy.__init__(self, feed, brk)
+        super(Strategy, self).__init__(feed, brk)
         smaPeriod = 20
         self.__instrument = "BTC"
         self.__prices = feed[self.__instrument].getCloseDataSeries()

@@ -7,7 +7,7 @@ from pyalgotrade.stratanalyzer import sharpe
 
 class BBands(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, bBandsPeriod):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(BBands, self).__init__(feed)
         self.__instrument = instrument
         self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(), bBandsPeriod, 2)
 

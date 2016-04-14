@@ -65,13 +65,13 @@ class USEquitiesRTH(DateRangeFilter):
     timezone = pytz.timezone("US/Eastern")
 
     def __init__(self, fromDate=None, toDate=None):
-        DateRangeFilter.__init__(self, fromDate, toDate)
+        super(USEquitiesRTH, self).__init__(fromDate, toDate)
 
         self.__fromTime = datetime.time(9, 30, 0)
         self.__toTime = datetime.time(16, 0, 0)
 
     def includeBar(self, bar_):
-        ret = DateRangeFilter.includeBar(self, bar_)
+        ret = super(USEquitiesRTH, self).includeBar(bar_)
         if ret:
             # Check day of week
             barDay = bar_.getDateTime().weekday()
@@ -175,7 +175,7 @@ class GenericRowParser(RowParser):
                 adjClose = float(adjCloseValue)
                 self.__haveAdjClose = True
 
-        # Extra columns
+        # Process extra columns.
         extra = {}
         for k, v in csvRowDict.iteritems():
             if k not in self.__columnNames:
@@ -261,7 +261,8 @@ class GenericBarFeed(BarFeed):
             timezone = self.__timezone
 
         rowParser = GenericRowParser(self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(), timezone)
-        BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
+
+        super(GenericBarFeed, self).addBarsFromCSV(instrument, path, rowParser)
 
         if rowParser.barsHaveAdjClose():
             self.__haveAdjClose = True

@@ -146,7 +146,7 @@ class CSVTradeFeed(csvfeed.BarFeed):
     """
 
     def __init__(self, timezone=None, maxLen=None):
-        csvfeed.BarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
+        super(CSVTradeFeed, self).__init__(barfeed.Frequency.TRADE, maxLen)
         self.__timezone = timezone
         self.__unixTimeFix = UnixTimeFix()
 
@@ -183,6 +183,6 @@ class CSVTradeFeed(csvfeed.BarFeed):
         try:
             if fromDateTime or toDateTime:
                 self.setBarFilter(csvfeed.DateRangeFilter(to_utc_if_naive(fromDateTime), to_utc_if_naive(toDateTime)))
-            csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
+            super(CSVTradeFeed, self).addBarsFromCSV(instrument, path, rowParser)
         finally:
             self.setBarFilter(prevBarFilter)

@@ -102,7 +102,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     QUEUE_TIMEOUT = 0.01
 
     def __init__(self, maxLen=None):
-        barfeed.BaseBarFeed.__init__(self, bar.Frequency.TRADE, maxLen)
+        super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
         self.registerInstrument(common.btc_symbol)
         self.__prevTradeDateTime = None
@@ -224,7 +224,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         ret = False
         if self.__dispatchImpl(None):
             ret = True
-        if barfeed.BaseBarFeed.dispatch(self):
+        if super(LiveTradeFeed, self).dispatch():
             ret = True
         return ret
 

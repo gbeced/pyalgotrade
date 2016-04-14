@@ -465,7 +465,7 @@ class LongPosition(Position):
         else:
             assert(False)
 
-        Position.__init__(self, strategy, entryOrder, goodTillCanceled, allOrNone)
+        super(LongPosition, self).__init__(strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares()
@@ -498,7 +498,7 @@ class ShortPosition(Position):
         else:
             assert(False)
 
-        Position.__init__(self, strategy, entryOrder, goodTillCanceled, allOrNone)
+        super(ShortPosition, self).__init__(strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares() * -1

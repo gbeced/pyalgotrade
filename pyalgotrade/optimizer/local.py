@@ -31,7 +31,7 @@ from pyalgotrade.optimizer import worker
 
 class ServerThread(threading.Thread):
     def __init__(self, server, barFeed, strategyParameters):
-        threading.Thread.__init__(self)
+        super(ServerThread, self).__init__()
         self.__server = server
         self.__barFeed = barFeed
         self.__strategyParameters = strategyParameters

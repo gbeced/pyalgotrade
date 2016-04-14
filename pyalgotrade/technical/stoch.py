@@ -37,7 +37,7 @@ def get_low_high_values(useAdjusted, bars):
 class SOEventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
-        technical.EventWindow.__init__(self, period, dtype=object)
+        super(SOEventWindow, self).__init__(period, dtype=object)
         self.__useAdjusted = useAdjustedValues
 
     def getValue(self):
@@ -77,7 +77,7 @@ class StochasticOscillator(technical.EventBasedFilter):
         assert isinstance(barDataSeries, bards.BarDataSeries), \
             "barDataSeries must be a dataseries.bards.BarDataSeries instance"
 
-        technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
+        super(StochasticOscillator, self).__init__(barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
         self.__d = ma.SMA(self, dSMAPeriod, maxLen)
 
     def getD(self):
