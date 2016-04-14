@@ -229,6 +229,7 @@ class DefaultStrategy(FillStrategy):
     """
 
     def __init__(self, volumeLimit=0.25):
+        super(DefaultStrategy, self).__init__()
         self.__volumeLeft = {}
         self.__volumeUsed = {}
         self.setVolumeLimit(volumeLimit)

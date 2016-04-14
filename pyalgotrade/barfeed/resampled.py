@@ -52,7 +52,7 @@ class BarsGrouper(resamplebase.Grouper):
 class ResampledBarFeed(barfeed.BaseBarFeed):
 
     def __init__(self, barFeed, frequency, maxLen=None):
-        barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
+        super(ResampledBarFeed, self).__init__(frequency, maxLen)
 
         if not isinstance(barFeed, barfeed.BaseBarFeed):
             raise Exception("barFeed must be a barfeed.BaseBarFeed instance")
@@ -106,7 +106,7 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         return None
 
     def start(self):
-        pass
+        super(ResampledBarFeed, self).start()
 
     def stop(self):
         pass

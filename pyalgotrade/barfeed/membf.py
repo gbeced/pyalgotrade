@@ -32,7 +32,8 @@ from pyalgotrade import utils
 
 class BarFeed(barfeed.BaseBarFeed):
     def __init__(self, frequency, maxLen=None):
-        barfeed.BaseBarFeed.__init__(self, frequency, maxLen)
+        super(BarFeed, self).__init__(frequency, maxLen)
+
         self.__bars = {}
         self.__nextPos = {}
         self.__started = False
@@ -43,12 +44,13 @@ class BarFeed(barfeed.BaseBarFeed):
         for instrument in self.__bars.keys():
             self.__nextPos.setdefault(instrument, 0)
         self.__currDateTime = None
-        barfeed.BaseBarFeed.reset(self)
+        super(BarFeed, self).reset()
 
     def getCurrentDateTime(self):
         return self.__currDateTime
 
     def start(self):
+        super(BarFeed, self).start()
         self.__started = True
 
     def stop(self):

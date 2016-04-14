@@ -68,3 +68,12 @@ def download_csv(url, url_params=None, content_type="text/csv"):
         ret = ret[1:]
 
     return ret
+
+
+def float_or_string(value):
+    try:
+        ret = float(value)
+    except Exception:
+        ret = value
+    return ret
+

@@ -7,7 +7,7 @@ from pyalgotrade.stratanalyzer import sharpe
 
 class VWAPMomentum(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, vwapWindowSize, threshold):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(VWAPMomentum, self).__init__(feed)
         self.__instrument = instrument
         self.__vwap = vwap.VWAP(feed[instrument], vwapWindowSize)
         self.__threshold = threshold

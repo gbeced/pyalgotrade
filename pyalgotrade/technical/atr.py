@@ -27,7 +27,7 @@ from pyalgotrade.dataseries import bards
 class ATREventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
-        technical.EventWindow.__init__(self, period)
+        super(ATREventWindow, self).__init__(period)
         self.__useAdjustedValues = useAdjustedValues
         self.__prevClose = None
         self.__value = None
@@ -45,7 +45,7 @@ class ATREventWindow(technical.EventWindow):
 
     def onNewValue(self, dateTime, value):
         tr = self._calculateTrueRange(value)
-        technical.EventWindow.onNewValue(self, dateTime, tr)
+        super(ATREventWindow, self).onNewValue(dateTime, tr)
         self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
@@ -77,4 +77,4 @@ class ATR(technical.EventBasedFilter):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        technical.EventBasedFilter.__init__(self, barDataSeries, ATREventWindow(period, useAdjustedValues), maxLen)
+        super(ATR, self).__init__(barDataSeries, ATREventWindow(period, useAdjustedValues), maxLen)

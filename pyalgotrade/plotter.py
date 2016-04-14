@@ -105,7 +105,7 @@ class SellMarker(Series):
 
 class CustomMarker(Series):
     def __init__(self):
-        Series.__init__(self)
+        super(CustomMarker, self).__init__()
         self.__marker = "o"
 
     def needColor(self):
@@ -120,7 +120,7 @@ class CustomMarker(Series):
 
 class LineMarker(Series):
     def __init__(self):
-        Series.__init__(self)
+        super(LineMarker, self).__init__()
         self.__marker = " "
 
     def needColor(self):
@@ -135,7 +135,7 @@ class LineMarker(Series):
 
 class InstrumentMarker(Series):
     def __init__(self):
-        Series.__init__(self)
+        super(InstrumentMarker, self).__init__()
         self.__useAdjClose = None
         self.__marker = " "
 
@@ -279,7 +279,7 @@ class Subplot(object):
 class InstrumentSubplot(Subplot):
     """A Subplot responsible for plotting an instrument."""
     def __init__(self, instrument, plotBuySell):
-        Subplot.__init__(self)
+        super(InstrumentSubplot, self).__init__()
         self.__instrument = instrument
         self.__plotBuySell = plotBuySell
         self.__instrumentSeries = self.getSeries(instrument, InstrumentMarker)
@@ -288,7 +288,7 @@ class InstrumentSubplot(Subplot):
         self.__instrumentSeries.setUseAdjClose(useAdjClose)
 
     def onBars(self, bars):
-        Subplot.onBars(self, bars)
+        super(InstrumentSubplot, self).onBars(bars)
         bar = bars.getBar(self.__instrument)
         if bar:
             dateTime = bars.getDateTime()

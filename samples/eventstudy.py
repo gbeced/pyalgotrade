@@ -10,6 +10,8 @@ from pyalgotrade.tools import yahoofinance
 
 class BuyOnGap(eventprofiler.Predicate):
     def __init__(self, feed):
+        super(BuyOnGap, self).__init__()
+
         stdDevPeriod = 90
         smaPeriod = 20
         self.__returns = {}

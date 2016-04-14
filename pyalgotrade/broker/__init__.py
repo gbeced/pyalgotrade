@@ -360,7 +360,7 @@ class MarketOrder(Order):
     """
 
     def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
-        Order.__init__(self, Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
+        super(MarketOrder, self).__init__(Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
         self.__onClose = onClose
 
     def getFillOnClose(self):
@@ -377,7 +377,7 @@ class LimitOrder(Order):
     """
 
     def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
-        Order.__init__(self, Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
+        super(LimitOrder, self).__init__(Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
         self.__limitPrice = limitPrice
 
     def getLimitPrice(self):
@@ -394,7 +394,7 @@ class StopOrder(Order):
     """
 
     def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
-        Order.__init__(self, Order.Type.STOP, action, instrument, quantity, instrumentTraits)
+        super(StopOrder, self).__init__(Order.Type.STOP, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
 
     def getStopPrice(self):
@@ -411,7 +411,7 @@ class StopLimitOrder(Order):
     """
 
     def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
-        Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
+        super(StopLimitOrder, self).__init__(Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
         self.__limitPrice = limitPrice
 

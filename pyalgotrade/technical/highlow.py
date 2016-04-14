@@ -23,7 +23,7 @@ from pyalgotrade import technical
 
 class HighLowEventWindow(technical.EventWindow):
     def __init__(self, windowSize, useMin):
-        technical.EventWindow.__init__(self, windowSize)
+        super(HighLowEventWindow, self).__init__(windowSize)
         self.__useMin = useMin
 
     def getValue(self):
@@ -51,7 +51,7 @@ class High(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, period, maxLen=None):
-        technical.EventBasedFilter.__init__(self, dataSeries, HighLowEventWindow(period, False), maxLen)
+        super(High, self).__init__(dataSeries, HighLowEventWindow(period, False), maxLen)
 
 
 class Low(technical.EventBasedFilter):
@@ -68,4 +68,4 @@ class Low(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, period, maxLen=None):
-        technical.EventBasedFilter.__init__(self, dataSeries, HighLowEventWindow(period, True), maxLen)
+        super(Low, self).__init__(dataSeries, HighLowEventWindow(period, True), maxLen)

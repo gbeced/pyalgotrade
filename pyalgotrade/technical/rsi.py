@@ -88,14 +88,14 @@ class RSIEventWindow(technical.EventWindow):
     def __init__(self, period):
         assert(period > 1)
         # We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
-        technical.EventWindow.__init__(self, period + 1)
+        super(RSIEventWindow, self).__init__(period + 1)
         self.__value = None
         self.__prevGain = None
         self.__prevLoss = None
         self.__period = period
 
     def onNewValue(self, dateTime, value):
-        technical.EventWindow.onNewValue(self, dateTime, value)
+        super(RSIEventWindow, self).onNewValue(dateTime, value)
 
         # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
         if value is not None and self.windowFull():
@@ -138,4 +138,4 @@ class RSI(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, period, maxLen=None):
-        technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)
+        super(RSI, self).__init__(dataSeries, RSIEventWindow(period), maxLen)

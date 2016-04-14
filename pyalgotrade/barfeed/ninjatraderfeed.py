@@ -120,7 +120,8 @@ class Feed(csvfeed.BarFeed):
         if frequency not in [bar.Frequency.MINUTE, bar.Frequency.DAY]:
             raise Exception("Invalid frequency.")
 
-        csvfeed.BarFeed.__init__(self, frequency, maxLen)
+        super(Feed, self).__init__(frequency, maxLen)
+
         self.__timezone = timezone
 
     def barsHaveAdjClose(self):
@@ -145,4 +146,4 @@ class Feed(csvfeed.BarFeed):
             timezone = self.__timezone
 
         rowParser = RowParser(self.getFrequency(), self.getDailyBarTime(), timezone)
-        csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
+        super(Feed, self).addBarsFromCSV(instrument, path, rowParser)

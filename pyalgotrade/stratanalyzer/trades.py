@@ -39,6 +39,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
     """
 
     def __init__(self):
+        super(Trades, self).__init__()
         self.__all = []
         self.__profits = []
         self.__losses = []

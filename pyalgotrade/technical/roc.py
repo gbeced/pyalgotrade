@@ -23,7 +23,7 @@ from pyalgotrade import technical
 
 class ROCEventWindow(technical.EventWindow):
     def __init__(self, windowSize):
-        technical.EventWindow.__init__(self, windowSize)
+        super(ROCEventWindow, self).__init__(windowSize)
 
     def getValue(self):
         ret = None
@@ -54,4 +54,4 @@ class RateOfChange(technical.EventBasedFilter):
 
     def __init__(self, dataSeries, valuesAgo, maxLen=None):
         assert(valuesAgo > 0)
-        technical.EventBasedFilter.__init__(self, dataSeries, ROCEventWindow(valuesAgo + 1), maxLen)
+        super(RateOfChange, self).__init__(dataSeries, ROCEventWindow(valuesAgo + 1), maxLen)

@@ -159,6 +159,7 @@ class PositionTracker(object):
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
     def __init__(self):
+        super(ReturnsAnalyzerBase, self).__init__()
         self.__event = observer.Event()
         self.__portfolioReturns = None
 
@@ -199,6 +200,7 @@ class Returns(stratanalyzer.StrategyAnalyzer):
     time-weighted returns for the whole portfolio."""
 
     def __init__(self):
+        super(Returns, self).__init__()
         self.__netReturns = dataseries.SequenceDataSeries()
         self.__cumReturns = dataseries.SequenceDataSeries()
 

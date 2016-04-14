@@ -6,7 +6,7 @@ from pyalgotrade.twitter import feed as twitterfeed
 
 class Strategy(strategy.BaseStrategy):
     def __init__(self, feed, brk, twitterFeed):
-        strategy.BaseStrategy.__init__(self, feed, brk)
+        super(Strategy, self).__init__(feed, brk)
         self.__instrument = "BTC"
 
         # Subscribe to Twitter events.

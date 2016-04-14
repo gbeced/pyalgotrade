@@ -70,6 +70,7 @@ class VolumeShareSlippage(SlippageModel):
     """
 
     def __init__(self, priceImpact=0.1):
+        super(VolumeShareSlippage, self).__init__()
         self.__priceImpact = priceImpact
 
     def calculatePrice(self, order, price, quantity, bar, volumeUsed):

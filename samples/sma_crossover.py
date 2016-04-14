@@ -5,7 +5,7 @@ from pyalgotrade.technical import cross
 
 class SMACrossOver(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(SMACrossOver, self).__init__(feed)
         self.__instrument = instrument
         self.__position = None
         # We'll use adjusted close values instead of regular close values.

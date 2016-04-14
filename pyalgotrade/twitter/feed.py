@@ -34,7 +34,7 @@ logger = pyalgotrade.logger.getLogger("twitter")
 # This listener just pushs data into a queue.
 class Listener(streaming.StreamListener):
     def __init__(self, queue):
-        streaming.StreamListener.__init__(self)
+        super(Listener, self).__init__()
         self.__queue = queue
 
     def on_connect(self):
@@ -129,6 +129,7 @@ class TwitterFeed(observer.Subject):
         return self.__event.subscribe(callback)
 
     def start(self):
+        super(TwitterFeed, self).start()
         if self.__thread is not None:
             raise Exception("Already running")
 

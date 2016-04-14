@@ -24,7 +24,7 @@ from pyalgotrade import technical
 class StdDevEventWindow(technical.EventWindow):
     def __init__(self, period, ddof):
         assert(period > 0)
-        technical.EventWindow.__init__(self, period)
+        super(StdDevEventWindow, self).__init__(period)
         self.__ddof = ddof
 
     def getValue(self):
@@ -50,13 +50,13 @@ class StdDev(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, period, ddof=0, maxLen=None):
-        technical.EventBasedFilter.__init__(self, dataSeries, StdDevEventWindow(period, ddof), maxLen)
+        super(StdDev, self).__init__(dataSeries, StdDevEventWindow(period, ddof), maxLen)
 
 
 class ZScoreEventWindow(technical.EventWindow):
     def __init__(self, period, ddof):
         assert(period > 1)
-        technical.EventWindow.__init__(self, period)
+        super(ZScoreEventWindow, self).__init__(period)
         self.__ddof = ddof
 
     def getValue(self):
@@ -86,4 +86,4 @@ class ZScore(technical.EventBasedFilter):
     """
 
     def __init__(self, dataSeries, period, ddof=0, maxLen=None):
-        technical.EventBasedFilter.__init__(self, dataSeries, ZScoreEventWindow(period, ddof), maxLen)
+        super(ZScore, self).__init__(dataSeries, ZScoreEventWindow(period, ddof), maxLen)

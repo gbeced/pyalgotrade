@@ -85,6 +85,7 @@ class SequenceDataSeries(DataSeries):
     """
 
     def __init__(self, maxLen=None):
+        super(SequenceDataSeries, self).__init__()
         maxLen = get_checked_max_len(maxLen)
 
         self.__newValueEvent = observer.Event()

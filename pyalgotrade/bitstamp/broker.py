@@ -54,7 +54,7 @@ class BacktestingBroker(backtesting.Broker):
 
     def __init__(self, cash, barFeed, fee=0.0025):
         commission = backtesting.TradePercentage(fee)
-        backtesting.Broker.__init__(self, cash, barFeed, commission)
+        super(BacktestingBroker, self).__init__(cash, barFeed, commission)
 
     def getInstrumentTraits(self, instrument):
         return common.BTCTraits()
@@ -64,7 +64,7 @@ class BacktestingBroker(backtesting.Broker):
             # Override user settings based on Bitstamp limitations.
             order.setAllOrNone(False)
             order.setGoodTillCanceled(True)
-        return backtesting.Broker.submitOrder(self, order)
+        return super(BacktestingBroker, self).submitOrder(order)
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         raise Exception("Market orders are not supported")
@@ -94,7 +94,7 @@ class BacktestingBroker(backtesting.Broker):
         else:
             raise Exception("Only BUY/SELL orders are supported")
 
-        return backtesting.Broker.createLimitOrder(self, action, instrument, limitPrice, quantity)
+        return super(BacktestingBroker, self).createLimitOrder(action, instrument, limitPrice, quantity)
 
     def createStopOrder(self, action, instrument, stopPrice, quantity):
         raise Exception("Stop orders are not supported")

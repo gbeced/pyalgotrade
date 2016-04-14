@@ -73,7 +73,7 @@ class Subject(object):
     # This may raise.
     @abc.abstractmethod
     def start(self):
-        raise NotImplementedError()
+        pass
 
     # This should not raise.
     @abc.abstractmethod
