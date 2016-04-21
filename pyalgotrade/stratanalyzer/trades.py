@@ -55,8 +55,8 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 
     def __updateTrades(self, posTracker):
         price = 0  # The price doesn't matter since the position should be closed.
-        assert(posTracker.getShares() == 0)
-        netProfit = posTracker.getNetProfit(price)
+        assert posTracker.getPosition() == 0
+        netProfit = posTracker.getPnL(price)
         netReturn = posTracker.getReturn(price)
 
         if netProfit > 0:
@@ -78,7 +78,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         posTracker.reset()
 
     def __updatePosTracker(self, posTracker, price, commission, quantity):
-        currentShares = posTracker.getShares()
+        currentShares = posTracker.getPosition()
 
         if currentShares > 0:  # Current position is long
             if quantity > 0:  # Increase long position

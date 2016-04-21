@@ -276,7 +276,7 @@ class Position(object):
         ret = 0
         price = self.getLastPrice()
         if price is not None:
-            ret = self.__posTracker.getNetProfit(price, includeCommissions)
+            ret = self.__posTracker.getPnL(price=price, includeCommissions=includeCommissions)
         return ret
 
     def getNetProfit(self, includeCommissions=True):
