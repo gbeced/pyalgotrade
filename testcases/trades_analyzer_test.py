@@ -385,7 +385,7 @@ class TradesAnalyzerTestCase(common.TestCase):
         self.assertTrue(stratAnalyzer.getCount() == 1)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
 
-        self.assertTrue(round(stratAnalyzer.getAll().mean(), 2) == -0.1)
+        self.assertEqual(round(stratAnalyzer.getAll().mean(), 2), -0.1)
 
         self.assertTrue(stratAnalyzer.getUnprofitableCount() == 1)
         self.assertTrue(round(stratAnalyzer.getLosses().mean(), 2) == -0.1)
