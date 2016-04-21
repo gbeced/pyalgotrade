@@ -245,12 +245,14 @@ class Position(object):
         return self.__entryOrder.getInstrument()
 
     def getReturn(self, includeCommissions=True):
-        """Calculates cumulative percentage returns up to this point.
-        If the position is not closed, these will be unrealized returns.
-
-        :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean.
         """
+        Calculates cumulative percentage returns up to this point.
+        If the position is not closed, these will be unrealized returns.
+        """
+
+        # Deprecated in v0.18.
+        if includeCommissions is False:
+            warninghelpers.deprecation_warning("includeCommissions will be deprecated in the next version.", stacklevel=2)
 
         ret = 0
         price = self.getLastPrice()
@@ -266,12 +268,14 @@ class Position(object):
         return self.getReturn(False)
 
     def getPnL(self, includeCommissions=True):
-        """Calculates PnL up to this point.
-        If the position is not closed, these will be unrealized PnL.
-
-        :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean.
         """
+        Calculates PnL up to this point.
+        If the position is not closed, these will be unrealized PnL.
+        """
+
+        # Deprecated in v0.18.
+        if includeCommissions is False:
+            warninghelpers.deprecation_warning("includeCommissions will be deprecated in the next version.", stacklevel=2)
 
         ret = 0
         price = self.getLastPrice()
