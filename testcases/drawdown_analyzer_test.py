@@ -213,7 +213,7 @@ class AnalyzerTestCase(common.TestCase):
         # Manually place the order to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True)  # Adj. Close: 42.09
         order.setGoodTillCanceled(True)
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True)  # Adj. Close: 127.64
         strat.run()
 
@@ -240,7 +240,7 @@ class AnalyzerTestCase(common.TestCase):
         # Manually place the order to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "orcl", 1, True)
         order.setGoodTillCanceled(True)
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
 
         strat.run()
         return stratAnalyzer

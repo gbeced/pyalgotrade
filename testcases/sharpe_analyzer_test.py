@@ -72,7 +72,7 @@ class SharpeRatioTestCase(common.TestCase):
         # Manually place the order to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True)  # Adj. Close: 42.09
         order.setGoodTillCanceled(True)
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True)  # Adj. Close: 127.64
         strat.run()
         self.assertEqual(round(strat.getBroker().getCash(), 2), initialCash + (127.64 - 42.09) * quantity)
@@ -107,7 +107,7 @@ class SharpeRatioTestCase(common.TestCase):
         # Manually place the order to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True)  # Adj. Close: 42.09
         order.setGoodTillCanceled(True)
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True)  # Adj. Close: 127.64
 
         strat.run()
@@ -124,7 +124,7 @@ class SharpeRatioTestCase(common.TestCase):
         strat = strategy_test.TestStrategy(barFeed, 1000)
         stratAnalyzer = sharpe.SharpeRatio(False)
         strat.attachAnalyzer(stratAnalyzer)
-        strat.order("spy", 1)
+        strat.marketOrder("spy", 1)
 
         strat.run()
 

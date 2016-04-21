@@ -227,33 +227,6 @@ class BasicBar(Bar):
     def getVolume(self):
         return self.__volume
 
-    def getAdjOpen(self):
-        # Deprecated in 0.15
-        warninghelpers.deprecation_warning(
-            "The getAdjOpen method will be deprecated in the next version. "
-            "Please use the getOpen(True) instead.",
-            stacklevel=2
-        )
-        return self.getOpen(True)
-
-    def getAdjHigh(self):
-        # Deprecated in 0.15
-        warninghelpers.deprecation_warning(
-            "The getAdjHigh method will be deprecated in the next version. "
-            "Please use the getHigh(True) instead.",
-            stacklevel=2
-        )
-        return self.getHigh(True)
-
-    def getAdjLow(self):
-        # Deprecated in 0.15
-        warninghelpers.deprecation_warning(
-            "The getAdjLow method will be deprecated in the next version. "
-            "Please use the getLow(True) instead.",
-            stacklevel=2
-        )
-        return self.getLow(True)
-
     def getAdjClose(self):
         return self.__adjClose
 

@@ -553,11 +553,6 @@ class Broker(observer.Subject):
         """
         raise NotImplementedError()
 
-    def placeOrder(self, order):
-        # Deprecated since v0.16
-        warninghelpers.deprecation_warning("placeOrder will be deprecated in the next version. Please use submitOrder instead.", stacklevel=2)
-        return self.submitOrder(order)
-
     @abc.abstractmethod
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         """Creates a Market order.

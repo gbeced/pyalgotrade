@@ -283,9 +283,9 @@ class AnalyzerTestCase(common.TestCase):
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the orders to get them filled on the first (and only) bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         order = strat.getBroker().createMarketOrder(broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -307,7 +307,7 @@ class AnalyzerTestCase(common.TestCase):
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.61
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
 
         stratAnalyzer = returns.Returns()
@@ -330,7 +330,7 @@ class AnalyzerTestCase(common.TestCase):
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.61
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
 
         stratAnalyzer = returns.Returns()
@@ -353,7 +353,7 @@ class AnalyzerTestCase(common.TestCase):
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.90
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
 
         stratAnalyzer = returns.Returns()
@@ -376,7 +376,7 @@ class AnalyzerTestCase(common.TestCase):
         # 2001-12-07,15.74,15.95,15.55,15.91,42463200,15.56
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.90
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
         strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
 
         stratAnalyzer = returns.Returns()
@@ -395,7 +395,7 @@ class AnalyzerTestCase(common.TestCase):
         strat = position_test.TestStrategy(barFeed, AnalyzerTestCase.TestInstrument, initialCash)
 
         strat.addPosEntry(datetime.datetime(2001, 1, 12), strat.enterLong, AnalyzerTestCase.TestInstrument, 1)  # 33.06
-        strat.addPosExit(datetime.datetime(2001, 11, 27))  # 14.32
+        strat.addPosExitMarket(datetime.datetime(2001, 11, 27))  # 14.32
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -410,7 +410,7 @@ class AnalyzerTestCase(common.TestCase):
 
         strat = strategy_test.TestStrategy(barFeed, initialValue)
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1654, True)  # 2011-01-03 close: 604.35
-        strat.getBroker().placeOrder(order)
+        strat.getBroker().submitOrder(order)
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -428,7 +428,7 @@ class AnalyzerTestCase(common.TestCase):
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
 
-        strat.order("spy", 1)
+        strat.marketOrder("spy", 1)
         strat.run()
         # The cumulative return should be the same if we load nikkei or not.
         self.assertEqual(round(stratAnalyzer.getCumulativeReturns()[-1], 5), 0.01338)

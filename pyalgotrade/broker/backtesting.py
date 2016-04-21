@@ -269,15 +269,10 @@ class Broker(broker.Broker):
     def getUseAdjustedValues(self):
         return self.__useAdjustedValues
 
-    def setUseAdjustedValues(self, useAdjusted, deprecationCheck=None):
+    def setUseAdjustedValues(self, useAdjusted):
         # Deprecated since v0.15
         if not self.__barFeed.barsHaveAdjClose():
             raise Exception("The barfeed doesn't support adjusted close values")
-        if deprecationCheck is None:
-            warninghelpers.deprecation_warning(
-                "setUseAdjustedValues will be deprecated in the next version. Please use setUseAdjustedValues on the strategy instead.",
-                stacklevel=2
-            )
         self.__useAdjustedValues = useAdjusted
 
     def getActiveOrders(self, instrument=None):
@@ -286,13 +281,6 @@ class Broker(broker.Broker):
         else:
             ret = [order for order in self.__activeOrders.values() if order.getInstrument() == instrument]
         return ret
-
-    def getPendingOrders(self):
-        warninghelpers.deprecation_warning(
-            "getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.",
-            stacklevel=2
-        )
-        return self.getActiveOrders()
 
     def _getCurrentDateTime(self):
         return self.__barFeed.getCurrentDateTime()

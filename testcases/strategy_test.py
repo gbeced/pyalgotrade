@@ -73,7 +73,7 @@ class TestStrategy(strategy.BacktestingStrategy):
         for meth, args, kwargs in get_by_datetime_or_date(self.__orderEntry, dateTime):
             order = meth(*args, **kwargs)
             order.setGoodTillCanceled(self.__brokerOrdersGTC)
-            self.getBroker().placeOrder(order)
+            self.getBroker().submitOrder(order)
 
 
 class StrategyTestCase(common.TestCase):
@@ -95,7 +95,7 @@ class BrokerOrderTestCase(StrategyTestCase):
         strat = self.createStrategy()
 
         o = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, StrategyTestCase.TestInstrument, 1)
-        strat.getBroker().placeOrder(o)
+        strat.getBroker().submitOrder(o)
         strat.run()
         self.assertTrue(o.isFilled())
         self.assertEqual(strat.orderUpdatedCalls, 2)
@@ -105,7 +105,7 @@ class StrategyOrderTestCase(StrategyTestCase):
     def testOrder(self):
         strat = self.createStrategy()
 
-        o = strat.order(StrategyTestCase.TestInstrument, 1)
+        o = strat.marketOrder(StrategyTestCase.TestInstrument, 1)
         strat.run()
         self.assertTrue(o.isFilled())
         self.assertEqual(strat.orderUpdatedCalls, 2)

@@ -260,13 +260,6 @@ class Position(object):
             ret = self.__posTracker.getReturn(price, includeCommissions)
         return ret
 
-    def getUnrealizedReturn(self, price=None):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getUnrealizedReturn will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
-        if price is not None:
-            raise Exception("Setting the price to getUnrealizedReturn is no longer supported")
-        return self.getReturn(False)
-
     def getPnL(self, includeCommissions=True):
         """
         Calculates PnL up to this point.
@@ -282,23 +275,6 @@ class Position(object):
         if price is not None:
             ret = self.__posTracker.getPnL(price=price, includeCommissions=includeCommissions)
         return ret
-
-    def getNetProfit(self, includeCommissions=True):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getNetProfit will be deprecated in the next version. Please use getPnL instead.", stacklevel=2)
-        return self.getPnL(includeCommissions)
-
-    def getUnrealizedNetProfit(self, price=None):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getUnrealizedNetProfit will be deprecated in the next version. Please use getPnL instead.", stacklevel=2)
-        if price is not None:
-            raise Exception("Setting the price to getUnrealizedNetProfit is no longer supported")
-        return self.getPnL(False)
-
-    def getQuantity(self):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getQuantity will be deprecated in the next version. Please use abs(self.getShares()) instead.", stacklevel=2)
-        return abs(self.getShares())
 
     def cancelEntry(self):
         """Cancels the entry order if its active."""
@@ -371,19 +347,6 @@ class Position(object):
             * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
             * If the entry order is active, cancellation will be requested.
         """
-
-        self.__state.exit(self, stopPrice, limitPrice, goodTillCanceled)
-
-    def exit(self, stopPrice=None, limitPrice=None, goodTillCanceled=None):
-        # Deprecated in v0.15.
-        if stopPrice is None and limitPrice is None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitMarket instead.", stacklevel=2)
-        elif stopPrice is None and limitPrice is not None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitLimit instead.", stacklevel=2)
-        elif stopPrice is not None and limitPrice is None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitStop instead.", stacklevel=2)
-        elif stopPrice is not None and limitPrice is not None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitStopLimit instead.", stacklevel=2)
 
         self.__state.exit(self, stopPrice, limitPrice, goodTillCanceled)
 

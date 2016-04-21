@@ -292,7 +292,7 @@ class PaperTradingTestCase(tc_common.TestCase):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
                 elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
-                    self.pos.exit(limitPrice=101)
+                    self.pos.exitLimit(101)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
@@ -323,7 +323,7 @@ class PaperTradingTestCase(tc_common.TestCase):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
                 elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
-                    self.pos.exit(limitPrice=101)
+                    self.pos.exitLimit(101)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
