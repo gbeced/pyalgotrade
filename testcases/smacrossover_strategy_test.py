@@ -79,7 +79,7 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
     def onExitCanceled(self, position):
         self.printDebug("exitCanceled: ", self.getCurrentDateTime(), position, ". Resubmitting as a Market order.")
         # If the exit was canceled, re-submit it.
-        position.exit()
+        position.exitMarket()
 
     def onBars(self, bars):
         bar = bars.getBar("orcl")
@@ -108,10 +108,10 @@ class MarketOrderStrategy(SMACrossOverStrategy):
         return self.enterShort("orcl", 10)
 
     def exitLongPosition(self, bars, position):
-        position.exit()
+        position.exitMarket()
 
     def exitShortPosition(self, bars, position):
-        position.exit()
+        position.exitMarket()
 
 
 class LimitOrderStrategy(SMACrossOverStrategy):
@@ -136,12 +136,12 @@ class LimitOrderStrategy(SMACrossOverStrategy):
     def exitLongPosition(self, bars, position):
         price = self.__getMiddlePrice(bars)
         self.printDebug("exitLong:", self.getCurrentDateTime(), price, position)
-        position.exit(None, price)
+        position.exitLimit(price)
 
     def exitShortPosition(self, bars, position):
         price = self.__getMiddlePrice(bars)
         self.printDebug("exitShort:", self.getCurrentDateTime(), price, position)
-        position.exit(limitPrice=price)
+        position.exitLimit(price)
 
 
 class TestSMACrossOver(common.TestCase):

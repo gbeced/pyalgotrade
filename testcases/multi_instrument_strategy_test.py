@@ -63,7 +63,7 @@ class NikkeiSpyStrategy(strategy.BacktestingStrategy):
                 if shares:
                     self.__pos = self.enterLong(self.__lag, shares)
             elif cross.cross_below(self.__adjClose, self.__fastSMA) == 1 and self.__pos is not None:
-                self.__pos.exit()
+                self.__pos.exitMarket()
 
 
 class TestCase(common.TestCase):

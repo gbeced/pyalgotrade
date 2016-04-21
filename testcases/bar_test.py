@@ -48,9 +48,6 @@ class BasicBarTestCase(common.TestCase):
         self.assertEquals(b.getPrice(), b.getClose())
         b.setUseAdjustedValue(True)
         self.assertEquals(b.getPrice(), b.getAdjClose())
-        self.assertEquals(b.getOpen(True), b.getAdjOpen())
-        self.assertEquals(b.getHigh(True), b.getAdjHigh())
-        self.assertEquals(b.getLow(True), b.getAdjLow())
 
     def testPickle(self):
         b1 = bar.BasicBar(datetime.datetime.now(), 2, 3, 1, 2.1, 10, 5, bar.Frequency.DAY)

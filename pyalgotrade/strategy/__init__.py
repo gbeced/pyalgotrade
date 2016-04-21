@@ -174,11 +174,6 @@ class BaseStrategy(object):
             self.getBroker().submitOrder(ret)
         return ret
 
-    def order(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
-        # Deprecated since v0.15
-        warninghelpers.deprecation_warning("The order method will be deprecated in the next version. Please use the marketOrder method instead.", stacklevel=2)
-        return self.marketOrder(instrument, quantity, onClose, goodTillCanceled, allOrNone)
-
     def limitOrder(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """Submits a limit order.
 
@@ -406,11 +401,6 @@ class BaseStrategy(object):
 
         return pyalgotrade.strategy.position.ShortPosition(self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone)
 
-    def exitPosition(self, position, stopPrice=None, limitPrice=None, goodTillCanceled=None):
-        # Deprecated since v0.13
-        warninghelpers.deprecation_warning("exitPosition will be deprecated in the next version. Please use the exit method in the position class instead.", stacklevel=2)
-        position.exit(limitPrice, stopPrice, goodTillCanceled)
-
     def onEnterOk(self, position):
         """Override (optional) to get notified when the order submitted to enter a position was filled. The default implementation is empty.
 
@@ -602,7 +592,7 @@ class BacktestingStrategy(BaseStrategy):
 
     def setUseAdjustedValues(self, useAdjusted):
         self.getFeed().setUseAdjustedValues(useAdjusted)
-        self.getBroker().setUseAdjustedValues(useAdjusted, True)
+        self.getBroker().setUseAdjustedValues(useAdjusted)
         self.__useAdjustedValues = useAdjusted
 
     def setDebugMode(self, debugOn):
@@ -611,10 +601,3 @@ class BacktestingStrategy(BaseStrategy):
         level = logging.DEBUG if debugOn else logging.INFO
         self.getLogger().setLevel(level)
         self.getBroker().getLogger().setLevel(level)
-
-
-class Strategy(BacktestingStrategy):
-    def __init__(self, *args, **kwargs):
-        # Deprecated since v0.13
-        warninghelpers.deprecation_warning("Strategy class will be deprecated in the next version. Please use BaseStrategy or BacktestingStrategy instead.", stacklevel=2)
-        super(Strategy, self).__init__(*args, **kwargs)

@@ -9,6 +9,7 @@ Version 0.18 (TBD)
 . [FIX] Fixed a bug in VWAP calculation when using adjusted values.
 . [FIX] Added a way to change the dataseries.DEFAULT_MAX_LEN value.
 . [BREAKING CHANGE] Removed Xignite support (http://www.xignite.com/).
+. [BREAKING CHANGE] Removed deprecated code that issued warnings in previous versions.
 
 Version 0.17 (10/May/2015)
 . [NEW] Hurst exponent technical indicator (pyalgotrade.technical.hurst.HurstExponent).
