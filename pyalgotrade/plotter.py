@@ -418,7 +418,7 @@ class StrategyPlotter(object):
 
         return (fig, mplSubplots)
 
-    def buildFigure(self, fromDateTime=None, toDateTime=None):
+    def buildFigures(self, fromDateTime=None, toDateTime=None):
         """Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
 
         :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
@@ -429,6 +429,18 @@ class StrategyPlotter(object):
         """
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
         fig.autofmt_xdate()
+        return fig, mplSubplots
+
+    def buildFigure(self, fromDateTime=None, toDateTime=None):
+        """Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
+
+        :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
+        :type fromDateTime: datetime.datetime
+        :param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
+        :type toDateTime: datetime.datetime
+        :rtype: matplotlib.figure.Figure.
+        """
+        fig, _ = self.buildFigures(self, fromDateTime, toDateTime)
         return fig
 
     def plot(self, fromDateTime=None, toDateTime=None):
