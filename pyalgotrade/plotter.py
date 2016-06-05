@@ -21,6 +21,7 @@
 import collections
 
 import broker
+from pyalgotrade import warninghelpers
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -419,17 +420,24 @@ class StrategyPlotter(object):
         return (fig, mplSubplots)
 
     def buildFigure(self, fromDateTime=None, toDateTime=None):
+        # Deprecated in v0.18.
+        warninghelpers.deprecation_warning("buildFigure will be deprecated in the next version. Use buildFigureAndSubplots.", stacklevel=2)
+
+        fig, _ = self.buildFigureAndSubplots(fromDateTime, toDateTime)
+        return fig
+
+    def buildFigureAndSubplots(self, fromDateTime=None, toDateTime=None):
         """Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
 
         :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
         :type fromDateTime: datetime.datetime
         :param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
         :type toDateTime: datetime.datetime
-        :rtype: matplotlib.figure.Figure.
+        :rtype: A 2 element tuple with matplotlib.figure.Figure and subplots.
         """
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
         fig.autofmt_xdate()
-        return fig
+        return fig, mplSubplots
 
     def plot(self, fromDateTime=None, toDateTime=None):
         """Plots the strategy execution. Must be called after running the strategy.

@@ -41,6 +41,9 @@ class PlotterTestCase(common.TestCase):
         strat.run()
 
         with common.TmpDir() as tmpPath:
+            fig, subplots = plt.buildFigureAndSubplots()
+            self.assertIsNotNone(fig)
+            self.assertIsNotNone(subplots)
             fig = plt.buildFigure()
             fig.set_size_inches(10, 8)
             png = os.path.join(tmpPath, "plotter_test.png")
