@@ -23,7 +23,7 @@ from pyalgotrade.dataseries import bards
 
 
 # This event window will calculate and hold true-range values.
-# Formula from http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:average_true_range_a.
+# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr.
 class ATREventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
@@ -59,7 +59,7 @@ class ATREventWindow(technical.EventWindow):
 
 
 class ATR(technical.EventBasedFilter):
-    """Average True Range filter as described in http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:average_true_range_a.
+    """Average True Range filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr
 
     :param barDataSeries: The BarDataSeries instance being filtered.
     :type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.

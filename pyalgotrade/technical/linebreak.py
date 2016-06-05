@@ -53,7 +53,7 @@ class Line(object):
 
 
 class LineBreak(dataseries.SequenceDataSeries):
-    """Line Break filter as described in http://stockcharts.com/help/doku.php?id=chart_school:chart_analysis:three_line_break
+    """Line Break filter as described in http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:three_line_break.
     .
     This is a DataSeries of :class:`Line` instances.
 

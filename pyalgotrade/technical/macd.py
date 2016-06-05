@@ -23,7 +23,7 @@ from pyalgotrade import dataseries
 
 
 class MACD(dataseries.SequenceDataSeries):
-    """Moving Average Convergence-Divergence indicator as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_conve.
+    """Moving Average Convergence-Divergence indicator as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_convergence_divergence_macd.
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
