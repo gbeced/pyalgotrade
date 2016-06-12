@@ -54,7 +54,7 @@ class SOEventWindow(technical.EventWindow):
 
 
 class StochasticOscillator(technical.EventBasedFilter):
-    """Stochastic Oscillator filter as described in
+    """Fast Stochastic Oscillator filter as described in
     http://stockcharts.com/school/doku.php?st=stochastic+oscillator&id=chart_school:technical_indicators:stochastic_oscillator_fast_slow_and_full.
     Note that the value returned by this filter is %K. To access %D use :meth:`getD`.
 
