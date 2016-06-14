@@ -55,6 +55,14 @@ class Trade(pusher.Event):
         """Returns the trade amount."""
         return self.getData()["amount"]
 
+    def isBuy(self):
+        """Returns True if the trade was a buy."""
+        return self.getData()["type"] == 0
+
+    def isSell(self):
+        """Returns True if the trade was a sell."""
+        return self.getData()["type"] == 1
+
 
 class OrderBookUpdate(pusher.Event):
     """An order book update event."""

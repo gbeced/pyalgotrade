@@ -38,6 +38,7 @@ class TradeBar(bar.Bar):
         self.__tradeId = trade.getId()
         self.__price = trade.getPrice()
         self.__amount = trade.getAmount()
+        self.__buy = trade.isBuy()
 
     def __setstate__(self, state):
         (self.__dateTime, self.__tradeId, self.__price, self.__amount) = state
@@ -84,6 +85,12 @@ class TradeBar(bar.Bar):
 
     def getUseAdjValue(self):
         return False
+
+    def isBuy(self):
+        return self.__buy
+
+    def isSell(self):
+        return not self.__buy
 
 
 class LiveTradeFeed(barfeed.BaseBarFeed):

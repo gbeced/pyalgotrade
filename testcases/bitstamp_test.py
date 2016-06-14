@@ -73,7 +73,8 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
         dataDict = {
             "id": tid,
             "price": price,
-            "amount": amount
+            "amount": amount,
+            "type": 0,
             }
         eventDict = {}
         eventDict["data"] = json.dumps(dataDict)
@@ -635,6 +636,7 @@ class WebSocketTestCase(tc_common.TestCase):
         disp.addSubject(barFeed)
 
         def on_bars(dateTime, bars):
+            bar = bars[common.btc_symbol]
             events["on_bars"] = True
             if events["on_order_book_updated"] is True:
                 disp.stop()
