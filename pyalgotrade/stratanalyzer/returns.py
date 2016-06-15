@@ -205,10 +205,10 @@ class Returns(stratanalyzer.StrategyAnalyzer):
     """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
     time-weighted returns for the whole portfolio."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(Returns, self).__init__()
-        self.__netReturns = dataseries.SequenceDataSeries()
-        self.__cumReturns = dataseries.SequenceDataSeries()
+        self.__netReturns = dataseries.SequenceDataSeries(**kwargs)
+        self.__cumReturns = dataseries.SequenceDataSeries(**kwargs)
 
     def beforeAttach(self, strat):
         # Get or create a shared ReturnsAnalyzerBase
