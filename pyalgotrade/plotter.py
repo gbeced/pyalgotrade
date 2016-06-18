@@ -67,7 +67,7 @@ class Series(object):
         return self.__values.get(dateTime, None)
 
     def getValues(self):
-        self.__values
+        return self.__values
 
     def getMarker(self):
         raise NotImplementedError()
