@@ -397,11 +397,13 @@ class AnalyzerTestCase(common.TestCase):
         strat.addPosEntry(datetime.datetime(2001, 1, 12), strat.enterLong, AnalyzerTestCase.TestInstrument, 1)  # 33.06
         strat.addPosExitMarket(datetime.datetime(2001, 11, 27))  # 14.32
 
-        stratAnalyzer = returns.Returns()
+        stratAnalyzer = returns.Returns(maxLen=10)
         strat.attachAnalyzer(stratAnalyzer)
         strat.run()
         self.assertTrue(round(strat.getBroker().getCash(), 2) == round(initialCash + (14.32 - 33.06), 2))
         self.assertTrue(round(33.06 * (1 + stratAnalyzer.getCumulativeReturns()[-1]), 2) == 14.32)
+        self.assertEqual(len(stratAnalyzer.getCumulativeReturns()), 10)
+        self.assertEqual(len(stratAnalyzer.getReturns()), 10)
 
     def testGoogle2011(self):
         initialValue = 1000000

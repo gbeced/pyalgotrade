@@ -202,13 +202,20 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 
 class Returns(stratanalyzer.StrategyAnalyzer):
-    """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-    time-weighted returns for the whole portfolio."""
+    """
+    A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates time-weighted returns for the
+    whole portfolio.
 
-    def __init__(self):
+    :param maxLen: The maximum number of values to hold in net and cumulative returs dataseries.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
+    :type maxLen: int.
+    """
+
+    def __init__(self, maxLen=None):
         super(Returns, self).__init__()
-        self.__netReturns = dataseries.SequenceDataSeries()
-        self.__cumReturns = dataseries.SequenceDataSeries()
+        self.__netReturns = dataseries.SequenceDataSeries(maxLen=maxLen)
+        self.__cumReturns = dataseries.SequenceDataSeries(maxLen=maxLen)
 
     def beforeAttach(self, strat):
         # Get or create a shared ReturnsAnalyzerBase

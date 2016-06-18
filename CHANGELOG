@@ -3,6 +3,7 @@ Version 0.18 (TBD)
 . [NEW] Quandl tool to build feed supports mapping column names.
 . [NEW] Bar feeds now support including extra columns besides OHLC values.
 . [NEW] Added buildFigureAndSubplots to the plotter to return the subplots along with the figure. Thanks Carlos Tse for implementing this.
+. [NEW] Returns strategy analyzer now supports passing the maxLen for the dataseries. Thanks physicsd00d for implementing this.
 . [FIX] Fixed zero division error in StochasticOscillator. Thanks Blake Jennings for reporting this.
 . [FIX] Fixed a rounding bug in the default fill strategy when calculating the volume left for a given instrument. Thanks Markus Trenkwalder for reporting this.
 . [FIX] Was not logging properly in backtesting broker when shares are not integers.
