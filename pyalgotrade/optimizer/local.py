@@ -44,7 +44,7 @@ class ServerThread(threading.Thread):
         self.__results = self.__server.serve(self.__barFeed, self.__strategyParameters)
 
 
-def worker_process(strategyClass, port):
+def worker_process(strategyClass, port, logLevel):
     class Worker(worker.Worker):
         def runStrategy(self, barFeed, *args, **kwargs):
             strat = strategyClass(barFeed, *args, **kwargs)
@@ -52,10 +52,13 @@ def worker_process(strategyClass, port):
             return strat.getResult()
 
     # Create a worker and run it.
-    name = "worker-%s" % (os.getpid())
-    w = Worker("localhost", port, name)
-    w.getLogger().setLevel(logging.ERROR)
-    w.run()
+    try:
+        name = "worker-%s" % (os.getpid())
+        w = Worker("localhost", port, name)
+        w.getLogger().setLevel(logLevel)
+        w.run()
+    except Exception, e:
+        w.getLogger().exception("Failed to run worker: %s" % (e))
 
 
 def find_port():
@@ -68,6 +71,13 @@ def find_port():
             return ret
         except socket.error:
             pass
+
+
+def wait_process(p):
+    timeout = 10
+    p.join(timeout)
+    while p.is_alive():
+        p.join(timeout)
 
 
 def run(strategyClass, barFeed, strategyParameters, workerCount=None):
@@ -100,7 +110,10 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
     try:
         # Build the worker processes.
         for i in range(workerCount):
-            workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, port)))
+            workers.append(multiprocessing.Process(
+                target=worker_process,
+                args=(strategyClass, port, logging.ERROR))
+            )
 
         # Start workers
         for process in workers:
@@ -108,8 +121,7 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
 
         # Wait workers
         for process in workers:
-            process.join()
-
+            wait_process(process)
     finally:
         # Stop and wait the server to finish.
         srv.stop()

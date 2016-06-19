@@ -11,6 +11,7 @@ Version 0.18 (TBD)
 . [FIX] Fixed a bug in VWAP calculation when using adjusted values.
 . [FIX] Added a way to change the dataseries.DEFAULT_MAX_LEN value.
 . [FIX] Added missing return in plotter.Series.getValues. Thanks physicsd00d for reporting this.
+. [FIX] optimizer.local was sometimes blocked waiting for child processes to finish.
 . [BREAKING CHANGE] Removed Xignite support (http://www.xignite.com/).
 . [BREAKING CHANGE] Removed deprecated code that issued warnings in previous versions.
 
