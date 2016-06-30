@@ -38,7 +38,7 @@ def parameters_generator(instrument, smaFirst, smaLast):
 class FailingStrategy(strategy.BacktestingStrategy):
     def __init__(self, barFeed, instrument, smaPeriod):
         super(FailingStrategy, self).__init__(barFeed)
-        
+
     def onBars(self, bars):
         raise Exception("oh no!")
 

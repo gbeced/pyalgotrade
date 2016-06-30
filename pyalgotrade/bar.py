@@ -20,8 +20,6 @@
 
 import abc
 
-from pyalgotrade import warninghelpers
-
 
 class Frequency(object):
 
@@ -241,6 +239,7 @@ class BasicBar(Bar):
 
     def getExtraColumns(self):
         return self.__extra
+
 
 class Bars(object):
 

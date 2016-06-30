@@ -636,7 +636,7 @@ class WebSocketTestCase(tc_common.TestCase):
         disp.addSubject(barFeed)
 
         def on_bars(dateTime, bars):
-            bar = bars[common.btc_symbol]
+            bars[common.btc_symbol]
             events["on_bars"] = True
             if events["on_order_book_updated"] is True:
                 disp.stop()

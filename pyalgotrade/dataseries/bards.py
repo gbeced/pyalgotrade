@@ -107,4 +107,3 @@ class BarDataSeries(dataseries.SequenceDataSeries):
     def getExtraDataSeries(self, name):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` for an extra column."""
         return self.__getOrCreateExtraDS(name)
-

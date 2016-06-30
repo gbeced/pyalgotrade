@@ -2,7 +2,6 @@ import threading
 import BaseHTTPServer
 
 
-
 class WebServerThread(threading.Thread):
     def __init__(self, host, port, handlerClass):
         super(WebServerThread, self).__init__()
@@ -20,6 +19,7 @@ class WebServerThread(threading.Thread):
 
     def stop(self):
         self.__server.shutdown()
+
 
 # handlerClass should be a subclass of (BaseHTTPServer.BaseHTTPRequestHandler.
 # The handler instance will get a thread and server attribute injected.

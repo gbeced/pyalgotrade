@@ -422,4 +422,3 @@ class TestUpdatedDefaultMaxLen(common.TestCase):
         self.assertEqual(len(ds), 2048)
         self.assertEqual(ds[0], 952)
         self.assertEqual(ds[-1], 2999)
-

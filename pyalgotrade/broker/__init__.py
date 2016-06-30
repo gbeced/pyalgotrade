@@ -21,7 +21,6 @@
 import abc
 
 from pyalgotrade import observer
-from pyalgotrade import warninghelpers
 from pyalgotrade import dispatchprio
 
 

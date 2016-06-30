@@ -23,6 +23,7 @@ import datetime
 
 import common
 try:
+    # This will get environment variables set.
     import credentials
 except:
     pass

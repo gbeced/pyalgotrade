@@ -26,7 +26,6 @@ from pyalgotrade.broker import backtesting
 from pyalgotrade import observer
 from pyalgotrade import dispatcher
 import pyalgotrade.strategy.position
-from pyalgotrade import warninghelpers
 from pyalgotrade import logger
 from pyalgotrade.barfeed import resampled
 

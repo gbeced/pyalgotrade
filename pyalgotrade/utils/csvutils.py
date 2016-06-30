@@ -76,4 +76,3 @@ def float_or_string(value):
     except Exception:
         ret = value
     return ret
-

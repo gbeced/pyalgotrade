@@ -30,6 +30,7 @@ class WebSocketServerThread(threading.Thread):
     def stop(self):
         self.__server.shutdown()
 
+
 # webSocketServerClass should be a subclass of ws4py.websocket.WebSocket
 def run_websocket_server_thread(host, port, webSocketServerClass):
     wss_thread = WebSocketServerThread(host, port, webSocketServerClass)
