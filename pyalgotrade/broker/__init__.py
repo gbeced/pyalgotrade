@@ -44,6 +44,10 @@ class IntegerTraits(InstrumentTraits):
         return int(quantity)
 
 
+class UndefinedQuantity(object):
+    pass
+
+
 ######################################################################
 # Orders
 # http://stocks.about.com/od/tradingbasics/a/markords.htm
@@ -137,8 +141,9 @@ class Order(object):
     }
 
     def __init__(self, type_, action, instrument, quantity, instrumentTraits):
-        if quantity <= 0:
+        if not isinstance(quantity, UndefinedQuantity) and quantity <= 0:
             raise Exception("Invalid quantity")
+
         self.__id = None
         self.__type = type_
         self.__action = action
@@ -165,6 +170,11 @@ class Order(object):
 #        if other is None:
 #            return True
 #        assert(False)
+
+    def _setQuantity(self, quantity):
+        assert isinstance(self.__quantity, UndefinedQuantity), "Can only change the quantity if it was undefined"
+        assert quantity > 0, "Invalid quantity"
+        self.__quantity = quantity
 
     def getInstrumentTraits(self):
         return self.__instrumentTraits
