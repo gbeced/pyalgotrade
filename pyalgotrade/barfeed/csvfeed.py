@@ -125,12 +125,13 @@ class BarFeed(membf.BarFeed):
 
 
 class GenericRowParser(RowParser):
-    def __init__(self, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone):
+    def __init__(self, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone, barClass=bar.BasicBar):
         self.__dateTimeFormat = dateTimeFormat
         self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
         self.__timezone = timezone
         self.__haveAdjClose = False
+        self.__barClass = barClass
         # Column names.
         self.__dateTimeColName = columnNames["datetime"]
         self.__openColName = columnNames["open"]
@@ -181,7 +182,7 @@ class GenericRowParser(RowParser):
             if k not in self.__columnNames:
                 extra[k] = csvutils.float_or_string(v)
 
-        return bar.BasicBar(
+        return self.__barClass(
             dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra
         )
 
@@ -218,6 +219,8 @@ class GenericBarFeed(BarFeed):
         # loading the first file if the adj_close column is there.
         self.__haveAdjClose = False
 
+        self.__barClass = bar.BasicBar
+
         self.__dateTimeFormat = "%Y-%m-%d %H:%M:%S"
         self.__columnNames = {
             "datetime": "Date Time",
@@ -245,6 +248,9 @@ class GenericBarFeed(BarFeed):
     def setDateTimeFormat(self, dateTimeFormat):
         self.__dateTimeFormat = dateTimeFormat
 
+    def setBarClass(self, barClass):
+        self.__barClass = barClass
+
     def addBarsFromCSV(self, instrument, path, timezone=None):
         """Loads bars for a given instrument from a CSV formatted file.
         The instrument gets registered in the bar feed.
@@ -260,7 +266,10 @@ class GenericBarFeed(BarFeed):
         if timezone is None:
             timezone = self.__timezone
 
-        rowParser = GenericRowParser(self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(), timezone)
+        rowParser = GenericRowParser(
+            self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(),
+            timezone, self.__barClass
+        )
 
         super(GenericBarFeed, self).addBarsFromCSV(instrument, path, rowParser)
 
