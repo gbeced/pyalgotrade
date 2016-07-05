@@ -126,6 +126,7 @@ class Order(object):
         LIMIT = 2
         STOP = 3
         STOP_LIMIT = 4
+        NEXT_CUSTOM_TYPE = 1000
 
     # Valid state transitions.
     VALID_TRANSITIONS = {
