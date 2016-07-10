@@ -29,6 +29,9 @@ from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
 
 
+logger = logging.getLogger(__name__)
+
+
 class ServerThread(threading.Thread):
     def __init__(self, server, barFeed, strategyParameters):
         super(ServerThread, self).__init__()
@@ -80,15 +83,17 @@ def wait_process(p):
         p.join(timeout)
 
 
-def run(strategyClass, barFeed, strategyParameters, workerCount=None):
+def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR):
     """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
 
     :param strategyClass: The strategy class.
     :param barFeed: The bar feed to use to backtest the strategy.
     :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is a tuple that holds parameter values**.
+    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
+        a tuple that holds parameter values**.
     :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
     :type workerCount: int.
+    :param logLevel: The log level. Defaults to **logging.ERROR**.
     :rtype: A :class:`Results` instance with the best results found.
     """
 
@@ -102,7 +107,8 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
     if port is None:
         raise Exception("Failed to find a port to listen")
 
-    # Build and start the server thread before the worker processes. We'll manually stop the server once workers have finished.
+    # Build and start the server thread before the worker processes.
+    # We'll manually stop the server once workers have finished.
     srv = server.Server("localhost", port, False)
     serverThread = ServerThread(srv, barFeed, strategyParameters)
     serverThread.start()
@@ -112,8 +118,10 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
         for i in range(workerCount):
             workers.append(multiprocessing.Process(
                 target=worker_process,
-                args=(strategyClass, port, logging.ERROR))
+                args=(strategyClass, port, logLevel))
             )
+
+        logger.info("Executing workers")
 
         # Start workers
         for process in workers:
@@ -122,6 +130,8 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
         # Wait workers
         for process in workers:
             wait_process(process)
+
+        logger.info("All workers finished")
     finally:
         # Stop and wait the server to finish.
         srv.stop()
