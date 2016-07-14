@@ -47,11 +47,12 @@ def parse_date(date):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, dailyBarTime, frequency, timezone=None, sanitize=False):
+    def __init__(self, dailyBarTime, frequency, timezone=None, sanitize=False, barClass=bar.BasicBar):
         self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
         self.__timezone = timezone
         self.__sanitize = sanitize
+        self.__barClass = barClass
 
     def __parseDate(self, dateString):
         ret = parse_date(dateString)
@@ -82,7 +83,7 @@ class RowParser(csvfeed.RowParser):
         if self.__sanitize:
             open_, high, low, close = common.sanitize_ohlc(open_, high, low, close)
 
-        return bar.BasicBar(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
+        return self.__barClass(dateTime, open_, high, low, close, volume, adjClose, self.__frequency)
 
 
 class Feed(csvfeed.BarFeed):
@@ -116,6 +117,10 @@ class Feed(csvfeed.BarFeed):
 
         self.__timezone = timezone
         self.__sanitizeBars = False
+        self.__barClass = bar.BasicBar
+
+    def setBarClass(self, barClass):
+        self.__barClass = barClass
 
     def sanitizeBars(self, sanitize):
         self.__sanitizeBars = sanitize
@@ -141,5 +146,7 @@ class Feed(csvfeed.BarFeed):
         if timezone is None:
             timezone = self.__timezone
 
-        rowParser = RowParser(self.getDailyBarTime(), self.getFrequency(), timezone, self.__sanitizeBars)
+        rowParser = RowParser(
+            self.getDailyBarTime(), self.getFrequency(), timezone, self.__sanitizeBars, self.__barClass
+        )
         super(Feed, self).addBarsFromCSV(instrument, path, rowParser)
