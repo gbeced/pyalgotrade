@@ -76,7 +76,7 @@ class SharpeRatioTestCase(common.TestCase):
         strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True)  # Adj. Close: 127.64
         strat.run()
         self.assertEqual(round(strat.getBroker().getCash(), 2), initialCash + (127.64 - 42.09) * quantity)
-        self.assertEqual(strat.orderUpdatedCalls, 4)
+        self.assertEqual(strat.orderUpdatedCalls, 6)
         # The results are slightly different only because I'm taking into account the first bar as well.
         self.assertEqual(round(stratAnalyzer.getSharpeRatio(0.04, True), 4), 0.7889)
         self.assertEqual(round(stratAnalyzer.getSharpeRatio(0.04, False), 4), 0.0497)
@@ -112,7 +112,7 @@ class SharpeRatioTestCase(common.TestCase):
 
         strat.run()
         self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09 - commision*2))
-        self.assertEqual(strat.orderUpdatedCalls, 4)
+        self.assertEqual(strat.orderUpdatedCalls, 6)
         # The results are slightly different only because I'm taking into account the first bar as well,
         # and I'm also adding commissions.
         self.assertEqual(round(stratAnalyzer.getSharpeRatio(0.04, True), 6), 0.776443)

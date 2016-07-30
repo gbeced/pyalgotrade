@@ -371,9 +371,8 @@ class Broker(broker.Broker):
             order.setSubmitted(self._getNextOrderId(), self._getCurrentDateTime())
             self._registerOrder(order)
             # Switch from INITIAL -> SUBMITTED
-            # IMPORTANT: Do not emit an event for this switch because when using the position interface
-            # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
             order.switchState(broker.Order.State.SUBMITTED)
+            self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.SUBMITTED, None))
         else:
             raise Exception("The order was already processed")
 

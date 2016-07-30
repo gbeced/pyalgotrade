@@ -98,7 +98,7 @@ class BrokerOrderTestCase(StrategyTestCase):
         strat.getBroker().submitOrder(o)
         strat.run()
         self.assertTrue(o.isFilled())
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
 
 class StrategyOrderTestCase(StrategyTestCase):
@@ -108,7 +108,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         o = strat.marketOrder(StrategyTestCase.TestInstrument, 1)
         strat.run()
         self.assertTrue(o.isFilled())
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
     def testMarketOrderBuy(self):
         strat = self.createStrategy()
@@ -120,7 +120,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 1)
         self.assertEquals(o.getFilled(), 1)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
     def testMarketOrderSell(self):
         strat = self.createStrategy()
@@ -132,7 +132,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 2)
         self.assertEquals(o.getFilled(), 2)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
     def testLimitOrderBuy(self):
         strat = self.createStrategy()
@@ -145,7 +145,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 1)
         self.assertEquals(o.getFilled(), 1)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
     def testLimitOrderSell(self):
         strat = self.createStrategy()
@@ -158,7 +158,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 3)
         self.assertEquals(o.getFilled(), 3)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
     def testStopOrderBuy(self):
         strat = self.createStrategy()
@@ -171,7 +171,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 1)
         self.assertEquals(o.getFilled(), 1)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
 
     def testStopOrderSell(self):
         strat = self.createStrategy()
@@ -184,7 +184,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 2)
         self.assertEquals(o.getFilled(), 2)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
         self.assertEqual(o.getExecutionInfo().getDateTime(), datetime.datetime(2000, 1, 19))
 
     def testStopLimitOrderBuy(self):
@@ -198,7 +198,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 1)
         self.assertEquals(o.getFilled(), 1)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
         self.assertEqual(o.getExecutionInfo().getDateTime(), datetime.datetime(2000, 1, 5))
 
     def testStopLimitOrderSell(self):
@@ -212,7 +212,7 @@ class StrategyOrderTestCase(StrategyTestCase):
         self.assertEquals(o.getQuantity(), 2)
         self.assertEquals(o.getFilled(), 2)
         self.assertEquals(o.getRemaining(), 0)
-        self.assertEqual(strat.orderUpdatedCalls, 2)
+        self.assertEqual(strat.orderUpdatedCalls, 3)
         self.assertEqual(o.getExecutionInfo().getDateTime(), datetime.datetime(2000, 1, 10))
 
 

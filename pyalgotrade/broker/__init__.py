@@ -460,10 +460,11 @@ class OrderExecutionInfo(object):
 
 class OrderEvent(object):
     class Type:
-        ACCEPTED = 1  # Order has been acknowledged by the broker.
-        CANCELED = 2  # Order has been canceled.
-        PARTIALLY_FILLED = 3  # Order has been partially filled.
-        FILLED = 4  # Order has been completely filled.
+        SUBMITTED = 1  # Order has been submitted.
+        ACCEPTED = 2  # Order has been acknowledged by the broker.
+        CANCELED = 3  # Order has been canceled.
+        PARTIALLY_FILLED = 4  # Order has been partially filled.
+        FILLED = 5  # Order has been completely filled.
 
     def __init__(self, order, eventyType, eventInfo):
         self.__order = order
