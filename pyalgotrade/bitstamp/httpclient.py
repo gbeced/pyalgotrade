@@ -124,9 +124,9 @@ class HTTPClient(object):
         self.__lock = threading.Lock()
 
     def _getNonce(self):
-        ret = int(time.time())
+        ret = int(time.time()*100)
         if ret == self.__prevNonce:
-            ret += 1
+            ret = self.__prevNonce + 1
         self.__prevNonce = ret
         return ret
 

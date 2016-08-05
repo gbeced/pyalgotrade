@@ -167,6 +167,12 @@ class Order(object):
 #            return True
 #        assert(False)
 
+    def __repr__(self):
+        r = "<Order "
+        r += ' '.join([ k+': '+repr(v) for k, v in self.__dict__.items() ])
+        r += '>'
+        return r
+
     def _setQuantity(self, quantity):
         assert self.__quantity is None, "Can only change the quantity if it was undefined"
         assert quantity > 0, "Invalid quantity"
