@@ -26,28 +26,23 @@ from pyalgotrade import dispatchprio
 class Event(object):
     def __init__(self):
         self.__handlers = set()
-        self.__toSubscribe = set()
-        self.__toUnsubscribe = set()
+        self.__changes = []
         self.__emitting = False
 
     def __applyChanges(self):
-        if self.__toSubscribe:
-            self.__handlers.intersection_update(self.__toSubscribe)
-            self.__toSubscribe = set()
-
-        if self.__toUnsubscribe:
-            self.__handlers.difference_update(self.__toUnsubscribe)
-            self.__toUnsubscribe = set()
+        if self.__changes:
+            for verb, arg in self.__changes:
+                verb(arg)
 
     def subscribe(self, handler):
         if self.__emitting:
-            self.__toSubscribe.add(handler)
+            self.__changes.append((self.__handlers.add, handler))
         else:
             self.__handlers.add(handler)
 
     def unsubscribe(self, handler):
         if self.__emitting:
-            self.__toUnsubscribe.add(handler)
+            self.__changes.append((self.__handlers.difference_update, {handler}))
         else:
             self.__handlers.remove(handler)
 
