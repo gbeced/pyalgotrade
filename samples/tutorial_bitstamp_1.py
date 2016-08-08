@@ -3,7 +3,7 @@ from pyalgotrade.bitstamp import broker
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
-
+from pyalgotrade.orderbook import OrderBook
 
 class Strategy(strategy.BaseStrategy):
     def __init__(self, feed, brk):
@@ -16,13 +16,15 @@ class Strategy(strategy.BaseStrategy):
         self.__ask = None
         self.__position = None
         self.__posSize = 0.05
+        self.__book = OrderBook()
 
         # Subscribe to order book update events to get bid/ask prices to trade.
         feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
 
     def __onOrderBookUpdate(self, orderBookUpdate):
-        bid = orderBookUpdate.getBidPrices()[0]
-        ask = orderBookUpdate.getAskPrices()[0]
+        self.__book.update(orderBookUpdate)
+        bid = self.__book.inside_bid()
+        ask = self.__book.inside_ask()
 
         if bid != self.__bid or ask != self.__ask:
             self.__bid = bid
