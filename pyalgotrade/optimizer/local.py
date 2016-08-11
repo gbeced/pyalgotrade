@@ -27,24 +27,19 @@ import os
 
 from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
+from pyalgotrade.optimizer import xmlrpcserver
 
 
 logger = logging.getLogger(__name__)
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, server, barFeed, strategyParameters):
+    def __init__(self, server):
         super(ServerThread, self).__init__()
         self.__server = server
-        self.__barFeed = barFeed
-        self.__strategyParameters = strategyParameters
-        self.__results = None
-
-    def getResults(self):
-        return self.__results
 
     def run(self):
-        self.__results = self.__server.serve(self.__barFeed, self.__strategyParameters)
+        self.__results = self.__server.serve()
 
 
 def worker_process(strategyClass, port, logLevel):
@@ -109,8 +104,10 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
 
     # Build and start the server thread before the worker processes.
     # We'll manually stop the server once workers have finished.
-    srv = server.Server("localhost", port, False)
-    serverThread = ServerThread(srv, barFeed, strategyParameters)
+    paramSource = server.ParameterSource(strategyParameters)
+    resultSinc = server.ResultSinc()
+    srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
+    serverThread = ServerThread(srv)
     serverThread.start()
 
     try:
@@ -136,5 +133,9 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
         # Stop and wait the server to finish.
         srv.stop()
         serverThread.join()
-        ret = serverThread.getResults()
+
+        bestResult, bestParameters = resultSinc.getBest()
+        if bestResult is not None:
+            ret = server.Results(bestParameters.args, bestResult)
+
     return ret

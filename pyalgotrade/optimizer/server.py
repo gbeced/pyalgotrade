@@ -18,22 +18,90 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import SimpleXMLRPCServer
 import threading
-import time
-import pickle
+
 import pyalgotrade.logger
+from pyalgotrade.optimizer import base
+from pyalgotrade.optimizer import xmlrpcserver
+
+logger = pyalgotrade.logger.getLogger(__name__)
 
 
-class AutoStopThread(threading.Thread):
-    def __init__(self, server):
-        super(AutoStopThread, self).__init__()
-        self.__server = server
+######################################################################
 
-    def run(self):
-        while self.__server.jobsPending():
-            time.sleep(1)
-        self.__server.stop()
+
+class ParameterSource(object):
+    """
+    Source for backtesting parameters. This class is thread safe.
+    """
+    def __init__(self, params):
+        self.__iter = iter(params)
+        self.__lock = threading.Lock()
+
+    def getNext(self, count):
+        """
+        Returns the next parameters to use in a backtest.
+        If there are no more parameters to try then an empty list is returned.
+
+        :param count: The max number of parameters to return.
+        :type count: int
+        :rtype: list of Parameters.
+        """
+
+        assert count > 0, "Invalid number of parameters"
+
+        ret = []
+        with self.__lock:
+            if self.__iter is not None:
+                try:
+                    while count > 0:
+                        params = self.__iter.next()
+                        # Backward compatibility when parameters don't yield base.Parameters.
+                        if not isinstance(params, base.Parameters):
+                            params = base.Parameters(*params)
+                        ret.append(params)
+                        count -= 1
+                except StopIteration:
+                    self.__iter = None
+        return ret
+
+    def eof(self):
+        with self.__lock:
+            return self.__iter is None
+
+
+class ResultSinc(object):
+    """
+    Sinc for backtest results. This class is thread safe.
+    """
+    def __init__(self):
+        self.__lock = threading.Lock()
+        self.__bestResult = None
+        self.__bestParameters = None
+
+    def push(self, result, parameters):
+        """
+        Push strategy results obtained by running the strategy with the given parameters.
+
+        :param result: The result obtained by running the strategy with the given parameters.
+        :type result: float
+        :param parameters: The parameters that yield the given result.
+        :type parameters: Parameters
+        """
+        with self.__lock:
+            if result is not None and (self.__bestResult is None or result > self.__bestResult):
+                self.__bestResult = result
+                self.__bestParameters = parameters
+                logger.info("Best result so far %s with parameters %s" % (result, parameters.args))
+
+    def getBest(self):
+        with self.__lock:
+            ret = self.__bestResult, self.__bestParameters
+        return ret
+
+
+######################################################################
+######################################################################
 
 
 class Results(object):
@@ -51,183 +119,6 @@ class Results(object):
         return self.__result
 
 
-class Job(object):
-    def __init__(self, strategyParameters):
-        self.__strategyParameters = strategyParameters
-        self.__bestResult = None
-        self.__bestParameters = None
-        self.__id = id(self)
-
-    def getId(self):
-        return self.__id
-
-    def getNextParameters(self):
-        ret = None
-        if len(self.__strategyParameters):
-            ret = self.__strategyParameters.pop()
-        return ret
-
-    def getBestParameters(self):
-        return self.__bestParameters
-
-    def getBestResult(self):
-        return self.__bestResult
-
-    def getBestWorkerName(self):
-        return self.__bestWorkerName
-
-    def setBestResult(self, result, parameters, workerName):
-        self.__bestResult = result
-        self.__bestParameters = parameters
-        self.__bestWorkerName = workerName
-
-
-# Restrict to a particular path.
-class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/PyAlgoTradeRPC',)
-
-
-class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
-    defaultBatchSize = 200
-
-    def __init__(self, address, port, autoStop=True):
-        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
-
-        self.__instrumentsAndBars = None  # Pickle'd instruments and bars for faster retrieval.
-        self.__barsFreq = None
-        self.__activeJobs = {}
-        self.__activeJobsLock = threading.Lock()
-        self.__parametersLock = threading.Lock()
-        self.__bestJob = None
-        self.__parametersIterator = None
-        self.__logger = pyalgotrade.logger.getLogger("server")
-        if autoStop:
-            self.__autoStopThread = AutoStopThread(self)
-        else:
-            self.__autoStopThread = None
-
-        self.register_introspection_functions()
-        self.register_function(self.getInstrumentsAndBars, 'getInstrumentsAndBars')
-        self.register_function(self.getBarsFrequency, 'getBarsFrequency')
-        self.register_function(self.getNextJob, 'getNextJob')
-        self.register_function(self.pushJobResults, 'pushJobResults')
-        self.__forcedStop = False
-
-    def __getNextParams(self):
-        ret = []
-
-        # Get the next set of parameters.
-        with self.__parametersLock:
-            if self.__parametersIterator is not None:
-                try:
-                    for i in xrange(Server.defaultBatchSize):
-                        ret.append(self.__parametersIterator.next())
-                except StopIteration:
-                    self.__parametersIterator = None
-        return ret
-
-    def getLogger(self):
-        return self.__logger
-
-    def getInstrumentsAndBars(self):
-        return self.__instrumentsAndBars
-
-    def getBarsFrequency(self):
-        return str(self.__barsFreq)
-
-    def getBestJob(self):
-        return self.__bestJob
-
-    def getNextJob(self):
-        ret = None
-        params = []
-
-        # Get the next set of parameters.
-        params = self.__getNextParams()
-
-        # Map the active job
-        if len(params):
-            ret = Job(params)
-            with self.__activeJobsLock:
-                self.__activeJobs[ret.getId()] = ret
-
-        return pickle.dumps(ret)
-
-    def jobsPending(self):
-        if self.__forcedStop:
-            return False
-
-        with self.__parametersLock:
-            jobsPending = self.__parametersIterator is not None
-        with self.__activeJobsLock:
-            activeJobs = len(self.__activeJobs) > 0
-        return jobsPending or activeJobs
-
-    def pushJobResults(self, jobId, result, parameters, workerName):
-        jobId = pickle.loads(jobId)
-        result = pickle.loads(result)
-        parameters = pickle.loads(parameters)
-        workerName = pickle.loads(workerName)
-
-        job = None
-
-        # Get the active job and remove the mapping.
-        with self.__activeJobsLock:
-            try:
-                job = self.__activeJobs[jobId]
-                del self.__activeJobs[jobId]
-            except KeyError:
-                # The job's results were already submitted.
-                return
-
-        # Save the job with the best result
-        if self.__bestJob is None or result > self.__bestJob.getBestResult():
-            job.setBestResult(result, parameters, workerName)
-            self.__bestJob = job
-
-        self.getLogger().info("Partial result %s with parameters: %s from %s" % (result, parameters, workerName))
-
-    def stop(self):
-        self.shutdown()
-
-    def serve(self, barFeed, strategyParameters):
-        ret = None
-        try:
-            # Initialize instruments, bars and parameters.
-            self.getLogger().info("Loading bars")
-            loadedBars = []
-            for dateTime, bars in barFeed:
-                loadedBars.append(bars)
-            instruments = barFeed.getRegisteredInstruments()
-            self.__instrumentsAndBars = pickle.dumps((instruments, loadedBars))
-            self.__barsFreq = barFeed.getFrequency()
-
-            self.__parametersIterator = iter(strategyParameters)
-
-            if self.__autoStopThread:
-                self.__autoStopThread.start()
-
-            self.getLogger().info("Waiting for workers")
-            self.serve_forever()
-
-            if self.__autoStopThread:
-                self.__autoStopThread.join()
-
-            # Show the best result.
-            bestJob = self.getBestJob()
-            if bestJob:
-                if bestJob.getBestResult() is not None:
-                    self.getLogger().info("Best final result %s with parameters: %s from client %s" % (bestJob.getBestResult(), bestJob.getBestParameters(), bestJob.getBestWorkerName()))
-                    ret = Results(bestJob.getBestParameters(), bestJob.getBestResult())
-                else:
-                    self.getLogger().error("No results. All jobs failed")
-            else:
-                self.getLogger().error("No jobs processed")
-        finally:
-            self.__forcedStop = True
-        return ret
-
-
 def serve(barFeed, strategyParameters, address, port):
     """Executes a server that will provide bars and strategy parameters for workers to use.
 
@@ -238,7 +129,21 @@ def serve(barFeed, strategyParameters, address, port):
     :type address: string.
     :param port: The port to listen for incoming worker connections.
     :type port: int.
-    :rtype: A :class:`Results` instance with the best results found.
+    :rtype: A :class:`Results` instance with the best results found or None if no results were obtained.
     """
-    s = Server(address, port)
-    return s.serve(barFeed, strategyParameters)
+
+    paramSource = ParameterSource(strategyParameters)
+    resultSinc = ResultSinc()
+    s = xmlrpcserver.Server(paramSource, resultSinc, barFeed, address, port)
+    logger.info("Starting server")
+    s.serve()
+    logger.info("Server finished")
+
+    ret = None
+    bestResult, bestParameters = resultSinc.getBest()
+    if bestResult is not None:
+        logger.info("Best final result %s with parameters %s" % (bestResult, bestParameters.args))
+        ret = Results(bestParameters.args, bestResult)
+    else:
+        logger.error("No results. All jobs failed or no jobs were processed.")
+    return ret
