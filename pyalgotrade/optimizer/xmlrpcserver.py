@@ -77,6 +77,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.__activeJobs = {}
         self.__activeJobsLock = threading.Lock()
         self.__forcedStop = False
+        self.__bestResult = None
         if autoStop:
             self.__autoStopThread = AutoStopThread(self)
         else:
@@ -133,6 +134,10 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
             except KeyError:
                 # The job's results were already submitted.
                 return
+
+        if result is None or result > self.__bestResult:
+            logger.info("Best result so far %s with parameters %s" % (result, parameters))
+            self.__bestResult = result
 
         self.__resultSinc.push(result, base.Parameters(*parameters))
 

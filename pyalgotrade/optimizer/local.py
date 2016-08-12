@@ -18,17 +18,17 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import multiprocessing
-import threading
 import logging
-import socket
-import random
+import multiprocessing
 import os
+import random
+import socket
+import threading
 
+from pyalgotrade.optimizer import base
 from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
 from pyalgotrade.optimizer import xmlrpcserver
-
 
 logger = logging.getLogger(__name__)
 
@@ -104,8 +104,8 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
 
     # Build and start the server thread before the worker processes.
     # We'll manually stop the server once workers have finished.
-    paramSource = server.ParameterSource(strategyParameters)
-    resultSinc = server.ResultSinc()
+    paramSource = base.ParameterSource(strategyParameters)
+    resultSinc = base.ResultSinc()
     srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
     serverThread = ServerThread(srv)
     serverThread.start()
