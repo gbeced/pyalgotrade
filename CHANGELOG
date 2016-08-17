@@ -1,5 +1,5 @@
-Version 0.18 (TBD)
-. [NEW] Returns analyzer now store datetimes along with each sample. Thanks MatthiasKauer for implementing this.
+Version 0.18 (17/Aug/2016)
+. [NEW] Returns analyzer now stores datetimes along with each sample. Thanks MatthiasKauer for implementing this.
 . [NEW] Quandl tool to build feed supports mapping column names.
 . [NEW] Bar feeds now support including extra columns besides OHLC values.
 . [NEW] Added buildFigureAndSubplots to the plotter to return the subplots along with the figure. Thanks Carlos Tse for implementing this.

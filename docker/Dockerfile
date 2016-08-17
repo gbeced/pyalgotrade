@@ -34,4 +34,4 @@ RUN cd /tmp; \
 	rm -rf ta-lib
 RUN pip install TA-Lib
 
-RUN pip install pyalgotrade==0.17
+RUN pip install pyalgotrade==0.18

@@ -13,13 +13,11 @@ Release checklist
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
 [ ] Rebuild and review documentation.
-[ ] Run testcases using the installed lib.
-[ ] Run tutorial examples from the Optimizing section using the installed lib.
-[ ] Run samples/tutorial-5.py using the installed lib.
-[ ] Run samples/compinv-3.py using the installed lib.
-[ ] Run samples/tutorial_bitstamp_1.py using the installed lib. Check disconnection detection.
+[ ] Run testcases using the installed lib (use docker testcases image as in Travis).
+[ ] Run tutorial examples from the Optimizing section using the installed lib (use 'docker run -ti testcases /bin/bash').
+[ ] Run samples/tutorial-5.py using the installed lib (use 'docker run -ti testcases /bin/bash').
+[ ] Run samples/tutorial_bitstamp_1.py using the installed lib. Check disconnection detection (use 'docker run -ti testcases /bin/bash').
 [ ] Run samples/tutorial_twitter_bitstamp.py using the installed lib.
-[ ] Run samples/tutorial_xignite_1.py using the installed lib.
 [ ] Run samples/eventstudy.py using the installed lib.
 
 [ ] Update the website (doc + package).
@@ -27,7 +25,7 @@ Release checklist
 [ ] Build package and upload to sourceforge.
 [ ] Update PyPi (both PKG-INFO and upload file using https://pypi.python.org/pypi?%3Aaction=submit_form).
 [ ] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
-[ ] Run testcases using the installed lib.
+[ ] Build and push Docker image.
 
 [ ] Commit and tag (git tag v0.x-rtm -m "Version 0.x").
 [ ] Push (git push; git push --tags).
