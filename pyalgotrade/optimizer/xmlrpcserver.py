@@ -126,10 +126,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         result = pickle.loads(result)
         parameters = pickle.loads(parameters)
 
-        # Get the active job and remove the mapping.
+        # Remove the job mapping.
         with self.__activeJobsLock:
             try:
-                job = self.__activeJobs[jobId]
                 del self.__activeJobs[jobId]
             except KeyError:
                 # The job's results were already submitted.
