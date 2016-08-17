@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Bollinger Bands &mdash; PyAlgoTrade 0.18 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.18',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.18 documentation" href="index.html" />
+    <link rel="up" title="Sample strategies" href="samples.html" />
+    <link rel="next" title="RSI2" href="sample_rsi2.html" />
+    <link rel="prev" title="Ernie Chan’s Gold vs. Gold Miners" href="sample_statarb_erniechan.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_rsi2.html" title="RSI2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sample_statarb_erniechan.html" title="Ernie Chan’s Gold vs. Gold Miners"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.18 documentation</a> &raquo;</li>
+          <li><a href="samples.html" accesskey="U">Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="bollinger-bands">
+<h1>Bollinger Bands<a class="headerlink" href="#bollinger-bands" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>This example is based on:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference external" href="http://www.investopedia.com/articles/trading/07/bollinger.asp">http://www.investopedia.com/articles/trading/07/bollinger.asp</a></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">yahoofinance</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">bollinger</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">sharpe</span>
+
+
+<span class="k">class</span> <span class="nc">BBands</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">bBandsPeriod</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BBands</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bbands</span> <span class="o">=</span> <span class="n">bollinger</span><span class="o">.</span><span class="n">BollingerBands</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getCloseDataSeries</span><span class="p">(),</span> <span class="n">bBandsPeriod</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getBollingerBands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bbands</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bbands</span><span class="o">.</span><span class="n">getLowerBand</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bbands</span><span class="o">.</span><span class="n">getUpperBand</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">lower</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">shares</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">)</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">shares</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">lower</span><span class="p">:</span>
+            <span class="n">sharesToBuy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getCash</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span> <span class="o">/</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="n">sharesToBuy</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">shares</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">bar</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">upper</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">shares</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="s">&quot;yhoo&quot;</span>
+    <span class="n">bBandsPeriod</span> <span class="o">=</span> <span class="mi">40</span>
+
+    <span class="c"># Download the bars.</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">yahoofinance</span><span class="o">.</span><span class="n">build_feed</span><span class="p">([</span><span class="n">instrument</span><span class="p">],</span> <span class="mi">2011</span><span class="p">,</span> <span class="mi">2012</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">BBands</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">bBandsPeriod</span><span class="p">)</span>
+    <span class="n">sharpeRatioAnalyzer</span> <span class="o">=</span> <span class="n">sharpe</span><span class="o">.</span><span class="n">SharpeRatio</span><span class="p">()</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getInstrumentSubplot</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;upper&quot;</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">getBollingerBands</span><span class="p">()</span><span class="o">.</span><span class="n">getUpperBand</span><span class="p">())</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getInstrumentSubplot</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;middle&quot;</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">getBollingerBands</span><span class="p">()</span><span class="o">.</span><span class="n">getMiddleBand</span><span class="p">())</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getInstrumentSubplot</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s">&quot;lower&quot;</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">getBollingerBands</span><span class="p">()</span><span class="o">.</span><span class="n">getLowerBand</span><span class="p">())</span>
+
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Sharpe ratio: </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">sharpeRatioAnalyzer</span><span class="o">.</span><span class="n">getSharpeRatio</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this is what the output should look like:</p>
+<div class="highlight-python"><pre>2013-09-21 00:06:07,740 yahoofinance [INFO] Creating data directory
+2013-09-21 00:06:07,741 yahoofinance [INFO] Downloading yhoo 2011 to data/yhoo-2011-yahoofinance.csv
+2013-09-21 00:06:09,621 yahoofinance [INFO] Downloading yhoo 2012 to data/yhoo-2012-yahoofinance.csv
+Sharpe ratio: 0.71
+</pre>
+</div>
+<p>and this is what the plot should look like:</p>
+<img alt="_images/bbands.png" src="_images/bbands.png" />
+<p>You can get better returns by tunning the Bollinger Bands period as well as the entry and exit points.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sample_statarb_erniechan.html"
+                        title="previous chapter">Ernie Chan&#8217;s Gold vs. Gold Miners</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sample_rsi2.html"
+                        title="next chapter">RSI2</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sample_bbands.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_rsi2.html" title="RSI2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sample_statarb_erniechan.html" title="Ernie Chan’s Gold vs. Gold Miners"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.18 documentation</a> &raquo;</li>
+          <li><a href="samples.html" >Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

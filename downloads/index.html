@@ -50,7 +50,36 @@
 
     <div class="container">
 
-		<h2>Current version: 0.17 (10/May/2015)</h2>
+		<h2>Current version: 0.18 (17/Aug/2016)</h2>
+		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.18/PyAlgoTrade-0.18.tar.gz/download">PyAlgoTrade-0.18.tar.gz</a>
+		<h3>New features</h3>
+		<ul>
+				<li>Returns analyzer now stores datetimes along with each sample. Thanks MatthiasKauer for implementing this.</li>
+				<li>Quandl tool to build feed supports mapping column names.</li>
+				<li>Bar feeds now support including extra columns besides OHLC values.</li>
+				<li>Added buildFigureAndSubplots to the plotter to return the subplots along with the figure. Thanks Carlos Tse for implementing this.</li>
+				<li>Returns strategy analyzer now supports passing the maxLen for the dataseries. Thanks physicsd00d for implementing this.</li>
+		</ul>
+		<h3>Bug fixes</h3>
+		<ul>
+				<li>Fixed zero division error in StochasticOscillator. Thanks Blake Jennings for reporting this.</li>
+				<li>Fixed a rounding bug in the default fill strategy when calculating the volume left for a given instrument. Thanks Markus Trenkwalder for reporting this.</li>
+				<li>Was not logging properly in backtesting broker when shares are not integers.</li>
+				<li>Added exception handling to optimizer module. Thanks Sergey Cheparev for reporting this.</li>
+				<li>Fixed a bug in VWAP calculation when using adjusted values.</li>
+				<li>Added a way to change the dataseries.DEFAULT_MAX_LEN value.</li>
+				<li>Added missing return in plotter.Series.getValues. Thanks physicsd00d for reporting this.</li>
+				<li>optimizer.local was sometimes blocked waiting for child processes to finish.</li>
+		</ul>
+		<h3>Breaking changes</h3>
+		<ul>
+				<li>Removed Xignite support (http://www.xignite.com/).</li>
+				<li>Removed deprecated code that issued warnings in previous versions.</li>
+		</ul>
+
+		<hr>
+
+		<h2>Version 0.17 (10/May/2015)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.17/PyAlgoTrade-0.17.tar.gz/download">PyAlgoTrade-0.17.tar.gz</a>
 		<h3>New features</h3>
 		<ul>
@@ -70,8 +99,6 @@
 		<ul>
 				<li>Backtesting broker fill strategies moved to pyalgotrade.broker.fillstrategy module.</li>
 		</ul>
-
-		<hr>
 
 		<h2>Version 0.16 (31/Aug/2014)</h2>
 		Download here: <a href="http://sourceforge.net/projects/pyalgotrade/files/0.16/PyAlgoTrade-0.16.tar.gz/download">PyAlgoTrade-0.16.tar.gz</a>

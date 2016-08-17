@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bitcoincharts – Bitcoin Charts reference &mdash; PyAlgoTrade 0.18 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.18',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.18 documentation" href="index.html" />
+    <link rel="up" title="Bitcoin Charts support" href="bitcoincharts.html" />
+    <link rel="next" title="Bitcoin Charts example" href="bitcoincharts_example.html" />
+    <link rel="prev" title="Bitcoin Charts support" href="bitcoincharts.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bitcoincharts_example.html" title="Bitcoin Charts example"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bitcoincharts.html" title="Bitcoin Charts support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.18 documentation</a> &raquo;</li>
+          <li><a href="bitcoin.html" >Bitcoin</a> &raquo;</li>
+          <li><a href="bitcoincharts.html" accesskey="U">Bitcoin Charts support</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="bitcoincharts-bitcoin-charts-reference">
+<h1>bitcoincharts &#8211; Bitcoin Charts reference<a class="headerlink" href="#bitcoincharts-bitcoin-charts-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyalgotrade.bitcoincharts.barfeed">
+<span id="feeds"></span><h2>Feeds<a class="headerlink" href="#module-pyalgotrade.bitcoincharts.barfeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.bitcoincharts.barfeed.</tt><tt class="descname">CSVTradeFeed</tt><big>(</big><em>timezone=None</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a></p>
+<p>A BarFeed that builds bars from a Historic Trade Data CSV file as described in <a class="reference external" href="http://www.bitcoincharts.com/about/markets-api/">http://www.bitcoincharts.com/about/markets-api/</a>.
+Files can be downloaded from <a class="reference external" href="http://api.bitcoincharts.com/v1/csv/">http://api.bitcoincharts.com/v1/csv/</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; An optional default timezone to use to localize bars. By default bars are loaded in UTC.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+If not None, it must be greater than 0.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>A <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> instance will be created for every trade, so open, high, low and close values will all be the same.</li>
+<li>Files must be sorted with the <strong>unixtime</strong> column in ascending order.</li>
+</ul>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed.addBarsFromCSV">
+<tt class="descname">addBarsFromCSV</tt><big>(</big><em>path</em>, <em>instrument='BTC'</em>, <em>timezone=None</em>, <em>fromDateTime=None</em>, <em>toDateTime=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads bars from a trades CSV formatted file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the file.</li>
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; The instrument identifier.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; An optional timezone to use to localize bars. By default bars are loaded in UTC.</li>
+<li><strong>fromDateTime</strong> (<em>datetime.datetime.</em>) &#8211; An optional datetime to use to filter bars to load.
+If supplied only those bars whose datetime is greater than or equal to fromDateTime are loaded.</li>
+<li><strong>toDateTime</strong> (<em>datetime.datetime.</em>) &#8211; An optional datetime to use to filter bars to load.
+If supplied only those bars whose datetime is lower than or equal to toDateTime are loaded.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Every file that you load bars from must have trades in the same currency.</li>
+<li>If fromDateTime or toDateTime are naive, they are treated as UTC.</li>
+</ul>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">bitcoincharts &#8211; Bitcoin Charts reference</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.bitcoincharts.barfeed">Feeds</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bitcoincharts.html"
+                        title="previous chapter">Bitcoin Charts support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bitcoincharts_example.html"
+                        title="next chapter">Bitcoin Charts example</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/bitcoincharts_ref.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bitcoincharts_example.html" title="Bitcoin Charts example"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bitcoincharts.html" title="Bitcoin Charts support"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.18 documentation</a> &raquo;</li>
+          <li><a href="bitcoin.html" >Bitcoin</a> &raquo;</li>
+          <li><a href="bitcoincharts.html" >Bitcoin Charts support</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
