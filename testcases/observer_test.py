@@ -285,3 +285,21 @@ class EventTestCase(common.TestCase):
         event.unsubscribe(handler2)
         event.emit()
         self.assertTrue(handlersData == [1, 1, 2, 2])
+
+    def testUnsuscribeAndResuscribeWhileEmiting(self):
+        handlersData = []
+        event = observer.Event()
+
+        def handler1():
+            handlersData.append(1)
+            event.unsubscribe(handler1)
+            event.subscribe(handler1)
+
+        event.subscribe(handler1)
+        event.emit()
+        self.assertTrue(handlersData == [1])
+
+        event.emit()
+        self.assertTrue(handlersData == [1, 1])
+
+
