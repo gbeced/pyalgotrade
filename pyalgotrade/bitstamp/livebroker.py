@@ -58,15 +58,10 @@ class TradeMonitor(threading.Thread):
         userTrades = self.__httpClient.getUserTransactions(httpclient.HTTPClient.UserTransactionType.MARKET_TRADE)
 
         # Get the new trades only.
-        ret = []
-        for userTrade in userTrades:
-            if userTrade.getId() > self.__lastTradeId:
-                ret.append(userTrade)
-            else:
-                break
-        # Older trades first.
-        ret.reverse()
-        return ret
+        ret = [ t for t in userTrades if t.getId() > self.__lastTradeId ]
+
+        # Sort by id, so older trades first.
+        return sorted(ret, key=lambda t: t.getId())
 
     def getQueue(self):
         return self.__queue
@@ -74,7 +69,7 @@ class TradeMonitor(threading.Thread):
     def start(self):
         trades = self._getNewTrades()
         # Store the last trade id since we'll start processing new ones only.
-        if len(trades):
+        if trades:
             self.__lastTradeId = trades[-1].getId()
             common.logger.info("Last trade found: %d" % (self.__lastTradeId))
 
@@ -84,7 +79,7 @@ class TradeMonitor(threading.Thread):
         while not self.__stop:
             try:
                 trades = self._getNewTrades()
-                if len(trades):
+                if trades:
                     self.__lastTradeId = trades[-1].getId()
                     common.logger.info("%d new trade/s found" % (len(trades)))
                     self.__queue.put((TradeMonitor.ON_USER_TRADE, trades))
@@ -186,15 +181,16 @@ class LiveBroker(broker.Broker):
 
     def _onUserTrades(self, trades):
         for trade in trades:
-            order = self.__activeOrders.get(trade.getOrderId())
-            if order is not None:
+            if trade.getOrderId() in self.__activeOrders:
+                # Update cash and shares.
+                self.refreshAccountBalance()
+
+                order = self.__activeOrders.get(trade.getOrderId())
                 fee = trade.getFee()
                 fillPrice = trade.getBTCUSD()
                 btcAmount = trade.getBTC()
                 dateTime = trade.getDateTime()
 
-                # Update cash and shares.
-                self.refreshAccountBalance()
                 # Update the order.
                 orderExecutionInfo = broker.OrderExecutionInfo(fillPrice, abs(btcAmount), fee, dateTime)
                 order.addExecutionInfo(orderExecutionInfo)
