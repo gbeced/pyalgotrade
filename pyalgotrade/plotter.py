@@ -19,7 +19,7 @@
 """
 
 import collections
-
+import  numpy as np
 import broker
 from pyalgotrade import warninghelpers
 
@@ -82,12 +82,21 @@ class Series(object):
     def needColor(self):
         raise NotImplementedError()
 
-    def plot(self, mplSubplot, dateTimes, color):
+    def plot(self, mplSubplot, dateTimes, color, valid_only=True):
         values = []
         for dateTime in dateTimes:
             values.append(self.getValue(dateTime))
-        mplSubplot.plot(dateTimes, values, color=color, marker=self.getMarker())
-
+        if(valid_only):
+            # we'll write a custom formatter
+            N = len(dateTimes)
+            ind = np.arange(N)  # the evenly spaced plot indices
+            mplSubplot.plot(ind, values, color=color, marker=self.getMarker())
+            def format_date(x):
+                thisind = np.clip(int(x+0.5), 0, len(dateTimes)-1)
+                return dateTimes[thisind].strftime('%Y-%m-%d %H:%M:%S')
+            mplSubplot.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
+        else:
+            mplSubplot.plot(dateTimes, values, color=color, marker=self.getMarker())
 
 class BuyMarker(Series):
     def getColor(self):
@@ -180,7 +189,7 @@ class HistogramMarker(Series):
     def getColorForValue(self, value, default):
         return default
 
-    def plot(self, mplSubplot, dateTimes, color):
+    def plot(self, mplSubplot, dateTimes, color, valid_onl=True):
         validDateTimes = []
         values = []
         colors = []
