@@ -78,20 +78,7 @@ def wait_process(p):
         p.join(timeout)
 
 
-def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR):
-    """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
-
-    :param strategyClass: The strategy class.
-    :param barFeed: The bar feed to use to backtest the strategy.
-    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
-        a tuple that holds parameter values**.
-    :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
-    :type workerCount: int.
-    :param logLevel: The log level. Defaults to **logging.ERROR**.
-    :rtype: A :class:`Results` instance with the best results found.
-    """
-
+def run_impl(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
     assert(workerCount is None or workerCount > 0)
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
@@ -105,7 +92,8 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
     # Build and start the server thread before the worker processes.
     # We'll manually stop the server once workers have finished.
     paramSource = base.ParameterSource(strategyParameters)
-    resultSinc = base.ResultSinc()
+    if resultSinc is None:
+        resultSinc = base.ResultSinc()
     srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
     serverThread = ServerThread(srv)
     serverThread.start()
@@ -139,3 +127,20 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
             ret = server.Results(bestParameters.args, bestResult)
 
     return ret
+
+
+def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR):
+    """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
+
+    :param strategyClass: The strategy class.
+    :param barFeed: The bar feed to use to backtest the strategy.
+    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
+        a tuple that holds parameter values**.
+    :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
+    :type workerCount: int.
+    :param logLevel: The log level. Defaults to **logging.ERROR**.
+    :rtype: A :class:`Results` instance with the best results found.
+    """
+
+    return run_impl(strategyClass, barFeed, strategyParameters, workerCount=workerCount, logLevel=logLevel)
