@@ -1,5 +1,6 @@
 Version 0.19 (TBD)
 . [FIX] Fixed a bug in the Event class when unsubscribing and re-subscribing while emitting. Thanks pjz for reporting this.
+. [FIX] Fixed a race condition in the local optimizer that was sometimes getting blocked waiting for workers.
 
 Version 0.18 (17/Aug/2016)
 . [NEW] Returns analyzer now stores datetimes along with each sample. Thanks MatthiasKauer for implementing this.
