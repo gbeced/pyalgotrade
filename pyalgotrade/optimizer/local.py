@@ -24,6 +24,7 @@ import os
 import random
 import socket
 import threading
+import time
 
 from pyalgotrade.optimizer import base
 from pyalgotrade.optimizer import server
@@ -71,10 +72,11 @@ def find_port():
             pass
 
 
-def wait_process(p):
+def stop_process(p):
     timeout = 10
-    p.join(timeout)
+    p.join(timeout)  # This is necessary to avoid zombie processes.
     while p.is_alive():
+        p.terminate()
         p.join(timeout)
 
 
@@ -94,31 +96,36 @@ def run_impl(strategyClass, barFeed, strategyParameters, workerCount=None, logLe
     paramSource = base.ParameterSource(strategyParameters)
     if resultSinc is None:
         resultSinc = base.ResultSinc()
+
+    # Create and start the server.
+    logger.info("Starting server")
     srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
     serverThread = ServerThread(srv)
     serverThread.start()
 
     try:
+        logger.info("Starting workers")
         # Build the worker processes.
         for i in range(workerCount):
             workers.append(multiprocessing.Process(
                 target=worker_process,
                 args=(strategyClass, port, logLevel))
             )
-
-        logger.info("Executing workers")
-
         # Start workers
         for process in workers:
             process.start()
 
-        # Wait workers
-        for process in workers:
-            wait_process(process)
-
-        logger.info("All workers finished")
+        # Wait for all jobs to complete.
+        while srv.jobsPending():
+            time.sleep(1)
     finally:
+        # Stop workers
+        logger.info("Stopping workers")
+        for process in workers:
+            stop_process(process)
+
         # Stop and wait the server to finish.
+        logger.info("Stopping server")
         srv.stop()
         serverThread.join()
 

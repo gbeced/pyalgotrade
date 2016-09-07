@@ -54,6 +54,7 @@ setup(
         "pytz",
         "python-dateutil",
         "requests",
+        "retrying",
     ],
     extras_require={
         'Scipy':  ["scipy"],

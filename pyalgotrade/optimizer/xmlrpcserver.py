@@ -75,7 +75,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.__instrumentsAndBars = None  # Pickle'd instruments and bars for faster retrieval.
         self.__barsFreq = None
         self.__activeJobs = {}
-        self.__activeJobsLock = threading.Lock()
+        self.__lock = threading.Lock()
         self.__forcedStop = False
         self.__bestResult = None
         if autoStop:
@@ -98,14 +98,14 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
     def getNextJob(self):
         ret = None
 
-        # Get the next set of parameters.
-        params = self.__paramSource.getNext(self.defaultBatchSize)
-        params = map(lambda p: p.args, params)
+        with self.__lock:
+            # Get the next set of parameters.
+            params = self.__paramSource.getNext(self.defaultBatchSize)
+            params = map(lambda p: p.args, params)
 
-        # Map the active job
-        if len(params):
-            ret = Job(params)
-            with self.__activeJobsLock:
+            # Map the active job
+            if len(params):
+                ret = Job(params)
                 self.__activeJobs[ret.getId()] = ret
 
         return pickle.dumps(ret)
@@ -114,9 +114,8 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         if self.__forcedStop:
             return False
 
-        jobsPending = not self.__paramSource.eof()
-
-        with self.__activeJobsLock:
+        with self.__lock:
+            jobsPending = not self.__paramSource.eof()
             activeJobs = len(self.__activeJobs) > 0
 
         return jobsPending or activeJobs
@@ -127,7 +126,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         parameters = pickle.loads(parameters)
 
         # Remove the job mapping.
-        with self.__activeJobsLock:
+        with self.__lock:
             try:
                 del self.__activeJobs[jobId]
             except KeyError:
@@ -157,8 +156,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
             if self.__autoStopThread:
                 self.__autoStopThread.start()
 
-            logger.info("Waiting for workers")
+            logger.info("Started serving")
             self.serve_forever()
+            logger.info("Finished serving")
 
             if self.__autoStopThread:
                 self.__autoStopThread.join()
