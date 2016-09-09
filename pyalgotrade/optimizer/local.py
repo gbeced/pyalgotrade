@@ -73,9 +73,10 @@ def find_port():
 
 
 def stop_process(p):
-    timeout = 10
+    timeout = 3
     p.join(timeout)  # This is necessary to avoid zombie processes.
     while p.is_alive():
+        logger.info("Stopping process %s" % p.pid)
         p.terminate()
         p.join(timeout)
 
@@ -120,7 +121,6 @@ def run_impl(strategyClass, barFeed, strategyParameters, workerCount=None, logLe
             time.sleep(1)
     finally:
         # Stop workers
-        logger.info("Stopping workers")
         for process in workers:
             stop_process(process)
 

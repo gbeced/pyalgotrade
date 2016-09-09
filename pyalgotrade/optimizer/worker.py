@@ -27,16 +27,16 @@ import retrying
 import pyalgotrade.logger
 from pyalgotrade import barfeed
 
-wait_exponential_multiplier=500
-wait_exponential_max=10000
-stop_max_delay=10000
+wait_exponential_multiplier = 500
+wait_exponential_max = 10000
+stop_max_delay = 10000
 
 
-def retry_if_network_error(exception):
-    return isinstance(exception, socket.error)
+def any_exception(exception):
+    return True
 
 
-@retrying.retry(wait_exponential_multiplier=wait_exponential_multiplier, wait_exponential_max=wait_exponential_max, stop_max_delay=stop_max_delay, retry_on_exception=retry_if_network_error)
+@retrying.retry(wait_exponential_multiplier=wait_exponential_multiplier, wait_exponential_max=wait_exponential_max, stop_max_delay=stop_max_delay, retry_on_exception=any_exception)
 def retry_on_network_error(function, *args, **kwargs):
     return function(*args, **kwargs)
 
@@ -44,8 +44,8 @@ def retry_on_network_error(function, *args, **kwargs):
 class Worker(object):
     def __init__(self, address, port, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
-        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
         self.__logger = pyalgotrade.logger.getLogger(workerName)
+        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
         if workerName is None:
             self.__workerName = socket.gethostname()
         else:
