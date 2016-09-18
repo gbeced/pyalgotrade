@@ -1,0 +1,215 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../dataseries.rst:2
+msgid "dataseries -- Basic dataseries classes"
+msgstr ""
+
+#: ../../dataseries.rst:4
+msgid "Data series are abstractions used to manage time-series data."
+msgstr ""
+
+#: of pyalgotrade.dataseries.DataSeries:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.dataseries.DataSeries:1
+msgid "Base class for data series."
+msgstr ""
+
+#: of pyalgotrade.dataseries.DataSeries:4
+msgid "This is a base class and should not be used directly."
+msgstr ""
+
+#: of pyalgotrade.dataseries.DataSeries.__getitem__:1
+msgid ""
+"Returns the value at a given position/slice. It raises IndexError if the "
+"position is invalid, or TypeError if the key type is invalid."
+msgstr ""
+
+#: of pyalgotrade.dataseries.DataSeries.__len__:1
+msgid "Returns the number of elements in the data series."
+msgstr ""
+
+#: of pyalgotrade.dataseries.DataSeries.getDateTimes:1
+msgid "Returns a list of :class:`datetime.datetime` associated with each value."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries:1
+msgid "基类：:class:`pyalgotrade.dataseries.DataSeries`"
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries:1
+msgid "A DataSeries that holds values in a sequence in memory."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries:3
+#: pyalgotrade.dataseries.bards.BarDataSeries:3
+msgid ""
+"The maximum number of values to hold. Once a bounded length is full, when"
+" new items are added, a corresponding number of items are discarded from "
+"the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries.append:1
+msgid "Appends a value."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries.appendWithDateTime:1
+msgid "Appends a value with an associated datetime."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries.appendWithDateTime:4
+msgid "If dateTime is not None, it must be greater than the last one."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries.getMaxLen:1
+msgid "Returns the maximum number of values to hold."
+msgstr ""
+
+#: of pyalgotrade.dataseries.SequenceDataSeries.setMaxLen:1
+msgid ""
+"Sets the maximum number of values to hold and resizes accordingly if "
+"necessary."
+msgstr ""
+
+#: of pyalgotrade.dataseries.aligned.datetime_aligned:1
+msgid ""
+"Returns two dataseries that exhibit only those values whose datetimes are"
+" in both dataseries."
+msgstr ""
+
+#: of pyalgotrade.dataseries.aligned.datetime_aligned:3
+#: pyalgotrade.dataseries.aligned.datetime_aligned:5
+msgid "A DataSeries instance."
+msgstr ""
+
+#: of pyalgotrade.dataseries.aligned.datetime_aligned:7
+msgid ""
+"The maximum number of values to hold for the returned "
+":class:`DataSeries`. Once a bounded length is full, when new items are "
+"added, a corresponding number of items are discarded from the opposite "
+"end. If None then dataseries.DEFAULT_MAX_LEN is used."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries:1
+msgid "基类：:class:`pyalgotrade.dataseries.SequenceDataSeries`"
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries:1
+msgid "A DataSeries of :class:`pyalgotrade.bar.Bar` instances."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getAdjCloseDataSeries:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the adjusted "
+"close prices."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getCloseDataSeries:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the close "
+"prices."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getExtraDataSeries:1
+msgid "Returns a :class:`pyalgotrade.dataseries.DataSeries` for an extra column."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getHighDataSeries:1
+msgid "Returns a :class:`pyalgotrade.dataseries.DataSeries` with the high prices."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getLowDataSeries:1
+msgid "Returns a :class:`pyalgotrade.dataseries.DataSeries` with the low prices."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getOpenDataSeries:1
+msgid "Returns a :class:`pyalgotrade.dataseries.DataSeries` with the open prices."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getPriceDataSeries:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the close or "
+"adjusted close prices."
+msgstr ""
+
+#: of pyalgotrade.dataseries.bards.BarDataSeries.getVolumeDataSeries:1
+msgid "Returns a :class:`pyalgotrade.dataseries.DataSeries` with the volume."
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:1
+msgid ""
+"基类：:class:`pyalgotrade.dataseries.bards.BarDataSeries`, "
+":class:`pyalgotrade.dataseries.resampled.DSResampler`"
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:1
+msgid ""
+"A BarDataSeries that will build on top of another, higher frequency, "
+"BarDataSeries. Resampling will take place as new values get pushed into "
+"the dataseries being resampled."
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:4
+msgid "The DataSeries instance being resampled."
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:6
+msgid "The grouping frequency in seconds. Must be > 0."
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:7
+msgid ""
+"The maximum number of values to hold. Once a bounded length is full, when"
+" new items are added, a corresponding number of items are discarded from "
+"the opposite end."
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:15
+msgid "Supported resampling frequencies are:"
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:14
+msgid "Less than bar.Frequency.DAY"
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:15
+msgid "bar.Frequency.DAY"
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries:16
+msgid "bar.Frequency.MONTH"
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries.checkNow:2
+msgid ""
+"Forces a resample check. Depending on the resample frequency, and the "
+"current datetime, a new"
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries.checkNow:2
+msgid "value may be generated."
+msgstr ""
+
+#: of pyalgotrade.dataseries.resampled.ResampledBarDataSeries.checkNow:4
+msgid "The current datetime."
+msgstr ""
+

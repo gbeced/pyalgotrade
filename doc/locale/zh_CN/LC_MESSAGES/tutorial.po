@@ -1,0 +1,506 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 20:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../tutorial.rst:4
+msgid "Tutorial"
+msgstr "简明教程"
+
+#: ../../tutorial.rst:6
+msgid ""
+"The goal of this tutorial is to give you a quick introduction to "
+"PyAlgoTrade. As described in the introduction, the goal of PyAlgoTrade is"
+" to help you backtest stock trading strategies. Let's say you have an "
+"idea for a trading strategy and you'd like to evaluate it with historical"
+" data and see how it behaves, then PyAlgoTrade should allow you to do so "
+"with minimal effort."
+msgstr "本简明教程是对 PyAlgoTrade 的一个快速介绍。"
+"如之前简介所述，PyAlgoTrade的目标是帮助你回测股票交易策略。"
+"我们假定你已经有了一个用于交易策略的想法，并且你想根据历史行情数据检验这个想法的表现，"
+"那么 PyAlgoTrade 可以让你付出很少的精力来验证自己的想法。"
+
+#: ../../tutorial.rst:11
+msgid ""
+"Before I move on I would like to thank Pablo Jorge who helped reviewing "
+"the initial design and documentation."
+msgstr "在继续之前我们首先要感谢 Pablo Jorge 帮助我们审阅初始的设计和文档。"
+
+#: ../../tutorial.rst:13
+msgid ""
+"**This tutorial was developed on a UNIX environment, but the steps to "
+"adapt it to a Windows environment should be straightforward.**"
+msgstr "**本教程是基于 UNIX 环境开发的，但是适配于 Windows 环境的步骤应该很简单。**"
+
+#: ../../tutorial.rst:15
+msgid "PyAlgoTrade has 6 main components:"
+msgstr "PyAlgoTrade 有六个主要概念："
+
+#: ../../tutorial.rst:17 ../../tutorial.rst:25
+msgid "Strategies"
+msgstr "策略（Strategies）"
+
+#: ../../tutorial.rst:18 ../../tutorial.rst:31
+msgid "Feeds"
+msgstr "数据源（Feeds）"
+
+#: ../../tutorial.rst:19 ../../tutorial.rst:34
+msgid "Brokers"
+msgstr "券商（Brokers）"
+
+#: ../../tutorial.rst:20 ../../tutorial.rst:37
+msgid "DataSeries"
+msgstr "数据序列（DataSeries）"
+
+#: ../../tutorial.rst:21 ../../tutorial.rst:41
+msgid "Technicals"
+msgstr "技术面（Technicals）"
+
+#: ../../tutorial.rst:22 ../../tutorial.rst:45
+msgid "Optimizer"
+msgstr "优化器（Optimizer）"
+
+#: ../../tutorial.rst:25
+msgid ""
+"These are the classes that you define that implement the trading logic. "
+"When to buy, when to sell, etc."
+msgstr "你需要定义策略类来实现你的交易逻辑，何时买，何时卖等待。"
+
+#: ../../tutorial.rst:28
+msgid ""
+"These are data providing abstractions. For example, you'll use a CSV feed"
+" that loads bars from a CSV (Comma-separated values) formatted file to "
+"feed data to a strategy. Feeds are not limited to bars. For example, "
+"there is a Twitter feed that allows incorporating Twitter events into "
+"trading decisions."
+msgstr "用于数据抽象。例如你可以从一个 CSV 文件（逗号分割符文件） 数据源推送 bars 数据给策略。"
+"数据源并不限制于 bars 。例如 Tweeter feed 允许分析 Twitter 事件用于策略决策。"
+
+#: ../../tutorial.rst:34
+msgid "Brokers are responsible for executing orders."
+msgstr "券商模块用于执行订单交易。"
+
+#: ../../tutorial.rst:37
+msgid "A data series is an abstraction used to manage time series data."
+msgstr "数据序列是用于管理基于时间的序列数据的抽象。"
+
+#: ../../tutorial.rst:40
+msgid ""
+"These are a set of filters that you use to make calculations on top of "
+"DataSeries. For example SMA (Simple Moving Average), RSI (Relative "
+"Strength Index), etc. These filters are modeled as DataSeries decorators."
+msgstr "包含很多用于对数据序列进行计算的过滤器，"
+"例如 SMA（简单移动平军训），RSI（相对强弱指标）等等。"
+"这些过滤器以数据序列装饰器的方式实现。"
+
+#: ../../tutorial.rst:44
+msgid ""
+"These are a set of classes that allow you to distribute backtesting among"
+" different computers, or different processes running in the same "
+"computer, or a combination of both. They make horizontal scaling easy."
+msgstr "包含一组允许你基于多台计算机或者同一计算的的多个进程或者两者结合进行分布式回测的类，"
+"此模块使得横向的扩展变得容易。"
+
+#: ../../tutorial.rst:47
+msgid ""
+"Having said all that, the first thing that we'll need to test our "
+"strategies is some data. Let's use Oracle's stock prices for year 2000, "
+"which we'll download with the following command: ::"
+msgstr "说了这么多，我们要做的第一件事是取得用于测试我们的策略的行情数据。"
+"我们以 Oracle 2000年的股票价格举例，通过下面的命令来下载这些数据：::"
+
+#: ../../tutorial.rst:52
+msgid ""
+"The pyalgotrade.tools.yahoofinance package downloads CSV formatted data "
+"from Yahoo! Finance. The orcl-2000.csv file should look like this: ::"
+msgstr "pyalgotrade.tools.yahoofinance 包从雅虎金融（Yahoo! Finance）"
+"下载 CSV 格式的数据。下载完成后 orcl-2000.csv 文件的内容应该跟下面差不多：::"
+
+#: ../../tutorial.rst:64
+msgid ""
+"Let's start with a simple strategy, that is, one that just prints closing"
+" prices as they are processed:"
+msgstr "接下来我们从一个简单的策略开始，在策略运行过程中打印收盘价："
+
+#: ../../tutorial.rst:71
+msgid "The code is doing 3 main things:"
+msgstr "这段代码主要做了三件事："
+
+#: ../../tutorial.rst:69
+msgid ""
+"Declaring a new strategy. There is only one method that has to be "
+"defined, *onBars*, which is called for every bar in the feed."
+msgstr "声明一个新的策略。只有 *onBars* 方法是必须要定义的，此方法会在每次推送 bar 数据时执行。"
+
+#: ../../tutorial.rst:70 ../../tutorial.rst:267
+msgid "Loading the feed from a CSV file."
+msgstr "从 CSV 文件加载数据。"
+
+#: ../../tutorial.rst:71
+msgid "Running the strategy with the bars supplied by the feed."
+msgstr "基于 feed 提供的 bar 数据运行策略。"
+
+#: ../../tutorial.rst:73
+msgid "If you run the script you should see the closing prices in order:"
+msgstr "运行上面的脚本你会看到依次打印的收盘价："
+
+#: ../../tutorial.rst:77
+msgid ""
+"Let's move on with a strategy that prints closing SMA prices, to "
+"illustrate how technicals are used:"
+msgstr "我们继续实现一个依次打印基于收盘价的 SMA 价格的策略来演示技术面的使用方法："
+
+#: ../../tutorial.rst:81
+msgid "This is very similar to the previous example, except that:"
+msgstr "这个脚本与上面的例子几乎一样，除了："
+
+#: ../../tutorial.rst:83
+msgid "We're initializing an SMA filter over the closing price data series."
+msgstr "我们初始化了一个基于收盘价序列的 SMA 过滤器。"
+
+#: ../../tutorial.rst:84
+msgid "We're printing the current SMA value along with the closing price."
+msgstr "我们打印了当前的 SMA 值和收盘价。"
+
+#: ../../tutorial.rst:86
+msgid ""
+"If you run the script you should see the closing prices and the "
+"corresponding SMA values, but in this case the first 14 SMA values are "
+"None. That is because we need at least 15 values to get something out of "
+"the SMA:"
+msgstr "运行上面的脚本你会看到收盘价和对应的 SMA 值，但是例子中前14条的 SMA 值为 None。"
+"因为我们需要至少15条数据来计算 SMA："
+
+#: ../../tutorial.rst:91
+msgid ""
+"All the technicals will return None when the value can't be calculated at"
+" a given time."
+msgstr "所有的技术面函数在给定的时间序列片无法计算时都会返回None。"
+
+#: ../../tutorial.rst:93
+msgid ""
+"One important thing about technicals is that they can be combined. That "
+"is because they're modeled as DataSeries as well. For example, getting an"
+" SMA over the RSI over the closing prices is as simple as this:"
+msgstr "重要的是技术面的函数可以进行组合。因为它们的实现返回数据序列（DataSeries）。"
+
+#: ../../tutorial.rst:98
+msgid ""
+"If you run the script you should see a bunch of values on the screen "
+"where:"
+msgstr "运行上面的脚本你会看到打印的数据："
+
+#: ../../tutorial.rst:100
+msgid ""
+"The first 14 RSI values are None. That is because we need at least 15 "
+"values to get an RSI value."
+msgstr "前14条的 RSI 值为 None。因为我们需要至少15条数据来计算 RSI 值。"
+
+#: ../../tutorial.rst:101
+msgid ""
+"The first 28 SMA values are None. That is because the first 14 RSI values"
+" are None, and the 15th one is the first not None value that the SMA "
+"filter receives. We can calculate the SMA(15) only when we have 15 not "
+"None values ."
+msgstr "前28条 SMA 值为 None。因为前14条 RSI 值为 None，第15条数据是 SMA 过滤器收到的"
+"第一条非 None 数据。我们需要有15条非 None 数据时才能计算 *SMA(15)* 。"
+
+#: ../../tutorial.rst:107
+msgid "Trading"
+msgstr "交易"
+
+#: ../../tutorial.rst:109
+msgid ""
+"Let's move on with a simple strategy, this time simulating actual "
+"trading. The idea is very simple:"
+msgstr "我们继续看一个简单的策略，这次我们模拟真实的交易，想法非常简单："
+
+#: ../../tutorial.rst:111
+msgid ""
+"If the adjusted close price is above the SMA(15) we enter a long position"
+" (we place a buy market order)."
+msgstr "如果复权收盘价比上面计算的 SMA(15) 高，我们买入一个多单（发出买单）。"
+
+#: ../../tutorial.rst:112
+msgid ""
+"If a long position is in place, and the adjusted close price drops below "
+"the SMA(15) we exit the long position (we place a sell market order)."
+msgstr "如果我们持有多单并且复权收盘价低于 SMA(15) 我们平掉多单（发出卖单）。"
+
+#: ../../tutorial.rst:116
+msgid "If you run the script you should see something like this:"
+msgstr "运行上面的脚本你会看到类似下面的输出："
+
+#: ../../tutorial.rst:120
+msgid ""
+"But what if we used 30 as the SMA period instead of 15 ? Would that yield"
+" better results or worse ? We could certainly do something like this:"
+msgstr "如果我们不使用15的 SMA 周期而改用 30天的，结果会不会变的更好呢？"
+
+#: ../../tutorial.rst:128
+msgid "and we would find out that we can get better results with a SMA(20): ::"
+msgstr "我们会发现使用 SMA(20) 会得到更好的结果：::"
+
+#: ../../tutorial.rst:132
+msgid ""
+"This is ok if we only have to try a limited set of parameters values. But"
+" if we have to test a strategy with multiple parameters, then the serial "
+"approach is definitely not going to scale as strategies get more complex."
+msgstr "如果我们只需要测试有限的参数值使用上面的方法没什么问题。"
+"但是如果我们需要测试一个多参数的策略，那么串行的计算方法就不能适应更加复杂的策略了。"
+
+#: ../../tutorial.rst:136
+msgid "Optimizing"
+msgstr "优化"
+
+#: ../../tutorial.rst:138
+msgid "Meet the optimizer component. The idea is very simple:"
+msgstr "优化组件的想法很简单："
+
+#: ../../tutorial.rst:142
+msgid "There is one server responsible for:"
+msgstr "有一个管理服务负责"
+
+#: ../../tutorial.rst:141
+msgid "Providing the bars to run the strategy."
+msgstr "提供运行策略的数据 bar。"
+
+#: ../../tutorial.rst:142
+msgid "Providing the parameters to run the strategy."
+msgstr "提供运行策略的参数。"
+
+#: ../../tutorial.rst:143
+msgid "Recording the strategy results from each of the workers."
+msgstr "记录每一个工作服务的策略结果。"
+
+#: ../../tutorial.rst:145
+msgid "There are multiple workers responsible for:"
+msgstr "另外多个工作服务负责："
+
+#: ../../tutorial.rst:145
+msgid "Running the strategy with the bars and parameters provided by the server."
+msgstr "基于管理服务提供的 bars 和参数运行策略。"
+
+#: ../../tutorial.rst:147
+msgid ""
+"To illustrate this we'll use a strategy known as RSI2 "
+"(http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2)"
+" which requires the following parameters:"
+msgstr "我们使用 RSI2 策略（"
+"http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2"
+"）来演示优化模块的用法，该策略需要如下这些参数（翻译不甚准确，请对照代码及原文档理解）："
+
+#: ../../tutorial.rst:150
+msgid ""
+"An SMA period for trend identification. We'll call this entrySMA and will"
+" range between 150 and 250."
+msgstr "一个用于入场段趋势判断的SMA区间，我们称其为 entrySMA，其范围为 150-250。"
+
+#: ../../tutorial.rst:151
+msgid ""
+"A smaller SMA period for the exit point. We'll call this exitSMA and will"
+" range between 5 and 15."
+msgstr "一个小一些的 SMA 区间作为退出点。我们称其为 exitSMA，其范围5-15。"
+
+#: ../../tutorial.rst:152
+msgid ""
+"An RSI period for entering both short/long positions. We'll call this "
+"rsiPeriod and will range between 2 and 10."
+msgstr "一个用于判断进入长短线买卖点的RSI区间，我们称其为 rsiPeriod，其范围为2-10。"
+
+#: ../../tutorial.rst:153
+msgid ""
+"An RSI oversold threshold for long position entry. We'll call this "
+"overSoldThreshold and will range between 5 and 25."
+msgstr "一个用于买单的RSI阈值，我们称其为 overSoldThreshold，其范围5-25。"
+
+#: ../../tutorial.rst:154
+msgid ""
+"An RSI overbought threshold for short position entry. We'll call this "
+"overBoughtThreshold and will range between 75 and 95."
+msgstr "一个用于卖单的RSI阈值，我们称其为 overBoughtThreshold，其范围75-95。"
+
+#: ../../tutorial.rst:156
+msgid "If my math is ok, those are 4409559 different combinations."
+msgstr "如果我没算错，我们有 4409559 个不同的组合。"
+
+#: ../../tutorial.rst:158
+msgid ""
+"Testing this strategy for one set of parameters took me about 0.16 "
+"seconds. If I execute all the combinations serially it'll take me about "
+"8.5 days to evaluate all of them and find the best set of parameters. "
+"That is a long time, but if I can get ten 8-core computers to do the job "
+"then the total time will go down to about 2.5 hours."
+msgstr "基于一组参数运行这个策略需要 0.16 秒。如果我们串行地执行所有这些参数组合，"
+"需要花费8.5天来找到最好的参数组合。但是如果我们使用一台八核的计算机来执行，总花费时间则仅需2.5小时。"
+
+#: ../../tutorial.rst:162
+msgid "Long story short, **we need to go parallel**."
+msgstr "简单来说，**我们需要并行计算** 。"
+
+#: ../../tutorial.rst:164
+msgid ""
+"Let's start by downloading 3 years of daily bars for 'Dow Jones "
+"Industrial Average': ::"
+msgstr "我们从下载道琼斯工业指数的三年日线数据开始：::"
+
+#: ../../tutorial.rst:170
+msgid "Save this code as rsi2.py:"
+msgstr "保存如下代码为 rsi2.py："
+
+#: ../../tutorial.rst:174
+msgid "This is the server script:"
+msgstr "这是管理服务器端的脚本："
+
+#: ../../tutorial.rst:178
+msgid "The server code is doing 3 things:"
+msgstr "管理服务器的代码做了三件事："
+
+#: ../../tutorial.rst:180
+msgid ""
+"Declaring a generator function that yields different parameter "
+"combinations for the strategy."
+msgstr "声明一个生成器函数，每次 yield 策略的不同的参数组合。"
+
+#: ../../tutorial.rst:181 ../../tutorial.rst:228
+msgid "Loading the feed with the CSV files we downloaded."
+msgstr "从我们下载的 CSV 文件 加载推送数据。"
+
+#: ../../tutorial.rst:182
+msgid "Running the server that will wait for incoming connections on port 5000."
+msgstr "运行管理服务的脚本会在5000端口等待工作服务的连接。"
+
+#: ../../tutorial.rst:184
+msgid ""
+"This is the worker script that uses the **pyalgotrade.optimizer.worker** "
+"module to run the strategy in parallel with the data supplied by the "
+"server:"
+msgstr "如下是用于工作服务的脚本，该脚本基于 **pyalgotrade.optimizer.worker** 模块"
+"和管理服务提供的数据并行地运行策略。"
+
+#: ../../tutorial.rst:189
+msgid ""
+"When you run the server and the client/s you'll see something like this "
+"on the server console: ::"
+msgstr "当你运行管理服务和所有客户端（工作服务）你会在管理服务的控制台看到类似下面这样的输出：::"
+
+#: ../../tutorial.rst:200
+msgid "and something like this on the worker/s console: ::"
+msgstr "在工作服务的控制台你会看到类似下面这样的输出：::"
+
+#: ../../tutorial.rst:218
+msgid "Note that you should run **only one server and one or more workers**."
+msgstr "需要注意的是 **只需要运行一个管理服务，但需要一或多个工作服务** 。"
+
+#: ../../tutorial.rst:220
+msgid ""
+"If you just want to run strategies in parallel in your own desktop you "
+"can take advantage of the **pyalgotrade.optimizer.local** module like "
+"this:"
+msgstr "如果你只是想在你自己的电脑上并行运行策略，你可以像下面这样使用 "
+"**pyalgotrade.optimizer.local** 模块："
+
+#: ../../tutorial.rst:225 ../../tutorial.rst:265
+msgid "The code is doing 3 things:"
+msgstr "上述代码做了三件事："
+
+#: ../../tutorial.rst:227
+msgid ""
+"Declaring a generator function that yields different parameter "
+"combinations."
+msgstr "声明一个生成器函数每次 yield 不同的参数组合。"
+
+#: ../../tutorial.rst:229
+msgid ""
+"Using the **pyalgotrade.optimizer.local** module to run the strategy in "
+"parallel and find the best result."
+msgstr "使用 **pyalgotrade.optimizer.local** 模块并行运行策略找出最好的结果。"
+
+#: ../../tutorial.rst:231
+msgid "When you run this code you should see something like this: ::"
+msgstr "当你运行上述脚本你会看到类似下面的输出：::"
+
+#: ../../tutorial.rst:250
+msgid ""
+"For the record, the best result found was $2314.40 with the following "
+"parameters:"
+msgstr "上面的记录显示，最好的结果采用下面的参数获得了 $2314.40："
+
+#: ../../tutorial.rst:245
+msgid "entrySMA: 154"
+msgstr "entrySMA: 154"
+
+#: ../../tutorial.rst:246
+msgid "exitSMA: 5"
+msgstr "exitSMA: 5"
+
+#: ../../tutorial.rst:247
+msgid "rsiPeriod: 2"
+msgstr "rsiPeriod: 2"
+
+#: ../../tutorial.rst:248
+msgid "overBoughtThreshold: 91"
+msgstr "overBoughtThreshold: 91"
+
+#: ../../tutorial.rst:249
+msgid "overSoldThreshold: 18"
+msgstr "overSoldThreshold: 18"
+
+#: ../../tutorial.rst:253
+msgid "Plotting"
+msgstr "绘图"
+
+#: ../../tutorial.rst:255
+msgid "PyAlgoTrade makes it very easy to plot a strategy execution."
+msgstr "PyAlgoTrade 使得绘制策略执行结果变得非常简单。"
+
+#: ../../tutorial.rst:257
+msgid "Save this as sma_crossover.py:"
+msgstr "将如下代码保存为 sma_crossover.py："
+
+#: ../../tutorial.rst:261
+msgid "and save this code to a different file:"
+msgstr "保存如下这段代码为另一个文件："
+
+#: ../../tutorial.rst:268
+msgid ""
+"Running the strategy with the bars supplied by the feed and a "
+"StrategyPlotter attached."
+msgstr "基于 feed 推送的 bar 数据运行这个策略并附加 StrategyPlotter。"
+
+#: ../../tutorial.rst:269
+msgid "Plotting the strategy."
+msgstr "绘制策略。"
+
+#: ../../tutorial.rst:271
+msgid "This is what the plot looks like:"
+msgstr "绘制的图形跟下面展示的差不多："
+
+#: ../../tutorial.rst:275
+msgid ""
+"I hope you enjoyed this quick introduction. I'd recommend you to download"
+" PyAlgoTrade here: "
+"http://gbeced.github.io/pyalgotrade/downloads/index.html and get started "
+"writing you own strategies."
+msgstr "我非常希望你喜欢这个简明教程，你可以在 "
+"http://gbeced.github.io/pyalgotrade/downloads/index.html 下载 PyAlgoTrade 然后编写你自己的策略。"
+
+#: ../../tutorial.rst:278
+msgid "You can also find more examples in the :ref:`samples-label` section."
+msgstr "你也可以在 :ref:`samples-label` 找到更多的例子。"
+

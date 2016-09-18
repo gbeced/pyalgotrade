@@ -1,0 +1,235 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 15:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../bitstamp_ref.rst:2
+msgid "bitstamp -- Bitstamp reference"
+msgstr "bitstamp —— Bitstamp 参考手册"
+
+#: ../../bitstamp_ref.rst:5
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../../bitstamp_ref.rst:7
+msgid ""
+"This package has classes for the events emitted by Bitstamp's streaming "
+"service. Check https://www.bitstamp.net/websocket/ for more information."
+msgstr "本模块包含用于处理 Bitstamp streaming 服务触发的事件的类，"
+"可访问 https://www.bitstamp.net/websocket/ 获取更多信息。"
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate:1
+#: pyalgotrade.bitstamp.wsclient.Trade:1
+msgid "基类：:class:`pyalgotrade.websocket.pusher.Event`"
+msgstr "基类：:class:`pyalgotrade.websocket.pusher.Event`"
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate:1
+msgid "An order book update event."
+msgstr "订单簿(order book)更新事件。"
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate.getAskPrices:1
+msgid "Returns a list with the top 20 ask prices."
+msgstr "Returns a list with the top 20 ask prices."
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate.getAskVolumes:1
+msgid "Returns a list with the top 20 ask volumes."
+msgstr "Returns a list with the top 20 ask volumes."
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate.getBidPrices:1
+msgid "Returns a list with the top 20 bid prices."
+msgstr "Returns a list with the top 20 bid prices."
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate.getBidVolumes:1
+msgid "Returns a list with the top 20 bid volumes."
+msgstr "Returns a list with the top 20 bid volumes."
+
+#: of pyalgotrade.bitstamp.wsclient.OrderBookUpdate.getDateTime:1
+#: pyalgotrade.bitstamp.wsclient.Trade.getDateTime:1
+msgid "Returns the :class:`datetime.datetime` when this event was received."
+msgstr "Returns the :class:`datetime.datetime` when this event was received."
+
+#: of pyalgotrade.bitstamp.wsclient.Trade:1
+msgid "A trade event."
+msgstr "交易事件。"
+
+#: of pyalgotrade.bitstamp.wsclient.Trade.getAmount:1
+msgid "Returns the trade amount."
+msgstr "返回交易数量。"
+
+#: of pyalgotrade.bitstamp.wsclient.Trade.getId:1
+msgid "Returns the trade id."
+msgstr "Returns the trade id."
+
+#: of pyalgotrade.bitstamp.wsclient.Trade.getPrice:1
+msgid "Returns the trade price."
+msgstr "返回交易价格"
+
+#: of pyalgotrade.bitstamp.wsclient.Trade.isBuy:1
+msgid "Returns True if the trade was a buy."
+msgstr "如果交易为买则返回 True。"
+
+#: of pyalgotrade.bitstamp.wsclient.Trade.isSell:1
+msgid "Returns True if the trade was a sell."
+msgstr "如果交易为卖则返回 True。"
+
+#: ../../bitstamp_ref.rst:15
+msgid "Feeds"
+msgstr "数据源"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed:1
+msgid "基类：:class:`pyalgotrade.barfeed.BaseBarFeed`"
+msgstr "基类：:class:`pyalgotrade.barfeed.BaseBarFeed`"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed:1
+msgid "A real-time BarFeed that builds bars from live trades."
+msgstr "基于实盘交易的实时数据源。"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed:3
+msgid ""
+"The maximum number of values that the "
+":class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold. Once a "
+"bounded length is full, when new items are added, a corresponding number "
+"of items are discarded from the opposite end. If None then "
+"dataseries.DEFAULT_MAX_LEN is used."
+msgstr ":class:`pyalgotrade.dataseries.bards.BarDataSeries` 存储的值的最大数量。如果不是 None，"
+"则必须是大于0的整数。一旦达到最大值，新的数据添加时会丢弃掉同等数量的老数据。若为 None， "
+"则使用 dataseries.DEFAULT_MAX_LEN 。"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed:9
+msgid ""
+"Note that a Bar will be created for every trade, so open, high, low and "
+"close values will all be the same."
+msgstr ":class:`pyalgotrade.bar.Bar` 的实例会在每次交易时创建，"
+"因此开盘价，最高价，最低价和收盘价都是一样的。"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent:1
+msgid "Returns the event that will be emitted when the orderbook gets updated."
+msgstr "订单簿更新时返回被触发的事件。"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent:4
+msgid "Eventh handlers should receive one parameter:"
+msgstr "事件处理器需要接受如下参数："
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent:4
+msgid "A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance."
+msgstr ":class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` 的实例。"
+
+#: of pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent:6
+msgid ":class:`pyalgotrade.observer.Event`."
+msgstr ":class:`pyalgotrade.observer.Event`."
+
+#: ../../bitstamp_ref.rst:22
+msgid "Brokers"
+msgstr "经纪商"
+
+#: of pyalgotrade.bitstamp.broker.PaperTradingBroker:1
+msgid "基类：:class:`pyalgotrade.bitstamp.broker.BacktestingBroker`"
+msgstr "基类：:class:`pyalgotrade.bitstamp.broker.BacktestingBroker`"
+
+#: of pyalgotrade.bitstamp.broker.PaperTradingBroker:1
+msgid "A Bitstamp paper trading broker."
+msgstr "Bitstamp 模拟交易经纪商。"
+
+#: of pyalgotrade.bitstamp.broker.PaperTradingBroker:3
+msgid "The initial amount of cash."
+msgstr "初始现金数量。"
+
+#: of pyalgotrade.bitstamp.broker.PaperTradingBroker:5
+msgid "The bar feed that will provide the bars."
+msgstr "提供 bar 数据的数据源。"
+
+#: of pyalgotrade.bitstamp.broker.PaperTradingBroker:7
+msgid "The fee percentage for each order. Defaults to 0.5%."
+msgstr "每笔订单的费率，默认为 0.5% 。"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:12
+#: pyalgotrade.bitstamp.broker.PaperTradingBroker:11
+msgid "Only limit orders are supported."
+msgstr "Only limit orders are supported."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:13
+#: pyalgotrade.bitstamp.broker.PaperTradingBroker:12
+msgid ""
+"Orders are automatically set as **goodTillCanceled=True** and  "
+"**allOrNone=False**."
+msgstr ""
+"Orders are automatically set as **goodTillCanceled=True** and  "
+"**allOrNone=False**."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:14
+#: pyalgotrade.bitstamp.broker.PaperTradingBroker:13
+msgid "BUY_TO_COVER orders are mapped to BUY orders."
+msgstr "BUY_TO_COVER orders are mapped to BUY orders."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:15
+#: pyalgotrade.bitstamp.broker.PaperTradingBroker:14
+msgid "SELL_SHORT orders are mapped to SELL orders."
+msgstr "SELL_SHORT orders are mapped to SELL orders."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:1
+msgid "基类：:class:`pyalgotrade.broker.Broker`"
+msgstr "基类：:class:`pyalgotrade.broker.Broker`"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:1
+msgid "A Bitstamp live broker."
+msgstr "Bitstamp 实盘交易商。"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:3
+msgid "Client id."
+msgstr "Client id."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:5
+msgid "API key."
+msgstr "API key."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:7
+msgid "API secret."
+msgstr "API secret."
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:16
+msgid "API access permissions should include:"
+msgstr "API 访问权限应该包含："
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:18
+msgid "Account balance"
+msgstr "Account balance"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:19
+msgid "Open orders"
+msgstr "Open orders"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:20
+msgid "Buy limit order"
+msgstr "Buy limit order"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:21
+msgid "User transactions"
+msgstr "User transactions"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:22
+msgid "Cancel order"
+msgstr "取消订单"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker:23
+msgid "Sell limit order"
+msgstr "Sell limit order"
+
+#: of pyalgotrade.bitstamp.broker.LiveBroker.refreshAccountBalance:1
+msgid "Refreshes cash and BTC balance."
+msgstr "Refreshes cash and BTC balance."
+

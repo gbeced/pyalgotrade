@@ -1,0 +1,239 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../stratanalyzer.rst:2
+msgid "stratanalyzer -- Strategy analyzers"
+msgstr ""
+
+#: ../../stratanalyzer.rst:4
+msgid ""
+"Strategy analyzers provide an extensible way to attach different "
+"calculations to strategy executions."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.StrategyAnalyzer:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.StrategyAnalyzer:1
+msgid "Base class for strategy analyzers."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.StrategyAnalyzer:5
+msgid "This is a base class and should not be used directly."
+msgstr ""
+
+#: ../../stratanalyzer.rst:11
+msgid "Returns"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.drawdown.DrawDown:1
+#: pyalgotrade.stratanalyzer.returns.Returns:1
+#: pyalgotrade.stratanalyzer.sharpe.SharpeRatio:1
+#: pyalgotrade.stratanalyzer.trades.Trades:1
+msgid "基类：:class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.returns.Returns:1
+msgid ""
+"A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates "
+"time-weighted returns for the whole portfolio."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.returns.Returns:4
+msgid ""
+"The maximum number of values to hold in net and cumulative returs "
+"dataseries. Once a bounded length is full, when new items are added, a "
+"corresponding number of items are discarded from the opposite end. If "
+"None then dataseries.DEFAULT_MAX_LEN is used."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.returns.Returns.getCumulativeReturns:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the cumulative "
+"returns for each bar."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.returns.Returns.getReturns:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the returns for"
+" each bar."
+msgstr ""
+
+#: ../../stratanalyzer.rst:17
+msgid "Sharpe Ratio"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.sharpe.SharpeRatio:1
+msgid ""
+"A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates "
+"Sharpe ratio for the whole portfolio."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.sharpe.SharpeRatio:4
+msgid "True if daily returns should be used instead of the returns for each bar."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.sharpe.SharpeRatio.getSharpeRatio:1
+msgid ""
+"Returns the Sharpe ratio for the strategy execution. If the volatility is"
+" 0, 0 is returned."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.sharpe.SharpeRatio.getSharpeRatio:3
+msgid "The risk free rate per annum."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.sharpe.SharpeRatio.getSharpeRatio:5
+msgid "True if the sharpe ratio should be annualized."
+msgstr ""
+
+#: ../../stratanalyzer.rst:23
+msgid "DrawDown"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.drawdown.DrawDown:1
+msgid ""
+"A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates "
+"max. drawdown and longest drawdown duration for the portfolio."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.drawdown.DrawDown.getLongestDrawDownDuration:1
+msgid "Returns the duration of the longest drawdown."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.drawdown.DrawDown.getLongestDrawDownDuration:3
+msgid ":class:`datetime.timedelta`."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.drawdown.DrawDown.getLongestDrawDownDuration:6
+msgid ""
+"Note that this is the duration of the longest drawdown, not necessarily "
+"the deepest one."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.drawdown.DrawDown.getMaxDrawDown:1
+msgid "Returns the max. (deepest) drawdown."
+msgstr ""
+
+#: ../../stratanalyzer.rst:29
+msgid "Trades"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades:1
+msgid ""
+"A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that records the "
+"profit/loss and returns of every completed trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades:5
+msgid ""
+"This analyzer operates on individual completed trades. For example, lets "
+"say you start with a $1000 cash, and then you buy 1 share of XYZ for $10 "
+"and later sell it for $20:"
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades:9
+msgid "The trade's profit was $10."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades:10
+#, python-format
+msgid ""
+"The trade's return is 100%, even though your whole portfolio went from "
+"$1000 to $1020, a 2% return."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getCount:1
+msgid "Returns the total number of trades."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getProfitableCount:1
+msgid "Returns the number of profitable trades."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getUnprofitableCount:1
+msgid "Returns the number of unprofitable trades."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getEvenCount:1
+msgid "Returns the number of trades whose net profit was 0."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getAll:1
+msgid "Returns a numpy.array with the profits/losses for each trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getProfits:1
+msgid "Returns a numpy.array with the profits for each profitable trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getLosses:1
+msgid "Returns a numpy.array with the losses for each unprofitable trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getAllReturns:1
+msgid "Returns a numpy.array with the returns for each trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getPositiveReturns:1
+msgid "Returns a numpy.array with the positive returns for each trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getNegativeReturns:1
+msgid "Returns a numpy.array with the negative returns for each trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForAllTrades:1
+msgid "Returns a numpy.array with the commissions for each trade."
+msgstr ""
+
+#: of
+#: pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForProfitableTrades:1
+msgid "Returns a numpy.array with the commissions for each profitable trade."
+msgstr ""
+
+#: of
+#: pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForUnprofitableTrades:1
+msgid "Returns a numpy.array with the commissions for each unprofitable trade."
+msgstr ""
+
+#: of pyalgotrade.stratanalyzer.trades.Trades.getCommissionsForEvenTrades:1
+msgid ""
+"Returns a numpy.array with the commissions for each trade whose net "
+"profit was 0."
+msgstr ""
+
+#: ../../stratanalyzer.rst:36
+msgid "Example"
+msgstr ""
+
+#: ../../stratanalyzer.rst:37
+msgid "Save this code as sma_crossover.py:"
+msgstr ""
+
+#: ../../stratanalyzer.rst:41
+msgid "and save this code in a different file:"
+msgstr ""
+
+#: ../../stratanalyzer.rst:45
+msgid "The output should look like this:"
+msgstr ""
+

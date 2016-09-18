@@ -1,0 +1,145 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../plotter.rst:2
+msgid "plotter -- Strategy plotter"
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter:1 pyalgotrade.plotter.Subplot:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addCallback:1
+msgid "Add a callback that will be called on each bar."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addCallback:3
+msgid "A name for the series values."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addCallback:5
+msgid ""
+"A function that receives a :class:`pyalgotrade.bar.Bars` instance as a "
+"parameter and returns a number or None."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addDataSeries:1
+msgid "Add a DataSeries to the subplot."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addDataSeries:3
+msgid "A name for the DataSeries values."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addDataSeries:5
+msgid "The DataSeries to add."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addLine:1
+msgid "Add a horizontal line to the plot."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addLine:3
+msgid "A label."
+msgstr ""
+
+#: of pyalgotrade.plotter.Subplot.addLine:5
+msgid "The position for the line."
+msgstr ""
+
+#: of pyalgotrade.plotter.InstrumentSubplot:1
+msgid "基类：:class:`pyalgotrade.plotter.Subplot`"
+msgstr ""
+
+#: of pyalgotrade.plotter.InstrumentSubplot:1
+msgid "A Subplot responsible for plotting an instrument."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter:1
+msgid "Class responsible for plotting a strategy execution."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter:3
+msgid "The strategy to plot."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter:5
+msgid "Set to True to get a subplot for each instrument available."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter:7
+msgid ""
+"Set to True to get the buy/sell events plotted for each instrument "
+"available."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter:9
+msgid "Set to True to get the portfolio value (shares + cash) plotted."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.buildFigureAndSubplots:1
+msgid ""
+"Builds a matplotlib.figure.Figure with the subplots. Must be called after"
+" running the strategy."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.buildFigureAndSubplots:3
+#: pyalgotrade.plotter.StrategyPlotter.plot:3
+msgid ""
+"An optional starting datetime.datetime. Everything before it won't get "
+"plotted."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.buildFigureAndSubplots:5
+#: pyalgotrade.plotter.StrategyPlotter.plot:5
+msgid ""
+"An optional ending datetime.datetime. Everything after it won't get "
+"plotted."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.getInstrumentSubplot:1
+msgid "Returns the InstrumentSubplot for a given instrument"
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.getInstrumentSubplot:3
+msgid ":class:`InstrumentSubplot`."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot:1
+msgid "Returns a Subplot by name. If the subplot doesn't exist, it gets created."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot:3
+msgid "The name of the Subplot to get or create."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot:5
+#: pyalgotrade.plotter.StrategyPlotter.getPortfolioSubplot:3
+msgid ":class:`Subplot`."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.getPortfolioSubplot:1
+msgid "Returns the subplot where the portfolio values get plotted."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter.plot:1
+msgid "Plots the strategy execution. Must be called after running the strategy."
+msgstr ""
+

@@ -1,0 +1,88 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 15:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../bitstamp_example.rst:4
+msgid "Bitstamp Example"
+msgstr "Bitstamp 例子"
+
+#: ../../bitstamp_example.rst:6
+msgid ""
+"This goal of this simple SMA crossover example is to show how to put all "
+"the pieces together to paper trade a strategy using realtime feeds "
+"supplied by Bitstamp (https://www.bitstamp.net/)."
+msgstr "这是一个简单SMA交叉的例子，目的是为了展示如何使用 Bitstamp（https://www.bitstamp.net/）"
+"平台提供的实时数据源编写模拟交易策略。"
+
+#: ../../bitstamp_example.rst:9
+msgid ""
+"This example assumes that you're already familiar with the basic concepts"
+" presented in the :ref:`tutorial-label` section."
+msgstr "本例假定你已经熟悉 :ref:`tutorial-label` 章节所介绍的基本概念。"
+
+#: ../../bitstamp_example.rst:12
+msgid "The key things to highlight are:"
+msgstr "下面的情况需特别注意："
+
+#: ../../bitstamp_example.rst:14
+msgid ""
+"We're using :class:`pyalgotrade.strategy.BaseStrategy` instead of "
+":class:`pyalgotrade.strategy.BacktestingStrategy` as the base class. This"
+" is not a backtest."
+msgstr "我们需要使用 :class:`pyalgotrade.strategy.BaseStrategy` 作为基类，切记不能使用"
+"class:`pyalgotrade.strategy.BacktestingStrategy` ，我们做的不是回测。"
+
+#: ../../bitstamp_example.rst:16
+msgid ""
+"Trade events get notified via the call to **onBars**. No need to manually"
+" subscribe."
+msgstr "交易事件通过 **onBars** 接口进行推送，不需要单独订阅。"
+
+#: ../../bitstamp_example.rst:17
+msgid ""
+"Order book update events are handled by manually subscribing to "
+":class:`pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent`."
+" This is needed to be up to date with latest bid and ask prices."
+msgstr "订单簿更新事件（Order book update events）需要通过单独订阅 "
+":class:`pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent` 事件来处理。"
+" 需要与最新的 bid 和 询问价（ask price）保持最新。"
+
+
+#: ../../bitstamp_example.rst:22
+msgid "The output should look like this: ::"
+msgstr "输出如下所示：::"
+
+#: ../../bitstamp_example.rst:133
+msgid ""
+"In order to live trade this strategy you should use "
+":class:`pyalgotrade.bitstamp.broker.LiveBroker` instead of "
+":class:`pyalgotrade.bitstamp.broker.PaperTradingBroker`."
+msgstr "要使用实盘交易运行本策略，你需要使用 "
+":class:`pyalgotrade.bitstamp.broker.LiveBroker` 而不是 "
+":class:`pyalgotrade.bitstamp.broker.PaperTradingBroker` 。"
+
+#: ../../bitstamp_example.rst:136
+msgid ""
+"**Note that if you try to live trade this strategy you will probably "
+"loose money.** Before jumping to live trading, be sure to write your own "
+"strategy, backtest and paper trade it thoroughly before risking real "
+"money."
+msgstr "**切记如果采用实盘交易本策略你很可能会亏钱** ，"
+"在进行实盘交易前确保编写你自己的策略并进行完整的回测和模拟交易。"
+

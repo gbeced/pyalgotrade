@@ -1,0 +1,639 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../strategy.rst:2
+msgid "strategy -- Basic strategy classes"
+msgstr ""
+
+#: ../../strategy.rst:4
+msgid ""
+"Strategies are the classes that you define that implement the trading "
+"logic, when to buy, when to sell, etc."
+msgstr ""
+
+#: ../../strategy.rst:6
+msgid "Buying and selling can be done in two ways:"
+msgstr ""
+
+#: ../../strategy.rst:8
+msgid "Placing individual orders using any of the following methods:"
+msgstr ""
+
+#: ../../strategy.rst:10
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.marketOrder`"
+msgstr ""
+
+#: ../../strategy.rst:11
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.limitOrder`"
+msgstr ""
+
+#: ../../strategy.rst:12
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.stopOrder`"
+msgstr ""
+
+#: ../../strategy.rst:13
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.stopLimitOrder`"
+msgstr ""
+
+#: ../../strategy.rst:15
+msgid "Using a higher level interface that wrap a pair of entry/exit orders:"
+msgstr ""
+
+#: ../../strategy.rst:17
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.enterLong`"
+msgstr ""
+
+#: ../../strategy.rst:18
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.enterShort`"
+msgstr ""
+
+#: ../../strategy.rst:19
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.enterLongLimit`"
+msgstr ""
+
+#: ../../strategy.rst:20
+msgid ":meth:`pyalgotrade.strategy.BaseStrategy.enterShortLimit`"
+msgstr ""
+
+#: ../../strategy.rst:22
+msgid ""
+"Positions are higher level abstractions for placing orders. They are "
+"escentially a pair of entry-exit orders and provide easier tracking for "
+"returns and PnL than using individual orders."
+msgstr ""
+
+#: ../../strategy.rst:27
+msgid "Strategy"
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy:1
+#: pyalgotrade.strategy.position.Position:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy:1
+msgid "Base class for strategies."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy:3
+msgid "The bar feed that will supply the bars."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy:5
+msgid "The broker that will handle orders."
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy:9
+#: pyalgotrade.strategy.BaseStrategy:9
+#: pyalgotrade.strategy.position.Position:17
+msgid "This is a base class and should not be used directly."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.getFeed:1
+msgid ""
+"Returns the :class:`pyalgotrade.barfeed.BaseBarFeed` that this strategy "
+"is using."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.getBroker:1
+msgid ""
+"Returns the :class:`pyalgotrade.broker.Broker` used to handle order "
+"executions."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.getCurrentDateTime:1
+msgid ""
+"Returns the :class:`datetime.datetime` for the current "
+":class:`pyalgotrade.bar.Bars`."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.marketOrder:1
+msgid "Submits a market order."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong:3
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit:3
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop:3
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:3
+#: pyalgotrade.strategy.BaseStrategy.enterShort:3
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit:3
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop:3
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:3
+#: pyalgotrade.strategy.BaseStrategy.limitOrder:3
+#: pyalgotrade.strategy.BaseStrategy.marketOrder:3
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:3
+#: pyalgotrade.strategy.BaseStrategy.stopOrder:3
+msgid "Instrument identifier."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.limitOrder:7
+#: pyalgotrade.strategy.BaseStrategy.marketOrder:5
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:9
+#: pyalgotrade.strategy.BaseStrategy.stopOrder:7
+msgid "The amount of shares. Positive means buy, negative means sell."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.marketOrder:7
+msgid ""
+"True if the order should be filled as close to the closing price as "
+"possible (Market-On-Close order). Default is False."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.limitOrder:9
+#: pyalgotrade.strategy.BaseStrategy.marketOrder:9
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:11
+#: pyalgotrade.strategy.BaseStrategy.stopOrder:9
+msgid ""
+"True if the order is good till canceled. If False then the order gets "
+"automatically canceled when the session closes."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.limitOrder:11
+#: pyalgotrade.strategy.BaseStrategy.marketOrder:11
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:13
+#: pyalgotrade.strategy.BaseStrategy.stopOrder:11
+msgid "True if the order should be completely filled or not at all."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.marketOrder:13
+msgid "The :class:`pyalgotrade.broker.MarketOrder` submitted."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.limitOrder:1
+msgid "Submits a limit order."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLongLimit:5
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:7
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit:5
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:7
+#: pyalgotrade.strategy.BaseStrategy.limitOrder:5
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:7
+msgid "Limit price."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.limitOrder:13
+msgid "The :class:`pyalgotrade.broker.LimitOrder` submitted."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.stopOrder:1
+msgid "Submits a stop order."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLongStop:5
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:5
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop:5
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:5
+#: pyalgotrade.strategy.BaseStrategy.stopOrder:5
+msgid "Stop price."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.stopOrder:13
+msgid "The :class:`pyalgotrade.broker.StopOrder` submitted."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.stopLimitOrder:1
+msgid "Submits a stop limit order."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.stopLimitOrder:15
+msgid "The :class:`pyalgotrade.broker.StopLimitOrder` submitted."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong:1
+msgid ""
+"Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long "
+"position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong:5
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit:7
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop:7
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:9
+#: pyalgotrade.strategy.BaseStrategy.enterShort:5
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit:7
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop:7
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:9
+msgid "Entry order quantity."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong:7
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit:9
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop:9
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:11
+#: pyalgotrade.strategy.BaseStrategy.enterShort:7
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit:9
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop:9
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:11
+msgid ""
+"True if the entry order is good till canceled. If False then the order "
+"gets automatically canceled when the session closes."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong:9
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit:11
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop:11
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:13
+#: pyalgotrade.strategy.BaseStrategy.enterShort:9
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit:11
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop:11
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:13
+#: pyalgotrade.strategy.position.Position:13
+msgid "True if the orders should be completely filled or not at all."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong:11
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit:13
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop:13
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:15
+#: pyalgotrade.strategy.BaseStrategy.enterShort:11
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit:13
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop:13
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:15
+msgid "The :class:`pyalgotrade.strategy.position.Position` entered."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterShort:1
+msgid ""
+"Generates a sell short :class:`pyalgotrade.broker.MarketOrder` to enter a"
+" short position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLongLimit:1
+msgid ""
+"Generates a buy :class:`pyalgotrade.broker.LimitOrder` to enter a long "
+"position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterShortLimit:1
+msgid ""
+"Generates a sell short :class:`pyalgotrade.broker.LimitOrder` to enter a "
+"short position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLongStop:1
+msgid ""
+"Generates a buy :class:`pyalgotrade.broker.StopOrder` to enter a long "
+"position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterShortStop:1
+msgid ""
+"Generates a sell short :class:`pyalgotrade.broker.StopOrder` to enter a "
+"short position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLongStopLimit:1
+msgid ""
+"Generates a buy :class:`pyalgotrade.broker.StopLimitOrder` order to enter"
+" a long position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:1
+msgid ""
+"Generates a sell short :class:`pyalgotrade.broker.StopLimitOrder` order "
+"to enter a short position."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterShortStopLimit:5
+msgid "The Stop price."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onEnterOk:1
+msgid ""
+"Override (optional) to get notified when the order submitted to enter a "
+"position was filled. The default implementation is empty."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onEnterCanceled:3
+#: pyalgotrade.strategy.BaseStrategy.onEnterOk:3
+#: pyalgotrade.strategy.BaseStrategy.onExitCanceled:3
+#: pyalgotrade.strategy.BaseStrategy.onExitOk:3
+msgid "A position returned by any of the enterLongXXX or enterShortXXX methods."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onEnterCanceled:1
+msgid ""
+"Override (optional) to get notified when the order submitted to enter a "
+"position was canceled. The default implementation is empty."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onExitOk:1
+msgid ""
+"Override (optional) to get notified when the order submitted to exit a "
+"position was filled. The default implementation is empty."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onExitCanceled:1
+msgid ""
+"Override (optional) to get notified when the order submitted to exit a "
+"position was canceled. The default implementation is empty."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onStart:1
+msgid ""
+"Override (optional) to get notified when the strategy starts executing. "
+"The default implementation is empty."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onFinish:1
+msgid ""
+"Override (optional) to get notified when the strategy finished executing."
+" The default implementation is empty."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onFinish:3
+msgid "The last bars processed."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onIdle:1
+msgid "Override (optional) to get notified when there are no events."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onIdle:4
+msgid "In a pure backtesting scenario this will not be called."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onBars:1
+msgid ""
+"Override (**mandatory**) to get notified when new bars are available. The"
+" default implementation raises an Exception."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onBars:3
+msgid ""
+"**This is the method to override to enter your trading logic and "
+"enter/exit positions**."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onBars:5
+msgid "The current bars."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onOrderUpdated:1
+msgid "Override (optional) to get notified when an order gets updated."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.onOrderUpdated:3
+msgid "The order updated."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.run:1
+msgid "Call once (**and only once**) to run the strategy."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.stop:1
+msgid "Stops a running strategy."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.attachAnalyzer:1
+msgid "Adds a :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer`."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.debug:1
+msgid "Logs a message with level DEBUG on the strategy logger."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.info:1
+msgid "Logs a message with level INFO on the strategy logger."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.warning:1
+msgid "Logs a message with level WARNING on the strategy logger."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.error:1
+msgid "Logs a message with level ERROR on the strategy logger."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.critical:1
+msgid "Logs a message with level CRITICAL on the strategy logger."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.resampleBarFeed:1
+msgid "Builds a resampled barfeed that groups bars by a certain frequency."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.resampleBarFeed:3
+msgid "The grouping frequency in seconds. Must be > 0."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.resampleBarFeed:4
+msgid ""
+"A function similar to onBars that will be called when new bars are "
+"available."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.resampleBarFeed:5
+msgid ":class:`pyalgotrade.barfeed.BaseBarFeed`."
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy:1
+msgid "基类：:class:`pyalgotrade.strategy.BaseStrategy`"
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy:1
+msgid "Base class for backtesting strategies."
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy:3
+msgid "The bar feed to use to backtest the strategy."
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy:5
+msgid "The starting capital or a broker instance."
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy.setDebugMode:1
+msgid ""
+"Enable/disable debug level messages in the strategy and backtesting "
+"broker. This is enabled by default."
+msgstr ""
+
+#: ../../strategy.rst:35
+msgid "Position"
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position:1
+msgid "Base class for positions."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position:3
+msgid ""
+"Positions are higher level abstractions for placing orders. They are "
+"escentially a pair of entry-exit orders and allow to track returns and "
+"PnL easier that placing orders manually."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position:7
+msgid "The strategy that this position belongs to."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position:9
+msgid "The order used to enter the position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position:11
+msgid "True if the entry order should be set as good till canceled."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getShares:1
+msgid ""
+"Returns the number of shares. This will be a possitive number for a long "
+"position, and a negative number for a short position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getShares:5
+msgid ""
+"If the entry order was not filled, or if the position is closed, then the"
+" number of shares will be 0."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.entryActive:1
+msgid "Returns True if the entry order is active."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.entryFilled:1
+msgid "Returns True if the entry order was filled."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitActive:1
+msgid "Returns True if the exit order is active."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitFilled:1
+msgid "Returns True if the exit order was filled."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getEntryOrder:1
+msgid "Returns the :class:`pyalgotrade.broker.Order` used to enter the position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getExitOrder:1
+msgid ""
+"Returns the :class:`pyalgotrade.broker.Order` used to exit the position. "
+"If this position hasn't been closed yet, None is returned."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getInstrument:1
+msgid "Returns the instrument used for this position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getReturn:1
+msgid ""
+"Calculates cumulative percentage returns up to this point. If the "
+"position is not closed, these will be unrealized returns."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getPnL:1
+msgid ""
+"Calculates PnL up to this point. If the position is not closed, these "
+"will be unrealized PnL."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.cancelEntry:1
+msgid "Cancels the entry order if its active."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.cancelExit:1
+msgid "Cancels the exit order if its active."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitMarket:1
+msgid "Submits a market order to close this position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitLimit:5
+#: pyalgotrade.strategy.position.Position.exitMarket:3
+#: pyalgotrade.strategy.position.Position.exitStop:5
+#: pyalgotrade.strategy.position.Position.exitStopLimit:7
+msgid ""
+"True if the exit order is good till canceled. If False then the order "
+"gets automatically canceled when the session closes. If None, then it "
+"will match the entry order."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitLimit:9
+#: pyalgotrade.strategy.position.Position.exitMarket:7
+#: pyalgotrade.strategy.position.Position.exitStop:9
+#: pyalgotrade.strategy.position.Position.exitStopLimit:11
+msgid ""
+"If the position is closed (entry canceled or exit filled) this won't have"
+" any effect."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitLimit:10
+#: pyalgotrade.strategy.position.Position.exitMarket:8
+#: pyalgotrade.strategy.position.Position.exitStop:10
+#: pyalgotrade.strategy.position.Position.exitStopLimit:12
+msgid ""
+"If the exit order for this position is pending, an exception will be "
+"raised. The exit order should be canceled first."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitLimit:11
+#: pyalgotrade.strategy.position.Position.exitMarket:9
+#: pyalgotrade.strategy.position.Position.exitStop:11
+#: pyalgotrade.strategy.position.Position.exitStopLimit:13
+msgid "If the entry order is active, cancellation will be requested."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitLimit:1
+msgid "Submits a limit order to close this position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitLimit:3
+#: pyalgotrade.strategy.position.Position.exitStopLimit:5
+msgid "The limit price."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitStop:1
+msgid "Submits a stop order to close this position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitStop:3
+#: pyalgotrade.strategy.position.Position.exitStopLimit:3
+msgid "The stop price."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.exitStopLimit:1
+msgid "Submits a stop limit order to close this position."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.isOpen:1
+msgid "Returns True if the position is open."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getAge:1
+msgid "Returns the duration in open state."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getAge:6
+msgid ""
+"If the position is open, then the difference between the entry datetime "
+"and the datetime of the last bar is returned."
+msgstr ""
+
+#: of pyalgotrade.strategy.position.Position.getAge:7
+msgid ""
+"If the position is closed, then the difference between the entry datetime"
+" and the exit datetime is returned."
+msgstr ""
+

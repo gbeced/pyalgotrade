@@ -1,0 +1,157 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../feed.rst:2
+msgid "feed -- Basic feeds"
+msgstr ""
+
+#: ../../feed.rst:4
+msgid ""
+"Feeds are time series data providing abstractions. When these are "
+"included in the event dispatch loop, they emit an event as new data is "
+"available. Feeds are also responsible for updating the "
+":class:`pyalgotrade.dataseries.DataSeries` associated with each piece of "
+"data that the feed provides."
+msgstr ""
+
+#: ../../feed.rst:9
+msgid ""
+"**This package has basic feeds. For bar feeds refer to the** :ref"
+":`barfeed-label` **section.**"
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed:1
+msgid "基类：:class:`pyalgotrade.observer.Subject`"
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed:1
+msgid "Base class for feeds."
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed:3
+msgid ""
+"The maximum number of values that each "
+":class:`pyalgotrade.dataseries.DataSeries` will hold. Once a bounded "
+"length is full, when new items are added, a corresponding number of items"
+" are discarded from the opposite end."
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed:9
+msgid "This is a base class and should not be used directly."
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed.__contains__:1
+msgid ""
+"Returns True if a :class:`pyalgotrade.dataseries.DataSeries` for the "
+"given key is available."
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed.__getitem__:1
+msgid "Returns the :class:`pyalgotrade.dataseries.DataSeries` for a given key."
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed.getNewValuesEvent:1
+msgid ""
+"Returns the event that will be emitted when new values are available. To "
+"subscribe you need to pass in a callable object that receives two "
+"parameters:"
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed.getNewValuesEvent:4
+msgid "A :class:`datetime.datetime` instance."
+msgstr ""
+
+#: of pyalgotrade.feed.BaseFeed.getNewValuesEvent:5
+msgid "The new value."
+msgstr ""
+
+#: ../../feed.rst:18
+msgid "CSV support"
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:1
+msgid "基类：:class:`pyalgotrade.feed.csvfeed.BaseFeed`"
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:1
+msgid "A feed that loads values from CSV formatted files."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:3
+msgid "The name of the column that has the datetime information."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:5
+msgid ""
+"The datetime format. datetime.datetime.strptime will be used to parse the"
+" column."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:7
+msgid ""
+"A function with two parameters (column name and value) used to convert "
+"the string value to something else. The default coverter will try to "
+"convert the value to a float. If that fails the original string is "
+"returned."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:11
+msgid "The string used to separate values."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:13
+msgid ""
+"The timezone to use to localize datetimes. Check "
+":mod:`pyalgotrade.marketsession`."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed:15
+msgid ""
+"The maximum number of values that each "
+":class:`pyalgotrade.dataseries.DataSeries` will hold. Once a bounded "
+"length is full, when new items are added, a corresponding number of items"
+" are discarded from the opposite end. If None then "
+"dataseries.DEFAULT_MAX_LEN is used."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed.addValuesFromCSV:1
+msgid "Loads values from a file."
+msgstr ""
+
+#: of pyalgotrade.feed.csvfeed.Feed.addValuesFromCSV:3
+msgid "The path to the CSV file."
+msgstr ""
+
+#: ../../feed.rst:27
+msgid "CSV support Example"
+msgstr ""
+
+#: ../../feed.rst:28
+msgid "A file with the following format ::"
+msgstr ""
+
+#: ../../feed.rst:39
+msgid "can be loaded like this:"
+msgstr ""
+
+#: ../../feed.rst:43
+msgid "and the output should look like this:"
+msgstr ""
+

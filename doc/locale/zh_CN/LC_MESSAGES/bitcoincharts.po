@@ -1,0 +1,43 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 20:36+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../bitcoincharts.rst:2
+msgid "Bitcoin Charts support"
+msgstr "Bitcoin Charts 支持"
+
+#: ../../bitcoincharts.rst:4
+msgid ""
+"The bitcoincharts package adds support for integrating with historical "
+"trade data supplied by http://www.bitcoincharts.com/ for backtesting "
+"Bitcoin strategies."
+msgstr "bitcoincharts 包支持 http://www.bitcoincharts.com/ 提供的历史数据进行比特币策略的回测。"
+
+#: ../../bitcoincharts.rst:7
+msgid ""
+"Historical trade data in CSV format is described in "
+"http://www.bitcoincharts.com/about/markets-api/, and files can be "
+"downloaded from http://api.bitcoincharts.com/v1/csv/."
+msgstr "CSV 历史交易数据格式参考 http://www.bitcoincharts.com/about/markets-api/ ，"
+"可从 http://api.bitcoincharts.com/v1/csv/ 下载交易数据文件。"
+
+#: ../../bitcoincharts.rst:10
+msgid "Contents:"
+msgstr "目录："
+

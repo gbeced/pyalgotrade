@@ -1,0 +1,139 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../optimizer.rst:2
+msgid "optimizer -- Parallel optimizers"
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.Results:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.Results:1
+msgid "The results of the strategy executions."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.Results.getParameters:1
+msgid "Returns a sequence of parameter values."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.Results.getResult:1
+msgid "Returns the result for a given set of parameters."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.serve:1
+msgid ""
+"Executes a server that will provide bars and strategy parameters for "
+"workers to use."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.serve:3
+msgid "The bar feed that each worker will use to backtest the strategy."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:6 pyalgotrade.optimizer.server.serve:5
+msgid ""
+"The set of parameters to use for backtesting. An iterable object where "
+"**each element is a tuple that holds parameter values**."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.serve:6
+msgid "The address to listen for incoming worker connections."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.serve:8
+msgid "The port to listen for incoming worker connections."
+msgstr ""
+
+#: of pyalgotrade.optimizer.server.serve:10
+msgid ""
+"A :class:`Results` instance with the best results found or None if no "
+"results were obtained."
+msgstr ""
+
+#: of pyalgotrade.optimizer.worker.run:1
+msgid ""
+"Executes one or more worker processes that will run a strategy with the "
+"bars and parameters supplied by the server."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:3 pyalgotrade.optimizer.worker.run:3
+msgid "The strategy class."
+msgstr ""
+
+#: of pyalgotrade.optimizer.worker.run:4
+msgid "The address of the server."
+msgstr ""
+
+#: of pyalgotrade.optimizer.worker.run:6
+msgid "The port where the server is listening for incoming connections."
+msgstr ""
+
+#: of pyalgotrade.optimizer.worker.run:8
+msgid ""
+"The number of worker processes to run. If None then as many workers as "
+"CPUs are used."
+msgstr ""
+
+#: of pyalgotrade.optimizer.worker.run:10
+msgid ""
+"A name for the worker. A name that identifies the worker. If None, the "
+"hostname is used."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:1
+msgid ""
+"Executes many instances of a strategy in parallel and finds the "
+"parameters that yield the best results."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:4
+msgid "The bar feed to use to backtest the strategy."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:8
+msgid ""
+"The number of strategies to run in parallel. If None then as many workers"
+" as CPUs are used."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:10
+msgid "The log level. Defaults to **logging.ERROR**."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run:11
+msgid "A :class:`Results` instance with the best results found."
+msgstr ""
+
+#: ../../optimizer.rst:20
+msgid ""
+"The server component will split strategy executions in chunks which are "
+"distributed among the different workers. "
+"**pyalgotrade.optimizer.server.Server.defaultBatchSize** controls the "
+"chunk size."
+msgstr ""
+
+#: ../../optimizer.rst:21
+msgid ""
+"The :meth:`pyalgotrade.strategy.BaseStrategy.getResult` method is used to"
+" select the best strategy execution. You can override that method to rank"
+" executions using a different criteria."
+msgstr ""
+

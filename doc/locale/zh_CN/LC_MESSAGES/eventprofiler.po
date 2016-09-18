@@ -1,0 +1,184 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 20:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../eventprofiler.rst:2
+msgid "Event profiler"
+msgstr "事件分析器"
+
+#: ../../eventprofiler.rst:4
+msgid ""
+"Inspired in QSTK "
+"(http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9), the "
+"**eventprofiler** module is a tool to analyze, statistically, how events "
+"affect future equity prices. The event profiler scans over historical "
+"data for a specified event and then calculates the impact of that event "
+"on the equity prices in the past and the future over a certain lookback "
+"period."
+msgstr "**eventprofiler** 模块的灵感来自于 "
+"QSTK（http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9），"
+"**eventprofiler** 模块用于分析、统计事件是如何影响未来股票价格的。事件分析器器通过"
+"扫描某特定时间的历史行情数据来计算该事件对未来及过去一段时间该股票价格的影响。"
+
+#: ../../eventprofiler.rst:9
+msgid ""
+"**The goal of this tool is to help you quickly validate an idea, before "
+"moving forward with the backtesting process.**"
+msgstr "**本工具的目的是使你在继续回测进程前快速的验证你的想法。**"
+
+#: of pyalgotrade.eventprofiler.Predicate:1
+#: pyalgotrade.eventprofiler.Profiler:1 pyalgotrade.eventprofiler.Results:1
+msgid "基类：:class:`object`"
+msgstr "基类：:class:`object`"
+
+#: of pyalgotrade.eventprofiler.Results:1
+msgid "Results from the profiler."
+msgstr "分析器返回的结果。"
+
+#: of pyalgotrade.eventprofiler.Results.getEventCount:1
+msgid ""
+"Returns the number of events occurred. Events that are on the boundary "
+"are skipped."
+msgstr "返回发生事件的数目，在边界事件被忽略（应该是时间范围的边界）。"
+
+#: of pyalgotrade.eventprofiler.Predicate:1
+msgid ""
+"Base class for event identification. You should subclass this to "
+"implement the event identification logic."
+msgstr "事件基类，你需要实现本类的子类来标识事件。"
+
+#: of pyalgotrade.eventprofiler.Predicate.eventOccurred:1
+msgid ""
+"Override (**mandatory**) to determine if an event took place in the last "
+"bar (bards[-1])."
+msgstr "**强制重写** 上一个 bar （bards[-1]，译注：疑似原文有误，"
+"可能为 bars[-1]）是否发生了某个事件。"
+
+#: of pyalgotrade.eventprofiler.Predicate.eventOccurred:3
+msgid "Instrument identifier."
+msgstr "股票代码。"
+
+#: of pyalgotrade.eventprofiler.Predicate.eventOccurred:5
+msgid "The BarDataSeries for the given instrument."
+msgstr "该股票的 bar 数据序列。"
+
+#: of pyalgotrade.eventprofiler.Profiler:1
+msgid ""
+"This class is responsible for scanning over historical data and analyzing"
+" returns before and after the events."
+msgstr "本类负责扫描历史数据并分析事件前后的收益。"
+
+#: of pyalgotrade.eventprofiler.Profiler:4
+msgid "A :class:`Predicate` subclass responsible for identifying events."
+msgstr ":class:`Predicate` 的子类，用于标识事件。"
+
+#: of pyalgotrade.eventprofiler.Profiler:6
+msgid "The number of bars before the event to analyze. Must be > 0."
+msgstr "需要分析该事件之前的 bar 数目，必须大于0。"
+
+#: of pyalgotrade.eventprofiler.Profiler:8
+msgid "The number of bars after the event to analyze. Must be > 0."
+msgstr "需要分析该事件之后的 bar 数目，必须大于0。"
+
+#: of pyalgotrade.eventprofiler.Profiler.getResults:1
+msgid "Returns the results of the analysis."
+msgstr "返回分析结果。"
+
+#: of pyalgotrade.eventprofiler.Profiler.getResults:3
+msgid ":class:`Results`."
+msgstr ":class:`Results`."
+
+#: of pyalgotrade.eventprofiler.Profiler.run:1
+msgid "Runs the analysis using the bars supplied by the feed."
+msgstr "使用数据源（feed）提供的数据运行事件分析器。"
+
+#: of pyalgotrade.eventprofiler.Profiler.run:3
+msgid "The bar feed to use to run the analysis."
+msgstr "用于运行事件分析器的 bar 数据源。"
+
+#: of pyalgotrade.eventprofiler.Profiler.run:5
+msgid "True if adjusted close values should be used to calculate returns."
+msgstr "如果使用复权收盘价计算收益，则为 True。"
+
+#: of pyalgotrade.eventprofiler.plot:1
+msgid "Plots the result of the analysis."
+msgstr "绘制分析结果图。"
+
+#: of pyalgotrade.eventprofiler.plot:3
+msgid "The result of the analysis"
+msgstr "分析结果"
+
+#: ../../eventprofiler.rst:17
+msgid "Example"
+msgstr "例子"
+
+#: ../../eventprofiler.rst:19
+msgid ""
+"The following example is inspired on the 'Buy-on-Gap Model' from Ernie "
+"Chan's book: 'Algorithmic Trading: Winning Strategies and Their "
+"Rationale':"
+msgstr "下面的例子基于 Ernie Chan 的 《Algorithmic Trading: Winning Strategies and Their "
+"Rationale》的 选择跳空股票模型（'Buy-on-Gap Model'）。"
+
+#: ../../eventprofiler.rst:22
+msgid ""
+"The idea is to select a stock near the market open whose returns from "
+"their previous day's lows to today's open are lower that one standard "
+"deviation. The standard deviation is computed using the daily close-to-"
+"close returns of the last 90 days. These are the stocks that \"gapped "
+"down\"."
+msgstr "想法是在开盘前选择昨天收盘价比今天开盘价低于某个标准，该标准通过最近90天的"
+"日均收盘价进行计算。这些股票称为 \"gapped down\" 。"
+
+#: ../../eventprofiler.rst:25
+msgid ""
+"This is narrowed down by requiring the open price to be higher than the "
+"20-day moving average of the closing price."
+msgstr "本例的实现为“缩小版“ \"gapped down\" ，即选择开盘价高于最近20天的收盘价移动平均线的股票。"
+
+#: ../../eventprofiler.rst:30
+msgid "The code is doing 4 things:"
+msgstr "代码做了四件事："
+
+#: ../../eventprofiler.rst:32
+msgid ""
+"Declaring a :class:`Predicate` that implements the 'Buy-on-Gap Model' "
+"event identification."
+msgstr "声明了 :class:`Predicate` 的对象实现选择跳空股票模型（Buy-on-Gap Model）的事件标识。"
+
+#: ../../eventprofiler.rst:33
+msgid "Loading bars for some stocks."
+msgstr "加载股票的 bar 数据。"
+
+#: ../../eventprofiler.rst:34
+msgid "Running the analysis."
+msgstr "运行分析。"
+
+#: ../../eventprofiler.rst:35
+msgid "Plotting the results."
+msgstr "绘制分析结果图。"
+
+#: ../../eventprofiler.rst:37
+msgid "This is what the output should look like:"
+msgstr "输出如下："
+
+#: ../../eventprofiler.rst:43
+msgid "Note that **Cummulative returns are normalized to the time of the event**."
+msgstr "**累计收益已经归一化到事件发生的时间**。"
+

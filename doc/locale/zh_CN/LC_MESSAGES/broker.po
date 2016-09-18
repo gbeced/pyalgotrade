@@ -1,0 +1,800 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../broker.rst:2
+msgid "broker -- Order management classes"
+msgstr ""
+
+#: ../../broker.rst:5
+msgid "Base module and classes"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:1 pyalgotrade.broker.OrderExecutionInfo:1
+#: pyalgotrade.broker.backtesting.Commission:1
+#: pyalgotrade.broker.fillstrategy.FillStrategy:1
+#: pyalgotrade.broker.slippage.SlippageModel:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:1
+msgid "Base class for orders."
+msgstr ""
+
+#: of pyalgotrade.broker.Order:3
+msgid "The order type"
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createLimitOrder:6
+#: pyalgotrade.broker.Broker.createMarketOrder:6
+#: pyalgotrade.broker.Broker.createStopLimitOrder:6
+#: pyalgotrade.broker.Broker.createStopOrder:10 pyalgotrade.broker.Order:5
+msgid "The order action."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createLimitOrder:8
+#: pyalgotrade.broker.Broker.createMarketOrder:8
+#: pyalgotrade.broker.Broker.createStopLimitOrder:8
+#: pyalgotrade.broker.Broker.createStopOrder:12 pyalgotrade.broker.Order:7
+msgid "Instrument identifier."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createLimitOrder:12
+#: pyalgotrade.broker.Broker.createMarketOrder:10
+#: pyalgotrade.broker.Broker.createStopLimitOrder:14
+#: pyalgotrade.broker.Broker.createStopOrder:16 pyalgotrade.broker.Order:9
+msgid "Order quantity."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker:5 pyalgotrade.broker.LimitOrder:5
+#: pyalgotrade.broker.MarketOrder:5 pyalgotrade.broker.Order:13
+#: pyalgotrade.broker.StopLimitOrder:5 pyalgotrade.broker.StopOrder:5
+#: pyalgotrade.broker.backtesting.Commission:4
+#: pyalgotrade.broker.slippage.SlippageModel:4
+msgid "This is a base class and should not be used directly."
+msgstr ""
+
+#: of pyalgotrade.broker.Order:15
+msgid "Valid **type** parameter values are:"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:17 pyalgotrade.broker.Order.getType:3
+msgid "Order.Type.MARKET"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:18 pyalgotrade.broker.Order.getType:4
+msgid "Order.Type.LIMIT"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:19 pyalgotrade.broker.Order.getType:5
+msgid "Order.Type.STOP"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:20 pyalgotrade.broker.Order.getType:6
+msgid "Order.Type.STOP_LIMIT"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:22
+msgid "Valid **action** parameter values are:"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:24 pyalgotrade.broker.Order.getAction:3
+msgid "Order.Action.BUY"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:25 pyalgotrade.broker.Order.getAction:4
+msgid "Order.Action.BUY_TO_COVER"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:26 pyalgotrade.broker.Order.getAction:5
+msgid "Order.Action.SELL"
+msgstr ""
+
+#: of pyalgotrade.broker.Order:27 pyalgotrade.broker.Order.getAction:6
+msgid "Order.Action.SELL_SHORT"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getId:1
+msgid "Returns the order id."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getId:5
+msgid "This will be None if the order was not submitted."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getType:1
+msgid "Returns the order type. Valid order types are:"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getSubmitDateTime:1
+msgid "Returns the datetime when the order was submitted."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getAction:1
+msgid "Returns the order action. Valid order actions are:"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:1
+msgid "Returns the order state. Valid order states are:"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:3
+msgid "Order.State.INITIAL (the initial state)."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:4
+msgid "Order.State.SUBMITTED"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:5
+msgid "Order.State.ACCEPTED"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:6
+msgid "Order.State.CANCELED"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:7
+msgid "Order.State.PARTIALLY_FILLED"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getState:8
+msgid "Order.State.FILLED"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isActive:1
+msgid "Returns True if the order is active."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isInitial:1
+msgid "Returns True if the order state is Order.State.INITIAL."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isSubmitted:1
+msgid "Returns True if the order state is Order.State.SUBMITTED."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isAccepted:1
+msgid "Returns True if the order state is Order.State.ACCEPTED."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isCanceled:1
+msgid "Returns True if the order state is Order.State.CANCELED."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isPartiallyFilled:1
+msgid "Returns True if the order state is Order.State.PARTIALLY_FILLED."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.isFilled:1
+msgid "Returns True if the order state is Order.State.FILLED."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getInstrument:1
+msgid "Returns the instrument identifier."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getQuantity:1
+#: pyalgotrade.broker.OrderExecutionInfo.getQuantity:1
+msgid "Returns the quantity."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getFilled:1
+msgid "Returns the number of shares that have been executed."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getRemaining:1
+msgid "Returns the number of shares still outstanding."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getAvgFillPrice:1
+msgid ""
+"Returns the average price of the shares that have been executed, or None "
+"if nothing has been filled."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getGoodTillCanceled:1
+msgid "Returns True if the order is good till canceled."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.setGoodTillCanceled:1
+msgid ""
+"Sets if the order should be good till canceled. Orders that are not "
+"filled by the time the session closes will be will be automatically "
+"canceled if they were not set as good till canceled"
+msgstr ""
+
+#: of pyalgotrade.broker.Order.setGoodTillCanceled:5
+msgid "True if the order should be good till canceled."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.setAllOrNone:6
+#: pyalgotrade.broker.Order.setGoodTillCanceled:8
+msgid "This can't be changed once the order is submitted."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getAllOrNone:1
+msgid "Returns True if the order should be completely filled or else canceled."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.setAllOrNone:1
+msgid "Sets the All-Or-None property for this order."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.setAllOrNone:3
+msgid "True if the order should be completely filled."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getExecutionInfo:1
+msgid ""
+"Returns the last execution information for this order, or None if nothing"
+" has been filled so far. This will be different every time an order, or "
+"part of it, gets filled."
+msgstr ""
+
+#: of pyalgotrade.broker.Order.getExecutionInfo:4
+msgid ":class:`OrderExecutionInfo`."
+msgstr ""
+
+#: of pyalgotrade.broker.LimitOrder:1 pyalgotrade.broker.MarketOrder:1
+#: pyalgotrade.broker.StopLimitOrder:1 pyalgotrade.broker.StopOrder:1
+msgid "基类：:class:`pyalgotrade.broker.Order`"
+msgstr ""
+
+#: of pyalgotrade.broker.MarketOrder:1
+msgid "Base class for market orders."
+msgstr ""
+
+#: of pyalgotrade.broker.MarketOrder.getFillOnClose:1
+msgid ""
+"Returns True if the order should be filled as close to the closing price "
+"as possible (Market-On-Close order)."
+msgstr ""
+
+#: of pyalgotrade.broker.LimitOrder:1
+msgid "Base class for limit orders."
+msgstr ""
+
+#: of pyalgotrade.broker.LimitOrder.getLimitPrice:1
+#: pyalgotrade.broker.StopLimitOrder.getLimitPrice:1
+msgid "Returns the limit price."
+msgstr ""
+
+#: of pyalgotrade.broker.StopOrder:1
+msgid "Base class for stop orders."
+msgstr ""
+
+#: of pyalgotrade.broker.StopLimitOrder.getStopPrice:1
+#: pyalgotrade.broker.StopOrder.getStopPrice:1
+msgid "Returns the stop price."
+msgstr ""
+
+#: of pyalgotrade.broker.StopLimitOrder:1
+msgid "Base class for stop limit orders."
+msgstr ""
+
+#: of pyalgotrade.broker.OrderExecutionInfo:1
+msgid "Execution information for an order."
+msgstr ""
+
+#: of pyalgotrade.broker.OrderExecutionInfo.getPrice:1
+msgid "Returns the fill price."
+msgstr ""
+
+#: of pyalgotrade.broker.OrderExecutionInfo.getCommission:1
+msgid "Returns the commission applied."
+msgstr ""
+
+#: of pyalgotrade.broker.OrderExecutionInfo.getDateTime:1
+msgid "Returns the :class:`datatime.datetime` when the order was executed."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker:1
+msgid "基类：:class:`pyalgotrade.observer.Subject`"
+msgstr ""
+
+#: of pyalgotrade.broker.Broker:1
+msgid "Base class for brokers."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.getCash:1
+msgid "Returns the available cash."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.getCash:3
+msgid "Include cash from short positions."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.getShares:1
+msgid "Returns the number of shares for an instrument."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.getPositions:1
+msgid "Returns a dictionary that maps instruments to shares."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.getActiveOrders:1
+msgid "Returns a sequence with the orders that are still active."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.getActiveOrders:3
+msgid ""
+"An optional instrument identifier to return only the active orders for "
+"the given instrument."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.submitOrder:1
+msgid "Submits an order."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.submitOrder:3
+msgid "The order to submit."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.submitOrder:7
+msgid ""
+"After this call the order is in SUBMITTED state and an event is not "
+"triggered for this transition."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.submitOrder:8
+msgid "Calling this twice on the same order will raise an exception."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createMarketOrder:1
+msgid ""
+"Creates a Market order. A market order is an order to buy or sell a stock"
+" at the best available price. Generally, this type of order will be "
+"executed immediately. However, the price at which a market order will be "
+"executed is not guaranteed."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createMarketOrder:12
+msgid ""
+"True if the order should be filled as close to the closing price as "
+"possible (Market-On-Close order). Default is False."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createMarketOrder:14
+msgid "A :class:`MarketOrder` subclass."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createLimitOrder:1
+msgid ""
+"Creates a Limit order. A limit order is an order to buy or sell a stock "
+"at a specific price or better. A buy limit order can only be executed at "
+"the limit price or lower, and a sell limit order can only be executed at "
+"the limit price or higher."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createLimitOrder:10
+msgid "The order price."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createLimitOrder:14
+msgid "A :class:`LimitOrder` subclass."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createStopOrder:1
+msgid ""
+"Creates a Stop order. A stop order, also referred to as a stop-loss "
+"order, is an order to buy or sell a stock once the price of the stock "
+"reaches a specified price, known as the stop price. When the stop price "
+"is reached, a stop order becomes a market order. A buy stop order is "
+"entered at a stop price above the current market price. Investors "
+"generally use a buy stop order to limit a loss or to protect a profit on "
+"a stock that they have sold short. A sell stop order is entered at a stop"
+" price below the current market price. Investors generally use a sell "
+"stop order to limit a loss or to protect a profit on a stock that they "
+"own."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createStopLimitOrder:10
+#: pyalgotrade.broker.Broker.createStopOrder:14
+msgid "The trigger price."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createStopOrder:18
+msgid "A :class:`StopOrder` subclass."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createStopLimitOrder:1
+msgid ""
+"Creates a Stop-Limit order. A stop-limit order is an order to buy or sell"
+" a stock that combines the features of a stop order and a limit order. "
+"Once the stop price is reached, a stop-limit order becomes a limit order "
+"that will be executed at a specified price (or better). The benefit of a "
+"stop-limit order is that the investor can control the price at which the "
+"order can be executed."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createStopLimitOrder:12
+msgid "The price for the limit order."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.createStopLimitOrder:16
+msgid "A :class:`StopLimitOrder` subclass."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.cancelOrder:1
+msgid ""
+"Requests an order to be canceled. If the order is filled an Exception is "
+"raised."
+msgstr ""
+
+#: of pyalgotrade.broker.Broker.cancelOrder:3
+msgid "The order to cancel."
+msgstr ""
+
+#: ../../broker.rst:13
+msgid "Backtesting module and classes"
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Commission:1
+msgid "Base class for implementing different commission schemes."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Commission.calculate:1
+msgid "Calculates the commission for an order execution."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Commission.calculate:3
+msgid "The order being executed."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Commission.calculate:5
+msgid "The price for each share."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Commission.calculate:7
+msgid "The order size."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.FixedPerTrade:1
+#: pyalgotrade.broker.backtesting.NoCommission:1
+#: pyalgotrade.broker.backtesting.TradePercentage:1
+msgid "基类：:class:`pyalgotrade.broker.backtesting.Commission`"
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.NoCommission:1
+msgid "A :class:`Commission` class that always returns 0."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.FixedPerTrade:1
+msgid ""
+"A :class:`Commission` class that charges a fixed amount for the whole "
+"trade."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.FixedPerTrade:3
+msgid "The commission for an order."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.TradePercentage:1
+msgid "A :class:`Commission` class that charges a percentage of the whole trade."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.TradePercentage:3
+msgid ""
+"The percentage to charge. 0.01 means 1%, and so on. It must be smaller "
+"than 1."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker:1
+msgid "基类：:class:`pyalgotrade.broker.Broker`"
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker:1
+msgid "Backtesting broker."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker:3
+msgid "The initial amount of cash."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker:5
+msgid "The bar feed that will provide the bars."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker:7
+#: pyalgotrade.broker.backtesting.Broker.setCommission:3
+msgid "An object responsible for calculating order commissions."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker.getCommission:1
+msgid "Returns the strategy used to calculate order commissions."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker.getCommission:3
+msgid ":class:`Commission`."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker.getEquity:1
+msgid "Returns the portfolio value (cash + shares)."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker.getFillStrategy:1
+msgid ""
+"Returns the :class:`pyalgotrade.broker.fillstrategy.FillStrategy` "
+"currently set."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker.setCommission:1
+msgid "Sets the strategy to use to calculate order commissions."
+msgstr ""
+
+#: of pyalgotrade.broker.backtesting.Broker.setFillStrategy:1
+msgid "Sets the :class:`pyalgotrade.broker.fillstrategy.FillStrategy` to use."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.SlippageModel:1
+msgid "Base class for slippage models."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.SlippageModel.calculatePrice:1
+msgid "Returns the slipped price per share for an order."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.SlippageModel.calculatePrice:3
+msgid "The order being filled."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.SlippageModel.calculatePrice:5
+msgid "The price for each share before slippage."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.SlippageModel.calculatePrice:7
+msgid "The amount of shares that will get filled at this time for this order."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillLimitOrder:8
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillMarketOrder:8
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopLimitOrder:8
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopOrder:8
+#: pyalgotrade.broker.slippage.SlippageModel.calculatePrice:9
+msgid "The current bar."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.SlippageModel.calculatePrice:11
+msgid "The volume size that was taken so far from the current bar."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.NoSlippage:1
+#: pyalgotrade.broker.slippage.VolumeShareSlippage:1
+msgid "基类：:class:`pyalgotrade.broker.slippage.SlippageModel`"
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.NoSlippage:1
+msgid "A no slippage model."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.VolumeShareSlippage:1
+msgid ""
+"A volume share slippage model as defined in Zipline's VolumeShareSlippage"
+" model. The slippage is calculated by multiplying the price impact "
+"constant by the square of the ratio of the order to the total volume."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.VolumeShareSlippage:5
+msgid "Check https://www.quantopian.com/help#ide-slippage for more details."
+msgstr ""
+
+#: of pyalgotrade.broker.slippage.VolumeShareSlippage:7
+msgid ""
+"Defines how large of an impact your order will have on the backtester's "
+"price calculation."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy:1
+msgid "Base class for order filling strategies for the backtester."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillLimitOrder:1
+msgid ""
+"Override to return the fill price and quantity for a limit order or None "
+"if the order can't be filled at the given time."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillLimitOrder:4
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillMarketOrder:4
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopLimitOrder:4
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopOrder:4
+#: pyalgotrade.broker.fillstrategy.FillStrategy.onBars:3
+#: pyalgotrade.broker.fillstrategy.FillStrategy.onOrderFilled:3
+msgid "The broker."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillLimitOrder:6
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillMarketOrder:6
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopLimitOrder:6
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopOrder:6
+msgid "The order."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillLimitOrder:10
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillMarketOrder:10
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopLimitOrder:10
+#: pyalgotrade.broker.fillstrategy.FillStrategy.fillStopOrder:10
+msgid "A :class:`FillInfo` or None if the order should not be filled."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillMarketOrder:1
+msgid ""
+"Override to return the fill price and quantity for a market order or None"
+" if the order can't be filled at the given time."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillStopLimitOrder:1
+msgid ""
+"Override to return the fill price and quantity for a stop limit order or "
+"None if the order can't be filled at the given time."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.fillStopOrder:1
+msgid ""
+"Override to return the fill price and quantity for a stop order or None "
+"if the order can't be filled at the given time."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.onBars:1
+msgid ""
+"Override (optional) to get notified when the broker is about to process "
+"new bars."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.onBars:5
+msgid "The current bars."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.onOrderFilled:1
+msgid ""
+"Override (optional) to get notified when an order was filled, or "
+"partially filled."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.FillStrategy.onOrderFilled:5
+msgid "The order filled."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:1
+msgid "基类：:class:`pyalgotrade.broker.fillstrategy.FillStrategy`"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:1
+msgid "Default fill strategy."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:3
+#: pyalgotrade.broker.fillstrategy.DefaultStrategy.setVolumeLimit:3
+msgid ""
+"The proportion of the volume that orders can take up in a bar. Must be > "
+"0 and <= 1. If None, then volume limit is not checked."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:7
+msgid "This strategy works as follows:"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:9
+msgid ""
+"A :class:`pyalgotrade.broker.MarketOrder` is always filled using the "
+"open/close price."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:13
+msgid "A :class:`pyalgotrade.broker.LimitOrder` will be filled like this:"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:11
+msgid ""
+"If the limit price was penetrated with the open price, then the open "
+"price is used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:12
+msgid "If the bar includes the limit price, then the limit price is used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:13
+msgid ""
+"Note that when buying the price is penetrated if it gets <= the limit "
+"price, and when selling the price is penetrated if it gets >= the limit "
+"price"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:18
+msgid "A :class:`pyalgotrade.broker.StopOrder` will be filled like this:"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:16
+msgid ""
+"If the stop price was penetrated with the open price, then the open price"
+" is used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:17
+msgid "If the bar includes the stop price, then the stop price is used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:18
+msgid ""
+"Note that when buying the price is penetrated if it gets >= the stop "
+"price, and when selling the price is penetrated if it gets <= the stop "
+"price"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:27
+msgid "A :class:`pyalgotrade.broker.StopLimitOrder` will be filled like this:"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:21
+msgid ""
+"If the stop price was penetrated with the open price, or if the bar "
+"includes the stop price, then the limit order becomes active."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:27
+msgid "If the limit order is active:"
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:24
+msgid ""
+"If the limit order was activated in this same bar and the limit price is "
+"penetrated as well, then the best between the stop price and the limit "
+"fill price (as described earlier) is used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:26
+msgid ""
+"If the limit order was activated at a previous bar then the limit fill "
+"price (as described earlier) is used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:30
+msgid "This is the default strategy used by the Broker."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:31
+msgid ""
+"It uses :class:`pyalgotrade.broker.slippage.NoSlippage` slippage model by"
+" default."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:32
+msgid ""
+"If volumeLimit is 0.25, and a certain bar's volume is 100, then no more "
+"than 25 shares can be used by all orders that get processed at that bar."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy:34
+msgid "If using trade bars, then all the volume from that bar can be used."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy.setSlippageModel:1
+msgid "Set the slippage model to use."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy.setSlippageModel:3
+msgid "The slippage model."
+msgstr ""
+
+#: of pyalgotrade.broker.fillstrategy.DefaultStrategy.setVolumeLimit:1
+msgid "Set the volume limit."
+msgstr ""
+

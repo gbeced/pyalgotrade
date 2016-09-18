@@ -1,0 +1,506 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../technical.rst:2
+msgid "technical -- Technical indicators"
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow:1
+#: pyalgotrade.technical.bollinger.BollingerBands:1
+#: pyalgotrade.technical.linebreak.Line:1
+msgid "基类：:class:`object`"
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow:1
+msgid ""
+"An EventWindow class is responsible for making calculation over a moving "
+"window of values."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow:3
+msgid "The size of the window. Must be greater than 0."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow:5
+msgid "The desired data-type for the array."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow:7
+msgid "True if None values should not be included in the window."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow:11
+msgid "This is a base class and should not be used directly."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow.getValue:1
+msgid "Override to calculate a value using the values in the window."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow.getValues:1
+msgid "Returns a numpy.array with the values in the window."
+msgstr ""
+
+#: of pyalgotrade.technical.EventWindow.getWindowSize:1
+msgid "Returns the window size."
+msgstr ""
+
+#: of pyalgotrade.technical.EventBasedFilter:1
+#: pyalgotrade.technical.linebreak.LineBreak:1
+#: pyalgotrade.technical.macd.MACD:1
+msgid "基类：:class:`pyalgotrade.dataseries.SequenceDataSeries`"
+msgstr ""
+
+#: of pyalgotrade.technical.EventBasedFilter:1
+msgid ""
+"An EventBasedFilter class is responsible for capturing new values in a "
+":class:`pyalgotrade.dataseries.DataSeries` and using an "
+":class:`EventWindow` to calculate new values."
+msgstr ""
+
+#: of pyalgotrade.technical.EventBasedFilter:4
+#: pyalgotrade.technical.bollinger.BollingerBands:3
+#: pyalgotrade.technical.cumret.CumulativeReturn:3
+#: pyalgotrade.technical.highlow.High:3 pyalgotrade.technical.highlow.Low:3
+#: pyalgotrade.technical.hurst.HurstExponent:3
+#: pyalgotrade.technical.linebreak.LineBreak:5
+#: pyalgotrade.technical.linreg.LeastSquaresRegression:3
+#: pyalgotrade.technical.linreg.Slope:3 pyalgotrade.technical.ma.EMA:3
+#: pyalgotrade.technical.ma.SMA:3 pyalgotrade.technical.ma.WMA:3
+#: pyalgotrade.technical.macd.MACD:3 pyalgotrade.technical.roc.RateOfChange:3
+#: pyalgotrade.technical.rsi.RSI:3 pyalgotrade.technical.stats.StdDev:3
+#: pyalgotrade.technical.stats.ZScore:3 pyalgotrade.technical.vwap.VWAP:3
+msgid "The DataSeries instance being filtered."
+msgstr ""
+
+#: of pyalgotrade.technical.EventBasedFilter:6
+msgid "The EventWindow instance to use to calculate new values."
+msgstr ""
+
+#: of pyalgotrade.technical.EventBasedFilter:8 pyalgotrade.technical.atr.ATR:9
+#: pyalgotrade.technical.bollinger.BollingerBands:9
+#: pyalgotrade.technical.cumret.CumulativeReturn:5
+#: pyalgotrade.technical.highlow.High:7 pyalgotrade.technical.highlow.Low:7
+#: pyalgotrade.technical.hurst.HurstExponent:11
+#: pyalgotrade.technical.linreg.LeastSquaresRegression:7
+#: pyalgotrade.technical.linreg.Slope:7 pyalgotrade.technical.ma.EMA:7
+#: pyalgotrade.technical.ma.SMA:7 pyalgotrade.technical.ma.WMA:7
+#: pyalgotrade.technical.macd.MACD:11 pyalgotrade.technical.roc.RateOfChange:7
+#: pyalgotrade.technical.rsi.RSI:7 pyalgotrade.technical.stats.StdDev:9
+#: pyalgotrade.technical.stats.ZScore:9
+#: pyalgotrade.technical.stoch.StochasticOscillator:13
+#: pyalgotrade.technical.vwap.VWAP:9
+msgid ""
+"The maximum number of values to hold. Once a bounded length is full, when"
+" new items are added, a corresponding number of items are discarded from "
+"the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used."
+msgstr ""
+
+#: ../../technical.rst:9
+msgid "Example"
+msgstr ""
+
+#: ../../technical.rst:11
+msgid ""
+"The following example shows how to combine an :class:`EventWindow` and an"
+" :class:`EventBasedFilter` to build a custom filter:"
+msgstr ""
+
+#: ../../technical.rst:15
+msgid "The output should be:"
+msgstr ""
+
+#: ../../technical.rst:20
+msgid "Moving Averages"
+msgstr ""
+
+#: of pyalgotrade.technical.atr.ATR:1
+#: pyalgotrade.technical.cumret.CumulativeReturn:1
+#: pyalgotrade.technical.highlow.High:1 pyalgotrade.technical.highlow.Low:1
+#: pyalgotrade.technical.hurst.HurstExponent:1
+#: pyalgotrade.technical.linreg.LeastSquaresRegression:1
+#: pyalgotrade.technical.linreg.Slope:1 pyalgotrade.technical.ma.EMA:1
+#: pyalgotrade.technical.ma.SMA:1 pyalgotrade.technical.ma.WMA:1
+#: pyalgotrade.technical.roc.RateOfChange:1 pyalgotrade.technical.rsi.RSI:1
+#: pyalgotrade.technical.stats.StdDev:1 pyalgotrade.technical.stats.ZScore:1
+#: pyalgotrade.technical.stoch.StochasticOscillator:1
+#: pyalgotrade.technical.vwap.VWAP:1
+msgid "基类：:class:`pyalgotrade.technical.EventBasedFilter`"
+msgstr ""
+
+#: of pyalgotrade.technical.ma.SMA:1
+msgid "Simple Moving Average filter."
+msgstr ""
+
+#: of pyalgotrade.technical.ma.SMA:5
+msgid "The number of values to use to calculate the SMA."
+msgstr ""
+
+#: of pyalgotrade.technical.ma.EMA:1
+msgid "Exponential Moving Average filter."
+msgstr ""
+
+#: of pyalgotrade.technical.ma.EMA:5
+msgid ""
+"The number of values to use to calculate the EMA. Must be an integer "
+"greater than 1."
+msgstr ""
+
+#: of pyalgotrade.technical.ma.WMA:1
+msgid "Weighted Moving Average filter."
+msgstr ""
+
+#: of pyalgotrade.technical.ma.WMA:5
+msgid "A list of int/float with the weights."
+msgstr ""
+
+#: of pyalgotrade.technical.vwap.VWAP:1
+msgid "Volume Weighted Average Price filter."
+msgstr ""
+
+#: of pyalgotrade.technical.vwap.VWAP:5
+msgid "The number of values to use to calculate the VWAP."
+msgstr ""
+
+#: of pyalgotrade.technical.vwap.VWAP:7
+msgid "True if the typical price should be used instead of the closing price."
+msgstr ""
+
+#: ../../technical.rst:31
+msgid "Momentum Indicators"
+msgstr ""
+
+#: of pyalgotrade.technical.macd.MACD:1
+msgid ""
+"Moving Average Convergence-Divergence indicator as described in "
+"http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_convergence_divergence_macd."
+msgstr ""
+
+#: of pyalgotrade.technical.macd.MACD:5
+msgid "The number of values to use to calculate the fast EMA."
+msgstr ""
+
+#: of pyalgotrade.technical.macd.MACD:7
+msgid "The number of values to use to calculate the slow EMA."
+msgstr ""
+
+#: of pyalgotrade.technical.macd.MACD:9
+msgid "The number of values to use to calculate the signal EMA."
+msgstr ""
+
+#: of pyalgotrade.technical.macd.MACD.getHistogram:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the histogram "
+"(the difference between the MACD and the Signal)."
+msgstr ""
+
+#: of pyalgotrade.technical.macd.MACD.getSignal:1
+msgid ""
+"Returns a :class:`pyalgotrade.dataseries.DataSeries` with the EMA over "
+"the MACD."
+msgstr ""
+
+#: of pyalgotrade.technical.rsi.RSI:1
+msgid ""
+"Relative Strength Index filter as described in "
+"http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi."
+msgstr ""
+
+#: of pyalgotrade.technical.rsi.RSI:5
+msgid ""
+"The period. Note that if period is **n**, then **n+1** values are used. "
+"Must be > 1."
+msgstr ""
+
+#: of pyalgotrade.technical.stoch.StochasticOscillator:1
+msgid ""
+"Fast Stochastic Oscillator filter as described in "
+"http://stockcharts.com/school/doku.php?st=stochastic+oscillator&id=chart_school:technical_indicators:stochastic_oscillator_fast_slow_and_full."
+" Note that the value returned by this filter is %K. To access %D use "
+":meth:`getD`."
+msgstr ""
+
+#: of pyalgotrade.technical.atr.ATR:3
+#: pyalgotrade.technical.stoch.StochasticOscillator:5
+msgid "The BarDataSeries instance being filtered."
+msgstr ""
+
+#: of pyalgotrade.technical.stoch.StochasticOscillator:7
+msgid "The period. Must be > 1."
+msgstr ""
+
+#: of pyalgotrade.technical.stoch.StochasticOscillator:9
+msgid "The %D SMA period. Must be > 1."
+msgstr ""
+
+#: of pyalgotrade.technical.atr.ATR:7
+#: pyalgotrade.technical.stoch.StochasticOscillator:11
+msgid "True to use adjusted Low/High/Close values."
+msgstr ""
+
+#: of pyalgotrade.technical.stoch.StochasticOscillator.getD:1
+msgid "Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."
+msgstr ""
+
+#: of pyalgotrade.technical.roc.RateOfChange:1
+msgid ""
+"Rate of change filter as described in "
+"http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change_roc_and_momentum."
+msgstr ""
+
+#: of pyalgotrade.technical.roc.RateOfChange:5
+msgid "The number of values back that a given value will compare to. Must be > 0."
+msgstr ""
+
+#: ../../technical.rst:50
+msgid "Other Indicators"
+msgstr ""
+
+#: of pyalgotrade.technical.atr.ATR:1
+msgid ""
+"Average True Range filter as described in "
+"http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr"
+msgstr ""
+
+#: of pyalgotrade.technical.atr.ATR:5
+msgid "The average period. Must be > 1."
+msgstr ""
+
+#: of pyalgotrade.technical.bollinger.BollingerBands:1
+msgid ""
+"Bollinger Bands filter as described in "
+"http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands."
+msgstr ""
+
+#: of pyalgotrade.technical.bollinger.BollingerBands:5
+msgid "The number of values to use in the calculation. Must be > 1."
+msgstr ""
+
+#: of pyalgotrade.technical.bollinger.BollingerBands:7
+msgid "The number of standard deviations to use for the upper and lower bands."
+msgstr ""
+
+#: of pyalgotrade.technical.bollinger.BollingerBands.getLowerBand:1
+msgid "Returns the lower band as a :class:`pyalgotrade.dataseries.DataSeries`."
+msgstr ""
+
+#: of pyalgotrade.technical.bollinger.BollingerBands.getMiddleBand:1
+msgid "Returns the middle band as a :class:`pyalgotrade.dataseries.DataSeries`."
+msgstr ""
+
+#: of pyalgotrade.technical.bollinger.BollingerBands.getUpperBand:1
+msgid "Returns the upper band as a :class:`pyalgotrade.dataseries.DataSeries`."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:1
+msgid ""
+"Checks for a cross above conditions over the specified period between two"
+" DataSeries objects."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:3
+msgid ""
+"It returns the number of times values1 crossed above values2 during the "
+"given period."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:5
+#: pyalgotrade.technical.cross.cross_below:5
+msgid "The DataSeries that crosses."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:7
+#: pyalgotrade.technical.cross.cross_below:7
+msgid "The DataSeries being crossed."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:9
+#: pyalgotrade.technical.cross.cross_below:9
+msgid "The start of the range."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:11
+#: pyalgotrade.technical.cross.cross_below:11
+msgid "The end of the range."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_above:15
+msgid ""
+"The default start and end values check for cross above conditions over "
+"the last 2 values."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_below:1
+msgid ""
+"Checks for a cross below conditions over the specified period between two"
+" DataSeries objects."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_below:3
+msgid ""
+"It returns the number of times values1 crossed below values2 during the "
+"given period."
+msgstr ""
+
+#: of pyalgotrade.technical.cross.cross_below:15
+msgid ""
+"The default start and end values check for cross below conditions over "
+"the last 2 values."
+msgstr ""
+
+#: of pyalgotrade.technical.cumret.CumulativeReturn:1
+msgid "This filter calculates cumulative returns over another dataseries."
+msgstr ""
+
+#: of pyalgotrade.technical.highlow.High:1
+msgid "This filter calculates the highest value."
+msgstr ""
+
+#: of pyalgotrade.technical.highlow.High:5
+msgid "The number of values to use to calculate the highest value."
+msgstr ""
+
+#: of pyalgotrade.technical.highlow.Low:1
+msgid "This filter calculates the lowest value."
+msgstr ""
+
+#: of pyalgotrade.technical.highlow.Low:5
+msgid "The number of values to use to calculate the lowest value."
+msgstr ""
+
+#: of pyalgotrade.technical.hurst.HurstExponent:1
+msgid "Hurst exponent filter."
+msgstr ""
+
+#: of pyalgotrade.technical.hurst.HurstExponent:5
+msgid "The number of values to use to calculate the hurst exponent."
+msgstr ""
+
+#: of pyalgotrade.technical.hurst.HurstExponent:7
+msgid "The minimum number of lags to use. Must be >= 2."
+msgstr ""
+
+#: of pyalgotrade.technical.hurst.HurstExponent:9
+msgid "The maximum number of lags to use. Must be > minLags."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.Line:1
+msgid "A line in a line break chart."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.Line.getDateTime:1
+msgid "The datetime."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.Line.getHigh:1
+msgid "The high value."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.Line.getLow:1
+msgid "The low value."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.Line.isBlack:1
+msgid "True if the line is black (falling prices)."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.Line.isWhite:1
+msgid "True if the line is white (rising prices)."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.LineBreak:1
+msgid ""
+"Line Break filter as described in "
+"http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:three_line_break."
+" . This is a DataSeries of :class:`Line` instances."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.LineBreak:7
+msgid ""
+"The number of lines back to check to calculate a reversal. Must be "
+"greater than 1."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.LineBreak:9
+msgid "True to use adjusted high/low/close values."
+msgstr ""
+
+#: of pyalgotrade.technical.linebreak.LineBreak:11
+msgid ""
+"The maximum number of values to hold. Once a bounded length is full, when"
+" new items are added, a corresponding number of items are discarded from "
+"the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used. This "
+"value can't be smaller than reversalLines."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.LeastSquaresRegression:1
+msgid "Calculates values based on a least-squares regression."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.LeastSquaresRegression:5
+msgid "The number of values to use to calculate the regression."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.LeastSquaresRegression.getValueAt:1
+msgid "Calculates the value at a given time based on the regression line."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.LeastSquaresRegression.getValueAt:3
+msgid ""
+"The datetime to calculate the value at. Will return None if there are not"
+" enough values in the underlying DataSeries."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.Slope:1
+msgid "The Slope filter calculates the slope of a least-squares regression line."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.Slope:5
+msgid "The number of values to use to calculate the slope."
+msgstr ""
+
+#: of pyalgotrade.technical.linreg.Slope:13
+msgid "This filter ignores the time elapsed between the different values."
+msgstr ""
+
+#: of pyalgotrade.technical.stats.StdDev:1
+msgid "Standard deviation filter."
+msgstr ""
+
+#: of pyalgotrade.technical.stats.StdDev:5
+msgid "The number of values to use to calculate the Standard deviation."
+msgstr ""
+
+#: of pyalgotrade.technical.stats.StdDev:7
+msgid "Delta degrees of freedom."
+msgstr ""
+
+#: of pyalgotrade.technical.stats.ZScore:1
+msgid "Z-Score filter."
+msgstr ""
+
+#: of pyalgotrade.technical.stats.ZScore:5
+msgid "The number of values to use to calculate the Z-Score."
+msgstr ""
+
+#: of pyalgotrade.technical.stats.ZScore:7
+msgid "Delta degrees of freedom to use for the standard deviation."
+msgstr ""
+

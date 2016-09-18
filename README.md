@@ -16,6 +16,8 @@ and **live trading** is now possible using:
 
 To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.18/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.18/html/index.html).
 
+Online Chinese document&tutorial translation can be found at [PyAlgoTrade-Docs-zh_CN](http://pyalgotrade-docs-zh-cn.readthedocs.io/zh_CN/latest/).
+
 Main Features
 -------------
 
