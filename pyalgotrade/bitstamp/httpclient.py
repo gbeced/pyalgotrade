@@ -40,6 +40,18 @@ def parse_datetime(dateTime):
     return dt.as_utc(ret)
 
 
+class NonceGenerator(object):
+    def __init__(self):
+        self.__prev = None
+
+    def getNext(self):
+        ret = int(time.time())
+        if self.__prev is not None and ret <= self.__prev:
+            ret = self.__prev + 1
+        self.__prev = ret
+        return ret
+
+
 class AccountBalance(object):
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
@@ -120,19 +132,12 @@ class HTTPClient(object):
         self.__clientId = clientId
         self.__key = key
         self.__secret = secret
-        self.__prevNonce = None
+        self.__nonce = NonceGenerator()
         self.__lock = threading.Lock()
-
-    def _getNonce(self):
-        ret = int(time.time())
-        if ret == self.__prevNonce:
-            ret += 1
-        self.__prevNonce = ret
-        return ret
 
     def _buildQuery(self, params):
         # Build the signature.
-        nonce = self._getNonce()
+        nonce = self.__nonce.getNext()
         message = "%d%s%s" % (nonce, self.__clientId, self.__key)
         signature = hmac.new(self.__secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
 

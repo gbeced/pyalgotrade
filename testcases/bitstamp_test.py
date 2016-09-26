@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import unittest
 import datetime
 import time
 import threading
@@ -184,6 +185,16 @@ class TestingLiveBroker(broker.LiveBroker):
 
     def getHTTPClient(self):
         return self.__httpClient
+
+
+class NonceTest(unittest.TestCase):
+    def testNonceGenerator(self):
+        gen = httpclient.NonceGenerator()
+        prevNonce = 0
+        for i in range(1000):
+            nonce = gen.getNext()
+            self.assertGreater(nonce, prevNonce)
+            prevNonce = nonce
 
 
 class TestStrategy(test_strategy.BaseTestStrategy):
