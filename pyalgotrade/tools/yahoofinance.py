@@ -99,7 +99,9 @@ def build_feed(instruments, fromYear, toYear, storage, frequency=bar.Frequency.D
 
     logger = pyalgotrade.logger.getLogger("yahoofinance")
     ret = yahoofeed.Feed(frequency, timezone)
-
+    
+    if isinstance(instruments, basestring): instruments = [instruments]    
+    
     if not os.path.exists(storage):
         logger.info("Creating %s directory" % (storage))
         os.mkdir(storage)
