@@ -19,6 +19,7 @@
 """
 
 import abc
+from datetime import datetime
 
 from pyalgotrade import observer
 from pyalgotrade import dispatchprio
@@ -96,6 +97,17 @@ class Order(object):
         SELL = 3
         SELL_SHORT = 4
 
+        @classmethod
+        def toString(cls, action):
+            if action == cls.BUY:
+                return "BUY"
+            elif action == cls.BUY_TO_COVER:
+                return "BUY_TO_COVER"
+            elif action == cls.SELL:
+                return "SELL"
+            elif action == cls.SELL_SHORT:
+                return "SELL_SHORT"
+
     class State(object):
         INITIAL = 1  # Initial state.
         SUBMITTED = 2  # Order has been submitted.
@@ -127,6 +139,17 @@ class Order(object):
         STOP = 3
         STOP_LIMIT = 4
         NEXT_CUSTOM_TYPE = 1000
+
+        @classmethod
+        def toString(cls, type):
+            if type == cls.MARKET:
+                return "MARKET"
+            elif type == cls.LIMIT:
+                return "LIMIT"
+            elif type == cls.STOP:
+                return "STOP"
+            elif type == cls.STOP_LIMIT:
+                return "STOP_LIMIT"
 
     # Valid state transitions.
     VALID_TRANSITIONS = {
@@ -466,10 +489,22 @@ class OrderEvent(object):
         PARTIALLY_FILLED = 4  # Order has been partially filled.
         FILLED = 5  # Order has been completely filled.
 
-    def __init__(self, order, eventyType, eventInfo):
+        @classmethod
+        def toString(cls, type):
+            if type == ACCEPTED: 
+                return "ACCEPTED"
+            elif type == CANCELED:
+                return "CANCELLED"
+            elif type == PARTIALLY_FILLED: 
+                return "PARTIALLY_FILLED"
+            elif type == FILLED:
+                return "FILLED"
+
+    def __init__(self, order, eventyType, eventInfo, timestamp = datetime.now().time()):
         self.__order = order
         self.__eventType = eventyType
         self.__eventInfo = eventInfo
+        self.__timestamp = timestamp
 
     def getOrder(self):
         return self.__order
@@ -484,6 +519,9 @@ class OrderEvent(object):
     # FILLED: An OrderExecutionInfo instance.
     def getEventInfo(self):
         return self.__eventInfo
+
+    def getTimestamp(self):
+        return self.__timestamp
 
 
 ######################################################################
