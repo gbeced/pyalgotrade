@@ -290,6 +290,14 @@ class Broker(broker.Broker):
     def getShares(self, instrument):
         return self.__shares.get(instrument, 0)
 
+    def setShares(self, instrument, value):
+        """
+        This method should only works on asset init.
+        :param instrument: the security name.
+        :param value: how much you have of given instrument.
+        """
+        self.__shares[instrument] = value
+
     def getPositions(self):
         return self.__shares
 
