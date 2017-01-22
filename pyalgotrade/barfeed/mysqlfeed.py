@@ -22,9 +22,7 @@ from pyalgotrade.barfeed import dbfeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
 from pyalgotrade.utils import dt
-
 import pymysql
-import os
 
 
 def normalize_instrument(instrument):
@@ -34,9 +32,6 @@ def normalize_instrument(instrument):
 class Database(dbfeed.Database):
     def __init__(self, hostname, database, username, password, charset='utf8mb4'):
         self.__instrumentIds = {}
-
-        # If the file doesn't exist, we'll create it and initialize it.
-        initialize = False
         self.__connection = pymysql.connect(host=hostname,
                              user=username,
                              password=password,
@@ -89,7 +84,8 @@ class Database(dbfeed.Database):
         timeStamp = dt.datetime_to_timestamp(bar.getDateTime())
 
         try:
-            sql = "insert into bar (symbol_id, frequency, timestamp, open, high, low, close, volume, adjusted_close) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "insert into bar (symbol_id, frequency, timestamp, open, high, low, close, volume, adjusted_close)" \
+                    "values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
             params = [instrumentId, frequency, timeStamp, bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), bar.getAdjClose()]
             self.__connection.execute(sql, params)
         except pymysql.IntegrityError:
@@ -136,7 +132,7 @@ class Feed(membf.BarFeed):
     def __init__(self, frequency, maxLen=None):
         super(Feed, self).__init__(frequency, maxLen)
 
-        self.__db = Database("localhost","stocks", "root", "password")
+        self.__db = Database("localhost","richard_stocks", "root", "abcd1234")
 
     def barsHaveAdjClose(self):
         return True
