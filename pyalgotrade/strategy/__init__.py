@@ -100,6 +100,10 @@ class BaseStrategy(object):
     def getUseAdjustedValues(self):
         return False
 
+    #This function is added here to overcome base strategy class lack of such a function 
+    def registerPosition(self, position):
+            self.__activePositions.add(position)        
+
     def registerPositionOrder(self, position, order):
         self.__activePositions.add(position)
         assert(order.isActive())  # Why register an inactive order ?
@@ -492,7 +496,7 @@ class BaseStrategy(object):
             # Unlink the order from the position if its not active anymore.
             if not order.isActive():
                 self.unregisterPositionOrder(pos, order)
-
+                
             pos.onOrderEvent(orderEvent)
 
     def __onBars(self, dateTime, bars):
