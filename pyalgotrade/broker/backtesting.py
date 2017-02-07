@@ -22,7 +22,6 @@ import abc
 
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy
-from pyalgotrade import warninghelpers
 from pyalgotrade import logger
 import pyalgotrade.bar
 
@@ -68,6 +67,7 @@ class FixedPerTrade(Commission):
     :type amount: float.
     """
     def __init__(self, amount):
+        super(FixedPerTrade, self).__init__()
         self.__amount = amount
 
     def calculate(self, order, price, quantity):
@@ -85,6 +85,7 @@ class TradePercentage(Commission):
     :type percentage: float.
     """
     def __init__(self, percentage):
+        super(TradePercentage, self).__init__()
         assert(percentage < 1)
         self.__percentage = percentage
 
@@ -96,7 +97,7 @@ class TradePercentage(Commission):
 # Orders
 
 class BacktestingOrder(object):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.__accepted = None
 
     def setAcceptedDateTime(self, dateTime):
@@ -113,8 +114,7 @@ class BacktestingOrder(object):
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
     def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
-        broker.MarketOrder.__init__(self, action, instrument, quantity, onClose, instrumentTraits)
-        BacktestingOrder.__init__(self)
+        super(MarketOrder, self).__init__(action, instrument, quantity, onClose, instrumentTraits)
 
     def process(self, broker_, bar_):
         return broker_.getFillStrategy().fillMarketOrder(broker_, self, bar_)
@@ -122,8 +122,7 @@ class MarketOrder(broker.MarketOrder, BacktestingOrder):
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
     def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
-        broker.LimitOrder.__init__(self, action, instrument, limitPrice, quantity, instrumentTraits)
-        BacktestingOrder.__init__(self)
+        super(LimitOrder, self).__init__(action, instrument, limitPrice, quantity, instrumentTraits)
 
     def process(self, broker_, bar_):
         return broker_.getFillStrategy().fillLimitOrder(broker_, self, bar_)
@@ -131,8 +130,7 @@ class LimitOrder(broker.LimitOrder, BacktestingOrder):
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
     def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
-        broker.StopOrder.__init__(self, action, instrument, stopPrice, quantity, instrumentTraits)
-        BacktestingOrder.__init__(self)
+        super(StopOrder, self).__init__(action, instrument, stopPrice, quantity, instrumentTraits)
         self.__stopHit = False
 
     def process(self, broker_, bar_):
@@ -149,8 +147,7 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
     def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
-        broker.StopLimitOrder.__init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits)
-        BacktestingOrder.__init__(self)
+        super(StopLimitOrder, self).__init__(action, instrument, stopPrice, limitPrice, quantity, instrumentTraits)
         self.__stopHit = False  # Set to true when the limit order is activated (stop price is hit)
 
     def setStopHit(self, stopHit):
@@ -184,7 +181,7 @@ class Broker(broker.Broker):
     LOGGER_NAME = "broker.backtesting"
 
     def __init__(self, cash, barFeed, commission=None):
-        broker.Broker.__init__(self)
+        super(Broker, self).__init__()
 
         assert(cash >= 0)
         self.__cash = cash
@@ -271,15 +268,10 @@ class Broker(broker.Broker):
     def getUseAdjustedValues(self):
         return self.__useAdjustedValues
 
-    def setUseAdjustedValues(self, useAdjusted, deprecationCheck=None):
+    def setUseAdjustedValues(self, useAdjusted):
         # Deprecated since v0.15
         if not self.__barFeed.barsHaveAdjClose():
             raise Exception("The barfeed doesn't support adjusted close values")
-        if deprecationCheck is None:
-            warninghelpers.deprecation_warning(
-                "setUseAdjustedValues will be deprecated in the next version. Please use setUseAdjustedValues on the strategy instead.",
-                stacklevel=2
-            )
         self.__useAdjustedValues = useAdjusted
 
     def getActiveOrders(self, instrument=None):
@@ -288,13 +280,6 @@ class Broker(broker.Broker):
         else:
             ret = [order for order in self.__activeOrders.values() if order.getInstrument() == instrument]
         return ret
-
-    def getPendingOrders(self):
-        warninghelpers.deprecation_warning(
-            "getPendingOrders will be deprecated in the next version. Please use getActiveOrders instead.",
-            stacklevel=2
-        )
-        return self.getActiveOrders()
 
     def _getCurrentDateTime(self):
         return self.__barFeed.getCurrentDateTime()
@@ -375,7 +360,7 @@ class Broker(broker.Broker):
             else:
                 assert(False)
         else:
-            self.__logger.debug("Not enough cash to fill %s order [%s] for %d share/s" % (
+            self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
                 order.getInstrument(),
                 order.getId(),
                 order.getRemaining()
@@ -386,9 +371,8 @@ class Broker(broker.Broker):
             order.setSubmitted(self._getNextOrderId(), self._getCurrentDateTime())
             self._registerOrder(order)
             # Switch from INITIAL -> SUBMITTED
-            # IMPORTANT: Do not emit an event for this switch because when using the position interface
-            # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
             order.switchState(broker.Order.State.SUBMITTED)
+            self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.SUBMITTED, None))
         else:
             raise Exception("The order was already processed")
 
@@ -468,7 +452,7 @@ class Broker(broker.Broker):
             self.__onBarsImpl(order, bars)
 
     def start(self):
-        pass
+        super(Broker, self).start()
 
     def stop(self):
         pass

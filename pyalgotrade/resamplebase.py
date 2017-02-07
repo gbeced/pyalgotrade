@@ -41,6 +41,7 @@ class TimeRange(object):
 
 class IntraDayRange(TimeRange):
     def __init__(self, dateTime, frequency):
+        super(IntraDayRange, self).__init__()
         assert isinstance(frequency, int)
         assert frequency > 1
         assert frequency < bar.Frequency.DAY
@@ -65,6 +66,7 @@ class IntraDayRange(TimeRange):
 
 class DayRange(TimeRange):
     def __init__(self, dateTime):
+        super(DayRange, self).__init__()
         self.__begin = datetime.datetime(dateTime.year, dateTime.month, dateTime.day)
         if not dt.datetime_is_naive(dateTime):
             self.__begin = dt.localize(self.__begin, dateTime.tzinfo)
@@ -82,6 +84,7 @@ class DayRange(TimeRange):
 
 class MonthRange(TimeRange):
     def __init__(self, dateTime):
+        super(MonthRange, self).__init__()
         self.__begin = datetime.datetime(dateTime.year, dateTime.month, 1)
 
         # Calculate the ending date.

@@ -25,6 +25,7 @@ import Queue
 import json
 
 import common as tc_common
+import test_strategy
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -72,7 +73,8 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
         dataDict = {
             "id": tid,
             "price": price,
-            "amount": amount
+            "amount": amount,
+            "type": 0,
             }
         eventDict = {}
         eventDict["data"] = json.dumps(dataDict)
@@ -184,14 +186,11 @@ class TestingLiveBroker(broker.LiveBroker):
         return self.__httpClient
 
 
-class TestStrategy(strategy.BaseStrategy):
+class TestStrategy(test_strategy.BaseTestStrategy):
     def __init__(self, feed, brk):
-        strategy.BaseStrategy.__init__(self, feed, brk)
+        super(TestStrategy, self).__init__(feed, brk)
         self.bid = None
         self.ask = None
-        self.posExecutionInfo = []
-        self.ordersUpdated = []
-        self.orderExecutionInfo = []
 
         # Subscribe to order book update events to get bid/ask prices to trade.
         feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
@@ -203,22 +202,6 @@ class TestStrategy(strategy.BaseStrategy):
         if bid != self.bid or ask != self.ask:
             self.bid = bid
             self.ask = ask
-
-    def onOrderUpdated(self, order):
-        self.ordersUpdated.append(order)
-        self.orderExecutionInfo.append(order.getExecutionInfo())
-
-    def onEnterOk(self, position):
-        self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
-
-    def onEnterCanceled(self, position):
-        self.posExecutionInfo.append(position.getEntryOrder().getExecutionInfo())
-
-    def onExitOk(self, position):
-        self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
-
-    def onExitCanceled(self, position):
-        self.posExecutionInfo.append(position.getExitOrder().getExecutionInfo())
 
 
 class InstrumentTraitsTestCase(tc_common.TestCase):
@@ -310,7 +293,7 @@ class PaperTradingTestCase(tc_common.TestCase):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
                 elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
-                    self.pos.exit(limitPrice=101)
+                    self.pos.exitLimit(101)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
@@ -341,7 +324,7 @@ class PaperTradingTestCase(tc_common.TestCase):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
                 elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
-                    self.pos.exit(limitPrice=101)
+                    self.pos.exitLimit(101)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
@@ -653,6 +636,7 @@ class WebSocketTestCase(tc_common.TestCase):
         disp.addSubject(barFeed)
 
         def on_bars(dateTime, bars):
+            bars[common.btc_symbol]
             events["on_bars"] = True
             if events["on_order_book_updated"] is True:
                 disp.stop()

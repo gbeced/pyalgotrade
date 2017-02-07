@@ -20,8 +20,6 @@
 
 import abc
 
-from pyalgotrade import warninghelpers
-
 
 class Frequency(object):
 
@@ -113,6 +111,9 @@ class Bar(object):
         """Returns the closing or adjusted closing price."""
         raise NotImplementedError()
 
+    def getExtraColumns(self):
+        return {}
+
 
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
@@ -125,10 +126,11 @@ class BasicBar(Bar):
         '__volume',
         '__adjClose',
         '__frequency',
-        '__useAdjustedValue'
+        '__useAdjustedValue',
+        '__extra',
     )
 
-    def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency):
+    def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}):
         if high < low:
             raise Exception("high < low on %s" % (dateTime))
         elif high < open_:
@@ -149,6 +151,7 @@ class BasicBar(Bar):
         self.__adjClose = adjClose
         self.__frequency = frequency
         self.__useAdjustedValue = False
+        self.__extra = extra
 
     def __setstate__(self, state):
         (self.__dateTime,
@@ -159,7 +162,8 @@ class BasicBar(Bar):
             self.__volume,
             self.__adjClose,
             self.__frequency,
-            self.__useAdjustedValue) = state
+            self.__useAdjustedValue,
+            self.__extra) = state
 
     def __getstate__(self):
         return (
@@ -171,7 +175,8 @@ class BasicBar(Bar):
             self.__volume,
             self.__adjClose,
             self.__frequency,
-            self.__useAdjustedValue
+            self.__useAdjustedValue,
+            self.__extra
         )
 
     def setUseAdjustedValue(self, useAdjusted):
@@ -220,33 +225,6 @@ class BasicBar(Bar):
     def getVolume(self):
         return self.__volume
 
-    def getAdjOpen(self):
-        # Deprecated in 0.15
-        warninghelpers.deprecation_warning(
-            "The getAdjOpen method will be deprecated in the next version. "
-            "Please use the getOpen(True) instead.",
-            stacklevel=2
-        )
-        return self.getOpen(True)
-
-    def getAdjHigh(self):
-        # Deprecated in 0.15
-        warninghelpers.deprecation_warning(
-            "The getAdjHigh method will be deprecated in the next version. "
-            "Please use the getHigh(True) instead.",
-            stacklevel=2
-        )
-        return self.getHigh(True)
-
-    def getAdjLow(self):
-        # Deprecated in 0.15
-        warninghelpers.deprecation_warning(
-            "The getAdjLow method will be deprecated in the next version. "
-            "Please use the getLow(True) instead.",
-            stacklevel=2
-        )
-        return self.getLow(True)
-
     def getAdjClose(self):
         return self.__adjClose
 
@@ -258,6 +236,9 @@ class BasicBar(Bar):
             return self.__adjClose
         else:
             return self.__close
+
+    def getExtraColumns(self):
+        return self.__extra
 
 
 class Bars(object):

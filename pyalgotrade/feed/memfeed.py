@@ -23,8 +23,9 @@ from pyalgotrade import dataseries
 
 
 class MemFeed(feed.BaseFeed):
-    def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
-        feed.BaseFeed.__init__(self, maxLen)
+    def __init__(self, maxLen=None):
+        super(MemFeed, self).__init__(maxLen)
+
         self.__values = []
         self.__nextIdx = 0
 
@@ -33,7 +34,10 @@ class MemFeed(feed.BaseFeed):
         feed.BaseFeed.reset(self)
 
     def start(self):
-        pass
+        super(MemFeed, self).start()
+        # Now that all the data is in place, sort it to dispatch it in order.
+        cmpFun = lambda x, y: cmp(x[0], y[0])
+        self.__values.sort(cmpFun)
 
     def stop(self):
         pass
@@ -63,15 +67,12 @@ class MemFeed(feed.BaseFeed):
             self.__nextIdx += 1
         return ret
 
-    # Add values to the feed. values should be a sequence of tuples. The tupes should have two elements:
+    # Add values to the feed. values should be a sequence of tuples. The tuples should have two elements:
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
     def addValues(self, values):
-        if len(values):
-            # Register a dataseries for each item.
-            for key in values[0][1].keys():
-                self.registerDataSeries(key)
+        # Register a dataseries for each item.
+        for key in values[0][1].keys():
+            self.registerDataSeries(key)
 
-            self.__values.extend(values)
-            cmpFun = lambda x, y: cmp(x[0], y[0])
-            self.__values.sort(cmpFun)
+        self.__values.extend(values)

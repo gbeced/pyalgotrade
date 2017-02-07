@@ -80,13 +80,13 @@ class TradesAnalyzerTestCase(common.TestCase):
 
         # Winning trade
         strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 0), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1)  # 127.14
-        strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 16))  # 127.16
+        strat.addPosExitMarket(buildUTCDateTime(2011, 1, 3, 15, 16))  # 127.16
         # Losing trade
         strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 30), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1)  # 127.2
-        strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 31))  # 127.16
+        strat.addPosExitMarket(buildUTCDateTime(2011, 1, 3, 15, 31))  # 127.16
         # Winning trade
         strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 38), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1)  # 127.16
-        strat.addPosExit(buildUTCDateTime(2011, 1, 3, 15, 42))  # 127.26
+        strat.addPosExitMarket(buildUTCDateTime(2011, 1, 3, 15, 42))  # 127.26
         # Unfinished trade not closed
         strat.addPosEntry(buildUTCDateTime(2011, 1, 3, 15, 47), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1)  # 127.34
         strat.run()
@@ -385,7 +385,7 @@ class TradesAnalyzerTestCase(common.TestCase):
         self.assertTrue(stratAnalyzer.getCount() == 1)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
 
-        self.assertTrue(round(stratAnalyzer.getAll().mean(), 2) == -0.1)
+        self.assertEqual(round(stratAnalyzer.getAll().mean(), 2), -0.1)
 
         self.assertTrue(stratAnalyzer.getUnprofitableCount() == 1)
         self.assertTrue(round(stratAnalyzer.getLosses().mean(), 2) == -0.1)

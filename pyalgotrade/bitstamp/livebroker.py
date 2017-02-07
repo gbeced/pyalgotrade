@@ -48,7 +48,7 @@ class TradeMonitor(threading.Thread):
     ON_USER_TRADE = 1
 
     def __init__(self, httpClient):
-        threading.Thread.__init__(self)
+        super(TradeMonitor, self).__init__()
         self.__lastTradeId = -1
         self.__httpClient = httpClient
         self.__queue = Queue.Queue()
@@ -78,7 +78,7 @@ class TradeMonitor(threading.Thread):
             self.__lastTradeId = trades[-1].getId()
             common.logger.info("Last trade found: %d" % (self.__lastTradeId))
 
-        threading.Thread.start(self)
+        super(TradeMonitor, self).start()
 
     def run(self):
         while not self.__stop:
@@ -126,7 +126,7 @@ class LiveBroker(broker.Broker):
     QUEUE_TIMEOUT = 0.01
 
     def __init__(self, clientId, key, secret):
-        broker.Broker.__init__(self)
+        super(LiveBroker, self).__init__()
         self.__stop = False
         self.__httpClient = self.buildHTTPClient(clientId, key, secret)
         self.__tradeMonitor = TradeMonitor(self.__httpClient)
@@ -211,6 +211,7 @@ class LiveBroker(broker.Broker):
 
     # BEGIN observer.Subject interface
     def start(self):
+        super(LiveBroker, self).start()
         self.refreshAccountBalance()
         self.refreshOpenOrders()
         self._startTradeMonitor()

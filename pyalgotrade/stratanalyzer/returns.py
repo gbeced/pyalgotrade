@@ -63,102 +63,109 @@ class TimeWeightedReturns(object):
         return self.__cumRet
 
 
-# Helper class to calculate returns and profit over a single instrument and a single position (not
-# the whole portfolio).
+# Helper class to calculate PnL and returns over a single instrument (not the whole portfolio).
 class PositionTracker(object):
     def __init__(self, instrumentTraits):
         self.__instrumentTraits = instrumentTraits
         self.reset()
 
     def reset(self):
-        self.__cash = 0.0
-        self.__shares = 0
+        self.__pnl = 0.0
+        self.__avgPrice = 0.0  # Volume weighted average price per share.
+        self.__position = 0.0
         self.__commissions = 0.0
-        self.__costPerShare = 0.0  # Volume weighted average price per share.
-        self.__costBasis = 0.0
+        self.__totalCommited = 0.0  # The total amount commited to this position.
 
-    def __update(self, quantity, price, commission):
-        assert(quantity != 0)
+    def getPosition(self):
+        return self.__position
 
-        if self.__shares == 0:
-            # Opening a new position
-            totalShares = quantity
-            self.__costPerShare = price
-            self.__costBasis = abs(quantity) * price
-        else:
-            totalShares = self.__instrumentTraits.roundQuantity(self.__shares + quantity)
-            if totalShares != 0:
-                prevDirection = math.copysign(1, self.__shares)
-                txnDirection = math.copysign(1, quantity)
-
-                if prevDirection != txnDirection:
-                    if abs(quantity) > abs(self.__shares):
-                        # Going from long to short or the other way around.
-                        # Update costs as a new position being opened.
-                        self.__costPerShare = price
-                        diff = self.__instrumentTraits.roundQuantity(self.__shares + quantity)
-                        self.__costBasis = abs(diff) * price
-                    else:
-                        # Reducing the position.
-                        pass
-                else:
-                    # Increasing the current position.
-                    # Calculate a volume weighted average price per share.
-                    prevCost = self.__costPerShare * self.__shares
-                    txnCost = quantity * price
-                    self.__costPerShare = (prevCost + txnCost) / totalShares
-                    self.__costBasis += abs(quantity) * price
-            else:
-                # Closing the position.
-                self.__costPerShare = 0.0
-
-        self.__cash += price * quantity * -1
-        self.__commissions += commission
-        self.__shares = totalShares
-
-    def getCash(self):
-        return self.__cash - self.__commissions
-
-    def getShares(self):
-        return self.__shares
-
-    def getCostPerShare(self):
-        # Returns the weighted average cost per share for the open position.
-        return self.__costPerShare
+    def getAvgPrice(self):
+        return self.__avgPrice
 
     def getCommissions(self):
         return self.__commissions
 
-    def getCostBasis(self):
-        return self.__costBasis
+    def getPnL(self, price=None, includeCommissions=True):
+        """
+        Return the PnL that would result if closing the position a the given price.
+        Note that this will be different if commissions are used when the trade is executed.
+        """
 
-    def getNetProfit(self, price=None, includeCommissions=True):
-        ret = self.__cash
-        if price is None:
-            price = self.__costPerShare
-        ret += price * self.__shares
+        ret = self.__pnl
+        if price:
+            ret += (price - self.__avgPrice) * self.__position
         if includeCommissions:
             ret -= self.__commissions
         return ret
 
     def getReturn(self, price=None, includeCommissions=True):
         ret = 0
-        netProfit = self.getNetProfit(price, includeCommissions)
-        if self.__costBasis != 0:
-            ret = netProfit / float(self.__costBasis)
+        pnl = self.getPnL(price=price, includeCommissions=includeCommissions)
+        if self.__totalCommited != 0:
+            ret = pnl / float(self.__totalCommited)
         return ret
 
-    def buy(self, quantity, price, commission=0):
-        assert(quantity > 0)
-        self.__update(quantity, price, commission)
+    def __openNewPosition(self, quantity, price):
+        self.__avgPrice = price
+        self.__position = quantity
+        self.__totalCommited = self.__avgPrice * abs(self.__position)
 
-    def sell(self, quantity, price, commission=0):
-        assert(quantity > 0)
-        self.__update(quantity * -1, price, commission)
+    def __extendCurrentPosition(self, quantity, price):
+        newPosition = self.__instrumentTraits.roundQuantity(self.__position + quantity)
+        self.__avgPrice = (self.__avgPrice*abs(self.__position) + price*abs(quantity)) / abs(float(newPosition))
+        self.__position = newPosition
+        self.__totalCommited = self.__avgPrice * abs(self.__position)
+
+    def __reduceCurrentPosition(self, quantity, price):
+        # Check that we're closing or reducing partially
+        assert self.__instrumentTraits.roundQuantity(abs(self.__position) - abs(quantity)) >= 0
+        pnl = (price - self.__avgPrice) * quantity * -1
+
+        self.__pnl += pnl
+        self.__position = self.__instrumentTraits.roundQuantity(self.__position + quantity)
+        if self.__position == 0:
+            self.__avgPrice = 0.0
+
+    def update(self, quantity, price, commission):
+        assert quantity != 0, "Invalid quantity"
+        assert price > 0, "Invalid price"
+        assert commission >= 0, "Invalid commission"
+
+        if self.__position == 0:
+            self.__openNewPosition(quantity, price)
+        else:
+            # Are we extending the current position or going in the opposite direction ?
+            currPosDirection = math.copysign(1, self.__position)
+            tradeDirection = math.copysign(1, quantity)
+
+            if currPosDirection == tradeDirection:
+                self.__extendCurrentPosition(quantity, price)
+            else:
+                # If we're going in the opposite direction we could be:
+                # 1: Partially reducing the current position.
+                # 2: Completely closing the current position.
+                # 3: Completely closing the current position and opening a new one in the opposite direction.
+                if abs(quantity) <= abs(self.__position):
+                    self.__reduceCurrentPosition(quantity, price)
+                else:
+                    newPos = self.__position + quantity
+                    self.__reduceCurrentPosition(self.__position*-1, price)
+                    self.__openNewPosition(newPos, price)
+
+        self.__commissions += commission
+
+    def buy(self, quantity, price, commission=0.0):
+        assert quantity > 0, "Invalid quantity"
+        self.update(quantity, price, commission)
+
+    def sell(self, quantity, price, commission=0.0):
+        assert quantity > 0, "Invalid quantity"
+        self.update(quantity * -1, price, commission)
 
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
     def __init__(self):
+        super(ReturnsAnalyzerBase, self).__init__()
         self.__event = observer.Event()
         self.__portfolioReturns = None
 
@@ -195,12 +202,20 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 
 class Returns(stratanalyzer.StrategyAnalyzer):
-    """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-    time-weighted returns for the whole portfolio."""
+    """
+    A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates time-weighted returns for the
+    whole portfolio.
 
-    def __init__(self):
-        self.__netReturns = dataseries.SequenceDataSeries()
-        self.__cumReturns = dataseries.SequenceDataSeries()
+    :param maxLen: The maximum number of values to hold in net and cumulative returs dataseries.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
+    :type maxLen: int.
+    """
+
+    def __init__(self, maxLen=None):
+        super(Returns, self).__init__()
+        self.__netReturns = dataseries.SequenceDataSeries(maxLen=maxLen)
+        self.__cumReturns = dataseries.SequenceDataSeries(maxLen=maxLen)
 
     def beforeAttach(self, strat):
         # Get or create a shared ReturnsAnalyzerBase

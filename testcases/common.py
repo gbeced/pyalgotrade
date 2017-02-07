@@ -43,10 +43,10 @@ class RunResults(object):
     def get_output(self):
         return self.__output
 
-    def get_output_lines(self, skip_last_line=False):
-        ret = self.__output.split("\n")
+    def get_output_lines(self, skip_last_line_if_empty=False):
+        ret = self.__output.splitlines()
         # Skip the last, empty line.
-        if skip_last_line:
+        if skip_last_line_if_empty and len(ret[:-1]) == 0:
             ret = ret[:-1]
         return ret
 
@@ -75,7 +75,7 @@ def run_sample_script(script, params=[]):
 
 
 def get_file_lines(fileName):
-    rawLines = open(fileName, "r").readlines()
+    rawLines = open(fileName, "r").read().splitlines()
     return [rawLine.strip() for rawLine in rawLines]
 
 
@@ -91,7 +91,14 @@ def compare_tail(fileName, lines, path="samples"):
     return fileLines[len(lines)*-1:] == lines
 
 
+def head_file(fileName, line_count, path="samples"):
+    assert(line_count > 0)
+    fileLines = get_file_lines(os.path.join(path, fileName))
+    return fileLines[0:line_count]
+
+
 def tail_file(fileName, line_count, path="samples"):
+    assert(line_count > 0)
     lines = get_file_lines(os.path.join(path, fileName))
     return lines[line_count*-1:]
 
@@ -117,7 +124,7 @@ def get_data_file_path(fileName):
     return os.path.join(os.path.split(__file__)[0], "data", fileName)
 
 
-def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals=2, maxLen=dataseries.DEFAULT_MAX_LEN):
+def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals=2, maxLen=None):
     inputValues, expectedValues = load_test_csv(get_data_file_path(filename))
     inputDS = dataseries.SequenceDataSeries(maxLen=maxLen)
     filterDS = filterClassBuilder(inputDS)
@@ -126,16 +133,6 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals=2, maxLe
         value = safe_round(filterDS[i], roundDecimals)
         expectedValue = safe_round(expectedValues[i], roundDecimals)
         testcase.assertEqual(value, expectedValue)
-
-
-def init_temp_path():
-    storage = get_temp_path()
-    if not os.path.exists(storage):
-        os.mkdir(storage)
-
-
-def get_temp_path():
-    return "data"
 
 
 def safe_round(number, ndigits):

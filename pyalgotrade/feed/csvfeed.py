@@ -24,7 +24,6 @@ import datetime
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.feed import memfeed
-from pyalgotrade import dataseries
 
 
 # Interface for csv row parsers.
@@ -74,8 +73,9 @@ class DateRangeFilter(RowFilter):
 
 
 class BaseFeed(memfeed.MemFeed):
-    def __init__(self, rowParser, maxLen=dataseries.DEFAULT_MAX_LEN):
-        memfeed.MemFeed.__init__(self, maxLen)
+    def __init__(self, rowParser, maxLen=None):
+        super(BaseFeed, self).__init__(maxLen)
+
         self.__rowParser = rowParser
         self.__rowFilter = None
 
@@ -129,11 +129,7 @@ class BasicRowParser(RowParser):
 
 
 def float_or_string(column, value):
-    try:
-        ret = float(value)
-    except Exception:
-        ret = value
-    return ret
+    return csvutils.float_or_string(value)
 
 
 class Feed(BaseFeed):
@@ -152,15 +148,17 @@ class Feed(BaseFeed):
     :param timezone: The timezone to use to localize datetimes. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that each :class:`pyalgotrade.dataseries.DataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dateTimeColumn, dateTimeFormat, converter=None, delimiter=",", timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dateTimeColumn, dateTimeFormat, converter=None, delimiter=",", timezone=None, maxLen=None):
         if converter is None:
             converter = float_or_string
         self.__rowParser = BasicRowParser(dateTimeColumn, dateTimeFormat, converter, delimiter, timezone)
-        BaseFeed.__init__(self, self.__rowParser, maxLen)
+
+        super(Feed, self).__init__(self.__rowParser, maxLen)
 
     def addValuesFromCSV(self, path):
         """Loads values from a file.
@@ -168,7 +166,7 @@ class Feed(BaseFeed):
         :param path: The path to the CSV file.
         :type path: string.
         """
-        return BaseFeed.addValuesFromCSV(self, path)
+        return super(Feed, self).addValuesFromCSV(path)
 
     def setDateRange(self, fromDateTime, toDateTime):
         self.setRowFilter(DateRangeFilter(fromDateTime, toDateTime))

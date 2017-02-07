@@ -19,12 +19,11 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 class CumRetEventWindow(technical.EventWindow):
     def __init__(self):
-        technical.EventWindow.__init__(self, 2)
+        super(CumRetEventWindow, self).__init__(2)
         self.__prevCumRet = 0
 
     def getValue(self):
@@ -45,9 +44,10 @@ class CumulativeReturn(technical.EventBasedFilter):
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, CumRetEventWindow(), maxLen)
+    def __init__(self, dataSeries, maxLen=None):
+        super(CumulativeReturn, self).__init__(dataSeries, CumRetEventWindow(), maxLen)

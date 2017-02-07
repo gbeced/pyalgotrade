@@ -19,12 +19,11 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 class HighLowEventWindow(technical.EventWindow):
     def __init__(self, windowSize, useMin):
-        technical.EventWindow.__init__(self, windowSize)
+        super(HighLowEventWindow, self).__init__(windowSize)
         self.__useMin = useMin
 
     def getValue(self):
@@ -46,12 +45,13 @@ class High(technical.EventBasedFilter):
     :param period: The number of values to use to calculate the highest value.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, HighLowEventWindow(period, False), maxLen)
+    def __init__(self, dataSeries, period, maxLen=None):
+        super(High, self).__init__(dataSeries, HighLowEventWindow(period, False), maxLen)
 
 
 class Low(technical.EventBasedFilter):
@@ -62,9 +62,10 @@ class Low(technical.EventBasedFilter):
     :param period: The number of values to use to calculate the lowest value.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, HighLowEventWindow(period, True), maxLen)
+    def __init__(self, dataSeries, period, maxLen=None):
+        super(Low, self).__init__(dataSeries, HighLowEventWindow(period, True), maxLen)

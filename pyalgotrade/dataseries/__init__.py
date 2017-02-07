@@ -26,6 +26,14 @@ from pyalgotrade.utils import collections
 DEFAULT_MAX_LEN = 1024
 
 
+def get_checked_max_len(maxLen):
+    if maxLen is None:
+        maxLen = DEFAULT_MAX_LEN
+    if not maxLen > 0:
+        raise Exception("Invalid maximum length")
+    return maxLen
+
+
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
 class DataSeries(object):
@@ -71,13 +79,14 @@ class SequenceDataSeries(DataSeries):
     """A DataSeries that holds values in a sequence in memory.
 
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, maxLen=DEFAULT_MAX_LEN):
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+    def __init__(self, maxLen=None):
+        super(SequenceDataSeries, self).__init__()
+        maxLen = get_checked_max_len(maxLen)
 
         self.__newValueEvent = observer.Event()
         self.__values = collections.ListDeque(maxLen)

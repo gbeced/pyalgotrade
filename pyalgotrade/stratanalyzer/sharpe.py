@@ -89,6 +89,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
     """
 
     def __init__(self, useDailyReturns=True):
+        super(SharpeRatio, self).__init__()
         self.__useDailyReturns = useDailyReturns
         self.__returns = []
 

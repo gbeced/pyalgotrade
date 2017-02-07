@@ -6,7 +6,7 @@ from pyalgotrade.technical import rsi
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(MyStrategy, self).__init__(feed)
         self.__rsi = rsi.RSI(feed[instrument].getCloseDataSeries(), 14)
         self.__sma = ma.SMA(self.__rsi, 15)
         self.__instrument = instrument

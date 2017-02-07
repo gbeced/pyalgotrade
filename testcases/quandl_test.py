@@ -158,7 +158,7 @@ class ToolsTestCase(common.TestCase):
         instrument = "inexistent"
 
         # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "HTTP Error 404: Not Found"):
+        with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
             with common.TmpDir() as tmpPath:
                 quandl.build_feed(
                     instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token
@@ -171,3 +171,25 @@ class ToolsTestCase(common.TestCase):
             )
             bf.loadAll()
             self.assertNotIn(instrument, bf)
+
+    def testMapColumnNames(self):
+        with common.TmpDir() as tmpPath:
+            bf = quandl.build_feed("YAHOO", ["AAPL"], 2010, 2010, tmpPath, columnNames={"adj_close": "Adjusted Close"})
+            bf.setUseAdjustedValues(True)
+            bf.loadAll()
+            self.assertEquals(bf["AAPL"][-1].getClose(), 322.560013)
+            self.assertIsNotNone(bf["AAPL"][-1].getAdjClose())
+            self.assertIsNotNone(bf["AAPL"][-1].getPrice())
+
+    def testExtraColumns(self):
+        with common.TmpDir() as tmpPath:
+            columnNames = {
+                "open": "Last",
+                "close": "Last"
+            }
+            bf = quandl.build_feed("BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames)
+            bf.loadAll()
+            self.assertEquals(bf["USD"][-1].getExtraColumns()["Bid"], 319.19)
+            self.assertEquals(bf["USD"][-1].getExtraColumns()["Ask"], 319.63)
+            bids = bf["USD"].getExtraDataSeries("Bid")
+            self.assertEquals(bids[-1], 319.19)

@@ -23,7 +23,7 @@ from pyalgotrade import dataseries
 
 
 class MACD(dataseries.SequenceDataSeries):
-    """Moving Average Convergence-Divergence indicator as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_conve.
+    """Moving Average Convergence-Divergence indicator as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_convergence_divergence_macd.
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
@@ -34,16 +34,17 @@ class MACD(dataseries.SequenceDataSeries):
     :param signalEMA: The number of values to use to calculate the signal EMA.
     :type signalEMA: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA, maxLen=None):
         assert(fastEMA > 0)
         assert(slowEMA > 0)
         assert(fastEMA < slowEMA)
         assert(signalEMA > 0)
 
-        dataseries.SequenceDataSeries.__init__(self, maxLen)
+        super(MACD, self).__init__(maxLen)
 
         # We need to skip some values when calculating the fast EMA in order for both EMA
         # to calculate their first values at the same time.

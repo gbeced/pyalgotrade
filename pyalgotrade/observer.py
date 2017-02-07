@@ -20,6 +20,8 @@
 
 import abc
 
+from pyalgotrade import dispatchprio
+
 
 class Event(object):
     def __init__(self):
@@ -65,10 +67,13 @@ class Event(object):
 class Subject(object):
     __metaclass__ = abc.ABCMeta
 
+    def __init__(self):
+        self.__dispatchPrio = dispatchprio.LAST
+
     # This may raise.
     @abc.abstractmethod
     def start(self):
-        raise NotImplementedError()
+        pass
 
     # This should not raise.
     @abc.abstractmethod
@@ -98,6 +103,13 @@ class Subject(object):
         raise NotImplementedError()
 
     def getDispatchPriority(self):
-        # Returns a number (or None) used to sort subjects within the dispatch queue.
-        # The return value should never change.
-        return None
+        # Returns a priority used to sort subjects within the dispatch queue.
+        # The return value should never change once this subject is added to the dispatcher.
+        return self.__dispatchPrio
+
+    def setDispatchPriority(self, dispatchPrio):
+        self.__dispatchPrio = dispatchPrio
+
+    def onDispatcherRegistered(self, dispatcher):
+        # Called when the subject is registered with a dispatcher.
+        pass

@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.utils import collections
 from pyalgotrade.utils import dt
 
@@ -39,7 +38,7 @@ def lsreg(x, y):
 class LeastSquaresRegressionWindow(technical.EventWindow):
     def __init__(self, windowSize):
         assert(windowSize > 1)
-        technical.EventWindow.__init__(self, windowSize)
+        super(LeastSquaresRegressionWindow, self).__init__(windowSize)
         self.__timestamps = collections.NumPyDeque(windowSize)
 
     def onNewValue(self, dateTime, value):
@@ -78,11 +77,12 @@ class LeastSquaresRegression(technical.EventBasedFilter):
     :param windowSize: The number of values to use to calculate the regression.
     :type windowSize: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, windowSize, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, LeastSquaresRegressionWindow(windowSize), maxLen)
+    def __init__(self, dataSeries, windowSize, maxLen=None):
+        super(LeastSquaresRegression, self).__init__(dataSeries, LeastSquaresRegressionWindow(windowSize), maxLen)
 
     def getValueAt(self, dateTime):
         """Calculates the value at a given time based on the regression line.
@@ -96,7 +96,7 @@ class LeastSquaresRegression(technical.EventBasedFilter):
 
 class SlopeEventWindow(technical.EventWindow):
     def __init__(self, windowSize):
-        technical.EventWindow.__init__(self, windowSize)
+        super(SlopeEventWindow, self).__init__(windowSize)
         self.__x = np.asarray(range(windowSize))
 
     def getValue(self):
@@ -115,15 +115,16 @@ class Slope(technical.EventBasedFilter):
     :param period: The number of values to use to calculate the slope.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
         This filter ignores the time elapsed between the different values.
     """
 
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, SlopeEventWindow(period), maxLen)
+    def __init__(self, dataSeries, period, maxLen=None):
+        super(Slope, self).__init__(dataSeries, SlopeEventWindow(period), maxLen)
 
 
 class TrendEventWindow(SlopeEventWindow):
@@ -131,12 +132,12 @@ class TrendEventWindow(SlopeEventWindow):
         if negativeThreshold > positiveThreshold:
             raise Exception("Invalid thresholds")
 
-        SlopeEventWindow.__init__(self, windowSize)
+        super(TrendEventWindow, self).__init__(windowSize)
         self.__positiveThreshold = positiveThreshold
         self.__negativeThreshold = negativeThreshold
 
     def getValue(self):
-        ret = SlopeEventWindow.getValue(self)
+        ret = super(TrendEventWindow, self).getValue()
         if ret is not None:
             if ret > self.__positiveThreshold:
                 ret = True
@@ -148,5 +149,5 @@ class TrendEventWindow(SlopeEventWindow):
 
 
 class Trend(technical.EventBasedFilter):
-    def __init__(self, dataSeries, trendDays, positiveThreshold=0, negativeThreshold=0, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold), maxLen)
+    def __init__(self, dataSeries, trendDays, positiveThreshold=0, negativeThreshold=0, maxLen=None):
+        super(Trend, self).__init__(dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold), maxLen)

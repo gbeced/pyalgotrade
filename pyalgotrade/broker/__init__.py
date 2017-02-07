@@ -21,7 +21,7 @@
 import abc
 
 from pyalgotrade import observer
-from pyalgotrade import warninghelpers
+from pyalgotrade import dispatchprio
 
 
 # This class is used to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
@@ -126,6 +126,7 @@ class Order(object):
         LIMIT = 2
         STOP = 3
         STOP_LIMIT = 4
+        NEXT_CUSTOM_TYPE = 1000
 
     # Valid state transitions.
     VALID_TRANSITIONS = {
@@ -136,8 +137,9 @@ class Order(object):
     }
 
     def __init__(self, type_, action, instrument, quantity, instrumentTraits):
-        if quantity <= 0:
+        if quantity is not None and quantity <= 0:
             raise Exception("Invalid quantity")
+
         self.__id = None
         self.__type = type_
         self.__action = action
@@ -164,6 +166,11 @@ class Order(object):
 #        if other is None:
 #            return True
 #        assert(False)
+
+    def _setQuantity(self, quantity):
+        assert self.__quantity is None, "Can only change the quantity if it was undefined"
+        assert quantity > 0, "Invalid quantity"
+        self.__quantity = quantity
 
     def getInstrumentTraits(self):
         return self.__instrumentTraits
@@ -359,7 +366,7 @@ class MarketOrder(Order):
     """
 
     def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
-        Order.__init__(self, Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
+        super(MarketOrder, self).__init__(Order.Type.MARKET, action, instrument, quantity, instrumentTraits)
         self.__onClose = onClose
 
     def getFillOnClose(self):
@@ -376,7 +383,7 @@ class LimitOrder(Order):
     """
 
     def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
-        Order.__init__(self, Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
+        super(LimitOrder, self).__init__(Order.Type.LIMIT, action, instrument, quantity, instrumentTraits)
         self.__limitPrice = limitPrice
 
     def getLimitPrice(self):
@@ -393,7 +400,7 @@ class StopOrder(Order):
     """
 
     def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
-        Order.__init__(self, Order.Type.STOP, action, instrument, quantity, instrumentTraits)
+        super(StopOrder, self).__init__(Order.Type.STOP, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
 
     def getStopPrice(self):
@@ -410,7 +417,7 @@ class StopLimitOrder(Order):
     """
 
     def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
-        Order.__init__(self, Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
+        super(StopLimitOrder, self).__init__(Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits)
         self.__stopPrice = stopPrice
         self.__limitPrice = limitPrice
 
@@ -453,10 +460,11 @@ class OrderExecutionInfo(object):
 
 class OrderEvent(object):
     class Type:
-        ACCEPTED = 1  # Order has been acknowledged by the broker.
-        CANCELED = 2  # Order has been canceled.
-        PARTIALLY_FILLED = 3  # Order has been partially filled.
-        FILLED = 4  # Order has been completely filled.
+        SUBMITTED = 1  # Order has been submitted.
+        ACCEPTED = 2  # Order has been acknowledged by the broker.
+        CANCELED = 3  # Order has been canceled.
+        PARTIALLY_FILLED = 4  # Order has been partially filled.
+        FILLED = 5  # Order has been completely filled.
 
     def __init__(self, order, eventyType, eventInfo):
         self.__order = order
@@ -491,7 +499,11 @@ class Broker(observer.Subject):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
+        super(Broker, self).__init__()
         self.__orderEvent = observer.Event()
+
+    def getDispatchPriority(self):
+        return dispatchprio.BROKER
 
     def notifyOrderEvent(self, orderEvent):
         self.__orderEvent.emit(self, orderEvent)
@@ -547,11 +559,6 @@ class Broker(observer.Subject):
             * Calling this twice on the same order will raise an exception.
         """
         raise NotImplementedError()
-
-    def placeOrder(self, order):
-        # Deprecated since v0.16
-        warninghelpers.deprecation_warning("placeOrder will be deprecated in the next version. Please use submitOrder instead.", stacklevel=2)
-        return self.submitOrder(order)
 
     @abc.abstractmethod
     def createMarketOrder(self, action, instrument, quantity, onClose=False):

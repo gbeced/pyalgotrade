@@ -18,20 +18,20 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import urllib
-import urllib2
 import datetime
 import os
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
 
 from pyalgotrade.utils import dt
+from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
 
 
 # http://www.quandl.com/help/api
 
 def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
+    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
     params = {
         "trim_start": begin.strftime("%Y-%m-%d"),
         "trim_end": end.strftime("%Y-%m-%d"),
@@ -40,20 +40,7 @@ def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
     if authToken is not None:
         params["auth_token"] = authToken
 
-    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
-    url = "%s?%s" % (url, urllib.urlencode(params))
-
-    f = urllib2.urlopen(url)
-    if f.headers['Content-Type'] != 'text/csv':
-        raise Exception("Failed to download data: %s" % f.getcode())
-    buff = f.read()
-    f.close()
-
-    # Remove the BOM
-    while not buff[0].isalnum():
-        buff = buff[1:]
-
-    return buff
+    return csvutils.download_csv(url, params)
 
 
 def download_daily_bars(sourceCode, tableCode, year, csvFile, authToken=None):
@@ -100,7 +87,9 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     f.close()
 
 
-def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None, skipErrors=False, noAdjClose=False, authToken=None):
+def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None,
+               skipErrors=False, noAdjClose=False, authToken=None, columnNames={}, forceDownload=False
+               ):
     """Build and load a :class:`pyalgotrade.barfeed.quandlfeed.Feed` using CSV files downloaded from Quandl.
     CSV files are downloaded if they haven't been downloaded before.
 
@@ -124,6 +113,18 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     :type noAdjClose: boolean.
     :param authToken: Optional. An authentication token needed if you're doing more than 50 calls per day.
     :type authToken: string.
+    :param columnNames: Optional. A dictionary to map column names. Valid key values are:
+
+        * datetime
+        * open
+        * high
+        * low
+        * close
+        * volume
+        * adj_close
+
+    :type columnNames: dict.
+
     :rtype: :class:`pyalgotrade.barfeed.quandlfeed.Feed`.
     """
 
@@ -132,6 +133,10 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     if noAdjClose:
         ret.setNoAdjClose()
 
+    # Additional column names.
+    for col, name in columnNames.iteritems():
+        ret.setColumnName(col, name)
+
     if not os.path.exists(storage):
         logger.info("Creating %s directory" % (storage))
         os.mkdir(storage)
@@ -139,7 +144,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     for year in range(fromYear, toYear+1):
         for tableCode in tableCodes:
             fileName = os.path.join(storage, "%s-%s-%d-quandl.csv" % (sourceCode, tableCode, year))
-            if not os.path.exists(fileName):
+            if not os.path.exists(fileName) or forceDownload:
                 logger.info("Downloading %s %d to %s" % (tableCode, year, fileName))
                 try:
                     if frequency == bar.Frequency.DAY:

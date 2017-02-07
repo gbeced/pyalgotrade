@@ -245,12 +245,14 @@ class Position(object):
         return self._entryOrder.getInstrument()
 
     def getReturn(self, includeCommissions=True):
-        """Calculates cumulative percentage returns up to this point.
-        If the position is not closed, these will be unrealized returns.
-
-        :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean.
         """
+        Calculates cumulative percentage returns up to this point.
+        If the position is not closed, these will be unrealized returns.
+        """
+
+        # Deprecated in v0.18.
+        if includeCommissions is False:
+            warninghelpers.deprecation_warning("includeCommissions will be deprecated in the next version.", stacklevel=2)
 
         ret = 0
         price = self.getLastPrice()
@@ -258,43 +260,21 @@ class Position(object):
             ret = self._posTracker.getReturn(price, includeCommissions)
         return ret
 
-    def getUnrealizedReturn(self, price=None):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getUnrealizedReturn will be deprecated in the next version. Please use getReturn instead.", stacklevel=2)
-        if price is not None:
-            raise Exception("Setting the price to getUnrealizedReturn is no longer supported")
-        return self.getReturn(False)
-
     def getPnL(self, includeCommissions=True):
-        """Calculates PnL up to this point.
-        If the position is not closed, these will be unrealized PnL.
-
-        :param includeCommissions: True to include commisions in the calculation.
-        :type includeCommissions: boolean.
         """
+        Calculates PnL up to this point.
+        If the position is not closed, these will be unrealized PnL.
+        """
+
+        # Deprecated in v0.18.
+        if includeCommissions is False:
+            warninghelpers.deprecation_warning("includeCommissions will be deprecated in the next version.", stacklevel=2)
 
         ret = 0
         price = self.getLastPrice()
         if price is not None:
             ret = self._posTracker.getNetProfit(price, includeCommissions)
         return ret
-
-    def getNetProfit(self, includeCommissions=True):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getNetProfit will be deprecated in the next version. Please use getPnL instead.", stacklevel=2)
-        return self.getPnL(includeCommissions)
-
-    def getUnrealizedNetProfit(self, price=None):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getUnrealizedNetProfit will be deprecated in the next version. Please use getPnL instead.", stacklevel=2)
-        if price is not None:
-            raise Exception("Setting the price to getUnrealizedNetProfit is no longer supported")
-        return self.getPnL(False)
-
-    def getQuantity(self):
-        # Deprecated in v0.15.
-        warninghelpers.deprecation_warning("getQuantity will be deprecated in the next version. Please use abs(self.getShares()) instead.", stacklevel=2)
-        return abs(self.getShares())
 
     def cancelEntry(self):
         """Cancels the entry order if its active."""
@@ -367,19 +347,6 @@ class Position(object):
             * If the exit order for this position is pending, an exception will be raised. The exit order should be canceled first.
             * If the entry order is active, cancellation will be requested.
         """
-
-        self._state.exit(self, stopPrice, limitPrice, goodTillCanceled)
-
-    def exit(self, stopPrice=None, limitPrice=None, goodTillCanceled=None):
-        # Deprecated in v0.15.
-        if stopPrice is None and limitPrice is None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitMarket instead.", stacklevel=2)
-        elif stopPrice is None and limitPrice is not None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitLimit instead.", stacklevel=2)
-        elif stopPrice is not None and limitPrice is None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitStop instead.", stacklevel=2)
-        elif stopPrice is not None and limitPrice is not None:
-            warninghelpers.deprecation_warning("exit will be deprecated in the next version. Please use exitStopLimit instead.", stacklevel=2)
 
         self._state.exit(self, stopPrice, limitPrice, goodTillCanceled)
 
@@ -466,7 +433,7 @@ class LongPosition(Position):
         else:
             assert(False)
 
-        Position.__init__(self, strategy, entryOrder, goodTillCanceled, allOrNone)
+        super(LongPosition, self).__init__(strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares()
@@ -499,7 +466,7 @@ class ShortPosition(Position):
         else:
             assert(False)
 
-        Position.__init__(self, strategy, entryOrder, goodTillCanceled, allOrNone)
+        super(ShortPosition, self).__init__(strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares() * -1

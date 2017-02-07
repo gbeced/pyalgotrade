@@ -19,53 +19,42 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade.technical import ma
 
 
-class BarWrapper(object):
-    def __init__(self, useAdjusted):
-        self.__useAdjusted = useAdjusted
-
-    def getLow(self, bar_):
-        return bar_.getLow(self.__useAdjusted)
-
-    def getHigh(self, bar_):
-        return bar_.getHigh(self.__useAdjusted)
-
-    def getClose(self, bar_):
-        return bar_.getClose(self.__useAdjusted)
-
-
-def get_low_high_values(barWrapper, bars):
+def get_low_high_values(useAdjusted, bars):
     currBar = bars[0]
-    lowestLow = barWrapper.getLow(currBar)
-    highestHigh = barWrapper.getHigh(currBar)
+    lowestLow = currBar.getLow(useAdjusted)
+    highestHigh = currBar.getHigh(useAdjusted)
     for i in range(len(bars)):
         currBar = bars[i]
-        lowestLow = min(lowestLow, barWrapper.getLow(currBar))
-        highestHigh = max(highestHigh, barWrapper.getHigh(currBar))
+        lowestLow = min(lowestLow, currBar.getLow(useAdjusted))
+        highestHigh = max(highestHigh, currBar.getHigh(useAdjusted))
     return (lowestLow, highestHigh)
 
 
 class SOEventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
-        technical.EventWindow.__init__(self, period, dtype=object)
-        self.__barWrapper = BarWrapper(useAdjustedValues)
+        super(SOEventWindow, self).__init__(period, dtype=object)
+        self.__useAdjusted = useAdjustedValues
 
     def getValue(self):
         ret = None
         if self.windowFull():
-            lowestLow, highestHigh = get_low_high_values(self.__barWrapper, self.getValues())
-            currentClose = self.__barWrapper.getClose(self.getValues()[-1])
-            ret = (currentClose - lowestLow) / float(highestHigh - lowestLow) * 100
+            lowestLow, highestHigh = get_low_high_values(self.__useAdjusted, self.getValues())
+            currentClose = self.getValues()[-1].getClose(self.__useAdjusted)
+            closeDelta = currentClose - lowestLow
+            if closeDelta:
+                ret = closeDelta / float(highestHigh - lowestLow) * 100
+            else:
+                ret = 0.0
         return ret
 
 
 class StochasticOscillator(technical.EventBasedFilter):
-    """Stochastic Oscillator filter as described in
+    """Fast Stochastic Oscillator filter as described in
     http://stockcharts.com/school/doku.php?st=stochastic+oscillator&id=chart_school:technical_indicators:stochastic_oscillator_fast_slow_and_full.
     Note that the value returned by this filter is %K. To access %D use :meth:`getD`.
 
@@ -78,16 +67,17 @@ class StochasticOscillator(technical.EventBasedFilter):
     :param useAdjustedValues: True to use adjusted Low/High/Close values.
     :type useAdjustedValues: boolean.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period, dSMAPeriod=3, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, barDataSeries, period, dSMAPeriod=3, useAdjustedValues=False, maxLen=None):
         assert dSMAPeriod > 1, "dSMAPeriod must be > 1"
         assert isinstance(barDataSeries, bards.BarDataSeries), \
             "barDataSeries must be a dataseries.bards.BarDataSeries instance"
 
-        technical.EventBasedFilter.__init__(self, barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
+        super(StochasticOscillator, self).__init__(barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
         self.__d = ma.SMA(self, dSMAPeriod, maxLen)
 
     def getD(self):

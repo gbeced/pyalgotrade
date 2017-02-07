@@ -53,7 +53,7 @@ class Line(object):
 
 
 class LineBreak(dataseries.SequenceDataSeries):
-    """Line Break filter as described in http://stockcharts.com/help/doku.php?id=chart_school:chart_analysis:three_line_break
+    """Line Break filter as described in http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:three_line_break.
     .
     This is a DataSeries of :class:`Line` instances.
 
@@ -64,20 +64,21 @@ class LineBreak(dataseries.SequenceDataSeries):
     :param useAdjustedValues: True to use adjusted high/low/close values.
     :type useAdjustedValues: boolean.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
         This value can't be smaller than reversalLines.
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, reversalLines, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, barDataSeries, reversalLines, useAdjustedValues=False, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         if reversalLines < 2:
             raise Exception("reversalLines must be greater than 1")
-        if maxLen < reversalLines:
+        if dataseries.get_checked_max_len(maxLen) < reversalLines:
             raise Exception("maxLen can't be smaller than reversalLines")
 
-        dataseries.SequenceDataSeries.__init__(self, maxLen)
+        super(LineBreak, self).__init__(maxLen)
 
         self.__reversalLines = reversalLines
         self.__useAdjustedValues = useAdjustedValues
@@ -130,4 +131,4 @@ class LineBreak(dataseries.SequenceDataSeries):
     def setMaxLen(self, maxLen):
         if maxLen < self.__reversalLines:
             raise Exception("maxLen can't be smaller than reversalLines")
-        dataseries.SequenceDataSeries.setMaxLen(self, maxLen)
+        super(LineBreak, self).setMaxLen(maxLen)

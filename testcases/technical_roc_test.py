@@ -25,7 +25,7 @@ from pyalgotrade import dataseries
 
 
 class ROCTestCase(common.TestCase):
-    def __buildROC(self, values, period, rocMaxLen=dataseries.DEFAULT_MAX_LEN):
+    def __buildROC(self, values, period, rocMaxLen=None):
         seqDS = dataseries.SequenceDataSeries()
         ret = roc.RateOfChange(seqDS, period, rocMaxLen)
         for value in values:

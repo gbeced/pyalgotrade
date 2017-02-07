@@ -90,7 +90,11 @@ class Worker(object):
             feed = barfeed.OptimizerBarFeed(barsFreq, instruments, bars)
             # Run the strategy.
             self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
-            result = self.runStrategy(feed, *parameters)
+            result = None
+            try:
+                result = self.runStrategy(feed, *parameters)
+            except Exception, e:
+                self.getLogger().exception("Error running strategy with parameters %s: %s" % (str(parameters), e))
             self.getLogger().info("Result %s" % result)
             if bestResult is None or result > bestResult:
                 bestResult = result
@@ -106,15 +110,20 @@ class Worker(object):
         raise Exception("Not implemented")
 
     def run(self):
-        # Get the instruments and bars.
-        instruments, bars = self.getInstrumentsAndBars()
-        barsFreq = self.getBarsFrequency()
+        try:
+            self.getLogger().info("Started running")
+            # Get the instruments and bars.
+            instruments, bars = self.getInstrumentsAndBars()
+            barsFreq = self.getBarsFrequency()
 
-        # Process jobs
-        job = self.getNextJob()
-        while job is not None:
-            self.__processJob(job, barsFreq, instruments, bars)
+            # Process jobs
             job = self.getNextJob()
+            while job is not None:
+                self.__processJob(job, barsFreq, instruments, bars)
+                job = self.getNextJob()
+            self.getLogger().info("Finished running")
+        except Exception, e:
+            self.getLogger().exception("Finished running with errors: %s" % (e))
 
 
 def worker_process(strategyClass, address, port, workerName):

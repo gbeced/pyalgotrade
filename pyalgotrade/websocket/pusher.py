@@ -54,7 +54,7 @@ class Event(object):
 
 class PingKeepAliveMgr(client.KeepAliveMgr):
     def __init__(self, wsClient, maxInactivity, responseTimeout):
-        client.KeepAliveMgr.__init__(self, wsClient, maxInactivity, responseTimeout)
+        super(PingKeepAliveMgr, self).__init__(wsClient, maxInactivity, responseTimeout)
 
     # Override to send the keep alive msg.
     def sendKeepAlive(self):
@@ -77,7 +77,7 @@ class WebSocketClient(client.WebSocketClientBase):
             "version": pyalgotrade.__version__
             }
         url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urllib.urlencode(params))
-        client.WebSocketClientBase.__init__(self, url)
+        super(WebSocketClient, self).__init__(url)
         self.setKeepAliveMgr(PingKeepAliveMgr(self, maxInactivity, responseTimeout))
 
     def sendEvent(self, eventType, eventData):

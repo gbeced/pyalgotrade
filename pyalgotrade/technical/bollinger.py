@@ -33,11 +33,12 @@ class BollingerBands(object):
     :param numStdDev: The number of standard deviations to use for the upper and lower bands.
     :type numStdDev: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, numStdDev, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, numStdDev, maxLen=None):
         self.__sma = ma.SMA(dataSeries, period, maxLen=maxLen)
         self.__stdDev = stats.StdDev(dataSeries, period, maxLen=maxLen)
         self.__upperBand = dataseries.SequenceDataSeries(maxLen)

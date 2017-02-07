@@ -1,5 +1,19 @@
-Version 0.18 (TBD)
-. [NEW] Returns analyzer now store datetimes along with each sample. Thanks MatthiasKauer for implementing this.
+Version 0.18 (17/Aug/2016)
+. [NEW] Returns analyzer now stores datetimes along with each sample. Thanks MatthiasKauer for implementing this.
+. [NEW] Quandl tool to build feed supports mapping column names.
+. [NEW] Bar feeds now support including extra columns besides OHLC values.
+. [NEW] Added buildFigureAndSubplots to the plotter to return the subplots along with the figure. Thanks Carlos Tse for implementing this.
+. [NEW] Returns strategy analyzer now supports passing the maxLen for the dataseries. Thanks physicsd00d for implementing this.
+. [FIX] Fixed zero division error in StochasticOscillator. Thanks Blake Jennings for reporting this.
+. [FIX] Fixed a rounding bug in the default fill strategy when calculating the volume left for a given instrument. Thanks Markus Trenkwalder for reporting this.
+. [FIX] Was not logging properly in backtesting broker when shares are not integers.
+. [FIX] Added exception handling to optimizer module. Thanks Sergey Cheparev for reporting this.
+. [FIX] Fixed a bug in VWAP calculation when using adjusted values.
+. [FIX] Added a way to change the dataseries.DEFAULT_MAX_LEN value.
+. [FIX] Added missing return in plotter.Series.getValues. Thanks physicsd00d for reporting this.
+. [FIX] optimizer.local was sometimes blocked waiting for child processes to finish.
+. [BREAKING CHANGE] Removed Xignite support (http://www.xignite.com/).
+. [BREAKING CHANGE] Removed deprecated code that issued warnings in previous versions.
 
 Version 0.17 (10/May/2015)
 . [NEW] Hurst exponent technical indicator (pyalgotrade.technical.hurst.HurstExponent).

@@ -23,7 +23,6 @@ import time
 import Queue
 
 from pyalgotrade import bar
-from pyalgotrade import dataseries
 from pyalgotrade import barfeed
 from pyalgotrade import observer
 from pyalgotrade.bitstamp import common
@@ -39,6 +38,7 @@ class TradeBar(bar.Bar):
         self.__tradeId = trade.getId()
         self.__price = trade.getPrice()
         self.__amount = trade.getAmount()
+        self.__buy = trade.isBuy()
 
     def __setstate__(self, state):
         (self.__dateTime, self.__tradeId, self.__price, self.__amount) = state
@@ -86,6 +86,12 @@ class TradeBar(bar.Bar):
     def getUseAdjValue(self):
         return False
 
+    def isBuy(self):
+        return self.__buy
+
+    def isSell(self):
+        return not self.__buy
+
 
 class LiveTradeFeed(barfeed.BaseBarFeed):
 
@@ -93,7 +99,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
-        from the opposite end.
+        from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
@@ -102,11 +108,8 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, maxLen=dataseries.DEFAULT_MAX_LEN):
-        if not isinstance(maxLen, int):
-            raise Exception("Invalid type for maxLen parameter")
-
-        barfeed.BaseBarFeed.__init__(self, bar.Frequency.TRADE, maxLen)
+    def __init__(self, maxLen=None):
+        super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
         self.registerInstrument(common.btc_symbol)
         self.__prevTradeDateTime = None
@@ -215,6 +218,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     # This may raise.
     def start(self):
+        super(LiveTradeFeed, self).start()
         if self.__thread is not None:
             raise Exception("Already running")
         elif not self.__initializeClient():
@@ -227,7 +231,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         ret = False
         if self.__dispatchImpl(None):
             ret = True
-        if barfeed.BaseBarFeed.dispatch(self):
+        if super(LiveTradeFeed, self).dispatch():
             ret = True
         return ret
 
@@ -250,9 +254,12 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return self.__stopped
 
     def getOrderBookUpdateEvent(self):
-        """Returns the event that will be emitted as new trades are received from Bitstamp.
-        To subscribe to this event you need to pass in a callable object that receives one parameter:
+        """
+        Returns the event that will be emitted when the orderbook gets updated.
 
-        1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
+        Eventh handlers should receive one parameter:
+         1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
+
+        :rtype: :class:`pyalgotrade.observer.Event`.
         """
         return self.__orderBookUpdateEvent

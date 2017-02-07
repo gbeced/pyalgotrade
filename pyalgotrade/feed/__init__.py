@@ -21,6 +21,7 @@
 import abc
 
 from pyalgotrade import observer
+from pyalgotrade import dataseries
 
 
 def feed_iterator(feed):
@@ -46,8 +47,10 @@ class BaseFeed(observer.Subject):
     """
 
     def __init__(self, maxLen):
-        if not maxLen > 0:
-            raise Exception("Invalid maximum length")
+        super(BaseFeed, self).__init__()
+
+        maxLen = dataseries.get_checked_max_len(maxLen)
+
         self.__ds = {}
         self.__event = observer.Event()
         self.__maxLen = maxLen

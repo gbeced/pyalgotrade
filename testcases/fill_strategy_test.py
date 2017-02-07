@@ -127,7 +127,7 @@ class DefaultStrategyTestCase(BaseTestCase):
         self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
         self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
 
-        with self.assertRaisesRegexp(Exception, "Invalid fill quantity. Not enough volume left 1"):
+        with self.assertRaisesRegexp(Exception, "Invalid fill quantity 25. Not enough volume left 1"):
             self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(25, 11))
         self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
         self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)

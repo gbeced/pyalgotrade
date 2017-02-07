@@ -21,7 +21,6 @@
 from pyalgotrade import barfeed
 from pyalgotrade import bar
 from pyalgotrade.barfeed import csvfeed
-from pyalgotrade import dataseries
 from pyalgotrade.utils import dt
 
 import datetime
@@ -137,7 +136,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         If not None, it must be greater than 0.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
@@ -145,8 +145,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
         * Files must be sorted with the **unixtime** column in ascending order.
     """
 
-    def __init__(self, timezone=None, maxLen=dataseries.DEFAULT_MAX_LEN):
-        csvfeed.BarFeed.__init__(self, barfeed.Frequency.TRADE, maxLen)
+    def __init__(self, timezone=None, maxLen=None):
+        super(CSVTradeFeed, self).__init__(barfeed.Frequency.TRADE, maxLen)
         self.__timezone = timezone
         self.__unixTimeFix = UnixTimeFix()
 
@@ -183,6 +183,6 @@ class CSVTradeFeed(csvfeed.BarFeed):
         try:
             if fromDateTime or toDateTime:
                 self.setBarFilter(csvfeed.DateRangeFilter(to_utc_if_naive(fromDateTime), to_utc_if_naive(toDateTime)))
-            csvfeed.BarFeed.addBarsFromCSV(self, instrument, path, rowParser)
+            super(CSVTradeFeed, self).addBarsFromCSV(instrument, path, rowParser)
         finally:
             self.setBarFilter(prevBarFilter)

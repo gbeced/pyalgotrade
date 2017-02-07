@@ -59,6 +59,7 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
     max. drawdown and longest drawdown duration for the portfolio."""
 
     def __init__(self):
+        super(DrawDown, self).__init__()
         self.__maxDD = 0
         self.__longestDDDuration = datetime.timedelta()
         self.__currDrawDown = DrawDownHelper()

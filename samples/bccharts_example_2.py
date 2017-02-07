@@ -11,7 +11,7 @@ class VWAPMomentum(strategy.BacktestingStrategy):
     MIN_TRADE = 5
 
     def __init__(self, feed, brk, instrument, vwapWindowSize, buyThreshold, sellThreshold):
-        strategy.BacktestingStrategy.__init__(self, feed, brk)
+        super(VWAPMomentum, self).__init__(feed, brk)
         self.__instrument = instrument
         self.__vwap = vwap.VWAP(feed[instrument], vwapWindowSize)
         self.__buyThreshold = buyThreshold

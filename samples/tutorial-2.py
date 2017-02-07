@@ -5,7 +5,7 @@ from pyalgotrade.technical import ma
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
-        strategy.BacktestingStrategy.__init__(self, feed)
+        super(MyStrategy, self).__init__(feed)
         # We want a 15 period SMA over the closing prices.
         self.__sma = ma.SMA(feed[instrument].getCloseDataSeries(), 15)
         self.__instrument = instrument

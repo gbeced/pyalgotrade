@@ -72,12 +72,13 @@ class EventBasedFilter(dataseries.SequenceDataSeries):
     :param eventWindow: The EventWindow instance to use to calculate new values.
     :type eventWindow: :class:`EventWindow`.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, eventWindow, maxLen=dataseries.DEFAULT_MAX_LEN):
-        dataseries.SequenceDataSeries.__init__(self, maxLen)
+    def __init__(self, dataSeries, eventWindow, maxLen=None):
+        super(EventBasedFilter, self).__init__(maxLen)
         self.__dataSeries = dataSeries
         self.__dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
         self.__eventWindow = eventWindow

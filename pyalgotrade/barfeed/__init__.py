@@ -21,9 +21,9 @@
 import abc
 
 from pyalgotrade import bar
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
+from pyalgotrade import dispatchprio
 
 
 # This is only for backward compatibility since Frequency used to be defined here and not in bar.py.
@@ -36,15 +36,15 @@ class BaseBarFeed(feed.BaseFeed):
     :param frequency: The bars frequency. Valid values defined in :class:`pyalgotrade.bar.Frequency`.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
-        from the opposite end.
+        from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
 
     .. note::
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
-        feed.BaseFeed.__init__(self, maxLen)
+    def __init__(self, frequency, maxLen=None):
+        super(BaseBarFeed, self).__init__(maxLen)
         self.__frequency = frequency
         self.__useAdjustedValues = False
         self.__defaultInstrument = None
@@ -54,7 +54,7 @@ class BaseBarFeed(feed.BaseFeed):
     def reset(self):
         self.__currentBars = None
         self.__lastBars = {}
-        feed.BaseFeed.reset(self)
+        super(BaseBarFeed, self).reset()
 
     def setUseAdjustedValues(self, useAdjusted):
         if useAdjusted and not self.barsHaveAdjClose():
@@ -126,7 +126,7 @@ class BaseBarFeed(feed.BaseFeed):
         return self.__lastBars.get(instrument, None)
 
     def getDefaultInstrument(self):
-        """Returns the default instrument."""
+        """Returns the last instrument registered."""
         return self.__defaultInstrument
 
     def getRegisteredInstruments(self):
@@ -148,12 +148,15 @@ class BaseBarFeed(feed.BaseFeed):
             instrument = self.__defaultInstrument
         return self[instrument]
 
+    def getDispatchPriority(self):
+        return dispatchprio.BAR_FEED
+
 
 # This class is used by the optimizer module. The barfeed is already built on the server side,
 # and the bars are sent back to workers.
 class OptimizerBarFeed(BaseBarFeed):
-    def __init__(self, frequency, instruments, bars, maxLen=dataseries.DEFAULT_MAX_LEN):
-        BaseBarFeed.__init__(self, frequency, maxLen)
+    def __init__(self, frequency, instruments, bars, maxLen=None):
+        super(OptimizerBarFeed, self).__init__(frequency, maxLen)
         for instrument in instruments:
             self.registerInstrument(instrument)
         self.__bars = bars
@@ -172,7 +175,7 @@ class OptimizerBarFeed(BaseBarFeed):
         return self.__barsHaveAdjClose
 
     def start(self):
-        pass
+        super(OptimizerBarFeed, self).start()
 
     def stop(self):
         pass

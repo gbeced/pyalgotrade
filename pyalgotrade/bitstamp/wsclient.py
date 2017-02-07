@@ -36,7 +36,7 @@ class Trade(pusher.Event):
     """A trade event."""
 
     def __init__(self, dateTime, eventDict):
-        pusher.Event.__init__(self, eventDict, True)
+        super(Trade, self).__init__(eventDict, True)
         self.__dateTime = dateTime
 
     def getDateTime(self):
@@ -55,12 +55,20 @@ class Trade(pusher.Event):
         """Returns the trade amount."""
         return self.getData()["amount"]
 
+    def isBuy(self):
+        """Returns True if the trade was a buy."""
+        return self.getData()["type"] == 0
+
+    def isSell(self):
+        """Returns True if the trade was a sell."""
+        return self.getData()["type"] == 1
+
 
 class OrderBookUpdate(pusher.Event):
     """An order book update event."""
 
     def __init__(self, dateTime, eventDict):
-        pusher.Event.__init__(self, eventDict, True)
+        super(OrderBookUpdate, self).__init__(eventDict, True)
         self.__dateTime = dateTime
 
     def getDateTime(self):
@@ -94,7 +102,7 @@ class WebSocketClient(pusher.WebSocketClient):
     ON_DISCONNECTED = 4
 
     def __init__(self):
-        pusher.WebSocketClient.__init__(self, WebSocketClient.PUSHER_APP_KEY, 5)
+        super(WebSocketClient, self).__init__(WebSocketClient.PUSHER_APP_KEY, 5)
         self.__queue = Queue.Queue()
 
     def getQueue(self):
@@ -108,7 +116,7 @@ class WebSocketClient(pusher.WebSocketClient):
         elif event == "data" and msg.get("channel") == "order_book":
             self.onOrderBookUpdate(OrderBookUpdate(get_current_datetime(), msg))
         else:
-            pusher.WebSocketClient.onMessage(self, msg)
+            super(WebSocketClient, self).onMessage(msg)
 
     ######################################################################
     # WebSocketClientBase events.
@@ -121,11 +129,11 @@ class WebSocketClient(pusher.WebSocketClient):
         self.__queue.put((WebSocketClient.ON_DISCONNECTED, None))
 
     def onDisconnectionDetected(self):
-        common.logger.info("Disconnection detected.")
+        common.logger.warning("Disconnection detected.")
         try:
             self.stopClient()
         except Exception, e:
-            common.logger.error("Error stopping client: %s" % str(e))
+            common.logger.error("Error stopping websocket client: %s." % (str(e)))
         self.__queue.put((WebSocketClient.ON_DISCONNECTED, None))
 
     ######################################################################
@@ -155,7 +163,7 @@ class WebSocketClient(pusher.WebSocketClient):
 
 class WebSocketClientThread(threading.Thread):
     def __init__(self):
-        threading.Thread.__init__(self)
+        super(WebSocketClientThread, self).__init__()
         self.__wsClient = WebSocketClient()
 
     def getQueue(self):
@@ -163,13 +171,14 @@ class WebSocketClientThread(threading.Thread):
 
     def start(self):
         self.__wsClient.connect()
-        threading.Thread.start(self)
+        super(WebSocketClientThread, self).start()
 
     def run(self):
         self.__wsClient.startClient()
 
     def stop(self):
         try:
+            common.logger.info("Stopping websocket client.")
             self.__wsClient.stopClient()
         except Exception, e:
-            common.logger.error("Error shutting down websocket client: %s." % (str(e)))
+            common.logger.error("Error stopping websocket client: %s." % (str(e)))

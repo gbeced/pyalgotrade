@@ -19,16 +19,15 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
 
 # This event window will calculate and hold true-range values.
-# Formula from http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:average_true_range_a.
+# Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr.
 class ATREventWindow(technical.EventWindow):
     def __init__(self, period, useAdjustedValues):
         assert(period > 1)
-        technical.EventWindow.__init__(self, period)
+        super(ATREventWindow, self).__init__(period)
         self.__useAdjustedValues = useAdjustedValues
         self.__prevClose = None
         self.__value = None
@@ -46,7 +45,7 @@ class ATREventWindow(technical.EventWindow):
 
     def onNewValue(self, dateTime, value):
         tr = self._calculateTrueRange(value)
-        technical.EventWindow.onNewValue(self, dateTime, tr)
+        super(ATREventWindow, self).onNewValue(dateTime, tr)
         self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
@@ -60,7 +59,7 @@ class ATREventWindow(technical.EventWindow):
 
 
 class ATR(technical.EventBasedFilter):
-    """Average True Range filter as described in http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:average_true_range_a.
+    """Average True Range filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr
 
     :param barDataSeries: The BarDataSeries instance being filtered.
     :type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
@@ -69,12 +68,13 @@ class ATR(technical.EventBasedFilter):
     :param useAdjustedValues: True to use adjusted Low/High/Close values.
     :type useAdjustedValues: boolean.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period, useAdjustedValues=False, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, barDataSeries, period, useAdjustedValues=False, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        technical.EventBasedFilter.__init__(self, barDataSeries, ATREventWindow(period, useAdjustedValues), maxLen)
+        super(ATR, self).__init__(barDataSeries, ATREventWindow(period, useAdjustedValues), maxLen)

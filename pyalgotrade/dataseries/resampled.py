@@ -24,7 +24,7 @@ from pyalgotrade import resamplebase
 
 class AggFunGrouper(resamplebase.Grouper):
     def __init__(self, groupDateTime, value, aggfun):
-        resamplebase.Grouper.__init__(self, groupDateTime)
+        super(AggFunGrouper, self).__init__(groupDateTime)
         self.__values = [value]
         self.__aggfun = aggfun
 
@@ -37,7 +37,7 @@ class AggFunGrouper(resamplebase.Grouper):
 
 class BarGrouper(resamplebase.Grouper):
     def __init__(self, groupDateTime, bar_, frequency):
-        resamplebase.Grouper.__init__(self, groupDateTime)
+        super(BarGrouper, self).__init__(groupDateTime)
         self.__open = bar_.getOpen()
         self.__high = bar_.getHigh()
         self.__low = bar_.getLow()
@@ -58,12 +58,7 @@ class BarGrouper(resamplebase.Grouper):
         """Return the grouped value."""
         ret = bar.BasicBar(
             self.getDateTime(),
-            self.__open,
-            self.__high,
-            self.__low,
-            self.__close,
-            self.__volume,
-            self.__adjClose,
+            self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose,
             self.__frequency
         )
         ret.setUseAdjustedValue(self.__useAdjValue)
@@ -73,7 +68,7 @@ class BarGrouper(resamplebase.Grouper):
 class DSResampler(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, dataSeries, frequency):
+    def initDSResampler(self, dataSeries, frequency):
         if not resamplebase.is_valid_frequency(frequency):
             raise Exception("Unsupported frequency")
 
@@ -130,12 +125,12 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
             * bar.Frequency.MONTH
     """
 
-    def __init__(self, dataSeries, frequency, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, frequency, maxLen=None):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        bards.BarDataSeries.__init__(self, maxLen)
-        DSResampler.__init__(self, dataSeries, frequency)
+        super(ResampledBarDataSeries, self).__init__(maxLen)
+        self.initDSResampler(dataSeries, frequency)
 
     def checkNow(self, dateTime):
         """Forces a resample check. Depending on the resample frequency, and the current datetime, a new
@@ -145,16 +140,16 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
        :type dateTime: :class:`datetime.datetime`
         """
 
-        return DSResampler.checkNow(self, dateTime)
+        return super(ResampledBarDataSeries, self).checkNow(dateTime)
 
     def buildGrouper(self, range_, value, frequency):
         return BarGrouper(range_.getBeginning(), value, frequency)
 
 
 class ResampledDataSeries(dataseries.SequenceDataSeries, DSResampler):
-    def __init__(self, dataSeries, frequency, aggfun, maxLen=dataseries.DEFAULT_MAX_LEN):
-        dataseries.SequenceDataSeries.__init__(self, maxLen)
-        DSResampler.__init__(self, dataSeries, frequency)
+    def __init__(self, dataSeries, frequency, aggfun, maxLen=None):
+        super(ResampledDataSeries, self).__init__(maxLen)
+        self.initDSResampler(dataSeries, frequency)
         self.__aggfun = aggfun
 
     def buildGrouper(self, range_, value, frequency):

@@ -19,13 +19,12 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 
 
 class VWAPEventWindow(technical.EventWindow):
     def __init__(self, windowSize, useTypicalPrice):
-        technical.EventWindow.__init__(self, windowSize, dtype=object)
+        super(VWAPEventWindow, self).__init__(windowSize, dtype=object)
         self.__useTypicalPrice = useTypicalPrice
 
     def getValue(self):
@@ -38,7 +37,7 @@ class VWAPEventWindow(technical.EventWindow):
                 if self.__useTypicalPrice:
                     cumTotal += bar.getTypicalPrice() * bar.getVolume()
                 else:
-                    cumTotal += bar.getClose() * bar.getVolume()
+                    cumTotal += bar.getPrice() * bar.getVolume()
                 cumVolume += bar.getVolume()
 
             ret = cumTotal / float(cumVolume)
@@ -55,15 +54,16 @@ class VWAP(technical.EventBasedFilter):
     :param useTypicalPrice: True if the typical price should be used instead of the closing price.
     :type useTypicalPrice: boolean.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen=dataseries.DEFAULT_MAX_LEN):
+    def __init__(self, dataSeries, period, useTypicalPrice=False, maxLen=None):
         assert isinstance(dataSeries, bards.BarDataSeries), \
             "dataSeries must be a dataseries.bards.BarDataSeries instance"
 
-        technical.EventBasedFilter.__init__(self, dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
+        super(VWAP, self).__init__(dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
 
     def getPeriod(self):
         return self.getWindowSize()

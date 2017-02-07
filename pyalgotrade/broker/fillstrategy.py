@@ -195,6 +195,7 @@ class DefaultStrategy(FillStrategy):
     Default fill strategy.
 
     :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
+        If None, then volume limit is not checked.
     :type volumeLimit: float
 
     This strategy works as follows:
@@ -228,6 +229,7 @@ class DefaultStrategy(FillStrategy):
     """
 
     def __init__(self, volumeLimit=0.25):
+        super(DefaultStrategy, self).__init__()
         self.__volumeLeft = {}
         self.__volumeUsed = {}
         self.setVolumeLimit(volumeLimit)
@@ -242,7 +244,7 @@ class DefaultStrategy(FillStrategy):
             if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
                 volumeLeft[instrument] = bar.getVolume()
             elif self.__volumeLimit is not None:
-                # We can't round here because there is not order to request the instrument traits.
+                # We can't round here because there is no order to request the instrument traits.
                 volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
             # Reset the volume used for each instrument.
             self.__volumeUsed[instrument] = 0.0
@@ -258,10 +260,13 @@ class DefaultStrategy(FillStrategy):
     def onOrderFilled(self, broker_, order):
         # Update the volume left.
         if self.__volumeLimit is not None:
-            assert self.__volumeLeft[order.getInstrument()] >= order.getExecutionInfo().getQuantity(), \
-                "Invalid fill quantity. Not enough volume left %s" % (self.__volumeLeft[order.getInstrument()])
+            # We round the volume left here becuase it was not rounded when it was initialized.
+            volumeLeft = order.getInstrumentTraits().roundQuantity(self.__volumeLeft[order.getInstrument()])
+            fillQuantity = order.getExecutionInfo().getQuantity()
+            assert volumeLeft >= fillQuantity, \
+                "Invalid fill quantity %s. Not enough volume left %s" % (fillQuantity, volumeLeft)
             self.__volumeLeft[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
-                self.__volumeLeft[order.getInstrument()] - order.getExecutionInfo().getQuantity()
+                volumeLeft - fillQuantity
             )
 
         # Update the volume used.
@@ -274,6 +279,7 @@ class DefaultStrategy(FillStrategy):
         Set the volume limit.
 
         :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
+            If None, then volume limit is not checked.
         :type volumeLimit: float
         """
 

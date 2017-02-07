@@ -18,33 +18,31 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import multiprocessing
-import threading
 import logging
-import socket
-import random
+import multiprocessing
 import os
+import random
+import socket
+import threading
 
+from pyalgotrade.optimizer import base
 from pyalgotrade.optimizer import server
 from pyalgotrade.optimizer import worker
+from pyalgotrade.optimizer import xmlrpcserver
+
+logger = logging.getLogger(__name__)
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, server, barFeed, strategyParameters):
-        threading.Thread.__init__(self)
+    def __init__(self, server):
+        super(ServerThread, self).__init__()
         self.__server = server
-        self.__barFeed = barFeed
-        self.__strategyParameters = strategyParameters
-        self.__results = None
-
-    def getResults(self):
-        return self.__results
 
     def run(self):
-        self.__results = self.__server.serve(self.__barFeed, self.__strategyParameters)
+        self.__results = self.__server.serve()
 
 
-def worker_process(strategyClass, port):
+def worker_process(strategyClass, port, logLevel):
     class Worker(worker.Worker):
         def runStrategy(self, barFeed, *args, **kwargs):
             strat = strategyClass(barFeed, *args, **kwargs)
@@ -52,10 +50,13 @@ def worker_process(strategyClass, port):
             return strat.getResult()
 
     # Create a worker and run it.
-    name = "worker-%s" % (os.getpid())
-    w = Worker("localhost", port, name)
-    w.getLogger().setLevel(logging.ERROR)
-    w.run()
+    try:
+        name = "worker-%s" % (os.getpid())
+        w = Worker("localhost", port, name)
+        w.getLogger().setLevel(logLevel)
+        w.run()
+    except Exception, e:
+        w.getLogger().exception("Failed to run worker: %s" % (e))
 
 
 def find_port():
@@ -70,15 +71,24 @@ def find_port():
             pass
 
 
-def run(strategyClass, barFeed, strategyParameters, workerCount=None):
+def wait_process(p):
+    timeout = 10
+    p.join(timeout)
+    while p.is_alive():
+        p.join(timeout)
+
+
+def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR):
     """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
 
     :param strategyClass: The strategy class.
     :param barFeed: The bar feed to use to backtest the strategy.
     :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is a tuple that holds parameter values**.
+    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
+        a tuple that holds parameter values**.
     :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
     :type workerCount: int.
+    :param logLevel: The log level. Defaults to **logging.ERROR**.
     :rtype: A :class:`Results` instance with the best results found.
     """
 
@@ -92,15 +102,23 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
     if port is None:
         raise Exception("Failed to find a port to listen")
 
-    # Build and start the server thread before the worker processes. We'll manually stop the server once workers have finished.
-    srv = server.Server("localhost", port, False)
-    serverThread = ServerThread(srv, barFeed, strategyParameters)
+    # Build and start the server thread before the worker processes.
+    # We'll manually stop the server once workers have finished.
+    paramSource = base.ParameterSource(strategyParameters)
+    resultSinc = base.ResultSinc()
+    srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
+    serverThread = ServerThread(srv)
     serverThread.start()
 
     try:
         # Build the worker processes.
         for i in range(workerCount):
-            workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, port)))
+            workers.append(multiprocessing.Process(
+                target=worker_process,
+                args=(strategyClass, port, logLevel))
+            )
+
+        logger.info("Executing workers")
 
         # Start workers
         for process in workers:
@@ -108,11 +126,16 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None):
 
         # Wait workers
         for process in workers:
-            process.join()
+            wait_process(process)
 
+        logger.info("All workers finished")
     finally:
         # Stop and wait the server to finish.
         srv.stop()
         serverThread.join()
-        ret = serverThread.getResults()
+
+        bestResult, bestParameters = resultSinc.getBest()
+        if bestResult is not None:
+            ret = server.Results(bestParameters.args, bestResult)
+
     return ret

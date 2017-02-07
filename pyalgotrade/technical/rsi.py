@@ -19,7 +19,6 @@
 """
 
 from pyalgotrade import technical
-from pyalgotrade import dataseries
 
 
 # RSI = 100 - 100 / (1 + RS)
@@ -89,14 +88,14 @@ class RSIEventWindow(technical.EventWindow):
     def __init__(self, period):
         assert(period > 1)
         # We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
-        technical.EventWindow.__init__(self, period + 1)
+        super(RSIEventWindow, self).__init__(period + 1)
         self.__value = None
         self.__prevGain = None
         self.__prevLoss = None
         self.__period = period
 
     def onNewValue(self, dateTime, value):
-        technical.EventWindow.onNewValue(self, dateTime, value)
+        super(RSIEventWindow, self).onNewValue(dateTime, value)
 
         # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
         if value is not None and self.windowFull():
@@ -133,9 +132,10 @@ class RSI(technical.EventBasedFilter):
     :param period: The period. Note that if period is **n**, then **n+1** values are used. Must be > 1.
     :type period: int.
     :param maxLen: The maximum number of values to hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the opposite end.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, maxLen=dataseries.DEFAULT_MAX_LEN):
-        technical.EventBasedFilter.__init__(self, dataSeries, RSIEventWindow(period), maxLen)
+    def __init__(self, dataSeries, period, maxLen=None):
+        super(RSI, self).__init__(dataSeries, RSIEventWindow(period), maxLen)

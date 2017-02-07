@@ -5,7 +5,7 @@ from pyalgotrade.technical import ma
 
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod):
-        strategy.BacktestingStrategy.__init__(self, feed, 1000)
+        super(MyStrategy, self).__init__(feed, 1000)
         self.__position = None
         self.__instrument = instrument
         # We'll use adjusted close values instead of regular close values.

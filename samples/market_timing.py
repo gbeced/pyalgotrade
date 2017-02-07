@@ -9,7 +9,7 @@ from pyalgotrade.stratanalyzer import returns
 
 class MarketTiming(strategy.BacktestingStrategy):
     def __init__(self, feed, instrumentsByClass, initialCash):
-        strategy.BacktestingStrategy.__init__(self, feed, initialCash)
+        super(MarketTiming, self).__init__(feed, initialCash)
         self.setUseAdjustedValues(True)
         self.__instrumentsByClass = instrumentsByClass
         self.__rebalanceMonth = None
