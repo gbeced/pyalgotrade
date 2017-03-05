@@ -32,7 +32,7 @@ def init_data_path():
 class DocCodeTest(common.TestCase):
     def testTutorial1(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            res = common.run_sample_script("tutorial-1.py")
+            res = common.run_sample_module("tutorial-1")
             self.assertEqual(
                 common.head_file("tutorial-1.output", 3),
                 res.get_output_lines(True)[:3]
@@ -45,7 +45,7 @@ class DocCodeTest(common.TestCase):
 
     def testTutorial2(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            res = common.run_sample_script("tutorial-2.py")
+            res = common.run_sample_module("tutorial-2")
             self.assertEqual(
                 common.head_file("tutorial-2.output", 15),
                 res.get_output_lines(True)[:15]
@@ -58,7 +58,7 @@ class DocCodeTest(common.TestCase):
 
     def testTutorial3(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            res = common.run_sample_script("tutorial-3.py")
+            res = common.run_sample_module("tutorial-3")
             self.assertEqual(
                 common.head_file("tutorial-3.output", 30),
                 res.get_output_lines(True)[:30]
@@ -71,7 +71,7 @@ class DocCodeTest(common.TestCase):
 
     def testTutorial4(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            res = common.run_sample_script("tutorial-4.py")
+            res = common.run_sample_module("tutorial-4")
             lines = res.get_output_lines(True)
             self.assertEqual(
                 common.head_file("tutorial-4.output", len(lines)),
@@ -102,7 +102,7 @@ class CompInvTestCase(common.TestCase):
     def testCompInv_1(self):
         files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
         with common.CopyFiles(files, "."):
-            res = common.run_sample_script("compinv-1.py")
+            res = common.run_sample_module("compinv-1")
 
             self.assertTrue(res.exit_ok())
             # Skip the first two lines that have debug messages from the broker.
@@ -116,7 +116,7 @@ class CompInvTestCase(common.TestCase):
 class StratAnalyzerTestCase(common.TestCase):
     def testSampleStrategyAnalyzer(self):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
-            res = common.run_sample_script("sample-strategy-analyzer.py")
+            res = common.run_sample_module("sample-strategy-analyzer")
 
             self.assertTrue(res.exit_ok())
             lines = res.get_output_lines()
@@ -128,9 +128,9 @@ class StratAnalyzerTestCase(common.TestCase):
 
 class TechnicalTestCase(common.TestCase):
     def testTechnical_1(self):
-        res = common.run_sample_script("technical-1.py")
+        res = common.run_sample_module("technical-1")
 
-        self.assertTrue(res.exit_ok())
+        self.assertTrue(res.exit_ok(), res.get_output())
         lines = res.get_output_lines()
         self.assertEqual(
             lines,
@@ -147,14 +147,13 @@ class SampleStratTestCase(common.TestCase):
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
-            code = """import sys
-sys.path.append('samples')
-import statarb_erniechan
+            code = """
+from samples import statarb_erniechan
 statarb_erniechan.main(False)
 """
             res = common.run_python_code(code)
 
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-1:],
                 common.tail_file("statarb_erniechan.output", 1)
@@ -341,7 +340,7 @@ import bccharts_example_2
 bccharts_example_2.main(False)
 """
             res = common.run_python_code(code)
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[0:10],
                 common.head_file("bccharts_example_2.output", 10, path="testcases/data")

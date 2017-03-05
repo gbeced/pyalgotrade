@@ -1,0 +1,16 @@
+coverage==3.7
+nose
+nose-cov
+numpy
+pytz
+python-dateutil
+requests
+retrying
+scipy
+Cython
+TA-Lib
+matplotlib
+ws4py>=0.3.4
+tornado
+tweepy
+statsmodels

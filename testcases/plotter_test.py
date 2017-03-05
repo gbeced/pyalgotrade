@@ -49,9 +49,4 @@ class PlotterTestCase(common.TestCase):
             png = os.path.join(tmpPath, "plotter_test.png")
             fig.savefig(png)
             # Check that file size looks ok.
-            # 118458 on Mac
-            # 116210 on Linux
-            self.assertGreater(
-                os.stat(png).st_size,
-                110000
-            )
+            self.assertGreater(os.stat(png).st_size, 80000)
