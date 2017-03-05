@@ -2,6 +2,6 @@
 
 virtualenv venv
 source venv/bin/activate
-pip --no-cache-dir install -r requirements.txt
+pip --no-cache-dir install -r requirements-dev.txt
 
 

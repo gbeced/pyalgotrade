@@ -14,9 +14,6 @@ python:
 services:
   - docker
 
-# Overriding install to prevent processing of requirements.txt
-install:
-
 before_install:
   - docker pull gbecedillas/pyalgotrade:0.18
   - cp travis/Dockerfile .
