@@ -248,6 +248,29 @@ For the record, the best result found was $2314.40 with the following parameters
  4. overBoughtThreshold: 91
  5. overSoldThreshold: 18
 
+Memory efficient optimizer
+---------------------------
+
+One problem with the standard optimizer is that the particular way in which bars
+are transferred from server to client (a serial representation of python objects
+known as pickle) is fast to rebuild on the client side, but causes ridiculous 
+amounts of memory to be used  for anything but very small data sets (e.g. a ~50 MB 
+csv file, i.e. ~300 MB of active memory once loaded, would require gigabytes during 
+unpickling.)
+
+An alternative to pickling data is to pickle the feed object before the data is loaded
+and send the pickled feed together with the data as CSV. The client then un-pickles 
+the feed and uses its ``addBarsFromCSV`` method to read the data from a temporary copy 
+on disk. This is obviously slower and more I/O intensive than directly unpickling the 
+data, but also uses only a fraction of the memory.
+
+This is the server script, assuming we have already downloaded the data:
+
+.. literalinclude:: ../samples/tutorial-lowmem-optimizer-server.py
+
+This is the client script:
+
+.. literalinclude:: ../samples/tutorial-lowmem-optimizer-worker.py
 
 Plotting
 --------
