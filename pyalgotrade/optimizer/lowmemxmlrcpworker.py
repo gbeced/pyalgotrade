@@ -51,7 +51,7 @@ def call_and_retry_on_network_error(function, retryCount, *args, **kwargs):
 
 
 def worker_process(strategyClass, address, port, workerName):
-    class MyWorker(GmassXmlRcpClient):
+    class MyWorker(LowMemXmlRcpWorker):
         def runStrategy(self, barFeed, *args, **kwargs):
             strat = strategyClass(barFeed, *args, **kwargs)
             strat.run()
