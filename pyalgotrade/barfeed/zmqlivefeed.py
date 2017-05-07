@@ -120,12 +120,10 @@ class ZmqLiveFeed(barfeed.BaseBarFeed):
         return ret
 
     def start(self):
-        # print "DEBUG: GmassLiveFeed.start()"
         self.__client.start()
         self.__stopped = False
 
     def stop(self):
-        # print "DEBUG: GmassLiveFeed.stop()"
         self.__client.stop()
         self.__stopped = True
 
