@@ -1,3 +1,7 @@
+"""
+.. moduleauthor:: Massimo Fierro <massimo.fierro@gmail.com>
+"""
+
 from pyalgotrade.stratanalyzer import returns
 
 

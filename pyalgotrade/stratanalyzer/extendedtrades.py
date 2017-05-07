@@ -16,6 +16,7 @@
 
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
+.. moduleauthor:: Massimo Fierro <massimo.fierro@gmail.com>
 """
 
 from pyalgotrade import stratanalyzer
