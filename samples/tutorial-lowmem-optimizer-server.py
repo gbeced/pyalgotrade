@@ -1,4 +1,8 @@
 import itertools
+try:
+    import cPickle as pickle
+except:
+    import pickle
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.optimizer import lowmemserver
 

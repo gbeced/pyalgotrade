@@ -20,7 +20,7 @@
 
 import pyalgotrade.logger
 from pyalgotrade.optimizer import base
-import lowmemxmlrpcserver
+from pyalgotrade.optimizer import lowmemxmlrpcserver
 
 logger = pyalgotrade.logger.getLogger(__name__)
 
