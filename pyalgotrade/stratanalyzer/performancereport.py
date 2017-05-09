@@ -30,6 +30,14 @@ from pyalgotrade.stratanalyzer.extendedtrades import ExtendedTradesAnalyzer
 
 
 class PerformanceReport(object):
+    """Class for computing and generating a TradeStation inspired report.
+
+    This class is dependant on openpyxl to output the report and on 
+    the ExtendedTradesAnalyzer to have the necessary data.
+
+    :param filename: The filename to save the report as.
+    :type trades: :class:`pyalgotrade.stratanalyzer.extendedtrades.ExtendedTradesAnalyzer`.
+    """
     def __init__(self):
         pass
 
