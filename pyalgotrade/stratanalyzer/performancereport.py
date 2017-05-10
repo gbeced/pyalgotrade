@@ -42,6 +42,10 @@ class PerformanceReport(object):
         pass
 
     def writeReport(self, filename, trades):
+        if not isinstance(trades, ExtendedTradesAnalyzer):
+            raise Exception(
+                "trades should be an instance of ExtendedTradesAnalyzer")
+
         wb = Workbook()
 
         names = wb.sheetnames
