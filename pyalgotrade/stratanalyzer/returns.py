@@ -46,7 +46,8 @@ class TimeWeightedReturns(object):
     # Update the value of the portfolio.
     def update(self, currentValue):
         if self.__lastValue:
-            retSubperiod = (currentValue - self.__lastValue - self.__flows) / float(self.__lastValue)
+            retSubperiod = (currentValue - self.__lastValue -
+                            self.__flows) / float(self.__lastValue)
         else:
             retSubperiod = 0.0
 
@@ -63,7 +64,8 @@ class TimeWeightedReturns(object):
         return self.__cumRet
 
 
-# Helper class to calculate PnL and returns over a single instrument (not the whole portfolio).
+# Helper class to calculate PnL and returns over a single instrument (not
+# the whole portfolio).
 class PositionTracker(object):
     def __init__(self, instrumentTraits):
         self.__instrumentTraits = instrumentTraits
@@ -74,7 +76,8 @@ class PositionTracker(object):
         self.__avgPrice = 0.0  # Volume weighted average price per share.
         self.__position = 0.0
         self.__commissions = 0.0
-        self.__totalCommited = 0.0  # The total amount commited to this position.
+        # The total amount commited to this position.
+        self.__totalCommited = 0.0
 
     def getPosition(self):
         return self.__position
@@ -87,8 +90,9 @@ class PositionTracker(object):
 
     def getPnL(self, price=None, includeCommissions=True):
         """
-        Return the PnL that would result if closing the position a the given price.
-        Note that this will be different if commissions are used when the trade is executed.
+        Return the PnL that would result if closing the position a the given
+        price. Note that this will be different if commissions are used when
+        the trade is executed.
         """
 
         ret = self.__pnl
@@ -111,18 +115,22 @@ class PositionTracker(object):
         self.__totalCommited = self.__avgPrice * abs(self.__position)
 
     def __extendCurrentPosition(self, quantity, price):
-        newPosition = self.__instrumentTraits.roundQuantity(self.__position + quantity)
-        self.__avgPrice = (self.__avgPrice*abs(self.__position) + price*abs(quantity)) / abs(float(newPosition))
+        newPosition = self.__instrumentTraits.roundQuantity(
+            self.__position + quantity)
+        self.__avgPrice = (self.__avgPrice * abs(self.__position) +
+                           price * abs(quantity)) / abs(float(newPosition))
         self.__position = newPosition
         self.__totalCommited = self.__avgPrice * abs(self.__position)
 
     def __reduceCurrentPosition(self, quantity, price):
         # Check that we're closing or reducing partially
-        assert self.__instrumentTraits.roundQuantity(abs(self.__position) - abs(quantity)) >= 0
+        assert self.__instrumentTraits.roundQuantity(
+            abs(self.__position) - abs(quantity)) >= 0
         pnl = (price - self.__avgPrice) * quantity * -1
 
         self.__pnl += pnl
-        self.__position = self.__instrumentTraits.roundQuantity(self.__position + quantity)
+        self.__position = self.__instrumentTraits.roundQuantity(
+            self.__position + quantity)
         if self.__position == 0:
             self.__avgPrice = 0.0
 
@@ -134,7 +142,8 @@ class PositionTracker(object):
         if self.__position == 0:
             self.__openNewPosition(quantity, price)
         else:
-            # Are we extending the current position or going in the opposite direction ?
+            # Are we extending the current position or going in the opposite
+            # direction ?
             currPosDirection = math.copysign(1, self.__position)
             tradeDirection = math.copysign(1, quantity)
 
@@ -144,12 +153,13 @@ class PositionTracker(object):
                 # If we're going in the opposite direction we could be:
                 # 1: Partially reducing the current position.
                 # 2: Completely closing the current position.
-                # 3: Completely closing the current position and opening a new one in the opposite direction.
+                # 3: Completely closing the current position and opening a new
+                # one in the opposite direction.
                 if abs(quantity) <= abs(self.__position):
                     self.__reduceCurrentPosition(quantity, price)
                 else:
                     newPos = self.__position + quantity
-                    self.__reduceCurrentPosition(self.__position*-1, price)
+                    self.__reduceCurrentPosition(self.__position * -1, price)
                     self.__openNewPosition(newPos, price)
 
         self.__commissions += commission
@@ -180,9 +190,11 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
         return ret
 
     def attached(self, strat):
-        self.__portfolioReturns = TimeWeightedReturns(strat.getBroker().getEquity())
+        self.__portfolioReturns = TimeWeightedReturns(
+            strat.getBroker().getEquity())
 
-    # An event will be notified when return are calculated at each bar. The hander should receive 1 parameter:
+    # An event will be notified when return are calculated at each bar.
+    # The hander should receive 1 parameter:
     # 1: The current datetime.
     # 2: This analyzer's instance
     def getEvent(self):
@@ -203,11 +215,13 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
 
 class Returns(stratanalyzer.StrategyAnalyzer):
     """
-    A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates time-weighted returns for the
-    whole portfolio.
+    A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
+    time-weighted returns for the whole portfolio.
 
-    :param maxLen: The maximum number of values to hold in net and cumulative returs dataseries.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+    :param maxLen: The maximum number of values to hold in net and cumulative
+    returs dataseries.
+        Once a bounded length is full, when new items are added, a
+        corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
@@ -223,13 +237,17 @@ class Returns(stratanalyzer.StrategyAnalyzer):
         analyzer.getEvent().subscribe(self.__onReturns)
 
     def __onReturns(self, dateTime, returnsAnalyzerBase):
-        self.__netReturns.appendWithDateTime(dateTime, returnsAnalyzerBase.getNetReturn())
-        self.__cumReturns.appendWithDateTime(dateTime, returnsAnalyzerBase.getCumulativeReturn())
+        self.__netReturns.appendWithDateTime(dateTime,
+                                             returnsAnalyzerBase.getNetReturn())
+        self.__cumReturns.appendWithDateTime(dateTime,
+                                             returnsAnalyzerBase.getCumulativeReturn())
 
     def getReturns(self):
-        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the returns for each bar."""
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the
+        returns for each bar."""
         return self.__netReturns
 
     def getCumulativeReturns(self):
-        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the cumulative returns for each bar."""
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the
+        cumulative returns for each bar."""
         return self.__cumReturns

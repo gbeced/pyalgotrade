@@ -16,23 +16,29 @@
 
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
+.. moduleauthor:: Massimo Fierro <massimo.fierro@gmail.com>
 """
+
+import time
 
 from pyalgotrade import utils
 from pyalgotrade import observer
 from pyalgotrade import dispatchprio
 
 
-# This class is responsible for dispatching events from multiple subjects, synchronizing them if necessary.
+# This class is responsible for dispatching events from multiple subjects,
+# synchronizing them if necessary.
 class Dispatcher(object):
-    def __init__(self):
+    def __init__(self, sleepInterval=0.25):
+        self._sleepInterval = sleepInterval
         self.__subjects = []
         self.__stop = False
         self.__startEvent = observer.Event()
         self.__idleEvent = observer.Event()
         self.__currDateTime = None
 
-    # Returns the current event datetime. It may be None for events from realtime subjects.
+    # Returns the current event datetime. It may be None for events from
+    # realtime subjects.
     def getCurrentDateTime(self):
         return self.__currDateTime
 
@@ -53,14 +59,17 @@ class Dispatcher(object):
         if subject in self.__subjects:
             return
 
-        # If the subject has no specific dispatch priority put it right at the end.
+        # If the subject has no specific dispatch priority put it right at the
+        # end.
         if subject.getDispatchPriority() is dispatchprio.LAST:
             self.__subjects.append(subject)
         else:
             # Find the position according to the subject's priority.
             pos = 0
             for s in self.__subjects:
-                if s.getDispatchPriority() is dispatchprio.LAST or subject.getDispatchPriority() < s.getDispatchPriority():
+                if s.getDispatchPriority() is dispatchprio.LAST or (
+                        subject.getDispatchPriority() < s.getDispatchPriority()
+                ):
                     break
                 pos += 1
             self.__subjects.insert(pos, subject)
@@ -70,8 +79,10 @@ class Dispatcher(object):
     # Return True if events were dispatched.
     def __dispatchSubject(self, subject, currEventDateTime):
         ret = False
-        # Dispatch if the datetime is currEventDateTime of if its a realtime subject.
-        if not subject.eof() and subject.peekDateTime() in (None, currEventDateTime):
+        # Dispatch if the datetime is currEventDateTime of if its a realtime
+        # subject.
+        if not subject.eof() and subject.peekDateTime() in (
+                None, currEventDateTime):
             ret = subject.dispatch() is True
         return ret
 
@@ -87,9 +98,11 @@ class Dispatcher(object):
         for subject in self.__subjects:
             if not subject.eof():
                 eof = False
-                smallestDateTime = utils.safe_min(smallestDateTime, subject.peekDateTime())
+                smallestDateTime = utils.safe_min(
+                    smallestDateTime, subject.peekDateTime())
 
-        # Dispatch realtime subjects and those subjects with the lowest datetime.
+        # Dispatch realtime subjects and those subjects with the lowest
+        # datetime.
         if not eof:
             self.__currDateTime = smallestDateTime
 
@@ -111,6 +124,8 @@ class Dispatcher(object):
                     self.__stop = True
                 elif not eventsDispatched:
                     self.__idleEvent.emit()
+                    if self._sleepInterval > 0:
+                        time.sleep(self._sleepInterval)
         finally:
             for subject in self.__subjects:
                 subject.stop()
