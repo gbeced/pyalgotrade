@@ -7,6 +7,7 @@ doc/_build
 .ipynb_checkpoints
 .ropeproject
 
+venv
 data
 dist
 build

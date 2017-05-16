@@ -66,10 +66,11 @@ def run_python_code(code):
     return run_cmd(cmd)
 
 
-def run_sample_script(script, params=[]):
+def run_sample_module(module, params=[]):
     cmd = ["python"]
     cmd.append("-u")
-    cmd.append(os.path.join("samples", script))
+    cmd.append("-m")
+    cmd.append("samples.%s" % module)
     cmd.extend(params)
     return run_cmd(cmd)
 
