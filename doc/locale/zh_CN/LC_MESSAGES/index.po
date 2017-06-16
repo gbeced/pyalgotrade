@@ -9,81 +9,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyAlgoTrade 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 15:32+0800\n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: qytz <hhhhhf@foxmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../intro.rst:2
-msgid "Introduction"
-msgstr "介绍"
+#: ../../index.rst:7
+msgid "PyAlgoTrade documentation"
+msgstr "PyAlgoTrade 中文文档"
 
-#: ../../intro.rst:7
-msgid ""
-"PyAlgoTrade is an event driven algorithmic trading Python library with "
-"support for:"
-msgstr "PyAlgoTrade 是一个事件驱动的算法交易库，并且支持："
+#: ../../index.rst:9
+msgid "Contents:"
+msgstr "目录"
 
-#: ../../intro.rst:5
-msgid "Backtesting with historical data from CSV files."
-msgstr "使用CSV文件格式的历史数据回测；"
+#: ../../index.rst:26
+msgid "Indices and tables"
+msgstr "Indices and tables"
 
-#: ../../intro.rst:6
-msgid "Paper trading using :ref:`Bitstamp <bitstamp-tutorial-label>` live feeds."
-msgstr "使用 :ref:`Bitstamp <bitstamp-tutorial-label>` 实时数据进行模拟交易"
-
-#: ../../intro.rst:7
-msgid "Real trading on Bitstamp."
-msgstr "在Bitstamp平台实时交易"
-
-#: ../../intro.rst:9
-msgid ""
-"It should also make it easy to optimize a strategy using multiple "
-"computers."
-msgstr "It should also make it easy to optimize a strategy using 多台 计算机."
-
-#: ../../intro.rst:17
-msgid "PyAlgoTrade is developed using Python 2.7 and depends on:"
-msgstr "PyAlgoTrade is developed using Python 2.7 and 依赖:"
-
-#: ../../intro.rst:12
-msgid "NumPy and SciPy (http://numpy.scipy.org/)."
-msgstr "NumPy and SciPy (http://numpy.scipy.org/)."
-
-#: ../../intro.rst:13
-msgid "pytz (http://pytz.sourceforge.net/)."
-msgstr "pytz (http://pytz.sourceforge.net/)."
-
-#: ../../intro.rst:14
-msgid "matplotlib (http://matplotlib.sourceforge.net/) for plotting support."
-msgstr "matplotlib (http://matplotlib.sourceforge.net/) for plotting support."
-
-#: ../../intro.rst:15
-#, fuzzy
-msgid ""
-"ws4py (https://github.com/Lawouach/WebSocket-for-Python) for Bitstamp "
-"support."
+#: ../../index.rst:28
+msgid ":ref:`genindex`"
 msgstr ""
-"4py (https://github.com/Lawouach/WebSocket-for-Python) for Bitstamp "
-"\"\"support."
 
-#: ../../intro.rst:16
-msgid "tornado (http://www.tornadoweb.org/en/stable/) for Bitstamp support."
-msgstr "tornado (http://www.tornadoweb.org/en/stable/) for Bitstamp support."
+#: ../../index.rst:29
+msgid ":ref:`modindex`"
+msgstr ""
 
-#: ../../intro.rst:17
-msgid "tweepy (https://github.com/tweepy/tweepy) for Twitter support."
-msgstr "tweepy (https://github.com/tweepy/tweepy) for Twitter support."
-
-#: ../../intro.rst:19
-msgid "so you need to have those installed in order to use this library."
-msgstr "so you need to have those installed in order to use this library."
-
-#: ../../intro.rst:21
-msgid "You can install PyAlgoTrade using pip like this: ::"
-msgstr "You can install PyAlgoTrade using pip like this: ::"
-
+#: ../../index.rst:30
+msgid ":ref:`search`"
+msgstr ""

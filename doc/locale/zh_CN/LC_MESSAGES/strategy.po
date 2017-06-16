@@ -9,18 +9,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyAlgoTrade 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 
 #: ../../strategy.rst:2
 msgid "strategy -- Basic strategy classes"
-msgstr ""
+msgstr "strategy -- 策略基类"
 
 #: ../../strategy.rst:4
 msgid ""
@@ -85,11 +85,41 @@ msgstr ""
 
 #: of pyalgotrade.strategy.BaseStrategy:1
 #: pyalgotrade.strategy.position.Position:1
-msgid "基类：:class:`object`"
+msgid "Bases: :class:`object`"
 msgstr ""
 
 #: of pyalgotrade.strategy.BaseStrategy:1
 msgid "Base class for strategies."
+msgstr ""
+
+#: of pyalgotrade.strategy.BacktestingStrategy
+#: pyalgotrade.strategy.BaseStrategy
+#: pyalgotrade.strategy.BaseStrategy.enterLong
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit
+#: pyalgotrade.strategy.BaseStrategy.enterShort
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit
+#: pyalgotrade.strategy.BaseStrategy.limitOrder
+#: pyalgotrade.strategy.BaseStrategy.marketOrder
+#: pyalgotrade.strategy.BaseStrategy.onBars
+#: pyalgotrade.strategy.BaseStrategy.onEnterCanceled
+#: pyalgotrade.strategy.BaseStrategy.onEnterOk
+#: pyalgotrade.strategy.BaseStrategy.onExitCanceled
+#: pyalgotrade.strategy.BaseStrategy.onExitOk
+#: pyalgotrade.strategy.BaseStrategy.onFinish
+#: pyalgotrade.strategy.BaseStrategy.onOrderUpdated
+#: pyalgotrade.strategy.BaseStrategy.resampleBarFeed
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder
+#: pyalgotrade.strategy.BaseStrategy.stopOrder
+#: pyalgotrade.strategy.position.Position
+#: pyalgotrade.strategy.position.Position.exitLimit
+#: pyalgotrade.strategy.position.Position.exitMarket
+#: pyalgotrade.strategy.position.Position.exitStop
+#: pyalgotrade.strategy.position.Position.exitStopLimit
+msgid "Parameters"
 msgstr ""
 
 #: of pyalgotrade.strategy.BaseStrategy:3
@@ -170,6 +200,23 @@ msgstr ""
 #: pyalgotrade.strategy.BaseStrategy.stopLimitOrder:13
 #: pyalgotrade.strategy.BaseStrategy.stopOrder:11
 msgid "True if the order should be completely filled or not at all."
+msgstr ""
+
+#: of pyalgotrade.strategy.BaseStrategy.enterLong
+#: pyalgotrade.strategy.BaseStrategy.enterLongLimit
+#: pyalgotrade.strategy.BaseStrategy.enterLongStop
+#: pyalgotrade.strategy.BaseStrategy.enterLongStopLimit
+#: pyalgotrade.strategy.BaseStrategy.enterShort
+#: pyalgotrade.strategy.BaseStrategy.enterShortLimit
+#: pyalgotrade.strategy.BaseStrategy.enterShortStop
+#: pyalgotrade.strategy.BaseStrategy.enterShortStopLimit
+#: pyalgotrade.strategy.BaseStrategy.limitOrder
+#: pyalgotrade.strategy.BaseStrategy.marketOrder
+#: pyalgotrade.strategy.BaseStrategy.resampleBarFeed
+#: pyalgotrade.strategy.BaseStrategy.stopLimitOrder
+#: pyalgotrade.strategy.BaseStrategy.stopOrder
+#: pyalgotrade.strategy.position.Position.getAge
+msgid "Return type"
 msgstr ""
 
 #: of pyalgotrade.strategy.BaseStrategy.marketOrder:13
@@ -446,7 +493,7 @@ msgid ":class:`pyalgotrade.barfeed.BaseBarFeed`."
 msgstr ""
 
 #: of pyalgotrade.strategy.BacktestingStrategy:1
-msgid "基类：:class:`pyalgotrade.strategy.BaseStrategy`"
+msgid "Bases: :class:`pyalgotrade.strategy.BaseStrategy`"
 msgstr ""
 
 #: of pyalgotrade.strategy.BacktestingStrategy:1
@@ -636,4 +683,10 @@ msgid ""
 "If the position is closed, then the difference between the entry datetime"
 " and the exit datetime is returned."
 msgstr ""
+
+#~ msgid "基类：:class:`object`"
+#~ msgstr ""
+
+#~ msgid "基类：:class:`pyalgotrade.strategy.BaseStrategy`"
+#~ msgstr ""
 

@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyAlgoTrade 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
 "PO-Revision-Date: 2016-09-17 20:35+0800\n"
 "Last-Translator: qytz <hhhhhf@foxmail.com>\n"
 "Language-Team: msgroup <https://github.com/msgroup>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 
 #: ../../talib.rst:2
 msgid "TA-Lib integration"
@@ -30,18 +30,20 @@ msgid ""
 ":class:`pyalgotrade.dataseries.DataSeries` or "
 ":class:`pyalgotrade.dataseries.bards.BarDataSeries` instances instead of "
 "numpy arrays."
-msgstr "**pyalgotrade.talibext.indicator** 模块提供了 TA-Lib（http://mrjbq7.github.com/ta-lib/） "
-"的 Python 包装，我们不需要 numpy 的数组就可以通过 :class:`pyalgotrade.dataseries.DataSeries` 和 "
-":class:`pyalgotrade.dataseries.bards.BarDataSeries` "
-"直接调用 TA-Lib 的函数。"
+msgstr ""
+"**pyalgotrade.talibext.indicator** 模块提供了 TA-Lib（http://mrjbq7.github.com"
+"/ta-lib/） 的 Python 包装，我们不需要 numpy 的数组就可以通过 "
+":class:`pyalgotrade.dataseries.DataSeries` 和 "
+":class:`pyalgotrade.dataseries.bards.BarDataSeries` 直接调用 TA-Lib 的函数。"
 
 #: ../../talib.rst:8
 msgid ""
 "If you're familiar with the **talib** module, then using the "
 "**pyalgotrade.talibext.indicator** module should be straightforward. When"
 " using **talib** standalone you do something like this: ::"
-msgstr "如果你对 **talib** 模块熟悉，那么使用 **pyalgotrade.talibext.indicator** 模块也很简单。"
-"单独使用 **talib** 时你需要像下面这样::"
+msgstr ""
+"如果你对 **talib** 模块熟悉，那么使用 **pyalgotrade.talibext.indicator** 模块也很简单。单独使用 "
+"**talib** 时你需要像下面这样::"
 
 #: ../../talib.rst:17
 msgid ""
@@ -55,24 +57,26 @@ msgid ""
 "one or more dataseries (most receive just one) and the number of values "
 "to use from the dataseries. In the example above, we're calculating "
 "Bollinger Bands over the last 100 closing prices."
-msgstr "**pyalgotrade.talibext.indicator** 模块的每个函数接受一或多个（多数函数接受一个） "
-"dataseries 参数和要用到 dataseries 中值的个数。"
-"上面的例子中我们基于最近的一百条收盘价格计算了该股票的布林带。"
+msgstr ""
+"**pyalgotrade.talibext.indicator** 模块的每个函数接受一或多个（多数函数接受一个） dataseries "
+"参数和要用到 dataseries 中值的个数。上面的例子中我们基于最近的一百条收盘价格计算了该股票的布林带。"
 
 #: ../../talib.rst:28
 msgid ""
 "If the parameter name is **ds**, then you should pass a regular "
 ":class:`pyalgotrade.dataseries.DataSeries` instance, like the one shown "
 "in the example above."
-msgstr "就像上面的例子，如果参数名是 **ds** ，"
-"你需要传递一个 :class:`pyalgotrade.dataseries.DataSeries` 的实例，"
+msgstr ""
+"就像上面的例子，如果参数名是 **ds** ，你需要传递一个 :class:`pyalgotrade.dataseries.DataSeries`"
+" 的实例，"
 
 #: ../../talib.rst:31
 msgid ""
 "If the parameter name is **barDs**, then you should pass a "
 ":class:`pyalgotrade.dataseries.bards.BarDataSeries` instance, like in the"
 " next example: ::"
-msgstr "如果参数名是 **barDs** ，那么你需要传递 "
+msgstr ""
+"如果参数名是 **barDs** ，那么你需要传递 "
 ":class:`pyalgotrade.dataseries.bards.BarDataSeries` 的实例，就像下面的例子这样。"
 
 #: ../../talib.rst:40
@@ -80,4 +84,556 @@ msgid ""
 "The following TA-Lib functions are available through the "
 "**pyalgotrade.talibext.indicator** module:"
 msgstr "下面的 TA-Lib 函数可以通过 **pyalgotrade.talibext.indicator** 模块访问："
+
+#: of pyalgotrade.talibext.indicator.AD:1
+msgid "Chaikin A/D Line"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ADOSC:1
+msgid "Chaikin A/D Oscillator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ADX:1
+msgid "Average Directional Movement Index"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ADXR:1
+msgid "Average Directional Movement Index Rating"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.APO:1
+msgid "Absolute Price Oscillator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.AROON:1
+msgid "Aroon"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.AROONOSC:1
+msgid "Aroon Oscillator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ATR:1
+msgid "Average True Range"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.AVGPRICE:1
+msgid "Average Price"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.BBANDS:1
+msgid "Bollinger Bands"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.BETA:1
+msgid "Beta"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.BOP:1
+msgid "Balance Of Power"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CCI:1
+msgid "Commodity Channel Index"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL2CROWS:1
+msgid "Two Crows"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL3BLACKCROWS:1
+msgid "Three Black Crows"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL3INSIDE:1
+msgid "Three Inside Up/Down"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL3LINESTRIKE:1
+msgid "Three-Line Strike"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL3OUTSIDE:1
+msgid "Three Outside Up/Down"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL3STARSINSOUTH:1
+msgid "Three Stars In The South"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDL3WHITESOLDIERS:1
+msgid "Three Advancing White Soldiers"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLABANDONEDBABY:1
+msgid "Abandoned Baby"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLADVANCEBLOCK:1
+msgid "Advance Block"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLBELTHOLD:1
+msgid "Belt-hold"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLBREAKAWAY:1
+msgid "Breakaway"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLCLOSINGMARUBOZU:1
+msgid "Closing Marubozu"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLCONCEALBABYSWALL:1
+msgid "Concealing Baby Swallow"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLCOUNTERATTACK:1
+msgid "Counterattack"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLDARKCLOUDCOVER:1
+msgid "Dark Cloud Cover"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLDOJI:1
+msgid "Doji"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLDOJISTAR:1
+msgid "Doji Star"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLDRAGONFLYDOJI:1
+msgid "Dragonfly Doji"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLENGULFING:1
+msgid "Engulfing Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLEVENINGDOJISTAR:1
+msgid "Evening Doji Star"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLEVENINGSTAR:1
+msgid "Evening Star"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLGAPSIDESIDEWHITE:1
+msgid "Up/Down-gap side-by-side white lines"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLGRAVESTONEDOJI:1
+msgid "Gravestone Doji"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHAMMER:1
+msgid "Hammer"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHANGINGMAN:1
+msgid "Hanging Man"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHARAMI:1
+msgid "Harami Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHARAMICROSS:1
+msgid "Harami Cross Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHIGHWAVE:1
+msgid "High-Wave Candle"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHIKKAKE:1
+msgid "Hikkake Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHIKKAKEMOD:1
+msgid "Modified Hikkake Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLHOMINGPIGEON:1
+msgid "Homing Pigeon"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLIDENTICAL3CROWS:1
+msgid "Identical Three Crows"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLINNECK:1
+msgid "In-Neck Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLINVERTEDHAMMER:1
+msgid "Inverted Hammer"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLKICKING:1
+msgid "Kicking"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLKICKINGBYLENGTH:1
+msgid "Kicking - bull/bear determined by the longer marubozu"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLLADDERBOTTOM:1
+msgid "Ladder Bottom"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLLONGLEGGEDDOJI:1
+msgid "Long Legged Doji"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLLONGLINE:1
+msgid "Long Line Candle"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLMARUBOZU:1
+msgid "Marubozu"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLMATCHINGLOW:1
+msgid "Matching Low"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLMATHOLD:1
+msgid "Mat Hold"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLMORNINGDOJISTAR:1
+msgid "Morning Doji Star"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLMORNINGSTAR:1
+msgid "Morning Star"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLONNECK:1
+msgid "On-Neck Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLPIERCING:1
+msgid "Piercing Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLRICKSHAWMAN:1
+msgid "Rickshaw Man"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLRISEFALL3METHODS:1
+msgid "Rising/Falling Three Methods"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLSEPARATINGLINES:1
+msgid "Separating Lines"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLSHOOTINGSTAR:1
+msgid "Shooting Star"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLSHORTLINE:1
+msgid "Short Line Candle"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLSPINNINGTOP:1
+msgid "Spinning Top"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLSTALLEDPATTERN:1
+msgid "Stalled Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLSTICKSANDWICH:1
+msgid "Stick Sandwich"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLTAKURI:1
+msgid "Takuri (Dragonfly Doji with very long lower shadow)"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLTASUKIGAP:1
+msgid "Tasuki Gap"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLTHRUSTING:1
+msgid "Thrusting Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLTRISTAR:1
+msgid "Tristar Pattern"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLUNIQUE3RIVER:1
+msgid "Unique 3 River"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLUPSIDEGAP2CROWS:1
+msgid "Upside Gap Two Crows"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CDLXSIDEGAP3METHODS:1
+msgid "Upside/Downside Gap Three Methods"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CMO:1
+msgid "Chande Momentum Oscillator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.CORREL:1
+msgid "Pearson's Correlation Coefficient (r)"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.DEMA:1
+msgid "Double Exponential Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.DX:1
+msgid "Directional Movement Index"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.EMA:1
+msgid "Exponential Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.HT_DCPERIOD:1
+msgid "Hilbert Transform - Dominant Cycle Period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.HT_DCPHASE:1
+msgid "Hilbert Transform - Dominant Cycle Phase"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.HT_PHASOR:1
+msgid "Hilbert Transform - Phasor Components"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.HT_SINE:1
+msgid "Hilbert Transform - SineWave"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.HT_TRENDLINE:1
+msgid "Hilbert Transform - Instantaneous Trendline"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.HT_TRENDMODE:1
+msgid "Hilbert Transform - Trend vs Cycle Mode"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.KAMA:1
+msgid "Kaufman Adaptive Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.LINEARREG:1
+msgid "Linear Regression"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.LINEARREG_ANGLE:1
+msgid "Linear Regression Angle"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.LINEARREG_INTERCEPT:1
+msgid "Linear Regression Intercept"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.LINEARREG_SLOPE:1
+msgid "Linear Regression Slope"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MA:1
+msgid "All Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MACD:1
+msgid "Moving Average Convergence/Divergence"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MACDEXT:1
+msgid "MACD with controllable MA type"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MACDFIX:1
+msgid "Moving Average Convergence/Divergence Fix 12/26"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MAMA:1
+msgid "MESA Adaptive Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MAX:1
+msgid "Highest value over a specified period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MAXINDEX:1
+msgid "Index of highest value over a specified period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MEDPRICE:1
+msgid "Median Price"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MFI:1
+msgid "Money Flow Index"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MIDPOINT:1
+msgid "MidPoint over period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MIDPRICE:1
+msgid "Midpoint Price over period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MIN:1
+msgid "Lowest value over a specified period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MININDEX:1
+msgid "Index of lowest value over a specified period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MINMAX:1
+msgid "Lowest and highest values over a specified period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MINMAXINDEX:1
+msgid "Indexes of lowest and highest values over a specified period"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MINUS_DI:1
+msgid "Minus Directional Indicator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MINUS_DM:1
+msgid "Minus Directional Movement"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.MOM:1
+msgid "Momentum"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.NATR:1
+msgid "Normalized Average True Range"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.OBV:1
+msgid "On Balance Volume"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.PLUS_DI:1
+msgid "Plus Directional Indicator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.PLUS_DM:1
+msgid "Plus Directional Movement"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.PPO:1
+msgid "Percentage Price Oscillator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ROC:1
+msgid "Rate of change : ((price/prevPrice)-1)*100"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ROCP:1
+msgid "Rate of change Percentage: (price-prevPrice)/prevPrice"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ROCR:1
+msgid "Rate of change ratio: (price/prevPrice)"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ROCR100:1
+msgid "Rate of change ratio 100 scale: (price/prevPrice)*100"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.RSI:1
+msgid "Relative Strength Index"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.SAR:1
+msgid "Parabolic SAR"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.SAREXT:1
+msgid "Parabolic SAR - Extended"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.SMA:1
+msgid "Simple Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.STDDEV:1
+msgid "Standard Deviation"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.STOCH:1
+msgid "Stochastic"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.STOCHF:1
+msgid "Stochastic Fast"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.STOCHRSI:1
+msgid "Stochastic Relative Strength Index"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.SUM:1
+msgid "Summation"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.T3:1
+msgid "Triple Exponential Moving Average (T3)"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.TEMA:1
+msgid "Triple Exponential Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.TRANGE:1
+msgid "True Range"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.TRIMA:1
+msgid "Triangular Moving Average"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.TRIX:1
+msgid "1-day Rate-Of-Change (ROC) of a Triple Smooth EMA"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.TSF:1
+msgid "Time Series Forecast"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.TYPPRICE:1
+msgid "Typical Price"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.ULTOSC:1
+msgid "Ultimate Oscillator"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.VAR:1
+msgid "Variance"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.WCLPRICE:1
+msgid "Weighted Close Price"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.WILLR:1
+msgid "Williams' %R"
+msgstr ""
+
+#: of pyalgotrade.talibext.indicator.WMA:1
+msgid "Weighted Moving Average"
+msgstr ""
 

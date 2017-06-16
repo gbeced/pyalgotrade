@@ -9,25 +9,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyAlgoTrade 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 
 #: ../../plotter.rst:2
 msgid "plotter -- Strategy plotter"
-msgstr ""
+msgstr "plotter -- 策略绘图器"
 
 #: of pyalgotrade.plotter.StrategyPlotter:1 pyalgotrade.plotter.Subplot:1
-msgid "基类：:class:`object`"
+msgid "Bases: :class:`object`"
 msgstr ""
 
 #: of pyalgotrade.plotter.Subplot.addCallback:1
 msgid "Add a callback that will be called on each bar."
+msgstr ""
+
+#: of pyalgotrade.plotter.StrategyPlotter
+#: pyalgotrade.plotter.StrategyPlotter.buildFigureAndSubplots
+#: pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot
+#: pyalgotrade.plotter.StrategyPlotter.plot
+#: pyalgotrade.plotter.Subplot.addCallback
+#: pyalgotrade.plotter.Subplot.addDataSeries
+#: pyalgotrade.plotter.Subplot.addLine
+msgid "Parameters"
 msgstr ""
 
 #: of pyalgotrade.plotter.Subplot.addCallback:3
@@ -65,7 +75,7 @@ msgid "The position for the line."
 msgstr ""
 
 #: of pyalgotrade.plotter.InstrumentSubplot:1
-msgid "基类：:class:`pyalgotrade.plotter.Subplot`"
+msgid "Bases: :class:`pyalgotrade.plotter.Subplot`"
 msgstr ""
 
 #: of pyalgotrade.plotter.InstrumentSubplot:1
@@ -114,6 +124,13 @@ msgid ""
 "plotted."
 msgstr ""
 
+#: of pyalgotrade.plotter.StrategyPlotter.buildFigureAndSubplots
+#: pyalgotrade.plotter.StrategyPlotter.getInstrumentSubplot
+#: pyalgotrade.plotter.StrategyPlotter.getOrCreateSubplot
+#: pyalgotrade.plotter.StrategyPlotter.getPortfolioSubplot
+msgid "Return type"
+msgstr ""
+
 #: of pyalgotrade.plotter.StrategyPlotter.getInstrumentSubplot:1
 msgid "Returns the InstrumentSubplot for a given instrument"
 msgstr ""
@@ -142,4 +159,10 @@ msgstr ""
 #: of pyalgotrade.plotter.StrategyPlotter.plot:1
 msgid "Plots the strategy execution. Must be called after running the strategy."
 msgstr ""
+
+#~ msgid "基类：:class:`object`"
+#~ msgstr ""
+
+#~ msgid "基类：:class:`pyalgotrade.plotter.Subplot`"
+#~ msgstr ""
 

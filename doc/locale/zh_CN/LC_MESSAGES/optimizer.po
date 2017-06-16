@@ -9,21 +9,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyAlgoTrade 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 
 #: ../../optimizer.rst:2
 msgid "optimizer -- Parallel optimizers"
-msgstr ""
+msgstr "optimizer -- 并行优化器"
 
 #: of pyalgotrade.optimizer.server.Results:1
-msgid "基类：:class:`object`"
+msgid "Bases: :class:`object`"
 msgstr ""
 
 #: of pyalgotrade.optimizer.server.Results:1
@@ -44,6 +44,11 @@ msgid ""
 "workers to use."
 msgstr ""
 
+#: of pyalgotrade.optimizer.local.run pyalgotrade.optimizer.server.serve
+#: pyalgotrade.optimizer.worker.run
+msgid "Parameters"
+msgstr ""
+
 #: of pyalgotrade.optimizer.server.serve:3
 msgid "The bar feed that each worker will use to backtest the strategy."
 msgstr ""
@@ -60,6 +65,10 @@ msgstr ""
 
 #: of pyalgotrade.optimizer.server.serve:8
 msgid "The port to listen for incoming worker connections."
+msgstr ""
+
+#: of pyalgotrade.optimizer.local.run pyalgotrade.optimizer.server.serve
+msgid "Return type"
 msgstr ""
 
 #: of pyalgotrade.optimizer.server.serve:10
@@ -136,4 +145,7 @@ msgid ""
 " select the best strategy execution. You can override that method to rank"
 " executions using a different criteria."
 msgstr ""
+
+#~ msgid "基类：:class:`object`"
+#~ msgstr ""
 

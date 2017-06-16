@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyAlgoTrade 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
 "PO-Revision-Date: 2016-09-17 20:35+0800\n"
 "Last-Translator: qytz <hhhhhf@foxmail.com>\n"
 "Language-Team: msgroup <https://github.com/msgroup>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 
 #: ../../eventprofiler.rst:2
 msgid "Event profiler"
@@ -31,10 +31,10 @@ msgid ""
 "data for a specified event and then calculates the impact of that event "
 "on the equity prices in the past and the future over a certain lookback "
 "period."
-msgstr "**eventprofiler** 模块的灵感来自于 "
-"QSTK（http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9），"
-"**eventprofiler** 模块用于分析、统计事件是如何影响未来股票价格的。事件分析器器通过"
-"扫描某特定时间的历史行情数据来计算该事件对未来及过去一段时间该股票价格的影响。"
+msgstr ""
+"**eventprofiler** 模块的灵感来自于 "
+"QSTK（http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9），**eventprofiler**"
+" 模块用于分析、统计事件是如何影响未来股票价格的。事件分析器器通过扫描某特定时间的历史行情数据来计算该事件对未来及过去一段时间该股票价格的影响。"
 
 #: ../../eventprofiler.rst:9
 msgid ""
@@ -44,7 +44,8 @@ msgstr "**本工具的目的是使你在继续回测进程前快速的验证你�
 
 #: of pyalgotrade.eventprofiler.Predicate:1
 #: pyalgotrade.eventprofiler.Profiler:1 pyalgotrade.eventprofiler.Results:1
-msgid "基类：:class:`object`"
+#, fuzzy
+msgid "Bases: :class:`object`"
 msgstr "基类：:class:`object`"
 
 #: of pyalgotrade.eventprofiler.Results:1
@@ -67,8 +68,13 @@ msgstr "事件基类，你需要实现本类的子类来标识事件。"
 msgid ""
 "Override (**mandatory**) to determine if an event took place in the last "
 "bar (bards[-1])."
-msgstr "**强制重写** 上一个 bar （bards[-1]，译注：疑似原文有误，"
-"可能为 bars[-1]）是否发生了某个事件。"
+msgstr "**强制重写** 上一个 bar （bards[-1]，译注：疑似原文有误，可能为 bars[-1]）是否发生了某个事件。"
+
+#: of pyalgotrade.eventprofiler.Predicate.eventOccurred
+#: pyalgotrade.eventprofiler.Profiler pyalgotrade.eventprofiler.Profiler.run
+#: pyalgotrade.eventprofiler.plot
+msgid "Parameters"
+msgstr ""
 
 #: of pyalgotrade.eventprofiler.Predicate.eventOccurred:3
 msgid "Instrument identifier."
@@ -77,6 +83,11 @@ msgstr "股票代码。"
 #: of pyalgotrade.eventprofiler.Predicate.eventOccurred:5
 msgid "The BarDataSeries for the given instrument."
 msgstr "该股票的 bar 数据序列。"
+
+#: of pyalgotrade.eventprofiler.Predicate.eventOccurred
+#: pyalgotrade.eventprofiler.Profiler.getResults
+msgid "Return type"
+msgstr ""
 
 #: of pyalgotrade.eventprofiler.Profiler:1
 msgid ""
@@ -133,7 +144,8 @@ msgid ""
 "The following example is inspired on the 'Buy-on-Gap Model' from Ernie "
 "Chan's book: 'Algorithmic Trading: Winning Strategies and Their "
 "Rationale':"
-msgstr "下面的例子基于 Ernie Chan 的 《Algorithmic Trading: Winning Strategies and Their "
+msgstr ""
+"下面的例子基于 Ernie Chan 的 《Algorithmic Trading: Winning Strategies and Their "
 "Rationale》的 选择跳空股票模型（'Buy-on-Gap Model'）。"
 
 #: ../../eventprofiler.rst:22
@@ -143,8 +155,7 @@ msgid ""
 "deviation. The standard deviation is computed using the daily close-to-"
 "close returns of the last 90 days. These are the stocks that \"gapped "
 "down\"."
-msgstr "想法是在开盘前选择昨天收盘价比今天开盘价低于某个标准，该标准通过最近90天的"
-"日均收盘价进行计算。这些股票称为 \"gapped down\" 。"
+msgstr "想法是在开盘前选择昨天收盘价比今天开盘价低于某个标准，该标准通过最近90天的日均收盘价进行计算。这些股票称为 \"gapped down\" 。"
 
 #: ../../eventprofiler.rst:25
 msgid ""
