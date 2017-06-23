@@ -63,12 +63,10 @@ class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
 
 class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
-    defaultBatchSize = 200
-
-    def __init__(self, paramSource, resultSinc, barFeed, address, port, autoStop=True):
+    def __init__(self, paramSource, resultSinc, barFeed, address, port, autoStop=True, batchSize=200):
+        assert batchSize > 0, "Invalid batch size"
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
-        # super(Server, self).__init__((address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
-
+        self.__batchSize = batchSize
         self.__paramSource = paramSource
         self.__resultSinc = resultSinc
         self.__barFeed = barFeed
@@ -89,6 +87,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.register_function(self.getNextJob, 'getNextJob')
         self.register_function(self.pushJobResults, 'pushJobResults')
 
+    def getBatchSize(self):
+        return self.__batchSize
+
     def getInstrumentsAndBars(self):
         return self.__instrumentsAndBars
 
@@ -100,7 +101,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
         with self.__lock:
             # Get the next set of parameters.
-            params = self.__paramSource.getNext(self.defaultBatchSize)
+            params = self.__paramSource.getNext(self.__batchSize)
             params = map(lambda p: p.args, params)
 
             # Map the active job
