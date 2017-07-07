@@ -556,7 +556,7 @@ class BaseStrategy(object):
         :rtype: :class:`pyalgotrade.barfeed.BaseBarFeed`.
         """
         ret = resampled.ResampledBarFeed(self.getFeed(), frequency)
-        ret.getNewValuesEvent().subscribe(callback)
+        ret.getNewValuesEvent().subscribe(lambda dt, bars: callback(bars))
         self.getDispatcher().addSubject(ret)
         self.__resampledBarFeeds.append(ret)
         return ret
