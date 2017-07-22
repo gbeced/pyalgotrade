@@ -29,9 +29,9 @@ def init_data_path():
         os.mkdir(storage)
 
 
-class DocCodeTest(common.TestCase):
+class TutorialsTestCase(common.TestCase):
     def testTutorial1(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-1")
             self.assertEqual(
                 common.head_file("tutorial-1.output", 3),
@@ -44,7 +44,7 @@ class DocCodeTest(common.TestCase):
             self.assertTrue(res.exit_ok())
 
     def testTutorial2(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-2")
             self.assertEqual(
                 common.head_file("tutorial-2.output", 15),
@@ -57,7 +57,7 @@ class DocCodeTest(common.TestCase):
             self.assertTrue(res.exit_ok())
 
     def testTutorial3(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-3")
             self.assertEqual(
                 common.head_file("tutorial-3.output", 30),
@@ -70,7 +70,7 @@ class DocCodeTest(common.TestCase):
             self.assertTrue(res.exit_ok())
 
     def testTutorial4(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-4")
             lines = res.get_output_lines(True)
             self.assertEqual(
@@ -79,6 +79,8 @@ class DocCodeTest(common.TestCase):
             )
             self.assertTrue(res.exit_ok())
 
+
+class CVSFeedTest(common.TestCase):
     def testCSVFeed(self):
         with common.CopyFiles([os.path.join("samples", "data", "quandl_gold_2.csv")], "."):
             code = """import sys

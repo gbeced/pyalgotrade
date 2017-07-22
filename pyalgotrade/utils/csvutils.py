@@ -22,6 +22,8 @@ import csv
 import requests
 
 import logging
+
+
 logging.getLogger("requests").setLevel(logging.ERROR)
 
 
