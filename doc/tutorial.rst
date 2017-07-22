@@ -146,7 +146,7 @@ Meet the optimizer component. The idea is very simple:
  * There are multiple workers responsible for:
     * Running the strategy with the bars and parameters provided by the server.
 
-To illustrate this we'll use a strategy known as RSI2 (http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2)
+To illustrate this we'll use a strategy known as `RSI2 <http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2>`_
 which requires the following parameters:
 
  * An SMA period for trend identification. We'll call this entrySMA and will range between 150 and 250.
