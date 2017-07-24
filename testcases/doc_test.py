@@ -102,13 +102,19 @@ import csvfeed_1
 
 class CompInvTestCase(common.TestCase):
     def testCompInv_1(self):
-        files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
+        files = [os.path.join("samples", "data", src) for src in [
+            "WIKI-IBM-2011-quandl.csv",
+            "WIKI-AES-2011-quandl.csv",
+            "WIKI-AIG-2011-quandl.csv",
+            "WIKI-ORCL-2011-quandl.csv",
+        ]]
+
         with common.CopyFiles(files, "."):
             res = common.run_sample_module("compinv-1")
 
             self.assertTrue(res.exit_ok())
             # Skip the first two lines that have debug messages from the broker.
-            lines = res.get_output_lines()[2:]
+            lines = res.get_output_lines()
             self.assertEqual(
                 lines,
                 common.head_file("compinv-1.output", len(lines))
