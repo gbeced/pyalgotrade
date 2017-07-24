@@ -247,8 +247,8 @@ bbands.main(False)
     def testEventStudy(self):
         files = []
         for year in range(2008, 2010):
-            for symbol in ["AA", "AES", "AIG"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["IBM", "AES", "AIG"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
