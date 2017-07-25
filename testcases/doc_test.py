@@ -170,8 +170,8 @@ statarb_erniechan.main(False)
     def testVWAPMomentum(self):
         files = []
         for year in range(2011, 2013):
-            for symbol in ["aapl"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["AAPL"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
