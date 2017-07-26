@@ -296,7 +296,6 @@ quandl_sample.main(False)
             )
 
     def testMarketTiming(self):
-        init_data_path()
         files = []
         instruments = ["VTI", "VEU", "IEF", "VNQ", "DBC", "SPY"]
         for year in range(2007, 2013+1):
@@ -304,7 +303,7 @@ quandl_sample.main(False)
                 fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
-        with common.CopyFiles(files, "data"):
+        with common.CopyFiles(files, "."):
             code = """import sys
 sys.path.append('samples')
 import market_timing
