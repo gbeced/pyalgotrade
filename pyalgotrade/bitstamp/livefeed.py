@@ -20,7 +20,7 @@
 
 import datetime
 import time
-import Queue
+import queue
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
@@ -137,7 +137,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             # Start the thread that runs the client.
             self.__thread = self.buildWebSocketClientThread()
             self.__thread.start()
-        except Exception, e:
+        except Exception as e:
             self.__initializationOk = False
             common.logger.error("Error connecting : %s" % str(e))
 
@@ -184,7 +184,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             else:
                 ret = False
                 common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except Queue.Empty:
+        except queue.Empty:
             pass
         return ret
 
@@ -242,7 +242,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             if self.__thread is not None and self.__thread.is_alive():
                 common.logger.info("Shutting down websocket client.")
                 self.__thread.stop()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error shutting down client: %s" % (str(e)))
 
     # This should not raise.

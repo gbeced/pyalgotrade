@@ -54,7 +54,7 @@ def _cross_impl(values1, values2, start, end, signCheck):
     # Compute differences and check sign changes.
     ret = 0
     diffs = compute_diff(values1, values2)
-    diffs = filter(lambda x: x != 0, diffs)
+    diffs = [x for x in diffs if x != 0]
     prevDiff = None
     for diff in diffs:
         if prevDiff is not None and not signCheck(prevDiff) and signCheck(diff):

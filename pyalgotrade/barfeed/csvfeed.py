@@ -178,7 +178,7 @@ class GenericRowParser(RowParser):
 
         # Process extra columns.
         extra = {}
-        for k, v in csvRowDict.iteritems():
+        for k, v in csvRowDict.items():
             if k not in self.__columnNames:
                 extra[k] = csvutils.float_or_string(v)
 

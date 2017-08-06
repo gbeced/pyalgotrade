@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade.technical import stoch
 from pyalgotrade.dataseries import bards
@@ -110,7 +110,7 @@ class TestCase(common.TestCase):
         self.assertEqual(len(stochFilter.getD()), 3)
         self.assertEqual(len(stochFilter.getD().getDateTimes()), 3)
 
-        for i in xrange(3):
+        for i in range(3):
             self.assertEqual(round(stochFilter[i], 4), kValues[i])
             self.assertEqual(round(stochFilter.getD()[i], 4), dValues[i])
 

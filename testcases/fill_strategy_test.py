@@ -21,7 +21,7 @@
 import unittest
 import datetime
 
-import broker_backtesting_test
+from . import broker_backtesting_test
 
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy
@@ -120,14 +120,14 @@ class DefaultStrategyTestCase(BaseTestCase):
     def testVolumeLimitPerBar(self):
         volume = 100
         self.strategy.onBars(None, self.barsBuilder.nextBars(11, 12, 4, 9, volume))
-        self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 25)
-        self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 0)
+        self.assertEqual(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 25)
+        self.assertEqual(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 0)
 
         self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(24, 11))
-        self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
-        self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
+        self.assertEqual(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
+        self.assertEqual(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
 
-        with self.assertRaisesRegexp(Exception, "Invalid fill quantity 25. Not enough volume left 1"):
+        with self.assertRaisesRegex(Exception, "Invalid fill quantity 25. Not enough volume left 1"):
             self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(25, 11))
-        self.assertEquals(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
-        self.assertEquals(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
+        self.assertEqual(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
+        self.assertEqual(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)

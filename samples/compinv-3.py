@@ -81,9 +81,9 @@ class MyStrategy(strategy.BacktestingStrategy):
 def main():
     # Load the orders file.
     ordersFile = OrdersFile("orders.csv")
-    print "First date", ordersFile.getFirstDate()
-    print "Last date", ordersFile.getLastDate()
-    print "Symbols", ordersFile.getInstruments()
+    print("First date", ordersFile.getFirstDate())
+    print("Last date", ordersFile.getLastDate())
+    print("Symbols", ordersFile.getInstruments())
 
     # Load the data from QSTK storage. QS environment variable has to be defined.
     if os.getenv("QS") is None:
@@ -108,10 +108,10 @@ def main():
     myStrategy.run()
 
     # Print the results.
-    print "Final portfolio value: $%.2f" % myStrategy.getResult()
-    print "Anual return: %.2f %%" % (retAnalyzer.getCumulativeReturns()[-1] * 100)
-    print "Average daily return: %.2f %%" % (stats.mean(retAnalyzer.getReturns()) * 100)
-    print "Std. dev. daily return: %.4f" % (stats.stddev(retAnalyzer.getReturns()))
-    print "Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0))
+    print("Final portfolio value: $%.2f" % myStrategy.getResult())
+    print("Anual return: %.2f %%" % (retAnalyzer.getCumulativeReturns()[-1] * 100))
+    print("Average daily return: %.2f %%" % (stats.mean(retAnalyzer.getReturns()) * 100))
+    print("Std. dev. daily return: %.4f" % (stats.stddev(retAnalyzer.getReturns())))
+    print("Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0)))
 
 main()

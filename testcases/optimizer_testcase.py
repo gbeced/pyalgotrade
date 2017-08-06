@@ -21,7 +21,7 @@
 import sys
 import logging
 
-import common
+from . import common
 
 from pyalgotrade.optimizer import local
 from pyalgotrade import strategy
@@ -52,8 +52,8 @@ class OptimizerTestCase(common.TestCase):
         res = local.run(
             sma_crossover.SMACrossOver, barFeed, parameters_generator(instrument, 5, 100), logLevel=logging.DEBUG
         )
-        self.assertEquals(round(res.getResult(), 2), 1295462.6)
-        self.assertEquals(res.getParameters()[1], 20)
+        self.assertEqual(round(res.getResult(), 2), 1295462.6)
+        self.assertEqual(res.getParameters()[1], 20)
 
     def testFailingStrategy(self):
         barFeed = yahoofeed.Feed()

@@ -6,11 +6,11 @@ import rsi2
 
 def parameters_generator():
     instrument = ["dia"]
-    entrySMA = range(150, 251)
-    exitSMA = range(5, 16)
-    rsiPeriod = range(2, 11)
-    overBoughtThreshold = range(75, 96)
-    overSoldThreshold = range(5, 26)
+    entrySMA = list(range(150, 251))
+    exitSMA = list(range(5, 16))
+    rsiPeriod = list(range(2, 11))
+    overBoughtThreshold = list(range(75, 96))
+    overSoldThreshold = list(range(5, 26))
     return itertools.product(instrument, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
 
 

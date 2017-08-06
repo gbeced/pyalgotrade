@@ -21,7 +21,7 @@
 import os
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade import bar
 from pyalgotrade.barfeed import googlefeed
@@ -54,7 +54,7 @@ class ToolsTestCase(common.TestCase):
         instrument = "inexistent"
 
         # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "400 Client Error: Bad Request"):
+        with self.assertRaisesRegex(Exception, "400 Client Error: Bad Request"):
             with common.TmpDir() as tmpPath:
                 bf = googlefinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
 

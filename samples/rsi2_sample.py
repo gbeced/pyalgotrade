@@ -28,7 +28,7 @@ def main(plot):
         plt.getOrCreateSubplot("rsi").addLine("Oversold", overSoldThreshold)
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
 
     if plot:
         plt.plot()

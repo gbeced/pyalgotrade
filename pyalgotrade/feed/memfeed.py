@@ -72,7 +72,7 @@ class MemFeed(feed.BaseFeed):
     # 2: dictionary or dict-like object.
     def addValues(self, values):
         # Register a dataseries for each item.
-        for key in values[0][1].keys():
+        for key in list(values[0][1].keys()):
             self.registerDataSeries(key)
 
         self.__values.extend(values)

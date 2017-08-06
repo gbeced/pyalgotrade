@@ -19,7 +19,7 @@
 """
 
 import json
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import pyalgotrade
 from pyalgotrade.websocket import client
@@ -76,7 +76,7 @@ class WebSocketClient(client.WebSocketClientBase):
             "client": "Python-PyAlgoTrade",
             "version": pyalgotrade.__version__
             }
-        url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urllib.urlencode(params))
+        url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urllib.parse.urlencode(params))
         super(WebSocketClient, self).__init__(url)
         self.setKeepAliveMgr(PingKeepAliveMgr(self, maxInactivity, responseTimeout))
 

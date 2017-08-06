@@ -19,7 +19,7 @@ class MyStrategy(strategy.BacktestingStrategy):
             "glng": 11095,
             "simo": 17293,
         }
-        for instrument, quantity in orders.items():
+        for instrument, quantity in list(orders.items()):
             self.marketOrder(instrument, quantity, onClose=True, allOrNone=True)
 
     def onBars(self, bars):
@@ -45,8 +45,8 @@ myStrategy.attachAnalyzer(sharpeRatioAnalyzer)
 myStrategy.run()
 
 # Print the results.
-print "Final portfolio value: $%.2f" % myStrategy.getResult()
-print "Anual return: %.2f %%" % (retAnalyzer.getCumulativeReturns()[-1] * 100)
-print "Average daily return: %.2f %%" % (stats.mean(retAnalyzer.getReturns()) * 100)
-print "Std. dev. daily return: %.4f" % (stats.stddev(retAnalyzer.getReturns()))
-print "Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0))
+print("Final portfolio value: $%.2f" % myStrategy.getResult())
+print("Anual return: %.2f %%" % (retAnalyzer.getCumulativeReturns()[-1] * 100))
+print("Average daily return: %.2f %%" % (stats.mean(retAnalyzer.getReturns()) * 100))
+print("Std. dev. daily return: %.4f" % (stats.stddev(retAnalyzer.getReturns())))
+print("Sharpe ratio: %.2f" % (sharpeRatioAnalyzer.getSharpeRatio(0)))
