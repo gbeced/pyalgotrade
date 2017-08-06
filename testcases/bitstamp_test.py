@@ -21,11 +21,11 @@
 import datetime
 import time
 import threading
-import Queue
+import queue
 import json
 
-import common as tc_common
-import test_strategy
+from . import common as tc_common
+from . import test_strategy
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -41,7 +41,7 @@ from pyalgotrade import dispatcher
 class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__queue.put((wsclient.WebSocketClient.ON_CONNECTED, None))
         for event in events:
             self.__queue.put(event)
@@ -207,12 +207,12 @@ class TestStrategy(test_strategy.BaseTestStrategy):
 class InstrumentTraitsTestCase(tc_common.TestCase):
     def testInstrumentTraits(self):
         traits = common.BTCTraits()
-        self.assertEquals(traits.roundQuantity(0), 0)
-        self.assertEquals(traits.roundQuantity(1), 1)
-        self.assertEquals(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
-        self.assertEquals(traits.roundQuantity(1.1 + 1.1 + 1.1 - 3.3), 0)
-        self.assertEquals(traits.roundQuantity(0.00441376), 0.00441376)
-        self.assertEquals(traits.roundQuantity(0.004413764), 0.00441376)
+        self.assertEqual(traits.roundQuantity(0), 0)
+        self.assertEqual(traits.roundQuantity(1), 1)
+        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
+        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1 - 3.3), 0)
+        self.assertEqual(traits.roundQuantity(0.00441376), 0.00441376)
+        self.assertEqual(traits.roundQuantity(0.004413764), 0.00441376)
 
 
 class BacktestingTestCase(tc_common.TestCase):
@@ -232,10 +232,10 @@ class BacktestingTestCase(tc_common.TestCase):
         brk = broker.BacktestingBroker(100, barFeed)
         strat = TestStrategy(barFeed, brk)
         strat.run()
-        self.assertEquals(strat.pos.getShares(), 1)
-        self.assertEquals(strat.pos.entryActive(), False)
-        self.assertEquals(strat.pos.isOpen(), True)
-        self.assertEquals(strat.pos.getEntryOrder().getAvgFillPrice(), 5.83)
+        self.assertEqual(strat.pos.getShares(), 1)
+        self.assertEqual(strat.pos.entryActive(), False)
+        self.assertEqual(strat.pos.isOpen(), True)
+        self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 5.83)
 
     def testMinTrade(self):
         class TestStrategy(strategy.BaseStrategy):
@@ -251,7 +251,7 @@ class BacktestingTestCase(tc_common.TestCase):
         barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
         brk = broker.BacktestingBroker(100, barFeed)
         strat = TestStrategy(barFeed, brk)
-        with self.assertRaisesRegexp(Exception, "Trade must be >= 5"):
+        with self.assertRaisesRegex(Exception, "Trade must be >= 5"):
             strat.run()
 
 
@@ -278,9 +278,9 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertTrue(strat.pos.isOpen())
-        self.assertEquals(round(strat.pos.getShares(), 3), 0.3)
-        self.assertEquals(len(strat.posExecutionInfo), 1)
-        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(round(strat.pos.getShares(), 3), 0.3)
+        self.assertEqual(len(strat.posExecutionInfo), 1)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testBuyAndSellWithPartialFill1(self):
 
@@ -308,10 +308,10 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertTrue(strat.pos.isOpen())
-        self.assertEquals(round(strat.pos.getShares(), 3), 0.1)
-        self.assertEquals(len(strat.posExecutionInfo), 1)
-        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEquals(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(round(strat.pos.getShares(), 3), 0.1)
+        self.assertEqual(len(strat.posExecutionInfo), 1)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testBuyAndSellWithPartialFill2(self):
 
@@ -340,10 +340,10 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertFalse(strat.pos.isOpen())
-        self.assertEquals(strat.pos.getShares(), 0)
-        self.assertEquals(len(strat.posExecutionInfo), 2)
-        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEquals(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getShares(), 0)
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
     def testRoundingBugWithTrades(self):
         # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
@@ -371,19 +371,19 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(strat.pos.getEntryOrder().getAvgFillPrice(), 1000)
-        self.assertEquals(strat.pos.getExitOrder().getAvgFillPrice(), 1000)
-        self.assertEquals(strat.pos.getEntryOrder().getFilled(), 0.01)
-        self.assertEquals(strat.pos.getExitOrder().getFilled(), 0.01)
-        self.assertEquals(strat.pos.getEntryOrder().getRemaining(), 0)
-        self.assertEquals(strat.pos.getExitOrder().getRemaining(), 0)
-        self.assertEquals(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEquals(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 1000)
+        self.assertEqual(strat.pos.getExitOrder().getAvgFillPrice(), 1000)
+        self.assertEqual(strat.pos.getEntryOrder().getFilled(), 0.01)
+        self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.01)
+        self.assertEqual(strat.pos.getEntryOrder().getRemaining(), 0)
+        self.assertEqual(strat.pos.getExitOrder().getRemaining(), 0)
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
 
         self.assertFalse(strat.pos.isOpen())
-        self.assertEquals(len(strat.posExecutionInfo), 2)
-        self.assertEquals(strat.pos.getShares(), 0.0)
+        self.assertEqual(len(strat.posExecutionInfo), 2)
+        self.assertEqual(strat.pos.getShares(), 0.0)
 
     def testInvalidOrders(self):
         barFeed = TestingLiveTradeFeed()
@@ -421,9 +421,9 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(strat.errors, 4)
-        self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(brk.getCash(), 0)
+        self.assertEqual(strat.errors, 4)
+        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getCash(), 0)
 
     def testRanOutOfCash(self):
         class Strategy(TestStrategy):
@@ -446,9 +446,9 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(strat.errors, 2)
-        self.assertEquals(brk.getShares("BTC"), 0.1)
-        self.assertEquals(brk.getCash(), 0)
+        self.assertEqual(strat.errors, 2)
+        self.assertEqual(brk.getShares("BTC"), 0.1)
+        self.assertEqual(brk.getCash(), 0)
 
     def testSellWithoutBTC(self):
         class Strategy(TestStrategy):
@@ -470,9 +470,9 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(strat.errors, 2)
-        self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(brk.getCash(), 0)
+        self.assertEqual(strat.errors, 2)
+        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getCash(), 0)
 
     def testRanOutOfCoins(self):
         class Strategy(TestStrategy):
@@ -500,9 +500,9 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(strat.errors, 1)
-        self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(brk.getCash(), 10)
+        self.assertEqual(strat.errors, 1)
+        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getCash(), 10)
 
 
 class LiveTradingTestCase(tc_common.TestCase):
@@ -532,15 +532,15 @@ class LiveTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(len(strat.orderExecutionInfo), 2)
-        self.assertEquals(strat.orderExecutionInfo[0].getPrice(), 578.79)
-        self.assertEquals(strat.orderExecutionInfo[0].getQuantity(), 0.04557395)
-        self.assertEquals(strat.orderExecutionInfo[0].getCommission(), 0.14)
-        self.assertEquals(strat.orderExecutionInfo[0].getDateTime().date(), datetime.datetime.now().date())
-        self.assertEquals(strat.orderExecutionInfo[1].getPrice(), 567.21)
-        self.assertEquals(strat.orderExecutionInfo[1].getQuantity(), 0.04601436)
-        self.assertEquals(strat.orderExecutionInfo[1].getCommission(), 0.14)
-        self.assertEquals(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(len(strat.orderExecutionInfo), 2)
+        self.assertEqual(strat.orderExecutionInfo[0].getPrice(), 578.79)
+        self.assertEqual(strat.orderExecutionInfo[0].getQuantity(), 0.04557395)
+        self.assertEqual(strat.orderExecutionInfo[0].getCommission(), 0.14)
+        self.assertEqual(strat.orderExecutionInfo[0].getDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(strat.orderExecutionInfo[1].getPrice(), 567.21)
+        self.assertEqual(strat.orderExecutionInfo[1].getQuantity(), 0.04601436)
+        self.assertEqual(strat.orderExecutionInfo[1].getCommission(), 0.14)
+        self.assertEqual(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
 
     def testCancelOrder(self):
         class Strategy(TestStrategy):
@@ -565,11 +565,11 @@ class LiveTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEquals(brk.getShares("BTC"), 0)
-        self.assertEquals(brk.getCash(), 0)
-        self.assertEquals(len(strat.orderExecutionInfo), 1)
-        self.assertEquals(strat.orderExecutionInfo[0], None)
-        self.assertEquals(len(strat.ordersUpdated), 1)
+        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getCash(), 0)
+        self.assertEqual(len(strat.orderExecutionInfo), 1)
+        self.assertEqual(strat.orderExecutionInfo[0], None)
+        self.assertEqual(len(strat.ordersUpdated), 1)
         self.assertTrue(strat.ordersUpdated[0].isCanceled())
 
     def testBuyAndSell(self):
@@ -609,17 +609,17 @@ class LiveTradingTestCase(tc_common.TestCase):
         self.assertTrue(strat.buyOrder.isPartiallyFilled())
         self.assertTrue(strat.sellOrder.isFilled())
         # 2 events for each order: 1 for accepted, 1 for fill.
-        self.assertEquals(len(strat.orderExecutionInfo), 4)
-        self.assertEquals(strat.orderExecutionInfo[0], None)
-        self.assertEquals(strat.orderExecutionInfo[1].getPrice(), 10)
-        self.assertEquals(strat.orderExecutionInfo[1].getQuantity(), 0.5)
-        self.assertEquals(strat.orderExecutionInfo[1].getCommission(), 0.01)
-        self.assertEquals(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
-        self.assertEquals(strat.orderExecutionInfo[2], None)
-        self.assertEquals(strat.orderExecutionInfo[3].getPrice(), 10)
-        self.assertEquals(strat.orderExecutionInfo[3].getQuantity(), 0.5)
-        self.assertEquals(strat.orderExecutionInfo[3].getCommission(), 0.01)
-        self.assertEquals(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(len(strat.orderExecutionInfo), 4)
+        self.assertEqual(strat.orderExecutionInfo[0], None)
+        self.assertEqual(strat.orderExecutionInfo[1].getPrice(), 10)
+        self.assertEqual(strat.orderExecutionInfo[1].getQuantity(), 0.5)
+        self.assertEqual(strat.orderExecutionInfo[1].getCommission(), 0.01)
+        self.assertEqual(strat.orderExecutionInfo[1].getDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(strat.orderExecutionInfo[2], None)
+        self.assertEqual(strat.orderExecutionInfo[3].getPrice(), 10)
+        self.assertEqual(strat.orderExecutionInfo[3].getQuantity(), 0.5)
+        self.assertEqual(strat.orderExecutionInfo[3].getCommission(), 0.01)
+        self.assertEqual(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
 
 
 class WebSocketTestCase(tc_common.TestCase):

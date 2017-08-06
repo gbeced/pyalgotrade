@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import xmlrpclib
+import xmlrpc.client
 import pickle
 import time
 import socket
@@ -49,7 +49,7 @@ def call_and_retry_on_network_error(function, retryCount, *args, **kwargs):
 class Worker(object):
     def __init__(self, address, port, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
-        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
+        self.__server = xmlrpc.client.ServerProxy(url, allow_none=True)
         self.__logger = pyalgotrade.logger.getLogger(workerName)
         if workerName is None:
             self.__workerName = socket.gethostname()
@@ -93,7 +93,7 @@ class Worker(object):
             result = None
             try:
                 result = self.runStrategy(feed, *parameters)
-            except Exception, e:
+            except Exception as e:
                 self.getLogger().exception("Error running strategy with parameters %s: %s" % (str(parameters), e))
             self.getLogger().info("Result %s" % result)
             if bestResult is None or result > bestResult:
@@ -122,7 +122,7 @@ class Worker(object):
                 self.__processJob(job, barsFreq, instruments, bars)
                 job = self.getNextJob()
             self.getLogger().info("Finished running")
-        except Exception, e:
+        except Exception as e:
             self.getLogger().exception("Finished running with errors: %s" % (e))
 
 

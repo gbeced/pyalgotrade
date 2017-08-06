@@ -125,7 +125,7 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
                     return
 
             self.onMessage(msg)
-        except Exception, e:
+        except Exception as e:
             self.onUnhandledException(e)
 
     def opened(self):
@@ -157,7 +157,7 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
             if self.__connected:
                 self.close()
             self.close_connection()
-        except Exception, e:
+        except Exception as e:
             logger.warning("Failed to close connection: %s" % (e))
 
     ######################################################################

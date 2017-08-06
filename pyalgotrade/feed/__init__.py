@@ -56,7 +56,7 @@ class BaseFeed(observer.Subject):
         self.__maxLen = maxLen
 
     def reset(self):
-        keys = self.__ds.keys()
+        keys = list(self.__ds.keys())
         self.__ds = {}
         for key in keys:
             self.registerDataSeries(key)
@@ -80,7 +80,7 @@ class BaseFeed(observer.Subject):
     def getNextValuesAndUpdateDS(self):
         dateTime, values = self.getNextValues()
         if dateTime is not None:
-            for key, value in values.items():
+            for key, value in list(values.items()):
                 # Get or create the datseries for each key.
                 try:
                     ds = self.__ds[key]
@@ -109,7 +109,7 @@ class BaseFeed(observer.Subject):
         return dateTime is not None
 
     def getKeys(self):
-        return self.__ds.keys()
+        return list(self.__ds.keys())
 
     def __getitem__(self, key):
         """Returns the :class:`pyalgotrade.dataseries.DataSeries` for a given key."""

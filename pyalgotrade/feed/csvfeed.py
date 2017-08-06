@@ -27,13 +27,8 @@ from pyalgotrade.feed import memfeed
 
 
 # Interface for csv row parsers.
-class RowParser(object):
+class RowParser(object, metaclass=abc.ABCMeta):
 
-    __metaclass__ = abc.ABCMeta
-
-    # Parses a row and returns a tuple with with two elements:
-    # 1: datetime.datetime.
-    # 2: dictionary or dict-like object.
     @abc.abstractmethod
     def parseRow(self, csvRowDict):
         raise NotImplementedError()
@@ -50,9 +45,7 @@ class RowParser(object):
 
 
 # Interface for bar filters.
-class RowFilter(object):
-
-    __metaclass__ = abc.ABCMeta
+class RowFilter(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def includeRow(self, dateTime, values):
@@ -113,7 +106,7 @@ class BasicRowParser(RowParser):
             dateTime = dt.localize(dateTime, self.__timezone)
         # Convert the values
         values = {}
-        for key, value in csvRowDict.items():
+        for key, value in list(csvRowDict.items()):
             if key != self.__dateTimeColumn:
                 values[key] = self.__converter(key, value)
         return (dateTime, values)

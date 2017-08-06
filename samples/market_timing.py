@@ -109,7 +109,7 @@ class MarketTiming(strategy.BacktestingStrategy):
 
         # Calculate which positions should be closed.
         for instrument in self.getBroker().getPositions():
-            if instrument not in topByClass.values():
+            if instrument not in list(topByClass.values()):
                 currentShares = self.getBroker().getShares(instrument)
                 assert(instrument not in self.__sharesToBuy)
                 self.__sharesToBuy[instrument] = currentShares * -1
@@ -157,8 +157,8 @@ def main(plot):
         plt.getOrCreateSubplot("returns").addDataSeries("Strategy", returnsAnalyzer.getCumulativeReturns())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-    print "Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
+    print("Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100))
 
     if plot:
         plt.plot()

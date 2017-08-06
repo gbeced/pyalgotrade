@@ -69,7 +69,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 
         # Process extra columns.
-        for name, value in bar.getExtraColumns().iteritems():
+        for name, value in bar.getExtraColumns().items():
             extraDS = self.__getOrCreateExtraDS(name)
             extraDS.appendWithDateTime(dateTime, value)
 

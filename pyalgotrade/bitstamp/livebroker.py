@@ -20,7 +20,7 @@
 
 import threading
 import time
-import Queue
+import queue
 
 from pyalgotrade import broker
 from pyalgotrade.bitstamp import httpclient
@@ -51,7 +51,7 @@ class TradeMonitor(threading.Thread):
         super(TradeMonitor, self).__init__()
         self.__lastTradeId = -1
         self.__httpClient = httpClient
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__stop = False
 
     def _getNewTrades(self):
@@ -88,7 +88,7 @@ class TradeMonitor(threading.Thread):
                     self.__lastTradeId = trades[-1].getId()
                     common.logger.info("%d new trade/s found" % (len(trades)))
                     self.__queue.put((TradeMonitor.ON_USER_TRADE, trades))
-            except Exception, e:
+            except Exception as e:
                 common.logger.critical("Error retrieving user transactions", exc_info=e)
 
             time.sleep(TradeMonitor.POLL_FREQUENCY)
@@ -230,7 +230,7 @@ class LiveBroker(broker.Broker):
 
     def dispatch(self):
         # Switch orders from SUBMITTED to ACCEPTED.
-        ordersToProcess = self.__activeOrders.values()
+        ordersToProcess = list(self.__activeOrders.values())
         for order in ordersToProcess:
             if order.isSubmitted():
                 order.switchState(broker.Order.State.ACCEPTED)
@@ -244,7 +244,7 @@ class LiveBroker(broker.Broker):
                 self._onUserTrades(eventData)
             else:
                 common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except Queue.Empty:
+        except queue.Empty:
             pass
 
     def peekDateTime(self):
@@ -268,7 +268,7 @@ class LiveBroker(broker.Broker):
         return self.__shares
 
     def getActiveOrders(self, instrument=None):
-        return self.__activeOrders.values()
+        return list(self.__activeOrders.values())
 
     def submitOrder(self, order):
         if order.isInitial():

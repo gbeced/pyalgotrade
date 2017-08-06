@@ -21,7 +21,7 @@
 import datetime
 import os
 
-import common
+from . import common
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import yahoofeed
@@ -251,7 +251,7 @@ class DataSeriesTestCase(common.TestCase):
         barDs = bards.BarDataSeries()
         resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
 
-        barDateTime = datetime.datetime(2014, 07, 07, 22, 46, 28, 10000)
+        barDateTime = datetime.datetime(2014, 0o7, 0o7, 22, 46, 28, 10000)
         barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.MINUTE))
         self.assertEqual(len(resampledBarDS), 0)
 
@@ -263,7 +263,7 @@ class DataSeriesTestCase(common.TestCase):
         self.assertEqual(barDs[0].getClose(), resampledBarDS[0].getClose())
         self.assertEqual(barDs[0].getVolume(), resampledBarDS[0].getVolume())
         self.assertEqual(barDs[0].getAdjClose(), resampledBarDS[0].getAdjClose())
-        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46))
+        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 0o7, 0o7, 22, 46))
 
 
 class BarFeedTestCase(common.TestCase):

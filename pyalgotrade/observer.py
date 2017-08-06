@@ -64,9 +64,7 @@ class Event(object):
             self.__applyChanges()
 
 
-class Subject(object):
-    __metaclass__ = abc.ABCMeta
-
+class Subject(object, metaclass=abc.ABCMeta):
     def __init__(self):
         self.__dispatchPrio = dispatchprio.LAST
 

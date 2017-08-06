@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade.technical import rsi
 from pyalgotrade import dataseries
@@ -66,7 +66,7 @@ class TestCase(common.TestCase):
         common.test_from_csv(self, "rsi-test.csv", lambda inputDS: rsi.RSI(inputDS, 14), 3)
 
     def testDateTimes(self):
-        rsi = self.__buildRSI(range(10), 3)
+        rsi = self.__buildRSI(list(range(10)), 3)
 
         self.assertEqual(len(rsi.getDateTimes()), 10)
         for i in range(len(rsi)):
