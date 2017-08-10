@@ -234,7 +234,7 @@ rsi2_sample.main(False)
         files = []
         for year in range(2011, 2013):
             for symbol in ["yhoo"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
@@ -246,8 +246,8 @@ bbands.main(False)
             res = common.run_python_code(code)
             self.assertTrue(res.exit_ok())
             self.assertEqual(
-                res.get_output_lines()[-1:],
-                common.tail_file("bbands.output", 1)
+                res.get_output_lines()[-10:],
+                common.tail_file("bbands.output", 10)
             )
 
     def testEventStudy(self):
