@@ -123,11 +123,12 @@ class CompInvTestCase(common.TestCase):
 
 class StratAnalyzerTestCase(common.TestCase):
     def testSampleStrategyAnalyzer(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000-yahoofinance.csv")], "."):
             res = common.run_sample_module("sample-strategy-analyzer")
 
             self.assertTrue(res.exit_ok())
             lines = res.get_output_lines()
+            self.assertGreaterEqual(len(lines), 20)
             self.assertEqual(
                 lines,
                 common.head_file("sample-strategy-analyzer.output", len(lines))
