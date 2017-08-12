@@ -176,13 +176,24 @@ class ToolsTestCase(common.TestCase):
             self.assertNotIn(instrument, bf)
 
     def testMapColumnNames(self):
+        column_names = {
+            "open": "Price",
+            "close": "Price",
+        }
         with common.TmpDir() as tmpPath:
-            bf = quandl.build_feed("YAHOO", ["AAPL"], 2010, 2010, tmpPath, columnNames={"adj_close": "Adjusted Close"})
-            bf.setUseAdjustedValues(True)
+            instrument = "IWG"
+            year = 2017
+            bf = quandl.build_feed("LSE", [instrument], year, year, tmpPath, columnNames=column_names)
+            bf.setNoAdjClose()
             bf.loadAll()
-            self.assertEquals(bf["AAPL"][-1].getClose(), 322.560013)
-            self.assertIsNotNone(bf["AAPL"][-1].getAdjClose())
-            self.assertIsNotNone(bf["AAPL"][-1].getPrice())
+            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
+            self.assertEquals(bf[instrument][0].getOpen(), 237.80)
+            self.assertEquals(bf[instrument][0].getHigh(), 247.00)
+            self.assertEquals(bf[instrument][0].getLow(), 236.30)
+            self.assertEquals(bf[instrument][0].getClose(), 237.80)
+            self.assertEquals(bf[instrument][0].getVolume(), 3494173)
+            self.assertEquals(bf[instrument][0].getAdjClose(), None)
+            self.assertEquals(bf[instrument][0].getPrice(), 237.80)
 
     def testExtraColumns(self):
         with common.TmpDir() as tmpPath:
