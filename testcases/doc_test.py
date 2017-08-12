@@ -226,8 +226,8 @@ rsi2_sample.main(False)
 
             self.assertTrue(res.exit_ok())
             self.assertEqual(
-                res.get_output_lines()[-1:],
-                common.tail_file("rsi2_sample.output", 1)
+                res.get_output_lines()[-4:],
+                common.tail_file("rsi2_sample.output", 4)
             )
 
     def testBBands(self):
