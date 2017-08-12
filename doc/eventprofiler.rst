@@ -1,7 +1,7 @@
 Event profiler
 ==============
 
-Inspired in QSTK (http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9), the **eventprofiler** module is a tool to analyze,
+Inspired in `QSTK <http://wiki.quantsoftware.org/index.php?title=QSTK_Tutorial_9>`_, the **eventprofiler** module is a tool to analyze,
 statistically, how events affect future equity prices.
 The event profiler scans over historical data for a specified event and then calculates the impact of that event on the equity prices in the past
 and the future over a certain lookback period.

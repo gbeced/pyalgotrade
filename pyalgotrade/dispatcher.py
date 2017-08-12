@@ -112,6 +112,9 @@ class Dispatcher(object):
                 elif not eventsDispatched:
                     self.__idleEvent.emit()
         finally:
+            # There are no more events.
+            self.__currDateTime = None
+
             for subject in self.__subjects:
                 subject.stop()
             for subject in self.__subjects:

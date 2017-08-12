@@ -246,6 +246,9 @@ class GenericBarFeed(BarFeed):
         self.__columnNames[col] = name
 
     def setDateTimeFormat(self, dateTimeFormat):
+        """
+        Set the format string to use with strptime to parse datetime column.
+        """
         self.__dateTimeFormat = dateTimeFormat
 
     def setBarClass(self, barClass):

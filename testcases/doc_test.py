@@ -29,9 +29,9 @@ def init_data_path():
         os.mkdir(storage)
 
 
-class DocCodeTest(common.TestCase):
+class TutorialsTestCase(common.TestCase):
     def testTutorial1(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-1")
             self.assertEqual(
                 common.head_file("tutorial-1.output", 3),
@@ -44,7 +44,7 @@ class DocCodeTest(common.TestCase):
             self.assertTrue(res.exit_ok())
 
     def testTutorial2(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-2")
             self.assertEqual(
                 common.head_file("tutorial-2.output", 15),
@@ -57,7 +57,7 @@ class DocCodeTest(common.TestCase):
             self.assertTrue(res.exit_ok())
 
     def testTutorial3(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-3")
             self.assertEqual(
                 common.head_file("tutorial-3.output", 30),
@@ -70,7 +70,7 @@ class DocCodeTest(common.TestCase):
             self.assertTrue(res.exit_ok())
 
     def testTutorial4(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "WIKI-ORCL-2000-quandl.csv")], "."):
             res = common.run_sample_module("tutorial-4")
             lines = res.get_output_lines(True)
             self.assertEqual(
@@ -79,6 +79,8 @@ class DocCodeTest(common.TestCase):
             )
             self.assertTrue(res.exit_ok())
 
+
+class CVSFeedTest(common.TestCase):
     def testCSVFeed(self):
         with common.CopyFiles([os.path.join("samples", "data", "quandl_gold_2.csv")], "."):
             code = """import sys
@@ -100,13 +102,19 @@ import csvfeed_1
 
 class CompInvTestCase(common.TestCase):
     def testCompInv_1(self):
-        files = [os.path.join("samples", "data", src) for src in ["aeti-2011-yahoofinance.csv", "egan-2011-yahoofinance.csv", "simo-2011-yahoofinance.csv", "glng-2011-yahoofinance.csv"]]
+        files = [os.path.join("samples", "data", src) for src in [
+            "WIKI-IBM-2011-quandl.csv",
+            "WIKI-AES-2011-quandl.csv",
+            "WIKI-AIG-2011-quandl.csv",
+            "WIKI-ORCL-2011-quandl.csv",
+        ]]
+
         with common.CopyFiles(files, "."):
             res = common.run_sample_module("compinv-1")
 
             self.assertTrue(res.exit_ok())
             # Skip the first two lines that have debug messages from the broker.
-            lines = res.get_output_lines()[2:]
+            lines = res.get_output_lines()
             self.assertEqual(
                 lines,
                 common.head_file("compinv-1.output", len(lines))
@@ -115,11 +123,12 @@ class CompInvTestCase(common.TestCase):
 
 class StratAnalyzerTestCase(common.TestCase):
     def testSampleStrategyAnalyzer(self):
-        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000.csv")], "."):
+        with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000-yahoofinance.csv")], "."):
             res = common.run_sample_module("sample-strategy-analyzer")
 
             self.assertTrue(res.exit_ok())
             lines = res.get_output_lines()
+            self.assertGreaterEqual(len(lines), 20)
             self.assertEqual(
                 lines,
                 common.head_file("sample-strategy-analyzer.output", len(lines))
@@ -162,8 +171,8 @@ statarb_erniechan.main(False)
     def testVWAPMomentum(self):
         files = []
         for year in range(2011, 2013):
-            for symbol in ["aapl"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["AAPL"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
@@ -183,8 +192,8 @@ vwap_momentum.main(False)
     def testSMACrossOver(self):
         files = []
         for year in range(2011, 2013):
-            for symbol in ["aapl"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["AAPL"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
@@ -218,15 +227,15 @@ rsi2_sample.main(False)
 
             self.assertTrue(res.exit_ok())
             self.assertEqual(
-                res.get_output_lines()[-1:],
-                common.tail_file("rsi2_sample.output", 1)
+                res.get_output_lines()[-4:],
+                common.tail_file("rsi2_sample.output", 4)
             )
 
     def testBBands(self):
         files = []
         for year in range(2011, 2013):
             for symbol in ["yhoo"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
@@ -238,15 +247,15 @@ bbands.main(False)
             res = common.run_python_code(code)
             self.assertTrue(res.exit_ok())
             self.assertEqual(
-                res.get_output_lines()[-1:],
-                common.tail_file("bbands.output", 1)
+                res.get_output_lines()[-10:],
+                common.tail_file("bbands.output", 10)
             )
 
     def testEventStudy(self):
         files = []
         for year in range(2008, 2010):
-            for symbol in ["AA", "AES", "AIG"]:
-                fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
+            for symbol in ["IBM", "AES", "AIG"]:
+                fileName = "WIKI-%s-%d-quandl.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
         with common.CopyFiles(files, "."):
@@ -288,7 +297,6 @@ quandl_sample.main(False)
             )
 
     def testMarketTiming(self):
-        init_data_path()
         files = []
         instruments = ["VTI", "VEU", "IEF", "VNQ", "DBC", "SPY"]
         for year in range(2007, 2013+1):
@@ -296,7 +304,7 @@ quandl_sample.main(False)
                 fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
-        with common.CopyFiles(files, "data"):
+        with common.CopyFiles(files, "."):
             code = """import sys
 sys.path.append('samples')
 import market_timing

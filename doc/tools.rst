@@ -1,13 +1,6 @@
 Tools
 =====
 
-Yahoo! Finance
---------------
-
-.. automodule:: pyalgotrade.tools.yahoofinance
-    :members:
-    :show-inheritance:
-
 Quandl
 ------
 

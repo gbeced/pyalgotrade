@@ -22,6 +22,8 @@ import csv
 import requests
 
 import logging
+
+
 logging.getLogger("requests").setLevel(logging.ERROR)
 
 
@@ -44,7 +46,7 @@ class FastDictReader(object):
             row = self.reader.next()
 
         # Check that the row has the right number of columns.
-        assert(len(self.__fieldNames) == len(row))
+        assert len(self.__fieldNames) == len(row), "Expected columns: %s. Actual columns: %s" % (self.__fieldNames, row.keys())
 
         # Copy the row values into the dict.
         for i in xrange(len(self.__fieldNames)):
