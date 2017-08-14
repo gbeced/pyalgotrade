@@ -6,6 +6,8 @@ RUN apt-get update
 RUN pip install nose
 RUN pip install nose-cov
 
+RUN pip list
+
 RUN mkdir /tmp/pyalgotrade
 
 # Files needed to execute testcases.
