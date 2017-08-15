@@ -65,6 +65,7 @@ class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
     def __init__(self, paramSource, resultSinc, barFeed, address, port, autoStop=True, batchSize=200):
         assert batchSize > 0, "Invalid batch size"
+
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
         self.__batchSize = batchSize
         self.__paramSource = paramSource
@@ -86,9 +87,6 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.register_function(self.getBarsFrequency, 'getBarsFrequency')
         self.register_function(self.getNextJob, 'getNextJob')
         self.register_function(self.pushJobResults, 'pushJobResults')
-
-    def getBatchSize(self):
-        return self.__batchSize
 
     def getInstrumentsAndBars(self):
         return self.__instrumentsAndBars
