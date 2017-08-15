@@ -81,7 +81,7 @@ def stop_process(p):
         p.join(timeout)
 
 
-def run_impl(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
+def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
     assert(workerCount is None or workerCount > 0)
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
@@ -100,7 +100,7 @@ def run_impl(strategyClass, barFeed, strategyParameters, workerCount=None, logLe
 
     # Create and start the server.
     logger.info("Starting server")
-    srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
+    srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, autoStop=False, batchSize=batchSize)
     serverThread = ServerThread(srv)
     serverThread.start()
 
@@ -136,7 +136,7 @@ def run_impl(strategyClass, barFeed, strategyParameters, workerCount=None, logLe
     return ret
 
 
-def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR):
+def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR, batchSize=200):
     """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
 
     :param strategyClass: The strategy class.
@@ -147,7 +147,9 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
     :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
     :type workerCount: int.
     :param logLevel: The log level. Defaults to **logging.ERROR**.
+    :param batchSize: The number of strategy executions that are delivered to each worker.
+    :type batchSize: int.
     :rtype: A :class:`Results` instance with the best results found.
     """
 
-    return run_impl(strategyClass, barFeed, strategyParameters, workerCount=workerCount, logLevel=logLevel)
+    return run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=workerCount, logLevel=logLevel)
