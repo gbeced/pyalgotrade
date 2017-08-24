@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -285,3 +285,21 @@ class EventTestCase(common.TestCase):
         event.unsubscribe(handler2)
         event.emit()
         self.assertTrue(handlersData == [1, 1, 2, 2])
+
+    def testUnsuscribeAndResuscribeWhileEmiting(self):
+        handlersData = []
+        event = observer.Event()
+
+        def handler1():
+            handlersData.append(1)
+            event.unsubscribe(handler1)
+            event.subscribe(handler1)
+
+        event.subscribe(handler1)
+        event.emit()
+        self.assertTrue(handlersData == [1])
+
+        event.emit()
+        self.assertTrue(handlersData == [1, 1])
+
+

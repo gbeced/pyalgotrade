@@ -1,8 +1,14 @@
 FROM gbecedillas/pyalgotrade:0.18
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
+RUN apt-get update
+
 RUN pip install nose
 RUN pip install nose-cov
+# Required by matplotlib
+RUN apt-get install -y python-tk 
+
+RUN pip list
 
 RUN mkdir /tmp/pyalgotrade
 

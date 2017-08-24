@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ class BaseStrategy(object):
         self.__broker.getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
         self.__barFeed.getNewValuesEvent().subscribe(self.__onBars)
 
+        # onStart will be called once all subjects are started.
         self.__dispatcher.getStartEvent().subscribe(self.onStart)
         self.__dispatcher.getIdleEvent().subscribe(self.__onIdle)
 
@@ -556,7 +557,7 @@ class BaseStrategy(object):
         :rtype: :class:`pyalgotrade.barfeed.BaseBarFeed`.
         """
         ret = resampled.ResampledBarFeed(self.getFeed(), frequency)
-        ret.getNewValuesEvent().subscribe(callback)
+        ret.getNewValuesEvent().subscribe(lambda dt, bars: callback(bars))
         self.getDispatcher().addSubject(ret)
         self.__resampledBarFeeds.append(ret)
         return ret

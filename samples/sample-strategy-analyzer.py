@@ -5,9 +5,9 @@ from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade.stratanalyzer import trades
 import sma_crossover
 
-# Load the yahoo feed from the CSV file
+# Load the bars. This file was manually downloaded from Yahoo Finance.
 feed = yahoofeed.Feed()
-feed.addBarsFromCSV("orcl", "orcl-2000.csv")
+feed.addBarsFromCSV("orcl", "orcl-2000-yahoofinance.csv")
 
 # Evaluate the strategy with the feed's bars.
 myStrategy = sma_crossover.SMACrossOver(feed, "orcl", 20)

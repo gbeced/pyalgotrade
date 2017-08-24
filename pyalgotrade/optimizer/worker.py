@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,37 +20,32 @@
 
 import xmlrpclib
 import pickle
-import time
 import socket
-import random
 import multiprocessing
+import retrying
 
 import pyalgotrade.logger
 from pyalgotrade import barfeed
 
+wait_exponential_multiplier = 500
+wait_exponential_max = 10000
+stop_max_delay = 10000
 
-def call_function(function, *args, **kwargs):
+
+def any_exception(exception):
+    return True
+
+
+@retrying.retry(wait_exponential_multiplier=wait_exponential_multiplier, wait_exponential_max=wait_exponential_max, stop_max_delay=stop_max_delay, retry_on_exception=any_exception)
+def retry_on_network_error(function, *args, **kwargs):
     return function(*args, **kwargs)
-
-
-def call_and_retry_on_network_error(function, retryCount, *args, **kwargs):
-    ret = None
-    while retryCount > 0:
-        retryCount -= 1
-        try:
-            ret = call_function(function, *args, **kwargs)
-            return ret
-        except socket.error:
-            time.sleep(random.randint(1, 3))
-    ret = call_function(function, *args, **kwargs)
-    return ret
 
 
 class Worker(object):
     def __init__(self, address, port, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
-        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
         self.__logger = pyalgotrade.logger.getLogger(workerName)
+        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
         if workerName is None:
             self.__workerName = socket.gethostname()
         else:
@@ -60,17 +55,17 @@ class Worker(object):
         return self.__logger
 
     def getInstrumentsAndBars(self):
-        ret = call_and_retry_on_network_error(self.__server.getInstrumentsAndBars, 10)
+        ret = retry_on_network_error(self.__server.getInstrumentsAndBars)
         ret = pickle.loads(ret)
         return ret
 
     def getBarsFrequency(self):
-        ret = call_and_retry_on_network_error(self.__server.getBarsFrequency, 10)
+        ret = retry_on_network_error(self.__server.getBarsFrequency)
         ret = int(ret)
         return ret
 
     def getNextJob(self):
-        ret = call_and_retry_on_network_error(self.__server.getNextJob, 10)
+        ret = retry_on_network_error(self.__server.getNextJob)
         ret = pickle.loads(ret)
         return ret
 
@@ -79,7 +74,7 @@ class Worker(object):
         result = pickle.dumps(result)
         parameters = pickle.dumps(parameters)
         workerName = pickle.dumps(self.__workerName)
-        call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters, workerName)
+        retry_on_network_error(self.__server.pushJobResults, jobId, result, parameters, workerName)
 
     def __processJob(self, job, barsFreq, instruments, bars):
         bestResult = None

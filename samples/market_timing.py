@@ -1,6 +1,6 @@
 from pyalgotrade import strategy
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cumret
 from pyalgotrade.stratanalyzer import sharpe
@@ -137,12 +137,19 @@ def main(plot):
         "Commodities": ["DBC"],
     }
 
-    # Download the bars.
+    # Load the bars. These files were manually downloaded from Yahoo Finance.
+    feed = yahoofeed.Feed()
     instruments = ["SPY"]
     for assetClass in instrumentsByClass:
         instruments.extend(instrumentsByClass[assetClass])
-    feed = yahoofinance.build_feed(instruments, 2007, 2013, "data", skipErrors=True)
 
+    for year in range(2007, 2013+1):
+        for instrument in instruments:
+            fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
+            print "Loading bars from %s" % fileName
+            feed.addBarsFromCSV(instrument, fileName)
+
+    # Build the strategy and attach some metrics.
     strat = MarketTiming(feed, instrumentsByClass, initialCash)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)

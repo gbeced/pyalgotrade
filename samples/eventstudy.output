@@ -1,8 +1,7 @@
-2013-09-20 23:30:45,340 yahoofinance [INFO] Creating data directory
-2013-09-20 23:30:45,341 yahoofinance [INFO] Downloading AA 2008 to data/AA-2008-yahoofinance.csv
-2013-09-20 23:30:46,092 yahoofinance [INFO] Downloading AES 2008 to data/AES-2008-yahoofinance.csv
-2013-09-20 23:30:46,683 yahoofinance [INFO] Downloading AIG 2008 to data/AIG-2008-yahoofinance.csv
-2013-09-20 23:30:47,260 yahoofinance [INFO] Downloading AA 2009 to data/AA-2009-yahoofinance.csv
-2013-09-20 23:30:48,019 yahoofinance [INFO] Downloading AES 2009 to data/AES-2009-yahoofinance.csv
-2013-09-20 23:30:48,761 yahoofinance [INFO] Downloading AIG 2009 to data/AIG-2009-yahoofinance.csv
-14 events found
+2017-07-22 00:26:06,574 quandl [INFO] Downloading IBM 2008 to ./WIKI-IBM-2008-quandl.csv
+2017-07-22 00:26:08,299 quandl [INFO] Downloading AES 2008 to ./WIKI-AES-2008-quandl.csv
+2017-07-22 00:26:09,849 quandl [INFO] Downloading AIG 2008 to ./WIKI-AIG-2008-quandl.csv
+2017-07-22 00:26:11,513 quandl [INFO] Downloading IBM 2009 to ./WIKI-IBM-2009-quandl.csv
+2017-07-22 00:26:13,128 quandl [INFO] Downloading AES 2009 to ./WIKI-AES-2009-quandl.csv
+2017-07-22 00:26:14,626 quandl [INFO] Downloading AIG 2009 to ./WIKI-AIG-2009-quandl.csv
+15 events found

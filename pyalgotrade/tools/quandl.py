@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@
 
 import datetime
 import os
+import argparse
+
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
 
@@ -161,3 +163,46 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                         raise e
             ret.addBarsFromCSV(tableCode, fileName)
     return ret
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Quandl utility")
+
+    parser.add_argument("--auth-token", required=False, help="An authentication token needed if you're doing more than 50 calls per day")
+    parser.add_argument("--source-code", required=True, help="The dataset source code")
+    parser.add_argument("--table-code", required=True, help="The dataset table code")
+    parser.add_argument("--from-year", required=True, type=int, help="The first year to download")
+    parser.add_argument("--to-year", required=True, type=int, help="The last year to download")
+    parser.add_argument("--storage", required=True, help="The path were the files will be downloaded to")
+    parser.add_argument("--force-download", action='store_true', help="Force downloading even if the files exist")
+    parser.add_argument("--ignore-errors", action='store_true', help="True to keep on downloading files in case of errors")
+    parser.add_argument("--frequency", default="daily", choices=["daily", "weekly"], help="The frequency of the bars. Only daily or weekly are supported")
+
+    args = parser.parse_args()
+
+    logger = pyalgotrade.logger.getLogger("quandl")
+
+    if not os.path.exists(args.storage):
+        logger.info("Creating %s directory" % (args.storage))
+        os.mkdir(args.storage)
+
+    for year in range(args.from_year, args.to_year+1):
+        fileName = os.path.join(args.storage, "%s-%s-%d-quandl.csv" % (args.source_code, args.table_code, year))
+        if not os.path.exists(fileName) or args.force_download:
+            logger.info("Downloading %s %d to %s" % (args.table_code, year, fileName))
+            try:
+                if args.frequency == "daily":
+                    download_daily_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
+                else:
+                    assert args.frequency == "weekly", "Invalid frequency"
+                    download_weekly_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
+            except Exception, e:
+                if args.ignore_errors:
+                    logger.error(str(e))
+                    continue
+                else:
+                    raise e
+
+
+if __name__ == "__main__":
+    main()

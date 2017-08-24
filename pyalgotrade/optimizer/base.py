@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -86,11 +86,19 @@ class ResultSinc(object):
         :type parameters: Parameters
         """
         with self.__lock:
+            self.onNewResult(result, parameters)
             if result is not None and (self.__bestResult is None or result > self.__bestResult):
                 self.__bestResult = result
                 self.__bestParameters = parameters
+                self.onNewBestResult(result, parameters)
 
     def getBest(self):
         with self.__lock:
             ret = self.__bestResult, self.__bestParameters
         return ret
+
+    def onNewResult(self, result, parameters):
+        pass
+
+    def onNewBestResult(self, result, parameters):
+        pass

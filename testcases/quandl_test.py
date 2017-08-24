@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -75,21 +75,24 @@ class ToolsTestCase(common.TestCase):
 
     def testDownloadAndParseDailyNoAdjClose(self):
         with common.TmpDir() as tmpPath:
-            instrument = "ORCL"
-            path = os.path.join(tmpPath, "quandl-daily-orcl-2013.csv")
-            quandl.download_daily_bars("GOOG", "NASDAQ_ORCL", 2013, path, auth_token)
+            instrument = "IWG"
+            year = 2017
+            path = os.path.join(tmpPath, "quandl-daily-%s-%s.csv" % (instrument, year))
+            quandl.download_daily_bars("LSE", instrument, year, path, auth_token)
             bf = quandlfeed.Feed()
             bf.setNoAdjClose()
+            bf.setColumnName("open", "Price")
+            bf.setColumnName("close", "Price")
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2013, 12, 31))
-            self.assertEquals(bf[instrument][-1].getOpen(), 37.94)
-            self.assertEquals(bf[instrument][-1].getHigh(), 38.34)
-            self.assertEquals(bf[instrument][-1].getLow(), 37.88)
-            self.assertEquals(bf[instrument][-1].getClose(), 38.26)
-            self.assertEquals(bf[instrument][-1].getVolume(), 11747517)
-            self.assertEquals(bf[instrument][-1].getAdjClose(), None)
-            self.assertEquals(bf[instrument][-1].getPrice(), 38.26)
+            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
+            self.assertEquals(bf[instrument][0].getOpen(), 237.80)
+            self.assertEquals(bf[instrument][0].getHigh(), 247.00)
+            self.assertEquals(bf[instrument][0].getLow(), 236.30)
+            self.assertEquals(bf[instrument][0].getClose(), 237.80)
+            self.assertEquals(bf[instrument][0].getVolume(), 3494173)
+            self.assertEquals(bf[instrument][0].getAdjClose(), None)
+            self.assertEquals(bf[instrument][0].getPrice(), 237.80)
 
     def testDownloadAndParseWeekly(self):
         with common.TmpDir() as tmpPath:
@@ -173,13 +176,24 @@ class ToolsTestCase(common.TestCase):
             self.assertNotIn(instrument, bf)
 
     def testMapColumnNames(self):
+        column_names = {
+            "open": "Price",
+            "close": "Price",
+        }
         with common.TmpDir() as tmpPath:
-            bf = quandl.build_feed("YAHOO", ["AAPL"], 2010, 2010, tmpPath, columnNames={"adj_close": "Adjusted Close"})
-            bf.setUseAdjustedValues(True)
+            instrument = "IWG"
+            year = 2017
+            bf = quandl.build_feed("LSE", [instrument], year, year, tmpPath, columnNames=column_names)
+            bf.setNoAdjClose()
             bf.loadAll()
-            self.assertEquals(bf["AAPL"][-1].getClose(), 322.560013)
-            self.assertIsNotNone(bf["AAPL"][-1].getAdjClose())
-            self.assertIsNotNone(bf["AAPL"][-1].getPrice())
+            self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
+            self.assertEquals(bf[instrument][0].getOpen(), 237.80)
+            self.assertEquals(bf[instrument][0].getHigh(), 247.00)
+            self.assertEquals(bf[instrument][0].getLow(), 236.30)
+            self.assertEquals(bf[instrument][0].getClose(), 237.80)
+            self.assertEquals(bf[instrument][0].getVolume(), 3494173)
+            self.assertEquals(bf[instrument][0].getAdjClose(), None)
+            self.assertEquals(bf[instrument][0].getPrice(), 237.80)
 
     def testExtraColumns(self):
         with common.TmpDir() as tmpPath:

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2017 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -246,6 +246,9 @@ class GenericBarFeed(BarFeed):
         self.__columnNames[col] = name
 
     def setDateTimeFormat(self, dateTimeFormat):
+        """
+        Set the format string to use with strptime to parse datetime column.
+        """
         self.__dateTimeFormat = dateTimeFormat
 
     def setBarClass(self, barClass):

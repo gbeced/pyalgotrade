@@ -47,19 +47,21 @@ Optimizer
 Having said all that, the first thing that we'll need to test our strategies is some data.
 Let's use Oracle's stock prices for year 2000, which we'll download with the following command: ::
 
-    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('orcl', 2000, 'orcl-2000.csv')"
+    python -m "pyalgotrade.tools.quandl" --source-code="WIKI" --table-code="ORCL" --from-year=2000 --to-year=2000 --storage=. --force-download --frequency=daily
 
-The pyalgotrade.tools.yahoofinance package downloads CSV formatted data from Yahoo! Finance. 
-The orcl-2000.csv file should look like this: ::
+The pyalgotrade.tools.quandl tool downloads CSV formatted data from `Quandl <https://www.quandl.com/>`_. 
+The first few lines of ``WIKI-ORCL-2000-quandl.csv`` should look like this: ::
 
-    Date,Open,High,Low,Close,Volume,Adj Close
-    2000-12-29,30.87,31.31,28.69,29.06,31655500,28.35
-    2000-12-28,30.56,31.12,30.37,31.06,25055600,30.30
-    2000-12-27,30.37,31.06,29.37,30.69,26441700,29.94
-    .
-    .
-    2000-01-04,115.50,118.62,105.00,107.69,116850000,26.26
-    2000-01-03,124.62,125.19,111.62,118.12,98122000,28.81
+    Date,Open,High,Low,Close,Volume,Ex-Dividend,Split Ratio,Adj. Open,Adj. High,Adj. Low,Adj. Close,Adj. Volume
+    2000-12-29,30.88,31.31,28.69,29.06,31702200.0,0.0,1.0,28.121945213877797,28.513539658242028,26.127545601883227,26.46449896098733,31702200.0
+    2000-12-28,30.56,31.63,30.38,31.06,25053600.0,0.0,1.0,27.830526092490462,28.804958779629363,27.666602836710087,28.285868469658173,25053600.0
+    2000-12-27,30.38,31.06,29.38,30.69,26437500.0,0.0,1.0,27.666602836710087,28.285868469658173,26.755918082374667,27.94891511055407,26437500.0
+    2000-12-26,31.5,32.19,30.0,30.94,20589500.0,0.0,1.0,28.68656976156576,29.3149422420572,27.32054263006263,28.176586299137927,20589500.0
+    2000-12-22,30.38,31.98,30.0,31.88,35568200.0,0.0,1.0,27.666602836710087,29.123698443646763,27.32054263006263,29.032629968213218,35568200.0
+    2000-12-21,27.81,30.25,27.31,29.5,46719700.0,0.0,1.0,25.326143018068056,27.548213818646484,24.870800640900345,26.86520025289492,46719700.0
+    2000-12-20,28.06,29.81,27.5,28.5,54440500.0,0.0,1.0,25.55381420665191,27.147512526738897,25.043830744224078,25.9545154985595,54440500.0
+    2000-12-19,31.81,33.13,30.13,30.63,58653700.0,0.0,1.0,28.968882035409738,30.170985911132497,27.438931648126232,27.894274025293942,58653700.0
+    2000-12-18,30.0,32.44,29.94,32.0,61640100.0,0.0,1.0,27.32054263006263,29.542613430641055,27.265901544802503,29.14191213873347,61640100.0
 
 Let's start with a simple strategy, that is, one that just prints closing prices as they are processed:
 
@@ -127,7 +129,7 @@ We could certainly do something like this:
 
 and we would find out that we can get better results with a SMA(20): ::
 
-    Final portfolio value: $1075.38
+    Final portfolio value: $1071.03
 
 This is ok if we only have to try a limited set of parameters values. But if we have to test a strategy with multiple
 parameters, then the serial approach is definitely not going to scale as strategies get more complex.
@@ -144,7 +146,7 @@ Meet the optimizer component. The idea is very simple:
  * There are multiple workers responsible for:
     * Running the strategy with the bars and parameters provided by the server.
 
-To illustrate this we'll use a strategy known as RSI2 (http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2)
+To illustrate this we'll use a strategy known as `RSI2 <http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2>`_
 which requires the following parameters:
 
  * An SMA period for trend identification. We'll call this entrySMA and will range between 150 and 250.
@@ -161,11 +163,9 @@ if I can get ten 8-core computers to do the job then the total time will go down
 
 Long story short, **we need to go parallel**.
 
-Let's start by downloading 3 years of daily bars for 'Dow Jones Industrial Average': ::
+Let's start by downloading 3 years of daily bars for 'IBM': ::
 
-    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2009, 'dia-2009.csv')"
-    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2010, 'dia-2010.csv')" 
-    python -c "from pyalgotrade.tools import yahoofinance; yahoofinance.download_daily_bars('dia', 2011, 'dia-2011.csv')"
+    python -m "pyalgotrade.tools.quandl" --source-code="WIKI" --table-code="IBM" --from-year=2009 --to-year=2011 --storage=. --force-download --frequency=daily
 
 Save this code as rsi2.py:
 
@@ -188,30 +188,25 @@ the data supplied by the server:
 
 When you run the server and the client/s you'll see something like this on the server console: ::
 
-    2014-05-03 15:04:01,083 server [INFO] Loading bars
-    2014-05-03 15:04:01,348 server [INFO] Waiting for workers
-    2014-05-03 15:04:58,277 server [INFO] Partial result 1242173.28754 with parameters: ('dia', 150, 5, 2, 91, 19) from localworker
-    2014-05-03 15:04:58,566 server [INFO] Partial result 1203266.33502 with parameters: ('dia', 150, 5, 2, 81, 19) from localworker
-    2014-05-03 15:05:50,965 server [INFO] Partial result 1220763.1579 with parameters: ('dia', 150, 5, 3, 83, 24) from localworker
-    2014-05-03 15:05:51,325 server [INFO] Partial result 1221627.50793 with parameters: ('dia', 150, 5, 3, 80, 24) from localworker
+    2017-07-21 22:56:51,944 pyalgotrade.optimizer.server [INFO] Starting server
+    2017-07-21 22:56:51,944 pyalgotrade.optimizer.xmlrpcserver [INFO] Loading bars
+    2017-07-21 22:56:52,609 pyalgotrade.optimizer.xmlrpcserver [INFO] Started serving
+    2017-07-21 22:58:50,073 pyalgotrade.optimizer.xmlrpcserver [INFO] Best result so far 1261295.07089 with parameters ('ibm', 150, 5, 2, 83, 24)
     .
     .
 
 and something like this on the worker/s console: ::
 
-    2014-05-03 15:02:25,360 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 15)
-    2014-05-03 15:02:25,377 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 94, 5)
-    2014-05-03 15:02:25,661 localworker [INFO] Result 1090481.06342
-    2014-05-03 15:02:25,661 localworker [INFO] Result 1031470.23717
-    2014-05-03 15:02:25,662 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 93, 25)
-    2014-05-03 15:02:25,665 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 14)
-    2014-05-03 15:02:25,995 localworker [INFO] Result 1135558.55667
-    2014-05-03 15:02:25,996 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 93, 24)
-    2014-05-03 15:02:26,006 localworker [INFO] Result 1083987.18174
-    2014-05-03 15:02:26,007 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 13)
-    2014-05-03 15:02:26,256 localworker [INFO] Result 1093736.17175
-    2014-05-03 15:02:26,257 localworker [INFO] Running strategy with parameters ('dia', 150, 5, 2, 84, 12)
-    2014-05-03 15:02:26,280 localworker [INFO] Result 1135558.55667
+    2017-07-21 22:56:57,884 localworker [INFO] Started running
+    2017-07-21 22:56:57,884 localworker [INFO] Started running
+    2017-07-21 22:56:58,439 localworker [INFO] Running strategy with parameters ('ibm', 150, 5, 2, 84, 15)
+    2017-07-21 22:56:58,498 localworker [INFO] Running strategy with parameters ('ibm', 150, 5, 2, 94, 5)
+    2017-07-21 22:56:58,918 localworker [INFO] Result 1137855.88871
+    2017-07-21 22:56:58,918 localworker [INFO] Running strategy with parameters ('ibm', 150, 5, 2, 84, 14)
+    2017-07-21 22:56:58,996 localworker [INFO] Result 1027761.85581
+    2017-07-21 22:56:58,997 localworker [INFO] Running strategy with parameters ('ibm', 150, 5, 2, 93, 25)
+    2017-07-21 22:56:59,427 localworker [INFO] Result 1092194.67448
+    2017-07-21 22:57:00,016 localworker [INFO] Result 1260766.64479
     .
     .
 
@@ -230,23 +225,13 @@ The code is doing 3 things:
 
 When you run this code you should see something like this: ::
 
-    2014-05-03 15:08:06,587 server [INFO] Loading bars
-    2014-05-03 15:08:06,910 server [INFO] Waiting for workers
-    2014-05-03 15:08:58,347 server [INFO] Partial result 1242173.28754 with parameters: ('dia', 150, 5, 2, 91, 19) from worker-95583
-    2014-05-03 15:08:58,967 server [INFO] Partial result 1203266.33502 with parameters: ('dia', 150, 5, 2, 81, 19) from worker-95584
-    2014-05-03 15:09:52,097 server [INFO] Partial result 1220763.1579 with parameters: ('dia', 150, 5, 3, 83, 24) from worker-95584
-    2014-05-03 15:09:52,921 server [INFO] Partial result 1221627.50793 with parameters: ('dia', 150, 5, 3, 80, 24) from worker-95583
-    2014-05-03 15:10:40,826 server [INFO] Partial result 1142162.23912 with parameters: ('dia', 150, 5, 4, 76, 17) from worker-95584
-    2014-05-03 15:10:41,318 server [INFO] Partial result 1107487.03214 with parameters: ('dia', 150, 5, 4, 83, 17) from worker-95583
+    2017-07-21 22:59:26,921 pyalgotrade.optimizer.local [INFO] Starting server
+    2017-07-21 22:59:26,922 pyalgotrade.optimizer.xmlrpcserver [INFO] Loading bars
+    2017-07-21 22:59:26,922 pyalgotrade.optimizer.local [INFO] Starting workers
+    2017-07-21 22:59:27,642 pyalgotrade.optimizer.xmlrpcserver [INFO] Started serving
+    2017-07-21 23:01:14,306 pyalgotrade.optimizer.xmlrpcserver [INFO] Best result so far 1261295.07089 with parameters ('ibm', 150, 5, 2, 83, 24)
     .
     .
-
-For the record, the best result found was $2314.40 with the following parameters:
- 1. entrySMA: 154
- 2. exitSMA: 5
- 3. rsiPeriod: 2
- 4. overBoughtThreshold: 91
- 5. overSoldThreshold: 18
 
 
 Plotting
