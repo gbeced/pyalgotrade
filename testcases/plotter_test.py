@@ -41,12 +41,7 @@ class PlotterTestCase(common.TestCase):
         strat.run()
 
         with common.TmpDir() as tmpPath:
-            fig, subplots = plt.buildFigureAndSubplots()
-            self.assertIsNotNone(fig)
-            self.assertIsNotNone(subplots)
-            fig = plt.buildFigure()
-            fig.set_size_inches(10, 8)
             png = os.path.join(tmpPath, "plotter_test.png")
-            fig.savefig(png)
+            plt.savePlot(png)
             # Check that file size looks ok.
-            self.assertGreater(os.stat(png).st_size, 80000)
+            self.assertGreater(os.stat(png).st_size, 45000)
