@@ -1,4 +1,5 @@
 Version 0.19 (TBD)
+. [NEW] Added batchSize parameter to optimizer component. Thanks micmicmichael for implementing this.
 . [FIX] Fixed a bug in the Event class when unsubscribing and re-subscribing while emitting. Thanks pjz for reporting this.
 . [FIX] Fixed a race condition in the local optimizer that was sometimes getting blocked waiting for workers.
 . [FIX] Fixed a bug while generating nonces for Bitstamp. Thanks pjz for reporting this.
