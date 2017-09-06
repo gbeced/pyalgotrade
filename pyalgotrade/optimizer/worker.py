@@ -26,6 +26,7 @@ import retrying
 
 import pyalgotrade.logger
 from pyalgotrade import barfeed
+from pyalgotrade.optimizer import base
 
 wait_exponential_multiplier = 500
 wait_exponential_max = 10000
@@ -42,7 +43,7 @@ def retry_on_network_error(function, *args, **kwargs):
 
 
 class Worker(object):
-    def __init__(self, address, port, workerName=None):
+    def __init__(self, address, port, strategyRunner, resultSincFactory, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
         self.__logger = pyalgotrade.logger.getLogger(workerName)
         self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
@@ -50,6 +51,8 @@ class Worker(object):
             self.__workerName = socket.gethostname()
         else:
             self.__workerName = workerName
+        self.__strategyRunner = strategyRunner
+        self.__resultSincFactory = resultSincFactory
 
     def getLogger(self):
         return self.__logger
@@ -69,17 +72,15 @@ class Worker(object):
         ret = pickle.loads(ret)
         return ret
 
-    def pushJobResults(self, jobId, result, parameters):
+    def pushJobResults(self, jobId, resultSinc):
         jobId = pickle.dumps(jobId)
-        result = pickle.dumps(result)
-        parameters = pickle.dumps(parameters)
+        resultSinc = pickle.dumps(resultSinc)
         workerName = pickle.dumps(self.__workerName)
-        retry_on_network_error(self.__server.pushJobResults, jobId, result, parameters, workerName)
+        retry_on_network_error(self.__server.pushJobResults, jobId, resultSinc, workerName)
 
     def __processJob(self, job, barsFreq, instruments, bars):
-        bestResult = None
         parameters = job.getNextParameters()
-        bestParams = parameters
+        resultSinc = self.__resultSincFactory.create()
         while parameters is not None:
             # Wrap the bars into a feed.
             feed = barfeed.OptimizerBarFeed(barsFreq, instruments, bars)
@@ -87,22 +88,15 @@ class Worker(object):
             self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
             result = None
             try:
-                result = self.runStrategy(feed, *parameters)
+                result = self.__strategyRunner.runStrategy(feed, parameters)
             except Exception, e:
                 self.getLogger().exception("Error running strategy with parameters %s: %s" % (str(parameters), e))
             self.getLogger().info("Result %s" % result)
-            if bestResult is None or result > bestResult:
-                bestResult = result
-                bestParams = parameters
+            resultSinc.push(result, parameters)
             # Run with the next set of parameters.
             parameters = job.getNextParameters()
 
-        assert(bestParams is not None)
-        self.pushJobResults(job.getId(), bestResult, bestParams)
-
-    # Run the strategy and return the result.
-    def runStrategy(self, feed, parameters):
-        raise Exception("Not implemented")
+        self.pushJobResults(job.getId(), resultSinc)
 
     def run(self):
         try:
@@ -121,26 +115,23 @@ class Worker(object):
             self.getLogger().exception("Finished running with errors: %s" % (e))
 
 
-def worker_process(strategyClass, address, port, workerName):
-    class MyWorker(Worker):
-        def runStrategy(self, barFeed, *args, **kwargs):
-            strat = strategyClass(barFeed, *args, **kwargs)
-            strat.run()
-            return strat.getResult()
-
+def worker_process(address, port, workerName, strategyRunner, resultSincFactory):
     # Create a worker and run it.
-    w = MyWorker(address, port, workerName)
+    w = Worker(address, port, strategyRunner, resultSincFactory, workerName=workerName)
     w.run()
 
 
-def run(strategyClass, address, port, workerCount=None, workerName=None):
+def startWorker(address, port, strategyRunner, resultSincFactory, workerCount=None, workerName=None):
     """Executes one or more worker processes that will run a strategy with the bars and parameters supplied by the server.
 
-    :param strategyClass: The strategy class.
     :param address: The address of the server.
     :type address: string.
     :param port: The port where the server is listening for incoming connections.
     :type port: int.
+    :param strategyRunner: The strategy executor defining how worker should handle the bars and parameters.
+    :type strategyRunner: class:`pyalgotrade.optimizer.base.StrategyRunner`.
+    :param resultSincFactory: The factory to create the ResultSinc object which is used to summarize strategy results.
+    :type resultSincFactory: :class:`pyalgotrade.optimizer.base.ResultSincFactory`.
     :param workerCount: The number of worker processes to run. If None then as many workers as CPUs are used.
     :type workerCount: int.
     :param workerName: A name for the worker. A name that identifies the worker. If None, the hostname is used.
@@ -154,7 +145,7 @@ def run(strategyClass, address, port, workerCount=None, workerName=None):
     workers = []
     # Build the worker processes.
     for i in range(workerCount):
-        workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, address, port, workerName)))
+        workers.append(multiprocessing.Process(target=worker_process, args=(address, port, workerName, strategyRunner, resultSincFactory)))
 
     # Start workers
     for process in workers:
@@ -163,3 +154,23 @@ def run(strategyClass, address, port, workerCount=None, workerName=None):
     # Wait workers
     for process in workers:
         process.join()
+
+
+def run(strategyClass, address, port, workerCount=None, workerName=None):
+    """Start workers to find the best strategy result with the given strategy
+
+    :param strategyClass: The strategy class.
+    :param address: The address of the server.
+    :type address: string.
+    :param port: The port where the server is listening for incoming connections.
+    :type port: int.
+    :param workerCount: The number of worker processes to run. If None then as many workers as CPUs are used.
+    :type workerCount: int.
+    :param workerName: A name for the worker. A name that identifies the worker. If None, the hostname is used.
+    :type workerName: string.
+    """
+    strategyRunner = base.AnyStrategyRunner(strategyClass)
+
+    resultSincFactory = base.BestResultFactory()
+
+    startWorker(address, port, strategyRunner, resultSincFactory, workerCount=workerCount, workerName=workerName)
