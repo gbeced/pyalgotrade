@@ -47,7 +47,7 @@ def worker_process(strategyRunner, resultSincFactory, port, logLevel):
     # Create a worker and run it.
     try:
         name = "worker-%s" % (os.getpid())
-        w = Worker("localhost", port, strategyRunner, resultSincFactory, workerName=name)
+        w = worker.Worker("localhost", port, strategyRunner, resultSincFactory, workerName=name)
         w.getLogger().setLevel(logLevel)
         w.run()
     except Exception, e:
