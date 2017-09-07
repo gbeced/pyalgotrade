@@ -44,12 +44,6 @@ class ServerThread(threading.Thread):
 
 
 def worker_process(strategyRunner, resultSincFactory, port, logLevel):
-    class Worker(worker.Worker):
-        def runStrategy(self, barFeed, *args, **kwargs):
-            strat = strategyClass(barFeed, *args, **kwargs)
-            strat.run()
-            return strat.getResult()
-
     # Create a worker and run it.
     try:
         name = "worker-%s" % (os.getpid())
