@@ -81,18 +81,26 @@ class RowParser(csvfeed.RowParser):
 
     def parseBar(self, csvRowDict):
         dateTime = self.__parseDate(csvRowDict["Date"])
-        close = float(csvRowDict["Close"])
-        open_ = float(csvRowDict["Open"])
-        high = float(csvRowDict["High"])
-        low = float(csvRowDict["Low"])
-        volume = float(csvRowDict["Volume"])
+        price_data = {"Close": None, "Open": None, "High": None, "Low": None,
+                      "Volume": None}
         adjClose = None
+
+        for indicator in price_data:
+            try:
+                price_data[indicator] = float(csvRowDict[indicator])
+            except ValueError:
+                price_data[indicator] = None
+
+        open_ = price_data["Open"]
+        high = price_data["High"]
+        low = price_data["Low"]
+        close = price_data["Close"]
 
         if self.__sanitize:
             open_, high, low, close = common.sanitize_ohlc(open_, high, low, close)
 
-        return bar.BasicBar(dateTime, open_, high, low, close, volume,
-                            adjClose, self.__frequency)
+        return bar.BasicBar(dateTime, open_, high, low, close,
+                            price_data["Volume"], adjClose, self.__frequency)
 
 
 class Feed(csvfeed.BarFeed):
