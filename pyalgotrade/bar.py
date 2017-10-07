@@ -131,15 +131,15 @@ class BasicBar(Bar):
     )
 
     def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}):
-        if high < low:
+        if self.less(high, low):
             raise Exception("high < low on %s" % (dateTime))
-        elif high < open_:
+        elif self.less(high , open_):
             raise Exception("high < open on %s" % (dateTime))
-        elif high < close:
+        elif self.less(high, close):
             raise Exception("high < close on %s" % (dateTime))
-        elif low > open_:
+        elif self.more(low, open_):
             raise Exception("low > open on %s" % (dateTime))
-        elif low > close:
+        elif self.more(low , close):
             raise Exception("low > close on %s" % (dateTime))
 
         self.__dateTime = dateTime
@@ -178,6 +178,18 @@ class BasicBar(Bar):
             self.__useAdjustedValue,
             self.__extra
         )
+
+    def less(self, v1, v2):
+        if v1 is None or v2 is None:
+            return False
+
+        return v1 < v2
+
+    def more(self, v1, v2):
+        if v1 is None or v2 is None:
+            return False
+
+        return v1 > v2
 
     def setUseAdjustedValue(self, useAdjusted):
         if useAdjusted and self.__adjClose is None:
