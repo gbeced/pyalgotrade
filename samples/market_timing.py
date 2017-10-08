@@ -1,6 +1,6 @@
 from pyalgotrade import strategy
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import googlefinance
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cumret
 from pyalgotrade.stratanalyzer import sharpe
@@ -141,7 +141,7 @@ def main(plot):
     instruments = ["SPY"]
     for assetClass in instrumentsByClass:
         instruments.extend(instrumentsByClass[assetClass])
-    feed = yahoofinance.build_feed(instruments, 2007, 2013, "data", skipErrors=True)
+    feed = googlefinance.build_feed(instruments, 2007, 2013, "data", skipErrors=True)
 
     strat = MarketTiming(feed, instrumentsByClass, initialCash)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()

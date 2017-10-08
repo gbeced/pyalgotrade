@@ -1,5 +1,5 @@
 from pyalgotrade import strategy
-from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import googlefeed
 from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.utils import stats
@@ -26,7 +26,7 @@ class MyStrategy(strategy.BacktestingStrategy):
         pass
 
 # Load the yahoo feed from CSV files.
-feed = yahoofeed.Feed()
+feed = googlefeed.Feed()
 feed.addBarsFromCSV("aeti", "aeti-2011-yahoofinance.csv")
 feed.addBarsFromCSV("egan", "egan-2011-yahoofinance.csv")
 feed.addBarsFromCSV("glng", "glng-2011-yahoofinance.csv")

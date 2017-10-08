@@ -1,5 +1,5 @@
 from pyalgotrade import strategy
-from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import googlefeed
 from pyalgotrade.technical import ma
 
 
@@ -8,8 +8,6 @@ class MyStrategy(strategy.BacktestingStrategy):
         super(MyStrategy, self).__init__(feed, 1000)
         self.__position = None
         self.__instrument = instrument
-        # We'll use adjusted close values instead of regular close values.
-        self.setUseAdjustedValues(True)
         self.__sma = ma.SMA(feed[instrument].getPriceDataSeries(), smaPeriod)
 
     def onEnterOk(self, position):
@@ -45,8 +43,8 @@ class MyStrategy(strategy.BacktestingStrategy):
 
 
 def run_strategy(smaPeriod):
-    # Load the yahoo feed from the CSV file
-    feed = yahoofeed.Feed()
+    # Load the google feed from the CSV file
+    feed = googlefeed.Feed()
     feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
     # Evaluate the strategy with the feed.

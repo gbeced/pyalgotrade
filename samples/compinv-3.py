@@ -2,7 +2,7 @@ import csv
 import datetime
 import os
 
-from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import googlefeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import strategy
 from pyalgotrade.utils import stats
@@ -88,7 +88,7 @@ def main():
     # Load the data from QSTK storage. QS environment variable has to be defined.
     if os.getenv("QS") is None:
         raise Exception("QS environment variable not defined")
-    feed = yahoofeed.Feed()
+    feed = googlefeed.Feed()
     feed.setBarFilter(csvfeed.DateRangeFilter(ordersFile.getFirstDate(), ordersFile.getLastDate()))
     feed.setDailyBarTime(datetime.time(0, 0, 0))  # This is to match the dates loaded with the ones in the orders file.
     for symbol in ordersFile.getInstruments():
