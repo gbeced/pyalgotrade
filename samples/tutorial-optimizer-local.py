@@ -1,6 +1,6 @@
 import itertools
 from pyalgotrade.optimizer import local
-from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import googlefeed
 import rsi2
 
 
@@ -17,7 +17,7 @@ def parameters_generator():
 # The if __name__ == '__main__' part is necessary if running on Windows.
 if __name__ == '__main__':
     # Load the feed from the CSV files.
-    feed = yahoofeed.Feed()
+    feed = googlefeed.Feed()
     feed.addBarsFromCSV("dia", "dia-2009.csv")
     feed.addBarsFromCSV("dia", "dia-2010.csv")
     feed.addBarsFromCSV("dia", "dia-2011.csv")

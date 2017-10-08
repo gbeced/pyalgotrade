@@ -2,7 +2,7 @@ from pyalgotrade import strategy
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import googlefinance
 from pyalgotrade.stratanalyzer import sharpe
 
 import numpy as np
@@ -138,7 +138,7 @@ def main(plot):
     windowSize = 50
 
     # Download the bars.
-    feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
+    feed = googlefinance.build_feed(instruments, 2006, 2012, ".")
 
     strat = StatArb(feed, instruments[0], instruments[1], windowSize)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()

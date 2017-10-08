@@ -2,7 +2,7 @@ from pyalgotrade import eventprofiler
 from pyalgotrade.technical import stats
 from pyalgotrade.technical import roc
 from pyalgotrade.technical import ma
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import googlefinance
 
 # Event inspired on an example from Ernie Chan's book:
 # 'Algorithmic Trading: Winning Strategies and Their Rationale'
@@ -51,7 +51,7 @@ class BuyOnGap(eventprofiler.Predicate):
 
 def main(plot):
     instruments = ["AA", "AES", "AIG"]
-    feed = yahoofinance.build_feed(instruments, 2008, 2009, ".")
+    feed = googlefinance.build_feed(instruments, 2008, 2009, ".")
 
     predicate = BuyOnGap(feed)
     eventProfiler = eventprofiler.Profiler(predicate, 5, 5)

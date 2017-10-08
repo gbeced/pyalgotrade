@@ -1,6 +1,6 @@
 import rsi2
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import googlefinance
 from pyalgotrade.stratanalyzer import sharpe
 
 
@@ -13,7 +13,7 @@ def main(plot):
     overSoldThreshold = 10
 
     # Download the bars.
-    feed = yahoofinance.build_feed([instrument], 2009, 2012, ".")
+    feed = googlefinance.build_feed([instrument], 2009, 2012, ".")
 
     strat = rsi2.RSI2(feed, instrument, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()

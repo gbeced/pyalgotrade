@@ -1,6 +1,6 @@
 import sma_crossover
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import googlefinance
 from pyalgotrade.stratanalyzer import sharpe
 
 
@@ -9,7 +9,7 @@ def main(plot):
     smaPeriod = 163
 
     # Download the bars.
-    feed = yahoofinance.build_feed([instrument], 2011, 2012, ".")
+    feed = googlefinance.build_feed([instrument], 2011, 2012, ".")
 
     strat = sma_crossover.SMACrossOver(feed, instrument, smaPeriod)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()

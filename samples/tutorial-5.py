@@ -1,10 +1,10 @@
 from pyalgotrade import plotter
-from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import googlefeed
 from pyalgotrade.stratanalyzer import returns
 import sma_crossover
 
-# Load the yahoo feed from the CSV file
-feed = yahoofeed.Feed()
+# Load the googlefeed from the CSV file
+feed = googlefeed.Feed()
 feed.addBarsFromCSV("orcl", "orcl-2000.csv")
 
 # Evaluate the strategy with the feed's bars.

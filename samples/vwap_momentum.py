@@ -1,6 +1,6 @@
 from pyalgotrade import strategy
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import googlefinance
 from pyalgotrade.technical import vwap
 from pyalgotrade.stratanalyzer import sharpe
 
@@ -36,7 +36,7 @@ def main(plot):
     threshold = 0.01
 
     # Download the bars.
-    feed = yahoofinance.build_feed([instrument], 2011, 2012, ".")
+    feed = googlefinance.build_feed([instrument], 2011, 2012, ".")
 
     strat = VWAPMomentum(feed, instrument, vwapWindowSize, threshold)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
