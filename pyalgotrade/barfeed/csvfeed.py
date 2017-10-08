@@ -94,11 +94,12 @@ class BarFeed(membf.BarFeed):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, frequency, maxLen=None):
+    def __init__(self, frequency, maxLen=None, rejectInvalid=True):
         super(BarFeed, self).__init__(frequency, maxLen)
 
         self.__barFilter = None
         self.__dailyTime = datetime.time(0, 0, 0)
+        self.__rejectInvalid = rejectInvalid
 
     def getDailyBarTime(self):
         return self.__dailyTime
