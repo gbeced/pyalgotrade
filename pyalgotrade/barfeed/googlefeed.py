@@ -56,11 +56,13 @@ def parse_date(date):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, dailyBarTime, frequency, timezone=None, sanitize=False):
+    def __init__(self, dailyBarTime, frequency, timezone=None, sanitize=False,
+                 rejectInvalid=True):
         self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
         self.__timezone = timezone
         self.__sanitize = sanitize
+        self.__rejectInvalid = rejectInvalid
 
     def __parseDate(self, dateString):
         ret = parse_date(dateString)
@@ -79,20 +81,33 @@ class RowParser(csvfeed.RowParser):
     def getDelimiter(self):
         return ","
 
-    def parseBar(self, csvRowDict):
-        dateTime = self.__parseDate(csvRowDict["Date"])
-        close = float(csvRowDict["Close"])
-        open_ = float(csvRowDict["Open"])
-        high = float(csvRowDict["High"])
-        low = float(csvRowDict["Low"])
-        volume = float(csvRowDict["Volume"])
+    def parseBar(self, csvRowDict, rejectInvalid=True):
+        price_keys = ['Open', 'High', 'Low', 'Close', 'Volume']
+        price_data = {}
+        omitBar = False
         adjClose = None
 
-        if self.__sanitize:
+        try:
+            dateTime = self.__parseDate(csvRowDict["Date"])
+
+            for indicator in price_keys:
+                price_data[indicator] = float(csvRowDict[indicator])
+        except:
+            if not self.__rejectInvalid:
+                omitBar = True
+            else:
+                raise ValueError
+
+        if not omitBar:
+            open_, high, low, close, volume = [price_data[k] for k in price_keys]
+
+        if not omitBar and self.__sanitize:
             open_, high, low, close = common.sanitize_ohlc(open_, high, low, close)
 
-        return bar.BasicBar(dateTime, open_, high, low, close, volume,
-                            adjClose, self.__frequency)
+        basicBar = None if omitBar else bar.BasicBar(dateTime, open_, high, low, close,
+                            volume, adjClose, self.__frequency)
+
+        return basicBar
 
 
 class Feed(csvfeed.BarFeed):
@@ -144,5 +159,6 @@ class Feed(csvfeed.BarFeed):
         if timezone is None:
             timezone = self.__timezone
 
-        rowParser = RowParser(self.getDailyBarTime(), self.getFrequency(), timezone, self.__sanitizeBars)
+        rowParser = RowParser(self.getDailyBarTime(), self.getFrequency(),
+                              timezone, self.__sanitizeBars, rejectInvalid=False)
         super(Feed, self).addBarsFromCSV(instrument, path, rowParser)
