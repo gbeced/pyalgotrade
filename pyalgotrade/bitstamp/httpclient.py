@@ -40,6 +40,7 @@ def parse_datetime(dateTime):
     return dt.as_utc(ret)
 
 
+# todo test this!
 class AccountBalance(object):
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
@@ -47,11 +48,16 @@ class AccountBalance(object):
     def getDict(self):
         return self.__jsonDict
 
+    def getAvailableCurrency(self, currency="USD"):
+        return float(self.__jsonDict["{}_available".format(currency.lower())])
+
     def getUSDAvailable(self):
-        return float(self.__jsonDict["usd_available"])
+        # todo deprecated
+        return self.getAvailableCurrency("USD")
 
     def getBTCAvailable(self):
-        return float(self.__jsonDict["btc_available"])
+        # todo deprecated
+        return self.getAvailableCurrency("BTC")
 
 
 class Order(object):
