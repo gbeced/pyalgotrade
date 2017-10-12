@@ -1,4 +1,4 @@
-FROM gbecedillas/pyalgotrade:0.18
+FROM python:latest
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
 RUN pip install nose
