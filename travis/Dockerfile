@@ -1,8 +1,8 @@
-FROM python:latest
+FROM gbecedillas/pyalgotrade:latest
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
-RUN pip install nose
-RUN pip install nose-cov
+RUN python3.6 -m pip install nose
+RUN python3.6 -m pip install nose-cov
 
 RUN mkdir /tmp/pyalgotrade
 
@@ -16,4 +16,4 @@ COPY samples /tmp/pyalgotrade/samples
 # We need to upgrade the installed version with the one checked out from GIT.
 COPY setup.py /tmp/pyalgotrade/
 COPY pyalgotrade /tmp/pyalgotrade/pyalgotrade
-RUN pip install -U /tmp/pyalgotrade
+RUN python3.6 -m pip install -U /tmp/pyalgotrade
