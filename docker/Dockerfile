@@ -12,7 +12,7 @@ RUN apt-get -y -qq install \
 	gfortran libopenblas-dev liblapack-dev \
 	pkg-config wget \
 	python3.6 python3-setuptools python3.6-dev python3-pip python3.6-venv \
-	libfreetype6-dev libxft-dev blt-dev python3-matplotlib libboost-all-dev
+	libfreetype6-dev libxft-dev blt-dev python3-matplotlib libboost-all-dev > /dev/null
 
 
 # TA-Lib
