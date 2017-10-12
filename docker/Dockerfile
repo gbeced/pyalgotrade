@@ -12,7 +12,7 @@ RUN apt-get -y -qq install \
 	gfortran libopenblas-dev liblapack-dev \
 	pkg-config wget \
 	python3.6 python3-setuptools python3.6-dev python3-pip python3.6-venv \
-	libfreetype6-dev libxft-dev blt-dev python3-matplotlib
+	libfreetype6-dev libxft-dev blt-dev python3-matplotlib libboost-all-dev
 
 
 # TA-Lib
@@ -20,17 +20,17 @@ RUN cd /tmp; \
 	wget http://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz; \
 	tar -xzf ta-lib-0.4.0-src.tar.gz; \
 	cd /tmp/ta-lib; \
-	./configure ; make; make install; \
+	./configure ; make > /dev/null; make install; \
 	cd /tmp/; \
 	rm ta-lib-0.4.0-src.tar.gz; \
 	rm -rf ta-lib
 
 
-# Install the python depencencies
+# Install the latest version of pip
 RUN python3.6 -m pip install pip --upgrade
 RUN python3.6 -m pip install wheel
 
-# Install our python package for running pyalgotrade
+# Install the python packages we need to run pyalgotrade
 RUN python3.6 -m pip install \
 	numpy scipy pandas patsy statsmodels \
 	matplotlib ws4py \
