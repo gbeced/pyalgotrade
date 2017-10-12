@@ -21,7 +21,7 @@
 import datetime
 import copy
 
-import common
+from . import common
 
 from pyalgotrade import observer
 from pyalgotrade import dispatcher
@@ -99,7 +99,7 @@ class DispatcherTestCase(common.TestCase):
     def test1NrtFeed(self):
         values = []
         now = datetime.datetime.now()
-        datetimes = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+        datetimes = [now + datetime.timedelta(seconds=i) for i in range(10)]
         nrtFeed = NonRealtimeFeed(copy.copy(datetimes))
         nrtFeed.getEvent().subscribe(lambda x: values.append(x))
 
@@ -112,8 +112,8 @@ class DispatcherTestCase(common.TestCase):
     def test2NrtFeeds(self):
         values = []
         now = datetime.datetime.now()
-        datetimes1 = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
-        datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in xrange(10)]
+        datetimes1 = [now + datetime.timedelta(seconds=i) for i in range(10)]
+        datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in range(10)]
         nrtFeed1 = NonRealtimeFeed(copy.copy(datetimes1))
         nrtFeed1.getEvent().subscribe(lambda x: values.append(x))
         nrtFeed2 = NonRealtimeFeed(copy.copy(datetimes2))
@@ -131,7 +131,7 @@ class DispatcherTestCase(common.TestCase):
     def test1RtFeed(self):
         values = []
         now = datetime.datetime.now()
-        datetimes = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
+        datetimes = [now + datetime.timedelta(seconds=i) for i in range(10)]
         nrtFeed = RealtimeFeed(copy.copy(datetimes))
         nrtFeed.getEvent().subscribe(lambda x: values.append(x))
 
@@ -144,8 +144,8 @@ class DispatcherTestCase(common.TestCase):
     def test2RtFeeds(self):
         values = []
         now = datetime.datetime.now()
-        datetimes1 = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
-        datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in xrange(10)]
+        datetimes1 = [now + datetime.timedelta(seconds=i) for i in range(10)]
+        datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in range(10)]
         nrtFeed1 = RealtimeFeed(copy.copy(datetimes1))
         nrtFeed1.getEvent().subscribe(lambda x: values.append(x))
         nrtFeed2 = RealtimeFeed(copy.copy(datetimes2))
@@ -157,15 +157,15 @@ class DispatcherTestCase(common.TestCase):
         disp.run()
 
         self.assertEqual(len(values), len(datetimes1) + len(datetimes2))
-        for i in xrange(len(datetimes1)):
+        for i in range(len(datetimes1)):
             self.assertEqual(values[i*2], datetimes1[i])
             self.assertEqual(values[i*2+1], datetimes2[i])
 
     def test2Combined(self):
         values = []
         now = datetime.datetime.now()
-        datetimes1 = [now + datetime.timedelta(seconds=i) for i in xrange(10)]
-        datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in xrange(10)]
+        datetimes1 = [now + datetime.timedelta(seconds=i) for i in range(10)]
+        datetimes2 = [now + datetime.timedelta(seconds=i+len(datetimes1)) for i in range(10)]
         nrtFeed1 = RealtimeFeed(copy.copy(datetimes1))
         nrtFeed1.getEvent().subscribe(lambda x: values.append(x))
         nrtFeed2 = NonRealtimeFeed(copy.copy(datetimes2))
@@ -177,7 +177,7 @@ class DispatcherTestCase(common.TestCase):
         disp.run()
 
         self.assertEqual(len(values), len(datetimes1) + len(datetimes2))
-        for i in xrange(len(datetimes1)):
+        for i in range(len(datetimes1)):
             self.assertEqual(values[i*2], datetimes1[i])
             self.assertEqual(values[i*2+1], datetimes2[i])
 

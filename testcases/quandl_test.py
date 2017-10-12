@@ -21,7 +21,7 @@
 import os
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade.tools import quandl
 from pyalgotrade import bar
@@ -40,16 +40,16 @@ class ToolsTestCase(common.TestCase):
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEquals(bf[instrument][-1].getLow(), 30.93)
-            self.assertEquals(bf[instrument][-1].getClose(), 31.3)
-            self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
+            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
+            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
+            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
+            self.assertEqual(bf[instrument][-1].getPrice(), 31.3)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
 
     def testDownloadAndParseDaily_UseAdjClose(self):
         with common.TmpDir() as tmpPath:
@@ -62,16 +62,16 @@ class ToolsTestCase(common.TestCase):
             # can't tell in advance if adjusted values are there or not.
             bf.setUseAdjustedValues(True)
             bf.loadAll()
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEquals(bf[instrument][-1].getLow(), 30.93)
-            self.assertEquals(bf[instrument][-1].getClose(), 31.3)
-            self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEquals(bf[instrument][-1].getPrice(), bf[instrument][-1].getAdjClose())
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
+            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
+            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
+            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
+            self.assertEqual(bf[instrument][-1].getPrice(), bf[instrument][-1].getAdjClose())
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
 
     def testDownloadAndParseDailyNoAdjClose(self):
         with common.TmpDir() as tmpPath:
@@ -82,14 +82,14 @@ class ToolsTestCase(common.TestCase):
             bf.setNoAdjClose()
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2013, 12, 31))
-            self.assertEquals(bf[instrument][-1].getOpen(), 37.94)
-            self.assertEquals(bf[instrument][-1].getHigh(), 38.34)
-            self.assertEquals(bf[instrument][-1].getLow(), 37.88)
-            self.assertEquals(bf[instrument][-1].getClose(), 38.26)
-            self.assertEquals(bf[instrument][-1].getVolume(), 11747517)
-            self.assertEquals(bf[instrument][-1].getAdjClose(), None)
-            self.assertEquals(bf[instrument][-1].getPrice(), 38.26)
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2013, 12, 31))
+            self.assertEqual(bf[instrument][-1].getOpen(), 37.94)
+            self.assertEqual(bf[instrument][-1].getHigh(), 38.34)
+            self.assertEqual(bf[instrument][-1].getLow(), 37.88)
+            self.assertEqual(bf[instrument][-1].getClose(), 38.26)
+            self.assertEqual(bf[instrument][-1].getVolume(), 11747517)
+            self.assertEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertEqual(bf[instrument][-1].getPrice(), 38.26)
 
     def testDownloadAndParseWeekly(self):
         with common.TmpDir() as tmpPath:
@@ -103,19 +103,19 @@ class ToolsTestCase(common.TestCase):
             self.assertTrue(
                 bf[instrument][0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
             )
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
-            self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
-            self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
-            self.assertEquals(bf[instrument][-1].getLow(), 323.17)
-            self.assertEquals(bf[instrument][-1].getClose(), 323.6)
-            self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
-            self.assertEquals(bf[instrument][-1].getPrice(), 323.6)
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEqual(bf[instrument][-1].getOpen(), 325.0)
+            self.assertEqual(bf[instrument][-1].getHigh(), 325.15)
+            self.assertEqual(bf[instrument][-1].getLow(), 323.17)
+            self.assertEqual(bf[instrument][-1].getClose(), 323.6)
+            self.assertEqual(bf[instrument][-1].getVolume(), 7969900)
+            self.assertEqual(bf[instrument][-1].getPrice(), 323.6)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
 
     def testInvalidFrequency(self):
-        with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
+        with self.assertRaisesRegex(Exception, "Invalid frequency.*"):
             quandlfeed.Feed(frequency=bar.Frequency.MINUTE)
 
     def testBuildFeedDaily(self):
@@ -123,16 +123,16 @@ class ToolsTestCase(common.TestCase):
             instrument = "ORCL"
             bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=auth_token)
             bf.loadAll()
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEquals(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEquals(bf[instrument][-1].getLow(), 30.93)
-            self.assertEquals(bf[instrument][-1].getClose(), 31.3)
-            self.assertEquals(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEquals(bf[instrument][-1].getPrice(), 31.3)
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
+            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
+            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
+            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
+            self.assertEqual(bf[instrument][-1].getPrice(), 31.3)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
 
     def testBuildFeedWeekly(self):
         with common.TmpDir() as tmpPath:
@@ -143,22 +143,22 @@ class ToolsTestCase(common.TestCase):
             self.assertTrue(
                 bf[instrument][0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
             )
-            self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
-            self.assertEquals(bf[instrument][-1].getOpen(), 325.0)
-            self.assertEquals(bf[instrument][-1].getHigh(), 325.15)
-            self.assertEquals(bf[instrument][-1].getLow(), 323.17)
-            self.assertEquals(bf[instrument][-1].getClose(), 323.6)
-            self.assertEquals(bf[instrument][-1].getVolume(), 7969900)
-            self.assertEquals(bf[instrument][-1].getPrice(), 323.6)
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEqual(bf[instrument][-1].getOpen(), 325.0)
+            self.assertEqual(bf[instrument][-1].getHigh(), 325.15)
+            self.assertEqual(bf[instrument][-1].getLow(), 323.17)
+            self.assertEqual(bf[instrument][-1].getClose(), 323.6)
+            self.assertEqual(bf[instrument][-1].getVolume(), 7969900)
+            self.assertEqual(bf[instrument][-1].getPrice(), 323.6)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
 
     def testInvalidInstrument(self):
         instrument = "inexistent"
 
         # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
+        with self.assertRaisesRegex(Exception, "404 Client Error: Not Found"):
             with common.TmpDir() as tmpPath:
                 quandl.build_feed(
                     instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token
@@ -177,7 +177,7 @@ class ToolsTestCase(common.TestCase):
             bf = quandl.build_feed("YAHOO", ["AAPL"], 2010, 2010, tmpPath, columnNames={"adj_close": "Adjusted Close"})
             bf.setUseAdjustedValues(True)
             bf.loadAll()
-            self.assertEquals(bf["AAPL"][-1].getClose(), 322.560013)
+            self.assertEqual(bf["AAPL"][-1].getClose(), 322.560013)
             self.assertIsNotNone(bf["AAPL"][-1].getAdjClose())
             self.assertIsNotNone(bf["AAPL"][-1].getPrice())
 
@@ -189,7 +189,7 @@ class ToolsTestCase(common.TestCase):
             }
             bf = quandl.build_feed("BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames)
             bf.loadAll()
-            self.assertEquals(bf["USD"][-1].getExtraColumns()["Bid"], 319.19)
-            self.assertEquals(bf["USD"][-1].getExtraColumns()["Ask"], 319.63)
+            self.assertEqual(bf["USD"][-1].getExtraColumns()["Bid"], 319.19)
+            self.assertEqual(bf["USD"][-1].getExtraColumns()["Ask"], 319.63)
             bids = bf["USD"].getExtraDataSeries("Bid")
-            self.assertEquals(bids[-1], 319.19)
+            self.assertEqual(bids[-1], 319.19)

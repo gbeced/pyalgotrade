@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade import barfeed
 from pyalgotrade.barfeed import common as bfcommon
@@ -33,12 +33,12 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
 
     def callback(dateTime, bars):
         called["called"] = True
-        testCase.assertEquals(barFeed.getCurrentDateTime(), dateTime)
+        testCase.assertEqual(barFeed.getCurrentDateTime(), dateTime)
 
-    testCase.assertEquals(barFeed.getCurrentDateTime(), None)
-    testCase.assertEquals(barFeed.barsHaveAdjClose(), barsHaveAdjClose)
+    testCase.assertEqual(barFeed.getCurrentDateTime(), None)
+    testCase.assertEqual(barFeed.barsHaveAdjClose(), barsHaveAdjClose)
     if not barsHaveAdjClose:
-        with testCase.assertRaisesRegexp(Exception, "The barfeed doesn't support adjusted close values.*"):
+        with testCase.assertRaisesRegex(Exception, "The barfeed doesn't support adjusted close values.*"):
             barFeed.setUseAdjustedValues(True)
 
     d = dispatcher.Dispatcher()
@@ -46,7 +46,7 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
     barFeed.getNewValuesEvent().subscribe(callback)
     d.run()
 
-    testCase.assertEquals(called["called"], True)
+    testCase.assertEqual(called["called"], True)
 
 
 class OptimizerBarFeedTestCase(common.TestCase):
@@ -56,7 +56,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
             bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
         ]
         f = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
-        with self.assertRaisesRegexp(Exception, "Bar date times are not in order.*"):
+        with self.assertRaisesRegex(Exception, "Bar date times are not in order.*"):
             for dt, b in f:
                 pass
 
@@ -78,7 +78,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
 
     def testEmtpy(self):
         barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], [])
-        self.assertEquals(barFeed.barsHaveAdjClose(), False)
+        self.assertEqual(barFeed.barsHaveAdjClose(), False)
 
 
 class CommonTestCase(common.TestCase):

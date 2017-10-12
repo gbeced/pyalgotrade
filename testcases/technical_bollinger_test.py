@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade.technical import bollinger
 from pyalgotrade import dataseries
@@ -37,12 +37,12 @@ class TestCase(common.TestCase):
         for value in prices:
             seqDS.append(value)
 
-        for i in xrange(19):
+        for i in range(19):
             self.assertEqual(bBands.getMiddleBand()[i], None)
             self.assertEqual(bBands.getUpperBand()[i], None)
             self.assertEqual(bBands.getLowerBand()[i], None)
 
-        for i in xrange(19, len(seqDS)):
+        for i in range(19, len(seqDS)):
             self.assertEqual(round(bBands.getMiddleBand()[i], 2), expectedMiddle[i-19])
             self.assertEqual(round(bBands.getUpperBand()[i], 2), expectedUpper[i-19])
             self.assertEqual(round(bBands.getLowerBand()[i], 2), expectedLower[i-19])
@@ -59,7 +59,7 @@ class TestCase(common.TestCase):
         for value in prices:
             seqDS.append(value)
 
-        for i in xrange(3):
+        for i in range(3):
             self.assertEqual(round(bBands.getMiddleBand()[i], 2), expectedMiddle[i])
             self.assertEqual(round(bBands.getUpperBand()[i], 2), expectedUpper[i])
             self.assertEqual(round(bBands.getLowerBand()[i], 2), expectedLower[i])

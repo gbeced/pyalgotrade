@@ -205,7 +205,7 @@ class Position(object):
         return self.__strategy.getLastPrice(self.getInstrument())
 
     def getActiveOrders(self):
-        return self.__activeOrders.values()
+        return list(self.__activeOrders.values())
 
     def getShares(self):
         """Returns the number of shares.

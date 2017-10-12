@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
@@ -79,18 +79,18 @@ class SMATestCase(common.TestCase):
 
     def testMultipleValues(self):
         period = 5
-        values = range(1, 10)
+        values = list(range(1, 10))
         sma = self.__buildSMA(period, values)
-        for i in xrange(period-1, len(values)):
+        for i in range(period-1, len(values)):
             expected = sum(values[i-(period-1):i+1]) / float(period)
             self.assertTrue(sma[i] == expected)
 
     def testMultipleValuesSkippingOne(self):
         # Test SMA invalidating fast sma calculation.
         period = 5
-        values = range(1, 10)
+        values = list(range(1, 10))
         sma = self.__buildSMA(period, values)
-        for i in xrange(period-1, len(values), 2):
+        for i in range(period-1, len(values), 2):
             expected = sum(values[i-(period-1):i+1]) / float(period)
             self.assertTrue(sma[i] == expected)
 
@@ -103,12 +103,12 @@ class SMATestCase(common.TestCase):
 
     def testSeqLikeOps(self):
         # ds and seq should be the same.
-        seq = [1.0 for i in xrange(10)]
+        seq = [1.0 for i in range(10)]
         ds = self.__buildSMA(1, seq)
 
         # Test length and every item.
         self.assertEqual(len(ds), len(seq))
-        for i in xrange(len(seq)):
+        for i in range(len(seq)):
             self.assertEqual(ds[i], seq[i])
 
         # Test negative indices
@@ -124,11 +124,11 @@ class SMATestCase(common.TestCase):
         sl = slice(0, -1, 1)
         self.assertEqual(ds[sl], seq[sl])
 
-        for i in xrange(-100, 100):
+        for i in range(-100, 100):
             self.assertEqual(ds[i:], seq[i:])
 
-        for step in xrange(1, 10):
-            for i in xrange(-100, 100):
+        for step in range(1, 10):
+            for i in range(-100, 100):
                 self.assertEqual(ds[i::step], seq[i::step])
 
     def testEventWindow(self):
@@ -136,7 +136,7 @@ class SMATestCase(common.TestCase):
         smaEW = ma.SMAEventWindow(10)
         sma = ma.SMA(ds, 10)
         smaEW.onNewValue(None, None)  # This value should get skipped
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
             smaEW.onNewValue(None, i)
             self.assertEqual(sma[-1], smaEW.getValue())

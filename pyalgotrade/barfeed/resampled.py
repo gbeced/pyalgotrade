@@ -28,13 +28,13 @@ class BarsGrouper(resamplebase.Grouper):
         self.__frequency = frequency
 
         # Initialize BarGrouper instances for each instrument.
-        for instrument, bar_ in bars.items():
+        for instrument, bar_ in list(bars.items()):
             barGrouper = resampled.BarGrouper(groupDateTime, bar_, frequency)
             self.__barGroupers[instrument] = barGrouper
 
     def addValue(self, value):
         # Update or initialize BarGrouper instances for each instrument.
-        for instrument, bar_ in value.items():
+        for instrument, bar_ in list(value.items()):
             barGrouper = self.__barGroupers.get(instrument)
             if barGrouper:
                 barGrouper.addValue(bar_)
@@ -44,7 +44,7 @@ class BarsGrouper(resamplebase.Grouper):
 
     def getGrouped(self):
         bar_dict = {}
-        for instrument, grouper in self.__barGroupers.items():
+        for instrument, grouper in list(self.__barGroupers.items()):
             bar_dict[instrument] = grouper.getGrouped()
         return bar.Bars(bar_dict)
 

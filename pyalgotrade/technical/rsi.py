@@ -60,7 +60,7 @@ def avg_gain_loss(values, begin, end):
 
     gain = 0
     loss = 0
-    for i in xrange(begin+1, end):
+    for i in range(begin+1, end):
         currGain, currLoss = gain_loss_one(values[i-1], values[i])
         gain += currGain
         loss += currLoss
@@ -73,7 +73,7 @@ def rsi(values, period):
         return None
 
     avgGain, avgLoss = avg_gain_loss(values, 0, period)
-    for i in xrange(period, len(values)):
+    for i in range(period, len(values)):
         gain, loss = gain_loss_one(values[i-1], values[i])
         avgGain = (avgGain * (period - 1) + gain) / float(period)
         avgLoss = (avgLoss * (period - 1) + loss) / float(period)

@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import Queue
+import queue
 import threading
 import json
 
@@ -92,7 +92,7 @@ class TwitterFeed(observer.Subject):
         super(TwitterFeed, self).__init__()
 
         self.__event = observer.Event()
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__thread = None
         self.__running = False
 
@@ -118,7 +118,7 @@ class TwitterFeed(observer.Subject):
             nextTweet = json.loads(self.__queue.get(True, TwitterFeed.QUEUE_TIMEOUT))
             ret = True
             self.__event.emit(nextTweet)
-        except Queue.Empty:
+        except queue.Empty:
             pass
         return ret
 
@@ -143,7 +143,7 @@ class TwitterFeed(observer.Subject):
             if self.__thread is not None and self.__thread.is_alive():
                 logger.info("Shutting down client.")
                 self.__stream.disconnect()
-        except Exception, e:
+        except Exception as e:
             logger.error("Error disconnecting stream: %s." % (str(e)))
 
     def join(self):

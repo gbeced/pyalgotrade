@@ -20,9 +20,9 @@
 
 import datetime
 
-import common
-import barfeed_test
-import feed_test
+from . import common
+from . import barfeed_test
+from . import feed_test
 
 from pyalgotrade.utils import dt
 from pyalgotrade.barfeed import yahoofeed
@@ -96,15 +96,15 @@ class FeedTestCase(common.TestCase):
 
     def testDefaultInstrument(self):
         barFeed = yahoofeed.Feed()
-        self.assertEquals(barFeed.getDefaultInstrument(), None)
+        self.assertEqual(barFeed.getDefaultInstrument(), None)
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        self.assertEquals(barFeed.getDefaultInstrument(), FeedTestCase.TestInstrument)
+        self.assertEqual(barFeed.getDefaultInstrument(), FeedTestCase.TestInstrument)
 
     def testDuplicateBars(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        with self.assertRaisesRegexp(Exception, "Duplicate bars found for.*"):
+        with self.assertRaisesRegex(Exception, "Duplicate bars found for.*"):
             barFeed.loadAll()
 
     def testBaseBarFeed(self):
@@ -114,7 +114,7 @@ class FeedTestCase(common.TestCase):
         barfeed_test.check_base_barfeed(self, barFeed, True)
 
     def testInvalidFrequency(self):
-        with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
+        with self.assertRaisesRegex(Exception, "Invalid frequency.*"):
             yahoofeed.Feed(frequency=bar.Frequency.MINUTE)
 
     def testBaseFeedInterface(self):
@@ -205,14 +205,14 @@ class FeedTestCase(common.TestCase):
         try:
             barFeed = yahoofeed.Feed(timezone=-5)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
         try:
             barFeed = yahoofeed.Feed()
             barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), -3)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
     def testMapTypeOperations(self):

@@ -102,7 +102,7 @@ def build_feed(instruments, fromYear, toYear, storage, frequency=bar.Frequency.D
                         download_daily_bars(instrument, year, fileName)
                     else:
                         raise Exception("Invalid frequency")
-                except Exception, e:
+                except Exception as e:
                     if skipErrors:
                         logger.error(str(e))
                         continue
