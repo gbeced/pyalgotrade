@@ -13,3 +13,5 @@ PyAlgoTrade.egg-info
 
 testcases/twitter_credentials.py
 venv
+
+/*.csv
