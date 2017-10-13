@@ -1,2 +1,2 @@
 .git
-venv
+venv*.sqlite
