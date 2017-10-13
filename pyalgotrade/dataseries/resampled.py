@@ -65,9 +65,7 @@ class BarGrouper(resamplebase.Grouper):
         return ret
 
 
-class DSResampler(object):
-    __metaclass__ = abc.ABCMeta
-
+class DSResampler(object, metaclass=abc.ABCMeta):
     def initDSResampler(self, dataSeries, frequency):
         if not resamplebase.is_valid_frequency(frequency):
             raise Exception("Unsupported frequency")

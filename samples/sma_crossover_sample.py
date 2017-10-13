@@ -20,7 +20,7 @@ def main(plot):
         plt.getInstrumentSubplot(instrument).addDataSeries("sma", strat.getSMA())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
 
     if plot:
         plt.plot()

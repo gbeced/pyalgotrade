@@ -73,7 +73,7 @@ def process_symbol(writer, symbol):
             logger.warning("Industry not found")
 
         writer.addStock(symbol, company, sector, industry)
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 
@@ -89,7 +89,7 @@ def main():
 
         logger.info("Writing merval.xml")
         writer.write("merval.xml")
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 if __name__ == "__main__":

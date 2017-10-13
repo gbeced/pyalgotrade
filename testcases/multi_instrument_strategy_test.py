@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed

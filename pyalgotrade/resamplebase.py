@@ -22,9 +22,7 @@ from pyalgotrade.utils import dt
 from pyalgotrade import bar
 
 
-class TimeRange(object):
-    __metaclass__ = abc.ABCMeta
-
+class TimeRange(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def belongs(self, dateTime):
         raise NotImplementedError()
@@ -137,9 +135,7 @@ def build_range(dateTime, frequency):
     return ret
 
 
-class Grouper(object):
-    __metaclass__ = abc.ABCMeta
-
+class Grouper(object, metaclass=abc.ABCMeta):
     def __init__(self, groupDateTime):
         self.__groupDateTime = groupDateTime
 

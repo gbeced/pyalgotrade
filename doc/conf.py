@@ -43,8 +43,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'PyAlgoTrade'
-copyright = u'2011-2014, Gabriel Martín Becedillas Ruiz'
+project = 'PyAlgoTrade'
+copyright = '2011-2014, Gabriel Martín Becedillas Ruiz'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -186,8 +186,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'PyAlgoTrade.tex', u'PyAlgoTrade Documentation',
-   u'Gabriel Martín Becedillas Ruiz', 'manual'),
+  ('index', 'PyAlgoTrade.tex', 'PyAlgoTrade Documentation',
+   'Gabriel Martín Becedillas Ruiz', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,8 +216,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pyalgotrade', u'PyAlgoTrade Documentation',
-     [u'Gabriel Martín Becedillas Ruiz'], 1)
+    ('index', 'pyalgotrade', 'PyAlgoTrade Documentation',
+     ['Gabriel Martín Becedillas Ruiz'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -230,8 +230,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'PyAlgoTrade', u'PyAlgoTrade Documentation',
-   u'Gabriel Martín Becedillas Ruiz', 'PyAlgoTrade', 'One line description of project.',
+  ('index', 'PyAlgoTrade', 'PyAlgoTrade Documentation',
+   'Gabriel Martín Becedillas Ruiz', 'PyAlgoTrade', 'One line description of project.',
    'Miscellaneous'),
 ]
 

@@ -52,7 +52,7 @@ class ParameterSource(object):
             if self.__iter is not None:
                 try:
                     while count > 0:
-                        params = self.__iter.next()
+                        params = next(self.__iter)
                         # Backward compatibility when parameters don't yield Parameters.
                         if not isinstance(params, Parameters):
                             params = Parameters(*params)

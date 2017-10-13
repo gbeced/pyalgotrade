@@ -24,9 +24,9 @@ from distutils import version
 import pytz
 import numpy
 
-import common
-import strategy_test
-import position_test
+from . import common
+from . import strategy_test
+from . import position_test
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import csvfeed

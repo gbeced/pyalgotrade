@@ -59,7 +59,7 @@ class MissingDataVerifier:
 
     def __processGap(self, prevDateTime, currentDateTime):
         dates = self.getDatesInBetween(prevDateTime, currentDateTime)
-        dates = filter(lambda x: not self.isTradingDay(x), dates)
+        dates = [x for x in dates if not self.isTradingDay(x)]
         if len(dates) >= self.__threshold:
             logger.warning("%d day gap between %s and %s" % (len(dates), prevDateTime, currentDateTime))
 
@@ -121,7 +121,7 @@ def main():
         stockCallback = lambda stock: process_symbol(stock.getTicker(), fromYear, toYear, missingDataVerifierClass)
         indexCallback = stockCallback
         symbolsxml.parse(symbolsFile, stockCallback, indexCallback)
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 main()

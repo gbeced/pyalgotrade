@@ -20,7 +20,7 @@
 
 import numpy
 
-import common
+from . import common
 
 from pyalgotrade.technical import stats
 from pyalgotrade import dataseries

@@ -58,7 +58,7 @@ def main(plot):
     eventProfiler.run(feed, True)
 
     results = eventProfiler.getResults()
-    print "%d events found" % (results.getEventCount())
+    print("%d events found" % (results.getEventCount()))
     if plot:
         eventprofiler.plot(results)
 

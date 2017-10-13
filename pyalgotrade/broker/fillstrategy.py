@@ -22,7 +22,7 @@ import abc
 
 from pyalgotrade import broker
 import pyalgotrade.bar
-import slippage
+from . import slippage
 
 
 # Returns the trigger price for a Limit or StopLimit order, or None if the limit price was not yet penetrated.
@@ -102,10 +102,8 @@ class FillInfo(object):
         return self.__quantity
 
 
-class FillStrategy(object):
+class FillStrategy(object, metaclass=abc.ABCMeta):
     """Base class for order filling strategies for the backtester."""
-
-    __metaclass__ = abc.ABCMeta
 
     def onBars(self, broker_, bars):
         """

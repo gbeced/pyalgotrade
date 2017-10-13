@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade.technical import roc
 from pyalgotrade import dataseries
@@ -59,12 +59,12 @@ class ROCTestCase(common.TestCase):
         inputValues = [11045.27, 11167.32, 11008.61, 11151.83, 10926.77, 10868.12, 10520.32, 10380.43, 10785.14, 10748.26, 10896.91, 10782.95, 10620.16, 10625.83, 10510.95, 10444.37, 10068.01, 10193.39, 10066.57, 10043.75]
         outputValues = [-4.31, -3.24]
         roc_ = self.__buildROC(inputValues, 12, 2)
-        for i in xrange(2):
+        for i in range(2):
             self.assertEqual(round(roc_[i], 4), round(outputValues[i] / 100, 4))
 
     def testZeroes(self):
         inputValues = [0, 0, 0]
         outputValues = [None, 0, 0]
         roc_ = self.__buildROC(inputValues, 1)
-        for i in xrange(len(inputValues)):
+        for i in range(len(inputValues)):
             self.assertEqual(roc_[i], outputValues[i])

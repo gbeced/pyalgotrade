@@ -32,11 +32,11 @@ class Results(object):
         assert(lookForward > 0)
         self.__lookBack = lookBack
         self.__lookForward = lookForward
-        self.__values = [[] for i in xrange(lookBack+lookForward+1)]
+        self.__values = [[] for i in range(lookBack+lookForward+1)]
         self.__eventCount = 0
 
         # Process events.
-        for instrument, events in eventsDict.items():
+        for instrument, events in list(eventsDict.items()):
             for event in events:
                 # Skip events which are on the boundary or for some reason are not complete.
                 if event.isComplete():
@@ -149,7 +149,7 @@ class Profiler(object):
 
     def __addPastReturns(self, instrument, event):
         begin = (event.getLookBack() + 1) * -1
-        for t in xrange(begin, 0):
+        for t in range(begin, 0):
             try:
                 ret = self.__rets[instrument][t]
                 if ret is not None:
@@ -222,7 +222,7 @@ def build_plot(profilerResults):
     x = []
     y = []
     std = []
-    for t in xrange(profilerResults.getLookBack()*-1, profilerResults.getLookForward()+1):
+    for t in range(profilerResults.getLookBack()*-1, profilerResults.getLookForward()+1):
         x.append(t)
         values = np.asarray(profilerResults.getValues(t))
         y.append(values.mean())
