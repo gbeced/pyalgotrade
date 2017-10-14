@@ -23,8 +23,18 @@ from pyalgotrade import broker
 
 
 logger = pyalgotrade.logger.getLogger("bitstamp")
+
+# deprecated
 btc_symbol = "BTC"
 
+available_fiats = {"EUR", "USD"}
+available_cryptos = {"BTC", "ETH", "LTC", "XRP"}
+available_pairs = {"EUR": {"BTC": "BTCEUR", "ETH": "ETHEUR", "LTC": "LTCEUR", "USD": "EURUSD", "XRP": "XRPEUR"},
+                   "USD": {"BTC": "BTCUSD", "ETH": "ETHUSD", "EUR": "EURUSD", "LTC": "LTCUSD", "XRP": "XRPUSD"},
+                   "BTC": {"EUR": "BTCEUR", "USD": "BTCUSD", "ETH": "ETHBTC", "LTC": "LTCBTC", "XRP": "XRPBTC"},
+                   "ETH": {"EUR": "ETHEUR", "USD": "ETHUSD", "BTC": "ETHBTC"},
+                   "XRP": {"EUR": "XRPEUR", "USD": "XRPUSD", "BTC": "XRPBTC"},
+                   "LTC": {"EUR": "LTCEUR", "USD": "LTCUSD", "BTC": "LTCBTC"}}
 
 class BTCTraits(broker.InstrumentTraits):
     def roundQuantity(self, quantity):

@@ -40,7 +40,6 @@ def parse_datetime(dateTime):
     return dt.as_utc(ret)
 
 
-# todo test this!
 class AccountBalance(object):
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
@@ -52,11 +51,11 @@ class AccountBalance(object):
         return float(self.__jsonDict["{}_available".format(currency.lower())])
 
     def getUSDAvailable(self):
-        # todo deprecated
+        # deprecated
         return self.getAvailableCurrency("USD")
 
     def getBTCAvailable(self):
-        # todo deprecated
+        # deprecated
         return self.getAvailableCurrency("BTC")
 
 
@@ -93,11 +92,19 @@ class UserTransaction(object):
     def getDict(self):
         return self.__jsonDict
 
+    def getCurrency(self, currency="BTC"):
+        return float(self.__jsonDict[currency.lower()])
+
+    def getCurrencyPairPrice(self, currency1="BTC", currency2="USD"):
+        return float(self.__jsonDict["{}_{}".format(currency1.lower(), currency2.lower())])
+
     def getBTC(self):
-        return float(self.__jsonDict["btc"])
+        # deprecated
+        return self.getCurrency("BTC")
 
     def getBTCUSD(self):
-        return float(self.__jsonDict["btc_usd"])
+        # deprecated
+        return self.getCurrencyPairPrice("BTC", "USD")
 
     def getDateTime(self):
         return parse_datetime(self.__jsonDict["datetime"])
@@ -112,7 +119,8 @@ class UserTransaction(object):
         return int(self.__jsonDict["order_id"])
 
     def getUSD(self):
-        return float(self.__jsonDict["usd"])
+        # deprecated
+        return self.getCurrency("USD")
 
 
 class HTTPClient(object):
@@ -176,12 +184,12 @@ class HTTPClient(object):
         return jsonResponse
 
     def getAccountBalance(self):
-        url = "https://www.bitstamp.net/api/balance/"
+        url = "https://www.bitstamp.net/api/v2/balance/"
         jsonResponse = self._post(url, {})
         return AccountBalance(jsonResponse)
 
     def getOpenOrders(self):
-        url = "https://www.bitstamp.net/api/open_orders/"
+        url = "https://www.bitstamp.net/api/v2/open_orders/all"
         jsonResponse = self._post(url, {})
         return [Order(json_open_order) for json_open_order in jsonResponse]
 
@@ -192,8 +200,8 @@ class HTTPClient(object):
         if jsonResponse != True:
             raise Exception("Failed to cancel order")
 
-    def buyLimit(self, limitPrice, quantity):
-        url = "https://www.bitstamp.net/api/buy/"
+    def buyLimit(self, limitPrice, quantity, currency="USD", instrument="BTC"):
+        url = "https://www.bitstamp.net/api/v2/buy/{}/".format(common.available_pairs[currency][instrument].lower())
 
         # Rounding price to avoid 'Ensure that there are no more than 2 decimal places'
         # error.
@@ -209,8 +217,8 @@ class HTTPClient(object):
         jsonResponse = self._post(url, params)
         return Order(jsonResponse)
 
-    def sellLimit(self, limitPrice, quantity):
-        url = "https://www.bitstamp.net/api/sell/"
+    def sellLimit(self, limitPrice, quantity, currency="USD", instrument="BTC"):
+        url = "https://www.bitstamp.net/api/v2/sell/{}/".format(common.available_pairs[currency][instrument].lower())
 
         # Rounding price to avoid 'Ensure that there are no more than 2 decimal places'
         # error.
@@ -227,7 +235,7 @@ class HTTPClient(object):
         return Order(jsonResponse)
 
     def getUserTransactions(self, transactionType=None):
-        url = "https://www.bitstamp.net/api/user_transactions/"
+        url = "https://www.bitstamp.net/api/v2/user_transactions/"
         jsonResponse = self._post(url, {})
         if transactionType is not None:
             jsonUserTransactions = filter(
