@@ -200,6 +200,7 @@ class Broker(broker.Broker):
         self.__barFeed = barFeed
         self.__allowNegativeCash = False
         self.__nextOrderId = 1
+        self.__started = False
 
     def _getNextOrderId(self):
         ret = self.__nextOrderId
@@ -290,13 +291,16 @@ class Broker(broker.Broker):
     def getShares(self, instrument):
         return self.__shares.get(instrument, 0)
 
-    def setShares(self, instrument, value):
+    def setShares(self, instrument, quantity):
         """
-        This method should only works on asset init.
-        :param instrument: the security name.
-        :param value: how much you have of given instrument.
+        Set existing shares before the strategy starts executing.
+
+        :param instrument: Instrument identifier.
+        :param quantity: The number of shares for the given instrument.
         """
-        self.__shares[instrument] = value
+
+        assert not self.__started, "Can't setShares once the strategy started executing"
+        self.__shares[instrument] = quantity
 
     def getPositions(self):
         return self.__shares
@@ -461,6 +465,7 @@ class Broker(broker.Broker):
 
     def start(self):
         super(Broker, self).start()
+        self.__started = True
 
     def stop(self):
         pass
