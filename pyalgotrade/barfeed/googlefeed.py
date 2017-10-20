@@ -139,7 +139,7 @@ class Feed(csvfeed.BarFeed):
         :type path: string.
         :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
         :type timezone: A pytz timezone.
-        :param skipMalformedBars: True to skip errors parsing bars.
+        :param skipMalformedBars: True to skip errors while parsing bars.
         :type skipMalformedBars: boolean.
         """
 

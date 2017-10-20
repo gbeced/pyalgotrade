@@ -267,7 +267,7 @@ class GenericBarFeed(BarFeed):
     def setBarClass(self, barClass):
         self.__barClass = barClass
 
-    def addBarsFromCSV(self, instrument, path, timezone=None):
+    def addBarsFromCSV(self, instrument, path, timezone=None, skipMalformedBars=False):
         """Loads bars for a given instrument from a CSV formatted file.
         The instrument gets registered in the bar feed.
 
@@ -277,6 +277,8 @@ class GenericBarFeed(BarFeed):
         :type path: string.
         :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
         :type timezone: A pytz timezone.
+        :param skipMalformedBars: True to skip errors while parsing bars.
+        :type skipMalformedBars: boolean.
         """
 
         if timezone is None:
@@ -287,7 +289,7 @@ class GenericBarFeed(BarFeed):
             timezone, self.__barClass
         )
 
-        super(GenericBarFeed, self).addBarsFromCSV(instrument, path, rowParser)
+        super(GenericBarFeed, self).addBarsFromCSV(instrument, path, rowParser, skipMalformedBars=skipMalformedBars)
 
         if rowParser.barsHaveAdjClose():
             self.__haveAdjClose = True
