@@ -29,6 +29,28 @@ from pyalgotrade.tools import googlefinance
 
 
 class ToolsTestCase(common.TestCase):
+    def testParseFile(self):
+        instrument = "orcl"
+
+        bf = googlefeed.Feed()
+        bf.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2010-googlefinance.csv"))
+        bf.loadAll()
+        self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+        self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+
+    def testParseMalformedFile(self):
+        instrument = "orcl"
+
+        bf = googlefeed.Feed()
+        bf.addBarsFromCSV(
+            instrument, common.get_data_file_path("orcl-2010-googlefinance-malformed.csv"), skipMalformedBars=True
+        )
+        bf.loadAll()
+        self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+        self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
+
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
 

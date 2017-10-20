@@ -112,12 +112,25 @@ class BarFeed(membf.BarFeed):
     def setBarFilter(self, barFilter):
         self.__barFilter = barFilter
 
-    def addBarsFromCSV(self, instrument, path, rowParser):
+    def addBarsFromCSV(self, instrument, path, rowParser, skipMalformedBars=False):
+        def parse_bar_skip_malformed(row):
+            ret = None
+            try:
+                ret = rowParser.parseBar(row)
+            except Exception:
+                pass
+            return ret
+
+        if skipMalformedBars:
+            parse_bar = parse_bar_skip_malformed
+        else:
+            parse_bar = rowParser.parseBar
+
         # Load the csv file
         loadedBars = []
         reader = csvutils.FastDictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
         for row in reader:
-            bar_ = rowParser.parseBar(row)
+            bar_ = parse_bar(row)
             if bar_ is not None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):
                 loadedBars.append(bar_)
 
