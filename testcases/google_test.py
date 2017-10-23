@@ -52,7 +52,7 @@ class ToolsTestCase(common.TestCase):
         self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
 
     def testDownloadAndParseDaily(self):
-        instrument = "orcl"
+        instrument = "nyse:orcl"
 
         with common.TmpDir() as tmp_path:
             path = os.path.join(tmp_path, "orcl-2010.csv")
@@ -60,14 +60,25 @@ class ToolsTestCase(common.TestCase):
             bf = googlefeed.Feed()
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
+
+            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 4))
+            self.assertEqual(bf[instrument][0].getOpen(), 24.66)
+            self.assertEqual(bf[instrument][0].getClose(), 24.85)
+
+            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
             self.assertEqual(bf[instrument][-1].getClose(), 31.30)
 
     def testBuildDailyFeed(self):
         with common.TmpDir() as tmpPath:
-            instrument = "orcl"
+            instrument = "nyse:orcl"
             bf = googlefinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
             bf.loadAll()
+
+            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(2010, 1, 4))
+            self.assertEqual(bf[instrument][0].getOpen(), 24.66)
+            self.assertEqual(bf[instrument][0].getClose(), 24.85)
+
             self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
             self.assertEqual(bf[instrument][-1].getClose(), 31.30)

@@ -30,7 +30,7 @@ from pyalgotrade.utils import csvutils
 
 
 def download_csv(instrument, begin, end):
-    url = "http://www.google.com/finance/historical"
+    url = "https://finance.google.com/finance/historical"
     params = {
         "q": instrument,
         "startdate": begin.strftime("%Y-%m-%d"),
