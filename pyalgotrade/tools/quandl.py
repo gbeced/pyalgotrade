@@ -90,7 +90,8 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
 
 
 def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None,
-               skipErrors=False, noAdjClose=False, authToken=None, columnNames={}, forceDownload=False
+               skipErrors=False, noAdjClose=False, authToken=None, columnNames={}, forceDownload=False,
+               skipMalformedBars=False
                ):
     """Build and load a :class:`pyalgotrade.barfeed.quandlfeed.Feed` using CSV files downloaded from Quandl.
     CSV files are downloaded if they haven't been downloaded before.
@@ -126,6 +127,8 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
         * adj_close
 
     :type columnNames: dict.
+    :param skipMalformedBars: True to skip errors while parsing bars.
+    :type skipMalformedBars: boolean.
 
     :rtype: :class:`pyalgotrade.barfeed.quandlfeed.Feed`.
     """
@@ -161,7 +164,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                         continue
                     else:
                         raise e
-            ret.addBarsFromCSV(tableCode, fileName)
+            ret.addBarsFromCSV(tableCode, fileName, skipMalformedBars=skipMalformedBars)
     return ret
 
 

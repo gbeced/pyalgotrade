@@ -83,7 +83,7 @@ class ToolsTestCase(common.TestCase):
             bf.setNoAdjClose()
             bf.setColumnName("open", "Price")
             bf.setColumnName("close", "Price")
-            bf.addBarsFromCSV(instrument, path)
+            bf.addBarsFromCSV(instrument, path, skipMalformedBars=True)
             bf.loadAll()
             self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
             self.assertEquals(bf[instrument][0].getOpen(), 237.80)
@@ -183,7 +183,9 @@ class ToolsTestCase(common.TestCase):
         with common.TmpDir() as tmpPath:
             instrument = "IWG"
             year = 2017
-            bf = quandl.build_feed("LSE", [instrument], year, year, tmpPath, columnNames=column_names)
+            bf = quandl.build_feed(
+                "LSE", [instrument], year, year, tmpPath, columnNames=column_names, skipMalformedBars=True
+            )
             bf.setNoAdjClose()
             bf.loadAll()
             self.assertEquals(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
