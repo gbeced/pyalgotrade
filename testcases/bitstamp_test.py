@@ -197,7 +197,7 @@ class NonceTest(unittest.TestCase):
             prevNonce = nonce
 
 
-class TestStrategy(test_strategy.BaseTestStrategy):
+class TestStrategy(test_strategy.BaseStrategy):
     def __init__(self, feed, brk):
         super(TestStrategy, self).__init__(feed, brk)
         self.bid = None
