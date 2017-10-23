@@ -40,6 +40,31 @@ class Results(object):
         return self.__result
 
 
+def startServer(barFeed, strategyParameters, address, port, resultSincFactory, batchSize=200):
+    """Start a server and distribute jobs to workers.
+
+    :param barFeed: The bar feed that each worker will use to backtest the strategy.
+    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is a tuple that holds parameter values**.
+    :param address: The address to listen for incoming worker connections.
+    :type address: string.
+    :param port: The port to listen for incoming worker connections.
+    :type port: int.
+    :param resultSincFactory: The factory which will generate the object to summarize all strategy results.
+    :type resultSincFactory: :class:`pyalgotrade.optimizer.base.ResultSincFactory`.
+    :param batchSize: The number of strategy executions that are delivered to each worker.
+    :type batchSize: int.
+    :rtype: The :class:`ResultSinc` object that is created by resultSincFactory to holds the final result.
+    """
+    paramSource = base.ParameterSource(strategyParameters)
+    resultSinc = resultSincFactory.create()
+    s = xmlrpcserver.Server(paramSource, resultSinc, barFeed, address, port, batchSize=batchSize)
+    logger.info("Starting server")
+    s.serve()
+    logger.info("Server finished")
+    return resultSinc
+
+
 def serve(barFeed, strategyParameters, address, port, batchSize=200):
     """Executes a server that will provide bars and strategy parameters for workers to use.
 
@@ -54,15 +79,9 @@ def serve(barFeed, strategyParameters, address, port, batchSize=200):
     :type batchSize: int.
     :rtype: A :class:`Results` instance with the best results found or None if no results were obtained.
     """
-
-    paramSource = base.ParameterSource(strategyParameters)
-    resultSinc = base.ResultSinc()
-    s = xmlrpcserver.Server(paramSource, resultSinc, barFeed, address, port, batchSize=batchSize)
-    logger.info("Starting server")
-    s.serve()
-    logger.info("Server finished")
-
     ret = None
+    factory = base.BestResultFactory()
+    resultSinc = startServer(barFeed, strategyParameters, address, port, factory, batchSize=batchSize)
     bestResult, bestParameters = resultSinc.getBest()
     if bestResult is not None:
         logger.info("Best final result %s with parameters %s" % (bestResult, bestParameters.args))

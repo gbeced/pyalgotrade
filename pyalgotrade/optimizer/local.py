@@ -43,17 +43,11 @@ class ServerThread(threading.Thread):
         self.__results = self.__server.serve()
 
 
-def worker_process(strategyClass, port, logLevel):
-    class Worker(worker.Worker):
-        def runStrategy(self, barFeed, *args, **kwargs):
-            strat = strategyClass(barFeed, *args, **kwargs)
-            strat.run()
-            return strat.getResult()
-
+def worker_process(strategyRunner, resultSincFactory, port, logLevel):
     # Create a worker and run it.
     try:
         name = "worker-%s" % (os.getpid())
-        w = Worker("localhost", port, name)
+        w = worker.Worker("localhost", port, strategyRunner, resultSincFactory, workerName=name)
         w.getLogger().setLevel(logLevel)
         w.run()
     except Exception, e:
@@ -81,7 +75,23 @@ def stop_process(p):
         p.join(timeout)
 
 
-def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
+def run_impl(strategyRunner, resultSincFactory, barFeed, strategyParameters, batchSize, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
+    """
+    :param strategyRunner: The strategy executor defining how worker should handle the bars and parameters.
+    :type strategyRunner: :class:`pyalgotrade.optimizer.base.StrategyRunner`.
+    :param resultSincFactory: Used to generate resultSinc object to hold strategy results.
+    :type resultSincFactory: :class:`pyalgotrade.optimizer.base.ResultSincFactory`.
+    :param barFeed: The bar feed to use to backtest the strategy.
+    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
+        a tuple that holds parameter values**.
+    :param batchSize: The number of strategy executions that are delivered to each worker.
+    :type batchSize: int.
+    :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
+    :type workerCount: int.
+    :param logLevel: The log level. Defaults to **logging.ERROR**.
+    :rtype: The :class:`ResultSinc` object that is created by resultSincFactory to holds the final result.
+    """
     assert(workerCount is None or workerCount > 0)
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
@@ -96,7 +106,7 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
     # We'll manually stop the server once workers have finished.
     paramSource = base.ParameterSource(strategyParameters)
     if resultSinc is None:
-        resultSinc = base.ResultSinc()
+        resultSinc = resultSincFactory.create()
 
     # Create and start the server.
     logger.info("Starting server")
@@ -110,7 +120,7 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
         for i in range(workerCount):
             workers.append(multiprocessing.Process(
                 target=worker_process,
-                args=(strategyClass, port, logLevel))
+                args=(strategyRunner, resultSincFactory, port, logLevel))
             )
         # Start workers
         for process in workers:
@@ -129,9 +139,7 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
         srv.stop()
         serverThread.join()
 
-        bestResult, bestParameters = resultSinc.getBest()
-        if bestResult is not None:
-            ret = server.Results(bestParameters.args, bestResult)
+        ret = resultSinc
 
     return ret
 
@@ -151,5 +159,12 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
     :type batchSize: int.
     :rtype: A :class:`Results` instance with the best results found.
     """
-
-    return run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=workerCount, logLevel=logLevel)
+    strategyRunner = base.AnyStrategyRunner(strategyClass)
+    resultSincFactory = base.BestResultFactory()
+    resultSinc = run_impl(strategyRunner, resultSincFactory, barFeed, strategyParameters, batchSize, workerCount=workerCount, logLevel=logLevel)
+    if resultSinc is None:
+        return None
+    bestResult, bestParameters = resultSinc.getBest()
+    if bestResult is None:
+        return None
+    return server.Results(bestParameters.args, bestResult)
