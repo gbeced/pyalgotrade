@@ -190,6 +190,7 @@ class Broker(broker.Broker):
         else:
             self.__commission = commission
         self.__shares = {}
+        self.__instrumentPrice = {}  # Used by setShares
         self.__activeOrders = {}
         self.__useAdjustedValues = False
         self.__fillStrategy = fillstrategy.DefaultStrategy()
@@ -235,7 +236,7 @@ class Broker(broker.Broker):
             bars = self.__barFeed.getCurrentBars()
             for instrument, shares in self.__shares.iteritems():
                 if shares < 0:
-                    instrumentPrice = self._getBar(bars, instrument).getClose(self.getUseAdjustedValues())
+                    instrumentPrice = self._getBar(bars, instrument).getPrice()
                     ret += instrumentPrice * shares
         return ret
 
@@ -291,16 +292,18 @@ class Broker(broker.Broker):
     def getShares(self, instrument):
         return self.__shares.get(instrument, 0)
 
-    def setShares(self, instrument, quantity):
+    def setShares(self, instrument, quantity, price):
         """
         Set existing shares before the strategy starts executing.
 
         :param instrument: Instrument identifier.
         :param quantity: The number of shares for the given instrument.
+        :param price: The price for each share.
         """
 
         assert not self.__started, "Can't setShares once the strategy started executing"
         self.__shares[instrument] = quantity
+        self.__instrumentPrice[instrument] = price
 
     def getPositions(self):
         return self.__shares
@@ -308,17 +311,29 @@ class Broker(broker.Broker):
     def getActiveInstruments(self):
         return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
 
-    def __getEquityWithBars(self, bars):
-        ret = self.getCash()
-        if bars is not None:
-            for instrument, shares in self.__shares.iteritems():
-                instrumentPrice = self._getBar(bars, instrument).getClose(self.getUseAdjustedValues())
-                ret += instrumentPrice * shares
+    def _getPriceForInstrument(self, instrument):
+        ret = None
+
+        # Try gettting the price from the last bar first.
+        lastBar = self.__barFeed.getLastBar(instrument)
+        if lastBar is not None:
+            ret = lastBar.getPrice()
+        else:
+            # Try using the instrument price set by setShares if its available.
+            ret = self.__instrumentPrice.get(instrument)
+
         return ret
 
     def getEquity(self):
-        """Returns the portfolio value (cash + shares)."""
-        return self.__getEquityWithBars(self.__barFeed.getCurrentBars())
+        """Returns the portfolio value (cash + shares * price)."""
+
+        ret = self.getCash()
+        for instrument, shares in self.__shares.iteritems():
+            instrumentPrice = self._getPriceForInstrument(instrument)
+            assert instrumentPrice is not None, "Price for %s is missing" % instrument
+            ret += instrumentPrice * shares
+        return ret
+
 
     # Tries to commit an order execution.
     def commitOrderExecution(self, order, dateTime, fillInfo):
