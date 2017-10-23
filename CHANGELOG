@@ -1,4 +1,5 @@
 Version 0.19 (TBD)
+. [NEW] Added setShares method for back-testing broker. Thanks winkidney for implementing this.
 . [NEW] Added an option to support skipping errors while parsing CSV files.
 . [NEW] Added batchSize parameter to optimizer component. Thanks micmicmichael for implementing this.
 . [NEW] Added savePlot to the plotter to save the plot to a file. Thanks Kimble Young for implementing this.
