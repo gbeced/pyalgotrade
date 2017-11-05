@@ -20,12 +20,13 @@
 
 import os
 import datetime
-
+import time
 import pyalgotrade.logger
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
+from pyalgotrade.utils import getyahooquotes
 
 
 def __adjust_month(month):
@@ -36,8 +37,15 @@ def __adjust_month(month):
 
 
 def download_csv(instrument, begin, end, frequency):
-    url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv" % (instrument, __adjust_month(begin.month), begin.day, begin.year, __adjust_month(end.month), end.day, end.year, frequency)
-    return csvutils.download_csv(url)
+    #url = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=%s&ignore=.csv" % (instrument, __adjust_month(begin.month), begin.day, begin.year, __adjust_month(end.month), end.day, end.year, frequency)
+    
+    #we convert the date and time to integer in seconds for yahoo
+    start_date = time.mktime((int(begin.year), int(begin.month), int(begin.day), 4, 0, 0, 0, 0, 0))
+    end_date = time.mktime((int(end.year), int(end.month), int(end.day), 18, 0, 0, 0, 0, 0))
+    #Get cookie and crumb for https session
+    cookie, crumb = getyahooquotes.get_cookie_crumb(instrument)
+    url = getyahooquotes.get_url(instrument, int(start_date), int(end_date), crumb,frequency)
+    return csvutils.download_csv(url,cookie=cookie)
 
 
 def download_daily_bars(instrument, year, csvFile):
@@ -51,7 +59,7 @@ def download_daily_bars(instrument, year, csvFile):
     :type csvFile: string.
     """
 
-    bars = download_csv(instrument, datetime.date(year, 1, 1), datetime.date(year, 12, 31), "d")
+    bars = download_csv(instrument, datetime.date(year, 1, 1), datetime.date(year, 12, 31), "1d")
     f = open(csvFile, "w")
     f.write(bars)
     f.close()
@@ -70,7 +78,7 @@ def download_weekly_bars(instrument, year, csvFile):
 
     begin = dt.get_first_monday(year)
     end = dt.get_last_monday(year) + datetime.timedelta(days=6)
-    bars = download_csv(instrument, begin, end, "w")
+    bars = download_csv(instrument, begin, end, "1wk") #yahoo now uses 1wk
     f = open(csvFile, "w")
     f.write(bars)
     f.close()
