@@ -53,9 +53,11 @@ class FastDictReader(object):
         return self.__dict
 
 
-def download_csv(url, url_params=None, content_type="text/csv"):
-    response = requests.get(url, params=url_params)
-
+def download_csv(url, url_params=None, cookie=None,content_type="text/csv; charset=utf-8"):
+    print(url)
+    #response = requests.get(url,params=url_params,cookies=cookie)
+    response = requests.get(url, cookies=cookie)
+    print(url)
     response.raise_for_status()
     response_content_type = response.headers['content-type']
     if response_content_type != content_type:
