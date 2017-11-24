@@ -19,6 +19,7 @@
 """
 
 import os
+from builtins import range
 
 import common
 import feed_test
@@ -91,7 +92,7 @@ class SQLiteFeedTestCase(common.TestCase):
             yahooDS = yahooFeed["orcl"]
             sqliteDS = sqliteFeed["orcl"]
             self.assertEqual(len(yahooDS), len(sqliteDS))
-            for i in xrange(len(yahooDS)):
+            for i in range(len(yahooDS)):
                 self.assertEqual(yahooDS[i].getDateTime(), sqliteDS[i].getDateTime())
                 self.assertEqual(yahooDS[i].getOpen(), sqliteDS[i].getOpen())
                 self.assertEqual(yahooDS[i].getHigh(), sqliteDS[i].getHigh())

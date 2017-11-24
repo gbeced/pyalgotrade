@@ -17,6 +17,7 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+from builtins import range
 
 import datetime
 
@@ -29,13 +30,13 @@ import feed_test
 
 class MemFeedTestCase(common.TestCase):
     def testBaseFeedInterface(self):
-        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in xrange(100)]
+        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in range(100)]
         feed = memfeed.MemFeed()
         feed.addValues(values)
         feed_test.tstBaseFeedInterface(self, feed)
 
     def testFeed(self):
-        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in xrange(100)]
+        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {"i": i}) for i in range(100)]
 
         feed = memfeed.MemFeed()
         feed.addValues(values)
@@ -56,7 +57,7 @@ class MemFeedTestCase(common.TestCase):
 
     def testReset(self):
         key = "i"
-        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {key: i}) for i in xrange(100)]
+        values = [(datetime.datetime.now() + datetime.timedelta(seconds=i), {key: i}) for i in range(100)]
 
         feed = memfeed.MemFeed()
         feed.addValues(values)

@@ -19,6 +19,7 @@
 """
 
 import datetime
+from builtins import range
 
 import common
 
@@ -69,7 +70,7 @@ class TestSequenceDataSeries(common.TestCase):
 
         # Test length and every item.
         self.assertEqual(len(ds), len(seq))
-        for i in xrange(len(seq)):
+        for i in range(len(seq)):
             self.assertEqual(ds[i], seq[i])
 
         # Test negative indices
@@ -85,16 +86,16 @@ class TestSequenceDataSeries(common.TestCase):
         sl = slice(0, -1, 1)
         self.assertEqual(ds[sl], seq[sl])
 
-        for i in xrange(-100, 100):
+        for i in range(-100, 100):
             self.assertEqual(ds[i:], seq[i:])
 
-        for step in xrange(1, 10):
-            for i in xrange(-100, 100):
+        for step in range(1, 10):
+            for i in range(-100, 100):
                 self.assertEqual(ds[i::step], seq[i::step])
 
     def testBounded(self):
         ds = dataseries.SequenceDataSeries(maxLen=2)
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
             if i > 0:
                 self.assertEqual(ds[0], i - 1)
@@ -103,7 +104,7 @@ class TestSequenceDataSeries(common.TestCase):
 
     def testResize1(self):
         ds = dataseries.SequenceDataSeries(100)
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
 
         self.assertEqual(len(ds), 100)
@@ -119,7 +120,7 @@ class TestSequenceDataSeries(common.TestCase):
 
     def testResize2(self):
         ds = dataseries.SequenceDataSeries()
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
 
         ds.setMaxLen(1000)

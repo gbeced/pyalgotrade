@@ -19,6 +19,7 @@
 """
 
 import datetime
+from builtins import range
 
 import common
 
@@ -39,7 +40,7 @@ class TestCase(common.TestCase):
         barDataSeries = bards.BarDataSeries()
         atrDS = atr.ATR(barDataSeries, 14)
         now = datetime.datetime(2000, 1, 1)
-        for i in xrange(len(high)):
+        for i in range(len(high)):
             b = bar.BasicBar(now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i], bar.Frequency.DAY)
             barDataSeries.append(b)
             self.assertEqual(common.safe_round(atrDS[-1], 2), expected[i])
@@ -55,7 +56,7 @@ class TestCase(common.TestCase):
         barDataSeries = bards.BarDataSeries()
         atrDS = atr.ATR(barDataSeries, 14, True)
         now = datetime.datetime(2000, 1, 1)
-        for i in xrange(len(high)):
+        for i in range(len(high)):
             b = bar.BasicBar(now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i]/2, bar.Frequency.DAY)
             barDataSeries.append(b)
             if expected[i] is None:

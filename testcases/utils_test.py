@@ -19,6 +19,7 @@
 """
 
 import datetime
+from builtins import range
 
 import common
 
@@ -170,7 +171,7 @@ class IntersectTestCase(common.TestCase):
         dateTimes1 = []
         dateTimes2 = []
         now = datetime.datetime.now()
-        for i in xrange(size):
+        for i in range(size):
             dateTimes1.append(now + datetime.timedelta(seconds=i))
             dateTimes2.append(now + datetime.timedelta(seconds=i))
 
