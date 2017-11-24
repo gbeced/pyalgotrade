@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import dataseries
+from future.utils import iteritems
 
 
 class BarDataSeries(dataseries.SequenceDataSeries):
@@ -69,7 +70,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 
         # Process extra columns.
-        for name, value in bar.getExtraColumns().iteritems():
+        for name, value in iteritems(bar.getExtraColumns()):
             extraDS = self.__getOrCreateExtraDS(name)
             extraDS.appendWithDateTime(dateTime, value)
 

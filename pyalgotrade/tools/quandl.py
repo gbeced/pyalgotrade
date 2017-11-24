@@ -20,6 +20,8 @@
 
 import datetime
 import os
+from future.utils import iteritems
+
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
 
@@ -134,7 +136,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
         ret.setNoAdjClose()
 
     # Additional column names.
-    for col, name in columnNames.iteritems():
+    for col, name in iteritems(columnNames):
         ret.setColumnName(col, name)
 
     if not os.path.exists(storage):

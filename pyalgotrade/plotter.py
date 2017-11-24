@@ -25,6 +25,7 @@ from pyalgotrade import warninghelpers
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
+from future.utils import iteritems
 
 
 def get_last_value(dataSeries):
@@ -257,7 +258,7 @@ class Subplot(object):
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()
-        for cb, series in self.__callbacks.iteritems():
+        for cb, series in iteritems(self.__callbacks):
             series.addValue(dateTime, cb(bars))
 
     def getSeries(self, name, defaultClass=LineMarker):
