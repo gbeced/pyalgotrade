@@ -40,7 +40,7 @@ class VWAPMomentum(strategy.BacktestingStrategy):
             self.info("Buy %s at %s" % (size, price))
             try:
                 self.limitOrder(self.__instrument, price, size)
-            except Exception, e:
+            except Exception as e:
                 self.error("Failed to buy: %s" % (e))
 
     def _sellSignal(self, price):
