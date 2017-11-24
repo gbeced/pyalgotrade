@@ -88,7 +88,7 @@ class TradeMonitor(threading.Thread):
                     self.__lastTradeId = trades[-1].getId()
                     common.logger.info("%d new trade/s found" % (len(trades)))
                     self.__queue.put((TradeMonitor.ON_USER_TRADE, trades))
-            except Exception, e:
+            except Exception as e:
                 common.logger.critical("Error retrieving user transactions", exc_info=e)
 
             time.sleep(TradeMonitor.POLL_FREQUENCY)
