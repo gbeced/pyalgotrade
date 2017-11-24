@@ -18,19 +18,19 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase, get_data_file_path
 
 from pyalgotrade.technical import linebreak
 from pyalgotrade.barfeed import yahoofeed
 
 
-class LineBreakTestCase(common.TestCase):
+class LineBreakTestCase(TestCase):
     Instrument = "orcl"
 
     def __getFeed(self):
         # Load the feed and process all bars.
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(LineBreakTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(LineBreakTestCase.Instrument, get_data_file_path("orcl-2001-yahoofinance.csv"))
         return barFeed
 
     def test2LineBreak(self):

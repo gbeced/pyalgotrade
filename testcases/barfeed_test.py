@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from common import TestCase
 
 from pyalgotrade import barfeed
 from pyalgotrade.barfeed import common as bfcommon
@@ -49,7 +49,7 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
     testCase.assertEquals(called["called"], True)
 
 
-class OptimizerBarFeedTestCase(common.TestCase):
+class OptimizerBarFeedTestCase(TestCase):
     def testDateTimesNotInOrder(self):
         bars = [
             bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
@@ -81,7 +81,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
         self.assertEquals(barFeed.barsHaveAdjClose(), False)
 
 
-class CommonTestCase(common.TestCase):
+class CommonTestCase(TestCase):
     def testSanitize(self):
         self.assertEqual(bfcommon.sanitize_ohlc(10, 12, 9, 10), (10, 12, 9, 10))
         self.assertEqual(bfcommon.sanitize_ohlc(10, 12, 9, 13), (10, 13, 9, 13))

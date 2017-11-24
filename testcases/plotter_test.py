@@ -21,7 +21,7 @@
 import sys
 import os
 
-import common
+from .common import TestCase, TmpDir, get_data_file_path
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade import plotter
@@ -30,17 +30,17 @@ sys.path.append("samples")
 import sma_crossover
 
 
-class PlotterTestCase(common.TestCase):
+class PlotterTestCase(TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(instrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         strat = sma_crossover.SMACrossOver(barFeed, instrument, 20)
         plt = plotter.StrategyPlotter(strat, True, True, True)
         plt.getInstrumentSubplot(instrument).addDataSeries("sma", strat.getSMA())
         strat.run()
 
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             fig, subplots = plt.buildFigureAndSubplots()
             self.assertIsNotNone(fig)
             self.assertIsNotNone(subplots)

@@ -19,13 +19,13 @@
 """
 from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import roc
 from pyalgotrade import dataseries
 
 
-class ROCTestCase(common.TestCase):
+class ROCTestCase(TestCase):
     def __buildROC(self, values, period, rocMaxLen=None):
         seqDS = dataseries.SequenceDataSeries()
         ret = roc.RateOfChange(seqDS, period, rocMaxLen)

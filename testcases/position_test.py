@@ -21,8 +21,8 @@
 import datetime
 import pytz
 
-import common
-import strategy_test
+from .common import TestCase, TmpDir, get_data_file_path
+from .strategy_test import get_by_datetime_or_date
 
 from pyalgotrade import bar
 from pyalgotrade import strategy
@@ -38,7 +38,7 @@ from pyalgotrade import marketsession
 
 def load_daily_barfeed(instrument):
     barFeed = yahoofeed.Feed()
-    barFeed.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+    barFeed.addBarsFromCSV(instrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
     return barFeed
 
 
@@ -164,14 +164,14 @@ class TestStrategy(BaseTestStrategy):
         dateTime = bars.getDateTime()
 
         # Check position entry.
-        for meth, args, kwargs in strategy_test.get_by_datetime_or_date(self.__posEntry, dateTime):
+        for meth, args, kwargs in get_by_datetime_or_date(self.__posEntry, dateTime):
             if self.__activePosition is not None:
                 raise Exception("Only one position allowed at a time")
             self.__activePosition = meth(*args, **kwargs)
             self.positions.append(self.__activePosition)
 
         # Check position exit.
-        for meth, args, kwargs in strategy_test.get_by_datetime_or_date(self.__posExit, dateTime):
+        for meth, args, kwargs in get_by_datetime_or_date(self.__posExit, dateTime):
             if self.__activePosition is None:
                 raise Exception("A position was not entered")
             meth(self.__activePosition, *args, **kwargs)
@@ -241,7 +241,7 @@ class ResubmitExitStrategy(BaseTestStrategy):
                 self.exitRequestCanceled = True
 
 
-class BaseTestCase(common.TestCase):
+class BaseTestCase(TestCase):
     TestInstrument = "doesntmatter"
 
     def loadIntradayBarFeed(self):
@@ -252,12 +252,12 @@ class BaseTestCase(common.TestCase):
         barFilter = csvfeed.USEquitiesRTH(us_equities_datetime(2011, fromMonth, fromDay, 00, 00), us_equities_datetime(2011, toMonth, toDay, 23, 59))
         barFeed = ninjatraderfeed.Feed(barfeed.Frequency.MINUTE)
         barFeed.setBarFilter(barFilter)
-        barFeed.addBarsFromCSV(BaseTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        barFeed.addBarsFromCSV(BaseTestCase.TestInstrument, get_data_file_path("nt-spy-minute-2011.csv"))
         return barFeed
 
     def loadDailyBarFeed(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(BaseTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(BaseTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         return barFeed
 
     def createStrategy(self, useIntradayBarFeed=False):

@@ -21,18 +21,18 @@
 import os
 import datetime
 
-import common
+from .common import TestCase, TmpDir
 
 from pyalgotrade import bar
 from pyalgotrade.barfeed import googlefeed
 from pyalgotrade.tools import googlefinance
 
 
-class ToolsTestCase(common.TestCase):
+class ToolsTestCase(TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
 
-        with common.TmpDir() as tmp_path:
+        with TmpDir() as tmp_path:
             path = os.path.join(tmp_path, "orcl-2010.csv")
             googlefinance.download_daily_bars(instrument, 2010, path)
             bf = googlefeed.Feed()
@@ -42,7 +42,7 @@ class ToolsTestCase(common.TestCase):
             self.assertEqual(bf[instrument][-1].getClose(), 31.30)
 
     def testBuildDailyFeed(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "orcl"
             bf = googlefinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
             bf.loadAll()
@@ -55,11 +55,11 @@ class ToolsTestCase(common.TestCase):
 
         # Don't skip errors.
         with self.assertRaisesRegexp(Exception, "400 Client Error: Bad Request"):
-            with common.TmpDir() as tmpPath:
+            with TmpDir() as tmpPath:
                 bf = googlefinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
 
         # Skip errors.
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             bf = googlefinance.build_feed(
                 [instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY, skipErrors=True
             )

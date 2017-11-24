@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase, get_data_file_path
 
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
@@ -66,7 +66,7 @@ class NikkeiSpyStrategy(strategy.BacktestingStrategy):
                 self.__pos.exitMarket()
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def __testDifferentTimezonesImpl(self, feed):
         self.assertTrue("^n225" in feed)
         self.assertTrue("spy" in feed)
@@ -81,19 +81,19 @@ class TestCase(common.TestCase):
         # - US: 14:30hs ~ 21hs
         feed = yahoofeed.Feed()
         for year in [2010, 2011]:
-            feed.addBarsFromCSV("^n225", common.get_data_file_path("nikkei-%d-yahoofinance.csv" % year), marketsession.TSE.getTimezone())
-            feed.addBarsFromCSV("spy", common.get_data_file_path("spy-%d-yahoofinance.csv" % year), marketsession.USEquities.getTimezone())
+            feed.addBarsFromCSV("^n225", get_data_file_path("nikkei-%d-yahoofinance.csv" % year), marketsession.TSE.getTimezone())
+            feed.addBarsFromCSV("spy", get_data_file_path("spy-%d-yahoofinance.csv" % year), marketsession.USEquities.getTimezone())
 
         self.__testDifferentTimezonesImpl(feed)
 
     def testDifferentTimezones_DBFeed(self):
-        feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), bar.Frequency.DAY)
+        feed = sqlitefeed.Feed(get_data_file_path("multiinstrument.sqlite"), bar.Frequency.DAY)
         feed.loadBars("^n225")
         feed.loadBars("spy")
         self.__testDifferentTimezonesImpl(feed)
 
     def testDifferentTimezones_DBFeed_LocalizedBars(self):
-        feed = sqlitefeed.Feed(common.get_data_file_path("multiinstrument.sqlite"), bar.Frequency.DAY)
+        feed = sqlitefeed.Feed(get_data_file_path("multiinstrument.sqlite"), bar.Frequency.DAY)
         feed.loadBars("^n225", marketsession.TSE.getTimezone())
         feed.loadBars("spy", marketsession.USEquities.getTimezone())
         self.__testDifferentTimezonesImpl(feed)

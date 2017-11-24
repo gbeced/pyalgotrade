@@ -21,7 +21,7 @@
 import datetime
 from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import stoch
 from pyalgotrade.dataseries import bards
@@ -36,7 +36,7 @@ def values_equal(v1, v2):
     return False
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def setUp(self):
         self.__currSeconds = 0
 

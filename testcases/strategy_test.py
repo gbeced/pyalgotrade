@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from .common import TestCase, get_data_file_path
 
 from pyalgotrade import strategy
 from pyalgotrade import broker
@@ -76,12 +76,12 @@ class TestStrategy(strategy.BacktestingStrategy):
             self.getBroker().submitOrder(order)
 
 
-class StrategyTestCase(common.TestCase):
+class StrategyTestCase(TestCase):
     TestInstrument = "doesntmatter"
 
     def loadDailyBarFeed(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         return barFeed
 
     def createStrategy(self):

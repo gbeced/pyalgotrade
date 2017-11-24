@@ -18,14 +18,14 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
 
 
-class HelpersTestCase(common.TestCase):
+class HelpersTestCase(TestCase):
     def test_get_stripped_left(self):
         v1, v2 = cross._get_stripped([1, 2, 3], [1], True)
         self.assertEqual(v1, [1])
@@ -65,7 +65,7 @@ class HelpersTestCase(common.TestCase):
         self.assertEqual(cross.compute_diff([0, 1, 2], [1, 1, 1]), [-1, 0, 1])
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def __buildSeqDS(self, values):
         ret = dataseries.SequenceDataSeries()
         for value in values:

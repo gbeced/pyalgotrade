@@ -22,7 +22,7 @@ import datetime
 import copy
 from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade import observer
 from pyalgotrade import dispatcher
@@ -96,7 +96,7 @@ class RealtimeFeed(observer.Subject):
         return self.__priority
 
 
-class DispatcherTestCase(common.TestCase):
+class DispatcherTestCase(TestCase):
     def test1NrtFeed(self):
         values = []
         now = datetime.datetime.now()
@@ -224,7 +224,7 @@ class DispatcherTestCase(common.TestCase):
         self.assertTrue(values[0] < values[1])
 
 
-class EventTestCase(common.TestCase):
+class EventTestCase(TestCase):
     def testEmitOrder(self):
         handlersData = []
 

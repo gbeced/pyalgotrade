@@ -21,7 +21,7 @@
 import datetime
 import os
 
-import common
+from .common import TestCase, TmpDir, get_data_file_path
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import yahoofeed
@@ -37,7 +37,7 @@ from pyalgotrade import dispatcher
 from pyalgotrade import resamplebase
 
 
-class IntraDayRange(common.TestCase):
+class IntraDayRange(TestCase):
     def __testMinuteRangeImpl(self, timezone=None):
         freq = bar.Frequency.MINUTE
 
@@ -105,7 +105,7 @@ class IntraDayRange(common.TestCase):
         self.__testHourRangeImpl(marketsession.NASDAQ.timezone)
 
 
-class DayRange(common.TestCase):
+class DayRange(TestCase):
     def __testImpl(self, timezone=None):
         freq = bar.Frequency.DAY
 
@@ -129,7 +129,7 @@ class DayRange(common.TestCase):
         self.__testImpl(marketsession.NASDAQ.timezone)
 
 
-class MonthRange(common.TestCase):
+class MonthRange(TestCase):
     def test31Days(self):
         freq = bar.Frequency.MONTH
         begin = datetime.datetime(2011, 1, 1)
@@ -161,7 +161,7 @@ class MonthRange(common.TestCase):
         self.assertEqual(r.getEnding(), datetime.datetime(2012, 1, 1))
 
 
-class DataSeriesTestCase(common.TestCase):
+class DataSeriesTestCase(TestCase):
 
     def testResample(self):
         barDs = bards.BarDataSeries()
@@ -196,10 +196,10 @@ class DataSeriesTestCase(common.TestCase):
         self.assertEqual(resampledDS[1], 2)
 
     def testResampleNinjaTraderHour(self):
-        with common.TmpDir() as tmp_path:
+        with TmpDir() as tmp_path:
             # Resample.
             feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-            feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+            feed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"))
             resampledBarDS = resampled_ds.ResampledBarDataSeries(feed["spy"], bar.Frequency.HOUR)
             resampledFile = os.path.join(tmp_path, "hour-nt-spy-minute-2011.csv")
             resample.resample_to_csv(feed, bar.Frequency.HOUR, resampledFile)
@@ -225,10 +225,10 @@ class DataSeriesTestCase(common.TestCase):
         self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(datetime.datetime(2011, 2, 1, 1)))
 
     def testResampleNinjaTraderDay(self):
-        with common.TmpDir() as tmp_path:
+        with TmpDir() as tmp_path:
             # Resample.
             feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-            feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+            feed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"))
             resampledBarDS = resampled_ds.ResampledBarDataSeries(feed["spy"], bar.Frequency.DAY)
             resampledFile = os.path.join(tmp_path, "day-nt-spy-minute-2011.csv")
             resample.resample_to_csv(feed, bar.Frequency.DAY, resampledFile)
@@ -251,7 +251,7 @@ class DataSeriesTestCase(common.TestCase):
         barDs = bards.BarDataSeries()
         resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
 
-        barDateTime = datetime.datetime(2014, 07, 07, 22, 46, 28, 10000)
+        barDateTime = datetime.datetime(2014, 7, 7, 22, 46, 28, 10000)
         barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.MINUTE))
         self.assertEqual(len(resampledBarDS), 0)
 
@@ -263,15 +263,15 @@ class DataSeriesTestCase(common.TestCase):
         self.assertEqual(barDs[0].getClose(), resampledBarDS[0].getClose())
         self.assertEqual(barDs[0].getVolume(), resampledBarDS[0].getVolume())
         self.assertEqual(barDs[0].getAdjClose(), resampledBarDS[0].getAdjClose())
-        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46))
+        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 7, 7, 22, 46))
 
 
-class BarFeedTestCase(common.TestCase):
+class BarFeedTestCase(TestCase):
 
     def testResampledBarFeed(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("spy-2010-yahoofinance.csv"))
-        barFeed.addBarsFromCSV("nikkei", common.get_data_file_path("nikkei-2010-yahoofinance.csv"))
+        barFeed.addBarsFromCSV("spy", get_data_file_path("spy-2010-yahoofinance.csv"))
+        barFeed.addBarsFromCSV("nikkei", get_data_file_path("nikkei-2010-yahoofinance.csv"))
         resampledBarFeed = resampled_bf.ResampledBarFeed(barFeed, bar.Frequency.MONTH)
 
         disp = dispatcher.Dispatcher()

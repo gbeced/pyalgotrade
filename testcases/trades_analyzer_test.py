@@ -24,9 +24,9 @@ from distutils import version
 import pytz
 import numpy
 
-import common
-import strategy_test
-import position_test
+from .common import TestCase, get_data_file_path
+from .strategy_test import TestStrategy
+from .position_test import TestStrategy as TestStrategy2
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import csvfeed
@@ -41,23 +41,23 @@ def buildUTCDateTime(year, month, day, hour, minute):
     return ret
 
 
-class TradesAnalyzerTestCase(common.TestCase):
+class TradesAnalyzerTestCase(TestCase):
     TestInstrument = "spy"
 
     def __loadBarFeed(self):
         ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFilter = csvfeed.USEquitiesRTH()
         ret.setBarFilter(barFilter)
-        ret.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        ret.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, get_data_file_path("nt-spy-minute-2011.csv"))
         return ret
 
     def __createStrategy(self):
         barFeed = self.__loadBarFeed()
-        return strategy_test.TestStrategy(barFeed, 1000)
+        return TestStrategy(barFeed, 1000)
 
     def __createPositionStrategy(self):
         barFeed = self.__loadBarFeed()
-        return position_test.TestStrategy(barFeed, TradesAnalyzerTestCase.TestInstrument, 1000)
+        return TestStrategy2(barFeed, TradesAnalyzerTestCase.TestInstrument, 1000)
 
     def testNoTrades(self):
         strat = self.__createStrategy()

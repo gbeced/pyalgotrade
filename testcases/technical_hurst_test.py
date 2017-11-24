@@ -20,7 +20,7 @@
 
 import numpy as np
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import hurst
 from pyalgotrade import dataseries
@@ -34,7 +34,7 @@ def build_hurst(values, period, minLags, maxLags):
     return ret
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def testHurstExpFunRandomWalk(self):
         values = np.cumsum(np.random.randn(50000)) + 1000
         h = hurst.hurst_exp(np.log10(values), 2, 20)

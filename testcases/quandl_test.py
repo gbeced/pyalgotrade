@@ -21,7 +21,7 @@
 import os
 import datetime
 
-import common
+from .common import TestCase, TmpDir
 
 from pyalgotrade.tools import quandl
 from pyalgotrade import bar
@@ -31,9 +31,9 @@ from pyalgotrade.barfeed import quandlfeed
 auth_token = None
 
 
-class ToolsTestCase(common.TestCase):
+class ToolsTestCase(TestCase):
     def testDownloadAndParseDaily(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "ORCL"
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
             quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
@@ -52,7 +52,7 @@ class ToolsTestCase(common.TestCase):
             self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testDownloadAndParseDaily_UseAdjClose(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "ORCL"
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
             quandl.download_daily_bars("WIKI", instrument, 2010, path, auth_token)
@@ -74,7 +74,7 @@ class ToolsTestCase(common.TestCase):
             self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testDownloadAndParseDailyNoAdjClose(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "ORCL"
             path = os.path.join(tmpPath, "quandl-daily-orcl-2013.csv")
             quandl.download_daily_bars("GOOG", "NASDAQ_ORCL", 2013, path, auth_token)
@@ -92,7 +92,7 @@ class ToolsTestCase(common.TestCase):
             self.assertEquals(bf[instrument][-1].getPrice(), 38.26)
 
     def testDownloadAndParseWeekly(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "AAPL"
             path = os.path.join(tmpPath, "quandl-aapl-weekly-2010.csv")
             quandl.download_weekly_bars("WIKI", instrument, 2010, path, auth_token)
@@ -119,7 +119,7 @@ class ToolsTestCase(common.TestCase):
             quandlfeed.Feed(frequency=bar.Frequency.MINUTE)
 
     def testBuildFeedDaily(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "ORCL"
             bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=auth_token)
             bf.loadAll()
@@ -135,7 +135,7 @@ class ToolsTestCase(common.TestCase):
             self.assertNotEquals(bf[instrument][-1].getAdjClose(), None)
 
     def testBuildFeedWeekly(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "AAPL"
             bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token)
             bf.loadAll()
@@ -159,13 +159,13 @@ class ToolsTestCase(common.TestCase):
 
         # Don't skip errors.
         with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
-            with common.TmpDir() as tmpPath:
+            with TmpDir() as tmpPath:
                 quandl.build_feed(
                     instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token
                 )
 
         # Skip errors.
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             bf = quandl.build_feed(
                 instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, authToken=auth_token, skipErrors=True
             )
@@ -173,7 +173,7 @@ class ToolsTestCase(common.TestCase):
             self.assertNotIn(instrument, bf)
 
     def testMapColumnNames(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             bf = quandl.build_feed("YAHOO", ["AAPL"], 2010, 2010, tmpPath, columnNames={"adj_close": "Adjusted Close"})
             bf.setUseAdjustedValues(True)
             bf.loadAll()
@@ -182,7 +182,7 @@ class ToolsTestCase(common.TestCase):
             self.assertIsNotNone(bf["AAPL"][-1].getPrice())
 
     def testExtraColumns(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             columnNames = {
                 "open": "Last",
                 "close": "Last"

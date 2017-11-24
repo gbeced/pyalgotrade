@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from common import TestCase
 
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
@@ -129,7 +129,7 @@ class BarFeed(barfeed.BaseBarFeed):
         return self.__nextBars
 
 
-class BaseTestCase(common.TestCase):
+class BaseTestCase(TestCase):
     TestInstrument = "orcl"
 
     def buildBroker(self, *args, **kwargs):
@@ -139,7 +139,7 @@ class BaseTestCase(common.TestCase):
         return BarFeed(*args, **kwargs)
 
 
-class CommissionTestCase(common.TestCase):
+class CommissionTestCase(TestCase):
     def testNoCommission(self):
         comm = backtesting.NoCommission()
         self.assertEqual(comm.calculate(None, 1, 1), 0)

@@ -21,7 +21,7 @@
 import datetime
 from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
@@ -29,7 +29,7 @@ from pyalgotrade.dataseries import aligned
 from pyalgotrade import bar
 
 
-class TestSequenceDataSeries(common.TestCase):
+class TestSequenceDataSeries(TestCase):
     def testEmpty(self):
         ds = dataseries.SequenceDataSeries()
         self.assertTrue(len(ds) == 0)
@@ -142,7 +142,7 @@ class TestSequenceDataSeries(common.TestCase):
         self.assertEqual(ds[-1], 99)
 
 
-class TestBarDataSeries(common.TestCase):
+class TestBarDataSeries(TestCase):
     def testEmpty(self):
         ds = bards.BarDataSeries()
         with self.assertRaises(IndexError):
@@ -214,7 +214,7 @@ class TestBarDataSeries(common.TestCase):
             self.assertEqual(ds.getDateTimes()[i], firstDt + datetime.timedelta(seconds=i))
 
 
-class TestDateAlignedDataSeries(common.TestCase):
+class TestDateAlignedDataSeries(TestCase):
     def testNotAligned(self):
         size = 20
         ds1 = dataseries.SequenceDataSeries()
@@ -406,7 +406,7 @@ class TestDateAlignedDataSeries(common.TestCase):
         self.assertEqual(ads2[:], [2, 3])
 
 
-class TestUpdatedDefaultMaxLen(common.TestCase):
+class TestUpdatedDefaultMaxLen(TestCase):
     def setUp(self):
         super(TestUpdatedDefaultMaxLen, self).setUp()
         self.__default_max_len = dataseries.DEFAULT_MAX_LEN

@@ -20,13 +20,13 @@
 
 import datetime
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import linreg
 from pyalgotrade import dataseries
 
 
-class LeastSquaresRegressionTestCase(common.TestCase):
+class LeastSquaresRegressionTestCase(TestCase):
     def testLsreg1(self):
         x = [0, 1, 2]
         y = [1, 2, 3]
