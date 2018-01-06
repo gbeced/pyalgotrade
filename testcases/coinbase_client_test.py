@@ -33,7 +33,7 @@ class ClientTestCase(unittest.TestCase):
         self.dispatcher = dispatcher.Dispatcher()
         self.dispatcher.getIdleEvent().subscribe(self.__onIdle)
 
-        self.client = client.Client()
+        self.client = client.Client(common.btc_usd_product_id)
 
         self.feed = livefeed.LiveTradeFeed(self.client)
         self.dispatcher.addSubject(self.feed)
@@ -65,7 +65,7 @@ class ClientTestCase(unittest.TestCase):
             check_done()
 
         def on_bars(datetime, bars):
-            bar = bars[common.btc_symbol]
+            bar = bars[common.btc_usd_product_id]
             self.assertIsNotNone(bar.getMatchMsg())
             self.assertIsNotNone(bar.getTypicalPrice())
             self.assertIsNotNone(bar.getPrice())
@@ -80,7 +80,7 @@ class ClientTestCase(unittest.TestCase):
 
         self.maxTestCaseDuration = datetime.timedelta(minutes=2)
         self.feed.getNewValuesEvent().subscribe(on_bars)
-        self.client.getOrderBookEvents().subscribe(on_orderbook_updated)
+        self.client.getL3OrderBookEvents().subscribe(on_orderbook_updated)
         self.client.getOrderEvents().subscribe(on_order_events)
         self.dispatcher.run()
         self.assertTrue(len(events) and all(events.values()))

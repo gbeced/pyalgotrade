@@ -154,16 +154,17 @@ class TestBarDataSeries(common.TestCase):
             ds[1000]
 
     def testAppendInvalidDatetime(self):
+        now = datetime.datetime.now()
         ds = bards.BarDataSeries()
-        for i in xrange(10):
-            now = datetime.datetime.now() + datetime.timedelta(seconds=i)
-            ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
-            # Adding the same datetime twice should fail
-            with self.assertRaises(Exception):
-                ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
-            # Adding a previous datetime should fail
-            with self.assertRaises(Exception):
-                ds.append(bar.BasicBar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+        ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+
+        # Adding the same datetime twice should work. This is mainly for realtime feeds that may
+        # produce multiple trades on the same time.
+        ds.append(bar.BasicBar(now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+
+        # Adding a previous datetime should fail
+        with self.assertRaises(Exception):
+            ds.append(bar.BasicBar(now - datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
 
     def testNonEmpty(self):
         ds = bards.BarDataSeries()

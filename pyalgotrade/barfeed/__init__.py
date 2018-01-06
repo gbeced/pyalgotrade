@@ -30,6 +30,20 @@ from pyalgotrade import dispatchprio
 Frequency = bar.Frequency
 
 
+def bar_datetimes_ok(prev_bars, new_bars, frequency):
+    ret = True
+
+    # New bars must not come before previous bars.
+    if new_bars.getDateTime() < prev_bars.getDateTime():
+        ret = False
+    # Unless we're dealing with trade bars (which may occur at the same time), then new bars should
+    # come strictly after prev bars.
+    elif frequency != bar.Frequency.TRADE and new_bars.getDateTime() == prev_bars.getDateTime():
+        ret = False
+
+    return ret
+
+
 class BaseBarFeed(feed.BaseFeed):
     """Base class for :class:`pyalgotrade.bar.Bar` providing feeds.
 
@@ -96,8 +110,8 @@ class BaseBarFeed(feed.BaseFeed):
         if bars is not None:
             dateTime = bars.getDateTime()
 
-            # Check that current bar datetimes are greater than the previous one.
-            if self.__currentBars is not None and self.__currentBars.getDateTime() >= dateTime:
+            # Check that new bar datetimes are greater than the previous ones.
+            if self.__currentBars is not None and not bar_datetimes_ok(self.__currentBars, bars, self.__frequency):
                 raise Exception(
                     "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
                         self.__currentBars.getDateTime(),

@@ -34,11 +34,11 @@ from pyalgotrade.coinbase import common
 logger = pyalgotrade.logger.getLogger(__name__)
 
 
-REST_API_URL = "https://api.exchange.coinbase.com"
-WEBSOCKET_FEED_URL = "wss://ws-feed.exchange.coinbase.com"
+REST_API_URL = "https://api.gdax.com"
+WEBSOCKET_FEED_URL = "wss://ws-feed.gdax.com"
 # https://public.sandbox.exchange.coinbase.com/
-SANDBOX_REST_API_URL = "https://api-public.sandbox.exchange.coinbase.com"
-SANDBOX_WEBSOCKET_FEED_URL = "wss://ws-feed-public.sandbox.exchange.coinbase.com"
+SANDBOX_REST_API_URL = "https://api-public.sandbox.gdax.com"
+SANDBOX_WEBSOCKET_FEED_URL = "wss://ws-feed-public.sandbox.gdax.com"
 
 
 def pricelevels_to_obooklevels(priceLevels, maxValues):
@@ -64,7 +64,7 @@ class OrderBookLevel(object):
         return float(self.__size)
 
 
-class RealTimeOrderBook(object):
+class L3OrderBook(object):
     """
     The order book.
     """
@@ -96,17 +96,22 @@ class RealTimeOrderBook(object):
 
 class WebSocketClient(wsclient.WebSocketClient):
     class Event:
-        CONNECTED = 1
-        DISCONNECTED = 2
-        ORDER_MATCH = 3
-        ORDER_RECEIVED = 4
-        ORDER_OPEN = 5
-        ORDER_DONE = 6
-        ORDER_CHANGE = 7
-        SEQ_NR_MISMATCH = 8
+        ERROR = 1
+        CONNECTED = 2
+        DISCONNECTED = 3
+        ORDER_MATCH = 4
+        ORDER_RECEIVED = 5
+        ORDER_OPEN = 6
+        ORDER_DONE = 7
+        ORDER_CHANGE = 8
+        SEQ_NR_MISMATCH = 9
 
-    def __init__(self, productId, url):
-        super(WebSocketClient, self).__init__(productId, url)
+    def __init__(self, productId, url, maxInactivity=120):
+        """
+        This class is responsible for forwarding websocket messages through a queue.
+        """
+
+        super(WebSocketClient, self).__init__(productId, url, maxInactivity=maxInactivity)
         self.__queue = Queue.Queue()
 
     def getQueue(self):
@@ -116,6 +121,9 @@ class WebSocketClient(wsclient.WebSocketClient):
         super(WebSocketClient, self).onOpened()
         logger.info("Connection opened.")
         self.__queue.put((WebSocketClient.Event.CONNECTED, None))
+
+    def onConnectionRefused(self, code, reason):
+        logger.error("Connection refused. Code: %s. Reason: %s." % (code, reason))
 
     def onClosed(self, code, reason):
         logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
@@ -129,11 +137,15 @@ class WebSocketClient(wsclient.WebSocketClient):
     ######################################################################
     # Coinbase specific
 
-    def onError(self, errorMsg):
-        logger.error(errorMsg)
+    def onError(self, msg):
+        logger.error(msg.getMessage())
+        self.__queue.put((WebSocketClient.Event.ERROR, msg))
 
     def onUnknownMessage(self, msgDict):
         logger.warning("Unknown message %s" % msgDict)
+
+    def onSubscriptions(self, msg):
+        logger.info("Subscriptions: %s" % msg.getChannels())
 
     def onSequenceMismatch(self, lastValidSequence, currentSequence):
         logger.warning("Sequence jumped from %s to %s" % (lastValidSequence, currentSequence))
@@ -156,9 +168,13 @@ class WebSocketClient(wsclient.WebSocketClient):
 
 
 class WebSocketClientThread(threading.Thread):
-    def __init__(self, productId, url):
-        threading.Thread.__init__(self)
-        self.__wsClient = WebSocketClient(productId, url)
+    def __init__(self, productId, url, maxInactivity=120):
+        """
+        Thread class responsible for running a WebSocketClient.
+        """
+
+        super(WebSocketClientThread, self).__init__()
+        self.__wsClient = WebSocketClient(productId, url, maxInactivity=maxInactivity)
         self.__runEvent = threading.Event()
 
     def waitRunning(self, timeout):
@@ -170,14 +186,16 @@ class WebSocketClientThread(threading.Thread):
     def getQueue(self):
         return self.__wsClient.getQueue()
 
-    def start(self):
-        logger.info("Connecting websocket client.")
-        self.__wsClient.connect()
-        super(WebSocketClientThread, self).start()
-
     def run(self):
         self.__runEvent.set()
-        self.__wsClient.startClient()
+
+        try:
+            logger.info("Connecting websocket client.")
+            self.__wsClient.connect()
+            logger.info("Running websocket client.")
+            self.__wsClient.startClient()
+        except Exception, e:
+            logger.exception("Failed to run websocket client: %s" % e)
 
     def stop(self):
         try:
@@ -189,7 +207,8 @@ class WebSocketClientThread(threading.Thread):
 
 class Client(observer.Subject):
 
-    """Interface with Coinbase exchange.
+    """
+    Interface with Coinbase exchange.
 
     :param productId: The id of the product to trade.
     :param wsURL: Websocket feed url.
@@ -199,22 +218,22 @@ class Client(observer.Subject):
     QUEUE_TIMEOUT = 0.01
     WAIT_CONNECT_POLL_FREQUENCY = 0.5
     ORDER_BOOK_EVENT_DISPATCH = {
-        WebSocketClient.Event.ORDER_MATCH: obooksync.OrderBookSync.onOrderMatch,
-        WebSocketClient.Event.ORDER_RECEIVED: obooksync.OrderBookSync.onOrderReceived,
-        WebSocketClient.Event.ORDER_OPEN: obooksync.OrderBookSync.onOrderOpen,
-        WebSocketClient.Event.ORDER_DONE: obooksync.OrderBookSync.onOrderDone,
-        WebSocketClient.Event.ORDER_CHANGE: obooksync.OrderBookSync.onOrderChange,
+        WebSocketClient.Event.ORDER_MATCH: obooksync.L3OrderBookSync.onOrderMatch,
+        WebSocketClient.Event.ORDER_RECEIVED: obooksync.L3OrderBookSync.onOrderReceived,
+        WebSocketClient.Event.ORDER_OPEN: obooksync.L3OrderBookSync.onOrderOpen,
+        WebSocketClient.Event.ORDER_DONE: obooksync.L3OrderBookSync.onOrderDone,
+        WebSocketClient.Event.ORDER_CHANGE: obooksync.L3OrderBookSync.onOrderChange,
     }
 
-    def __init__(self, productId=common.btc_symbol, wsURL=WEBSOCKET_FEED_URL, apiURL=REST_API_URL):
+    def __init__(self, productId, wsURL=WEBSOCKET_FEED_URL, apiURL=REST_API_URL):
         self.__productId = productId
         self.__stopped = False
         self.__httpClient = httpclient.HTTPClient(apiURL)
         self.__orderEvents = observer.Event()
-        self.__orderBookEvents = observer.Event()
+        self.__l3OrderBookEvents = observer.Event()
         self.__wsClientThread = None
         self.__lastSeqNr = 0
-        self.__oBookSync = None
+        self.__l3OBookSync = None
         self.__wsURL = wsURL
 
     def __connectWS(self, retry):
@@ -233,10 +252,10 @@ class Client(observer.Subject):
                 break
 
     def refreshOrderBook(self):
-        logger.info("Retrieving order book...")
+        logger.info("Retrieving level 3 order book...")
         obook = self.__httpClient.getOrderBook(product=self.__productId, level=3)
-        self.__oBookSync = obooksync.OrderBookSync(obook)
-        logger.info("Finished retrieving order book")
+        self.__l3OBookSync = obooksync.L3OrderBookSync(obook)
+        logger.info("Finished retrieving level 3 order book")
 
     def __onConnected(self):
         self.refreshOrderBook()
@@ -257,9 +276,10 @@ class Client(observer.Subject):
         # Update order book
         method = Client.ORDER_BOOK_EVENT_DISPATCH.get(eventType)
         assert method is not None
-        updated = method(self.__oBookSync, eventData)
+        updated = method(self.__l3OBookSync, eventData)
+        # Emit an event if the orderbook got updated.
         if updated:
-            self.__orderBookEvents.emit(RealTimeOrderBook(self.__oBookSync))
+            self.__l3OrderBookEvents.emit(L3OrderBook(self.__l3OBookSync))
 
     def getHTTPClient(self):
         return self.__httpClient
@@ -267,16 +287,16 @@ class Client(observer.Subject):
     def getOrderEvents(self):
         return self.__orderEvents
 
-    def getOrderBookEvents(self):
+    def getL3OrderBookEvents(self):
         """
-        Returns the event that will be emitted when the orderbook gets updated.
+        Returns the event that will be emitted when the L3 orderbook gets updated.
 
         Eventh handlers should receive one parameter:
-         1. A :class:`pyalgotrade.coinbase.client.RealTimeOrderBook` instance.
+         1. A :class:`pyalgotrade.coinbase.client.L3OrderBook` instance.
 
         :rtype: :class:`pyalgotrade.observer.Event`.
         """
-        return self.__orderBookEvents
+        return self.__l3OrderBookEvents
 
     def start(self):
         self.__connectWS(False)

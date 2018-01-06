@@ -150,14 +150,21 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
             self.__keepAliveMgr = None
         tornado.ioloop.IOLoop.instance().stop()
 
+        # This may be closed if the connection was refused, or closed.
         if wasConnected:
             self.onClosed(code, reason)
+        else:
+            self.onConnectionRefused(code, reason)
 
     def isConnected(self):
         return self.__connected
 
+    def connect(self):
+        assert not self.__connected, "Already connected"
+        return super(WebSocketClientBase, self).connect()
+
     def startClient(self):
-        tornado.ioloop.IOLoop.instance().start()
+        return tornado.ioloop.IOLoop.instance().start()
 
     def stopClient(self):
         try:
@@ -181,6 +188,9 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
         raise NotImplementedError()
 
     def onClosed(self, code, reason):
+        pass
+
+    def onConnectionRefused(self, code, reason):
         pass
 
     def onDisconnectionDetected(self):

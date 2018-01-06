@@ -23,7 +23,7 @@ import dateutil.parser
 from pyalgotrade import broker
 
 
-btc_symbol = "BTC-USD"
+btc_usd_product_id = "BTC-USD"
 
 
 def parse_timestamp(timestamp):

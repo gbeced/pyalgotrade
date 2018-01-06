@@ -75,9 +75,13 @@ class PriceLevelList(object):
         return list(itertools.islice(self.__values.values(self.__ascOrder == False), maxValues))
 
 
-# https://docs.exchange.coinbase.com/#real-time-order-book
-class OrderBookSync(object):
+# https://docs.gdax.com/#the-code-classprettyprintmatchescode-channel
+class L3OrderBookSync(object):
     def __init__(self, orderBook):
+        """
+        This class is responsible for mantaining a L3 order book based on order events.
+        :param orderBook:
+        """
         self.__lastSequenceNr = orderBook.getSequence()
         self.__bids = PriceLevelList(False)
         self.__asks = PriceLevelList(True)

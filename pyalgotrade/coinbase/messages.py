@@ -21,23 +21,51 @@
 # Coinbase protocol reference: Check https://docs.exchange.coinbase.com/
 
 import common
+import abc
 
 
 class Message(object):
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, msgDict):
-        self.__msgDict = msgDict
+        self._msgDict = msgDict
+
+    @abc.abstractmethod
+    def hasSequence(self):
+        raise NotImplementedError()
 
     def getDict(self):
-        return self.__msgDict
+        return self._msgDict
+
+
+class Error(Message):
+    def hasSequence(self):
+        return False
+
+    def getMessage(self):
+        return self.getDict()["message"]
+
+
+class Subscriptions(Message):
+    def hasSequence(self):
+        return False
+
+    def getChannels(self):
+        return self.getDict()["channels"]
+
+
+class OrderMessage(Message):
+    def hasSequence(self):
+        return True
 
     def getSequence(self):
-        return self.__msgDict["sequence"]
+        return self.getDict()["sequence"]
 
     def getTime(self):
-        return common.parse_timestamp(self.__msgDict["time"])
+        return common.parse_timestamp(self.getDict()["time"])
 
 
-class Received(Message):
+class Received(OrderMessage):
     def getOrderId(self):
         return self.getDict()["order_id"]
 
@@ -51,7 +79,7 @@ class Received(Message):
         return self.getDict()["side"]
 
 
-class Open(Message):
+class Open(OrderMessage):
     def getOrderId(self):
         return self.getDict()["order_id"]
 
@@ -65,7 +93,7 @@ class Open(Message):
         return self.getDict()["side"]
 
 
-class Done(Message):
+class Done(OrderMessage):
     def getPrice(self):
         return float(self.getDict()["price"])
 
@@ -85,7 +113,7 @@ class Done(Message):
         return float(self.getDict().get("remaining_size", 0.0)) > 0
 
 
-class Match(Message):
+class Match(OrderMessage):
     def getTradeId(self):
         return self.getDict()["trade_id"]
 
@@ -105,7 +133,7 @@ class Match(Message):
         return self.getDict()["side"]
 
 
-class Change(Message):
+class Change(OrderMessage):
     def getOrderId(self):
         return self.getDict()["order_id"]
 

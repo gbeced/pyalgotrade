@@ -98,15 +98,15 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         assert isinstance(maxLen, int)
 
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
-        self.__bars = []
-        self.registerInstrument(common.btc_symbol)
+        self.__barQueue = []
+        self.registerInstrument(common.btc_usd_product_id)
         self.__stopped = False
         self.__coinbaseClient = coinbaseClient
         coinbaseClient.getOrderEvents().subscribe(self.__onOrderEvent)
 
     def __onOrderEvent(self, orderEvent):
         if isinstance(orderEvent, messages.Match):
-            self.__bars.append(TradeBar(orderEvent))
+            self.__barQueue.append(TradeBar(orderEvent))
 
     def getCurrentDateTime(self):
         return datetime.datetime.now()
@@ -116,8 +116,8 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     def getNextBars(self):
         ret = None
-        if len(self.__bars):
-            ret = bar.Bars({common.btc_symbol: self.__bars.pop(0)})
+        if len(self.__barQueue):
+            ret = bar.Bars({common.btc_usd_product_id: self.__barQueue.pop(0)})
         return ret
 
     def peekDateTime(self):

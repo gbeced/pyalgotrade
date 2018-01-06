@@ -30,7 +30,7 @@ from pyalgotrade.coinbase import common
 class PaperTradingTestCase(unittest.TestCase):
     def testBuyAndSellMarket(self):
 
-        class Strategy(test_strategy.BaseTestStrategy):
+        class Strategy(test_strategy.BaseStrategy):
             def __init__(self, barFeed, broker):
                 super(Strategy, self).__init__(barFeed, broker)
                 self.buyOrder = None
@@ -38,16 +38,16 @@ class PaperTradingTestCase(unittest.TestCase):
 
             def onBars(self, bars):
                 if self.buyOrder is None:
-                    self.buyOrder = self.marketOrder(common.btc_symbol, 0.1, goodTillCanceled=True)
+                    self.buyOrder = self.marketOrder(common.btc_usd_product_id, 0.1, goodTillCanceled=True)
                 elif self.buyOrder.isFilled():
                     if self.sellOrder is None:
-                        self.sellOrder = self.marketOrder(common.btc_symbol, -0.1, goodTillCanceled=True)
+                        self.sellOrder = self.marketOrder(common.btc_usd_product_id, -0.1, goodTillCanceled=True)
                     elif self.sellOrder.isFilled():
                         self.stop()
 
-        coinbaseCli = client.Client()
+        coinbaseCli = client.Client(common.btc_usd_product_id)
         barFeed = livefeed.LiveTradeFeed(coinbaseCli)
-        brk = broker.BacktestingBroker(1000, barFeed)
+        brk = broker.BacktestingBroker(1000000, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
