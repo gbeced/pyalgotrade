@@ -192,7 +192,7 @@ class GenericRowParser(RowParser):
         # Process extra columns.
         extra = {}
         for k, v in csvRowDict.iteritems():
-            if k not in self.__columnNames:
+            if k not in self.__columnNames.values():
                 extra[k] = csvutils.float_or_string(v)
 
         return self.__barClass(

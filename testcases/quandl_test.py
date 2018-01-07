@@ -205,7 +205,10 @@ class ToolsTestCase(common.TestCase):
             }
             bf = quandl.build_feed("BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames)
             bf.loadAll()
+
+            self.assertEquals(len(bf["USD"][-1].getExtraColumns()), 3)
             self.assertEquals(bf["USD"][-1].getExtraColumns()["Bid"], 319.19)
             self.assertEquals(bf["USD"][-1].getExtraColumns()["Ask"], 319.63)
+
             bids = bf["USD"].getExtraDataSeries("Bid")
             self.assertEquals(bids[-1], 319.19)

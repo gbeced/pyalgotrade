@@ -7,6 +7,7 @@ Version 0.19 (TBD)
 . [FIX] Fixed a race condition in the local optimizer that was sometimes getting blocked waiting for workers.
 . [FIX] Fixed a bug while generating nonces for Bitstamp. Thanks pjz for reporting this.
 . [FIX] Fixed callback for BaseStrategy.resampleBarFeed to match onBars prototype.
+. [FIX] Fixed extra columns parsing in csvfeed.GenericRowParser. Thanks Jones Chung for reporting this.
 . [BREAKING CHANGE] Removed support for downloading bars from Yahoo Finance.
 
 Version 0.18 (17/Aug/2016)
