@@ -75,6 +75,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.__barsFreq = None
         self.__activeJobs = {}
         self.__lock = threading.Lock()
+        self.__startedServingEvent = threading.Event()
         self.__forcedStop = False
         self.__bestResult = None
         if autoStop:
@@ -138,6 +139,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
         self.__resultSinc.push(result, base.Parameters(*parameters))
 
+    def waitServing(self, timeout=None):
+        return self.__startedServingEvent.wait(timeout)
+
     def stop(self):
         self.shutdown()
 
@@ -156,6 +160,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
                 self.__autoStopThread.start()
 
             logger.info("Started serving")
+            self.__startedServingEvent.set()
             self.serve_forever()
             logger.info("Finished serving")
 

@@ -82,9 +82,9 @@ def stop_process(p):
 
 
 def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
-    assert(workerCount is None or workerCount > 0)
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
+    assert workerCount > 0, "No workers"
 
     ret = None
     workers = []
@@ -99,13 +99,15 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
         resultSinc = base.ResultSinc()
 
     # Create and start the server.
-    logger.info("Starting server")
+    logger.info("Starting server on port %s" % port)
     srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, autoStop=False, batchSize=batchSize)
     serverThread = ServerThread(srv)
     serverThread.start()
+    logger.info("Waiting for the server to be ready")
+    srv.waitServing()
 
     try:
-        logger.info("Starting workers")
+        logger.info("Starting %s workers" % workerCount)
         # Build the worker processes.
         for i in range(workerCount):
             workers.append(multiprocessing.Process(
