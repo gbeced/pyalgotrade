@@ -11,17 +11,19 @@ language: python
 python:
   - "2.7"
 
+group: deprecated-2017Q4
+
 services:
   - docker
 
 before_install:
   - docker pull gbecedillas/pyalgotrade:0.18
   - cp travis/Dockerfile .
-  - docker build -t testcases .
+  - docker build -t pyalgotrade_testcases .
   - sudo pip install coveralls
 
 script:
-  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
+  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET pyalgotrade_testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
 
 after_success:
   - docker cp testcases:/tmp/pyalgotrade/.coverage .
