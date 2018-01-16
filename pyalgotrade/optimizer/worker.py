@@ -113,6 +113,7 @@ class Worker(object):
 
             # Process jobs
             job = self.getNextJob()
+            self.getLogger().info("Processing job %s" % job)
             while job is not None:
                 self.__processJob(job, barsFreq, instruments, bars)
                 job = self.getNextJob()
