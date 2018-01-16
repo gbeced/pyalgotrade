@@ -116,7 +116,9 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
             )
         # Start workers
         for process in workers:
+            logger.info("Starting process %s " % process)
             process.start()
+            logger.info("Started process %s " % process)
 
         # Wait for all jobs to complete.
         logger.info("1")
