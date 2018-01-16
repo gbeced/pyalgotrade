@@ -121,11 +121,11 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
             logger.info("Started process %s " % process)
 
         # Wait for all jobs to complete.
-        logger.info("1")
+        print "1"
         while srv.jobsPending():
-            logger.info("2")
-            time.sleep(1)
-            logger.info("3")
+            print "2"
+            time.sleep(0.5)
+            print "3"
         logger.info("No more jobs pending")
     finally:
         # Stop workers
