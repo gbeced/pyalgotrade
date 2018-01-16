@@ -11,8 +11,6 @@ language: python
 python:
   - "2.7"
 
-group: deprecated-2017Q4
-
 services:
   - docker
 
