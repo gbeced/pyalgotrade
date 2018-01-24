@@ -4,6 +4,12 @@ from pyalgotrade.technical import ma
 from pyalgotrade.technical import rsi
 
 
+def safe_round(value, digits):
+    if value is not None:
+        value = round(value, digits)
+    return value
+
+
 class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument):
         super(MyStrategy, self).__init__(feed)
@@ -13,7 +19,10 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         bar = bars[self.__instrument]
-        self.info("%s %s %s" % (bar.getClose(), self.__rsi[-1], self.__sma[-1]))
+        self.info("%s %s %s" % (
+            bar.getClose(), safe_round(self.__rsi[-1], 2), safe_round(self.__sma[-1], 2)
+        ))
+
 
 # Load the bar feed from the CSV file
 feed = quandlfeed.Feed()
