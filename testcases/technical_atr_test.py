@@ -25,6 +25,7 @@ import common
 from pyalgotrade.technical import atr
 from pyalgotrade import bar
 from pyalgotrade.dataseries import bards
+from pyalgotrade import dataseries
 
 
 class TestCase(common.TestCase):
@@ -62,3 +63,8 @@ class TestCase(common.TestCase):
                 self.assertEqual(atrDS[-1], None)
             else:
                 self.assertEqual(common.safe_round(atrDS[-1], 2), round(expected[i]/2, 2))
+
+    def testInvalidDataSeries(self):
+        with self.assertRaisesRegexp(Exception, "barDataSeries must be a dataseries.bards.BarDataSeries instance"):
+            ds = dataseries.SequenceDataSeries()
+            atrDS = atr.ATR(ds, 14, True)
