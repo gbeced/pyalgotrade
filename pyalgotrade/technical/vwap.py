@@ -64,6 +64,3 @@ class VWAP(technical.EventBasedFilter):
             "dataSeries must be a dataseries.bards.BarDataSeries instance"
 
         super(VWAP, self).__init__(dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
-
-    def getPeriod(self):
-        return self.getWindowSize()
