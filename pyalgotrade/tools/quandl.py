@@ -90,7 +90,7 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
 
 
 def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None,
-               skipErrors=False, noAdjClose=False, authToken=None, columnNames={}, forceDownload=False,
+               skipErrors=False, authToken=None, columnNames={}, forceDownload=False,
                skipMalformedBars=False
                ):
     """Build and load a :class:`pyalgotrade.barfeed.quandlfeed.Feed` using CSV files downloaded from Quandl.
@@ -112,8 +112,6 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     :type timezone: A pytz timezone.
     :param skipErrors: True to keep on loading/downloading files in case of errors.
     :type skipErrors: boolean.
-    :param noAdjClose: True if the instruments don't have adjusted close values.
-    :type noAdjClose: boolean.
     :param authToken: Optional. An authentication token needed if you're doing more than 50 calls per day.
     :type authToken: string.
     :param columnNames: Optional. A dictionary to map column names. Valid key values are:
@@ -135,8 +133,6 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
 
     logger = pyalgotrade.logger.getLogger("quandl")
     ret = quandlfeed.Feed(frequency, timezone)
-    if noAdjClose:
-        ret.setNoAdjClose()
 
     # Additional column names.
     for col, name in columnNames.iteritems():
@@ -154,10 +150,9 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                 try:
                     if frequency == bar.Frequency.DAY:
                         download_daily_bars(sourceCode, tableCode, year, fileName, authToken)
-                    elif frequency == bar.Frequency.WEEK:
-                        download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
                     else:
-                        raise Exception("Invalid frequency")
+                        assert frequency == bar.Frequency.WEEK, "Invalid frequency"
+                        download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
                 except Exception, e:
                     if skipErrors:
                         logger.error(str(e))
@@ -204,7 +199,7 @@ def main():
                     logger.error(str(e))
                     continue
                 else:
-                    raise e
+                    raise
 
 
 if __name__ == "__main__":

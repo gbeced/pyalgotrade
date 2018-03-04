@@ -43,7 +43,7 @@ class Feed(csvfeed.GenericBarFeed):
 
     def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=None):
         if frequency not in [bar.Frequency.DAY, bar.Frequency.WEEK]:
-            raise Exception("Invalid frequency.")
+            raise Exception("Invalid frequency")
 
         super(Feed, self).__init__(frequency, timezone, maxLen)
 
