@@ -54,6 +54,7 @@ setup(
         "pytz",
         "python-dateutil",
         "requests",
+        "future"
     ],
     extras_require={
         'Scipy':  ["scipy"],
