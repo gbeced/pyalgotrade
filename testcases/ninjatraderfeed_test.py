@@ -20,9 +20,9 @@
 
 import datetime
 
-import common
-import barfeed_test
-import feed_test
+from .common import TestCase, get_data_file_path
+from .barfeed_test import addBarsFromCSV, check_base_barfeed
+from .feed_test import tstBaseFeedInterface
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade import marketsession
@@ -30,17 +30,17 @@ from pyalgotrade import bar
 from pyalgotrade.utils import dt
 
 
-class NinjaTraderTestCase(common.TestCase):
+class NinjaTraderTestCase(TestCase):
     def __loadIntradayBarFeed(self, timeZone=None):
         ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
-        ret.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+        ret.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"))
         ret.loadAll()
         return ret
 
     def testBaseFeedInterface(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        feed_test.tstBaseFeedInterface(self, barFeed)
+        barFeed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"))
+        tstBaseFeedInterface(self, barFeed)
 
     def testWithTimezone(self):
         timeZone = marketsession.USEquities.getTimezone()
@@ -64,14 +64,14 @@ class NinjaTraderTestCase(common.TestCase):
         try:
             barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, -3)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
         try:
             barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-            barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"), -5)
+            barFeed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"), -5)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
     def testLocalizeAndFilter(self):
@@ -86,7 +86,7 @@ class NinjaTraderTestCase(common.TestCase):
             dt.localize(datetime.datetime(2011, 3, 11, 16), timezone): 130.84,
         }
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timezone)
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
+        barFeed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011-03.csv"))
         for dateTime, bars in barFeed:
             price = prices.get(bars.getDateTime(), None)
             if price is not None:
@@ -94,7 +94,7 @@ class NinjaTraderTestCase(common.TestCase):
 
     def testBounded(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, maxLen=2)
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
+        addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011-03.csv"))
         barFeed.loadAll()
 
         barDS = barFeed["spy"]
@@ -109,8 +109,8 @@ class NinjaTraderTestCase(common.TestCase):
 
     def testBaseBarFeed(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        barfeed_test.check_base_barfeed(self, barFeed, False)
+        barFeed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"))
+        check_base_barfeed(self, barFeed, False)
 
     def testInvalidFrequency(self):
         with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
@@ -119,7 +119,7 @@ class NinjaTraderTestCase(common.TestCase):
     def testReset(self):
         instrument = "spy"
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-        barFeed.addBarsFromCSV(instrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        barFeed.addBarsFromCSV(instrument, get_data_file_path("nt-spy-minute-2011.csv"))
 
         barFeed.loadAll()
         instruments = barFeed.getRegisteredInstruments()

@@ -21,12 +21,12 @@
 import datetime
 import cPickle
 
-import common
+from .common import TestCase
 
 from pyalgotrade import bar
 
 
-class BasicBarTestCase(common.TestCase):
+class BasicBarTestCase(TestCase):
     def testInvalidConstruction(self):
         with self.assertRaises(Exception):
             bar.BasicBar(datetime.datetime.now(), 2, 1, 1, 1, 1, 1, bar.Frequency.DAY)
@@ -80,7 +80,7 @@ class BasicBarTestCase(common.TestCase):
             b.getClose(True)
 
 
-class BarsTestCase(common.TestCase):
+class BarsTestCase(TestCase):
     def testEmptyDict(self):
         with self.assertRaises(Exception):
             bar.Bars({})

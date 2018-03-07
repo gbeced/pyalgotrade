@@ -17,14 +17,14 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+from builtins import range
 
-import common
-
+from .common import TestCase
 from pyalgotrade.technical import bollinger
 from pyalgotrade import dataseries
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def testStockChartsBollinger(self):
         # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands
         prices = [86.1557, 89.0867, 88.7829, 90.3228, 89.0671, 91.1453, 89.4397, 89.1750, 86.9302, 87.6752, 86.9596, 89.4299, 89.3221, 88.7241, 87.4497, 87.2634, 89.4985, 87.9006, 89.1260, 90.7043, 92.9001, 92.9784, 91.8021, 92.6647, 92.6843, 92.3021, 92.7725, 92.5373, 92.9490, 93.2039, 91.0669, 89.8318, 89.7435, 90.3994, 90.7387, 88.0177, 88.0867, 88.8439, 90.7781, 90.5416, 91.3894, 90.6500]
@@ -37,12 +37,12 @@ class TestCase(common.TestCase):
         for value in prices:
             seqDS.append(value)
 
-        for i in xrange(19):
+        for i in range(19):
             self.assertEqual(bBands.getMiddleBand()[i], None)
             self.assertEqual(bBands.getUpperBand()[i], None)
             self.assertEqual(bBands.getLowerBand()[i], None)
 
-        for i in xrange(19, len(seqDS)):
+        for i in range(19, len(seqDS)):
             self.assertEqual(round(bBands.getMiddleBand()[i], 2), expectedMiddle[i-19])
             self.assertEqual(round(bBands.getUpperBand()[i], 2), expectedUpper[i-19])
             self.assertEqual(round(bBands.getLowerBand()[i], 2), expectedLower[i-19])
@@ -59,7 +59,7 @@ class TestCase(common.TestCase):
         for value in prices:
             seqDS.append(value)
 
-        for i in xrange(3):
+        for i in range(3):
             self.assertEqual(round(bBands.getMiddleBand()[i], 2), expectedMiddle[i])
             self.assertEqual(round(bBands.getUpperBand()[i], 2), expectedUpper[i])
             self.assertEqual(round(bBands.getLowerBand()[i], 2), expectedLower[i])

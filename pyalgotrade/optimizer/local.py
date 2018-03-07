@@ -55,7 +55,7 @@ def worker_process(strategyClass, port, logLevel):
         w = Worker("localhost", port, name)
         w.getLogger().setLevel(logLevel)
         w.run()
-    except Exception, e:
+    except Exception as e:
         w.getLogger().exception("Failed to run worker: %s" % (e))
 
 

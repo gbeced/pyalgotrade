@@ -21,7 +21,7 @@
 import os
 import datetime
 
-import common
+from .common import TestCase
 try:
     # This will get environment variables set.
     import credentials
@@ -32,7 +32,7 @@ from pyalgotrade import dispatcher
 from pyalgotrade.twitter import feed as twitterfeed
 
 
-class TwitterFeedTestCase(common.TestCase):
+class TwitterFeedTestCase(TestCase):
     def testTwitterFeed(self):
         events = {
             "on_tweet": False,

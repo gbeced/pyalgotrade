@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from builtins import range
 
 # Force matplotlib to not use any Xwindows backend.
 import matplotlib
@@ -128,7 +129,7 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals=2, maxLe
     inputValues, expectedValues = load_test_csv(get_data_file_path(filename))
     inputDS = dataseries.SequenceDataSeries(maxLen=maxLen)
     filterDS = filterClassBuilder(inputDS)
-    for i in xrange(len(inputValues)):
+    for i in range(len(inputValues)):
         inputDS.append(inputValues[i])
         value = safe_round(filterDS[i], roundDecimals)
         expectedValue = safe_round(expectedValues[i], roundDecimals)

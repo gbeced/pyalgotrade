@@ -19,8 +19,9 @@
 """
 
 import datetime
+from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
@@ -28,7 +29,7 @@ from pyalgotrade.dataseries import aligned
 from pyalgotrade import bar
 
 
-class TestSequenceDataSeries(common.TestCase):
+class TestSequenceDataSeries(TestCase):
     def testEmpty(self):
         ds = dataseries.SequenceDataSeries()
         self.assertTrue(len(ds) == 0)
@@ -69,7 +70,7 @@ class TestSequenceDataSeries(common.TestCase):
 
         # Test length and every item.
         self.assertEqual(len(ds), len(seq))
-        for i in xrange(len(seq)):
+        for i in range(len(seq)):
             self.assertEqual(ds[i], seq[i])
 
         # Test negative indices
@@ -85,16 +86,16 @@ class TestSequenceDataSeries(common.TestCase):
         sl = slice(0, -1, 1)
         self.assertEqual(ds[sl], seq[sl])
 
-        for i in xrange(-100, 100):
+        for i in range(-100, 100):
             self.assertEqual(ds[i:], seq[i:])
 
-        for step in xrange(1, 10):
-            for i in xrange(-100, 100):
+        for step in range(1, 10):
+            for i in range(-100, 100):
                 self.assertEqual(ds[i::step], seq[i::step])
 
     def testBounded(self):
         ds = dataseries.SequenceDataSeries(maxLen=2)
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
             if i > 0:
                 self.assertEqual(ds[0], i - 1)
@@ -103,7 +104,7 @@ class TestSequenceDataSeries(common.TestCase):
 
     def testResize1(self):
         ds = dataseries.SequenceDataSeries(100)
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
 
         self.assertEqual(len(ds), 100)
@@ -119,7 +120,7 @@ class TestSequenceDataSeries(common.TestCase):
 
     def testResize2(self):
         ds = dataseries.SequenceDataSeries()
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
 
         ds.setMaxLen(1000)
@@ -141,7 +142,7 @@ class TestSequenceDataSeries(common.TestCase):
         self.assertEqual(ds[-1], 99)
 
 
-class TestBarDataSeries(common.TestCase):
+class TestBarDataSeries(TestCase):
     def testEmpty(self):
         ds = bards.BarDataSeries()
         with self.assertRaises(IndexError):
@@ -213,7 +214,7 @@ class TestBarDataSeries(common.TestCase):
             self.assertEqual(ds.getDateTimes()[i], firstDt + datetime.timedelta(seconds=i))
 
 
-class TestDateAlignedDataSeries(common.TestCase):
+class TestDateAlignedDataSeries(TestCase):
     def testNotAligned(self):
         size = 20
         ds1 = dataseries.SequenceDataSeries()
@@ -405,7 +406,7 @@ class TestDateAlignedDataSeries(common.TestCase):
         self.assertEqual(ads2[:], [2, 3])
 
 
-class TestUpdatedDefaultMaxLen(common.TestCase):
+class TestUpdatedDefaultMaxLen(TestCase):
     def setUp(self):
         super(TestUpdatedDefaultMaxLen, self).setUp()
         self.__default_max_len = dataseries.DEFAULT_MAX_LEN

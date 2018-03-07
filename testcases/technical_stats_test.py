@@ -20,13 +20,13 @@
 
 import numpy
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import stats
 from pyalgotrade import dataseries
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def testStdDev_1(self):
         values = [1, 1, 2, 3, 5]
         seqDS = dataseries.SequenceDataSeries()

@@ -20,18 +20,18 @@
 
 import os
 
-import common
+from .common import TestCase, TmpDir
 
 from pyalgotrade.tools import yahoofinance
 from pyalgotrade import bar
 from pyalgotrade.barfeed import yahoofeed
 
 
-class ToolsTestCase(common.TestCase):
+class ToolsTestCase(TestCase):
     def testDownloadAndParseDaily(self):
         instrument = "orcl"
 
-        with common.TmpDir() as tmp_path:
+        with TmpDir() as tmp_path:
             path = os.path.join(tmp_path, "orcl-2010.csv")
             yahoofinance.download_daily_bars(instrument, 2010, path)
             bf = yahoofeed.Feed()
@@ -43,7 +43,7 @@ class ToolsTestCase(common.TestCase):
     def testDownloadAndParseWeekly(self):
         instrument = "aapl"
 
-        with common.TmpDir() as tmp_path:
+        with TmpDir() as tmp_path:
             path = os.path.join(tmp_path, "aapl-weekly-2013.csv")
             yahoofinance.download_weekly_bars(instrument, 2013, path)
             bf = yahoofeed.Feed(frequency=bar.Frequency.WEEK)
@@ -56,7 +56,7 @@ class ToolsTestCase(common.TestCase):
             self.assertTrue(bf[instrument][-1].getVolume() in (9852500, 9855900, 68991600))
 
     def testBuildDailyFeed(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "orcl"
             bf = yahoofinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
             bf.loadAll()
@@ -64,7 +64,7 @@ class ToolsTestCase(common.TestCase):
             self.assertEqual(round(bf[instrument][-1].getClose(), 2), 31.30)
 
     def testBuildWeeklyFeed(self):
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             instrument = "aapl"
             bf = yahoofinance.build_feed([instrument], 2013, 2013, storage=tmpPath, frequency=bar.Frequency.WEEK)
             bf.loadAll()
@@ -79,11 +79,11 @@ class ToolsTestCase(common.TestCase):
 
         # Don't skip errors.
         with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
-            with common.TmpDir() as tmpPath:
+            with TmpDir() as tmpPath:
                 bf = yahoofinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
 
         # Skip errors.
-        with common.TmpDir() as tmpPath:
+        with TmpDir() as tmpPath:
             bf = yahoofinance.build_feed(
                 [instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY, skipErrors=True
             )

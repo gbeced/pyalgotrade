@@ -19,8 +19,9 @@
 """
 
 import os
+from builtins import range
 
-import common
+from .common import TestCase, get_data_file_path
 import feed_test
 
 from pyalgotrade.barfeed import yahoofeed
@@ -51,7 +52,7 @@ class TemporarySQLiteFeed:
         return self.__feed
 
 
-class SQLiteFeedTestCase(common.TestCase):
+class SQLiteFeedTestCase(TestCase):
     dbName = "SQLiteFeedTestCase.sqlite"
 
     def testBaseFeedInterface(self):
@@ -59,8 +60,8 @@ class SQLiteFeedTestCase(common.TestCase):
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed()
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV("orcl", get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV("orcl", get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
 
             # Fill the database using the bars from the Yahoo! feed.
             sqliteFeed = tmpFeed.getFeed()
@@ -75,8 +76,8 @@ class SQLiteFeedTestCase(common.TestCase):
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed()
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV("orcl", get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV("orcl", get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
 
             # Fill the database using the bars from the Yahoo! feed.
             sqliteFeed = tmpFeed.getFeed()
@@ -91,7 +92,7 @@ class SQLiteFeedTestCase(common.TestCase):
             yahooDS = yahooFeed["orcl"]
             sqliteDS = sqliteFeed["orcl"]
             self.assertEqual(len(yahooDS), len(sqliteDS))
-            for i in xrange(len(yahooDS)):
+            for i in range(len(yahooDS)):
                 self.assertEqual(yahooDS[i].getDateTime(), sqliteDS[i].getDateTime())
                 self.assertEqual(yahooDS[i].getOpen(), sqliteDS[i].getOpen())
                 self.assertEqual(yahooDS[i].getHigh(), sqliteDS[i].getHigh())
@@ -104,8 +105,8 @@ class SQLiteFeedTestCase(common.TestCase):
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed(maxLen=1)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV("orcl", get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV("orcl", get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
 
             # Fill the database using the bars from the Yahoo! feed.
             sqliteFeed = tmpFeed.getFeed()

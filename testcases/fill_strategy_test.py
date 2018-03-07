@@ -21,7 +21,7 @@
 import unittest
 import datetime
 
-import broker_backtesting_test
+from .broker_backtesting_test import BarsBuilder
 
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy
@@ -35,7 +35,7 @@ class BaseTestCase(unittest.TestCase):
 
 class FreeFunctionsTestCase(BaseTestCase):
     def testStopOrderTriggerBuy(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is below
         self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBar(5, 5, 5, 5)), None)
         self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBar(5, 6, 4, 5)), None)
@@ -51,7 +51,7 @@ class FreeFunctionsTestCase(BaseTestCase):
         self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBar(12, 13, 11, 12)), 12)
 
     def testStopOrderTriggerSell(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is above
         self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(15, 15, 15, 15)), None)
         self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(15, 16, 11, 15)), None)
@@ -67,7 +67,7 @@ class FreeFunctionsTestCase(BaseTestCase):
         self.assertEqual(fillstrategy.get_stop_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(8, 9, 6, 9)), 8)
 
     def testLimitOrderTriggerBuy(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is above
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBar(15, 15, 15, 15)), None)
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBar(15, 16, 11, 15)), None)
@@ -83,7 +83,7 @@ class FreeFunctionsTestCase(BaseTestCase):
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.BUY, 10, False, barsBuilder.nextBar(8, 9, 6, 9)), 8)
 
     def testLimitOrderTriggerSell(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         # Bar is below
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(5, 5, 5, 5)), None)
         self.assertEqual(fillstrategy.get_limit_price_trigger(broker.Order.Action.SELL, 10, False, barsBuilder.nextBar(5, 6, 4, 5)), None)
@@ -102,7 +102,7 @@ class FreeFunctionsTestCase(BaseTestCase):
 class DefaultStrategyTestCase(BaseTestCase):
     def setUp(self):
         BaseTestCase.setUp(self)
-        self.barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        self.barsBuilder = BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
         self.strategy = fillstrategy.DefaultStrategy()
 
     def __getFilledMarketOrder(self, quantity, price):

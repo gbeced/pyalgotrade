@@ -20,8 +20,8 @@
 
 import datetime
 
-import common
-import strategy_test
+from .common import TestCase, get_data_file_path
+from strategy_test import TestStrategy
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import membf
@@ -46,7 +46,7 @@ class TestBarFeed(membf.BarFeed):
         raise NotImplementedError()
 
 
-class DDHelperCase(common.TestCase):
+class DDHelperCase(TestCase):
     def testNoDrawDown1(self):
         helper = drawdown.DrawDownHelper()
         helper.update(datetime.datetime.now(), 10, 10)
@@ -178,12 +178,12 @@ class DDHelperCase(common.TestCase):
         self.assertEqual(helper.getDuration(), datetime.timedelta(minutes=1))
 
 
-class AnalyzerTestCase(common.TestCase):
+class AnalyzerTestCase(TestCase):
     def testNoTrades(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
-        strat = strategy_test.TestStrategy(barFeed, 1000)
+        barFeed.addBarsFromCSV("ige", get_data_file_path("sharpe-ratio-test-ige.csv"))
+        barFeed.addBarsFromCSV("spy", get_data_file_path("sharpe-ratio-test-spy.csv"))
+        strat = TestStrategy(barFeed, 1000)
         strat.setBrokerOrdersGTC(True)
         strat.setUseAdjustedValues(True)
         stratAnalyzer = drawdown.DrawDown()
@@ -200,8 +200,8 @@ class AnalyzerTestCase(common.TestCase):
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        barFeed.addBarsFromCSV("ige", get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = TestStrategy(barFeed, initialCash)
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
         stratAnalyzer = drawdown.DrawDown()
@@ -233,7 +233,7 @@ class AnalyzerTestCase(common.TestCase):
         bars = build_bars_from_closing_prices(closingPrices)
         barFeed.addBarsFromSequence("orcl", bars)
 
-        strat = strategy_test.TestStrategy(barFeed, cash)
+        strat = TestStrategy(barFeed, cash)
         stratAnalyzer = drawdown.DrawDown()
         strat.attachAnalyzer(stratAnalyzer)
 

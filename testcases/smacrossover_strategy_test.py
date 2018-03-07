@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase, get_data_file_path
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
@@ -144,10 +144,10 @@ class LimitOrderStrategy(SMACrossOverStrategy):
         position.exitLimit(price)
 
 
-class TestSMACrossOver(common.TestCase):
+class TestSMACrossOver(TestCase):
     def __test(self, strategyClass, finalValue):
         feed = yahoofeed.Feed()
-        feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        feed.addBarsFromCSV("orcl", get_data_file_path("orcl-2001-yahoofinance.csv"))
         myStrategy = strategyClass(feed, 10, 25)
         myStrategy.run()
         myStrategy.printDebug("Final result:", round(myStrategy.getFinalValue(), 2))

@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from common import TestCase, get_data_file_path
 import barfeed_test
 import feed_test
 
@@ -75,7 +75,7 @@ class BarFeedEventHandler_TestFilterRange:
             return self.__count
 
 
-class FeedTestCase(common.TestCase):
+class FeedTestCase(TestCase):
     TestInstrument = "orcl"
 
     def __parseDate(self, date):
@@ -97,20 +97,20 @@ class FeedTestCase(common.TestCase):
     def testDefaultInstrument(self):
         barFeed = yahoofeed.Feed()
         self.assertEquals(barFeed.getDefaultInstrument(), None)
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         self.assertEquals(barFeed.getDefaultInstrument(), FeedTestCase.TestInstrument)
 
     def testDuplicateBars(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         with self.assertRaisesRegexp(Exception, "Duplicate bars found for.*"):
             barFeed.loadAll()
 
     def testBaseBarFeed(self):
         barFeed = yahoofeed.Feed()
         barFeed.sanitizeBars(True)
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         barfeed_test.check_base_barfeed(self, barFeed, True)
 
     def testInvalidFrequency(self):
@@ -119,7 +119,7 @@ class FeedTestCase(common.TestCase):
 
     def testBaseFeedInterface(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
         feed_test.tstBaseFeedInterface(self, barFeed)
 
     def testParseDate_1(self):
@@ -142,8 +142,8 @@ class FeedTestCase(common.TestCase):
 
     def testCSVFeedLoadOrder(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2001-yahoofinance.csv"))
 
         # Dispatch and handle events.
         handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, FeedTestCase.TestInstrument)
@@ -155,8 +155,8 @@ class FeedTestCase(common.TestCase):
     def __testFilteredRangeImpl(self, fromDate, toDate):
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2001-yahoofinance.csv"))
 
         # Dispatch and handle events.
         handler = BarFeedEventHandler_TestFilterRange(self, FeedTestCase.TestInstrument, fromDate, toDate)
@@ -179,24 +179,24 @@ class FeedTestCase(common.TestCase):
 
     def testWithoutTimezone(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2001-yahoofinance.csv"))
         for dateTime, bars in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertTrue(dt.datetime_is_naive(bar.getDateTime()))
 
     def testWithDefaultTimezone(self):
         barFeed = yahoofeed.Feed(timezone=marketsession.USEquities.getTimezone())
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2001-yahoofinance.csv"))
         for dateTime, bars in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
 
     def testWithPerFileTimezone(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.getTimezone())
         for dateTime, bars in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
@@ -205,19 +205,19 @@ class FeedTestCase(common.TestCase):
         try:
             barFeed = yahoofeed.Feed(timezone=-5)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
         try:
             barFeed = yahoofeed.Feed()
-            barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), -3)
+            barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"), -3)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
     def testMapTypeOperations(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
         for dateTime, bars in barFeed:
             self.assertTrue(FeedTestCase.TestInstrument in bars)
             self.assertFalse(FeedTestCase.TestInstrument not in bars)
@@ -227,7 +227,7 @@ class FeedTestCase(common.TestCase):
 
     def testBounded(self):
         barFeed = yahoofeed.Feed(maxLen=2)
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
         for dateTime, bars in barFeed:
             pass
 
@@ -243,7 +243,7 @@ class FeedTestCase(common.TestCase):
 
     def testReset(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
         barFeed.loadAll()
         instruments = barFeed.getRegisteredInstruments()
         ds = barFeed[FeedTestCase.TestInstrument]

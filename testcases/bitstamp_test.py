@@ -24,8 +24,8 @@ import threading
 import Queue
 import json
 
-import common as tc_common
-import test_strategy
+from common import TestCase, get_data_file_path
+from test_strategy import BaseTestStrategy
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -186,7 +186,7 @@ class TestingLiveBroker(broker.LiveBroker):
         return self.__httpClient
 
 
-class TestStrategy(test_strategy.BaseTestStrategy):
+class TestStrategy(BaseTestStrategy):
     def __init__(self, feed, brk):
         super(TestStrategy, self).__init__(feed, brk)
         self.bid = None
@@ -204,7 +204,7 @@ class TestStrategy(test_strategy.BaseTestStrategy):
             self.ask = ask
 
 
-class InstrumentTraitsTestCase(tc_common.TestCase):
+class InstrumentTraitsTestCase(TestCase):
     def testInstrumentTraits(self):
         traits = common.BTCTraits()
         self.assertEquals(traits.roundQuantity(0), 0)
@@ -215,7 +215,7 @@ class InstrumentTraitsTestCase(tc_common.TestCase):
         self.assertEquals(traits.roundQuantity(0.004413764), 0.00441376)
 
 
-class BacktestingTestCase(tc_common.TestCase):
+class BacktestingTestCase(TestCase):
     def testBitcoinChartsFeed(self):
 
         class TestStrategy(strategy.BaseStrategy):
@@ -228,7 +228,7 @@ class BacktestingTestCase(tc_common.TestCase):
                     self.pos = self.enterLongLimit("BTC", 5.83, 1, True)
 
         barFeed = btcbarfeed.CSVTradeFeed()
-        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
+        barFeed.addBarsFromCSV(get_data_file_path("bitstampUSD.csv"))
         brk = broker.BacktestingBroker(100, barFeed)
         strat = TestStrategy(barFeed, brk)
         strat.run()
@@ -248,14 +248,14 @@ class BacktestingTestCase(tc_common.TestCase):
                     self.pos = self.enterLongLimit("BTC", 4.99, 1, True)
 
         barFeed = btcbarfeed.CSVTradeFeed()
-        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
+        barFeed.addBarsFromCSV(get_data_file_path("bitstampUSD.csv"))
         brk = broker.BacktestingBroker(100, barFeed)
         strat = TestStrategy(barFeed, brk)
         with self.assertRaisesRegexp(Exception, "Trade must be >= 5"):
             strat.run()
 
 
-class PaperTradingTestCase(tc_common.TestCase):
+class PaperTradingTestCase(TestCase):
     def testBuyWithPartialFill(self):
 
         class Strategy(TestStrategy):
@@ -505,7 +505,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         self.assertEquals(brk.getCash(), 10)
 
 
-class LiveTradingTestCase(tc_common.TestCase):
+class LiveTradingTestCase(TestCase):
     def testMapUserTransactionsToOrderEvents(self):
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
@@ -622,7 +622,7 @@ class LiveTradingTestCase(tc_common.TestCase):
         self.assertEquals(strat.orderExecutionInfo[3].getDateTime().date(), datetime.datetime.now().date())
 
 
-class WebSocketTestCase(tc_common.TestCase):
+class WebSocketTestCase(TestCase):
     def testBarFeed(self):
         events = {
             "on_bars": False,

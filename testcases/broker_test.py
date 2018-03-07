@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from common import TestCase
 
 from pyalgotrade import broker
 
@@ -30,7 +30,7 @@ class DefaultTraits(broker.InstrumentTraits):
         return int(quantity)
 
 
-class OrderTestCase(common.TestCase):
+class OrderTestCase(TestCase):
     def __buildAcceptedLimitOrder(self, action, limitPrice, quantity):
         ret = broker.LimitOrder(action, "orcl", limitPrice, quantity, DefaultTraits())
         self.assertEquals(ret.getSubmitDateTime(), None)

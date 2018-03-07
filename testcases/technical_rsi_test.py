@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase, test_from_csv
 
 from pyalgotrade.technical import rsi
 from pyalgotrade import dataseries
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def testAvgGainLoss(self):
         # We divide by 2 because N samples yield N-1 averages.
 
@@ -63,7 +63,7 @@ class TestCase(common.TestCase):
 
     def testStockChartsRSI(self):
         # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_in
-        common.test_from_csv(self, "rsi-test.csv", lambda inputDS: rsi.RSI(inputDS, 14), 3)
+        test_from_csv(self, "rsi-test.csv", lambda inputDS: rsi.RSI(inputDS, 14), 3)
 
     def testDateTimes(self):
         rsi = self.__buildRSI(range(10), 3)

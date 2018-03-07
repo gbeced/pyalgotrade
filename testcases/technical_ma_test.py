@@ -17,8 +17,9 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+from builtins import range
 
-import common
+from .common import TestCase, test_from_csv, get_data_file_path
 
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
@@ -33,7 +34,7 @@ def safe_round(number, ndigits):
     return ret
 
 
-class SMATestCase(common.TestCase):
+class SMATestCase(TestCase):
     def __buildSMA(self, period, values, smaMaxLen=None):
         seqDs = dataseries.SequenceDataSeries()
         ret = ma.SMA(seqDs, period, smaMaxLen)
@@ -81,7 +82,7 @@ class SMATestCase(common.TestCase):
         period = 5
         values = range(1, 10)
         sma = self.__buildSMA(period, values)
-        for i in xrange(period-1, len(values)):
+        for i in range(period-1, len(values)):
             expected = sum(values[i-(period-1):i+1]) / float(period)
             self.assertTrue(sma[i] == expected)
 
@@ -90,25 +91,25 @@ class SMATestCase(common.TestCase):
         period = 5
         values = range(1, 10)
         sma = self.__buildSMA(period, values)
-        for i in xrange(period-1, len(values), 2):
+        for i in range(period-1, len(values), 2):
             expected = sum(values[i-(period-1):i+1]) / float(period)
             self.assertTrue(sma[i] == expected)
 
     def testStockChartsSMA(self):
         # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-        common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10))
+        test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10))
 
     def testNinjaTraderSMA(self):
-        common.test_from_csv(self, "nt-sma-15.csv", lambda inputDS: ma.SMA(inputDS, 15), 3)
+        test_from_csv(self, "nt-sma-15.csv", lambda inputDS: ma.SMA(inputDS, 15), 3)
 
     def testSeqLikeOps(self):
         # ds and seq should be the same.
-        seq = [1.0 for i in xrange(10)]
+        seq = [1.0 for i in range(10)]
         ds = self.__buildSMA(1, seq)
 
         # Test length and every item.
         self.assertEqual(len(ds), len(seq))
-        for i in xrange(len(seq)):
+        for i in range(len(seq)):
             self.assertEqual(ds[i], seq[i])
 
         # Test negative indices
@@ -124,11 +125,11 @@ class SMATestCase(common.TestCase):
         sl = slice(0, -1, 1)
         self.assertEqual(ds[sl], seq[sl])
 
-        for i in xrange(-100, 100):
+        for i in range(-100, 100):
             self.assertEqual(ds[i:], seq[i:])
 
-        for step in xrange(1, 10):
-            for i in xrange(-100, 100):
+        for step in range(1, 10):
+            for i in range(-100, 100):
                 self.assertEqual(ds[i::step], seq[i::step])
 
     def testEventWindow(self):
@@ -136,7 +137,7 @@ class SMATestCase(common.TestCase):
         smaEW = ma.SMAEventWindow(10)
         sma = ma.SMA(ds, 10)
         smaEW.onNewValue(None, None)  # This value should get skipped
-        for i in xrange(100):
+        for i in range(100):
             ds.append(i)
             smaEW.onNewValue(None, i)
             self.assertEqual(sma[-1], smaEW.getValue())
@@ -144,13 +145,13 @@ class SMATestCase(common.TestCase):
 
     def testStockChartsSMA_BoundedSeq(self):
         # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-        common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1)
-        common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=2)
-        common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=4)
-        common.test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1000)
+        test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1)
+        test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=2)
+        test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=4)
+        test_from_csv(self, "sc-sma-10.csv", lambda inputDS: ma.SMA(inputDS, 10), maxLen=1000)
 
 
-class WMATestCase(common.TestCase):
+class WMATestCase(TestCase):
     def __buildWMA(self, weights, values, seqMaxLen=None, wmaMaxLen=None):
         seqDS = dataseries.SequenceDataSeries(maxLen=seqMaxLen)
         ret = ma.WMA(seqDS, weights, wmaMaxLen)
@@ -197,14 +198,14 @@ class WMATestCase(common.TestCase):
         self.assertEqual(len(wma.getDateTimes()), 2)
 
 
-class EMATestCase(common.TestCase):
+class EMATestCase(TestCase):
     def testStockChartsEMA(self):
         # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-        common.test_from_csv(self, "sc-ema-10.csv", lambda inputDS: ma.EMA(inputDS, 10), 3)
+        test_from_csv(self, "sc-ema-10.csv", lambda inputDS: ma.EMA(inputDS, 10), 3)
 
     def testMaxRecursion(self):
         barFeed = ninjatraderfeed.Feed(bar.Frequency.MINUTE)
-        barFeed.addBarsFromCSV("any", common.get_data_file_path("nt-spy-minute-2011.csv"))
+        barFeed.addBarsFromCSV("any", get_data_file_path("nt-spy-minute-2011.csv"))
         ema = ma.EMA(barFeed["any"].getPriceDataSeries(), 10)
         # Load all the feed.
         barFeed.loadAll()

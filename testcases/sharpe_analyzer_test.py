@@ -20,8 +20,8 @@
 
 import datetime
 
-import common
-import strategy_test
+from .common import TestCase, get_data_file_path
+from strategy_test import TestStrategy
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import ninjatraderfeed
@@ -32,7 +32,7 @@ from pyalgotrade import broker
 from pyalgotrade import marketsession
 
 
-class SharpeRatioTestCase(common.TestCase):
+class SharpeRatioTestCase(TestCase):
     def testDateTimeDiffs(self):
         # sharpe.days_traded
         self.assertEqual(sharpe.days_traded(datetime.datetime(2001, 1, 1), datetime.datetime(2001, 1, 2)), 2)
@@ -43,8 +43,8 @@ class SharpeRatioTestCase(common.TestCase):
 
     def testNoTrades(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, 1000)
+        barFeed.addBarsFromCSV("ige", get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = TestStrategy(barFeed, 1000)
         stratAnalyzer = sharpe.SharpeRatio()
         strat.attachAnalyzer(stratAnalyzer)
 
@@ -59,8 +59,8 @@ class SharpeRatioTestCase(common.TestCase):
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        barFeed.addBarsFromCSV("ige", get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = TestStrategy(barFeed, initialCash)
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
         stratAnalyzer = sharpe.SharpeRatio()
@@ -93,8 +93,8 @@ class SharpeRatioTestCase(common.TestCase):
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        barFeed.addBarsFromCSV("ige", get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = TestStrategy(barFeed, initialCash)
         strat.getBroker().setCommission(backtesting.FixedPerTrade(commision))
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
@@ -120,8 +120,8 @@ class SharpeRatioTestCase(common.TestCase):
     def testIntraDay(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, marketsession.USEquities.getTimezone())
         barFeed.setBarFilter(csvfeed.USEquitiesRTH())
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        strat = strategy_test.TestStrategy(barFeed, 1000)
+        barFeed.addBarsFromCSV("spy", get_data_file_path("nt-spy-minute-2011.csv"))
+        strat = TestStrategy(barFeed, 1000)
         stratAnalyzer = sharpe.SharpeRatio(False)
         strat.attachAnalyzer(stratAnalyzer)
         strat.marketOrder("spy", 1)

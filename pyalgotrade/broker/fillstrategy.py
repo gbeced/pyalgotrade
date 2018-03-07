@@ -22,7 +22,7 @@ import abc
 
 from pyalgotrade import broker
 import pyalgotrade.bar
-import slippage
+from pyalgotrade.broker.slippage import NoSlippage
 
 
 # Returns the trigger price for a Limit or StopLimit order, or None if the limit price was not yet penetrated.
@@ -233,7 +233,7 @@ class DefaultStrategy(FillStrategy):
         self.__volumeLeft = {}
         self.__volumeUsed = {}
         self.setVolumeLimit(volumeLimit)
-        self.setSlippageModel(slippage.NoSlippage())
+        self.setSlippageModel(NoSlippage())
 
     def onBars(self, broker_, bars):
         volumeLeft = {}

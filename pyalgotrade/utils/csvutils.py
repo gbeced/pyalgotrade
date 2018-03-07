@@ -20,6 +20,8 @@
 
 import csv
 import requests
+from builtins import range
+
 
 import logging
 logging.getLogger("requests").setLevel(logging.ERROR)
@@ -31,7 +33,7 @@ class FastDictReader(object):
         self.__fieldNames = fieldnames
         self.reader = csv.reader(f, dialect, *args, **kwargs)
         if self.__fieldNames is None:
-            self.__fieldNames = self.reader.next()
+            self.__fieldNames = self.reader.next() if hasattr(self.reader, 'next') else next(self.reader)
         self.__dict = {}
 
     def __iter__(self):
@@ -39,18 +41,21 @@ class FastDictReader(object):
 
     def next(self):
         # Skip empty rows.
-        row = self.reader.next()
+        row = self.reader.next() if hasattr(self.reader, 'next') else next(self.reader)
         while row == []:
-            row = self.reader.next()
+            row = self.reader.next() if hasattr(self.reader, 'next') else next(self.reader)
 
         # Check that the row has the right number of columns.
         assert(len(self.__fieldNames) == len(row))
 
         # Copy the row values into the dict.
-        for i in xrange(len(self.__fieldNames)):
+        for i in range(len(self.__fieldNames)):
             self.__dict[self.__fieldNames[i]] = row[i]
 
         return self.__dict
+
+    def __next__(self):
+        return self.next()
 
 
 def download_csv(url, url_params=None, content_type="text/csv"):

@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
@@ -37,7 +37,7 @@ class TestFilter(technical.EventBasedFilter):
         technical.EventBasedFilter.__init__(self, dataSeries, TestEventWindow())
 
 
-class DataSeriesFilterTest(common.TestCase):
+class DataSeriesFilterTest(TestCase):
     def testInvalidPosNotCached(self):
         ds = dataseries.SequenceDataSeries()
         testFilter = TestFilter(ds)

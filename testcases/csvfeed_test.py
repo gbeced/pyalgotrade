@@ -21,8 +21,8 @@
 import datetime
 import os
 
-import common
-import feed_test
+from .common import TestCase, get_data_file_path
+from .feed_test import tstBaseFeedInterface
 
 from pyalgotrade.feed import csvfeed
 from pyalgotrade import dispatcher
@@ -30,15 +30,15 @@ from pyalgotrade import marketsession
 from pyalgotrade.utils import dt
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def testBaseFeedInterface(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")
-        feed.addValuesFromCSV(common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        feed_test.tstBaseFeedInterface(self, feed)
+        feed.addValuesFromCSV(get_data_file_path("orcl-2000-yahoofinance.csv"))
+        tstBaseFeedInterface(self, feed)
 
     def testFeedWithBars(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")
-        feed.addValuesFromCSV(common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        feed.addValuesFromCSV(get_data_file_path("orcl-2000-yahoofinance.csv"))
 
         self.assertEqual(len(feed.getKeys()), 6)
         for col in ["Open", "High", "Low", "Close", "Volume", "Adj Close"]:
@@ -89,7 +89,7 @@ class TestCase(common.TestCase):
 
     def testReset(self):
         feed = csvfeed.Feed("Date", "%Y-%m-%d")
-        feed.addValuesFromCSV(common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        feed.addValuesFromCSV(get_data_file_path("orcl-2000-yahoofinance.csv"))
 
         disp = dispatcher.Dispatcher()
         disp.addSubject(feed)

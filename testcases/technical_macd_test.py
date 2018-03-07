@@ -18,13 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from .common import TestCase, safe_round
 
 from pyalgotrade.technical import macd
 from pyalgotrade import dataseries
 
 
-class MACDTestCase(common.TestCase):
+class MACDTestCase(TestCase):
     def testMACD(self):
         values = [16.39, 16.4999, 16.45, 16.43, 16.52, 16.51, 16.423, 16.41, 16.47, 16.45, 16.32, 16.36, 16.34, 16.59, 16.54, 16.52, 16.44, 16.47, 16.5, 16.45, 16.28, 16.07, 16.08, 16.1, 16.1, 16.09, 16.43, 16.4899, 16.59, 16.65, 16.78, 16.86, 16.86, 16.76]
         # These expected values were generated using TA-Lib
@@ -36,6 +36,6 @@ class MACDTestCase(common.TestCase):
         macdDs = macd.MACD(ds, 5, 13, 6)
         for i, value in enumerate(values):
             ds.append(value)
-            self.assertEqual(common.safe_round(macdDs[i], 4), macdValues[i])
-            self.assertEqual(common.safe_round(macdDs.getSignal()[i], 4), signalValues[i])
-            self.assertEqual(common.safe_round(macdDs.getHistogram()[i], 4), histogramValues[i])
+            self.assertEqual(safe_round(macdDs[i], 4), macdValues[i])
+            self.assertEqual(safe_round(macdDs.getSignal()[i], 4), signalValues[i])
+            self.assertEqual(safe_round(macdDs.getHistogram()[i], 4), histogramValues[i])

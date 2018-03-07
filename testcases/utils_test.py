@@ -19,15 +19,16 @@
 """
 
 import datetime
+from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade import utils
 from pyalgotrade.utils import collections
 from pyalgotrade.utils import dt
 
 
-class UtilsTestCase(common.TestCase):
+class UtilsTestCase(TestCase):
     def testChangePercentage(self):
         self.assertEqual(utils.get_change_percentage(1, 1), 0)
         self.assertEqual(round(utils.get_change_percentage(1.1, 1), 2), 0.1)
@@ -63,7 +64,7 @@ class UtilsTestCase(common.TestCase):
         self.assertEqual(utils.safe_max(2, 1.1), 2)
 
 
-class IntersectTestCase(common.TestCase):
+class IntersectTestCase(TestCase):
     def testEmptyIntersection(self):
         values, ix1, ix2 = collections.intersect([1, 2, 3], [4, 5, 6])
         self.assertEqual(len(values), 0)
@@ -170,7 +171,7 @@ class IntersectTestCase(common.TestCase):
         dateTimes1 = []
         dateTimes2 = []
         now = datetime.datetime.now()
-        for i in xrange(size):
+        for i in range(size):
             dateTimes1.append(now + datetime.timedelta(seconds=i))
             dateTimes2.append(now + datetime.timedelta(seconds=i))
 
@@ -183,7 +184,7 @@ class IntersectTestCase(common.TestCase):
         self.assertEqual(ix1, ix2)
 
 
-class CollectionTestCaseBase(common.TestCase):
+class CollectionTestCaseBase(TestCase):
     def buildCollection(self, maxLen):
         raise NotImplementedError()
 
@@ -314,7 +315,7 @@ class ListDequeTestCase(CollectionTestCaseBase):
         CollectionTestCaseBase._testResizeEmptyImpl(self)
 
 
-class DateTimeTestCase(common.TestCase):
+class DateTimeTestCase(TestCase):
     def testTimeStampConversions(self):
         dateTime = datetime.datetime(2000, 1, 1)
         self.assertEqual(dt.timestamp_to_datetime(dt.datetime_to_timestamp(dateTime), False), dateTime)

@@ -19,8 +19,9 @@
 """
 
 import datetime
+from builtins import range
 
-import common
+from .common import TestCase
 
 from pyalgotrade.technical import stoch
 from pyalgotrade.dataseries import bards
@@ -35,7 +36,7 @@ def values_equal(v1, v2):
     return False
 
 
-class TestCase(common.TestCase):
+class TestCase(TestCase):
     def setUp(self):
         self.__currSeconds = 0
 
@@ -110,7 +111,7 @@ class TestCase(common.TestCase):
         self.assertEqual(len(stochFilter.getD()), 3)
         self.assertEqual(len(stochFilter.getD().getDateTimes()), 3)
 
-        for i in xrange(3):
+        for i in range(3):
             self.assertEqual(round(stochFilter[i], 4), kValues[i])
             self.assertEqual(round(stochFilter.getD()[i], 4), dValues[i])
 
