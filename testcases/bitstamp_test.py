@@ -43,10 +43,10 @@ class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
         self.__queue = Queue.Queue()
-        self.__queue.put((wsclient.WebSocketClient.ON_CONNECTED, None))
+        self.__queue.put((wsclient.WebSocketClient.Event.CONNECTED, None))
         for event in events:
             self.__queue.put(event)
-        self.__queue.put((wsclient.WebSocketClient.ON_DISCONNECTED, None))
+        self.__queue.put((wsclient.WebSocketClient.Event.DISCONNECTED, None))
         self.__stop = False
 
     def getQueue(self):
@@ -79,7 +79,7 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
             }
         eventDict = {}
         eventDict["data"] = json.dumps(dataDict)
-        self.__events.append((wsclient.WebSocketClient.ON_TRADE, wsclient.Trade(dateTime, eventDict)))
+        self.__events.append((wsclient.WebSocketClient.Event.TRADE, wsclient.Trade(dateTime, eventDict)))
 
     def buildWebSocketClientThread(self):
         return WebSocketClientThreadMock(self.__events)

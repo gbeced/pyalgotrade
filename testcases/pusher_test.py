@@ -66,9 +66,11 @@ class WebSocketClient(pusher.WebSocketClient):
 class WebSocketClientThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.__wsclient = WebSocketClient()
+        self.__wsclient = None
 
     def run(self):
+        # We need to build the WebSocketClient right in the thread since it has thread affinity.
+        self.__wsclient = WebSocketClient()
         self.__wsclient.connect()
         self.__wsclient.startClient()
 

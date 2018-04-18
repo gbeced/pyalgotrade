@@ -73,7 +73,7 @@ class KeepAliveMgr(object):
 
     def start(self):
         # Check every second.
-        self.__callback = tornado.ioloop.PeriodicCallback(self._keepAlive, 1000, self.__wsClient.getIOLoop())
+        self.__callback = tornado.ioloop.PeriodicCallback(self._keepAlive, 1000)
         self.__callback.start()
 
     def stop(self):
@@ -91,6 +91,7 @@ class KeepAliveMgr(object):
 
 # Base clase for websocket clients.
 # To use it call connect and startClient, and stopClient.
+# Note that this class has thread affinity, so build it and use it from the same thread.
 class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
     def __init__(self, url):
         super(WebSocketClientBase, self).__init__(url)
