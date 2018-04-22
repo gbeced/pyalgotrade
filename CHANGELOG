@@ -9,6 +9,7 @@ Version 0.19 (TBD)
 . [FIX] Fixed callback for BaseStrategy.resampleBarFeed to match onBars prototype.
 . [FIX] Fixed extra columns parsing in csvfeed.GenericRowParser. Thanks Jones Chung for reporting this.
 . [BREAKING CHANGE] Removed support for downloading bars from Yahoo Finance.
+. [BREAKING CHANGE] Removed support for downloading bars from Google Finance.
 
 Version 0.18 (17/Aug/2016)
 . [NEW] Returns analyzer now stores datetimes along with each sample. Thanks MatthiasKauer for implementing this.
