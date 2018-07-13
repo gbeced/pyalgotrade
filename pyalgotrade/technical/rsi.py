@@ -67,23 +67,6 @@ def avg_gain_loss(values, begin, end):
     return (gain/float(rangeLen-1), loss/float(rangeLen-1))
 
 
-def rsi(values, period):
-    assert(period > 1)
-    if len(values) < period + 1:
-        return None
-
-    avgGain, avgLoss = avg_gain_loss(values, 0, period)
-    for i in xrange(period, len(values)):
-        gain, loss = gain_loss_one(values[i-1], values[i])
-        avgGain = (avgGain * (period - 1) + gain) / float(period)
-        avgLoss = (avgLoss * (period - 1) + loss) / float(period)
-
-    if avgLoss == 0:
-        return 100
-    rs = avgGain / avgLoss
-    return 100 - 100 / (1 + rs)
-
-
 class RSIEventWindow(technical.EventWindow):
     def __init__(self, period):
         assert(period > 1)

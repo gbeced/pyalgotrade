@@ -76,6 +76,8 @@ def resample_impl(barFeed, frequency, csvFile):
     disp.run()
     resampledDS.pushLast()
 
+    csvWriter.close()
+
 
 def resample_to_csv(barFeed, frequency, csvFile):
     """Resample a BarFeed into a CSV file grouping bars by a certain frequency.

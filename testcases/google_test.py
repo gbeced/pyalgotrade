@@ -18,12 +18,10 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import os
 import datetime
 
 import common
 
-from pyalgotrade import bar
 from pyalgotrade.barfeed import googlefeed
 
 
