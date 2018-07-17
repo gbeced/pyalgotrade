@@ -7,6 +7,7 @@ doc/_build
 .ipynb_checkpoints
 .ropeproject
 .tox
+.pytest_cache
 
 /venv
 /data
