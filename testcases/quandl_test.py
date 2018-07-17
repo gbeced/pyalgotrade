@@ -43,7 +43,7 @@ class ToolsTestCase(common.TestCase):
         with common.TmpDir() as tmpPath:
             instrument = "ORCL"
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
-            quandl.download_daily_bars("WIKI", instrument, 2010, path, os.getenv("QUANDL_API_KEY"))
+            quandl.download_daily_bars("WIKI", instrument, 2010, path, authToken=os.getenv("QUANDL_API_KEY"))
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
@@ -62,7 +62,7 @@ class ToolsTestCase(common.TestCase):
         with common.TmpDir() as tmpPath:
             instrument = "ORCL"
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
-            quandl.download_daily_bars("WIKI", instrument, 2010, path)
+            quandl.download_daily_bars("WIKI", instrument, 2010, path, authToken=os.getenv("QUANDL_API_KEY"))
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, path)
             # Need to setUseAdjustedValues(True) after loading the file because we
@@ -85,7 +85,7 @@ class ToolsTestCase(common.TestCase):
             instrument = "IWG"
             year = 2017
             path = os.path.join(tmpPath, "quandl-daily-%s-%s.csv" % (instrument, year))
-            quandl.download_daily_bars("LSE", instrument, year, path)
+            quandl.download_daily_bars("LSE", instrument, year, path, authToken=os.getenv("QUANDL_API_KEY"))
             bf = quandlfeed.Feed()
             bf.setNoAdjClose()
             bf.setColumnName("open", "Price")
@@ -105,7 +105,7 @@ class ToolsTestCase(common.TestCase):
         with common.TmpDir() as tmpPath:
             instrument = "AAPL"
             path = os.path.join(tmpPath, "quandl-aapl-weekly-2010.csv")
-            quandl.download_weekly_bars("WIKI", instrument, 2010, path)
+            quandl.download_weekly_bars("WIKI", instrument, 2010, path, authToken=os.getenv("QUANDL_API_KEY"))
             bf = quandlfeed.Feed(frequency=bar.Frequency.WEEK)
             bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
@@ -131,7 +131,7 @@ class ToolsTestCase(common.TestCase):
     def testBuildFeedDaily(self):
         with common.TmpDir() as tmpPath:
             instrument = "ORCL"
-            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath)
+            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=os.getenv("QUANDL_API_KEY"))
             bf.loadAll()
             self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEquals(bf[instrument][-1].getOpen(), 31.22)
@@ -147,7 +147,10 @@ class ToolsTestCase(common.TestCase):
     def testBuildFeedWeekly(self):
         with common.TmpDir() as tmpPath:
             instrument = "AAPL"
-            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK)
+            bf = quandl.build_feed(
+                "WIKI", [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK,
+                authToken=os.getenv("QUANDL_API_KEY")
+            )
             bf.loadAll()
             # Quandl used to report 2010-1-3 as the first week of 2010.
             self.assertTrue(
@@ -171,13 +174,15 @@ class ToolsTestCase(common.TestCase):
         with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
             with common.TmpDir() as tmpPath:
                 quandl.build_feed(
-                    instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK
+                    instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK,
+                    authToken=os.getenv("QUANDL_API_KEY")
                 )
 
         # Skip errors.
         with common.TmpDir() as tmpPath:
             bf = quandl.build_feed(
-                instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, skipErrors=True
+                instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, skipErrors=True,
+                authToken=os.getenv("QUANDL_API_KEY")
             )
             bf.loadAll()
             self.assertNotIn(instrument, bf)
@@ -191,7 +196,8 @@ class ToolsTestCase(common.TestCase):
             instrument = "IWG"
             year = 2017
             bf = quandl.build_feed(
-                "LSE", [instrument], year, year, tmpPath, columnNames=column_names, skipMalformedBars=True
+                "LSE", [instrument], year, year, tmpPath, columnNames=column_names, skipMalformedBars=True,
+                authToken=os.getenv("QUANDL_API_KEY")
             )
             bf.setNoAdjClose()
             bf.loadAll()
@@ -210,7 +216,10 @@ class ToolsTestCase(common.TestCase):
                 "open": "Last",
                 "close": "Last"
             }
-            bf = quandl.build_feed("BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames)
+            bf = quandl.build_feed(
+                "BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames,
+                authToken=os.getenv("QUANDL_API_KEY")
+            )
             bf.loadAll()
 
             self.assertEquals(len(bf["USD"][-1].getExtraColumns()), 3)
@@ -227,7 +236,10 @@ class ToolsTestCase(common.TestCase):
                 "close": "Last",
                 "adj_close": None
             }
-            bf = quandl.build_feed("BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames)
+            bf = quandl.build_feed(
+                "BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames,
+                authToken=os.getenv("QUANDL_API_KEY")
+            )
             bf.loadAll()
 
             self.assertFalse(bf.barsHaveAdjClose())
@@ -238,7 +250,7 @@ class ToolsTestCase(common.TestCase):
         shutil.rmtree(tmpPath)
         try:
             instrument = "ORCL"
-            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath)
+            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=os.getenv("QUANDL_API_KEY"))
             bf.loadAll()
 
             self.assertEquals(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
