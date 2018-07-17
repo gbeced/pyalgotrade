@@ -24,7 +24,7 @@ before_install:
   - sudo pip install coveralls
 
 script:
-  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET pyalgotrade_testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
+  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET --env QUANDL_API_KEY=$QUANDL_API_KEY pyalgotrade_testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
 
 after_success:
   - docker cp testcases:/tmp/pyalgotrade/.coverage .
