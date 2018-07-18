@@ -281,7 +281,8 @@ class ToolsTestCase(common.TestCase):
                 "--table-code=%s" % instrument,
                 "--from-year=2010",
                 "--to-year=2010",
-                "--storage=%s" % tmpPath
+                "--storage=%s" % tmpPath,
+                "--auth-token=%s" % QUANDL_API_KEY
             ])
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-ORCL-2010-quandl.csv"))
@@ -308,7 +309,8 @@ class ToolsTestCase(common.TestCase):
                 "--from-year=2010",
                 "--to-year=2010",
                 "--storage=%s" % tmpPath,
-                "--frequency=weekly"
+                "--frequency=weekly",
+                "--auth-token=%s" % QUANDL_API_KEY
             ])
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-AAPL-2010-quandl.csv"))
