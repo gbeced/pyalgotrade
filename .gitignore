@@ -3,8 +3,11 @@ MANIFEST
 doc/_build
 .idea
 .coverage
+.coverage.*
 .ipynb_checkpoints
 .ropeproject
+.tox
+.pytest_cache
 
 /venv
 /data
