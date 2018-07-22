@@ -20,6 +20,8 @@
 
 import abc
 
+import six
+
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy
 from pyalgotrade import logger
@@ -29,14 +31,13 @@ import pyalgotrade.bar
 ######################################################################
 # Commission models
 
+@six.add_metaclass(abc.ABCMeta)
 class Commission(object):
     """Base class for implementing different commission schemes.
 
     .. note::
         This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def calculate(self, order, price, quantity):

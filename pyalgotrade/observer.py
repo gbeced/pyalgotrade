@@ -20,6 +20,8 @@
 
 import abc
 
+import six
+
 from pyalgotrade import dispatchprio
 
 
@@ -67,8 +69,8 @@ class Event(object):
                 self.__applyChanges()
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Subject(object):
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.__dispatchPrio = dispatchprio.LAST

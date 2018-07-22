@@ -20,6 +20,8 @@
 
 import abc
 
+import six
+
 
 class Frequency(object):
 
@@ -44,6 +46,7 @@ class Frequency(object):
     MONTH = 24*60*60*31
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Bar(object):
 
     """A Bar is a summary of the trading activity for a security in a given period.
@@ -51,8 +54,6 @@ class Bar(object):
     .. note::
         This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def setUseAdjustedValue(self, useAdjusted):
