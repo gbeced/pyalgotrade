@@ -22,9 +22,10 @@ import datetime
 import os
 import argparse
 
+import six
+
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
-
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
@@ -135,7 +136,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     ret = quandlfeed.Feed(frequency, timezone)
 
     # Additional column names.
-    for col, name in columnNames.iteritems():
+    for col, name in six.iteritems(columnNames):
         ret.setColumnName(col, name)
 
     if not os.path.exists(storage):

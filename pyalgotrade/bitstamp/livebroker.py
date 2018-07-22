@@ -225,7 +225,7 @@ class LiveBroker(broker.Broker):
 
     def dispatch(self):
         # Switch orders from SUBMITTED to ACCEPTED.
-        ordersToProcess = self.__activeOrders.values()
+        ordersToProcess = list(self.__activeOrders.values())
         for order in ordersToProcess:
             if order.isSubmitted():
                 order.switchState(broker.Order.State.ACCEPTED)
@@ -263,7 +263,7 @@ class LiveBroker(broker.Broker):
         return self.__shares
 
     def getActiveOrders(self, instrument=None):
-        return self.__activeOrders.values()
+        return list(self.__activeOrders.values())
 
     def submitOrder(self, order):
         if order.isInitial():

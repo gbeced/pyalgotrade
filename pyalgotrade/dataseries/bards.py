@@ -20,6 +20,8 @@
 
 from pyalgotrade import dataseries
 
+import six
+
 
 class BarDataSeries(dataseries.SequenceDataSeries):
     """A DataSeries of :class:`pyalgotrade.bar.Bar` instances.
@@ -69,7 +71,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 
         # Process extra columns.
-        for name, value in bar.getExtraColumns().iteritems():
+        for name, value in six.iteritems(bar.getExtraColumns()):
             extraDS = self.__getOrCreateExtraDS(name)
             extraDS.appendWithDateTime(dateTime, value)
 

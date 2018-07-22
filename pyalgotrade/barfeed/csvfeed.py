@@ -18,13 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+
+import pytz
+import six
+
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
 
-import datetime
-import pytz
 
 
 # Interface for csv row parsers.
@@ -191,7 +194,7 @@ class GenericRowParser(RowParser):
 
         # Process extra columns.
         extra = {}
-        for k, v in csvRowDict.iteritems():
+        for k, v in six.iteritems(csvRowDict):
             if k not in self.__columnNames.values():
                 extra[k] = csvutils.float_or_string(v)
 

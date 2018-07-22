@@ -260,7 +260,7 @@ class Bars(object):
         # Check that bar datetimes are in sync
         firstDateTime = None
         firstInstrument = None
-        for instrument, currentBar in barDict.iteritems():
+        for instrument, currentBar in six.iteritems(barDict):
             if firstDateTime is None:
                 firstDateTime = currentBar.getDateTime()
                 firstInstrument = instrument
@@ -288,11 +288,11 @@ class Bars(object):
         return self.__barDict.items()
 
     def keys(self):
-        return self.__barDict.keys()
+        return list(self.__barDict.keys())
 
     def getInstruments(self):
         """Returns the instrument symbols."""
-        return self.__barDict.keys()
+        return list(self.__barDict.keys())
 
     def getDateTime(self):
         """Returns the :class:`datetime.datetime` for this set of bars."""

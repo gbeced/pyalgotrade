@@ -20,11 +20,12 @@
 
 import collections
 
-import broker
-from pyalgotrade import warninghelpers
-
 import matplotlib.pyplot as plt
 from matplotlib import ticker
+import six
+
+import broker
+from pyalgotrade import warninghelpers
 
 
 def get_last_value(dataSeries):
@@ -55,7 +56,7 @@ def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
 
 def _post_plot_fun(subPlot, mplSubplot):
     # Legend
-    mplSubplot.legend(subPlot.getAllSeries().keys(), shadow=True, loc="best")
+    mplSubplot.legend(list(subPlot.getAllSeries().keys()), shadow=True, loc="best")
     # Don't scale the Y axis
     mplSubplot.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
 
@@ -257,7 +258,7 @@ class Subplot(object):
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()
-        for cb, series in self.__callbacks.iteritems():
+        for cb, series in six.iteritems(self.__callbacks):
             series.addValue(dateTime, cb(bars))
 
     def getSeries(self, name, defaultClass=LineMarker):
