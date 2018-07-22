@@ -153,7 +153,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                     else:
                         assert frequency == bar.Frequency.WEEK, "Invalid frequency"
                         download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
-                except Exception, e:
+                except Exception as e:
                     if skipErrors:
                         logger.error(str(e))
                         continue
@@ -194,7 +194,7 @@ def main():
                 else:
                     assert args.frequency == "weekly", "Invalid frequency"
                     download_weekly_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
-            except Exception, e:
+            except Exception as e:
                 if args.ignore_errors:
                     logger.error(str(e))
                     continue

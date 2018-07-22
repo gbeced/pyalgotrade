@@ -87,7 +87,7 @@ def main():
 
         logger.info("Writing sp500.xml")
         symbolsXML.write("sp500.xml")
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 if __name__ == "__main__":

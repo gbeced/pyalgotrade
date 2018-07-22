@@ -131,7 +131,7 @@ class WebSocketClient(pusher.WebSocketClient):
         common.logger.warning("Disconnection detected.")
         try:
             self.stopClient()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error stopping websocket client: %s." % (str(e)))
         self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
@@ -191,5 +191,5 @@ class WebSocketClientThread(threading.Thread):
             if self.__wsClient is not None:
                 common.logger.info("Stopping websocket client.")
                 self.__wsClient.stopClient()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error stopping websocket client: %s." % (str(e)))

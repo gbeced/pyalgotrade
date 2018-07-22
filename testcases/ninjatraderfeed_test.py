@@ -64,14 +64,14 @@ class NinjaTraderTestCase(common.TestCase):
         try:
             barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, -3)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
         try:
             barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
             barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"), -5)
             self.assertTrue(False, "Exception expected")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
     def testLocalizeAndFilter(self):
