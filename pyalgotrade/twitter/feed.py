@@ -18,15 +18,19 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import Queue
 import threading
 import json
+
+from six.moves import queue
+import tweepy
+
+# This is failing in Python 3.7
+# https://github.com/tweepy/tweepy/issues/1064
+from tweepy import streaming
 
 from pyalgotrade import observer
 import pyalgotrade.logger
 
-import tweepy
-from tweepy import streaming
 
 logger = pyalgotrade.logger.getLogger("twitter")
 
@@ -92,7 +96,7 @@ class TwitterFeed(observer.Subject):
         super(TwitterFeed, self).__init__()
 
         self.__event = observer.Event()
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__thread = None
         self.__running = False
 
@@ -118,7 +122,7 @@ class TwitterFeed(observer.Subject):
             nextTweet = json.loads(self.__queue.get(True, TwitterFeed.QUEUE_TIMEOUT))
             ret = True
             self.__event.emit(nextTweet)
-        except Queue.Empty:
+        except queue.Empty:
             pass
         return ret
 
