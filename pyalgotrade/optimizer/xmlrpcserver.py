@@ -67,7 +67,13 @@ class Server(xmlrpc_server.SimpleXMLRPCServer):
     def __init__(self, paramSource, resultSinc, barFeed, address, port, autoStop=True, batchSize=200):
         assert batchSize > 0, "Invalid batch size"
 
-        super(Server, self).__init__((address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
+        xmlrpc_server.SimpleXMLRPCServer.__init__(
+            self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True
+        )
+        # super(Server, self).__init__(
+        # (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True
+        # )
+
         self.__batchSize = batchSize
         self.__paramSource = paramSource
         self.__resultSinc = resultSinc
