@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade import utils
 from pyalgotrade.utils import collections

@@ -20,7 +20,7 @@
 
 import numpy as np
 
-import common
+from . import common
 
 from pyalgotrade.technical import hurst
 from pyalgotrade import dataseries

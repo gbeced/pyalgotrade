@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries

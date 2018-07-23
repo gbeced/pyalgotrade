@@ -22,11 +22,12 @@ import unittest
 import datetime
 import time
 import threading
-import Queue
 import json
 
-import common as tc_common
-import test_strategy
+from six.moves import queue
+
+from . import common as tc_common
+from . import test_strategy
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -42,7 +43,7 @@ from pyalgotrade import dispatcher
 class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__queue.put((wsclient.WebSocketClient.Event.CONNECTED, None))
         for event in events:
             self.__queue.put(event)

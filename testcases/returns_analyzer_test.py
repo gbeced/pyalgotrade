@@ -20,9 +20,9 @@
 
 import datetime
 
-import common
-import strategy_test
-import position_test
+from . import common
+from . import strategy_test
+from . import position_test
 from testcases import test_strategy
 
 from pyalgotrade.barfeed import yahoofeed

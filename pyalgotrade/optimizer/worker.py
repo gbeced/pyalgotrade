@@ -18,11 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import xmlrpclib
 import pickle
 import socket
 import multiprocessing
 import retrying
+
+from six.moves import xmlrpc_client
 
 import pyalgotrade.logger
 from pyalgotrade import barfeed
@@ -45,7 +46,7 @@ class Worker(object):
     def __init__(self, address, port, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
         self.__logger = pyalgotrade.logger.getLogger(workerName)
-        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
+        self.__server = xmlrpc_client.ServerProxy(url, allow_none=True)
         if workerName is None:
             self.__workerName = socket.gethostname()
         else:

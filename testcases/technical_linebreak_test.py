@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade.technical import linebreak
 from pyalgotrade.barfeed import yahoofeed

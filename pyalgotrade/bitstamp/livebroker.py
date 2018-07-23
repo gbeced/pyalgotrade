@@ -20,7 +20,8 @@
 
 import threading
 import time
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade import broker
 from pyalgotrade.bitstamp import httpclient
@@ -51,7 +52,7 @@ class TradeMonitor(threading.Thread):
         super(TradeMonitor, self).__init__()
         self.__lastTradeId = -1
         self.__httpClient = httpClient
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__stop = False
 
     def _getNewTrades(self):
@@ -239,7 +240,7 @@ class LiveBroker(broker.Broker):
                 self._onUserTrades(eventData)
             else:
                 common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except Queue.Empty:
+        except queue.Empty:
             pass
 
     def peekDateTime(self):

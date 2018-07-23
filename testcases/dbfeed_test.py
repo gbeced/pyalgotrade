@@ -20,8 +20,8 @@
 
 import os
 
-import common
-import feed_test
+from . import common
+from . import feed_test
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed

@@ -20,7 +20,8 @@
 
 import datetime
 import time
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
@@ -185,7 +186,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             else:
                 ret = False
                 common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except Queue.Empty:
+        except queue.Empty:
             pass
         return ret
 

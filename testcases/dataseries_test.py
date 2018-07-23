@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards

@@ -21,7 +21,7 @@
 import datetime
 import os
 
-import common
+from . import common
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import yahoofeed

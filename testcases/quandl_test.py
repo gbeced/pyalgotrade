@@ -24,7 +24,7 @@ import tempfile
 import shutil
 import subprocess
 
-import common
+from . import common
 
 from pyalgotrade.tools import quandl
 from pyalgotrade import bar

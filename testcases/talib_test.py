@@ -21,7 +21,7 @@
 import datetime
 import talib
 
-import common
+from . import common
 
 from pyalgotrade.talibext import indicator
 from pyalgotrade import bar

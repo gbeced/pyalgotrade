@@ -20,9 +20,9 @@
 
 import datetime
 
-import common
-import barfeed_test
-import feed_test
+from . import common
+from . import barfeed_test
+from . import feed_test
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade import marketsession

@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import six
 
-import broker
+from pyalgotrade import broker
 from pyalgotrade import warninghelpers
 
 

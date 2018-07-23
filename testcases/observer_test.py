@@ -21,7 +21,7 @@
 import datetime
 import copy
 
-import common
+from . import common
 
 from pyalgotrade import observer
 from pyalgotrade import dispatcher

@@ -20,7 +20,8 @@
 
 import datetime
 import threading
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade.websocket import pusher
 from pyalgotrade.bitstamp import common
@@ -170,7 +171,7 @@ class WebSocketClientThread(threading.Thread):
 
     def __init__(self):
         super(WebSocketClientThread, self).__init__()
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__wsClient = None
 
     def getQueue(self):
