@@ -20,6 +20,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import xrange
 
 from pyalgotrade.technical import roc
 from pyalgotrade import dispatcher

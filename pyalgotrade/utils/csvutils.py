@@ -22,7 +22,7 @@ import csv
 import logging
 
 import six
-import six.moves
+from six.moves import xrange
 import requests
 
 
@@ -50,7 +50,7 @@ class FastDictReader(object):
         )
 
         # Copy the row values into the dict.
-        for i in six.moves.xrange(len(self.__fieldNames)):
+        for i in xrange(len(self.__fieldNames)):
             self.__dict[self.__fieldNames[i]] = row[i]
 
         return self.__dict

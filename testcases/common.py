@@ -28,6 +28,7 @@ import unittest
 # Force matplotlib to not use any Xwindows backend.
 import matplotlib
 matplotlib.use('Agg')
+from six.moves import xrange
 
 from pyalgotrade import dataseries
 

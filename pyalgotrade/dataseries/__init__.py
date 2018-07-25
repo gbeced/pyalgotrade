@@ -21,6 +21,7 @@
 import abc
 
 import six
+from six.moves import xrange
 
 from pyalgotrade import observer
 from pyalgotrade.utils import collections

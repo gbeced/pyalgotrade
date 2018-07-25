@@ -20,6 +20,8 @@
 
 import os
 
+from six.moves import xrange
+
 from . import common
 from . import feed_test
 

@@ -18,6 +18,8 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from six.moves import xrange
+
 from . import common
 
 from pyalgotrade.technical import roc

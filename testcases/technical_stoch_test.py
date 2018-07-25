@@ -20,6 +20,8 @@
 
 import datetime
 
+from six.moves import xrange
+
 from . import common
 
 from pyalgotrade.technical import stoch

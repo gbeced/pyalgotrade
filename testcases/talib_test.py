@@ -21,6 +21,8 @@
 import datetime
 import talib
 
+from six.moves import xrange
+
 from . import common
 
 from pyalgotrade.talibext import indicator

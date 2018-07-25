@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import technical
+from six.moves import xrange
 
+from pyalgotrade import technical
 
 # RSI = 100 - 100 / (1 + RS)
 # RS = Average gain / Average loss
