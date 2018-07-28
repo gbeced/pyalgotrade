@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pyalgotrade import strategy
 from pyalgotrade import plotter
 from pyalgotrade.barfeed import yahoofeed
@@ -146,7 +148,7 @@ def main(plot):
     for year in range(2007, 2013+1):
         for instrument in instruments:
             fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-            print "Loading bars from %s" % fileName
+            print("Loading bars from %s" % fileName)
             feed.addBarsFromCSV(instrument, fileName)
 
     # Build the strategy and attach some metrics.
@@ -164,8 +166,8 @@ def main(plot):
         plt.getOrCreateSubplot("returns").addDataSeries("Strategy", returnsAnalyzer.getCumulativeReturns())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-    print "Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
+    print("Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100))
 
     if plot:
         plt.plot()

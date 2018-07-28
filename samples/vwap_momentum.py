@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pyalgotrade import strategy
 from pyalgotrade import plotter
 from pyalgotrade.tools import quandl
@@ -47,7 +49,7 @@ def main(plot):
         plt.getInstrumentSubplot(instrument).addDataSeries("vwap", strat.getVWAP())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
 
     if plot:
         plt.plot()

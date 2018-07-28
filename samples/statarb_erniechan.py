@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pyalgotrade import strategy
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
@@ -143,7 +145,7 @@ def main(plot):
     for year in range(2006, 2012+1):
         for instrument in instruments:
             fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-            print "Loading bars from %s" % fileName
+            print("Loading bars from %s" % fileName)
             feed.addBarsFromCSV(instrument, fileName)
 
     strat = StatArb(feed, instruments[0], instruments[1], windowSize)
@@ -156,7 +158,7 @@ def main(plot):
         plt.getOrCreateSubplot("spread").addDataSeries("Spread", strat.getSpreadDS())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
 
     if plot:
         plt.plot()

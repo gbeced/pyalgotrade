@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import rsi2
 from pyalgotrade import plotter
 from pyalgotrade.barfeed import yahoofeed
@@ -16,7 +18,7 @@ def main(plot):
     feed = yahoofeed.Feed()
     for year in range(2009, 2013):
         fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-        print "Loading bars from %s" % fileName
+        print("Loading bars from %s" % fileName)
         feed.addBarsFromCSV(instrument, fileName)
 
     strat = rsi2.RSI2(feed, instrument, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
@@ -32,7 +34,7 @@ def main(plot):
         plt.getOrCreateSubplot("rsi").addLine("Oversold", overSoldThreshold)
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
 
     if plot:
         plt.plot()
