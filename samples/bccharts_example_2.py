@@ -19,8 +19,8 @@ class VWAPMomentum(strategy.BacktestingStrategy):
 
     def _getActiveOrders(self):
         orders = self.getBroker().getActiveOrders()
-        buy = filter(lambda o: o.isBuy(), orders)
-        sell = filter(lambda o: o.isSell(), orders)
+        buy = [o for o in orders if o.isBuy()]
+        sell = [o for o in orders if o.isSell()]
         return buy, sell
 
     def _cancelOrders(self, orders):

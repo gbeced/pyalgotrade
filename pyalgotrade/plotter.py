@@ -51,7 +51,7 @@ def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
             return True
 
     dateTimeFilter = DateTimeFilter(fromDate, toDate)
-    return filter(lambda x: dateTimeFilter.includeDateTime(x), dateTimes)
+    return [x for x in dateTimes if dateTimeFilter.includeDateTime(x)]
 
 
 def _post_plot_fun(subPlot, mplSubplot):
