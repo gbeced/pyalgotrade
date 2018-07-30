@@ -72,11 +72,19 @@ class VWAPMomentum(strategy.BacktestingStrategy):
             orderType = "Buy"
         else:
             orderType = "Sell"
-        self.info("%s order %d updated - Status: %s - %s" % (
+
+        exec_info_str = ""
+        if order.getExecutionInfo():
+            exec_info_str = " - Price: %s - Amount: %s - Fee: %s" % (
+                order.getExecutionInfo().getPrice(), order.getExecutionInfo().getQuantity(),
+                round(order.getExecutionInfo().getCommission(), 2)
+            )
+
+        self.info("%s order %d updated - Status: %s%s" % (
             orderType,
             order.getId(),
             basebroker.Order.State.toString(order.getState()),
-            order.getExecutionInfo(),
+            exec_info_str
         ))
 
 

@@ -20,6 +20,8 @@
 
 import os
 
+import six
+
 from testcases import common
 
 
@@ -27,6 +29,12 @@ def init_data_path():
     storage = "data"
     if not os.path.exists(storage):
         os.mkdir(storage)
+
+
+def round_csv_line(line, column, precision):
+    parts = line.split(",")
+    parts[column] = str(round(float(parts[column]), precision))
+    return ",".join(parts)
 
 
 class TutorialsTestCase(common.TestCase):
@@ -329,6 +337,10 @@ bccharts_example_1.main()
             res = common.run_python_code(code)
             lines = common.get_file_lines("30min-bitstampUSD.csv")
             os.remove("30min-bitstampUSD.csv")
+
+            # Float str doesn't behave the same in Pyhton2 and Python3.
+            if six.PY3:
+                lines = lines[0:1] + [round_csv_line(line, 5, 8) for line in lines[1:]]
 
             self.assertTrue(res.exit_ok())
             self.assertEqual(
