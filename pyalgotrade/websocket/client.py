@@ -20,9 +20,15 @@
 
 import json
 import time
+import threading
 
+import six
 from ws4py.client import tornadoclient
 import tornado
+if six.PY3:
+    import asyncio
+    import tornado.platform.asyncio
+
 import pyalgotrade.logger
 
 
@@ -179,3 +185,12 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
 
     def onDisconnectionDetected(self):
         pass
+
+
+# Base clase for threads that will run a WebSocketClientBase
+# Subclasses should call super(WebSocketClientThread, self).run() insinde run.
+# Check https://github.com/tornadoweb/tornado/issues/2308
+class WebSocketClientThreadBase(threading.Thread):
+    def run(self):
+        if six.PY3:
+            asyncio.set_event_loop_policy(tornado.platform.asyncio.AnyThreadEventLoopPolicy())

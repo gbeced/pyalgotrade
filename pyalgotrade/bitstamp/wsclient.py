@@ -19,11 +19,11 @@
 """
 
 import datetime
-import threading
 
 from six.moves import queue
 
 from pyalgotrade.websocket import pusher
+from pyalgotrade.websocket import client
 from pyalgotrade.bitstamp import common
 
 
@@ -164,7 +164,7 @@ class WebSocketClient(pusher.WebSocketClient):
         self.__queue.put((WebSocketClient.Event.ORDER_BOOK_UPDATE, orderBookUpdate))
 
 
-class WebSocketClientThread(threading.Thread):
+class WebSocketClientThread(client.WebSocketClientThreadBase):
     """
     This thread class is responsible for running a WebSocketClient.
     """
@@ -178,6 +178,8 @@ class WebSocketClientThread(threading.Thread):
         return self.__queue
 
     def run(self):
+        super(WebSocketClientThread, self).run()
+
         # We create the WebSocketClient right in the thread, instead of doing so in the constructor,
         # because it has thread affinity.
         try:
