@@ -5,7 +5,8 @@ from pyalgotrade.stratanalyzer import returns
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade.stratanalyzer import trades
-import sma_crossover
+
+from . import sma_crossover
 
 # Load the bars. This file was manually downloaded from Yahoo Finance.
 feed = yahoofeed.Feed()
