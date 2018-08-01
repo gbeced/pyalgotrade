@@ -312,6 +312,12 @@ quandl_sample.main(False)
                 fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
                 files.append(os.path.join("samples", "data", fileName))
 
+        # The differences in the output are related to key ordering in dicts.
+        if six.PY3:
+            expected_output = "market_timing.output.37"
+        else:
+            expected_output = "market_timing.output.27"
+
         with common.CopyFiles(files, "."):
             code = """import sys
 sys.path.append('samples')
@@ -322,7 +328,7 @@ market_timing.main(False)
             self.assertTrue(res.exit_ok())
             self.assertEqual(
                 res.get_output_lines()[-10:],
-                common.tail_file("market_timing.output", 10)
+                common.tail_file(expected_output, 10)
             )
 
 
