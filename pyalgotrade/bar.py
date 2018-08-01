@@ -285,7 +285,7 @@ class Bars(object):
         return instrument in self.__barDict
 
     def items(self):
-        return self.__barDict.items()
+        return list(self.__barDict.items())
 
     def keys(self):
         return list(self.__barDict.keys())
