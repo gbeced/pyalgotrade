@@ -1,4 +1,7 @@
-FROM gbecedillas/pyalgotrade:0.18
+# ARG PYALGOTRADE_TAG
+# FROM gbecedillas/pyalgotrade:${PYALGOTRADE_TAG}
+FROM gbecedillas/pyalgotrade:0.18-py27
+
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
 RUN apt-get update
@@ -20,5 +23,5 @@ COPY pyalgotrade /tmp/pyalgotrade/pyalgotrade
 COPY testcases /tmp/pyalgotrade/testcases
 COPY samples /tmp/pyalgotrade/samples
 
-# Remove the install version of PyAlgoTrade since we'll be executing testcases from source.
+# Remove the installed version of PyAlgoTrade since we'll be executing testcases from source.
 RUN pip uninstall -y pyalgotrade

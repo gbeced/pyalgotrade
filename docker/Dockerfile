@@ -1,4 +1,5 @@
-FROM ubuntu:latest
+ARG PYTHON_VERSION
+FROM python:${PYTHON_VERSION}
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
 RUN apt-get update; apt-get upgrade -y 

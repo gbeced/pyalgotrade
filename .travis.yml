@@ -1,3 +1,7 @@
+language: python
+python:
+  - "2.7"
+
 env:
   global:
     # https://docs.travis-ci.com/user/environment-variables/#Defining-encrypted-variables-in-.travis.yml
@@ -10,15 +14,11 @@ env:
 
 sudo: required
 
-language: python
-python:
-  - "2.7"
-
 services:
   - docker
 
 before_install:
-  - docker pull gbecedillas/pyalgotrade:0.18
+  - docker pull gbecedillas/pyalgotrade:0.18-py27
   - cp travis/Dockerfile .
   - docker build -t pyalgotrade_testcases .
   - sudo pip install coveralls
