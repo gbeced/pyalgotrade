@@ -143,7 +143,10 @@ class GenericRowParser(RowParser):
         self.__columnNames = columnNames
 
     def _parseDate(self, dateString):
-        ret = datetime.datetime.strptime(dateString, self.__dateTimeFormat)
+        if self.__dateTimeFormat == "%s":
+            ret = datetime.datetime.fromtimestamp(int(dateString))
+        else:
+            ret = datetime.datetime.strptime(dateString, self.__dateTimeFormat)
 
         if self.__dailyBarTime is not None:
             ret = datetime.datetime.combine(ret, self.__dailyBarTime)
