@@ -21,7 +21,9 @@
 import datetime
 import copy
 
-import common
+from six.moves import xrange
+
+from . import common
 
 from pyalgotrade import observer
 from pyalgotrade import dispatcher

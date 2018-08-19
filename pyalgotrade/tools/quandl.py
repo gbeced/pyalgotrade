@@ -22,9 +22,10 @@ import datetime
 import os
 import argparse
 
+import six
+
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
-
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
@@ -135,7 +136,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     ret = quandlfeed.Feed(frequency, timezone)
 
     # Additional column names.
-    for col, name in columnNames.iteritems():
+    for col, name in six.iteritems(columnNames):
         ret.setColumnName(col, name)
 
     if not os.path.exists(storage):
@@ -153,7 +154,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                     else:
                         assert frequency == bar.Frequency.WEEK, "Invalid frequency"
                         download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
-                except Exception, e:
+                except Exception as e:
                     if skipErrors:
                         logger.error(str(e))
                         continue
@@ -194,7 +195,7 @@ def main():
                 else:
                     assert args.frequency == "weekly", "Invalid frequency"
                     download_weekly_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
-            except Exception, e:
+            except Exception as e:
                 if args.ignore_errors:
                     logger.error(str(e))
                     continue

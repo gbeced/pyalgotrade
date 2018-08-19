@@ -20,7 +20,9 @@
 
 import datetime
 
-import common
+from six.moves import xrange
+
+from . import common
 
 from pyalgotrade.technical import atr
 from pyalgotrade import bar

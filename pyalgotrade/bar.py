@@ -20,6 +20,8 @@
 
 import abc
 
+import six
+
 
 class Frequency(object):
 
@@ -44,6 +46,7 @@ class Frequency(object):
     MONTH = 24*60*60*31
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Bar(object):
 
     """A Bar is a summary of the trading activity for a security in a given period.
@@ -51,8 +54,6 @@ class Bar(object):
     .. note::
         This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def setUseAdjustedValue(self, useAdjusted):
@@ -259,7 +260,7 @@ class Bars(object):
         # Check that bar datetimes are in sync
         firstDateTime = None
         firstInstrument = None
-        for instrument, currentBar in barDict.iteritems():
+        for instrument, currentBar in six.iteritems(barDict):
             if firstDateTime is None:
                 firstDateTime = currentBar.getDateTime()
                 firstInstrument = instrument
@@ -284,14 +285,14 @@ class Bars(object):
         return instrument in self.__barDict
 
     def items(self):
-        return self.__barDict.items()
+        return list(self.__barDict.items())
 
     def keys(self):
-        return self.__barDict.keys()
+        return list(self.__barDict.keys())
 
     def getInstruments(self):
         """Returns the instrument symbols."""
-        return self.__barDict.keys()
+        return list(self.__barDict.keys())
 
     def getDateTime(self):
         """Returns the :class:`datetime.datetime` for this set of bars."""

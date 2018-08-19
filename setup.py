@@ -57,6 +57,7 @@ setup(
         "requests",
         "retrying",
         "scipy",
+        "six",
         "tornado",
         "tweepy",
         "ws4py>=0.3.4",

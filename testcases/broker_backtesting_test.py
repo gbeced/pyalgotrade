@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade import broker
 from pyalgotrade.broker import backtesting

@@ -13,7 +13,7 @@ returns in the last month.
 
 This is what the output should look like:
 
-.. literalinclude:: ../samples/market_timing.output
+.. literalinclude:: ../samples/market_timing.output.27
 
 This is what the plot should look like:
 

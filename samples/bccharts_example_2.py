@@ -19,8 +19,8 @@ class VWAPMomentum(strategy.BacktestingStrategy):
 
     def _getActiveOrders(self):
         orders = self.getBroker().getActiveOrders()
-        buy = filter(lambda o: o.isBuy(), orders)
-        sell = filter(lambda o: o.isSell(), orders)
+        buy = [o for o in orders if o.isBuy()]
+        sell = [o for o in orders if o.isSell()]
         return buy, sell
 
     def _cancelOrders(self, orders):
@@ -40,7 +40,7 @@ class VWAPMomentum(strategy.BacktestingStrategy):
             self.info("Buy %s at %s" % (size, price))
             try:
                 self.limitOrder(self.__instrument, price, size)
-            except Exception, e:
+            except Exception as e:
                 self.error("Failed to buy: %s" % (e))
 
     def _sellSignal(self, price):
@@ -72,11 +72,19 @@ class VWAPMomentum(strategy.BacktestingStrategy):
             orderType = "Buy"
         else:
             orderType = "Sell"
-        self.info("%s order %d updated - Status: %s - %s" % (
+
+        exec_info_str = ""
+        if order.getExecutionInfo():
+            exec_info_str = " - Price: %s - Amount: %s - Fee: %s" % (
+                order.getExecutionInfo().getPrice(), order.getExecutionInfo().getQuantity(),
+                round(order.getExecutionInfo().getCommission(), 2)
+            )
+
+        self.info("%s order %d updated - Status: %s%s" % (
             orderType,
             order.getId(),
             basebroker.Order.State.toString(order.getState()),
-            order.getExecutionInfo(),
+            exec_info_str
         ))
 
 

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pyalgotrade import strategy
 from pyalgotrade import plotter
 from pyalgotrade.barfeed import yahoofeed
@@ -58,7 +60,8 @@ class MarketTiming(strategy.BacktestingStrategy):
         return ret
 
     def _placePendingOrders(self):
-        remainingCash = self.getBroker().getCash() * 0.9  # Use less chash just in case price changes too much.
+        # Use less chash just in case price changes too much.
+        remainingCash = round(self.getBroker().getCash() * 0.9, 2)
 
         for instrument in self.__sharesToBuy:
             orderSize = self.__sharesToBuy[instrument]
@@ -92,7 +95,7 @@ class MarketTiming(strategy.BacktestingStrategy):
         for order in self.getBroker().getActiveOrders():
             self.getBroker().cancelOrder(order)
 
-        cashPerAssetClass = self.getBroker().getEquity() / float(len(self.__instrumentsByClass))
+        cashPerAssetClass = round(self.getBroker().getEquity() / float(len(self.__instrumentsByClass)), 2)
         self.__sharesToBuy = {}
 
         # Calculate which positions should be open during the next period.
@@ -102,7 +105,7 @@ class MarketTiming(strategy.BacktestingStrategy):
             self.info("Best for class %s: %s" % (assetClass, instrument))
             if instrument is not None:
                 lastPrice = self.getLastPrice(instrument)
-                cashForInstrument = cashPerAssetClass - self.getBroker().getShares(instrument) * lastPrice
+                cashForInstrument = round(cashPerAssetClass - self.getBroker().getShares(instrument) * lastPrice, 2)
                 # This may yield a negative value and we have to reduce this
                 # position.
                 self.__sharesToBuy[instrument] = int(cashForInstrument / lastPrice)
@@ -146,7 +149,7 @@ def main(plot):
     for year in range(2007, 2013+1):
         for instrument in instruments:
             fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-            print "Loading bars from %s" % fileName
+            print("Loading bars from %s" % fileName)
             feed.addBarsFromCSV(instrument, fileName)
 
     # Build the strategy and attach some metrics.
@@ -164,8 +167,8 @@ def main(plot):
         plt.getOrCreateSubplot("returns").addDataSeries("Strategy", returnsAnalyzer.getCumulativeReturns())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-    print "Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
+    print("Returns: %.2f %%" % (returnsAnalyzer.getCumulativeReturns()[-1] * 100))
 
     if plot:
         plt.plot()

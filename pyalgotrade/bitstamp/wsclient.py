@@ -19,10 +19,11 @@
 """
 
 import datetime
-import threading
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade.websocket import pusher
+from pyalgotrade.websocket import client
 from pyalgotrade.bitstamp import common
 
 
@@ -131,7 +132,7 @@ class WebSocketClient(pusher.WebSocketClient):
         common.logger.warning("Disconnection detected.")
         try:
             self.stopClient()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error stopping websocket client: %s." % (str(e)))
         self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
@@ -163,20 +164,22 @@ class WebSocketClient(pusher.WebSocketClient):
         self.__queue.put((WebSocketClient.Event.ORDER_BOOK_UPDATE, orderBookUpdate))
 
 
-class WebSocketClientThread(threading.Thread):
+class WebSocketClientThread(client.WebSocketClientThreadBase):
     """
     This thread class is responsible for running a WebSocketClient.
     """
 
     def __init__(self):
         super(WebSocketClientThread, self).__init__()
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__wsClient = None
 
     def getQueue(self):
         return self.__queue
 
     def run(self):
+        super(WebSocketClientThread, self).run()
+
         # We create the WebSocketClient right in the thread, instead of doing so in the constructor,
         # because it has thread affinity.
         try:
@@ -191,5 +194,5 @@ class WebSocketClientThread(threading.Thread):
             if self.__wsClient is not None:
                 common.logger.info("Stopping websocket client.")
                 self.__wsClient.stopClient()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error stopping websocket client: %s." % (str(e)))

@@ -18,7 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from six.moves import xrange
+
+from . import common
 
 from pyalgotrade.technical import vwap
 from pyalgotrade.barfeed import yahoofeed

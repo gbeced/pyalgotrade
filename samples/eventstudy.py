@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pyalgotrade import eventprofiler
 from pyalgotrade.technical import stats
 from pyalgotrade.technical import roc
@@ -58,7 +60,7 @@ def main(plot):
     eventProfiler.run(feed, True)
 
     results = eventProfiler.getResults()
-    print "%d events found" % (results.getEventCount())
+    print("%d events found" % (results.getEventCount()))
     if plot:
         eventprofiler.plot(results)
 

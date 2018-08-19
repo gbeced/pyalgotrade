@@ -1,36 +1,36 @@
 2014-06-26 23:00:00 strategy [INFO] Buy 1.69 at 580.0
-2014-06-26 23:00:00 strategy [INFO] Buy order 1 updated - Status: SUBMITTED - None
-2014-06-26 23:30:00 strategy [INFO] Buy order 1 updated - Status: ACCEPTED - None
-2014-06-26 23:30:00 strategy [INFO] Buy order 1 updated - Status: FILLED - 2014-06-26 23:30:00 - Price: 580.0 - Amount: 1.69 - Fee: 2.4505
+2014-06-26 23:00:00 strategy [INFO] Buy order 1 updated - Status: SUBMITTED 
+2014-06-26 23:30:00 strategy [INFO] Buy order 1 updated - Status: ACCEPTED 
+2014-06-26 23:30:00 strategy [INFO] Buy order 1 updated - Status: FILLED - Price: 580.0 - Amount: 1.69 - Fee: 2.45
 2014-06-26 23:30:00 strategy [INFO] Buy 0.029 at 579.99
-2014-06-26 23:30:00 strategy [INFO] Buy order 2 updated - Status: SUBMITTED - None
-2014-06-27 00:00:00 strategy [INFO] Buy order 2 updated - Status: ACCEPTED - None
-2014-06-27 00:00:00 strategy [INFO] Buy order 2 updated - Status: FILLED - 2014-06-27 00:00:00 - Price: 579.99 - Amount: 0.029 - Fee: 0.042049275
+2014-06-26 23:30:00 strategy [INFO] Buy order 2 updated - Status: SUBMITTED 
+2014-06-27 00:00:00 strategy [INFO] Buy order 2 updated - Status: ACCEPTED 
+2014-06-27 00:00:00 strategy [INFO] Buy order 2 updated - Status: FILLED - Price: 579.99 - Amount: 0.029 - Fee: 0.04
 2014-07-03 18:30:00 strategy [INFO] Sell 1.719 at 639.0
-2014-07-03 18:30:00 strategy [INFO] Sell order 3 updated - Status: SUBMITTED - None
-2014-07-03 19:00:00 strategy [INFO] Sell order 3 updated - Status: ACCEPTED - None
-2014-07-03 19:00:00 strategy [INFO] Sell order 3 updated - Status: FILLED - 2014-07-03 19:00:00 - Price: 639.0 - Amount: 1.719 - Fee: 2.7461025
+2014-07-03 18:30:00 strategy [INFO] Sell order 3 updated - Status: SUBMITTED 
+2014-07-03 19:00:00 strategy [INFO] Sell order 3 updated - Status: ACCEPTED 
+2014-07-03 19:00:00 strategy [INFO] Sell order 3 updated - Status: FILLED - Price: 639.0 - Amount: 1.719 - Fee: 2.75
 2014-07-11 19:30:00 strategy [INFO] Buy 1.692 at 634.91
-2014-07-11 19:30:00 strategy [INFO] Buy order 4 updated - Status: SUBMITTED - None
-2014-07-11 20:00:00 strategy [INFO] Buy order 4 updated - Status: ACCEPTED - None
-2014-07-11 20:00:00 strategy [INFO] Buy order 4 updated - Status: FILLED - 2014-07-11 20:00:00 - Price: 634.91 - Amount: 1.692 - Fee: 2.6856693
+2014-07-11 19:30:00 strategy [INFO] Buy order 4 updated - Status: SUBMITTED 
+2014-07-11 20:00:00 strategy [INFO] Buy order 4 updated - Status: ACCEPTED 
+2014-07-11 20:00:00 strategy [INFO] Buy order 4 updated - Status: FILLED - Price: 634.91 - Amount: 1.692 - Fee: 2.68
 2014-07-11 20:30:00 strategy [INFO] Buy 0.03 at 634.99
-2014-07-11 20:30:00 strategy [INFO] Buy order 5 updated - Status: SUBMITTED - None
-2014-07-11 21:00:00 strategy [INFO] Buy order 5 updated - Status: ACCEPTED - None
-2014-07-11 21:00:00 strategy [INFO] Buy order 5 updated - Status: FILLED - 2014-07-11 21:00:00 - Price: 634.99 - Amount: 0.03 - Fee: 0.04762425
+2014-07-11 20:30:00 strategy [INFO] Buy order 5 updated - Status: SUBMITTED 
+2014-07-11 21:00:00 strategy [INFO] Buy order 5 updated - Status: ACCEPTED 
+2014-07-11 21:00:00 strategy [INFO] Buy order 5 updated - Status: FILLED - Price: 634.99 - Amount: 0.03 - Fee: 0.048
 2014-07-14 01:30:00 strategy [INFO] Sell 1.722 at 626.79
-2014-07-14 01:30:00 strategy [INFO] Sell order 6 updated - Status: SUBMITTED - None
-2014-07-14 02:00:00 strategy [INFO] Sell order 6 updated - Status: ACCEPTED - None
-2014-07-14 02:00:00 strategy [INFO] Sell order 6 updated - Status: FILLED - 2014-07-14 02:00:00 - Price: 627.9 - Amount: 1.722 - Fee: 2.7031095
+2014-07-14 01:30:00 strategy [INFO] Sell order 6 updated - Status: SUBMITTED 
+2014-07-14 02:00:00 strategy [INFO] Sell order 6 updated - Status: ACCEPTED 
+2014-07-14 02:00:00 strategy [INFO] Sell order 6 updated - Status: FILLED - Price: 627.9 - Amount: 1.722 - Fee: 2.7
 2014-07-31 14:00:00 strategy [INFO] Buy 1.81 at 584.13
-2014-07-31 14:00:00 strategy [INFO] Buy order 7 updated - Status: SUBMITTED - None
-2014-07-31 14:30:00 strategy [INFO] Buy order 7 updated - Status: ACCEPTED - None
-2014-07-31 14:30:00 strategy [INFO] Buy order 7 updated - Status: FILLED - 2014-07-31 14:30:00 - Price: 584.1 - Amount: 1.81 - Fee: 2.6430525
+2014-07-31 14:00:00 strategy [INFO] Buy order 7 updated - Status: SUBMITTED 
+2014-07-31 14:30:00 strategy [INFO] Buy order 7 updated - Status: ACCEPTED 
+2014-07-31 14:30:00 strategy [INFO] Buy order 7 updated - Status: FILLED - Price: 584.1 - Amount: 1.81 - Fee: 2.64
 2014-07-31 14:30:00 strategy [INFO] Buy 0.031 at 588.5
-2014-07-31 14:30:00 strategy [INFO] Buy order 8 updated - Status: SUBMITTED - None
-2014-07-31 15:00:00 strategy [INFO] Buy order 8 updated - Status: ACCEPTED - None
-2014-07-31 15:00:00 strategy [INFO] Buy order 8 updated - Status: FILLED - 2014-07-31 15:00:00 - Price: 588.5 - Amount: 0.031 - Fee: 0.04560875
+2014-07-31 14:30:00 strategy [INFO] Buy order 8 updated - Status: SUBMITTED 
+2014-07-31 15:00:00 strategy [INFO] Buy order 8 updated - Status: ACCEPTED 
+2014-07-31 15:00:00 strategy [INFO] Buy order 8 updated - Status: FILLED - Price: 588.5 - Amount: 0.031 - Fee: 0.05
 2014-08-03 00:00:00 strategy [INFO] Sell 1.841 at 587.64
-2014-08-03 00:00:00 strategy [INFO] Sell order 9 updated - Status: SUBMITTED - None
-2014-08-03 00:30:00 strategy [INFO] Sell order 9 updated - Status: ACCEPTED - None
-2014-08-03 00:30:00 strategy [INFO] Sell order 9 updated - Status: FILLED - 2014-08-03 00:30:00 - Price: 589.59 - Amount: 1.841 - Fee: 2.713587975
+2014-08-03 00:00:00 strategy [INFO] Sell order 9 updated - Status: SUBMITTED 
+2014-08-03 00:30:00 strategy [INFO] Sell order 9 updated - Status: ACCEPTED 
+2014-08-03 00:30:00 strategy [INFO] Sell order 9 updated - Status: FILLED - Price: 589.59 - Amount: 1.841 - Fee: 2.71

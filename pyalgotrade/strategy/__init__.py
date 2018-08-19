@@ -21,6 +21,8 @@
 import abc
 import logging
 
+import six
+
 import pyalgotrade.broker
 from pyalgotrade.broker import backtesting
 from pyalgotrade import observer
@@ -30,6 +32,7 @@ from pyalgotrade import logger
 from pyalgotrade.barfeed import resampled
 
 
+@six.add_metaclass(abc.ABCMeta)
 class BaseStrategy(object):
     """Base class for strategies.
 
@@ -41,8 +44,6 @@ class BaseStrategy(object):
     .. note::
         This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     LOGGER_NAME = "strategy"
 

@@ -20,8 +20,10 @@
 
 import os
 
-import common
-import feed_test
+from six.moves import xrange
+
+from . import common
+from . import feed_test
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed

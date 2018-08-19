@@ -20,6 +20,8 @@
 
 import threading
 
+import six
+
 
 class Parameters(object):
     def __init__(self, *args, **kwargs):
@@ -52,7 +54,7 @@ class ParameterSource(object):
             if self.__iter is not None:
                 try:
                     while count > 0:
-                        params = self.__iter.next()
+                        params = six.next(self.__iter)
                         # Backward compatibility when parameters don't yield Parameters.
                         if not isinstance(params, Parameters):
                             params = Parameters(*params)

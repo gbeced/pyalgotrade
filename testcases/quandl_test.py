@@ -24,7 +24,9 @@ import tempfile
 import shutil
 import subprocess
 
-import common
+import six
+
+from . import common
 
 from pyalgotrade.tools import quandl
 from pyalgotrade import bar
@@ -32,13 +34,29 @@ from pyalgotrade.barfeed import quandlfeed
 
 try:
     # This will get environment variables set.
-    import credentials
+    from . import credentials
 except:
     pass
 
 
 QUANDL_API_KEY = os.getenv("QUANDL_API_KEY")
 assert QUANDL_API_KEY is not None, "QUANDL_API_KEY not set"
+
+
+def bytes_to_str(b):
+    ret = b
+    if six.PY3:
+        # Convert the bytes to a string.
+        ret = ret.decode()
+    return ret
+
+
+def check_output(*args, **kwargs):
+    ret = subprocess.check_output(*args, **kwargs)
+    if six.PY3:
+        # Convert the bytes to a string.
+        ret = bytes_to_str(ret)
+    return ret
 
 
 class ToolsTestCase(common.TestCase):
@@ -329,7 +347,7 @@ class ToolsTestCase(common.TestCase):
     def testIgnoreErrors(self):
         with common.TmpDir() as tmpPath:
             instrument = "inexistent"
-            output = subprocess.check_output(
+            output = check_output(
                 [
                     "python", "-m", "pyalgotrade.tools.quandl",
                     "--source-code=WIKI",
@@ -348,7 +366,7 @@ class ToolsTestCase(common.TestCase):
         with self.assertRaises(Exception) as e:
             with common.TmpDir() as tmpPath:
                 instrument = "inexistent"
-                subprocess.check_output(
+                check_output(
                     [
                         "python", "-m", "pyalgotrade.tools.quandl",
                         "--source-code=WIKI",
@@ -360,4 +378,4 @@ class ToolsTestCase(common.TestCase):
                     ],
                     stderr=subprocess.STDOUT
                 )
-        self.assertIn("404 Client Error: Not Found", e.exception.output)
+        self.assertIn("404 Client Error: Not Found", bytes_to_str(e.exception.output))

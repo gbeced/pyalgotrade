@@ -47,7 +47,7 @@ def main():
 
         logger.info("Writing nasdaq.xml")
         symbolsXML.write("nasdaq.xml")
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 if __name__ == "__main__":

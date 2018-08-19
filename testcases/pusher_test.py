@@ -23,6 +23,7 @@ import threading
 import datetime
 
 from pyalgotrade.websocket import pusher
+from pyalgotrade.websocket import client
 
 
 class WebSocketClient(pusher.WebSocketClient):
@@ -63,12 +64,14 @@ class WebSocketClient(pusher.WebSocketClient):
         self.close()
 
 
-class WebSocketClientThread(threading.Thread):
+class WebSocketClientThread(client.WebSocketClientThreadBase):
     def __init__(self):
         threading.Thread.__init__(self)
         self.__wsclient = None
 
     def run(self):
+        super(WebSocketClientThread, self).run()
+
         # We need to build the WebSocketClient right in the thread since it has thread affinity.
         self.__wsclient = WebSocketClient()
         self.__wsclient.connect()

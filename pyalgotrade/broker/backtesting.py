@@ -20,6 +20,8 @@
 
 import abc
 
+import six
+
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy
 from pyalgotrade import logger
@@ -29,14 +31,13 @@ import pyalgotrade.bar
 ######################################################################
 # Commission models
 
+@six.add_metaclass(abc.ABCMeta)
 class Commission(object):
     """Base class for implementing different commission schemes.
 
     .. note::
         This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def calculate(self, order, price, quantity):
@@ -234,7 +235,7 @@ class Broker(broker.Broker):
         ret = self.__cash
         if not includeShort and self.__barFeed.getCurrentBars() is not None:
             bars = self.__barFeed.getCurrentBars()
-            for instrument, shares in self.__shares.iteritems():
+            for instrument, shares in six.iteritems(self.__shares):
                 if shares < 0:
                     instrumentPrice = self._getBar(bars, instrument).getPrice()
                     ret += instrumentPrice * shares
@@ -278,7 +279,7 @@ class Broker(broker.Broker):
 
     def getActiveOrders(self, instrument=None):
         if instrument is None:
-            ret = self.__activeOrders.values()
+            ret = list(self.__activeOrders.values())
         else:
             ret = [order for order in self.__activeOrders.values() if order.getInstrument() == instrument]
         return ret
@@ -309,7 +310,7 @@ class Broker(broker.Broker):
         return self.__shares
 
     def getActiveInstruments(self):
-        return [instrument for instrument, shares in self.__shares.iteritems() if shares != 0]
+        return [instrument for instrument, shares in six.iteritems(self.__shares) if shares != 0]
 
     def _getPriceForInstrument(self, instrument):
         ret = None
@@ -328,7 +329,7 @@ class Broker(broker.Broker):
         """Returns the portfolio value (cash + shares * price)."""
 
         ret = self.getCash()
-        for instrument, shares in self.__shares.iteritems():
+        for instrument, shares in six.iteritems(self.__shares):
             instrumentPrice = self._getPriceForInstrument(instrument)
             assert instrumentPrice is not None, "Price for %s is missing" % instrument
             ret += instrumentPrice * shares
@@ -472,7 +473,7 @@ class Broker(broker.Broker):
 
         # This is to froze the orders that will be processed in this event, to avoid new getting orders introduced
         # and processed on this very same event.
-        ordersToProcess = self.__activeOrders.values()
+        ordersToProcess = list(self.__activeOrders.values())
 
         for order in ordersToProcess:
             # This may trigger orders to be added/removed from __activeOrders.

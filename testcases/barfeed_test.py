@@ -20,7 +20,7 @@
 
 import datetime
 
-import common
+from . import common
 
 from pyalgotrade import barfeed
 from pyalgotrade.barfeed import common as bfcommon

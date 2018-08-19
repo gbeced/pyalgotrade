@@ -20,11 +20,13 @@
 
 import datetime
 
-import common
+from six.moves import xrange
+
+from . import common
+from . import feed_test
 
 from pyalgotrade.feed import memfeed
 from pyalgotrade import dispatcher
-import feed_test
 
 
 class MemFeedTestCase(common.TestCase):

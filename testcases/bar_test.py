@@ -19,9 +19,10 @@
 """
 
 import datetime
-import cPickle
 
-import common
+from six.moves import cPickle
+
+from . import common
 
 from pyalgotrade import bar
 

@@ -18,23 +18,17 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from . import common
+import pickle
 
-from pyalgotrade import dataseries
-from pyalgotrade.technical import cumret
+import six
+from six.moves import xmlrpc_client
 
 
-class CumRetTestCase(common.TestCase):
-    def testCumRet(self):
-        values = dataseries.SequenceDataSeries()
-        rets = cumret.CumulativeReturn(values)
-        for value in [1, 2, 3, 4, 4, 3, 1, 1.2]:
-            values.append(value)
-        self.assertEqual(rets[0], None)
-        self.assertEqual(rets[1], 1)
-        self.assertEqual(rets[2], 2)
-        self.assertEqual(rets[3], 3)
-        self.assertEqual(rets[4], 3)
-        self.assertEqual(rets[5], 2)
-        self.assertEqual(rets[6], 0)
-        self.assertEqual(round(rets[7], 1), 0.2)
+def dumps(obj):
+    return pickle.dumps(obj)
+
+
+def loads(serialized):
+    if six.PY3 and isinstance(serialized, xmlrpc_client.Binary):
+        serialized = serialized.data
+    return pickle.loads(serialized)

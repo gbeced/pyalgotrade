@@ -18,13 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import SimpleXMLRPCServer
-import pickle
 import threading
 import time
 
+from six.moves import xmlrpc_server
+
 import pyalgotrade.logger
 from pyalgotrade.optimizer import base
+from pyalgotrade.optimizer import serialization
+
 
 logger = pyalgotrade.logger.getLogger(__name__)
 
@@ -58,20 +60,26 @@ class Job(object):
 
 
 # Restrict to a particular path.
-class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
+class RequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/PyAlgoTradeRPC',)
 
 
-class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
+class Server(xmlrpc_server.SimpleXMLRPCServer):
     def __init__(self, paramSource, resultSinc, barFeed, address, port, autoStop=True, batchSize=200):
         assert batchSize > 0, "Invalid batch size"
 
-        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True)
+        xmlrpc_server.SimpleXMLRPCServer.__init__(
+            self, (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True
+        )
+        # super(Server, self).__init__(
+        # (address, port), requestHandler=RequestHandler, logRequests=False, allow_none=True
+        # )
+
         self.__batchSize = batchSize
         self.__paramSource = paramSource
         self.__resultSinc = resultSinc
         self.__barFeed = barFeed
-        self.__instrumentsAndBars = None  # Pickle'd instruments and bars for faster retrieval.
+        self.__instrumentsAndBars = None  # Serialized instruments and bars for faster retrieval.
         self.__barsFreq = None
         self.__activeJobs = {}
         self.__lock = threading.Lock()
@@ -100,15 +108,14 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 
         with self.__lock:
             # Get the next set of parameters.
-            params = self.__paramSource.getNext(self.__batchSize)
-            params = map(lambda p: p.args, params)
+            params = [p.args for p in self.__paramSource.getNext(self.__batchSize)]
 
             # Map the active job
             if len(params):
                 ret = Job(params)
                 self.__activeJobs[ret.getId()] = ret
 
-        return pickle.dumps(ret)
+        return serialization.dumps(ret)
 
     def jobsPending(self):
         if self.__forcedStop:
@@ -121,9 +128,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
         return jobsPending or activeJobs
 
     def pushJobResults(self, jobId, result, parameters, workerName):
-        jobId = pickle.loads(jobId)
-        result = pickle.loads(result)
-        parameters = pickle.loads(parameters)
+        jobId = serialization.loads(jobId)
+        result = serialization.loads(result)
+        parameters = serialization.loads(parameters)
 
         # Remove the job mapping.
         with self.__lock:
@@ -133,9 +140,9 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
                 # The job's results were already submitted.
                 return
 
-        if result is None or result > self.__bestResult:
-            logger.info("Best result so far %s with parameters %s" % (result, parameters))
-            self.__bestResult = result
+            if self.__bestResult is None or result > self.__bestResult:
+                logger.info("Best result so far %s with parameters %s" % (result, parameters))
+                self.__bestResult = result
 
         self.__resultSinc.push(result, base.Parameters(*parameters))
 
@@ -153,7 +160,7 @@ class Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
             for dateTime, bars in self.__barFeed:
                 loadedBars.append(bars)
             instruments = self.__barFeed.getRegisteredInstruments()
-            self.__instrumentsAndBars = pickle.dumps((instruments, loadedBars))
+            self.__instrumentsAndBars = serialization.dumps((instruments, loadedBars))
             self.__barsFreq = self.__barFeed.getFrequency()
 
             if self.__autoStopThread:

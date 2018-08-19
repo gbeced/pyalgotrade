@@ -1,4 +1,5 @@
 Version 0.19 (TBD)
+. [NEW] Added support for Python 3.7.
 . [NEW] Added setShares method for back-testing broker. Thanks winkidney for implementing this.
 . [NEW] Added an option to support skipping errors while parsing CSV files.
 . [NEW] Added batchSize parameter to optimizer component. Thanks micmicmichael for implementing this.

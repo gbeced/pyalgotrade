@@ -21,7 +21,7 @@
 import sys
 import logging
 
-import common
+from . import common
 
 from pyalgotrade.optimizer import local
 from pyalgotrade import strategy

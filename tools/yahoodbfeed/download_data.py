@@ -53,7 +53,7 @@ def download_files_for_symbol(symbol, fromYear, toYear):
             try:
                 yahoofinance.download_daily_bars(symbol, year, fileName)
                 status += "1"
-            except Exception, e:
+            except Exception as e:
                 logger.error(str(e))
                 status += "0"
         else:
@@ -73,7 +73,7 @@ def main():
         symbolsFile = os.path.join("..", "symbols", "merval.xml")
         callback = lambda stock: download_files_for_symbol(stock.getTicker(), fromYear, toYear)
         symbolsxml.parse(symbolsFile, callback, callback)
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 main()

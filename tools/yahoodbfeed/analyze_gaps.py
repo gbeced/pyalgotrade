@@ -121,7 +121,7 @@ def main():
         stockCallback = lambda stock: process_symbol(stock.getTicker(), fromYear, toYear, missingDataVerifierClass)
         indexCallback = stockCallback
         symbolsxml.parse(symbolsFile, stockCallback, indexCallback)
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 main()

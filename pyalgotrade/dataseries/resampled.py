@@ -16,6 +16,8 @@
 
 import abc
 
+import six
+
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
@@ -65,8 +67,8 @@ class BarGrouper(resamplebase.Grouper):
         return ret
 
 
+@six.add_metaclass(abc.ABCMeta)
 class DSResampler(object):
-    __metaclass__ = abc.ABCMeta
 
     def initDSResampler(self, dataSeries, frequency):
         if not resamplebase.is_valid_frequency(frequency):

@@ -21,8 +21,8 @@
 import datetime
 import pytz
 
-import common
-import strategy_test
+from . import common
+from . import strategy_test
 
 from pyalgotrade import bar
 from pyalgotrade import strategy
