@@ -29,7 +29,6 @@ from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
 
 
-
 # Interface for csv row parsers.
 class RowParser(object):
     def parseBar(self, csvRowDict):

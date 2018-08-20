@@ -59,7 +59,7 @@ class TradeMonitor(threading.Thread):
         userTrades = self.__httpClient.getUserTransactions(httpclient.HTTPClient.UserTransactionType.MARKET_TRADE)
 
         # Get the new trades only.
-        ret = [ t for t in userTrades if t.getId() > self.__lastTradeId ]
+        ret = [t for t in userTrades if t.getId() > self.__lastTradeId]
 
         # Sort by id, so older trades first.
         return sorted(ret, key=lambda t: t.getId())

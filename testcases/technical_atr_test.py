@@ -69,4 +69,4 @@ class TestCase(common.TestCase):
     def testInvalidDataSeries(self):
         with self.assertRaisesRegexp(Exception, "barDataSeries must be a dataseries.bards.BarDataSeries instance"):
             ds = dataseries.SequenceDataSeries()
-            atrDS = atr.ATR(ds, 14, True)
+            atr.ATR(ds, 14, True)

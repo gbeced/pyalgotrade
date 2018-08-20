@@ -139,7 +139,6 @@ def main(plot):
     instruments = ["gld", "gdx"]
     windowSize = 50
 
-
     # Load the bars. These files were manually downloaded from Yahoo Finance.
     feed = yahoofeed.Feed()
     for year in range(2006, 2012+1):

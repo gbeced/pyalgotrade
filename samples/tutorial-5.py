@@ -27,4 +27,3 @@ myStrategy.info("Final portfolio value: $%.2f" % myStrategy.getResult())
 
 # Plot the strategy.
 plt.plot()
-

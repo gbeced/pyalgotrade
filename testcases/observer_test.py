@@ -303,5 +303,3 @@ class EventTestCase(common.TestCase):
 
         event.emit()
         self.assertTrue(handlersData == [1, 1])
-
-

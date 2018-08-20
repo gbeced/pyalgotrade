@@ -335,7 +335,6 @@ class Broker(broker.Broker):
             ret += instrumentPrice * shares
         return ret
 
-
     # Tries to commit an order execution.
     def commitOrderExecution(self, order, dateTime, fillInfo):
         price = fillInfo.getPrice()

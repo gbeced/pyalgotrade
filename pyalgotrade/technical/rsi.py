@@ -42,6 +42,7 @@ from pyalgotrade import technical
 # Raising overbought to 80 or lowering oversold to 20 will reduce the number of overbought/oversold readings.
 # Short-term traders sometimes use 2-period RSI to look for overbought readings above 80 and oversold readings below 20.
 
+
 def gain_loss_one(prevValue, nextValue):
     change = nextValue - prevValue
     if change < 0:
