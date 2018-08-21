@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class BaseFeed(observer.Subject):
         self.__maxLen = maxLen
 
     def reset(self):
-        keys = self.__ds.keys()
+        keys = list(self.__ds.keys())
         self.__ds = {}
         for key in keys:
             self.registerDataSeries(key)
@@ -109,7 +109,7 @@ class BaseFeed(observer.Subject):
         return dateTime is not None
 
     def getKeys(self):
-        return self.__ds.keys()
+        return list(self.__ds.keys())
 
     def __getitem__(self, key):
         """Returns the :class:`pyalgotrade.dataseries.DataSeries` for a given key."""

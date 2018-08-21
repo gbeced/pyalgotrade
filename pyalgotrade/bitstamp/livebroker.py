@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@
 
 import threading
 import time
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade import broker
 from pyalgotrade.bitstamp import httpclient
@@ -51,22 +52,17 @@ class TradeMonitor(threading.Thread):
         super(TradeMonitor, self).__init__()
         self.__lastTradeId = -1
         self.__httpClient = httpClient
-        self.__queue = Queue.Queue()
+        self.__queue = queue.Queue()
         self.__stop = False
 
     def _getNewTrades(self):
         userTrades = self.__httpClient.getUserTransactions(httpclient.HTTPClient.UserTransactionType.MARKET_TRADE)
 
         # Get the new trades only.
-        ret = []
-        for userTrade in userTrades:
-            if userTrade.getId() > self.__lastTradeId:
-                ret.append(userTrade)
-            else:
-                break
-        # Older trades first.
-        ret.reverse()
-        return ret
+        ret = [t for t in userTrades if t.getId() > self.__lastTradeId]
+
+        # Sort by id, so older trades first.
+        return sorted(ret, key=lambda t: t.getId())
 
     def getQueue(self):
         return self.__queue
@@ -88,7 +84,7 @@ class TradeMonitor(threading.Thread):
                     self.__lastTradeId = trades[-1].getId()
                     common.logger.info("%d new trade/s found" % (len(trades)))
                     self.__queue.put((TradeMonitor.ON_USER_TRADE, trades))
-            except Exception, e:
+            except Exception as e:
                 common.logger.critical("Error retrieving user transactions", exc_info=e)
 
             time.sleep(TradeMonitor.POLL_FREQUENCY)
@@ -230,7 +226,7 @@ class LiveBroker(broker.Broker):
 
     def dispatch(self):
         # Switch orders from SUBMITTED to ACCEPTED.
-        ordersToProcess = self.__activeOrders.values()
+        ordersToProcess = list(self.__activeOrders.values())
         for order in ordersToProcess:
             if order.isSubmitted():
                 order.switchState(broker.Order.State.ACCEPTED)
@@ -244,7 +240,7 @@ class LiveBroker(broker.Broker):
                 self._onUserTrades(eventData)
             else:
                 common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except Queue.Empty:
+        except queue.Empty:
             pass
 
     def peekDateTime(self):
@@ -268,7 +264,7 @@ class LiveBroker(broker.Broker):
         return self.__shares
 
     def getActiveOrders(self, instrument=None):
-        return self.__activeOrders.values()
+        return list(self.__activeOrders.values())
 
     def submitOrder(self, order):
         if order.isInitial():

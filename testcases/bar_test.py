@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@
 """
 
 import datetime
-import cPickle
 
-import common
+from six.moves import cPickle
+
+from . import common
 
 from pyalgotrade import bar
 

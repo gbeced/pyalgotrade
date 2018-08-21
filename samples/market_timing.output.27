@@ -1,0 +1,38 @@
+Loading bars from SPY-2007-yahoofinance.csv
+Loading bars from VTI-2007-yahoofinance.csv
+Loading bars from DBC-2007-yahoofinance.csv
+Loading bars from IEF-2007-yahoofinance.csv
+Loading bars from VEU-2007-yahoofinance.csv
+Loading bars from VNQ-2007-yahoofinance.csv
+Loading bars from SPY-2008-yahoofinance.csv
+Loading bars from VTI-2008-yahoofinance.csv
+Loading bars from DBC-2008-yahoofinance.csv
+Loading bars from IEF-2008-yahoofinance.csv
+.
+.
+.
+2013-10-01 00:00:00 strategy [INFO] Best for class US Stocks: VTI
+2013-10-01 00:00:00 strategy [INFO] Best for class Commodities: None
+2013-10-01 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
+2013-10-01 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-10-01 00:00:00 strategy [INFO] Best for class Real Estate: None
+2013-10-01 00:00:00 strategy [INFO] Placing market order for -2 VEU shares
+2013-11-01 00:00:00 strategy [INFO] Rebalancing
+2013-11-01 00:00:00 strategy [INFO] Best for class US Stocks: VTI
+2013-11-01 00:00:00 strategy [INFO] Best for class Commodities: None
+2013-11-01 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
+2013-11-01 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-11-01 00:00:00 strategy [INFO] Best for class Real Estate: VNQ
+2013-11-01 00:00:00 strategy [INFO] Placing market order for -1 VTI shares
+2013-11-01 00:00:00 strategy [INFO] Placing market order for -1 VEU shares
+2013-11-01 00:00:00 strategy [INFO] Placing market order for 39 VNQ shares
+2013-12-02 00:00:00 strategy [INFO] Rebalancing
+2013-12-02 00:00:00 strategy [INFO] Best for class US Stocks: VTI
+2013-12-02 00:00:00 strategy [INFO] Best for class Commodities: None
+2013-12-02 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
+2013-12-02 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-12-02 00:00:00 strategy [INFO] Best for class Real Estate: None
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -1 VTI shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -39 VNQ shares
+Sharpe ratio: -0.06
+Returns: 32.97 %

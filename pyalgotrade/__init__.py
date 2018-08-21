@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,4 +18,5 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-__version__ = "0.18"
+name = "PyAlgoTrade"
+__version__ = "0.20"

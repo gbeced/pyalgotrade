@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 import abc
 
+import six
+from six.moves import xrange
+
 from pyalgotrade import observer
 from pyalgotrade.utils import collections
 
@@ -36,14 +39,13 @@ def get_checked_max_len(maxLen):
 
 # It is important to inherit object to get __getitem__ to work properly.
 # Check http://code.activestate.com/lists/python-list/621258/
+@six.add_metaclass(abc.ABCMeta)
 class DataSeries(object):
     """Base class for data series.
 
     .. note::
         This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def __len__(self):

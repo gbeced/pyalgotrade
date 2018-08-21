@@ -1,27 +1,30 @@
+language: python
+python:
+  - "2.7"
+
 env:
   global:
+    # https://docs.travis-ci.com/user/environment-variables/#Defining-encrypted-variables-in-.travis.yml
+    # travis encrypt QUANDL_API_KEY=somevalue
     - secure: "YgngWTEKD6bUVgExTN8vWYCq7mrMKsVVqZaWIsepRziU++K1e9iBuQrSspQbyrdsKMqKMyMnsM3ru7M6+D0F+p/BC4gyWg6N+wn3RoqrWidyutejibsobDJnS3EsSfo4cJUFcoAOzzuXK+Du0yUZPNBxjJdF/NA1C8vDg0YAmzs="
     - secure: "GUuZEQSA9x96bIJiC/Ab/RxQ+Dv2eqwhRVaZYVlmuSDQXouDJdFAF9dEcUplwt3TCKg7CbOa3gr2c1rJ7bclk1ueUSXdwzlgEfEdcu7Xm+lf6LcfZESDtWUvPgRzvVqspp3hwx+SCpSl2TzXwgCRNOX8ybDC5ZvRZRQaagT6maA="
     - secure: "oAUaWICTHks6N/RNFZbF/NJE+1mB45DRZu1uvzKN5EhEp+Qys6LGHm1yZLI1sMAfwYrLro1oxNGpxD26hoMDjy2bDyBNZj59i2M7Eeo9juY3wR2sz0tKuvEdMdbuhMGyDgvXV6xlqO10hHeUUwbJOyxcQxmcp0c33B0Jse3m+pI="
     - secure: "OrR5+l3HzjKWQtVRUIHB1uLCFtRt1wNAQxJjoL6mufBMIigcpMnE2QzsoP9ywSgew8St4nFMGaL/xxR/RYTi59c6fVRh8zGg/JYMSYtr4UM8M2Gk0vSYmo3JO9OihOxn3JWbF4606vzEgqtjMT9qojo3Xx/d0Hp9br5s/wwe1oQ="
+    - secure: "beFEPV9JWgX4wFx3mBeBwE7hBAK2h9gW5qpNolgYrevDQxHDQdfcNN5Rcda2/VGQiEKM+X4dixNttogfNu4yS21c5/DPUhsKNwV/ClZgYsmkowGwkXsaF6J/cYcE9+WvziCfDV3z3wTKMmyPMJlbeFDB+zik2idzkG3txUVo27g="
 
 sudo: required
-
-language: python
-python:
-  - "2.7"
 
 services:
   - docker
 
 before_install:
-  - docker pull gbecedillas/pyalgotrade:0.18
+  - docker pull gbecedillas/pyalgotrade:0.20-py27
   - cp travis/Dockerfile .
-  - docker build -t testcases .
+  - docker build -t pyalgotrade_testcases .
   - sudo pip install coveralls
 
 script:
-  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
+  - docker run --name testcases --env TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY --env TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET --env TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN --env TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET --env QUANDL_API_KEY=$QUANDL_API_KEY pyalgotrade_testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
 
 after_success:
   - docker cp testcases:/tmp/pyalgotrade/.coverage .

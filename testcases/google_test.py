@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,50 +18,32 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import os
 import datetime
 
-import common
+from . import common
 
-from pyalgotrade import bar
 from pyalgotrade.barfeed import googlefeed
-from pyalgotrade.tools import googlefinance
 
 
 class ToolsTestCase(common.TestCase):
-    def testDownloadAndParseDaily(self):
+    def testParseFile(self):
         instrument = "orcl"
 
-        with common.TmpDir() as tmp_path:
-            path = os.path.join(tmp_path, "orcl-2010.csv")
-            googlefinance.download_daily_bars(instrument, 2010, path)
-            bf = googlefeed.Feed()
-            bf.addBarsFromCSV(instrument, path)
-            bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        bf = googlefeed.Feed()
+        bf.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2010-googlefinance.csv"))
+        bf.loadAll()
+        self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+        self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
 
-    def testBuildDailyFeed(self):
-        with common.TmpDir() as tmpPath:
-            instrument = "orcl"
-            bf = googlefinance.build_feed([instrument], 2010, 2010, storage=tmpPath)
-            bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+    def testParseMalformedFile(self):
+        instrument = "orcl"
 
-    def testInvalidInstrument(self):
-        instrument = "inexistent"
-
-        # Don't skip errors.
-        with self.assertRaisesRegexp(Exception, "400 Client Error: Bad Request"):
-            with common.TmpDir() as tmpPath:
-                bf = googlefinance.build_feed([instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY)
-
-        # Skip errors.
-        with common.TmpDir() as tmpPath:
-            bf = googlefinance.build_feed(
-                [instrument], 2100, 2101, storage=tmpPath, frequency=bar.Frequency.DAY, skipErrors=True
-            )
-            bf.loadAll()
-            self.assertNotIn(instrument, bf)
+        bf = googlefeed.Feed()
+        bf.addBarsFromCSV(
+            instrument, common.get_data_file_path("orcl-2010-googlefinance-malformed.csv"), skipMalformedBars=True
+        )
+        bf.loadAll()
+        self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
+        self.assertEqual(bf[instrument][-1].getClose(), 31.30)
+        self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))

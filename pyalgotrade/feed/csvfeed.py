@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,15 +21,16 @@
 import abc
 import datetime
 
+import six
+
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.feed import memfeed
 
 
 # Interface for csv row parsers.
+@six.add_metaclass(abc.ABCMeta)
 class RowParser(object):
-
-    __metaclass__ = abc.ABCMeta
 
     # Parses a row and returns a tuple with with two elements:
     # 1: datetime.datetime.
@@ -50,9 +51,8 @@ class RowParser(object):
 
 
 # Interface for bar filters.
+@six.add_metaclass(abc.ABCMeta)
 class RowFilter(object):
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def includeRow(self, dateTime, values):

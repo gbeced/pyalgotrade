@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,15 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+import datetime
+
+from . import common
 
 from pyalgotrade.technical import linebreak
 from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade import dataseries
+from pyalgotrade import bar
+from pyalgotrade.dataseries import bards
 
 
 class LineBreakTestCase(common.TestCase):
@@ -43,6 +48,8 @@ class LineBreakTestCase(common.TestCase):
         self.assertEqual(bars[0].getLow(), lineBreak[0].getLow())
         self.assertEqual(bars[0].getHigh(), lineBreak[0].getHigh())
         self.assertEqual(bars[0].getClose() > bars[0].getOpen(), lineBreak[0].isWhite())
+        self.assertEqual(bars[0].getDateTime(), lineBreak[0].getDateTime())
+
         self.assertEqual(lineBreak[76].getLow(), 13.81)
         self.assertEqual(lineBreak[76].getHigh(), 13.99)
         self.assertEqual(lineBreak[76].isWhite(), False)
@@ -84,3 +91,50 @@ class LineBreakTestCase(common.TestCase):
         self.assertEqual(lineBreak[-1].getHigh(), 10.92)
         self.assertEqual(lineBreak[-1].isWhite(), False)
         self.assertEqual(lineBreak[-1].isBlack(), True)
+
+    def testInvalidDataSeries(self):
+        with self.assertRaisesRegexp(Exception, "barDataSeries must be a dataseries.bards.BarDataSeries instance"):
+            ds = dataseries.SequenceDataSeries()
+            linebreak.LineBreak(ds, 3, maxLen=2)
+
+    def testInvalidReversalLines(self):
+        with self.assertRaisesRegexp(Exception, "reversalLines must be greater than 1"):
+            barFeed = self.__getFeed()
+            linebreak.LineBreak(barFeed[LineBreakTestCase.Instrument], 1, maxLen=2)
+
+    def testInvalidMaxLen(self):
+        barFeed = self.__getFeed()
+        lb = linebreak.LineBreak(barFeed[LineBreakTestCase.Instrument], 3, maxLen=4)
+        lb.setMaxLen(3)
+        with self.assertRaisesRegexp(Exception, "maxLen can't be smaller than reversalLines"):
+            lb.setMaxLen(2)
+
+    def testWhiteBlackReversal(self):
+        bds = bards.BarDataSeries()
+        lb = linebreak.LineBreak(bds, 2)
+        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 5), 10, 12, 9, 11, 1, None, bar.Frequency.DAY))
+        self.assertEqual(len(lb), 1)
+        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 6), 9, 12, 8, 12, 1, None, bar.Frequency.DAY))
+        self.assertEqual(len(lb), 1)
+        self.assertEqual(lb[-1].isWhite(), True)
+        self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 5))
+
+        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 7), 9, 12, 5, 6, 1, None, bar.Frequency.DAY))
+        self.assertEqual(len(lb), 2)
+        self.assertEqual(lb[-1].isBlack(), True)
+        self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 7))
+
+    def testBlackWhiteReversal(self):
+        bds = bards.BarDataSeries()
+        lb = linebreak.LineBreak(bds, 2)
+        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 5), 10, 12, 8, 9, 1, None, bar.Frequency.DAY))
+        self.assertEqual(len(lb), 1)
+        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 6), 9, 12, 9, 12, 1, None, bar.Frequency.DAY))
+        self.assertEqual(len(lb), 1)
+        self.assertEqual(lb[-1].isBlack(), True)
+        self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 5))
+
+        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 7), 9, 13, 5, 13, 1, None, bar.Frequency.DAY))
+        self.assertEqual(len(lb), 2)
+        self.assertEqual(lb[-1].isWhite(), True)
+        self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 7))

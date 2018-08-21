@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,14 +66,6 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
 
     def calculateEquity(self, strat):
         return strat.getBroker().getEquity()
-        # ret = strat.getBroker().getCash()
-        # for instrument, shares in strat.getBroker().getPositions().iteritems():
-        #     _bar = strat.getFeed().getLastBar(instrument)
-        #     if shares > 0:
-        #         ret += strat.getBroker().getBarLow(_bar) * shares
-        #     elif shares < 0:
-        #         ret += strat.getBroker().getBarHigh(_bar) * shares
-        # return ret
 
     def beforeOnBars(self, strat, bars):
         equity = self.calculateEquity(strat)

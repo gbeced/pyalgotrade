@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ def process_symbol(writer, symbol):
             logger.warning("Industry not found")
 
         writer.addStock(symbol, company, sector, industry)
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 
@@ -89,7 +89,7 @@ def main():
 
         logger.info("Writing merval.xml")
         writer.write("merval.xml")
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 if __name__ == "__main__":

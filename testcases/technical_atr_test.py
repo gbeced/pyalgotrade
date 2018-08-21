@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,11 +20,14 @@
 
 import datetime
 
-import common
+from six.moves import xrange
+
+from . import common
 
 from pyalgotrade.technical import atr
 from pyalgotrade import bar
 from pyalgotrade.dataseries import bards
+from pyalgotrade import dataseries
 
 
 class TestCase(common.TestCase):
@@ -62,3 +65,8 @@ class TestCase(common.TestCase):
                 self.assertEqual(atrDS[-1], None)
             else:
                 self.assertEqual(common.safe_round(atrDS[-1], 2), round(expected[i]/2, 2))
+
+    def testInvalidDataSeries(self):
+        with self.assertRaisesRegexp(Exception, "barDataSeries must be a dataseries.bards.BarDataSeries instance"):
+            ds = dataseries.SequenceDataSeries()
+            atr.ATR(ds, 14, True)

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@
 
 import abc
 
+import six
+
 from pyalgotrade import broker
 import pyalgotrade.bar
-import slippage
+from . import slippage
 
 
 # Returns the trigger price for a Limit or StopLimit order, or None if the limit price was not yet penetrated.
@@ -102,10 +104,9 @@ class FillInfo(object):
         return self.__quantity
 
 
+@six.add_metaclass(abc.ABCMeta)
 class FillStrategy(object):
     """Base class for order filling strategies for the backtester."""
-
-    __metaclass__ = abc.ABCMeta
 
     def onBars(self, broker_, bars):
         """

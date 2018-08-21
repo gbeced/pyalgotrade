@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+
+import six
 
 from pyalgotrade import barfeed
 from pyalgotrade import bar
@@ -68,15 +70,14 @@ class BarFeed(barfeed.BaseBarFeed):
 
         # Add and sort the bars
         self.__bars[instrument].extend(bars)
-        barCmp = lambda x, y: cmp(x.getDateTime(), y.getDateTime())
-        self.__bars[instrument].sort(barCmp)
+        self.__bars[instrument].sort(key=lambda b: b.getDateTime())
 
         self.registerInstrument(instrument)
 
     def eof(self):
         ret = True
         # Check if there is at least one more bar to return.
-        for instrument, bars in self.__bars.iteritems():
+        for instrument, bars in six.iteritems(self.__bars):
             nextPos = self.__nextPos[instrument]
             if nextPos < len(bars):
                 ret = False
@@ -86,7 +87,7 @@ class BarFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         ret = None
 
-        for instrument, bars in self.__bars.iteritems():
+        for instrument, bars in six.iteritems(self.__bars):
             nextPos = self.__nextPos[instrument]
             if nextPos < len(bars):
                 ret = utils.safe_min(ret, bars[nextPos].getDateTime())
@@ -101,14 +102,14 @@ class BarFeed(barfeed.BaseBarFeed):
 
         # Make a second pass to get all the bars that had the smallest datetime.
         ret = {}
-        for instrument, bars in self.__bars.iteritems():
+        for instrument, bars in six.iteritems(self.__bars):
             nextPos = self.__nextPos[instrument]
             if nextPos < len(bars) and bars[nextPos].getDateTime() == smallestDateTime:
                 ret[instrument] = bars[nextPos]
                 self.__nextPos[instrument] += 1
 
         if self.__currDateTime == smallestDateTime:
-            raise Exception("Duplicate bars found for %s on %s" % (ret.keys(), smallestDateTime))
+            raise Exception("Duplicate bars found for %s on %s" % (list(ret.keys()), smallestDateTime))
 
         self.__currDateTime = smallestDateTime
         return bar.Bars(ret)

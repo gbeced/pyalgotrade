@@ -1,8 +1,10 @@
+from __future__ import print_function
+
 from pyalgotrade import eventprofiler
 from pyalgotrade.technical import stats
 from pyalgotrade.technical import roc
 from pyalgotrade.technical import ma
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.tools import quandl
 
 # Event inspired on an example from Ernie Chan's book:
 # 'Algorithmic Trading: Winning Strategies and Their Rationale'
@@ -50,15 +52,15 @@ class BuyOnGap(eventprofiler.Predicate):
 
 
 def main(plot):
-    instruments = ["AA", "AES", "AIG"]
-    feed = yahoofinance.build_feed(instruments, 2008, 2009, ".")
+    instruments = ["IBM", "AES", "AIG"]
+    feed = quandl.build_feed("WIKI", instruments, 2008, 2009, ".")
 
     predicate = BuyOnGap(feed)
     eventProfiler = eventprofiler.Profiler(predicate, 5, 5)
     eventProfiler.run(feed, True)
 
     results = eventProfiler.getResults()
-    print "%d events found" % (results.getEventCount())
+    print("%d events found" % (results.getEventCount()))
     if plot:
         eventprofiler.plot(results)
 

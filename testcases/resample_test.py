@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 import datetime
 import os
 
-import common
+from . import common
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import yahoofeed
@@ -195,6 +195,26 @@ class DataSeriesTestCase(common.TestCase):
         resampledDS.pushLast()
         self.assertEqual(resampledDS[1], 2)
 
+    def testCheckNow(self):
+        barDs = bards.BarDataSeries()
+        resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
+
+        barDateTime = datetime.datetime(2014, 7, 7, 22, 46, 28, 10000)
+        barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.MINUTE))
+        self.assertEqual(len(resampledBarDS), 0)
+
+        resampledBarDS.checkNow(barDateTime + datetime.timedelta(minutes=1))
+        self.assertEqual(len(resampledBarDS), 1)
+        self.assertEqual(barDs[0].getOpen(), resampledBarDS[0].getOpen())
+        self.assertEqual(barDs[0].getHigh(), resampledBarDS[0].getHigh())
+        self.assertEqual(barDs[0].getLow(), resampledBarDS[0].getLow())
+        self.assertEqual(barDs[0].getClose(), resampledBarDS[0].getClose())
+        self.assertEqual(barDs[0].getVolume(), resampledBarDS[0].getVolume())
+        self.assertEqual(barDs[0].getAdjClose(), resampledBarDS[0].getAdjClose())
+        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 7, 7, 22, 46))
+
+
+class CSVResampleTestCase(common.TestCase):
     def testResampleNinjaTraderHour(self):
         with common.TmpDir() as tmp_path:
             # Resample.
@@ -247,23 +267,13 @@ class DataSeriesTestCase(common.TestCase):
         self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(datetime.datetime(2011, 1, 3)))
         self.assertEqual(resampledBarDS[-1].getDateTime(), dt.as_utc(datetime.datetime(2011, 2, 1)))
 
-    def testCheckNow(self):
-        barDs = bards.BarDataSeries()
-        resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
-
-        barDateTime = datetime.datetime(2014, 07, 07, 22, 46, 28, 10000)
-        barDs.append(bar.BasicBar(barDateTime, 2.1, 3, 1, 2, 10, 1, bar.Frequency.MINUTE))
-        self.assertEqual(len(resampledBarDS), 0)
-
-        resampledBarDS.checkNow(barDateTime + datetime.timedelta(minutes=1))
-        self.assertEqual(len(resampledBarDS), 1)
-        self.assertEqual(barDs[0].getOpen(), resampledBarDS[0].getOpen())
-        self.assertEqual(barDs[0].getHigh(), resampledBarDS[0].getHigh())
-        self.assertEqual(barDs[0].getLow(), resampledBarDS[0].getLow())
-        self.assertEqual(barDs[0].getClose(), resampledBarDS[0].getClose())
-        self.assertEqual(barDs[0].getVolume(), resampledBarDS[0].getVolume())
-        self.assertEqual(barDs[0].getAdjClose(), resampledBarDS[0].getAdjClose())
-        self.assertEqual(resampledBarDS[0].getDateTime(), datetime.datetime(2014, 07, 07, 22, 46))
+    def testResampleBarFeedWithMultipleInstrumentsFails(self):
+        with self.assertRaisesRegexp(Exception, "Only barfeeds with 1 instrument can be resampled"):
+            with common.TmpDir() as tmp_path:
+                feed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
+                feed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011.csv"))
+                feed.addBarsFromCSV("spb", common.get_data_file_path("nt-spy-minute-2011.csv"))
+                resample.resample_to_csv(feed, bar.Frequency.HOUR, os.path.join(tmp_path, "any.csv"))
 
 
 class BarFeedTestCase(common.TestCase):

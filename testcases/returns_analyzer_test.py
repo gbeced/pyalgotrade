@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@
 
 import datetime
 
-import common
-import strategy_test
-import position_test
+from . import common
+from . import strategy_test
+from . import position_test
+from testcases import test_strategy
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import csvfeed
@@ -276,7 +277,7 @@ class AnalyzerTestCase(common.TestCase):
     def testOneBarReturn(self):
         initialCash = 1000
         barFeed = yahoofeed.Feed()
-        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 07), datetime.datetime(2001, 12, 07)))
+        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 7), datetime.datetime(2001, 12, 7)))
         barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
@@ -299,7 +300,7 @@ class AnalyzerTestCase(common.TestCase):
     def testTwoBarReturns_OpenOpen(self):
         initialCash = 15.61
         barFeed = yahoofeed.Feed()
-        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
+        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 6), datetime.datetime(2001, 12, 7)))
         barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
@@ -308,7 +309,7 @@ class AnalyzerTestCase(common.TestCase):
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.61
         strat.getBroker().submitOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
+        strat.addOrder(datetime.datetime(2001, 12, 6), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -322,7 +323,7 @@ class AnalyzerTestCase(common.TestCase):
     def testTwoBarReturns_OpenClose(self):
         initialCash = 15.61
         barFeed = yahoofeed.Feed()
-        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
+        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 6), datetime.datetime(2001, 12, 7)))
         barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
@@ -331,7 +332,7 @@ class AnalyzerTestCase(common.TestCase):
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.61
         strat.getBroker().submitOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
+        strat.addOrder(datetime.datetime(2001, 12, 6), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -345,7 +346,7 @@ class AnalyzerTestCase(common.TestCase):
     def testTwoBarReturns_CloseOpen(self):
         initialCash = 15.9
         barFeed = yahoofeed.Feed()
-        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
+        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 6), datetime.datetime(2001, 12, 7)))
         barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
@@ -354,7 +355,7 @@ class AnalyzerTestCase(common.TestCase):
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.90
         strat.getBroker().submitOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
+        strat.addOrder(datetime.datetime(2001, 12, 6), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, False)  # Open: 15.74
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -368,7 +369,7 @@ class AnalyzerTestCase(common.TestCase):
     def testTwoBarReturns_CloseClose(self):
         initialCash = 15.90
         barFeed = yahoofeed.Feed()
-        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 06), datetime.datetime(2001, 12, 07)))
+        barFeed.setBarFilter(csvfeed.DateRangeFilter(datetime.datetime(2001, 12, 6), datetime.datetime(2001, 12, 7)))
         barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
@@ -377,7 +378,7 @@ class AnalyzerTestCase(common.TestCase):
         # Manually place the entry order, to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.90
         strat.getBroker().submitOrder(order)
-        strat.addOrder(datetime.datetime(2001, 12, 06), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
+        strat.addOrder(datetime.datetime(2001, 12, 6), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, AnalyzerTestCase.TestInstrument, 1, True)  # Close: 15.91
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -441,7 +442,7 @@ class AnalyzerTestCase(common.TestCase):
         barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
 
-        strat.addOrder(datetime.datetime(2001, 01, 02), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # 2001-01-03 Open: 25.25 Close: 32.00
+        strat.addOrder(datetime.datetime(2001, 1, 2), strat.getBroker().createMarketOrder, broker.Order.Action.BUY, AnalyzerTestCase.TestInstrument, 1, False)  # 2001-01-03 Open: 25.25 Close: 32.00
 
         stratAnalyzer = returns.Returns()
         strat.attachAnalyzer(stratAnalyzer)
@@ -454,3 +455,111 @@ class AnalyzerTestCase(common.TestCase):
         for i in [0, -1]:
             self.assertEqual(stratAnalyzer.getReturns().getDateTimes()[i], datetimes[i])
             self.assertEqual(stratAnalyzer.getCumulativeReturns().getDateTimes()[i], datetimes[i])
+
+    def testSetSharesForUnusedInstrument(self):
+        barFeed = yahoofeed.Feed()
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+
+        initialCash = 1000
+        strat = test_strategy.BacktestingStrategy(barFeed, initialCash)
+
+        unkSharesSet = 10
+        unkSharePrice = 10.4
+        strat.getBroker().setShares("UNK", unkSharesSet, unkSharePrice)
+
+        # 33.06
+        strat.scheduleCall(
+            datetime.datetime(2001, 1, 12),
+            lambda: strat.marketOrder(AnalyzerTestCase.TestInstrument, 1)
+        )
+        # 14.32
+        strat.scheduleCall(
+            datetime.datetime(2001, 11, 27),
+            lambda: strat.marketOrder(AnalyzerTestCase.TestInstrument, -1)
+        )
+
+        stratAnalyzer = returns.Returns()
+        strat.attachAnalyzer(stratAnalyzer)
+        initialEquity = strat.getBroker().getEquity()
+        strat.run()
+        finalEquity = strat.getBroker().getEquity()
+
+        # The unknown instrument should have no impact cash or returns.
+        finalCash = strat.getBroker().getCash()
+        self.assertEqual(
+            round(finalCash, 2),
+            round(initialCash + (14.32 - 33.06), 2)
+        )
+        self.assertEqual(
+            round(stratAnalyzer.getCumulativeReturns()[-1], 4),
+            round((finalEquity - initialEquity) / initialEquity, 4)
+        )
+        self.assertEqual(stratAnalyzer.getReturns()[-1], 0)
+        self.assertEqual(strat.getBroker().getShares(AnalyzerTestCase.TestInstrument), 0)
+        self.assertEqual(strat.getBroker().getShares("UNK"), unkSharesSet)
+        self.assertEqual(strat.getBroker().getEquity(), finalCash + unkSharesSet * unkSharePrice)
+
+    def testSetSharesWithNoStartingCash(self):
+        barFeed = yahoofeed.Feed()
+        barFeed.addBarsFromCSV(AnalyzerTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+
+        strat = test_strategy.BacktestingStrategy(barFeed, 0)
+
+        initialShares = 2
+        initialPrice = 16.25
+        strat.getBroker().setShares(AnalyzerTestCase.TestInstrument, initialShares, initialPrice)
+
+        # Close initial position
+        closingPrice = 32.50
+        strat.scheduleCall(
+            datetime.datetime(2001, 1, 4),
+            lambda: strat.marketOrder(AnalyzerTestCase.TestInstrument, -initialShares)
+        )
+
+        stratAnalyzer = returns.Returns()
+        strat.attachAnalyzer(stratAnalyzer)
+        strat.run()
+
+        self.assertEqual(strat.getBroker().getShares(AnalyzerTestCase.TestInstrument), 0)
+        self.assertEqual(strat.getBroker().getCash(), closingPrice * initialShares)
+
+        # Check period returns.
+        expectedPeriodReturns = [
+            (26.37 - initialPrice) / initialPrice,
+            (32.00 - 26.37) / 26.37,
+            (32.56 - 32.00) / 32.00,
+            (32.50 - 32.56) / 32.56,
+            0,
+            # Nothing should change moving forward
+            0,
+            0,
+        ]
+        for i, expectedReturn in enumerate(expectedPeriodReturns):
+            self.assertEqual(
+                stratAnalyzer.getReturns()[i],
+                expectedReturn
+            )
+        self.assertEqual(
+            stratAnalyzer.getReturns()[-1],
+            expectedPeriodReturns[-1]
+        )
+
+        # Check cumulative returns.
+        expectedCumulativeReturns = [
+            (26.37 - initialPrice) / initialPrice,
+            (32.00 - initialPrice) / initialPrice,
+            (32.56 - initialPrice) / initialPrice,
+            (32.50 - initialPrice) / initialPrice,
+            # Nothing should change moving forward
+            (32.50 - initialPrice) / initialPrice,
+            (32.50 - initialPrice) / initialPrice,
+        ]
+        for i, expectedReturn in enumerate(expectedCumulativeReturns):
+            self.assertEqual(
+                round(stratAnalyzer.getCumulativeReturns()[i], 4),
+                round(expectedReturn, 4)
+            )
+        self.assertEqual(
+            round(stratAnalyzer.getCumulativeReturns()[-1], 4),
+            round(expectedCumulativeReturns[-1], 4)
+        )

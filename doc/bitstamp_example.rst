@@ -15,7 +15,7 @@ The key things to highlight are:
     as the base class. This is not a backtest.
  2. Trade events get notified via the call to **onBars**. No need to manually subscribe.
  3. Order book update events are handled by manually subscribing to :class:`pyalgotrade.bitstamp.barfeed.LiveTradeFeed.getOrderBookUpdateEvent`.
-    This is needed to be up to date with latest bid and ask prices.
+    This is needed to stay up to date with latest bid and ask prices.
 
 .. literalinclude:: ../samples/tutorial_bitstamp_1.py
 
@@ -134,5 +134,5 @@ In order to live trade this strategy you should use :class:`pyalgotrade.bitstamp
 :class:`pyalgotrade.bitstamp.broker.PaperTradingBroker`.
 
 **Note that if you try to live trade this strategy you will probably loose money.**
-Before jumping to live trading, be sure to write your own strategy, backtest and paper trade it thoroughly
+Before jumping into live trading, be sure to write your own strategy, backtest and paper trade it thoroughly
 before risking real money.

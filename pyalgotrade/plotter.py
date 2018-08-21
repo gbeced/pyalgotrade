@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@
 
 import collections
 
-import broker
-from pyalgotrade import warninghelpers
-
 import matplotlib.pyplot as plt
 from matplotlib import ticker
+import six
+
+from pyalgotrade import broker
+from pyalgotrade import warninghelpers
 
 
 def get_last_value(dataSeries):
@@ -50,12 +51,12 @@ def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
             return True
 
     dateTimeFilter = DateTimeFilter(fromDate, toDate)
-    return filter(lambda x: dateTimeFilter.includeDateTime(x), dateTimes)
+    return [x for x in dateTimes if dateTimeFilter.includeDateTime(x)]
 
 
 def _post_plot_fun(subPlot, mplSubplot):
     # Legend
-    mplSubplot.legend(subPlot.getAllSeries().keys(), shadow=True, loc="best")
+    mplSubplot.legend(list(subPlot.getAllSeries().keys()), shadow=True, loc="best")
     # Don't scale the Y axis
     mplSubplot.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
 
@@ -257,7 +258,7 @@ class Subplot(object):
 
     def onBars(self, bars):
         dateTime = bars.getDateTime()
-        for cb, series in self.__callbacks.iteritems():
+        for cb, series in six.iteritems(self.__callbacks):
             series.addValue(dateTime, cb(bars))
 
     def getSeries(self, name, defaultClass=LineMarker):
@@ -431,7 +432,8 @@ class StrategyPlotter(object):
         return fig
 
     def buildFigureAndSubplots(self, fromDateTime=None, toDateTime=None, postPlotFun=_post_plot_fun):
-        """Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
+        """
+        Build a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
 
         :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
         :type fromDateTime: datetime.datetime
@@ -444,7 +446,8 @@ class StrategyPlotter(object):
         return fig, mplSubplots
 
     def plot(self, fromDateTime=None, toDateTime=None, postPlotFun=_post_plot_fun):
-        """Plots the strategy execution. Must be called after running the strategy.
+        """
+        Plot the strategy execution. Must be called after running the strategy.
 
         :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
         :type fromDateTime: datetime.datetime
@@ -455,3 +458,20 @@ class StrategyPlotter(object):
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime, postPlotFun=postPlotFun)
         fig.autofmt_xdate()
         plt.show()
+
+    def savePlot(self, filename, dpi=None, format="png", fromDateTime=None, toDateTime=None):
+        """
+        Plot the strategy execution into a file. Must be called after running the strategy.
+
+        :param filename: The filename.
+        :param dpi: The resolution in dots per inch.
+        :param format: The file extension.
+        :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
+        :type fromDateTime: datetime.datetime
+        :param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
+        :type toDateTime: datetime.datetime
+        """
+
+        fig, mplSubplots = self.__buildFigureImpl(fromDateTime=fromDateTime, toDateTime=toDateTime)
+        fig.autofmt_xdate()
+        fig.savefig(filename, dpi=dpi, bbox_inches="tight", format=format)

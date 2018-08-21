@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@
 
 import datetime
 
-import common
+from six.moves import xrange
+
+from . import common
 
 from pyalgotrade import utils
 from pyalgotrade.utils import collections
@@ -179,7 +181,7 @@ class IntersectTestCase(common.TestCase):
         values, ix1, ix2 = collections.intersect(dateTimes1, dateTimes2)
         self.assertEqual(values, dateTimes1)
         self.assertEqual(values, dateTimes2)
-        self.assertEqual(ix1, range(size))
+        self.assertEqual(ix1, list(range(size)))
         self.assertEqual(ix1, ix2)
 
 
@@ -192,14 +194,14 @@ class CollectionTestCaseBase(common.TestCase):
         self.assertEqual(len(d), 0)
         self.assertEqual(d.getMaxLen(), 10)
 
-        for i in range(10):
+        for i in xrange(10):
             d.append(i)
         self.assertEqual(d[0], 0)
         self.assertEqual(d[9], 9)
         self.assertEqual(d[-1], 9)
         self.assertEqual(d[-2], 8)
 
-        for i in range(3):
+        for i in xrange(3):
             d.append(i)
         self.assertEqual(len(d), 10)
         self.assertEqual(d[0], 3)
@@ -212,7 +214,7 @@ class CollectionTestCaseBase(common.TestCase):
 
         # Fill the array.
         self.assertEqual(len(d), 0)
-        for i in range(20):
+        for i in xrange(20):
             d.append(i)
         self.assertEqual(d[0], 10)
         self.assertEqual(d[9], 19)
@@ -295,7 +297,7 @@ class NumPyDequeTestCase(CollectionTestCaseBase):
     def testSum(self):
         d = collections.NumPyDeque(10)
 
-        for i in range(10):
+        for i in xrange(10):
             d.append(i)
         self.assertEqual(d[0:3].sum(), 3)
 

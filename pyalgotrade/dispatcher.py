@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -112,6 +112,9 @@ class Dispatcher(object):
                 elif not eventsDispatched:
                     self.__idleEvent.emit()
         finally:
+            # There are no more events.
+            self.__currDateTime = None
+
             for subject in self.__subjects:
                 subject.stop()
             for subject in self.__subjects:

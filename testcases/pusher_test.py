@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import threading
 import datetime
 
 from pyalgotrade.websocket import pusher
+from pyalgotrade.websocket import client
 
 
 class WebSocketClient(pusher.WebSocketClient):
@@ -63,12 +64,16 @@ class WebSocketClient(pusher.WebSocketClient):
         self.close()
 
 
-class WebSocketClientThread(threading.Thread):
+class WebSocketClientThread(client.WebSocketClientThreadBase):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.__wsclient = WebSocketClient()
+        self.__wsclient = None
 
     def run(self):
+        super(WebSocketClientThread, self).run()
+
+        # We need to build the WebSocketClient right in the thread since it has thread affinity.
+        self.__wsclient = WebSocketClient()
         self.__wsclient.connect()
         self.__wsclient.startClient()
 

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import unittest
 import datetime
 import time
 import threading
-import Queue
 import json
 
-import common as tc_common
-import test_strategy
+from six.moves import queue
+
+from . import common as tc_common
+from . import test_strategy
 
 from pyalgotrade import broker as basebroker
 from pyalgotrade.bitstamp import barfeed
@@ -41,11 +43,11 @@ from pyalgotrade import dispatcher
 class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
-        self.__queue = Queue.Queue()
-        self.__queue.put((wsclient.WebSocketClient.ON_CONNECTED, None))
+        self.__queue = queue.Queue()
+        self.__queue.put((wsclient.WebSocketClient.Event.CONNECTED, None))
         for event in events:
             self.__queue.put(event)
-        self.__queue.put((wsclient.WebSocketClient.ON_DISCONNECTED, None))
+        self.__queue.put((wsclient.WebSocketClient.Event.DISCONNECTED, None))
         self.__stop = False
 
     def getQueue(self):
@@ -78,7 +80,7 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
             }
         eventDict = {}
         eventDict["data"] = json.dumps(dataDict)
-        self.__events.append((wsclient.WebSocketClient.ON_TRADE, wsclient.Trade(dateTime, eventDict)))
+        self.__events.append((wsclient.WebSocketClient.Event.TRADE, wsclient.Trade(dateTime, eventDict)))
 
     def buildWebSocketClientThread(self):
         return WebSocketClientThreadMock(self.__events)
@@ -186,7 +188,17 @@ class TestingLiveBroker(broker.LiveBroker):
         return self.__httpClient
 
 
-class TestStrategy(test_strategy.BaseTestStrategy):
+class NonceTest(unittest.TestCase):
+    def testNonceGenerator(self):
+        gen = httpclient.NonceGenerator()
+        prevNonce = 0
+        for i in range(1000):
+            nonce = gen.getNext()
+            self.assertGreater(nonce, prevNonce)
+            prevNonce = nonce
+
+
+class TestStrategy(test_strategy.BaseStrategy):
     def __init__(self, feed, brk):
         super(TestStrategy, self).__init__(feed, brk)
         self.bid = None

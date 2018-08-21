@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import os
 import random
 import socket
 import threading
+import time
 
 from pyalgotrade.optimizer import base
 from pyalgotrade.optimizer import server
@@ -55,7 +56,7 @@ def worker_process(strategyClass, port, logLevel):
         w = Worker("localhost", port, name)
         w.getLogger().setLevel(logLevel)
         w.run()
-    except Exception, e:
+    except Exception as e:
         w.getLogger().exception("Failed to run worker: %s" % (e))
 
 
@@ -71,30 +72,19 @@ def find_port():
             pass
 
 
-def wait_process(p):
-    timeout = 10
-    p.join(timeout)
+def stop_process(p):
+    timeout = 3
+    p.join(timeout)  # This is necessary to avoid zombie processes.
     while p.is_alive():
+        logger.info("Stopping process %s" % p.pid)
+        p.terminate()
         p.join(timeout)
 
 
-def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR):
-    """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
-
-    :param strategyClass: The strategy class.
-    :param barFeed: The bar feed to use to backtest the strategy.
-    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
-    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
-        a tuple that holds parameter values**.
-    :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
-    :type workerCount: int.
-    :param logLevel: The log level. Defaults to **logging.ERROR**.
-    :rtype: A :class:`Results` instance with the best results found.
-    """
-
-    assert(workerCount is None or workerCount > 0)
+def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=None, logLevel=logging.ERROR, resultSinc=None):
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
+    assert workerCount > 0, "No workers"
 
     ret = None
     workers = []
@@ -105,32 +95,39 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
     # Build and start the server thread before the worker processes.
     # We'll manually stop the server once workers have finished.
     paramSource = base.ParameterSource(strategyParameters)
-    resultSinc = base.ResultSinc()
-    srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, False)
+    if resultSinc is None:
+        resultSinc = base.ResultSinc()
+
+    # Create and start the server.
+    logger.info("Starting server on port %s" % port)
+    srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, autoStop=False, batchSize=batchSize)
     serverThread = ServerThread(srv)
     serverThread.start()
+    logger.info("Waiting for the server to be ready")
+    srv.waitServing()
 
     try:
+        logger.info("Starting %s workers" % workerCount)
         # Build the worker processes.
         for i in range(workerCount):
             workers.append(multiprocessing.Process(
                 target=worker_process,
                 args=(strategyClass, port, logLevel))
             )
-
-        logger.info("Executing workers")
-
         # Start workers
         for process in workers:
             process.start()
 
-        # Wait workers
-        for process in workers:
-            wait_process(process)
-
-        logger.info("All workers finished")
+        # Wait for all jobs to complete.
+        while srv.jobsPending():
+            time.sleep(1)
     finally:
+        # Stop workers
+        for process in workers:
+            stop_process(process)
+
         # Stop and wait the server to finish.
+        logger.info("Stopping server")
         srv.stop()
         serverThread.join()
 
@@ -139,3 +136,22 @@ def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=l
             ret = server.Results(bestParameters.args, bestResult)
 
     return ret
+
+
+def run(strategyClass, barFeed, strategyParameters, workerCount=None, logLevel=logging.ERROR, batchSize=200):
+    """Executes many instances of a strategy in parallel and finds the parameters that yield the best results.
+
+    :param strategyClass: The strategy class.
+    :param barFeed: The bar feed to use to backtest the strategy.
+    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`.
+    :param strategyParameters: The set of parameters to use for backtesting. An iterable object where **each element is
+        a tuple that holds parameter values**.
+    :param workerCount: The number of strategies to run in parallel. If None then as many workers as CPUs are used.
+    :type workerCount: int.
+    :param logLevel: The log level. Defaults to **logging.ERROR**.
+    :param batchSize: The number of strategy executions that are delivered to each worker.
+    :type batchSize: int.
+    :rtype: A :class:`Results` instance with the best results found.
+    """
+
+    return run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=workerCount, logLevel=logLevel)

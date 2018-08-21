@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ class Feed(csvfeed.BarFeed):
     def barsHaveAdjClose(self):
         return False
 
-    def addBarsFromCSV(self, instrument, path, timezone=None):
+    def addBarsFromCSV(self, instrument, path, timezone=None, skipMalformedBars=False):
         """Loads bars for a given instrument from a CSV formatted file.
         The instrument gets registered in the bar feed.
 
@@ -139,10 +139,12 @@ class Feed(csvfeed.BarFeed):
         :type path: string.
         :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
         :type timezone: A pytz timezone.
+        :param skipMalformedBars: True to skip errors while parsing bars.
+        :type skipMalformedBars: boolean.
         """
 
         if timezone is None:
             timezone = self.__timezone
 
         rowParser = RowParser(self.getDailyBarTime(), self.getFrequency(), timezone, self.__sanitizeBars)
-        super(Feed, self).addBarsFromCSV(instrument, path, rowParser)
+        super(Feed, self).addBarsFromCSV(instrument, path, rowParser, skipMalformedBars=skipMalformedBars)

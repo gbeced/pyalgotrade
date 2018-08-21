@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 import unittest
 import datetime
 
-import broker_backtesting_test
+from . import broker_backtesting_test
 
 from pyalgotrade import broker
 from pyalgotrade.broker import fillstrategy

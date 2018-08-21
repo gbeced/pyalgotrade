@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 # limitations under the License.
 
 import abc
+
+import six
 
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
@@ -65,8 +67,8 @@ class BarGrouper(resamplebase.Grouper):
         return ret
 
 
+@six.add_metaclass(abc.ABCMeta)
 class DSResampler(object):
-    __metaclass__ = abc.ABCMeta
 
     def initDSResampler(self, dataSeries, frequency):
         if not resamplebase.is_valid_frequency(frequency):

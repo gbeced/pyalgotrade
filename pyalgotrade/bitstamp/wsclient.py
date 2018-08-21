@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@
 """
 
 import datetime
-import threading
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade.websocket import pusher
+from pyalgotrade.websocket import client
 from pyalgotrade.bitstamp import common
 
 
@@ -93,20 +94,22 @@ class OrderBookUpdate(pusher.Event):
 
 
 class WebSocketClient(pusher.WebSocketClient):
+    """
+    This websocket client class is designed to be running in a separate thread and for that reason
+    events are pushed into a queue.
+    """
+
     PUSHER_APP_KEY = "de504dc5763aeef9ff52"
 
-    # Events
-    ON_TRADE = 1
-    ON_ORDER_BOOK_UPDATE = 2
-    ON_CONNECTED = 3
-    ON_DISCONNECTED = 4
+    class Event:
+        TRADE = 1
+        ORDER_BOOK_UPDATE = 2
+        CONNECTED = 3
+        DISCONNECTED = 4
 
-    def __init__(self):
+    def __init__(self, queue):
         super(WebSocketClient, self).__init__(WebSocketClient.PUSHER_APP_KEY, 5)
-        self.__queue = Queue.Queue()
-
-    def getQueue(self):
-        return self.__queue
+        self.__queue = queue
 
     def onMessage(self, msg):
         # If we can't handle the message, forward it to Pusher WebSocketClient.
@@ -121,29 +124,29 @@ class WebSocketClient(pusher.WebSocketClient):
     ######################################################################
     # WebSocketClientBase events.
 
-    def onOpened(self):
-        pass
-
     def onClosed(self, code, reason):
         common.logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
-        self.__queue.put((WebSocketClient.ON_DISCONNECTED, None))
+        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
     def onDisconnectionDetected(self):
         common.logger.warning("Disconnection detected.")
         try:
             self.stopClient()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error stopping websocket client: %s." % (str(e)))
-        self.__queue.put((WebSocketClient.ON_DISCONNECTED, None))
+        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
     ######################################################################
     # Pusher specific events.
 
     def onConnectionEstablished(self, event):
         common.logger.info("Connection established.")
-        self.subscribeChannel("live_trades")
-        self.subscribeChannel("order_book")
-        self.__queue.put((WebSocketClient.ON_CONNECTED, None))
+        self.__queue.put((WebSocketClient.Event.CONNECTED, None))
+
+        channels = ["live_trades", "order_book"]
+        common.logger.info("Subscribing to channels %s." % channels)
+        for channel in channels:
+            self.subscribeChannel(channel)
 
     def onError(self, event):
         common.logger.error("Error: %s" % (event))
@@ -155,30 +158,41 @@ class WebSocketClient(pusher.WebSocketClient):
     # Bitstamp specific
 
     def onTrade(self, trade):
-        self.__queue.put((WebSocketClient.ON_TRADE, trade))
+        self.__queue.put((WebSocketClient.Event.TRADE, trade))
 
     def onOrderBookUpdate(self, orderBookUpdate):
-        self.__queue.put((WebSocketClient.ON_ORDER_BOOK_UPDATE, orderBookUpdate))
+        self.__queue.put((WebSocketClient.Event.ORDER_BOOK_UPDATE, orderBookUpdate))
 
 
-class WebSocketClientThread(threading.Thread):
+class WebSocketClientThread(client.WebSocketClientThreadBase):
+    """
+    This thread class is responsible for running a WebSocketClient.
+    """
+
     def __init__(self):
         super(WebSocketClientThread, self).__init__()
-        self.__wsClient = WebSocketClient()
+        self.__queue = queue.Queue()
+        self.__wsClient = None
 
     def getQueue(self):
-        return self.__wsClient.getQueue()
-
-    def start(self):
-        self.__wsClient.connect()
-        super(WebSocketClientThread, self).start()
+        return self.__queue
 
     def run(self):
-        self.__wsClient.startClient()
+        super(WebSocketClientThread, self).run()
+
+        # We create the WebSocketClient right in the thread, instead of doing so in the constructor,
+        # because it has thread affinity.
+        try:
+            self.__wsClient = WebSocketClient(self.__queue)
+            self.__wsClient.connect()
+            self.__wsClient.startClient()
+        except Exception:
+            common.logger.exception("Failed to connect: %s")
 
     def stop(self):
         try:
-            common.logger.info("Stopping websocket client.")
-            self.__wsClient.stopClient()
-        except Exception, e:
+            if self.__wsClient is not None:
+                common.logger.info("Stopping websocket client.")
+                self.__wsClient.stopClient()
+        except Exception as e:
             common.logger.error("Error stopping websocket client: %s." % (str(e)))

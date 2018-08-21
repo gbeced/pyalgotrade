@@ -1,8 +1,10 @@
+from __future__ import print_function
+
 from pyalgotrade import strategy
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
+from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.stratanalyzer import sharpe
 
 import numpy as np
@@ -137,8 +139,13 @@ def main(plot):
     instruments = ["gld", "gdx"]
     windowSize = 50
 
-    # Download the bars.
-    feed = yahoofinance.build_feed(instruments, 2006, 2012, ".")
+    # Load the bars. These files were manually downloaded from Yahoo Finance.
+    feed = yahoofeed.Feed()
+    for year in range(2006, 2012+1):
+        for instrument in instruments:
+            fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
+            print("Loading bars from %s" % fileName)
+            feed.addBarsFromCSV(instrument, fileName)
 
     strat = StatArb(feed, instruments[0], instruments[1], windowSize)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
@@ -150,7 +157,7 @@ def main(plot):
         plt.getOrCreateSubplot("spread").addDataSeries("Spread", strat.getSpreadDS())
 
     strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print("Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05))
 
     if plot:
         plt.plot()

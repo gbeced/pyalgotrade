@@ -1,16 +1,15 @@
-2013-09-21 00:02:35,136 yahoofinance [INFO] Creating data directory
-2013-09-21 00:02:35,136 yahoofinance [INFO] Downloading gld 2006 to data/gld-2006-yahoofinance.csv
-2013-09-21 00:02:35,899 yahoofinance [INFO] Downloading gdx 2006 to data/gdx-2006-yahoofinance.csv
-2013-09-21 00:02:36,637 yahoofinance [INFO] Downloading gld 2007 to data/gld-2007-yahoofinance.csv
-2013-09-21 00:02:37,265 yahoofinance [INFO] Downloading gdx 2007 to data/gdx-2007-yahoofinance.csv
-2013-09-21 00:02:37,881 yahoofinance [INFO] Downloading gld 2008 to data/gld-2008-yahoofinance.csv
-2013-09-21 00:02:38,462 yahoofinance [INFO] Downloading gdx 2008 to data/gdx-2008-yahoofinance.csv
-2013-09-21 00:02:39,243 yahoofinance [INFO] Downloading gld 2009 to data/gld-2009-yahoofinance.csv
-2013-09-21 00:02:39,996 yahoofinance [INFO] Downloading gdx 2009 to data/gdx-2009-yahoofinance.csv
-2013-09-21 00:02:40,577 yahoofinance [INFO] Downloading gld 2010 to data/gld-2010-yahoofinance.csv
-2013-09-21 00:02:42,630 yahoofinance [INFO] Downloading gdx 2010 to data/gdx-2010-yahoofinance.csv
-2013-09-21 00:02:43,397 yahoofinance [INFO] Downloading gld 2011 to data/gld-2011-yahoofinance.csv
-2013-09-21 00:02:44,153 yahoofinance [INFO] Downloading gdx 2011 to data/gdx-2011-yahoofinance.csv
-2013-09-21 00:02:44,901 yahoofinance [INFO] Downloading gld 2012 to data/gld-2012-yahoofinance.csv
-2013-09-21 00:02:45,965 yahoofinance [INFO] Downloading gdx 2012 to data/gdx-2012-yahoofinance.csv
+Loading bars from gld-2006-yahoofinance.csv
+Loading bars from gdx-2006-yahoofinance.csv
+Loading bars from gld-2007-yahoofinance.csv
+Loading bars from gdx-2007-yahoofinance.csv
+Loading bars from gld-2008-yahoofinance.csv
+Loading bars from gdx-2008-yahoofinance.csv
+Loading bars from gld-2009-yahoofinance.csv
+Loading bars from gdx-2009-yahoofinance.csv
+Loading bars from gld-2010-yahoofinance.csv
+Loading bars from gdx-2010-yahoofinance.csv
+Loading bars from gld-2011-yahoofinance.csv
+Loading bars from gdx-2011-yahoofinance.csv
+Loading bars from gld-2012-yahoofinance.csv
+Loading bars from gdx-2012-yahoofinance.csv
 Sharpe ratio: -0.20

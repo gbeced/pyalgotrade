@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,56 +21,61 @@
 import os
 import datetime
 
-import common
+from . import common
 try:
     # This will get environment variables set.
-    import credentials
+    from . import credentials
 except:
     pass
 
 from pyalgotrade import dispatcher
-from pyalgotrade.twitter import feed as twitterfeed
+
+try:
+    from pyalgotrade.twitter import feed as twitterfeed
 
 
-class TwitterFeedTestCase(common.TestCase):
-    def testTwitterFeed(self):
-        events = {
-            "on_tweet": False,
-            "start": datetime.datetime.now()
-        }
-        disp = dispatcher.Dispatcher()
+    class TwitterFeedTestCase(common.TestCase):
+        def testTwitterFeed(self):
+            events = {
+                "on_tweet": False,
+                "start": datetime.datetime.now()
+            }
+            disp = dispatcher.Dispatcher()
 
-        def on_tweet(data):
-            events["on_tweet"] = True
-            disp.stop()
-
-        def on_idle():
-            # Stop after 5 minutes.
-            if (datetime.datetime.now() - events["start"]).seconds > 60*5:
+            def on_tweet(data):
+                events["on_tweet"] = True
                 disp.stop()
 
-        # Create a twitter feed to track BitCoin related events.
-        consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
-        consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
-        access_token = os.getenv("TWITTER_ACCESS_TOKEN")
-        access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-        track = ["bitcoin", "btc"]
-        follow = []
-        languages = ["en"]
-        twitterFeed = twitterfeed.TwitterFeed(
-            consumer_key,
-            consumer_secret,
-            access_token,
-            access_token_secret,
-            track,
-            follow,
-            languages
-        )
+            def on_idle():
+                # Stop after 5 minutes.
+                if (datetime.datetime.now() - events["start"]).seconds > 60*5:
+                    disp.stop()
 
-        disp.addSubject(twitterFeed)
-        twitterFeed.subscribe(on_tweet)
-        disp.getIdleEvent().subscribe(on_idle)
-        disp.run()
+            # Create a twitter feed to track BitCoin related events.
+            consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
+            consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
+            access_token = os.getenv("TWITTER_ACCESS_TOKEN")
+            access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+            track = ["bitcoin", "btc"]
+            follow = []
+            languages = ["en"]
+            twitterFeed = twitterfeed.TwitterFeed(
+                consumer_key,
+                consumer_secret,
+                access_token,
+                access_token_secret,
+                track,
+                follow,
+                languages
+            )
 
-        # Check that we received both events.
-        self.assertTrue(events["on_tweet"])
+            disp.addSubject(twitterFeed)
+            twitterFeed.subscribe(on_tweet)
+            disp.getIdleEvent().subscribe(on_idle)
+            disp.run()
+
+            # Check that we received both events.
+            self.assertTrue(events["on_tweet"])
+except SyntaxError:
+    # https://github.com/tweepy/tweepy/issues/1064
+    pass

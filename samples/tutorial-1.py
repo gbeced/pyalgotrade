@@ -1,5 +1,5 @@
 from pyalgotrade import strategy
-from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.barfeed import quandlfeed
 
 
 class MyStrategy(strategy.BacktestingStrategy):
@@ -11,9 +11,9 @@ class MyStrategy(strategy.BacktestingStrategy):
         bar = bars[self.__instrument]
         self.info(bar.getClose())
 
-# Load the yahoo feed from the CSV file
-feed = yahoofeed.Feed()
-feed.addBarsFromCSV("orcl", "orcl-2000.csv")
+# Load the bar feed from the CSV file
+feed = quandlfeed.Feed()
+feed.addBarsFromCSV("orcl", "WIKI-ORCL-2000-quandl.csv")
 
 # Evaluate the strategy with the feed's bars.
 myStrategy = MyStrategy(feed, "orcl")

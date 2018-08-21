@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import technical
+from six.moves import xrange
 
+from pyalgotrade import technical
 
 # RSI = 100 - 100 / (1 + RS)
 # RS = Average gain / Average loss
@@ -40,6 +41,7 @@ from pyalgotrade import technical
 # These traditional levels can also be adjusted to better fit the security or analytical requirements.
 # Raising overbought to 80 or lowering oversold to 20 will reduce the number of overbought/oversold readings.
 # Short-term traders sometimes use 2-period RSI to look for overbought readings above 80 and oversold readings below 20.
+
 
 def gain_loss_one(prevValue, nextValue):
     change = nextValue - prevValue
@@ -65,23 +67,6 @@ def avg_gain_loss(values, begin, end):
         gain += currGain
         loss += currLoss
     return (gain/float(rangeLen-1), loss/float(rangeLen-1))
-
-
-def rsi(values, period):
-    assert(period > 1)
-    if len(values) < period + 1:
-        return None
-
-    avgGain, avgLoss = avg_gain_loss(values, 0, period)
-    for i in xrange(period, len(values)):
-        gain, loss = gain_loss_one(values[i-1], values[i])
-        avgGain = (avgGain * (period - 1) + gain) / float(period)
-        avgLoss = (avgLoss * (period - 1) + loss) / float(period)
-
-    if avgLoss == 0:
-        return 100
-    rs = avgGain / avgLoss
-    return 100 - 100 / (1 + rs)
 
 
 class RSIEventWindow(technical.EventWindow):

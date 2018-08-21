@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ class MemFeed(feed.BaseFeed):
     def start(self):
         super(MemFeed, self).start()
         # Now that all the data is in place, sort it to dispatch it in order.
-        cmpFun = lambda x, y: cmp(x[0], y[0])
-        self.__values.sort(cmpFun)
+        self.__values.sort(key=lambda x: x[0])
 
     def stop(self):
         pass

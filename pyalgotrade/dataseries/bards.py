@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 """
 
 from pyalgotrade import dataseries
+
+import six
 
 
 class BarDataSeries(dataseries.SequenceDataSeries):
@@ -69,7 +71,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 
         # Process extra columns.
-        for name, value in bar.getExtraColumns().iteritems():
+        for name, value in six.iteritems(bar.getExtraColumns()):
             extraDS = self.__getOrCreateExtraDS(name)
             extraDS.appendWithDateTime(dateTime, value)
 

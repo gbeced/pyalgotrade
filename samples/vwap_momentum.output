@@ -1,4 +1,3 @@
-2013-09-21 00:01:23,813 yahoofinance [INFO] Creating data directory
-2013-09-21 00:01:23,814 yahoofinance [INFO] Downloading aapl 2011 to data/aapl-2011-yahoofinance.csv
-2013-09-21 00:01:25,275 yahoofinance [INFO] Downloading aapl 2012 to data/aapl-2012-yahoofinance.csv
+2017-07-24 22:43:34,182 quandl [INFO] Downloading AAPL 2011 to ./WIKI-AAPL-2011-quandl.csv
+2017-07-24 22:43:36,415 quandl [INFO] Downloading AAPL 2012 to ./WIKI-AAPL-2012-quandl.csv
 Sharpe ratio: 0.89

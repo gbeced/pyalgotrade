@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,14 +23,22 @@ import datetime
 from pyalgotrade import strategy
 
 
-class BaseTestStrategy(strategy.BaseStrategy):
-    def __init__(self, barFeed, broker, maxMinutes=5):
-        super(BaseTestStrategy, self).__init__(barFeed, broker)
+class TestStrategyMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(TestStrategyMixin, self).__init__(*args, **kwargs)
         self.posExecutionInfo = []
         self.ordersUpdated = []
         self.orderExecutionInfo = []
         self.begin = datetime.datetime.now()
-        self.deadline = self.begin + datetime.timedelta(minutes=maxMinutes)
+        self.deadline = None
+        self._scheduled = {}
+        self.setStopAfter(5)
+
+    def setStopAfter(self, minutes):
+        self.deadline = datetime.datetime.now() + datetime.timedelta(minutes=minutes)
+
+    def scheduleCall(self, dateTime, callable):
+        self._scheduled.setdefault(dateTime, []).append(callable)
 
     def onOrderUpdated(self, order):
         self.ordersUpdated.append(order)
@@ -51,3 +59,17 @@ class BaseTestStrategy(strategy.BaseStrategy):
     def onIdle(self):
         if datetime.datetime.now() >= self.deadline:
             self.stop()
+
+    def onBars(self, bars):
+        for callable in self._scheduled.get(bars.getDateTime(), []):
+            callable()
+
+
+class BaseStrategy(TestStrategyMixin, strategy.BaseStrategy):
+    def __init__(self, barFeed, broker):
+        super(BaseStrategy, self).__init__(barFeed, broker)
+
+
+class BacktestingStrategy(TestStrategyMixin, strategy.BacktestingStrategy):
+    def __init__(self, barFeed, cash_or_brk=1000000):
+        super(BacktestingStrategy, self).__init__(barFeed, cash_or_brk)

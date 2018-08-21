@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import xrange
 
 from pyalgotrade.technical import roc
 from pyalgotrade import dispatcher
@@ -220,23 +221,35 @@ class Profiler(object):
 def build_plot(profilerResults):
     # Calculate each value.
     x = []
-    y = []
+    mean = []
     std = []
     for t in xrange(profilerResults.getLookBack()*-1, profilerResults.getLookForward()+1):
         x.append(t)
         values = np.asarray(profilerResults.getValues(t))
-        y.append(values.mean())
+        mean.append(values.mean())
         std.append(values.std())
 
-    # Plot
+    # Cleanup
     plt.clf()
-    plt.plot(x, y, color='#0000FF')
-    eventT = profilerResults.getLookBack()
-    # stdBegin = eventT + 1
-    # plt.errorbar(x[stdBegin:], y[stdBegin:], std[stdBegin:], alpha=0, ecolor='#AAAAFF')
-    plt.errorbar(x[eventT+1:], y[eventT+1:], std[eventT+1:], alpha=0, ecolor='#AAAAFF')
-    # plt.errorbar(x, y, std, alpha=0, ecolor='#AAAAFF')
-    plt.axhline(y=y[eventT], xmin=-1*profilerResults.getLookBack(), xmax=profilerResults.getLookForward(), color='#000000')
+    # Plot a line with the mean cumulative returns.
+    plt.plot(x, mean, color='#0000FF')
+
+    # Error bars starting on the first lookforward period.
+    lookBack = profilerResults.getLookBack()
+    firstLookForward = lookBack+1
+    plt.errorbar(
+        x=x[firstLookForward:], y=mean[firstLookForward:], yerr=std[firstLookForward:],
+        capsize=3,
+        ecolor='#AAAAFF', alpha=0.5
+    )
+
+    # Horizontal line at the level of the first cumulative return.
+    plt.axhline(
+        y=mean[lookBack],
+        xmin=-1*profilerResults.getLookBack(), xmax=profilerResults.getLookForward(),
+        color='#000000'
+    )
+
     plt.xlim(profilerResults.getLookBack()*-1-0.5, profilerResults.getLookForward()+0.5)
     plt.xlabel('Time')
     plt.ylabel('Cumulative returns')

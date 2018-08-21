@@ -1,4 +1,60 @@
-2013-09-21 00:06:07,740 yahoofinance [INFO] Creating data directory
-2013-09-21 00:06:07,741 yahoofinance [INFO] Downloading yhoo 2011 to data/yhoo-2011-yahoofinance.csv
-2013-09-21 00:06:09,621 yahoofinance [INFO] Downloading yhoo 2012 to data/yhoo-2012-yahoofinance.csv
+2011-07-20 00:00:00 strategy [INFO] Placing buy market order for 74183 shares
+2011-07-20 00:00:00 strategy [INFO] Buy order 1 updated - Status: SUBMITTED
+2011-07-21 00:00:00 strategy [INFO] Buy order 1 updated - Status: ACCEPTED
+2011-07-21 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [1] for 74183 share/s
+2011-07-21 00:00:00 strategy [INFO] Buy order 1 updated - Status: CANCELED
+2011-07-21 00:00:00 strategy [INFO] Placing buy market order for 73583 shares
+2011-07-21 00:00:00 strategy [INFO] Buy order 2 updated - Status: SUBMITTED
+2011-07-22 00:00:00 strategy [INFO] Buy order 2 updated - Status: ACCEPTED
+2011-07-22 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [2] for 73583 share/s
+2011-07-22 00:00:00 strategy [INFO] Buy order 2 updated - Status: CANCELED
+2011-07-25 00:00:00 strategy [INFO] Placing buy market order for 73046 shares
+2011-07-25 00:00:00 strategy [INFO] Buy order 3 updated - Status: SUBMITTED
+2011-07-26 00:00:00 strategy [INFO] Buy order 3 updated - Status: ACCEPTED
+2011-07-26 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [3] for 73046 share/s
+2011-07-26 00:00:00 strategy [INFO] Buy order 3 updated - Status: CANCELED
+2011-07-27 00:00:00 strategy [INFO] Placing buy market order for 73610 shares
+2011-07-27 00:00:00 strategy [INFO] Buy order 4 updated - Status: SUBMITTED
+2011-07-28 00:00:00 strategy [INFO] Buy order 4 updated - Status: ACCEPTED
+2011-07-28 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [4] for 73610 share/s
+2011-07-28 00:00:00 strategy [INFO] Buy order 4 updated - Status: CANCELED
+2011-07-28 00:00:00 strategy [INFO] Placing buy market order for 74074 shares
+2011-07-28 00:00:00 strategy [INFO] Buy order 5 updated - Status: SUBMITTED
+2011-07-29 00:00:00 strategy [INFO] Buy order 5 updated - Status: ACCEPTED
+2011-07-29 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [5] for 74074 share/s
+2011-07-29 00:00:00 strategy [INFO] Buy order 5 updated - Status: CANCELED
+2011-07-29 00:00:00 strategy [INFO] Placing buy market order for 76335 shares
+2011-07-29 00:00:00 strategy [INFO] Buy order 6 updated - Status: SUBMITTED
+2011-08-01 00:00:00 strategy [INFO] Buy order 6 updated - Status: ACCEPTED
+2011-08-01 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [6] for 76335 share/s
+2011-08-01 00:00:00 strategy [INFO] Buy order 6 updated - Status: CANCELED
+2011-08-01 00:00:00 strategy [INFO] Placing buy market order for 76335 shares
+2011-08-01 00:00:00 strategy [INFO] Buy order 7 updated - Status: SUBMITTED
+2011-08-02 00:00:00 strategy [INFO] Buy order 7 updated - Status: ACCEPTED
+2011-08-02 00:00:00 strategy [INFO] Buy order 7 updated - Status: FILLED
+2011-09-15 00:00:00 strategy [INFO] Placing sell market order for 76335 shares
+2011-09-15 00:00:00 strategy [INFO] Sell order 8 updated - Status: SUBMITTED
+2011-09-16 00:00:00 strategy [INFO] Sell order 8 updated - Status: ACCEPTED
+2011-09-16 00:00:00 strategy [INFO] Sell order 8 updated - Status: FILLED
+2012-02-17 00:00:00 strategy [INFO] Placing buy market order for 77454 shares
+2012-02-17 00:00:00 strategy [INFO] Buy order 9 updated - Status: SUBMITTED
+2012-02-21 00:00:00 strategy [INFO] Buy order 9 updated - Status: ACCEPTED
+2012-02-21 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill yhoo order [9] for 77454 share/s
+2012-02-21 00:00:00 strategy [INFO] Buy order 9 updated - Status: CANCELED
+2012-02-21 00:00:00 strategy [INFO] Placing buy market order for 78819 shares
+2012-02-21 00:00:00 strategy [INFO] Buy order 10 updated - Status: SUBMITTED
+2012-02-22 00:00:00 strategy [INFO] Buy order 10 updated - Status: ACCEPTED
+2012-02-22 00:00:00 strategy [INFO] Buy order 10 updated - Status: FILLED
+2012-06-29 00:00:00 strategy [INFO] Placing sell market order for 78819 shares
+2012-06-29 00:00:00 strategy [INFO] Sell order 11 updated - Status: SUBMITTED
+2012-07-02 00:00:00 strategy [INFO] Sell order 11 updated - Status: ACCEPTED
+2012-07-02 00:00:00 strategy [INFO] Sell order 11 updated - Status: FILLED
+2012-08-10 00:00:00 strategy [INFO] Placing buy market order for 82565 shares
+2012-08-10 00:00:00 strategy [INFO] Buy order 12 updated - Status: SUBMITTED
+2012-08-13 00:00:00 strategy [INFO] Buy order 12 updated - Status: ACCEPTED
+2012-08-13 00:00:00 strategy [INFO] Buy order 12 updated - Status: FILLED
+2012-10-23 00:00:00 strategy [INFO] Placing sell market order for 82565 shares
+2012-10-23 00:00:00 strategy [INFO] Sell order 13 updated - Status: SUBMITTED
+2012-10-24 00:00:00 strategy [INFO] Sell order 13 updated - Status: ACCEPTED
+2012-10-24 00:00:00 strategy [INFO] Sell order 13 updated - Status: FILLED
 Sharpe ratio: 0.71

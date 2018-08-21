@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,39 +18,35 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import xmlrpclib
-import pickle
-import time
 import socket
-import random
 import multiprocessing
+import retrying
+
+from six.moves import xmlrpc_client
 
 import pyalgotrade.logger
 from pyalgotrade import barfeed
+from pyalgotrade.optimizer import serialization
+
+wait_exponential_multiplier = 500
+wait_exponential_max = 10000
+stop_max_delay = 10000
 
 
-def call_function(function, *args, **kwargs):
+def any_exception(exception):
+    return True
+
+
+@retrying.retry(wait_exponential_multiplier=wait_exponential_multiplier, wait_exponential_max=wait_exponential_max, stop_max_delay=stop_max_delay, retry_on_exception=any_exception)
+def retry_on_network_error(function, *args, **kwargs):
     return function(*args, **kwargs)
-
-
-def call_and_retry_on_network_error(function, retryCount, *args, **kwargs):
-    ret = None
-    while retryCount > 0:
-        retryCount -= 1
-        try:
-            ret = call_function(function, *args, **kwargs)
-            return ret
-        except socket.error:
-            time.sleep(random.randint(1, 3))
-    ret = call_function(function, *args, **kwargs)
-    return ret
 
 
 class Worker(object):
     def __init__(self, address, port, workerName=None):
         url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
-        self.__server = xmlrpclib.ServerProxy(url, allow_none=True)
         self.__logger = pyalgotrade.logger.getLogger(workerName)
+        self.__server = xmlrpc_client.ServerProxy(url, allow_none=True)
         if workerName is None:
             self.__workerName = socket.gethostname()
         else:
@@ -60,26 +56,26 @@ class Worker(object):
         return self.__logger
 
     def getInstrumentsAndBars(self):
-        ret = call_and_retry_on_network_error(self.__server.getInstrumentsAndBars, 10)
-        ret = pickle.loads(ret)
+        ret = retry_on_network_error(self.__server.getInstrumentsAndBars)
+        ret = serialization.loads(ret)
         return ret
 
     def getBarsFrequency(self):
-        ret = call_and_retry_on_network_error(self.__server.getBarsFrequency, 10)
+        ret = retry_on_network_error(self.__server.getBarsFrequency)
         ret = int(ret)
         return ret
 
     def getNextJob(self):
-        ret = call_and_retry_on_network_error(self.__server.getNextJob, 10)
-        ret = pickle.loads(ret)
+        ret = retry_on_network_error(self.__server.getNextJob)
+        ret = serialization.loads(ret)
         return ret
 
     def pushJobResults(self, jobId, result, parameters):
-        jobId = pickle.dumps(jobId)
-        result = pickle.dumps(result)
-        parameters = pickle.dumps(parameters)
-        workerName = pickle.dumps(self.__workerName)
-        call_and_retry_on_network_error(self.__server.pushJobResults, 10, jobId, result, parameters, workerName)
+        jobId = serialization.dumps(jobId)
+        result = serialization.dumps(result)
+        parameters = serialization.dumps(parameters)
+        workerName = serialization.dumps(self.__workerName)
+        retry_on_network_error(self.__server.pushJobResults, jobId, result, parameters, workerName)
 
     def __processJob(self, job, barsFreq, instruments, bars):
         bestResult = None
@@ -93,7 +89,7 @@ class Worker(object):
             result = None
             try:
                 result = self.runStrategy(feed, *parameters)
-            except Exception, e:
+            except Exception as e:
                 self.getLogger().exception("Error running strategy with parameters %s: %s" % (str(parameters), e))
             self.getLogger().info("Result %s" % result)
             if bestResult is None or result > bestResult:
@@ -122,7 +118,7 @@ class Worker(object):
                 self.__processJob(job, barsFreq, instruments, bars)
                 job = self.getNextJob()
             self.getLogger().info("Finished running")
-        except Exception, e:
+        except Exception as e:
             self.getLogger().exception("Finished running with errors: %s" % (e))
 
 

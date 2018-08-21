@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,25 +39,22 @@ class LeastSquaresRegressionWindow(technical.EventWindow):
     def __init__(self, windowSize):
         assert(windowSize > 1)
         super(LeastSquaresRegressionWindow, self).__init__(windowSize)
-        self.__timestamps = collections.NumPyDeque(windowSize)
+        self._timestamps = collections.NumPyDeque(windowSize)
 
     def onNewValue(self, dateTime, value):
         technical.EventWindow.onNewValue(self, dateTime, value)
         if value is not None:
             timestamp = dt.datetime_to_timestamp(dateTime)
-            if len(self.__timestamps):
-                assert(timestamp > self.__timestamps[-1])
-            self.__timestamps.append(timestamp)
+            if len(self._timestamps):
+                assert(timestamp > self._timestamps[-1])
+            self._timestamps.append(timestamp)
 
     def __getValueAtImpl(self, timestamp):
         ret = None
         if self.windowFull():
-            a, b = lsreg(self.__timestamps.data(), self.getValues())
+            a, b = lsreg(self._timestamps.data(), self.getValues())
             ret = a * timestamp + b
         return ret
-
-    def getTimeStamps(self):
-        return self.__timestamps
 
     def getValueAt(self, dateTime):
         return self.__getValueAtImpl(dt.datetime_to_timestamp(dateTime))
@@ -65,7 +62,7 @@ class LeastSquaresRegressionWindow(technical.EventWindow):
     def getValue(self):
         ret = None
         if self.windowFull():
-            ret = self.__getValueAtImpl(self.__timestamps.data()[-1])
+            ret = self.__getValueAtImpl(self._timestamps.data()[-1])
         return ret
 
 

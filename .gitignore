@@ -3,12 +3,17 @@ MANIFEST
 doc/_build
 .idea
 .coverage
+.coverage.*
 .ipynb_checkpoints
 .ropeproject
+.tox
+.pytest_cache
 
-data
-dist
-build
-PyAlgoTrade.egg-info
+/venv
+/data
+/dist
+/build
+/PyAlgoTrade.egg-info
+/notebooks
 
-testcases/twitter_credentials.py
+/testcases/credentials.py

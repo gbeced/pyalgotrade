@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@
 
 import os
 
-import common
-import feed_test
+from six.moves import xrange
+
+from . import common
+from . import feed_test
 
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.barfeed import sqlitefeed

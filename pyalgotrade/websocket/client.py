@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,15 @@
 
 import json
 import time
+import threading
 
+import six
 from ws4py.client import tornadoclient
 import tornado
+if six.PY3:
+    import asyncio
+    import tornado.platform.asyncio
+
 import pyalgotrade.logger
 
 
@@ -73,7 +79,7 @@ class KeepAliveMgr(object):
 
     def start(self):
         # Check every second.
-        self.__callback = tornado.ioloop.PeriodicCallback(self._keepAlive, 1000, self.__wsClient.getIOLoop())
+        self.__callback = tornado.ioloop.PeriodicCallback(self._keepAlive, 1000)
         self.__callback.start()
 
     def stop(self):
@@ -91,6 +97,7 @@ class KeepAliveMgr(object):
 
 # Base clase for websocket clients.
 # To use it call connect and startClient, and stopClient.
+# Note that this class has thread affinity, so build it and use it from the same thread.
 class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
     def __init__(self, url):
         super(WebSocketClientBase, self).__init__(url)
@@ -125,7 +132,7 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
                     return
 
             self.onMessage(msg)
-        except Exception, e:
+        except Exception as e:
             self.onUnhandledException(e)
 
     def opened(self):
@@ -157,7 +164,7 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
             if self.__connected:
                 self.close()
             self.close_connection()
-        except Exception, e:
+        except Exception as e:
             logger.warning("Failed to close connection: %s" % (e))
 
     ######################################################################
@@ -178,3 +185,12 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
 
     def onDisconnectionDetected(self):
         pass
+
+
+# Base clase for threads that will run a WebSocketClientBase
+# Subclasses should call super(WebSocketClientThread, self).run() insinde run.
+# Check https://github.com/tornadoweb/tornado/issues/2308
+class WebSocketClientThreadBase(threading.Thread):
+    def run(self):
+        if six.PY3:
+            asyncio.set_event_loop_policy(tornado.platform.asyncio.AnyThreadEventLoopPolicy())

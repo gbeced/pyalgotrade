@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,12 @@
 
 import datetime
 import os
+import argparse
+
+import six
+
 from pyalgotrade import bar
 from pyalgotrade.barfeed import quandlfeed
-
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
@@ -88,7 +91,8 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
 
 
 def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None,
-               skipErrors=False, noAdjClose=False, authToken=None, columnNames={}, forceDownload=False
+               skipErrors=False, authToken=None, columnNames={}, forceDownload=False,
+               skipMalformedBars=False
                ):
     """Build and load a :class:`pyalgotrade.barfeed.quandlfeed.Feed` using CSV files downloaded from Quandl.
     CSV files are downloaded if they haven't been downloaded before.
@@ -109,8 +113,6 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
     :type timezone: A pytz timezone.
     :param skipErrors: True to keep on loading/downloading files in case of errors.
     :type skipErrors: boolean.
-    :param noAdjClose: True if the instruments don't have adjusted close values.
-    :type noAdjClose: boolean.
     :param authToken: Optional. An authentication token needed if you're doing more than 50 calls per day.
     :type authToken: string.
     :param columnNames: Optional. A dictionary to map column names. Valid key values are:
@@ -124,17 +126,17 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
         * adj_close
 
     :type columnNames: dict.
+    :param skipMalformedBars: True to skip errors while parsing bars.
+    :type skipMalformedBars: boolean.
 
     :rtype: :class:`pyalgotrade.barfeed.quandlfeed.Feed`.
     """
 
     logger = pyalgotrade.logger.getLogger("quandl")
     ret = quandlfeed.Feed(frequency, timezone)
-    if noAdjClose:
-        ret.setNoAdjClose()
 
     # Additional column names.
-    for col, name in columnNames.iteritems():
+    for col, name in six.iteritems(columnNames):
         ret.setColumnName(col, name)
 
     if not os.path.exists(storage):
@@ -149,15 +151,57 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                 try:
                     if frequency == bar.Frequency.DAY:
                         download_daily_bars(sourceCode, tableCode, year, fileName, authToken)
-                    elif frequency == bar.Frequency.WEEK:
-                        download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
                     else:
-                        raise Exception("Invalid frequency")
-                except Exception, e:
+                        assert frequency == bar.Frequency.WEEK, "Invalid frequency"
+                        download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
+                except Exception as e:
                     if skipErrors:
                         logger.error(str(e))
                         continue
                     else:
                         raise e
-            ret.addBarsFromCSV(tableCode, fileName)
+            ret.addBarsFromCSV(tableCode, fileName, skipMalformedBars=skipMalformedBars)
     return ret
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Quandl utility")
+
+    parser.add_argument("--auth-token", required=False, help="An authentication token needed if you're doing more than 50 calls per day")
+    parser.add_argument("--source-code", required=True, help="The dataset source code")
+    parser.add_argument("--table-code", required=True, help="The dataset table code")
+    parser.add_argument("--from-year", required=True, type=int, help="The first year to download")
+    parser.add_argument("--to-year", required=True, type=int, help="The last year to download")
+    parser.add_argument("--storage", required=True, help="The path were the files will be downloaded to")
+    parser.add_argument("--force-download", action='store_true', help="Force downloading even if the files exist")
+    parser.add_argument("--ignore-errors", action='store_true', help="True to keep on downloading files in case of errors")
+    parser.add_argument("--frequency", default="daily", choices=["daily", "weekly"], help="The frequency of the bars. Only daily or weekly are supported")
+
+    args = parser.parse_args()
+
+    logger = pyalgotrade.logger.getLogger("quandl")
+
+    if not os.path.exists(args.storage):
+        logger.info("Creating %s directory" % (args.storage))
+        os.mkdir(args.storage)
+
+    for year in range(args.from_year, args.to_year+1):
+        fileName = os.path.join(args.storage, "%s-%s-%d-quandl.csv" % (args.source_code, args.table_code, year))
+        if not os.path.exists(fileName) or args.force_download:
+            logger.info("Downloading %s %d to %s" % (args.table_code, year, fileName))
+            try:
+                if args.frequency == "daily":
+                    download_daily_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
+                else:
+                    assert args.frequency == "weekly", "Invalid frequency"
+                    download_weekly_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
+            except Exception as e:
+                if args.ignore_errors:
+                    logger.error(str(e))
+                    continue
+                else:
+                    raise
+
+
+if __name__ == "__main__":
+    main()

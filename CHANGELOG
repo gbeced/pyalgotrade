@@ -1,3 +1,17 @@
+Version 0.20 (20/Aug/2018)
+. [NEW] Added support for Python 3.7.
+. [NEW] Added setShares method for back-testing broker. Thanks winkidney for implementing this.
+. [NEW] Added an option to support skipping errors while parsing CSV files.
+. [NEW] Added batchSize parameter to optimizer component. Thanks micmicmichael for implementing this.
+. [NEW] Added savePlot to the plotter to save the plot to a file. Thanks Kimble Young for implementing this.
+. [FIX] Fixed a bug in the Event class when unsubscribing and re-subscribing while emitting. Thanks pjz for reporting this.
+. [FIX] Fixed a race condition in the local optimizer that was sometimes getting blocked waiting for workers.
+. [FIX] Fixed a bug while generating nonces for Bitstamp. Thanks pjz for reporting this.
+. [FIX] Fixed callback for BaseStrategy.resampleBarFeed to match onBars prototype.
+. [FIX] Fixed extra columns parsing in csvfeed.GenericRowParser. Thanks Jones Chung for reporting this.
+. [BREAKING CHANGE] Removed support for downloading bars from Yahoo Finance.
+. [BREAKING CHANGE] Removed support for downloading bars from Google Finance.
+
 Version 0.18 (17/Aug/2016)
 . [NEW] Returns analyzer now stores datetimes along with each sample. Thanks MatthiasKauer for implementing this.
 . [NEW] Quandl tool to build feed supports mapping column names.

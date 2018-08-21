@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ from distutils import version
 import pytz
 import numpy
 
-import common
-import strategy_test
-import position_test
+from . import common
+from . import strategy_test
+from . import position_test
 
 from pyalgotrade.barfeed import ninjatraderfeed
 from pyalgotrade.barfeed import csvfeed

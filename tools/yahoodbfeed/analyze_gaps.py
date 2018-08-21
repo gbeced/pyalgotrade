@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ def main():
         stockCallback = lambda stock: process_symbol(stock.getTicker(), fromYear, toYear, missingDataVerifierClass)
         indexCallback = stockCallback
         symbolsxml.parse(symbolsFile, stockCallback, indexCallback)
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 main()

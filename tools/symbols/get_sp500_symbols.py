@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ def main():
 
         logger.info("Writing sp500.xml")
         symbolsXML.write("sp500.xml")
-    except Exception, e:
+    except Exception as e:
         logger.error(str(e))
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@
 import abc
 import datetime
 
+import six
+
 from pyalgotrade.utils import dt
 from pyalgotrade import bar
 
 
+@six.add_metaclass(abc.ABCMeta)
 class TimeRange(object):
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def belongs(self, dateTime):
@@ -137,8 +139,8 @@ def build_range(dateTime, frequency):
     return ret
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Grouper(object):
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, groupDateTime):
         self.__groupDateTime = groupDateTime

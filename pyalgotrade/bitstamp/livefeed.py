@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@
 
 import datetime
 import time
-import Queue
+
+from six.moves import queue
 
 from pyalgotrade import bar
 from pyalgotrade import barfeed
@@ -114,7 +115,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         self.registerInstrument(common.btc_symbol)
         self.__prevTradeDateTime = None
         self.__thread = None
-        self.__initializationOk = None
+        self.__wsClientConnected = False
         self.__enableReconnection = True
         self.__stopped = False
         self.__orderBookUpdateEvent = observer.Event()
@@ -130,31 +131,32 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         self.__enableReconnection = enableReconnection
 
     def __initializeClient(self):
-        self.__initializationOk = None
         common.logger.info("Initializing websocket client.")
+        assert self.__wsClientConnected is False, "Websocket client already connected"
 
         try:
             # Start the thread that runs the client.
             self.__thread = self.buildWebSocketClientThread()
             self.__thread.start()
-        except Exception, e:
-            self.__initializationOk = False
-            common.logger.error("Error connecting : %s" % str(e))
+        except Exception as e:
+            common.logger.exception("Error connecting : %s" % str(e))
 
         # Wait for initialization to complete.
-        while self.__initializationOk is None and self.__thread.is_alive():
-            self.__dispatchImpl([wsclient.WebSocketClient.ON_CONNECTED])
+        while not self.__wsClientConnected and self.__thread.is_alive():
+            self.__dispatchImpl([wsclient.WebSocketClient.Event.CONNECTED])
 
-        if self.__initializationOk:
+        if self.__wsClientConnected:
             common.logger.info("Initialization ok.")
         else:
             common.logger.error("Initialization failed.")
-        return self.__initializationOk
+        return self.__wsClientConnected
 
     def __onConnected(self):
-        self.__initializationOk = True
+        self.__wsClientConnected = True
 
     def __onDisconnected(self):
+        self.__wsClientConnected = False
+
         if self.__enableReconnection:
             initialized = False
             while not self.__stopped and not initialized:
@@ -173,18 +175,18 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
                 return False
 
             ret = True
-            if eventType == wsclient.WebSocketClient.ON_TRADE:
+            if eventType == wsclient.WebSocketClient.Event.TRADE:
                 self.__onTrade(eventData)
-            elif eventType == wsclient.WebSocketClient.ON_ORDER_BOOK_UPDATE:
+            elif eventType == wsclient.WebSocketClient.Event.ORDER_BOOK_UPDATE:
                 self.__orderBookUpdateEvent.emit(eventData)
-            elif eventType == wsclient.WebSocketClient.ON_CONNECTED:
+            elif eventType == wsclient.WebSocketClient.Event.CONNECTED:
                 self.__onConnected()
-            elif eventType == wsclient.WebSocketClient.ON_DISCONNECTED:
+            elif eventType == wsclient.WebSocketClient.Event.DISCONNECTED:
                 self.__onDisconnected()
             else:
                 ret = False
                 common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except Queue.Empty:
+        except queue.Empty:
             pass
         return ret
 
@@ -242,7 +244,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             if self.__thread is not None and self.__thread.is_alive():
                 common.logger.info("Shutting down websocket client.")
                 self.__thread.stop()
-        except Exception, e:
+        except Exception as e:
             common.logger.error("Error shutting down client: %s" % (str(e)))
 
     # This should not raise.

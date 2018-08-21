@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,6 +64,3 @@ class VWAP(technical.EventBasedFilter):
             "dataSeries must be a dataseries.bards.BarDataSeries instance"
 
         super(VWAP, self).__init__(dataSeries, VWAPEventWindow(period, useTypicalPrice), maxLen)
-
-    def getPeriod(self):
-        return self.getWindowSize()

@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,9 +19,13 @@
 """
 
 import csv
+import logging
+
+import six
+from six.moves import xrange
 import requests
 
-import logging
+
 logging.getLogger("requests").setLevel(logging.ERROR)
 
 
@@ -31,26 +35,34 @@ class FastDictReader(object):
         self.__fieldNames = fieldnames
         self.reader = csv.reader(f, dialect, *args, **kwargs)
         if self.__fieldNames is None:
-            self.__fieldNames = self.reader.next()
+            self.__fieldNames = six.next(self.reader)
         self.__dict = {}
 
-    def __iter__(self):
-        return self
-
-    def next(self):
+    def _next_impl(self):
         # Skip empty rows.
-        row = self.reader.next()
+        row = six.next(self.reader)
         while row == []:
-            row = self.reader.next()
+            row = six.next(self.reader)
 
         # Check that the row has the right number of columns.
-        assert(len(self.__fieldNames) == len(row))
+        assert len(self.__fieldNames) == len(row), "Expected columns: %s. Actual columns: %s" % (
+            self.__fieldNames, list(row.keys())
+        )
 
         # Copy the row values into the dict.
         for i in xrange(len(self.__fieldNames)):
             self.__dict[self.__fieldNames[i]] = row[i]
 
         return self.__dict
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self._next_impl()
+
+    def next(self):
+        return self._next_impl()
 
 
 def download_csv(url, url_params=None, content_type="text/csv"):

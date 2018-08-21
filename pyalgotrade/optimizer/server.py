@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class Results(object):
         return self.__result
 
 
-def serve(barFeed, strategyParameters, address, port):
+def serve(barFeed, strategyParameters, address, port, batchSize=200):
     """Executes a server that will provide bars and strategy parameters for workers to use.
 
     :param barFeed: The bar feed that each worker will use to backtest the strategy.
@@ -50,12 +50,14 @@ def serve(barFeed, strategyParameters, address, port):
     :type address: string.
     :param port: The port to listen for incoming worker connections.
     :type port: int.
+    :param batchSize: The number of strategy executions that are delivered to each worker.
+    :type batchSize: int.
     :rtype: A :class:`Results` instance with the best results found or None if no results were obtained.
     """
 
     paramSource = base.ParameterSource(strategyParameters)
     resultSinc = base.ResultSinc()
-    s = xmlrpcserver.Server(paramSource, resultSinc, barFeed, address, port)
+    s = xmlrpcserver.Server(paramSource, resultSinc, barFeed, address, port, batchSize=batchSize)
     logger.info("Starting server")
     s.serve()
     logger.info("Server finished")

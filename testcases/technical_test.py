@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import common
+from . import common
 
 from pyalgotrade import technical
 from pyalgotrade import dataseries
@@ -56,3 +56,15 @@ class DataSeriesFilterTest(common.TestCase):
             testFilter[20]
         ds.append(10)
         self.assertEqual(testFilter[20], 10)
+
+    def testUnderlyingDataSeries(self):
+        ds = dataseries.SequenceDataSeries()
+        testFilter = TestFilter(ds)
+        for i in range(10):
+            ds.append(i)
+            ds.append(None)
+
+        self.assertEqual(testFilter.getDataSeries(), ds)
+        for i in range(0, len(testFilter)):
+            self.assertEqual(testFilter[i], ds[i])
+            self.assertEqual(testFilter.getDataSeries()[i], ds[i])

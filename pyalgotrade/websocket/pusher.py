@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@
 """
 
 import json
-import urllib
+
+from six.moves.urllib.parse import urlencode
 
 import pyalgotrade
 from pyalgotrade.websocket import client
@@ -76,7 +77,7 @@ class WebSocketClient(client.WebSocketClientBase):
             "client": "Python-PyAlgoTrade",
             "version": pyalgotrade.__version__
             }
-        url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urllib.urlencode(params))
+        url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urlencode(params))
         super(WebSocketClient, self).__init__(url)
         self.setKeepAliveMgr(PingKeepAliveMgr(self, maxInactivity, responseTimeout))
 

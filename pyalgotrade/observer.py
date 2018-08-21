@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,52 +20,57 @@
 
 import abc
 
+import six
+
 from pyalgotrade import dispatchprio
 
 
 class Event(object):
     def __init__(self):
         self.__handlers = []
-        self.__toSubscribe = []
-        self.__toUnsubscribe = []
-        self.__emitting = False
+        self.__deferred = []
+        self.__emitting = 0
+
+    def __subscribeImpl(self, handler):
+        assert not self.__emitting
+        if handler not in self.__handlers:
+            self.__handlers.append(handler)
+
+    def __unsubscribeImpl(self, handler):
+        assert not self.__emitting
+        self.__handlers.remove(handler)
 
     def __applyChanges(self):
-        if len(self.__toSubscribe):
-            for handler in self.__toSubscribe:
-                if handler not in self.__handlers:
-                    self.__handlers.append(handler)
-            self.__toSubscribe = []
-
-        if len(self.__toUnsubscribe):
-            for handler in self.__toUnsubscribe:
-                self.__handlers.remove(handler)
-            self.__toUnsubscribe = []
+        assert not self.__emitting
+        for action, param in self.__deferred:
+            action(param)
+        self.__deferred = []
 
     def subscribe(self, handler):
         if self.__emitting:
-            self.__toSubscribe.append(handler)
+            self.__deferred.append((self.__subscribeImpl, handler))
         elif handler not in self.__handlers:
-            self.__handlers.append(handler)
+            self.__subscribeImpl(handler)
 
     def unsubscribe(self, handler):
         if self.__emitting:
-            self.__toUnsubscribe.append(handler)
+            self.__deferred.append((self.__unsubscribeImpl, handler))
         else:
-            self.__handlers.remove(handler)
+            self.__unsubscribeImpl(handler)
 
     def emit(self, *args, **kwargs):
         try:
-            self.__emitting = True
+            self.__emitting += 1
             for handler in self.__handlers:
                 handler(*args, **kwargs)
         finally:
-            self.__emitting = False
-            self.__applyChanges()
+            self.__emitting -= 1
+            if not self.__emitting:
+                self.__applyChanges()
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Subject(object):
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.__dispatchPrio = dispatchprio.LAST

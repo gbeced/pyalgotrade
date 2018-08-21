@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class Feed(csvfeed.GenericBarFeed):
 
     def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=None):
         if frequency not in [bar.Frequency.DAY, bar.Frequency.WEEK]:
-            raise Exception("Invalid frequency.")
+            raise Exception("Invalid frequency")
 
         super(Feed, self).__init__(frequency, timezone, maxLen)
 

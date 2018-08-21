@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 import sys
 import logging
 
-import common
+from . import common
 
 from pyalgotrade.optimizer import local
 from pyalgotrade import strategy
@@ -50,7 +50,8 @@ class OptimizerTestCase(common.TestCase):
         instrument = "orcl"
         barFeed.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         res = local.run(
-            sma_crossover.SMACrossOver, barFeed, parameters_generator(instrument, 5, 100), logLevel=logging.DEBUG
+            sma_crossover.SMACrossOver, barFeed, parameters_generator(instrument, 5, 100),
+            logLevel=logging.DEBUG, batchSize=50
         )
         self.assertEquals(round(res.getResult(), 2), 1295462.6)
         self.assertEquals(res.getParameters()[1], 20)
