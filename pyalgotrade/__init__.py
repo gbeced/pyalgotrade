@@ -18,4 +18,5 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-__version__ = "0.19"
+name = "PyAlgoTrade"
+__version__ = "0.20"

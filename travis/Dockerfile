@@ -1,6 +1,6 @@
 # ARG PYALGOTRADE_TAG
 # FROM gbecedillas/pyalgotrade:${PYALGOTRADE_TAG}
-FROM gbecedillas/pyalgotrade:0.19-py27
+FROM gbecedillas/pyalgotrade:0.20-py27
 
 MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 
