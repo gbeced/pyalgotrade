@@ -8,7 +8,7 @@ PyAlgoTrade is an event driven algorithmic trading Python library with support f
 
 It should also make it easy to optimize a strategy using multiple computers.
 
-PyAlgoTrade is developed using Python 2.7 and depends on:
+PyAlgoTrade is developed and tested using Python 2.7/3.7 and depends on:
  * NumPy and SciPy (http://numpy.scipy.org/).
  * pytz (http://pytz.sourceforge.net/).
  * matplotlib (http://matplotlib.sourceforge.net/) for plotting support.

@@ -22,15 +22,21 @@ try:
 except ImportError:
     from distutils.core import setup
 
+
 setup(
     name='PyAlgoTrade',
-    version='0.18',
+    version='0.20',
     description='Python Algorithmic Trading',
     long_description='Python library for backtesting stock trading strategies.',
     author='Gabriel Martin Becedillas Ruiz',
     author_email='pyalgotrade@gmail.com',
     url='http://gbeced.github.io/pyalgotrade/',
-    download_url='http://sourceforge.net/projects/pyalgotrade/files/0.18/PyAlgoTrade-0.18.tar.gz/download',
+    download_url='http://sourceforge.net/projects/pyalgotrade/files/0.20/PyAlgoTrade-0.20.tar.gz/download',
+    classifiers=[
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+    ],
     packages=[
         'pyalgotrade',
         'pyalgotrade.barfeed',

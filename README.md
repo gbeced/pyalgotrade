@@ -14,7 +14,7 @@ and **live trading** is now possible using:
 
  * [Bitstamp](https://www.bitstamp.net/) for Bitcoins
 
-To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.18/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.18/html/index.html).
+To get started with PyAlgoTrade take a look at the [tutorial](http://gbeced.github.io/pyalgotrade/docs/v0.20/html/tutorial.html) and the [full documentation](http://gbeced.github.io/pyalgotrade/docs/v0.20/html/index.html).
 
 Main Features
 -------------
@@ -32,7 +32,7 @@ Main Features
 Installation
 ------------
 
-PyAlgoTrade is developed using Python 2.7 and depends on:
+PyAlgoTrade is developed and tested using Python 2.7/3.7 and depends on:
 
  * [NumPy and SciPy](http://numpy.scipy.org/).
  * [pytz](http://pytz.sourceforge.net/).
