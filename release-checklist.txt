@@ -1,7 +1,7 @@
 Release checklist
 
-[ ] Run flake8 (flake8 --exclude=doc . | grep -v "line too long")
-[ ] Run testcases on Mac and Windows.
+[ ] Run flake8 (flake8 --exclude=doc,.tox . | grep -v "line too long")
+[ ] Run testcases on Mac and Linux.
 [ ] Check that code coverage is >= 89 %.
 [ ] Update CHANGELOG.
 [ ] Update version in __init__.py.
@@ -12,7 +12,7 @@ Release checklist
 [ ] Update version in .travis.yml.
 [ ] Update directories in setup.py.
 [ ] Update version doc/conf.py.
-[ ] Rebuild and review documentation.
+[ ] Rebuild and review documentation (cd doc; make html).
 [ ] Run testcases using the installed lib (use docker testcases image as in Travis).
 [ ] Run tutorial examples from the Optimizing section using the installed lib (use 'docker run -ti testcases /bin/bash').
 [ ] Run samples/tutorial-5.py using the installed lib (use 'docker run -ti testcases /bin/bash').
@@ -23,11 +23,11 @@ Release checklist
 [ ] Update the website (doc + package).
 [ ] Update README.md.
 [ ] Build package and upload to sourceforge.
-[ ] Update PyPi (both PKG-INFO and upload file using https://pypi.python.org/pypi?%3Aaction=submit_form).
-[ ] Install using 'sudo pip install pyalgotrade' and check that the right version was installed.
-[ ] Build and push Docker image.
+[ ] Update PyPi (twine upload dist/*).
+[ ] Install in a virtualenv using 'pip install pyalgotrade' and check that the right version was installed.
+[ ] Build and push Docker images.
 
-[ ] Commit and tag (git tag v0.x-rtm -m "Version 0.x").
+[ ] Commit and tag.
 [ ] Push (git push; git push --tags).
 [ ] Push the website (git push).
 [ ] Announce on Google Groups and Twitter.
