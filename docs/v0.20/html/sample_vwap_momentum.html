@@ -1,0 +1,211 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VWAP Momentum Trade &mdash; PyAlgoTrade 0.20 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.20',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.20 documentation" href="index.html" />
+    <link rel="up" title="Sample strategies" href="samples.html" />
+    <link rel="next" title="SMA Crossover" href="sample_sma_crossover.html" />
+    <link rel="prev" title="Sample strategies" href="samples.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_sma_crossover.html" title="SMA Crossover"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li>
+          <li><a href="samples.html" accesskey="U">Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="vwap-momentum-trade">
+<h1>VWAP Momentum Trade<a class="headerlink" href="#vwap-momentum-trade" title="Permalink to this headline">¶</a></h1>
+<p>This example is based on <a class="reference external" href="https://www.quantopian.com/posts/momentum-trade">Momentum Trade</a></p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">quandl</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">vwap</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">sharpe</span>
+
+
+<span class="k">class</span> <span class="nc">VWAPMomentum</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">vwapWindowSize</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VWAPMomentum</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span> <span class="o">=</span> <span class="n">vwap</span><span class="o">.</span><span class="n">VWAP</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">],</span> <span class="n">vwapWindowSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+
+    <span class="k">def</span> <span class="nf">getVWAP</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">vwap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">vwap</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">shares</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">)</span>
+        <span class="n">price</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span>
+        <span class="n">notional</span> <span class="o">=</span> <span class="n">shares</span> <span class="o">*</span> <span class="n">price</span>
+
+        <span class="k">if</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="n">vwap</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__threshold</span><span class="p">)</span> <span class="ow">and</span> <span class="n">notional</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">price</span> <span class="o">&lt;</span> <span class="n">vwap</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__threshold</span><span class="p">)</span> <span class="ow">and</span> <span class="n">notional</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="s2">&quot;AAPL&quot;</span>
+    <span class="n">vwapWindowSize</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+    <span class="c1"># Download the bars.</span>
+    <span class="n">feed</span> <span class="o">=</span> <span class="n">quandl</span><span class="o">.</span><span class="n">build_feed</span><span class="p">(</span><span class="s2">&quot;WIKI&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">instrument</span><span class="p">],</span> <span class="mi">2011</span><span class="p">,</span> <span class="mi">2012</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">VWAPMomentum</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">vwapWindowSize</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+    <span class="n">sharpeRatioAnalyzer</span> <span class="o">=</span> <span class="n">sharpe</span><span class="o">.</span><span class="n">SharpeRatio</span><span class="p">()</span>
+    <span class="n">strat</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getInstrumentSubplot</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s2">&quot;vwap&quot;</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">getVWAP</span><span class="p">())</span>
+
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Sharpe ratio: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sharpeRatioAnalyzer</span><span class="o">.</span><span class="n">getSharpeRatio</span><span class="p">(</span><span class="mf">0.05</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this is what the output should look like:</p>
+<div class="highlight-python"><pre>2017-07-24 22:43:34,182 quandl [INFO] Downloading AAPL 2011 to ./WIKI-AAPL-2011-quandl.csv
+2017-07-24 22:43:36,415 quandl [INFO] Downloading AAPL 2012 to ./WIKI-AAPL-2012-quandl.csv
+Sharpe ratio: 0.89
+</pre>
+</div>
+<p>and this is what the plot should look like:</p>
+<img alt="_images/vwap_momentum.png" src="_images/vwap_momentum.png" />
+<p>You can get better returns by tunning the VWAP and threshold parameters.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="samples.html"
+                        title="previous chapter">Sample strategies</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sample_sma_crossover.html"
+                        title="next chapter">SMA Crossover</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sample_vwap_momentum.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sample_sma_crossover.html" title="SMA Crossover"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li>
+          <li><a href="samples.html" >Sample strategies</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

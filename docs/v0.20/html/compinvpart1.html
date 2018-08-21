@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Computational Investing Part I &mdash; PyAlgoTrade 0.20 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.20',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.20 documentation" href="index.html" />
+    <link rel="next" title="Sample strategies" href="samples.html" />
+    <link rel="prev" title="TA-Lib integration" href="talib.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="computational-investing-part-i">
+<h1>Computational Investing Part I<a class="headerlink" href="#computational-investing-part-i" title="Permalink to this headline">¶</a></h1>
+<p>As I was taking the <a class="reference external" href="https://class.coursera.org/compinvesting1-2012-001/class">Computational Investing Part I</a> course in 2012
+I had to work on a set of assignments and for one of them I used PyAlgoTrade.</p>
+<div class="section" id="homework-1">
+<h2>Homework 1<a class="headerlink" href="#homework-1" title="Permalink to this headline">¶</a></h2>
+<p>For this assignment I had to pick 4 stocks, invest a total of $1000000 during 2011, and calculate:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Final portfolio value</li>
+<li>Anual return</li>
+<li>Average daily return</li>
+<li>Std. dev. of daily returns</li>
+<li>Sharpe ratio</li>
+</ul>
+</div></blockquote>
+<p>Download the data with the following commands:</p>
+<div class="highlight-python"><pre>python -m "pyalgotrade.tools.quandl" --source-code="WIKI" --table-code="IBM" --from-year=2011 --to-year=2011 --storage=. --force-download --frequency=daily
+python -m "pyalgotrade.tools.quandl" --source-code="WIKI" --table-code="AES" --from-year=2011 --to-year=2011 --storage=. --force-download --frequency=daily
+python -m "pyalgotrade.tools.quandl" --source-code="WIKI" --table-code="AIG" --from-year=2011 --to-year=2011 --storage=. --force-download --frequency=daily
+python -m "pyalgotrade.tools.quandl" --source-code="WIKI" --table-code="ORCL" --from-year=2011 --to-year=2011 --storage=. --force-download --frequency=daily</pre>
+</div>
+<p>Although the deliverable was an Excel spreadsheet, I validated the results using this piece of code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">quandlfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">returns</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.stratanalyzer</span> <span class="kn">import</span> <span class="n">sharpe</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.utils</span> <span class="kn">import</span> <span class="n">stats</span>
+
+
+<span class="k">class</span> <span class="nc">MyStrategy</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+
+        <span class="c1"># We wan&#39;t to use adjusted close prices instead of close.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUseAdjustedValues</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c1"># Place the orders to get them processed on the first bar.</span>
+        <span class="n">orders</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ibm&quot;</span><span class="p">:</span> <span class="mi">1996</span><span class="p">,</span>
+            <span class="s2">&quot;aes&quot;</span><span class="p">:</span> <span class="mi">22565</span><span class="p">,</span>
+            <span class="s2">&quot;aig&quot;</span><span class="p">:</span> <span class="mi">5445</span><span class="p">,</span>
+            <span class="s2">&quot;orcl&quot;</span><span class="p">:</span> <span class="mi">8582</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marketOrder</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">onClose</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">allOrNone</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="c1"># Load the bar feed from the CSV file</span>
+<span class="n">feed</span> <span class="o">=</span> <span class="n">quandlfeed</span><span class="o">.</span><span class="n">Feed</span><span class="p">()</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s2">&quot;ibm&quot;</span><span class="p">,</span> <span class="s2">&quot;WIKI-IBM-2011-quandl.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s2">&quot;aes&quot;</span><span class="p">,</span> <span class="s2">&quot;WIKI-AES-2011-quandl.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s2">&quot;aig&quot;</span><span class="p">,</span> <span class="s2">&quot;WIKI-AIG-2011-quandl.csv&quot;</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s2">&quot;orcl&quot;</span><span class="p">,</span> <span class="s2">&quot;WIKI-ORCL-2011-quandl.csv&quot;</span><span class="p">)</span>
+
+<span class="c1"># Evaluate the strategy with the feed&#39;s bars.</span>
+<span class="n">myStrategy</span> <span class="o">=</span> <span class="n">MyStrategy</span><span class="p">(</span><span class="n">feed</span><span class="p">)</span>
+
+<span class="c1"># Attach returns and sharpe ratio analyzers.</span>
+<span class="n">retAnalyzer</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">Returns</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="p">)</span>
+<span class="n">sharpeRatioAnalyzer</span> <span class="o">=</span> <span class="n">sharpe</span><span class="o">.</span><span class="n">SharpeRatio</span><span class="p">()</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">attachAnalyzer</span><span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="p">)</span>
+
+<span class="c1"># Run the strategy</span>
+<span class="n">myStrategy</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Print the results.</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Final portfolio value: $</span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">myStrategy</span><span class="o">.</span><span class="n">getResult</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Anual return: </span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getCumulativeReturns</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Average daily return: </span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getReturns</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Std. dev. daily return: </span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="n">retAnalyzer</span><span class="o">.</span><span class="n">getReturns</span><span class="p">())))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Sharpe ratio: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sharpeRatioAnalyzer</span><span class="o">.</span><span class="n">getSharpeRatio</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>The results were:</p>
+<div class="highlight-python"><pre>Final portfolio value: $876350.83
+Anual return: -12.36 %
+Average daily return: -0.04 %
+Std. dev. daily return: 0.0176
+Sharpe ratio: -0.33
+</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Computational Investing Part I</a><ul>
+<li><a class="reference internal" href="#homework-1">Homework 1</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="talib.html"
+                        title="previous chapter">TA-Lib integration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="samples.html"
+                        title="next chapter">Sample strategies</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/compinvpart1.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="samples.html" title="Sample strategies"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="talib.html" title="TA-Lib integration"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

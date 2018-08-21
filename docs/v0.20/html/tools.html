@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tools &mdash; PyAlgoTrade 0.20 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.20',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.20 documentation" href="index.html" />
+    <link rel="next" title="Event profiler" href="eventprofiler.html" />
+    <link rel="prev" title="marketsession – Market sessions" href="marketsession.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="eventprofiler.html" title="Event profiler"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="marketsession.html" title="marketsession – Market sessions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tools">
+<h1>Tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyalgotrade.tools.quandl">
+<span id="quandl"></span><h2>Quandl<a class="headerlink" href="#module-pyalgotrade.tools.quandl" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyalgotrade.tools.quandl.build_feed">
+<tt class="descclassname">pyalgotrade.tools.quandl.</tt><tt class="descname">build_feed</tt><big>(</big><em>sourceCode</em>, <em>tableCodes</em>, <em>fromYear</em>, <em>toYear</em>, <em>storage</em>, <em>frequency=86400</em>, <em>timezone=None</em>, <em>skipErrors=False</em>, <em>authToken=None</em>, <em>columnNames={}</em>, <em>forceDownload=False</em>, <em>skipMalformedBars=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.tools.quandl.build_feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and load a <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.quandlfeed.Feed" title="pyalgotrade.barfeed.quandlfeed.Feed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.quandlfeed.Feed</span></tt></a> using CSV files downloaded from Quandl.
+CSV files are downloaded if they haven&#8217;t been downloaded before.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sourceCode</strong> (<em>string.</em>) &#8211; The dataset source code.</li>
+<li><strong>tableCodes</strong> (<em>list.</em>) &#8211; The dataset table codes.</li>
+<li><strong>fromYear</strong> (<em>int.</em>) &#8211; The first year.</li>
+<li><strong>toYear</strong> (<em>int.</em>) &#8211; The last year.</li>
+<li><strong>storage</strong> (<em>string.</em>) &#8211; The path were the files will be loaded from, or downloaded to.</li>
+<li><strong>frequency</strong> &#8211; The frequency of the bars. Only <strong>pyalgotrade.bar.Frequency.DAY</strong> or <strong>pyalgotrade.bar.Frequency.WEEK</strong>
+are supported.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>skipErrors</strong> (<em>boolean.</em>) &#8211; True to keep on loading/downloading files in case of errors.</li>
+<li><strong>authToken</strong> (<em>string.</em>) &#8211; Optional. An authentication token needed if you&#8217;re doing more than 50 calls per day.</li>
+<li><strong>columnNames</strong> (<em>dict.</em>) &#8211; <p>Optional. A dictionary to map column names. Valid key values are:</p>
+<ul>
+<li>datetime</li>
+<li>open</li>
+<li>high</li>
+<li>low</li>
+<li>close</li>
+<li>volume</li>
+<li>adj_close</li>
+</ul>
+</li>
+<li><strong>skipMalformedBars</strong> (<em>boolean.</em>) &#8211; True to skip errors while parsing bars.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.quandlfeed.Feed" title="pyalgotrade.barfeed.quandlfeed.Feed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.quandlfeed.Feed</span></tt></a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.tools.quandl.download_daily_bars">
+<tt class="descclassname">pyalgotrade.tools.quandl.</tt><tt class="descname">download_daily_bars</tt><big>(</big><em>sourceCode</em>, <em>tableCode</em>, <em>year</em>, <em>csvFile</em>, <em>authToken=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.tools.quandl.download_daily_bars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download daily bars from Quandl for a given year.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sourceCode</strong> (<em>string.</em>) &#8211; The dataset&#8217;s source code.</li>
+<li><strong>tableCode</strong> (<em>string.</em>) &#8211; The dataset&#8217;s table code.</li>
+<li><strong>year</strong> (<em>int.</em>) &#8211; The year.</li>
+<li><strong>csvFile</strong> (<em>string.</em>) &#8211; The path to the CSV file to write.</li>
+<li><strong>authToken</strong> (<em>string.</em>) &#8211; Optional. An authentication token needed if you&#8217;re doing more than 50 calls per day.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyalgotrade.tools.quandl.download_weekly_bars">
+<tt class="descclassname">pyalgotrade.tools.quandl.</tt><tt class="descname">download_weekly_bars</tt><big>(</big><em>sourceCode</em>, <em>tableCode</em>, <em>year</em>, <em>csvFile</em>, <em>authToken=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.tools.quandl.download_weekly_bars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download weekly bars from Quandl for a given year.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sourceCode</strong> (<em>string.</em>) &#8211; The dataset&#8217;s source code.</li>
+<li><strong>tableCode</strong> (<em>string.</em>) &#8211; The dataset&#8217;s table code.</li>
+<li><strong>year</strong> (<em>int.</em>) &#8211; The year.</li>
+<li><strong>csvFile</strong> (<em>string.</em>) &#8211; The path to the CSV file to write.</li>
+<li><strong>authToken</strong> (<em>string.</em>) &#8211; Optional. An authentication token needed if you&#8217;re doing more than 50 calls per day.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.tools.resample">
+<span id="barfeed-resampling"></span><h2>BarFeed resampling<a class="headerlink" href="#module-pyalgotrade.tools.resample" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyalgotrade.tools.resample.resample_to_csv">
+<tt class="descclassname">pyalgotrade.tools.resample.</tt><tt class="descname">resample_to_csv</tt><big>(</big><em>barFeed</em>, <em>frequency</em>, <em>csvFile</em><big>)</big><a class="headerlink" href="#pyalgotrade.tools.resample.resample_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resample a BarFeed into a CSV file grouping bars by a certain frequency.
+The resulting file can be loaded using <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.csvfeed.GenericBarFeed" title="pyalgotrade.barfeed.csvfeed.GenericBarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.GenericBarFeed</span></tt></a>.
+The CSV file will have the following format:</p>
+<div class="highlight-python"><pre>Date Time,Open,High,Low,Close,Volume,Adj Close
+2013-01-01 00:00:00,13.51001,13.56,13.51,13.56,273.88014126,13.51001</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>barFeed</strong> (<tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt>) &#8211; The bar feed that will provide the bars. It should only hold bars from a single instrument.</li>
+<li><strong>frequency</strong> &#8211; The grouping frequency in seconds. Must be &gt; 0.</li>
+<li><strong>csvFile</strong> (<em>string.</em>) &#8211; The path to the CSV file to write.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last">
+<li><p class="first">Datetimes are stored without timezone information.</p>
+</li>
+<li><p class="first"><strong>Adj Close</strong> column may be empty if the input bar feed doesn&#8217;t have that info.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Supported resampling frequencies are:</dt>
+<dd><ul class="first last simple">
+<li>Less than bar.Frequency.DAY</li>
+<li>bar.Frequency.DAY</li>
+<li>bar.Frequency.MONTH</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tools</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.tools.quandl">Quandl</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.tools.resample">BarFeed resampling</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="marketsession.html"
+                        title="previous chapter">marketsession &#8211; Market sessions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="eventprofiler.html"
+                        title="next chapter">Event profiler</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="eventprofiler.html" title="Event profiler"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="marketsession.html" title="marketsession – Market sessions"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

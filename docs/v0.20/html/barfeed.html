@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>barfeed – Bar providers &mdash; PyAlgoTrade 0.20 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.20',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.20 documentation" href="index.html" />
+    <link rel="up" title="Documentation for the code" href="code.html" />
+    <link rel="next" title="technical – Technical indicators" href="technical.html" />
+    <link rel="prev" title="feed – Basic feeds" href="feed.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="technical.html" title="technical – Technical indicators"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="feed.html" title="feed – Basic feeds"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyalgotrade.barfeed">
+<span id="barfeed-bar-providers"></span><span id="barfeed-label"></span><h1>barfeed &#8211; Bar providers<a class="headerlink" href="#module-pyalgotrade.barfeed" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyalgotrade.barfeed.BaseBarFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.</tt><tt class="descname">BaseBarFeed</tt><big>(</big><em>frequency</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="feed.html#pyalgotrade.feed.BaseFeed" title="pyalgotrade.feed.BaseFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.feed.BaseFeed</span></tt></a></p>
+<p>Base class for <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> providing feeds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frequency</strong> &#8211; The bars frequency. Valid values defined in <a class="reference internal" href="bar.html#pyalgotrade.bar.Frequency" title="pyalgotrade.bar.Frequency"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Frequency</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded
+from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.barfeed.BaseBarFeed.getNextBars">
+<tt class="descname">getNextBars</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed.getNextBars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override to return the next <a class="reference internal" href="bar.html#pyalgotrade.bar.Bars" title="pyalgotrade.bar.Bars"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bars</span></tt></a> in the feed or None if there are no bars.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is for BaseBarFeed subclasses and it should not be called directly.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.barfeed.BaseBarFeed.getCurrentBars">
+<tt class="descname">getCurrentBars</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed.getCurrentBars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current <a class="reference internal" href="bar.html#pyalgotrade.bar.Bars" title="pyalgotrade.bar.Bars"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bars</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.barfeed.BaseBarFeed.getLastBar">
+<tt class="descname">getLastBar</tt><big>(</big><em>instrument</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed.getLastBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the last <a class="reference internal" href="bar.html#pyalgotrade.bar.Bar" title="pyalgotrade.bar.Bar"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Bar</span></tt></a> for a given instrument, or None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.barfeed.BaseBarFeed.getDefaultInstrument">
+<tt class="descname">getDefaultInstrument</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed.getDefaultInstrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the last instrument registered.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.barfeed.BaseBarFeed.getRegisteredInstruments">
+<tt class="descname">getRegisteredInstruments</tt><big>(</big><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed.getRegisteredInstruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of registered intstrument names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.barfeed.BaseBarFeed.getDataSeries">
+<tt class="descname">getDataSeries</tt><big>(</big><em>instrument=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.BaseBarFeed.getDataSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> for a given instrument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier. If None, the default instrument is returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="module-pyalgotrade.barfeed.csvfeed">
+<span id="csv"></span><h2>CSV<a class="headerlink" href="#module-pyalgotrade.barfeed.csvfeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.barfeed.csvfeed.BarFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.csvfeed.</tt><tt class="descname">BarFeed</tt><big>(</big><em>frequency</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.membf.BarFeed</span></tt></p>
+<p>Base class for CSV file based <tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.BarFeed</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a base class and should not be used directly.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyalgotrade.barfeed.csvfeed.GenericBarFeed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.csvfeed.</tt><tt class="descname">GenericBarFeed</tt><big>(</big><em>frequency</em>, <em>timezone=None</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.csvfeed.GenericBarFeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a></p>
+<p>A BarFeed that loads bars from CSV files that have the following format:</p>
+<div class="highlight-python"><pre>Date Time,Open,High,Low,Close,Volume,Adj Close
+2013-01-01 13:59:00,13.51001,13.56,13.51,13.56,273.88014126,13.51001</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frequency</strong> &#8211; The frequency of the bars. Check <a class="reference internal" href="bar.html#pyalgotrade.bar.Frequency" title="pyalgotrade.bar.Frequency"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bar.Frequency</span></tt></a>.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="simple">
+<li>The CSV file <strong>must</strong> have the column names in the first row.</li>
+<li>It is ok if the <strong>Adj Close</strong> column is empty.</li>
+<li>When working with multiple instruments:</li>
+</ul>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.</li>
+<li>If any of the instruments loaded are in different timezones, then the timezone parameter should be set.</li>
+</ul>
+</div></blockquote>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV">
+<tt class="descname">addBarsFromCSV</tt><big>(</big><em>instrument</em>, <em>path</em>, <em>timezone=None</em>, <em>skipMalformedBars=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads bars for a given instrument from a CSV formatted file.
+The instrument gets registered in the bar feed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the CSV file.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>skipMalformedBars</strong> (<em>boolean.</em>) &#8211; True to skip errors while parsing bars.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyalgotrade.barfeed.csvfeed.GenericBarFeed.setDateTimeFormat">
+<tt class="descname">setDateTimeFormat</tt><big>(</big><em>dateTimeFormat</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.csvfeed.GenericBarFeed.setDateTimeFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the format string to use with strptime to parse datetime column.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.barfeed.yahoofeed">
+<span id="yahoo-finance"></span><h2>Yahoo! Finance<a class="headerlink" href="#module-pyalgotrade.barfeed.yahoofeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.barfeed.yahoofeed.Feed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.yahoofeed.</tt><tt class="descname">Feed</tt><big>(</big><em>frequency=86400</em>, <em>timezone=None</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.yahoofeed.Feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a> that loads bars from CSV files downloaded from Yahoo! Finance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frequency</strong> &#8211; The frequency of the bars. Only <strong>pyalgotrade.bar.Frequency.DAY</strong> or <strong>pyalgotrade.bar.Frequency.WEEK</strong>
+are supported.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Yahoo! Finance csv files lack timezone information.
+When working with multiple instruments:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.</li>
+<li>If any of the instruments loaded are in different timezones, then the timezone parameter must be set.</li>
+</ul>
+</div></blockquote>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV">
+<tt class="descname">addBarsFromCSV</tt><big>(</big><em>instrument</em>, <em>path</em>, <em>timezone=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads bars for a given instrument from a CSV formatted file.
+The instrument gets registered in the bar feed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the CSV file.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.barfeed.googlefeed">
+<span id="google-finance"></span><h2>Google Finance<a class="headerlink" href="#module-pyalgotrade.barfeed.googlefeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.barfeed.googlefeed.Feed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.googlefeed.</tt><tt class="descname">Feed</tt><big>(</big><em>frequency=86400</em>, <em>timezone=None</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.googlefeed.Feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a> that loads bars from CSV files downloaded from Google Finance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frequency</strong> &#8211; The frequency of the bars. Only <strong>pyalgotrade.bar.Frequency.DAY</strong> is currently supported.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Google Finance csv files lack timezone information.
+When working with multiple instruments:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.</li>
+<li>If any of the instruments loaded are in different timezones, then the timezone parameter must be set.</li>
+</ul>
+</div></blockquote>
+</div>
+<dl class="method">
+<dt id="pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV">
+<tt class="descname">addBarsFromCSV</tt><big>(</big><em>instrument</em>, <em>path</em>, <em>timezone=None</em>, <em>skipMalformedBars=False</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads bars for a given instrument from a CSV formatted file.
+The instrument gets registered in the bar feed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the CSV file.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>skipMalformedBars</strong> (<em>boolean.</em>) &#8211; True to skip errors while parsing bars.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.barfeed.quandlfeed">
+<span id="quandl"></span><h2>Quandl<a class="headerlink" href="#module-pyalgotrade.barfeed.quandlfeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.barfeed.quandlfeed.Feed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.quandlfeed.</tt><tt class="descname">Feed</tt><big>(</big><em>frequency=86400</em>, <em>timezone=None</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.quandlfeed.Feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.GenericBarFeed" title="pyalgotrade.barfeed.csvfeed.GenericBarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.GenericBarFeed</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a> that loads bars from CSV files downloaded from Quandl.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frequency</strong> &#8211; The frequency of the bars. Only <strong>pyalgotrade.bar.Frequency.DAY</strong> or <strong>pyalgotrade.bar.Frequency.WEEK</strong>
+are supported.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>When working with multiple instruments:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If all the instruments loaded are in the same timezone, then the timezone parameter may not be specified.</li>
+<li>If any of the instruments loaded are in different timezones, then the timezone parameter must be set.</li>
+</ul>
+</div></blockquote>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyalgotrade.barfeed.ninjatraderfeed">
+<span id="ninja-trader"></span><h2>Ninja Trader<a class="headerlink" href="#module-pyalgotrade.barfeed.ninjatraderfeed" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyalgotrade.barfeed.ninjatraderfeed.Feed">
+<em class="property">class </em><tt class="descclassname">pyalgotrade.barfeed.ninjatraderfeed.</tt><tt class="descname">Feed</tt><big>(</big><em>frequency</em>, <em>timezone=None</em>, <em>maxLen=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.ninjatraderfeed.Feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a></p>
+<p>A <a class="reference internal" href="#pyalgotrade.barfeed.csvfeed.BarFeed" title="pyalgotrade.barfeed.csvfeed.BarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.BarFeed</span></tt></a> that loads bars from CSV files exported from NinjaTrader.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frequency</strong> &#8211; The frequency of the bars. Only <strong>pyalgotrade.bar.Frequency.MINUTE</strong> or <strong>pyalgotrade.bar.Frequency.DAY</strong>
+are supported.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The default timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+<li><strong>maxLen</strong> (<em>int.</em>) &#8211; The maximum number of values that the <a class="reference internal" href="dataseries.html#pyalgotrade.dataseries.bards.BarDataSeries" title="pyalgotrade.dataseries.bards.BarDataSeries"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.dataseries.bards.BarDataSeries</span></tt></a> will hold.
+Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV">
+<tt class="descname">addBarsFromCSV</tt><big>(</big><em>instrument</em>, <em>path</em>, <em>timezone=None</em><big>)</big><a class="headerlink" href="#pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads bars for a given instrument from a CSV formatted file.
+The instrument gets registered in the bar feed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instrument</strong> (<em>string.</em>) &#8211; Instrument identifier.</li>
+<li><strong>path</strong> (<em>string.</em>) &#8211; The path to the file.</li>
+<li><strong>timezone</strong> (<em>A pytz timezone.</em>) &#8211; The timezone to use to localize bars. Check <a class="reference internal" href="marketsession.html#module-pyalgotrade.marketsession" title="pyalgotrade.marketsession"><tt class="xref py py-mod docutils literal"><span class="pre">pyalgotrade.marketsession</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">barfeed &#8211; Bar providers</a><ul>
+<li><a class="reference internal" href="#module-pyalgotrade.barfeed.csvfeed">CSV</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.barfeed.yahoofeed">Yahoo! Finance</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.barfeed.googlefeed">Google Finance</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.barfeed.quandlfeed">Quandl</a></li>
+<li><a class="reference internal" href="#module-pyalgotrade.barfeed.ninjatraderfeed">Ninja Trader</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="feed.html"
+                        title="previous chapter">feed &#8211; Basic feeds</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="technical.html"
+                        title="next chapter">technical &#8211; Technical indicators</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/barfeed.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="technical.html" title="technical – Technical indicators"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="feed.html" title="feed – Basic feeds"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Documentation for the code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

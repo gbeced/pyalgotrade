@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Bitcoin Charts example &mdash; PyAlgoTrade 0.20 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.20',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyAlgoTrade 0.20 documentation" href="index.html" />
+    <link rel="up" title="Bitcoin Charts support" href="bitcoincharts.html" />
+    <link rel="next" title="Twitter support" href="twitter.html" />
+    <link rel="prev" title="bitcoincharts – Bitcoin Charts reference" href="bitcoincharts_ref.html" />
+ 
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1180709-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- End Google analytics -->
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Twitter support"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bitcoincharts_ref.html" title="bitcoincharts – Bitcoin Charts reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li>
+          <li><a href="bitcoin.html" >Bitcoin</a> &raquo;</li>
+          <li><a href="bitcoincharts.html" accesskey="U">Bitcoin Charts support</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="bitcoin-charts-example">
+<h1>Bitcoin Charts example<a class="headerlink" href="#bitcoin-charts-example" title="Permalink to this headline">¶</a></h1>
+<p>Although it is absolutely possible to backtest a strategy with tick data as supplied by
+<a class="reference external" href="http://www.bitcoincharts.com/about/markets-api/">http://www.bitcoincharts.com/about/markets-api/</a> using <a class="reference internal" href="bitcoincharts_ref.html#pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed" title="pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.bitcoincharts.barfeed.CSVTradeFeed</span></tt></a>,
+you may want to to backtest using summarized bars at a different frequency to make backtesting faster.</p>
+<p>As of 12-Aug-2014, <a class="reference external" href="http://api.bitcoincharts.com/v1/csv/bitstampUSD.csv.gz">http://api.bitcoincharts.com/v1/csv/bitstampUSD.csv.gz</a> has 4588830 events so we&#8217;ll transform a portion of
+it into 30 minute bars for backtesting purposes with the following script:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyalgotrade.bitcoincharts</span> <span class="kn">import</span> <span class="n">barfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.tools</span> <span class="kn">import</span> <span class="n">resample</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">bar</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">barFeed</span> <span class="o">=</span> <span class="n">barfeed</span><span class="o">.</span><span class="n">CSVTradeFeed</span><span class="p">()</span>
+    <span class="n">barFeed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="s2">&quot;bitstampUSD.csv&quot;</span><span class="p">,</span> <span class="n">fromDateTime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">resample</span><span class="o">.</span><span class="n">resample_to_csv</span><span class="p">(</span><span class="n">barFeed</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">Frequency</span><span class="o">.</span><span class="n">MINUTE</span><span class="o">*</span><span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;30min-bitstampUSD.csv&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>It will take some time to execute, so be patient. The resampled file should look like this:</p>
+<div class="highlight-python"><pre>Date Time,Open,High,Low,Close,Volume,Adj Close
+2014-01-01 00:00:00,732.0,738.25,729.01,734.81,266.17955488,
+2014-01-01 00:30:00,734.81,739.9,734.47,739.02,308.96802502,
+2014-01-01 01:00:00,739.02,739.97,737.65,738.11,65.66924473,
+2014-01-01 01:30:00,738.0,742.0,737.65,741.89,710.27165024,
+2014-01-01 02:00:00,741.89,757.99,741.89,752.23,1085.13335011,
+2014-01-01 02:30:00,752.23,755.0,747.0,747.2,272.03949342,
+2014-01-01 04:00:00,744.98,748.02,744.98,747.19,104.65989075,
+.
+.</pre>
+</div>
+<p>We can now take advantage of <a class="reference internal" href="barfeed.html#pyalgotrade.barfeed.csvfeed.GenericBarFeed" title="pyalgotrade.barfeed.csvfeed.GenericBarFeed"><tt class="xref py py-class docutils literal"><span class="pre">pyalgotrade.barfeed.csvfeed.GenericBarFeed</span></tt></a> to load the resampled file and backtest a
+Bitcoin strategy. We&#8217;ll be using a VWAP momentum strategy for illustration purposes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">bar</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">strategy</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.technical</span> <span class="kn">import</span> <span class="n">vwap</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.barfeed</span> <span class="kn">import</span> <span class="n">csvfeed</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade.bitstamp</span> <span class="kn">import</span> <span class="n">broker</span>
+<span class="kn">from</span> <span class="nn">pyalgotrade</span> <span class="kn">import</span> <span class="n">broker</span> <span class="k">as</span> <span class="n">basebroker</span>
+
+
+<span class="k">class</span> <span class="nc">VWAPMomentum</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">BacktestingStrategy</span><span class="p">):</span>
+    <span class="n">MIN_TRADE</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">vwapWindowSize</span><span class="p">,</span> <span class="n">buyThreshold</span><span class="p">,</span> <span class="n">sellThreshold</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VWAPMomentum</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">feed</span><span class="p">,</span> <span class="n">brk</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span> <span class="o">=</span> <span class="n">instrument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span> <span class="o">=</span> <span class="n">vwap</span><span class="o">.</span><span class="n">VWAP</span><span class="p">(</span><span class="n">feed</span><span class="p">[</span><span class="n">instrument</span><span class="p">],</span> <span class="n">vwapWindowSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__buyThreshold</span> <span class="o">=</span> <span class="n">buyThreshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sellThreshold</span> <span class="o">=</span> <span class="n">sellThreshold</span>
+
+    <span class="k">def</span> <span class="nf">_getActiveOrders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">orders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span><span class="o">.</span><span class="n">getActiveOrders</span><span class="p">()</span>
+        <span class="n">buy</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">isBuy</span><span class="p">()]</span>
+        <span class="n">sell</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">isSell</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">buy</span><span class="p">,</span> <span class="n">sell</span>
+
+    <span class="k">def</span> <span class="nf">_cancelOrders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orders</span><span class="p">):</span>
+        <span class="n">brk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Canceling order </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">getId</span><span class="p">()))</span>
+            <span class="n">brk</span><span class="o">.</span><span class="n">cancelOrder</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_buySignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">price</span><span class="p">):</span>
+        <span class="n">buyOrders</span><span class="p">,</span> <span class="n">sellOrders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getActiveOrders</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancelOrders</span><span class="p">(</span><span class="n">sellOrders</span><span class="p">)</span>
+
+        <span class="n">brk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span>
+        <span class="n">cashAvail</span> <span class="o">=</span> <span class="n">brk</span><span class="o">.</span><span class="n">getCash</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.98</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cashAvail</span> <span class="o">/</span> <span class="n">price</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buyOrders</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">price</span><span class="o">*</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">VWAPMomentum</span><span class="o">.</span><span class="n">MIN_TRADE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Buy </span><span class="si">%s</span><span class="s2"> at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">price</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">limitOrder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="n">price</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to buy: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_sellSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">price</span><span class="p">):</span>
+        <span class="n">buyOrders</span><span class="p">,</span> <span class="n">sellOrders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getActiveOrders</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancelOrders</span><span class="p">(</span><span class="n">buyOrders</span><span class="p">)</span>
+
+        <span class="n">brk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBroker</span><span class="p">()</span>
+        <span class="n">shares</span> <span class="o">=</span> <span class="n">brk</span><span class="o">.</span><span class="n">getShares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sellOrders</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">shares</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sell </span><span class="si">%s</span><span class="s2"> at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shares</span><span class="p">,</span> <span class="n">price</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">limitOrder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">,</span> <span class="n">price</span><span class="p">,</span> <span class="n">shares</span><span class="o">*-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getVWAP</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span>
+
+    <span class="k">def</span> <span class="nf">onBars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bars</span><span class="p">):</span>
+        <span class="n">vwap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vwap</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">vwap</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">price</span> <span class="o">=</span> <span class="n">bars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__instrument</span><span class="p">]</span><span class="o">.</span><span class="n">getClose</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="n">vwap</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__buyThreshold</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_buySignal</span><span class="p">(</span><span class="n">price</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">price</span> <span class="o">&lt;</span> <span class="n">vwap</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sellThreshold</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sellSignal</span><span class="p">(</span><span class="n">price</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onOrderUpdated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">isBuy</span><span class="p">():</span>
+            <span class="n">orderType</span> <span class="o">=</span> <span class="s2">&quot;Buy&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">orderType</span> <span class="o">=</span> <span class="s2">&quot;Sell&quot;</span>
+
+        <span class="n">exec_info_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">():</span>
+            <span class="n">exec_info_str</span> <span class="o">=</span> <span class="s2">&quot; - Price: </span><span class="si">%s</span><span class="s2"> - Amount: </span><span class="si">%s</span><span class="s2"> - Fee: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">order</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getPrice</span><span class="p">(),</span> <span class="n">order</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getQuantity</span><span class="p">(),</span>
+                <span class="nb">round</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">getExecutionInfo</span><span class="p">()</span><span class="o">.</span><span class="n">getCommission</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> order </span><span class="si">%d</span><span class="s2"> updated - Status: </span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">orderType</span><span class="p">,</span>
+            <span class="n">order</span><span class="o">.</span><span class="n">getId</span><span class="p">(),</span>
+            <span class="n">basebroker</span><span class="o">.</span><span class="n">Order</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">getState</span><span class="p">()),</span>
+            <span class="n">exec_info_str</span>
+        <span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">plot</span><span class="p">):</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="s2">&quot;BTC&quot;</span>
+    <span class="n">initialCash</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">vwapWindowSize</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">buyThreshold</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">sellThreshold</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+    <span class="n">barFeed</span> <span class="o">=</span> <span class="n">csvfeed</span><span class="o">.</span><span class="n">GenericBarFeed</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">Frequency</span><span class="o">.</span><span class="n">MINUTE</span><span class="o">*</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">barFeed</span><span class="o">.</span><span class="n">addBarsFromCSV</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">&quot;30min-bitstampUSD.csv&quot;</span><span class="p">)</span>
+    <span class="n">brk</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">BacktestingBroker</span><span class="p">(</span><span class="n">initialCash</span><span class="p">,</span> <span class="n">barFeed</span><span class="p">)</span>
+    <span class="n">strat</span> <span class="o">=</span> <span class="n">VWAPMomentum</span><span class="p">(</span><span class="n">barFeed</span><span class="p">,</span> <span class="n">brk</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">vwapWindowSize</span><span class="p">,</span> <span class="n">buyThreshold</span><span class="p">,</span> <span class="n">sellThreshold</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">StrategyPlotter</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">getInstrumentSubplot</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span><span class="o">.</span><span class="n">addDataSeries</span><span class="p">(</span><span class="s2">&quot;VWAP&quot;</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">getVWAP</span><span class="p">())</span>
+
+    <span class="n">strat</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is what the plot looks like:</p>
+<img alt="_images/bccharts_example_2.png" src="_images/bccharts_example_2.png" />
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bitcoincharts_ref.html"
+                        title="previous chapter">bitcoincharts &#8211; Bitcoin Charts reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="twitter.html"
+                        title="next chapter">Twitter support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/bitcoincharts_example.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="twitter.html" title="Twitter support"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bitcoincharts_ref.html" title="bitcoincharts – Bitcoin Charts reference"
+             >previous</a> |</li>
+        <li><a href="index.html">PyAlgoTrade 0.20 documentation</a> &raquo;</li>
+          <li><a href="bitcoin.html" >Bitcoin</a> &raquo;</li>
+          <li><a href="bitcoincharts.html" >Bitcoin Charts support</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2014, Gabriel Martín Becedillas Ruiz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
