@@ -160,7 +160,14 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                         continue
                     else:
                         raise e
-            ret.addBarsFromCSV(tableCode, fileName, skipMalformedBars=skipMalformedBars)
+            try:
+                ret.addBarsFromCSV(tableCode, fileName, skipMalformedBars=skipMalformedBars)
+            except Exception as e:
+                if skipErrors:
+                    logger.error(str(e))
+                    continue
+                else:
+                    raise e
     return ret
 
 
