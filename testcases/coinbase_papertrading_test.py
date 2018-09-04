@@ -20,11 +20,12 @@
 
 import unittest
 
-import test_strategy
 from pyalgotrade.coinbase import client
 from pyalgotrade.coinbase import livefeed
 from pyalgotrade.coinbase import broker
 from pyalgotrade.coinbase import common
+
+from testcases import test_strategy
 
 
 class PaperTradingTestCase(unittest.TestCase):

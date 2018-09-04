@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import json
 
 from pyalgotrade.websocket import client
 from pyalgotrade.coinbase import messages
+from pyalgotrade.coinbase import common
 
 
 # No keep alive messages.
@@ -36,13 +37,25 @@ class KeepAliveMgr(client.KeepAliveMgr):
 
 
 class WebSocketClient(client.WebSocketClientBase):
-    def __init__(self, productId, url, maxInactivity=120):
+    class Event:
+        ERROR = 1
+        CONNECTED = 2
+        DISCONNECTED = 3
+        ORDER_MATCH = 4
+        ORDER_RECEIVED = 5
+        ORDER_OPEN = 6
+        ORDER_DONE = 7
+        ORDER_CHANGE = 8
+        SEQ_NR_MISMATCH = 9
+
+    def __init__(self, productId, url, queue, maxInactivity=120):
         """
         Base class for Coinbase websocket feed responsible for processing the full channel.
         """
 
         super(WebSocketClient, self).__init__(url)
         self.__productId = productId
+        self.__queue = queue
         self.__lastSequenceNr = None
         # There are no keep alive messages so as soon as maxInactivity is reached treat that as a disconnection.
         keepAliveResponseTimeout = 0.1
@@ -70,6 +83,8 @@ class WebSocketClient(client.WebSocketClientBase):
             "product_ids": [self.__productId],
             "channels": ["full"]
         })
+        common.logger.info("Connection opened.")
+        self.__queue.put((WebSocketClient.Event.CONNECTED, None))
 
     def onMessage(self, msgDict):
         msg_dispatch_table = {
@@ -113,29 +128,63 @@ class WebSocketClient(client.WebSocketClientBase):
                 self._checkSequence(msg)
             msg_dispatch_entry["handler"](msg)
 
-    def onError(self, errorMsg): # pragma: no cover
-        pass
+    ######################################################################
+    # WebSocketClientBase events.
 
-    def onUnknownMessage(self, msgDict): # pragma: no cover
-        pass
+    def onConnectionRefused(self, code, reason):
+        common.logger.error("Connection refused. Code: %s. Reason: %s." % (code, reason))
 
-    def onSequenceMismatch(self, lastValidSequence, currentSequence): # pragma: no cover
-        pass
+    def onClosed(self, code, reason):
+        common.logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
-    def onOrderReceived(self, msg): # pragma: no cover
-        pass
+    def onDisconnectionDetected(self):
+        common.logger.warning("Disconnection detected.")
+        try:
+            self.stopClient()
+        except Exception as e:
+            common.logger.error("Error stopping websocket client: %s." % (str(e)))
+        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
-    def onOrderOpen(self, msg): # pragma: no cover
-        pass
+    ######################################################################
+    # Coinbase specific
 
-    def onOrderDone(self, msg): # pragma: no cover
-        pass
+    def onError(self, msg):
+        common.logger.error(msg.getMessage())
+        self.__queue.put((WebSocketClient.Event.ERROR, msg))
 
-    def onOrderMatch(self, msg): # pragma: no cover
-        pass
+    def onUnknownMessage(self, msgDict):
+        common.logger.warning("Unknown message %s" % msgDict)
 
-    def onOrderChange(self, msg): # pragma: no cover
-        pass
+    def onSequenceMismatch(self, lastValidSequence, currentSequence):
+        common.logger.warning("Sequence jumped from %s to %s" % (lastValidSequence, currentSequence))
+        self.__queue.put((WebSocketClient.Event.SEQ_NR_MISMATCH, currentSequence))
 
-    def onSubscriptions(self, msg): # pragma: no cover
-        pass
+    def onOrderReceived(self, msg):
+        self.__queue.put((WebSocketClient.Event.ORDER_RECEIVED, msg))
+
+    def onOrderOpen(self, msg):
+        self.__queue.put((WebSocketClient.Event.ORDER_OPEN, msg))
+
+    def onOrderDone(self, msg):
+        self.__queue.put((WebSocketClient.Event.ORDER_DONE, msg))
+
+    def onOrderMatch(self, msg):
+        self.__queue.put((WebSocketClient.Event.ORDER_MATCH, msg))
+
+    def onOrderChange(self, msg):
+        self.__queue.put((WebSocketClient.Event.ORDER_CHANGE, msg))
+
+    def onSubscriptions(self, msg):
+        common.logger.info("Subscriptions: %s" % msg.getChannels())
+
+
+class WebSocketClientThread(client.WebSocketClientThreadBase):
+    """
+    This thread class is responsible for running a WebSocketClient.
+    """
+
+    def __init__(self, productId, url, maxInactivity=120):
+        super(WebSocketClientThread, self).__init__(
+            lambda queue: WebSocketClient(productId, url, queue, maxInactivity)
+        )

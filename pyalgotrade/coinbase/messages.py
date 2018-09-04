@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +20,15 @@
 
 # Coinbase protocol reference: Check https://docs.exchange.coinbase.com/
 
-import common
 import abc
 
+import six
 
+from . import common
+
+
+@six.add_metaclass(abc.ABCMeta)
 class Message(object):
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, msgDict):
         self._msgDict = msgDict

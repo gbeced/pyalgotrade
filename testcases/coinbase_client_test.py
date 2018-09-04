@@ -18,6 +18,7 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+from __future__ import print_function
 import unittest
 import datetime
 
@@ -54,7 +55,7 @@ class ClientTestCase(unittest.TestCase):
 
         def check_done():
             if all(events.values()):
-                print "Stopping"
+                print("Stopping")
                 self.dispatcher.stop()
 
         def on_orderbook_updated(orderbook):

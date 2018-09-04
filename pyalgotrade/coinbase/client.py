@@ -1,6 +1,6 @@
 # PyAlgoTrade
 #
-# Copyright 2011-2015 Gabriel Martin Becedillas Ruiz
+# Copyright 2011-2018 Gabriel Martin Becedillas Ruiz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 """
 
 import threading
-import Queue
+from six.moves import queue
 import time
 
 from pyalgotrade import observer
@@ -28,7 +28,6 @@ import pyalgotrade.logger
 from pyalgotrade.coinbase import httpclient
 from pyalgotrade.coinbase import wsclient
 from pyalgotrade.coinbase import obooksync
-from pyalgotrade.coinbase import common
 
 
 logger = pyalgotrade.logger.getLogger(__name__)
@@ -94,117 +93,6 @@ class L3OrderBook(object):
         return pricelevels_to_obooklevels(self.__orderBookSync.getAsks(), maxValues)
 
 
-class WebSocketClient(wsclient.WebSocketClient):
-    class Event:
-        ERROR = 1
-        CONNECTED = 2
-        DISCONNECTED = 3
-        ORDER_MATCH = 4
-        ORDER_RECEIVED = 5
-        ORDER_OPEN = 6
-        ORDER_DONE = 7
-        ORDER_CHANGE = 8
-        SEQ_NR_MISMATCH = 9
-
-    def __init__(self, productId, url, maxInactivity=120):
-        """
-        This class is responsible for forwarding websocket messages through a queue.
-        """
-
-        super(WebSocketClient, self).__init__(productId, url, maxInactivity=maxInactivity)
-        self.__queue = Queue.Queue()
-
-    def getQueue(self):
-        return self.__queue
-
-    def onOpened(self):
-        super(WebSocketClient, self).onOpened()
-        logger.info("Connection opened.")
-        self.__queue.put((WebSocketClient.Event.CONNECTED, None))
-
-    def onConnectionRefused(self, code, reason):
-        logger.error("Connection refused. Code: %s. Reason: %s." % (code, reason))
-
-    def onClosed(self, code, reason):
-        logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
-        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
-
-    def onDisconnectionDetected(self):
-        logger.warning("Disconnection detected.")
-        self.stopClient()
-        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
-
-    ######################################################################
-    # Coinbase specific
-
-    def onError(self, msg):
-        logger.error(msg.getMessage())
-        self.__queue.put((WebSocketClient.Event.ERROR, msg))
-
-    def onUnknownMessage(self, msgDict):
-        logger.warning("Unknown message %s" % msgDict)
-
-    def onSubscriptions(self, msg):
-        logger.info("Subscriptions: %s" % msg.getChannels())
-
-    def onSequenceMismatch(self, lastValidSequence, currentSequence):
-        logger.warning("Sequence jumped from %s to %s" % (lastValidSequence, currentSequence))
-        self.__queue.put((WebSocketClient.Event.SEQ_NR_MISMATCH, currentSequence))
-
-    def onOrderReceived(self, msg):
-        self.__queue.put((WebSocketClient.Event.ORDER_RECEIVED, msg))
-
-    def onOrderOpen(self, msg):
-        self.__queue.put((WebSocketClient.Event.ORDER_OPEN, msg))
-
-    def onOrderDone(self, msg):
-        self.__queue.put((WebSocketClient.Event.ORDER_DONE, msg))
-
-    def onOrderMatch(self, msg):
-        self.__queue.put((WebSocketClient.Event.ORDER_MATCH, msg))
-
-    def onOrderChange(self, msg):
-        self.__queue.put((WebSocketClient.Event.ORDER_CHANGE, msg))
-
-
-class WebSocketClientThread(threading.Thread):
-    def __init__(self, productId, url, maxInactivity=120):
-        """
-        Thread class responsible for running a WebSocketClient.
-        """
-
-        super(WebSocketClientThread, self).__init__()
-        self.__wsClient = WebSocketClient(productId, url, maxInactivity=maxInactivity)
-        self.__runEvent = threading.Event()
-
-    def waitRunning(self, timeout):
-        return self.__runEvent.wait(timeout)
-
-    def isConnected(self):
-        return self.__wsClient.isConnected()
-
-    def getQueue(self):
-        return self.__wsClient.getQueue()
-
-    def run(self):
-        self.__runEvent.set()
-
-        try:
-            logger.info("Connecting websocket client.")
-            self.__wsClient.connect()
-            logger.info("Running websocket client.")
-            self.__wsClient.startClient()
-        except Exception, e:
-            logger.exception("Failed to run websocket client: %s" % e)
-
-    def stop(self):
-        try:
-            logger.info("Stopping websocket client.")
-            self.__wsClient.stopClient()
-        except Exception, e:
-            logger.error("Error stopping websocket client: %s." % (str(e)))
-
-
 class Client(observer.Subject):
 
     """
@@ -218,14 +106,15 @@ class Client(observer.Subject):
     QUEUE_TIMEOUT = 0.01
     WAIT_CONNECT_POLL_FREQUENCY = 0.5
     ORDER_BOOK_EVENT_DISPATCH = {
-        WebSocketClient.Event.ORDER_MATCH: obooksync.L3OrderBookSync.onOrderMatch,
-        WebSocketClient.Event.ORDER_RECEIVED: obooksync.L3OrderBookSync.onOrderReceived,
-        WebSocketClient.Event.ORDER_OPEN: obooksync.L3OrderBookSync.onOrderOpen,
-        WebSocketClient.Event.ORDER_DONE: obooksync.L3OrderBookSync.onOrderDone,
-        WebSocketClient.Event.ORDER_CHANGE: obooksync.L3OrderBookSync.onOrderChange,
+        wsclient.WebSocketClient.Event.ORDER_MATCH: obooksync.L3OrderBookSync.onOrderMatch,
+        wsclient.WebSocketClient.Event.ORDER_RECEIVED: obooksync.L3OrderBookSync.onOrderReceived,
+        wsclient.WebSocketClient.Event.ORDER_OPEN: obooksync.L3OrderBookSync.onOrderOpen,
+        wsclient.WebSocketClient.Event.ORDER_DONE: obooksync.L3OrderBookSync.onOrderDone,
+        wsclient.WebSocketClient.Event.ORDER_CHANGE: obooksync.L3OrderBookSync.onOrderChange,
     }
 
     def __init__(self, productId, wsURL=WEBSOCKET_FEED_URL, apiURL=REST_API_URL):
+        super(Client, self).__init__()
         self.__productId = productId
         self.__stopped = False
         self.__httpClient = httpclient.HTTPClient(apiURL)
@@ -239,7 +128,7 @@ class Client(observer.Subject):
     def __connectWS(self, retry):
         while True:
             # Start the client thread and wait a couple of seconds seconds until it starts running
-            self.__wsClientThread = WebSocketClientThread(self.__productId, self.__wsURL)
+            self.__wsClientThread = wsclient.WebSocketClientThread(self.__productId, self.__wsURL)
             self.__wsClientThread.start()
             self.__wsClientThread.waitRunning(5)
 
@@ -325,24 +214,24 @@ class Client(observer.Subject):
             eventType, eventData = self.__wsClientThread.getQueue().get(True, Client.QUEUE_TIMEOUT)
 
             ret = True
-            if eventType == WebSocketClient.Event.CONNECTED:
+            if eventType == wsclient.WebSocketClient.Event.CONNECTED:
                 self.__onConnected()
-            elif eventType == WebSocketClient.Event.DISCONNECTED:
+            elif eventType == wsclient.WebSocketClient.Event.DISCONNECTED:
                 self.__onDisconnected()
             elif eventType in [
-                WebSocketClient.Event.ORDER_MATCH,
-                WebSocketClient.Event.ORDER_RECEIVED,
-                WebSocketClient.Event.ORDER_OPEN,
-                WebSocketClient.Event.ORDER_DONE,
-                WebSocketClient.Event.ORDER_CHANGE
+                wsclient.WebSocketClient.Event.ORDER_MATCH,
+                wsclient.WebSocketClient.Event.ORDER_RECEIVED,
+                wsclient.WebSocketClient.Event.ORDER_OPEN,
+                wsclient.WebSocketClient.Event.ORDER_DONE,
+                wsclient.WebSocketClient.Event.ORDER_CHANGE
             ]:
                 self.__onOrderEvent(eventType, eventData)
-            elif eventType == WebSocketClient.Event.SEQ_NR_MISMATCH:
+            elif eventType == wsclient.WebSocketClient.Event.SEQ_NR_MISMATCH:
                 self.__onSeqNrMismatch()
             else:
                 logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
                 ret = False
-        except Queue.Empty:
+        except queue.Empty:
             pass
 
         return ret

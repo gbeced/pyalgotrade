@@ -26,7 +26,8 @@ import json
 from pyalgotrade.coinbase import obooksync
 from pyalgotrade.coinbase import httpclient
 from pyalgotrade.coinbase import messages
-import common
+
+from . import common
 
 
 class PriceLevelTestCase(unittest.TestCase):
