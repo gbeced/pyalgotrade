@@ -20,8 +20,6 @@
 
 import datetime
 
-from six.moves import queue
-
 from pyalgotrade.websocket import pusher
 from pyalgotrade.websocket import client
 from pyalgotrade.bitstamp import common
@@ -170,29 +168,4 @@ class WebSocketClientThread(client.WebSocketClientThreadBase):
     """
 
     def __init__(self):
-        super(WebSocketClientThread, self).__init__()
-        self.__queue = queue.Queue()
-        self.__wsClient = None
-
-    def getQueue(self):
-        return self.__queue
-
-    def run(self):
-        super(WebSocketClientThread, self).run()
-
-        # We create the WebSocketClient right in the thread, instead of doing so in the constructor,
-        # because it has thread affinity.
-        try:
-            self.__wsClient = WebSocketClient(self.__queue)
-            self.__wsClient.connect()
-            self.__wsClient.startClient()
-        except Exception:
-            common.logger.exception("Failed to connect: %s")
-
-    def stop(self):
-        try:
-            if self.__wsClient is not None:
-                common.logger.info("Stopping websocket client.")
-                self.__wsClient.stopClient()
-        except Exception as e:
-            common.logger.error("Error stopping websocket client: %s." % (str(e)))
+        super(WebSocketClientThread, self).__init__(WebSocketClient)

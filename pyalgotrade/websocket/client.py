@@ -23,6 +23,7 @@ import time
 import threading
 
 import six
+from six.moves import queue
 from ws4py.client import tornadoclient
 import tornado
 if six.PY3:
@@ -187,10 +188,47 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
         pass
 
 
-# Base clase for threads that will run a WebSocketClientBase
+# Base clase for threads that will run a WebSocketClientBase instances.
 # Subclasses should call super(WebSocketClientThread, self).run() insinde run.
 # Check https://github.com/tornadoweb/tornado/issues/2308
 class WebSocketClientThreadBase(threading.Thread):
+    def __init__(self, wsCls):
+        super(WebSocketClientThreadBase, self).__init__()
+        self.__queue = queue.Queue()
+        self.__wsClient = None
+        self.__wsCls = wsCls
+        self.__runEvent = threading.Event()
+
+    def getQueue(self):
+        return self.__queue
+
+    def waitRunning(self, timeout):
+        return self.__runEvent.wait(timeout)
+
+    def isConnected(self):
+        return self.__wsClient is not None and self.__wsClient.isConnected()
+
     def run(self):
+        self.__runEvent.set()
+
         if six.PY3:
             asyncio.set_event_loop_policy(tornado.platform.asyncio.AnyThreadEventLoopPolicy())
+
+        # We create the WebSocketClient right in the thread, instead of doing so in the constructor,
+        # because it has thread affinity.
+        try:
+            self.__wsClient = self.__wsCls(self.__queue)
+            logger.info("Connecting websocket client.")
+            self.__wsClient.connect()
+            logger.info("Running websocket client.")
+            self.__wsClient.startClient()
+        except Exception:
+            logger.exception("Failed to connect: %s")
+
+    def stop(self):
+        try:
+            if self.__wsClient is not None:
+                logger.info("Stopping websocket client.")
+                self.__wsClient.stopClient()
+        except Exception as e:
+            logger.error("Error stopping websocket client: %s." % (str(e)))
