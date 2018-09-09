@@ -61,8 +61,12 @@ class SQLiteFeedTestCase(common.TestCase):
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed()
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV(
+                "orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone
+            )
+            yahooFeed.addBarsFromCSV(
+                "orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone
+            )
 
             # Fill the database using the bars from the Yahoo! feed.
             sqliteFeed = tmpFeed.getFeed()
@@ -77,8 +81,13 @@ class SQLiteFeedTestCase(common.TestCase):
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed()
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV(
+                "orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone
+            )
+            yahooFeed.addBarsFromCSV(
+                "orcl",
+                common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone
+            )
 
             # Fill the database using the bars from the Yahoo! feed.
             sqliteFeed = tmpFeed.getFeed()
@@ -106,8 +115,13 @@ class SQLiteFeedTestCase(common.TestCase):
         with tmpFeed:
             # Load bars using a Yahoo! feed.
             yahooFeed = yahoofeed.Feed(maxLen=1)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone)
-            yahooFeed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone)
+            yahooFeed.addBarsFromCSV(
+                "orcl",
+                common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.timezone
+            )
+            yahooFeed.addBarsFromCSV(
+                "orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.timezone
+            )
 
             # Fill the database using the bars from the Yahoo! feed.
             sqliteFeed = tmpFeed.getFeed()

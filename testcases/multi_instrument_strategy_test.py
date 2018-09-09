@@ -81,8 +81,14 @@ class TestCase(common.TestCase):
         # - US: 14:30hs ~ 21hs
         feed = yahoofeed.Feed()
         for year in [2010, 2011]:
-            feed.addBarsFromCSV("^n225", common.get_data_file_path("nikkei-%d-yahoofinance.csv" % year), marketsession.TSE.getTimezone())
-            feed.addBarsFromCSV("spy", common.get_data_file_path("spy-%d-yahoofinance.csv" % year), marketsession.USEquities.getTimezone())
+            feed.addBarsFromCSV(
+                "^n225", common.get_data_file_path("nikkei-%d-yahoofinance.csv" % year),
+                marketsession.TSE.getTimezone()
+            )
+            feed.addBarsFromCSV(
+                "spy", common.get_data_file_path("spy-%d-yahoofinance.csv" % year),
+                marketsession.USEquities.getTimezone()
+            )
 
         self.__testDifferentTimezonesImpl(feed)
 

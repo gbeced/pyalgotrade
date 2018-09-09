@@ -249,7 +249,10 @@ class BaseTestCase(common.TestCase):
         toMonth = 1
         fromDay = 3
         toDay = 3
-        barFilter = csvfeed.USEquitiesRTH(us_equities_datetime(2011, fromMonth, fromDay, 00, 00), us_equities_datetime(2011, toMonth, toDay, 23, 59))
+        barFilter = csvfeed.USEquitiesRTH(
+            us_equities_datetime(2011, fromMonth, fromDay, 00, 00),
+            us_equities_datetime(2011, toMonth, toDay, 23, 59)
+        )
         barFeed = ninjatraderfeed.Feed(barfeed.Frequency.MINUTE)
         barFeed.setBarFilter(barFilter)
         barFeed.addBarsFromCSV(BaseTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
@@ -448,7 +451,10 @@ class LongPosTestCase(BaseTestCase):
         # 3/Jan/2011 205400 - entry gets filled at 127.21
         # 3/Jan/2011 210000 - last bar
 
-        strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterLong, BaseTestCase.TestInstrument, 1, True)
+        strat.addPosEntry(
+            dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterLong,
+            BaseTestCase.TestInstrument, 1, True
+        )
         strat.run()
 
         self.assertEqual(strat.positions[0].isOpen(), True)
@@ -467,7 +473,9 @@ class LongPosTestCase(BaseTestCase):
         instrument = "orcl"
         barFeed = load_daily_barfeed(instrument)
         strat = TestStrategy(barFeed, instrument, 1000)
-        strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 29.25.
+        strat.addPosEntry(
+            datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False
+        )  # Filled on 2000-12-14 at 29.25.
         strat.run()
 
         self.assertEqual(strat.positions[0].isOpen(), True)
@@ -479,7 +487,9 @@ class LongPosTestCase(BaseTestCase):
         barFeed = load_daily_barfeed(instrument)
         strat = TestStrategy(barFeed, instrument, 1000)
         strat.setUseAdjustedValues(True)
-        strat.addPosEntry(datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False)  # Filled on 2000-12-14 at 28.60
+        strat.addPosEntry(
+            datetime.date(2000, 12, 13), strat.enterLong, instrument, 1, False
+        )  # Filled on 2000-12-14 at 28.60
         strat.run()
 
         self.assertEqual(strat.positions[0].isOpen(), True)
@@ -857,7 +867,10 @@ class ShortPosTestCase(BaseTestCase):
         # 3/Jan/2011 205400 - entry gets filled at 127.21
         # 3/Jan/2011 210000 - last bar
 
-        strat.addPosEntry(dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterShort, BaseTestCase.TestInstrument, 1, True)
+        strat.addPosEntry(
+            dt.localize(datetime.datetime(2011, 1, 3, 20, 53), pytz.utc), strat.enterShort,
+            BaseTestCase.TestInstrument, 1, True
+        )
         strat.run()
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
@@ -925,7 +938,9 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True)
+        strat.addPosEntry(
+            datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True
+        )
         strat.addPosExitLimit(datetime.datetime(2000, 11, 16), 29)
         strat.run()
 
@@ -940,7 +955,8 @@ class LimitPosTestCase(BaseTestCase):
 
         # Date,Open,High,Low,Close,Volume,Adj Close
         # 2000-11-17,26.94,29.25,25.25,28.81,59639400,28.17 - exit filled
-        # 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - exitPosition using a market order (cancels the previous one).
+        # 2000-11-16,28.75,29.81,27.25,27.37,37990000,26.76 - exitPositionusing a market order (cancels the previous
+        #   one).
         # 2000-11-15,28.81,29.44,27.70,28.87,50655200,28.23
         # 2000-11-14,27.37,28.50,26.50,28.37,77496700,27.74 - exitPosition
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
@@ -965,7 +981,9 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 -
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True)
+        strat.addPosEntry(
+            datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 5, 1, True
+        )
         strat.addPosExitLimit(datetime.datetime(2000, 11, 14), 100)
         strat.run()
 
@@ -984,7 +1002,9 @@ class LimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongLimit
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1, True)
+        strat.addPosEntry(
+            datetime.datetime(2000, 11, 10), strat.enterLongLimit, BaseTestCase.TestInstrument, 25, 1, True
+        )
         strat.addPosExitLimit(datetime.datetime(2000, 11, 15), 100, False)
         strat.run()
 
@@ -1252,7 +1272,9 @@ class StopLimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20 - entry filled
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87 - enterLongStopLimit
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, BaseTestCase.TestInstrument, 25.5, 24, 1)
+        strat.addPosEntry(
+            datetime.datetime(2000, 11, 10), strat.enterLongStopLimit, BaseTestCase.TestInstrument, 25.5, 24, 1
+        )
         strat.addPosExitStopLimit(datetime.datetime(2000, 11, 16), 27, 28)
         strat.run()
 
@@ -1277,7 +1299,9 @@ class StopLimitPosTestCase(BaseTestCase):
         # 2000-11-13,25.12,25.87,23.50,24.75,61651900,24.20
         # 2000-11-10,26.44,26.94,24.87,25.44,54614100,24.87
 
-        strat.addPosEntry(datetime.datetime(2000, 11, 16), strat.enterShortStopLimit, BaseTestCase.TestInstrument, 27, 29, 1)
+        strat.addPosEntry(
+            datetime.datetime(2000, 11, 16), strat.enterShortStopLimit, BaseTestCase.TestInstrument, 27, 29, 1
+        )
         strat.addPosExitStopLimit(datetime.datetime(2000, 11, 22), 24, 25)
         strat.run()
 

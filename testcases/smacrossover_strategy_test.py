@@ -56,7 +56,9 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
         # print " ".join(args)
 
     def onEnterOk(self, position):
-        self.printDebug("enterOk: ", self.getCurrentDateTime(), position.getEntryOrder().getExecutionInfo().getPrice(), position)
+        self.printDebug(
+            "enterOk: ", self.getCurrentDateTime(), position.getEntryOrder().getExecutionInfo().getPrice(), position
+        )
 
     def onEnterCanceled(self, position):
         self.printDebug("enterCanceled: ", self.getCurrentDateTime(), position)
@@ -68,7 +70,9 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
             assert(False)
 
     def onExitOk(self, position):
-        self.printDebug("exitOk: ", self.getCurrentDateTime(), position.getExitOrder().getExecutionInfo().getPrice(), position)
+        self.printDebug(
+            "exitOk: ", self.getCurrentDateTime(), position.getExitOrder().getExecutionInfo().getPrice(), position
+        )
         if position == self.__longPos:
             self.__longPos = None
         elif position == self.__shortPos:
@@ -83,7 +87,11 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         bar = bars.getBar("orcl")
-        self.printDebug("%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
+        self.printDebug(
+            "%s: O=%s H=%s L=%s C=%s" % (
+                bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()
+            )
+        )
 
         if cross.cross_above(self.__fastSMADS, self.__slowSMADS) == 1:
             if self.__shortPos:
@@ -158,5 +166,6 @@ class TestSMACrossOver(common.TestCase):
         self.__test(MarketOrderStrategy, 1000 - 22.7)
 
     def testWithLimitOrder(self):
-        # The result is different than the one we get using NinjaTrader. NinjaTrader processes Limit orders in a different way.
+        # The result is different than the one we get using NinjaTrader. NinjaTrader processes Limit orders in a
+        # different way.
         self.__test(LimitOrderStrategy, 1000 + 32.7)

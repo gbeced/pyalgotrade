@@ -27,7 +27,7 @@ from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade import plotter
 
 sys.path.append("samples")
-import sma_crossover
+import sma_crossover  # noqa: E402
 
 
 class PlotterTestCase(common.TestCase):
