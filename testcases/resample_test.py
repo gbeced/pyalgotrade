@@ -231,8 +231,14 @@ class CSVResampleTestCase(common.TestCase):
             feed.loadAll()
 
         self.assertEqual(len(feed["spy"]), 340)
-        self.assertEqual(feed["spy"][0].getDateTime(), dt.localize(datetime.datetime(2011, 1, 3, 9), marketsession.USEquities.getTimezone()))
-        self.assertEqual(feed["spy"][-1].getDateTime(), dt.localize(datetime.datetime(2011, 2, 1, 1), marketsession.USEquities.getTimezone()))
+        self.assertEqual(
+            feed["spy"][0].getDateTime(),
+            dt.localize(datetime.datetime(2011, 1, 3, 9), marketsession.USEquities.getTimezone())
+        )
+        self.assertEqual(
+            feed["spy"][-1].getDateTime(),
+            dt.localize(datetime.datetime(2011, 2, 1, 1), marketsession.USEquities.getTimezone())
+        )
         self.assertEqual(feed["spy"][0].getOpen(), 126.35)
         self.assertEqual(feed["spy"][0].getHigh(), 126.45)
         self.assertEqual(feed["spy"][0].getLow(), 126.3)
@@ -260,8 +266,14 @@ class CSVResampleTestCase(common.TestCase):
             feed.loadAll()
 
         self.assertEqual(len(feed["spy"]), 25)
-        self.assertEqual(feed["spy"][0].getDateTime(), dt.localize(datetime.datetime(2011, 1, 3), marketsession.USEquities.getTimezone()))
-        self.assertEqual(feed["spy"][-1].getDateTime(), dt.localize(datetime.datetime(2011, 2, 1), marketsession.USEquities.getTimezone()))
+        self.assertEqual(
+            feed["spy"][0].getDateTime(),
+            dt.localize(datetime.datetime(2011, 1, 3), marketsession.USEquities.getTimezone())
+        )
+        self.assertEqual(
+            feed["spy"][-1].getDateTime(),
+            dt.localize(datetime.datetime(2011, 2, 1), marketsession.USEquities.getTimezone())
+        )
 
         self.assertEqual(len(resampledBarDS), len(feed["spy"]))
         self.assertEqual(resampledBarDS[0].getDateTime(), dt.as_utc(datetime.datetime(2011, 1, 3)))

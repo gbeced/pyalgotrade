@@ -130,7 +130,9 @@ class BarFeed(membf.BarFeed):
 
         # Load the csv file
         loadedBars = []
-        reader = csvutils.FastDictReader(open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter())
+        reader = csvutils.FastDictReader(
+            open(path, "r"), fieldnames=rowParser.getFieldNames(), delimiter=rowParser.getDelimiter()
+        )
         for row in reader:
             bar_ = parse_bar(row)
             if bar_ is not None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):

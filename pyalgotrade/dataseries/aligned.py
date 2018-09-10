@@ -66,7 +66,8 @@ class Syncer(object):
 
     def __onNewValue1(self, dataSeries, dateTime, value):
         pos2 = self.__findPosForDateTime(self.__values2, dateTime)
-        # If a value for dateTime was added to first dataseries, and a value for that same datetime is also in the second one
+        # If a value for dateTime was added to first dataseries, and a value for that same datetime is also in the
+        # second one
         # then append to both destination dataseries.
         if pos2 is not None:
             self.__append(dateTime, value, self.__values2[pos2][1])
@@ -79,7 +80,8 @@ class Syncer(object):
 
     def __onNewValue2(self, dataSeries, dateTime, value):
         pos1 = self.__findPosForDateTime(self.__values1, dateTime)
-        # If a value for dateTime was added to second dataseries, and a value for that same datetime is also in the first one
+        # If a value for dateTime was added to second dataseries, and a value for that same datetime is also in the
+        # first one
         # then append to both destination dataseries.
         if pos1 is not None:
             self.__append(dateTime, self.__values1[pos1][1], value)

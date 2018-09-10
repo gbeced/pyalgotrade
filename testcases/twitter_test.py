@@ -24,15 +24,14 @@ import datetime
 from . import common
 try:
     # This will get environment variables set.
-    from . import credentials
-except:
+    from . import credentials  # noqa: F401
+except ImportError:
     pass
 
 from pyalgotrade import dispatcher
 
 try:
     from pyalgotrade.twitter import feed as twitterfeed
-
 
     class TwitterFeedTestCase(common.TestCase):
         def testTwitterFeed(self):

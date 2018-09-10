@@ -23,7 +23,9 @@ from pyalgotrade import dataseries
 
 
 class MACD(dataseries.SequenceDataSeries):
-    """Moving Average Convergence-Divergence indicator as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_convergence_divergence_macd.
+    """
+    Moving Average Convergence-Divergence indicator as described in
+    http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_convergence_divergence_macd.
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
@@ -63,7 +65,10 @@ class MACD(dataseries.SequenceDataSeries):
         return self.__signal
 
     def getHistogram(self):
-        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the histogram (the difference between the MACD and the Signal)."""
+        """
+        Returns a :class:`pyalgotrade.dataseries.DataSeries` with the histogram (the difference between the MACD and
+        the Signal).
+        """
         return self.__histogram
 
     def __onNewValue(self, dataSeries, dateTime, value):

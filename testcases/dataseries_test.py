@@ -168,7 +168,9 @@ class TestBarDataSeries(common.TestCase):
     def testNonEmpty(self):
         ds = bards.BarDataSeries()
         for i in xrange(10):
-            ds.append(bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+            ds.append(bar.BasicBar(
+                datetime.datetime.now() + datetime.timedelta(seconds=i), 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND
+            ))
 
         for i in xrange(0, 10):
             self.assertTrue(ds[i].getOpen() == 0)
@@ -180,7 +182,9 @@ class TestBarDataSeries(common.TestCase):
     def testNestedDataSeries(self):
         ds = bards.BarDataSeries()
         for i in xrange(10):
-            ds.append(bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND))
+            ds.append(bar.BasicBar(
+                datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND
+            ))
 
         self.__testGetValue(ds.getOpenDataSeries(), 10, 2)
         self.__testGetValue(ds.getCloseDataSeries(), 10, 3)
@@ -194,7 +198,9 @@ class TestBarDataSeries(common.TestCase):
         seq = []
         ds = bards.BarDataSeries()
         for i in xrange(10):
-            bar_ = bar.BasicBar(datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND)
+            bar_ = bar.BasicBar(
+                datetime.datetime.now() + datetime.timedelta(seconds=i), 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND
+            )
             ds.append(bar_)
             seq.append(bar_)
 

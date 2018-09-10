@@ -72,7 +72,8 @@ def avg_gain_loss(values, begin, end):
 class RSIEventWindow(technical.EventWindow):
     def __init__(self, period):
         assert(period > 1)
-        # We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous values.
+        # We need N + 1 samples to calculate N averages because they are calculated based on the diff with previous
+        # values.
         super(RSIEventWindow, self).__init__(period + 1)
         self.__value = None
         self.__prevGain = None
@@ -82,7 +83,8 @@ class RSIEventWindow(technical.EventWindow):
     def onNewValue(self, dateTime, value):
         super(RSIEventWindow, self).onNewValue(dateTime, value)
 
-        # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
+        # Formula from
+        # http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
         if value is not None and self.windowFull():
             if self.__prevGain is None:
                 assert(self.__prevLoss is None)
@@ -110,7 +112,9 @@ class RSIEventWindow(technical.EventWindow):
 
 
 class RSI(technical.EventBasedFilter):
-    """Relative Strength Index filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
+    """
+    Relative Strength Index filter as described in
+    http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi.
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.

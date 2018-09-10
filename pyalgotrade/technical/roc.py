@@ -40,7 +40,9 @@ class ROCEventWindow(technical.EventWindow):
 
 
 class RateOfChange(technical.EventBasedFilter):
-    """Rate of change filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change_roc_and_momentum.
+    """
+    Rate of change filter as described in
+    http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change_roc_and_momentum.
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.

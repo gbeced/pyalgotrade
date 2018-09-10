@@ -62,7 +62,8 @@ class TestCase(common.TestCase):
         return ret
 
     def testStockChartsRSI(self):
-        # Test data from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_in
+        # Test data from
+        # http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_in
         common.test_from_csv(self, "rsi-test.csv", lambda inputDS: rsi.RSI(inputDS, 14), 3)
 
     def testDateTimes(self):
@@ -73,7 +74,10 @@ class TestCase(common.TestCase):
             self.assertEqual(rsi.getDateTimes()[i], None)
 
     def testRSI_Bounded(self):
-        values = [44.3389, 44.0902, 44.1497, 43.6124, 44.3278, 44.8264, 45.0955, 45.4245, 45.8433, 46.0826, 45.8931, 46.0328, 45.6140, 46.2820, 46.2820]
+        values = [
+            44.3389, 44.0902, 44.1497, 43.6124, 44.3278, 44.8264, 45.0955, 45.4245, 45.8433, 46.0826, 45.8931,
+            46.0328, 45.6140, 46.2820, 46.2820
+        ]
         rsi = self.__buildRSI(values, 14, 1)
         self.assertEqual(round(rsi[0], 8), 70.53278948)
         self.assertEqual(len(rsi), 1)

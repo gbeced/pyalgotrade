@@ -59,7 +59,9 @@ class ATREventWindow(technical.EventWindow):
 
 
 class ATR(technical.EventBasedFilter):
-    """Average True Range filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr
+    """
+    Average True Range filter as described in
+    http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr
 
     :param barDataSeries: The BarDataSeries instance being filtered.
     :type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.

@@ -24,7 +24,9 @@ from pyalgotrade.technical import stats
 
 
 class BollingerBands(object):
-    """Bollinger Bands filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands.
+    """
+    Bollinger Bands filter as described in
+    http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands.
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.

@@ -35,7 +35,9 @@ def build_bars_from_closing_prices(closingPrices):
 
     nextDateTime = datetime.datetime.now()
     for closePrice in closingPrices:
-        bar_ = bar.BasicBar(nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice, bar.Frequency.DAY)
+        bar_ = bar.BasicBar(
+            nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice, bar.Frequency.DAY
+        )
         ret.append(bar_)
         nextDateTime = nextDateTime + datetime.timedelta(days=1)
     return ret
@@ -214,7 +216,10 @@ class AnalyzerTestCase(common.TestCase):
         order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True)  # Adj. Close: 42.09
         order.setGoodTillCanceled(True)
         strat.getBroker().submitOrder(order)
-        strat.addOrder(datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True)  # Adj. Close: 127.64
+        strat.addOrder(
+            datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL,
+            "ige", quantity, True
+        )  # Adj. Close: 127.64
         strat.run()
 
         self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)

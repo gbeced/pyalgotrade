@@ -32,7 +32,8 @@ logger = pyalgotrade.logger.getLogger("pusher")
 
 # Pusher protocol reference: http://pusher.com/docs/pusher_protocol
 # Every message on a Pusher WebSocket connection is packaged as an event.
-# The data field is sent as a string (check 'Double encoding' in the protocol reference). If dataIsJSON is True, it is decoded.
+# The data field is sent as a string (check 'Double encoding' in the protocol reference). If dataIsJSON is True, it is
+# decoded.
 class Event(object):
     def __init__(self, eventDict, dataIsJSON):
         self.__eventDict = eventDict

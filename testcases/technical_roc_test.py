@@ -36,7 +36,10 @@ class ROCTestCase(common.TestCase):
 
     def testPeriod12(self):
         # http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change
-        inputValues = [11045.27, 11167.32, 11008.61, 11151.83, 10926.77, 10868.12, 10520.32, 10380.43, 10785.14, 10748.26, 10896.91, 10782.95, 10620.16, 10625.83, 10510.95, 10444.37, 10068.01, 10193.39, 10066.57, 10043.75]
+        inputValues = [
+            11045.27, 11167.32, 11008.61, 11151.83, 10926.77, 10868.12, 10520.32, 10380.43, 10785.14, 10748.26,
+            10896.91, 10782.95, 10620.16, 10625.83, 10510.95, 10444.37, 10068.01, 10193.39, 10066.57, 10043.75
+        ]
         roc_ = self.__buildROC(inputValues, 12)
         outputValues = [-3.85, -4.85, -4.52, -6.34, -7.86, -6.21, -4.31, -3.24]
         for i in range(len(outputValues)):
@@ -58,7 +61,10 @@ class ROCTestCase(common.TestCase):
 
     def testBounded(self):
         # http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:rate_of_change
-        inputValues = [11045.27, 11167.32, 11008.61, 11151.83, 10926.77, 10868.12, 10520.32, 10380.43, 10785.14, 10748.26, 10896.91, 10782.95, 10620.16, 10625.83, 10510.95, 10444.37, 10068.01, 10193.39, 10066.57, 10043.75]
+        inputValues = [
+            11045.27, 11167.32, 11008.61, 11151.83, 10926.77, 10868.12, 10520.32, 10380.43, 10785.14, 10748.26,
+            10896.91, 10782.95, 10620.16, 10625.83, 10510.95, 10444.37, 10068.01, 10193.39, 10066.57, 10043.75
+        ]
         outputValues = [-4.31, -3.24]
         roc_ = self.__buildROC(inputValues, 12, 2)
         for i in xrange(2):

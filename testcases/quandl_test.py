@@ -34,8 +34,8 @@ from pyalgotrade.barfeed import quandlfeed
 
 try:
     # This will get environment variables set.
-    from . import credentials
-except:
+    from . import credentials  # noqa: F401
+except ImportError:
     pass
 
 

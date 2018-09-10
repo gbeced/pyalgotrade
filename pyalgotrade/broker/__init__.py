@@ -314,12 +314,17 @@ class Order(object):
 
     def addExecutionInfo(self, orderExecutionInfo):
         if orderExecutionInfo.getQuantity() > self.getRemaining():
-            raise Exception("Invalid fill size. %s remaining and %s filled" % (self.getRemaining(), orderExecutionInfo.getQuantity()))
+            raise Exception("Invalid fill size. %s remaining and %s filled" % (
+                self.getRemaining(), orderExecutionInfo.getQuantity())
+            )
 
         if self.__avgFillPrice is None:
             self.__avgFillPrice = orderExecutionInfo.getPrice()
         else:
-            self.__avgFillPrice = (self.__avgFillPrice * self.__filled + orderExecutionInfo.getPrice() * orderExecutionInfo.getQuantity()) / float(self.__filled + orderExecutionInfo.getQuantity())
+            prev_fill = self.__avgFillPrice * self.__filled
+            curr_fill = orderExecutionInfo.getPrice() * orderExecutionInfo.getQuantity()
+            total_quantity = self.__filled + orderExecutionInfo.getQuantity()
+            self.__avgFillPrice = (prev_fill + curr_fill) / float(total_quantity)
 
         self.__executionInfo = orderExecutionInfo
         self.__filled = self.getInstrumentTraits().roundQuantity(self.__filled + orderExecutionInfo.getQuantity())
@@ -334,7 +339,9 @@ class Order(object):
     def switchState(self, newState):
         validTransitions = Order.VALID_TRANSITIONS.get(self.__state, [])
         if newState not in validTransitions:
-            raise Exception("Invalid order state transition from %s to %s" % (Order.State.toString(self.__state), Order.State.toString(newState)))
+            raise Exception("Invalid order state transition from %s to %s" % (
+                Order.State.toString(self.__state), Order.State.toString(newState)
+            ))
         else:
             self.__state = newState
 
@@ -371,7 +378,9 @@ class MarketOrder(Order):
         self.__onClose = onClose
 
     def getFillOnClose(self):
-        """Returns True if the order should be filled as close to the closing price as possible (Market-On-Close order)."""
+        """
+        Returns True if the order should be filled as close to the closing price as possible (Market-On-Close order).
+        """
         return self.__onClose
 
 
@@ -440,7 +449,9 @@ class OrderExecutionInfo(object):
         self.__dateTime = dateTime
 
     def __str__(self):
-        return "%s - Price: %s - Amount: %s - Fee: %s" % (self.__dateTime, self.__price, self.__quantity, self.__commission)
+        return "%s - Price: %s - Amount: %s - Fee: %s" % (
+            self.__dateTime, self.__price, self.__quantity, self.__commission
+        )
 
     def getPrice(self):
         """Returns the fill price."""
@@ -564,8 +575,8 @@ class Broker(observer.Subject):
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         """Creates a Market order.
         A market order is an order to buy or sell a stock at the best available price.
-        Generally, this type of order will be executed immediately. However, the price at which a market order will be executed
-        is not guaranteed.
+        Generally, this type of order will be executed immediately. However, the price at which a market order will be
+        executed is not guaranteed.
 
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
@@ -573,7 +584,8 @@ class Broker(observer.Subject):
         :type instrument: string.
         :param quantity: Order quantity.
         :type quantity: int/float.
-        :param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close order). Default is False.
+        :param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close
+                        order). Default is False.
         :type onClose: boolean.
         :rtype: A :class:`MarketOrder` subclass.
         """
@@ -583,8 +595,8 @@ class Broker(observer.Subject):
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
         """Creates a Limit order.
         A limit order is an order to buy or sell a stock at a specific price or better.
-        A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed at the
-        limit price or higher.
+        A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed
+        at the limit price or higher.
 
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
@@ -600,14 +612,15 @@ class Broker(observer.Subject):
 
     @abc.abstractmethod
     def createStopOrder(self, action, instrument, stopPrice, quantity):
-        """Creates a Stop order.
-        A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the stock
-        reaches a specified price, known as the stop price.
+        """
+        Creates a Stop order.
+        A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the
+        stock reaches a specified price, known as the stop price.
         When the stop price is reached, a stop order becomes a market order.
-        A buy stop order is entered at a stop price above the current market price. Investors generally use a buy stop order
-        to limit a loss or to protect a profit on a stock that they have sold short.
-        A sell stop order is entered at a stop price below the current market price. Investors generally use a sell stop order
-        to limit a loss or to protect a profit on a stock that they own.
+        A buy stop order is entered at a stop price above the current market price. Investors generally use a buy stop
+        order to limit a loss or to protect a profit on a stock that they have sold short.
+        A sell stop order is entered at a stop price below the current market price. Investors generally use a sell
+        stop order to limit a loss or to protect a profit on a stock that they own.
 
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
@@ -623,10 +636,13 @@ class Broker(observer.Subject):
 
     @abc.abstractmethod
     def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
-        """Creates a Stop-Limit order.
-        A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit order.
-        Once the stop price is reached, a stop-limit order becomes a limit order that will be executed at a specified price
-        (or better). The benefit of a stop-limit order is that the investor can control the price at which the order can be executed.
+        """
+        Creates a Stop-Limit order.
+        A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit
+        order.
+        Once the stop price is reached, a stop-limit order becomes a limit order that will be executed at a specified
+        price (or better). The benefit of a stop-limit order is that the investor can control the price at which the
+        order can be executed.
 
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.

@@ -48,7 +48,10 @@ class BarFeedEventHandler_TestLoadOrder:
             # Check that the last value in the dataseries match the current datetime.
             self.__testcase.assertTrue(self.__barFeed.getDataSeries()[-1].getDateTime() == dateTime)
             # Check that the datetime for the last value matches that last datetime in the dataseries.
-            self.__testcase.assertEqual(self.__barFeed.getDataSeries()[-1].getDateTime(), self.__barFeed.getDataSeries().getDateTimes()[-1])
+            self.__testcase.assertEqual(
+                self.__barFeed.getDataSeries()[-1].getDateTime(),
+                self.__barFeed.getDataSeries().getDateTimes()[-1]
+            )
         self.__prevDateTime = dateTime
 
     def getEventCount(self):
@@ -195,8 +198,14 @@ class FeedTestCase(common.TestCase):
 
     def testWithPerFileTimezone(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(
+            FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            marketsession.USEquities.getTimezone()
+        )
+        barFeed.addBarsFromCSV(
+            FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"),
+            marketsession.USEquities.getTimezone()
+        )
         for dateTime, bars in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
@@ -210,14 +219,20 @@ class FeedTestCase(common.TestCase):
 
         try:
             barFeed = yahoofeed.Feed()
-            barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), -3)
+            barFeed.addBarsFromCSV(
+                FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+                -3
+            )
             self.assertTrue(False, "Exception expected")
         except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
 
     def testMapTypeOperations(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(
+            FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            marketsession.USEquities.getTimezone()
+        )
         for dateTime, bars in barFeed:
             self.assertTrue(FeedTestCase.TestInstrument in bars)
             self.assertFalse(FeedTestCase.TestInstrument not in bars)
@@ -227,7 +242,10 @@ class FeedTestCase(common.TestCase):
 
     def testBounded(self):
         barFeed = yahoofeed.Feed(maxLen=2)
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(
+            FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            marketsession.USEquities.getTimezone()
+        )
         for dateTime, bars in barFeed:
             pass
 
@@ -243,7 +261,10 @@ class FeedTestCase(common.TestCase):
 
     def testReset(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
+        barFeed.addBarsFromCSV(
+            FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            marketsession.USEquities.getTimezone()
+        )
         barFeed.loadAll()
         instruments = barFeed.getRegisteredInstruments()
         ds = barFeed[FeedTestCase.TestInstrument]

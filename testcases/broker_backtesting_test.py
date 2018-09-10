@@ -62,7 +62,9 @@ class BarsBuilder(object):
 
     def advance(self, sessionClose):
         if sessionClose:
-            self.__nextDateTime = datetime.datetime(self.__nextDateTime.year, self.__nextDateTime.month, self.__nextDateTime.day)
+            self.__nextDateTime = datetime.datetime(
+                self.__nextDateTime.year, self.__nextDateTime.month, self.__nextDateTime.day
+            )
             self.__nextDateTime += datetime.timedelta(days=1)
         else:
             self.__nextDateTime += self.__delta
@@ -71,7 +73,9 @@ class BarsBuilder(object):
     def nextBars(self, openPrice, highPrice, lowPrice, closePrice, volume=None, sessionClose=False):
         if volume is None:
             volume = closePrice*10
-        bar_ = bar.BasicBar(self.__nextDateTime, openPrice, highPrice, lowPrice, closePrice, volume, closePrice, self.__frequency)
+        bar_ = bar.BasicBar(
+            self.__nextDateTime, openPrice, highPrice, lowPrice, closePrice, volume, closePrice, self.__frequency
+        )
         ret = {self.__instrument: bar_}
         self.advance(sessionClose)
         return bar.Bars(ret)
@@ -163,7 +167,8 @@ class BrokerTestCase(BaseTestCase):
         brk = self.buildBroker(1000, barFeed)
 
         def onOrderEvent(broker_, orderEvent):
-            if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED and orderEvent.getOrder().getId() == orders["sell"].getId():
+            if orderEvent.getEventType() == broker.OrderEvent.Type.FILLED and \
+                    orderEvent.getOrder().getId() == orders["sell"].getId():
                 brk.cancelOrder(orders["stoploss"])
 
         # Buy order.
@@ -554,7 +559,10 @@ class MarketOrderTestCase(BaseTestCase):
             self.assertEqual(round(order.getAvgFillPrice(), cashPresicion), 12.03)
             self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), round(cumFilled, quantityPresicion))
             self.assertEqual(round(brk.getEquity(), cashPresicion), cash)
-            self.assertEqual(round(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], quantityPresicion), 0)
+            self.assertEqual(
+                round(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], quantityPresicion),
+                0
+            )
 
         # Full fill
         filledSoFar = order.getFilled()
@@ -568,7 +576,10 @@ class MarketOrderTestCase(BaseTestCase):
         self.assertEqual(order.getAvgFillPrice(), 12.03)
         self.assertEqual(brk.getShares(BaseTestCase.TestInstrument), 1)
         self.assertEqual(brk.getEquity(), cash)
-        self.assertEqual(round(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], quantityPresicion), round((volume*maxFill) - (1-filledSoFar), quantityPresicion))
+        self.assertEqual(
+            round(brk.getFillStrategy().getVolumeLeft()[BaseTestCase.TestInstrument], quantityPresicion),
+            round((volume*maxFill) - (1-filledSoFar), quantityPresicion)
+        )
 
     def testBuySellPartial(self):
         barFeed = self.buildBarFeed(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
@@ -2136,7 +2147,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 10. Buy <= 12.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1
+        )
         self.assertEqual(order.getFilled(), 0)
         self.assertEqual(order.getRemaining(), 1)
         self.assertEquals(order.getSubmitDateTime(), None)
@@ -2169,7 +2182,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 8. Sell >= 6.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2204,7 +2219,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 10. Buy <= 12.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2235,7 +2252,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 8. Sell >= 6.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2270,7 +2289,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 10. Buy <= 12.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2301,7 +2322,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 8. Sell >= 6.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2336,7 +2359,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 10. Buy <= 12.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=10, limitPrice=12, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2353,7 +2378,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 8. Sell >= 6.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=8, limitPrice=6, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2374,7 +2401,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 12. Buy <= 10.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2405,7 +2434,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 6. Sell >= 8.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2440,7 +2471,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 12. Buy <= 10.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2471,7 +2504,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 6. Sell >= 8.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2506,7 +2541,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 12. Buy <= 10.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2537,7 +2574,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 6. Sell >= 8.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2572,7 +2611,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         brk = self.buildBroker(15, barFeed)
 
         # Buy. Stop >= 12. Buy <= 10.
-        order = brk.createStopLimitOrder(broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.BUY, BaseTestCase.TestInstrument, stopPrice=12, limitPrice=10, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
@@ -2589,7 +2630,9 @@ class StopLimitOrderTestCase(BaseTestCase):
         self.assertEqual(order.getRemaining(), 0)
 
         # Sell. Stop <= 6. Sell >= 8.
-        order = brk.createStopLimitOrder(broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1)
+        order = brk.createStopLimitOrder(
+            broker.Order.Action.SELL, BaseTestCase.TestInstrument, stopPrice=6, limitPrice=8, quantity=1
+        )
         self.assertEquals(order.getSubmitDateTime(), None)
         brk.submitOrder(order)
         self.assertEquals(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
