@@ -7,6 +7,8 @@ MAINTAINER Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 RUN apt-get update
 
 RUN pip install tox
+RUN pip install flake8
+
 # Required by matplotlib
 RUN apt-get install -y python-tk 
 
