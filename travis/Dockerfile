@@ -17,6 +17,7 @@ RUN pip freeze
 RUN mkdir /tmp/pyalgotrade
 
 # Files needed to execute testcases.
+COPY Makefile /tmp/pyalgotrade/
 COPY setup.py /tmp/pyalgotrade/
 COPY travis/run_tests.sh /tmp/pyalgotrade/
 COPY coverage.cfg /tmp/pyalgotrade/
