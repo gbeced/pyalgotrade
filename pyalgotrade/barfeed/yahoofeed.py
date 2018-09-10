@@ -27,7 +27,7 @@ import datetime
 
 
 ######################################################################
-## Yahoo Finance CSV parser
+# Yahoo Finance CSV parser
 # Each bar must be on its own line and fields must be separated by comma (,).
 #
 # Bars Format:
@@ -89,8 +89,8 @@ class RowParser(csvfeed.RowParser):
 class Feed(csvfeed.BarFeed):
     """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Yahoo! Finance.
 
-    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
-        are supported.
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or
+                      **pyalgotrade.bar.Frequency.WEEK** are supported.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
@@ -108,7 +108,9 @@ class Feed(csvfeed.BarFeed):
 
     def __init__(self, frequency=bar.Frequency.DAY, timezone=None, maxLen=None):
         if isinstance(timezone, int):
-            raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
+            raise Exception(
+                "timezone as an int parameter is not supported anymore. Please use a pytz timezone instead."
+            )
 
         if frequency not in [bar.Frequency.DAY, bar.Frequency.WEEK]:
             raise Exception("Invalid frequency.")
@@ -141,7 +143,9 @@ class Feed(csvfeed.BarFeed):
         """
 
         if isinstance(timezone, int):
-            raise Exception("timezone as an int parameter is not supported anymore. Please use a pytz timezone instead.")
+            raise Exception(
+                "timezone as an int parameter is not supported anymore. Please use a pytz timezone instead."
+            )
 
         if timezone is None:
             timezone = self.__timezone

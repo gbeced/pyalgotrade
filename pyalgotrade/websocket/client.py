@@ -22,15 +22,16 @@ import json
 import time
 import threading
 
+import pyalgotrade.logger
+
 import six
 from six.moves import queue
 from ws4py.client import tornadoclient
 import tornado
+
 if six.PY3:
     import asyncio
     import tornado.platform.asyncio
-
-import pyalgotrade.logger
 
 
 logger = pyalgotrade.logger.getLogger("websocket.client")

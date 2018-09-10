@@ -24,6 +24,7 @@ import warnings
 class PyAlgoTradeDeprecationWarning(DeprecationWarning):
     pass
 
+
 warnings.simplefilter("default", PyAlgoTradeDeprecationWarning)
 
 

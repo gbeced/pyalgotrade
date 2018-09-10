@@ -22,7 +22,8 @@ import talib
 import numpy
 
 
-# Returns the last values of a dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
+# Returns the last values of a dataseries as a numpy.array, or None if not enough values could be retrieved from the
+# dataseries.
 def value_ds_to_numpy(ds, count):
     ret = None
     try:
@@ -35,27 +36,32 @@ def value_ds_to_numpy(ds, count):
     return ret
 
 
-# Returns the last open values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
+# Returns the last open values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved
+# from the dataseries.
 def bar_ds_open_to_numpy(barDs, count):
     return value_ds_to_numpy(barDs.getOpenDataSeries(), count)
 
 
-# Returns the last high values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
+# Returns the last high values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved
+# from the dataseries.
 def bar_ds_high_to_numpy(barDs, count):
     return value_ds_to_numpy(barDs.getHighDataSeries(), count)
 
 
-# Returns the last low values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
+# Returns the last low values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved
+# from the dataseries.
 def bar_ds_low_to_numpy(barDs, count):
     return value_ds_to_numpy(barDs.getLowDataSeries(), count)
 
 
-# Returns the last close values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
+# Returns the last close values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved
+# from the dataseries.
 def bar_ds_close_to_numpy(barDs, count):
     return value_ds_to_numpy(barDs.getCloseDataSeries(), count)
 
 
-# Returns the last volume values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved from the dataseries.
+# Returns the last volume values of a bar dataseries as a numpy.array, or None if not enough values could be retrieved
+# from the dataseries.
 def bar_ds_volume_to_numpy(barDs, count):
     return value_ds_to_numpy(barDs.getVolumeDataSeries(), count)
 
@@ -138,7 +144,7 @@ def call_talib_with_hl(barDs, count, talibFunc, *args, **kwargs):
 
 
 ######################################################################
-## talib wrappers
+# talib wrappers
 
 def AD(barDs, count):
     """Chaikin A/D Line"""
@@ -627,9 +633,14 @@ def MACD(ds, count, fastperiod=-2**31, slowperiod=-2**31, signalperiod=-2**31):
     return ret
 
 
-def MACDEXT(ds, count, fastperiod=-2**31, fastmatype=0, slowperiod=-2**31, slowmatype=0, signalperiod=-2**31, signalmatype=0):
+def MACDEXT(
+    ds, count, fastperiod=-2**31, fastmatype=0, slowperiod=-2**31, slowmatype=0, signalperiod=-2**31,
+    signalmatype=0
+):
     """MACD with controllable MA type"""
-    ret = call_talib_with_ds(ds, count, talib.MACDEXT, fastperiod, fastmatype, slowperiod, slowmatype, signalperiod, signalmatype)
+    ret = call_talib_with_ds(
+        ds, count, talib.MACDEXT, fastperiod, fastmatype, slowperiod, slowmatype, signalperiod, signalmatype
+    )
     if ret is None:
         ret = (None, None, None)
     return ret
@@ -783,9 +794,15 @@ def SAR(barDs, count, acceleration=-4e37, maximum=-4e37):
     return call_talib_with_hl(barDs, count, talib.SAR, acceleration, maximum)
 
 
-def SAREXT(barDs, count, startvalue=-4e37, offsetonreverse=-4e37, accelerationinitlong=-4e37, accelerationlong=-4e37, accelerationmaxlong=-4e37, accelerationinitshort=-4e37, accelerationshort=-4e37, accelerationmaxshort=-4e37):
+def SAREXT(
+    barDs, count, startvalue=-4e37, offsetonreverse=-4e37, accelerationinitlong=-4e37, accelerationlong=-4e37,
+    accelerationmaxlong=-4e37, accelerationinitshort=-4e37, accelerationshort=-4e37, accelerationmaxshort=-4e37
+):
     """Parabolic SAR - Extended"""
-    return call_talib_with_hl(barDs, count, talib.SAREXT, startvalue, offsetonreverse, accelerationinitlong, accelerationlong, accelerationmaxlong, accelerationinitshort, accelerationshort, accelerationmaxshort)
+    return call_talib_with_hl(
+        barDs, count, talib.SAREXT, startvalue, offsetonreverse, accelerationinitlong, accelerationlong,
+        accelerationmaxlong, accelerationinitshort, accelerationshort, accelerationmaxshort
+    )
 
 
 def SMA(ds, count, timeperiod=-2**31):
@@ -800,7 +817,9 @@ def STDDEV(ds, count, timeperiod=-2**31, nbdev=-4e37):
 
 def STOCH(barDs, count, fastk_period=-2**31, slowk_period=-2**31, slowk_matype=0, slowd_period=-2**31, slowd_matype=0):
     """Stochastic"""
-    ret = call_talib_with_hlc(barDs, count, talib.STOCH, fastk_period, slowk_period, slowk_matype, slowd_period, slowd_matype)
+    ret = call_talib_with_hlc(
+        barDs, count, talib.STOCH, fastk_period, slowk_period, slowk_matype, slowd_period, slowd_matype
+    )
     if ret is None:
         ret = (None, None)
     return ret

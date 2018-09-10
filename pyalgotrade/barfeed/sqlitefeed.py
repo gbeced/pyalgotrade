@@ -99,13 +99,20 @@ class Database(dbfeed.Database):
         timeStamp = dt.datetime_to_timestamp(bar.getDateTime())
 
         try:
-            sql = "insert into bar (instrument_id, frequency, timestamp, open, high, low, close, volume, adj_close) values (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            params = [instrumentId, frequency, timeStamp, bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), bar.getAdjClose()]
+            sql = "insert into bar (instrument_id, frequency, timestamp, open, high, low, close, volume, adj_close) " \
+                "values (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            params = [
+                instrumentId, frequency, timeStamp, bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(),
+                bar.getVolume(), bar.getAdjClose()
+            ]
             self.__connection.execute(sql, params)
         except sqlite3.IntegrityError:
-            sql = "update bar set open = ?, high = ?, low = ?, close = ?, volume = ?, adj_close = ?" \
-                " where instrument_id = ? and frequency = ? and timestamp = ?"
-            params = [bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), bar.getAdjClose(), instrumentId, frequency, timeStamp]
+            sql = "update bar set open = ?, high = ?, low = ?, close = ?, volume = ?, adj_close = ? " \
+                "where instrument_id = ? and frequency = ? and timestamp = ?"
+            params = [
+                bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), bar.getAdjClose(),
+                instrumentId, frequency, timeStamp
+            ]
             self.__connection.execute(sql, params)
 
     def getBars(self, instrument, frequency, timezone=None, fromDateTime=None, toDateTime=None):

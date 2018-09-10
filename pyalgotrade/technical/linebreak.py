@@ -53,8 +53,9 @@ class Line(object):
 
 
 class LineBreak(dataseries.SequenceDataSeries):
-    """Line Break filter as described in http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:three_line_break.
-    .
+    """
+    Line Break filter as described in
+    http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:three_line_break.
     This is a DataSeries of :class:`Line` instances.
 
     :param barDataSeries: The DataSeries instance being filtered.
@@ -125,7 +126,9 @@ class LineBreak(dataseries.SequenceDataSeries):
             white = False
             if bar.getClose(self.__useAdjustedValues) >= bar.getOpen(self.__useAdjustedValues):
                 white = True
-            ret = Line(bar.getLow(self.__useAdjustedValues), bar.getHigh(self.__useAdjustedValues), bar.getDateTime(), white)
+            ret = Line(
+                bar.getLow(self.__useAdjustedValues), bar.getHigh(self.__useAdjustedValues), bar.getDateTime(), white
+            )
         return ret
 
     def setMaxLen(self, maxLen):

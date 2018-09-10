@@ -41,7 +41,7 @@ from pyalgotrade import technical
 
 class SMAEventWindow(technical.EventWindow):
     def __init__(self, period):
-        assert(period > 0)
+        assert period > 0
         super(SMAEventWindow, self).__init__(period)
         self.__value = None
 
@@ -49,7 +49,7 @@ class SMAEventWindow(technical.EventWindow):
         firstValue = None
         if len(self.getValues()) > 0:
             firstValue = self.getValues()[0]
-            assert(firstValue is not None)
+            assert firstValue is not None
 
         super(SMAEventWindow, self).onNewValue(dateTime, value)
 
@@ -57,7 +57,8 @@ class SMAEventWindow(technical.EventWindow):
             if self.__value is None:
                 self.__value = self.getValues().mean()
             else:
-                self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
+                self.__value = self.__value + value / float(self.getWindowSize()) - \
+                        firstValue / float(self.getWindowSize())
 
     def getValue(self):
         return self.__value

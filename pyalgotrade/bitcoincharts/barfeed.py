@@ -129,7 +129,9 @@ class RowParser(csvfeed.RowParser):
 
 
 class CSVTradeFeed(csvfeed.BarFeed):
-    """A BarFeed that builds bars from a Historic Trade Data CSV file as described in http://www.bitcoincharts.com/about/markets-api/.
+    """
+    A BarFeed that builds bars from a Historic Trade Data CSV file as described in
+    http://www.bitcoincharts.com/about/markets-api/.
     Files can be downloaded from http://api.bitcoincharts.com/v1/csv/.
 
     :param timezone: An optional default timezone to use to localize bars. By default bars are loaded in UTC.
@@ -141,7 +143,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
     :type maxLen: int.
 
     .. note::
-        * A :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so open, high, low and close values will all be the same.
+        * A :class:`pyalgotrade.bar.Bar` instance will be created for every trade, so open, high, low and close values
+          will all be the same.
         * Files must be sorted with the **unixtime** column in ascending order.
     """
 

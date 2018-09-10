@@ -80,7 +80,8 @@ class TwitterFeed(observer.Subject):
     :type languages: list.
 
     .. note::
-        * Go to http://dev.twitter.com and create an app. The consumer key and secret will be generated for you after that.
+        * Go to http://dev.twitter.com and create an app. The consumer key and secret will be generated for you
+          after that.
         * Create an access token under the "Your access token" section.
         * At least **track** or **follow** have to be set.
     """

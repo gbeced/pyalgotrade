@@ -234,15 +234,18 @@ class Subplot(object):
         :param dataSeries: The DataSeries to add.
         :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
         """
-        callback = lambda bars: get_last_value(dataSeries)
+        def callback(bars):
+            return get_last_value(dataSeries)
         self.__callbacks[callback] = self.getSeries(label, defaultClass)
 
     def addCallback(self, label, callback, defaultClass=LineMarker):
-        """Add a callback that will be called on each bar.
+        """
+        Add a callback that will be called on each bar.
 
         :param label: A name for the series values.
         :type label: string.
-        :param callback: A function that receives a :class:`pyalgotrade.bar.Bars` instance as a parameter and returns a number or None.
+        :param callback: A function that receives a :class:`pyalgotrade.bar.Bars` instance as a parameter and returns
+                         a number or None.
         """
         self.__callbacks[callback] = self.getSeries(label, defaultClass)
 
@@ -302,7 +305,9 @@ class InstrumentSubplot(Subplot):
 
     def onOrderEvent(self, broker_, orderEvent):
         order = orderEvent.getOrder()
-        if self.__plotBuySell and orderEvent.getEventType() in (broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED) and order.getInstrument() == self.__instrument:
+        fill_events = [broker.OrderEvent.Type.PARTIALLY_FILLED, broker.OrderEvent.Type.FILLED]
+        if self.__plotBuySell and orderEvent.getEventType() in fill_events and \
+                order.getInstrument() == self.__instrument:
             action = order.getAction()
             execInfo = orderEvent.getEventInfo()
             if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
@@ -426,7 +431,9 @@ class StrategyPlotter(object):
 
     def buildFigure(self, fromDateTime=None, toDateTime=None):
         # Deprecated in v0.18.
-        warninghelpers.deprecation_warning("buildFigure will be deprecated in the next version. Use buildFigureAndSubplots.", stacklevel=2)
+        warninghelpers.deprecation_warning(
+            "buildFigure will be deprecated in the next version. Use buildFigureAndSubplots.", stacklevel=2
+        )
 
         fig, _ = self.buildFigureAndSubplots(fromDateTime, toDateTime)
         return fig

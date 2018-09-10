@@ -188,7 +188,7 @@ class HTTPClient(object):
         url = "https://www.bitstamp.net/api/cancel_order/"
         params = {"id": orderId}
         jsonResponse = self._post(url, params)
-        if jsonResponse != True:
+        if jsonResponse != True:  # noqa: E712
             raise Exception("Failed to cancel order")
 
     def buyLimit(self, limitPrice, quantity):

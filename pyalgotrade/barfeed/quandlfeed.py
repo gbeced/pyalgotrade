@@ -23,10 +23,11 @@ from pyalgotrade import bar
 
 
 class Feed(csvfeed.GenericBarFeed):
-    """A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Quandl.
+    """
+    A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV files downloaded from Quandl.
 
-    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or **pyalgotrade.bar.Frequency.WEEK**
-        are supported.
+    :param frequency: The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or
+                      **pyalgotrade.bar.Frequency.WEEK** are supported.
     :param timezone: The default timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
     :type timezone: A pytz timezone.
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
