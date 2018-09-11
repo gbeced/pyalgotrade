@@ -33,10 +33,10 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
 
     def callback(dateTime, bars):
         called["called"] = True
-        testCase.assertEquals(barFeed.getCurrentDateTime(), dateTime)
+        testCase.assertEqual(barFeed.getCurrentDateTime(), dateTime)
 
-    testCase.assertEquals(barFeed.getCurrentDateTime(), None)
-    testCase.assertEquals(barFeed.barsHaveAdjClose(), barsHaveAdjClose)
+    testCase.assertEqual(barFeed.getCurrentDateTime(), None)
+    testCase.assertEqual(barFeed.barsHaveAdjClose(), barsHaveAdjClose)
     if not barsHaveAdjClose:
         with testCase.assertRaisesRegexp(Exception, "The barfeed doesn't support adjusted close values.*"):
             barFeed.setUseAdjustedValues(True)
@@ -46,7 +46,7 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
     barFeed.getNewValuesEvent().subscribe(callback)
     d.run()
 
-    testCase.assertEquals(called["called"], True)
+    testCase.assertEqual(called["called"], True)
 
 
 class OptimizerBarFeedTestCase(common.TestCase):
@@ -78,7 +78,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
 
     def testEmtpy(self):
         barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], [])
-        self.assertEquals(barFeed.barsHaveAdjClose(), False)
+        self.assertEqual(barFeed.barsHaveAdjClose(), False)
 
 
 class CommonTestCase(common.TestCase):

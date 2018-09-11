@@ -45,18 +45,18 @@ class TimeWeightedReturnsTestCase(common.TestCase):
         # http://www.investopedia.com/exam-guide/cfa-level-1/quantitative-methods/discounted-cash-flow-time-weighted-return.asp
         retTracker = returns.TimeWeightedReturns(200000)
         retTracker.update(196500)  # March 31, 2004
-        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), -0.0175)
+        self.assertEqual(round(retTracker.getLastPeriodReturns(), 4), -0.0175)
         retTracker.update(200000)  # June 30, 2004
-        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), 0.0178)
+        self.assertEqual(round(retTracker.getLastPeriodReturns(), 4), 0.0178)
         retTracker.deposit(20000)
         retTracker.update(222000)  # July 30, 2004
-        self.assertEquals(round(retTracker.getLastPeriodReturns(), 2), 0.01)
+        self.assertEqual(round(retTracker.getLastPeriodReturns(), 2), 0.01)
         retTracker.update(243000)  # Sept. 30, 2004
-        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), 0.0946)
+        self.assertEqual(round(retTracker.getLastPeriodReturns(), 4), 0.0946)
         retTracker.deposit(2000)
         retTracker.update(250000)  # Dec. 31, 2004
-        self.assertEquals(round(retTracker.getLastPeriodReturns(), 4), 0.0206)
-        self.assertEquals(round(retTracker.getCumulativeReturns(), 6),  0.128288)
+        self.assertEqual(round(retTracker.getLastPeriodReturns(), 4), 0.0206)
+        self.assertEqual(round(retTracker.getCumulativeReturns(), 6),  0.128288)
 
 
 class PosTrackerTestCase(common.TestCase):
