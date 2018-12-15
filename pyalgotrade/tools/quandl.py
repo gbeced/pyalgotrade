@@ -34,11 +34,12 @@ import pyalgotrade.logger
 # http://www.quandl.com/help/api
 
 def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
-    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
+    url = "http://www.quandl.com/api/v3/datasets/%s/%s.csv" % (sourceCode, tableCode)
     params = {
-        "trim_start": begin.strftime("%Y-%m-%d"),
-        "trim_end": end.strftime("%Y-%m-%d"),
-        "collapse": frequency
+        "start_date": begin.strftime("%Y-%m-%d"),
+        "end_date": end.strftime("%Y-%m-%d"),
+        "collapse": frequency,
+        "order": "asc",
     }
     if authToken is not None:
         params["auth_token"] = authToken

@@ -104,24 +104,27 @@ class ToolsTestCase(common.TestCase):
 
     def testDownloadAndParseDailyNoAdjClose(self):
         with common.TmpDir() as tmpPath:
-            instrument = "IWG"
-            year = 2017
+            instrument = "ADYEN"
+            year = 2018
             path = os.path.join(tmpPath, "quandl-daily-%s-%s.csv" % (instrument, year))
-            quandl.download_daily_bars("LSE", instrument, year, path, authToken=QUANDL_API_KEY)
+            quandl.download_daily_bars("EURONEXT", instrument, year, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
             bf.setNoAdjClose()
-            bf.setColumnName("open", "Price")
-            bf.setColumnName("close", "Price")
+            bf.setColumnName("open", "Open")
+            bf.setColumnName("high", "High")
+            bf.setColumnName("low", "Low")
+            bf.setColumnName("close", "Last")
+            bf.setColumnName("volume", "Volume")
             bf.addBarsFromCSV(instrument, path, skipMalformedBars=True)
             bf.loadAll()
-            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
-            self.assertEqual(bf[instrument][0].getOpen(), 237.80)
-            self.assertEqual(bf[instrument][0].getHigh(), 247.00)
-            self.assertEqual(bf[instrument][0].getLow(), 236.30)
-            self.assertEqual(bf[instrument][0].getClose(), 237.80)
-            self.assertEqual(bf[instrument][0].getVolume(), 3494173)
+            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(year, 6, 13))
+            self.assertEqual(bf[instrument][0].getOpen(), 400.00)
+            self.assertEqual(bf[instrument][0].getHigh(), 503.90)
+            self.assertEqual(bf[instrument][0].getLow(), 400.00)
+            self.assertEqual(bf[instrument][0].getClose(), 455.00)
+            self.assertEqual(bf[instrument][0].getVolume(), 1529232)
             self.assertEqual(bf[instrument][0].getAdjClose(), None)
-            self.assertEqual(bf[instrument][0].getPrice(), 237.80)
+            self.assertEqual(bf[instrument][0].getPrice(), 455.00)
 
     def testDownloadAndParseWeekly(self):
         with common.TmpDir() as tmpPath:
@@ -211,26 +214,29 @@ class ToolsTestCase(common.TestCase):
 
     def testMapColumnNames(self):
         column_names = {
-            "open": "Price",
-            "close": "Price",
+            "open": "Open",
+            "high": "High",
+            "low": "Low",
+            "close": "Last",
+            "volume": "Volume",
         }
         with common.TmpDir() as tmpPath:
-            instrument = "IWG"
-            year = 2017
+            instrument = "ADYEN"
+            year = 2018
             bf = quandl.build_feed(
-                "LSE", [instrument], year, year, tmpPath, columnNames=column_names, skipMalformedBars=True,
+                "EURONEXT", [instrument], year, year, tmpPath, columnNames=column_names, skipMalformedBars=True,
                 authToken=QUANDL_API_KEY
             )
             bf.setNoAdjClose()
             bf.loadAll()
-            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(year, 1, 3))
-            self.assertEqual(bf[instrument][0].getOpen(), 237.80)
-            self.assertEqual(bf[instrument][0].getHigh(), 247.00)
-            self.assertEqual(bf[instrument][0].getLow(), 236.30)
-            self.assertEqual(bf[instrument][0].getClose(), 237.80)
-            self.assertEqual(bf[instrument][0].getVolume(), 3494173)
+            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(year, 6, 13))
+            self.assertEqual(bf[instrument][0].getOpen(), 400.00)
+            self.assertEqual(bf[instrument][0].getHigh(), 503.90)
+            self.assertEqual(bf[instrument][0].getLow(), 400.00)
+            self.assertEqual(bf[instrument][0].getClose(), 455.00)
+            self.assertEqual(bf[instrument][0].getVolume(), 1529232)
             self.assertEqual(bf[instrument][0].getAdjClose(), None)
-            self.assertEqual(bf[instrument][0].getPrice(), 237.80)
+            self.assertEqual(bf[instrument][0].getPrice(), 455.00)
 
     def testExtraColumns(self):
         with common.TmpDir() as tmpPath:
