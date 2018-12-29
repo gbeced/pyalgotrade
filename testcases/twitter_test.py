@@ -21,6 +21,9 @@
 import os
 import datetime
 
+from pyalgotrade import dispatcher
+from pyalgotrade.twitter import feed as twitterfeed
+
 from . import common
 try:
     # This will get environment variables set.
@@ -28,53 +31,45 @@ try:
 except ImportError:
     pass
 
-from pyalgotrade import dispatcher
+class TwitterFeedTestCase(common.TestCase):
+    def testTwitterFeed(self):
+        events = {
+            "on_tweet": False,
+            "start": datetime.datetime.now()
+        }
+        disp = dispatcher.Dispatcher()
 
-try:
-    from pyalgotrade.twitter import feed as twitterfeed
+        def on_tweet(data):
+            events["on_tweet"] = True
+            disp.stop()
 
-    class TwitterFeedTestCase(common.TestCase):
-        def testTwitterFeed(self):
-            events = {
-                "on_tweet": False,
-                "start": datetime.datetime.now()
-            }
-            disp = dispatcher.Dispatcher()
-
-            def on_tweet(data):
-                events["on_tweet"] = True
+        def on_idle():
+            # Stop after 5 minutes.
+            if (datetime.datetime.now() - events["start"]).seconds > 60*5:
                 disp.stop()
 
-            def on_idle():
-                # Stop after 5 minutes.
-                if (datetime.datetime.now() - events["start"]).seconds > 60*5:
-                    disp.stop()
+        # Create a twitter feed to track BitCoin related events.
+        consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
+        consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
+        access_token = os.getenv("TWITTER_ACCESS_TOKEN")
+        access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+        track = ["bitcoin", "btc"]
+        follow = []
+        languages = ["en"]
+        twitterFeed = twitterfeed.TwitterFeed(
+            consumer_key,
+            consumer_secret,
+            access_token,
+            access_token_secret,
+            track,
+            follow,
+            languages
+        )
 
-            # Create a twitter feed to track BitCoin related events.
-            consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
-            consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
-            access_token = os.getenv("TWITTER_ACCESS_TOKEN")
-            access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-            track = ["bitcoin", "btc"]
-            follow = []
-            languages = ["en"]
-            twitterFeed = twitterfeed.TwitterFeed(
-                consumer_key,
-                consumer_secret,
-                access_token,
-                access_token_secret,
-                track,
-                follow,
-                languages
-            )
+        disp.addSubject(twitterFeed)
+        twitterFeed.subscribe(on_tweet)
+        disp.getIdleEvent().subscribe(on_idle)
+        disp.run()
 
-            disp.addSubject(twitterFeed)
-            twitterFeed.subscribe(on_tweet)
-            disp.getIdleEvent().subscribe(on_idle)
-            disp.run()
-
-            # Check that we received both events.
-            self.assertTrue(events["on_tweet"])
-except SyntaxError:
-    # https://github.com/tweepy/tweepy/issues/1064
-    pass
+        # Check that we received both events.
+        self.assertTrue(events["on_tweet"])
