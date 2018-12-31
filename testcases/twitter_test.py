@@ -31,6 +31,7 @@ try:
 except ImportError:
     pass
 
+
 class TwitterFeedTestCase(common.TestCase):
     def testTwitterFeed(self):
         events = {
