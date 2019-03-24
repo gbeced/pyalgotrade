@@ -203,7 +203,7 @@ class LiveBroker(broker.Broker):
                     eventType = broker.OrderEvent.Type.PARTIALLY_FILLED
                 self.notifyOrderEvent(broker.OrderEvent(order, eventType, orderExecutionInfo))
             else:
-                common.logger.info("Trade %d refered to order %d that is not active" % (trade.getId(), trade.getOrderId()))
+                common.logger.info("Trade %d referred to order %d that is not active" % (trade.getId(), trade.getOrderId()))
 
     # BEGIN observer.Subject interface
     def start(self):

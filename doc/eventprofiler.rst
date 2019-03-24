@@ -40,4 +40,4 @@ This is what the output should look like:
 
 .. literalinclude:: ../samples/eventstudy.output
 
-Note that **Cummulative returns are normalized to the time of the event**.
+Note that **Cumulative returns are normalized to the time of the event**.

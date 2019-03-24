@@ -83,7 +83,7 @@ Version 0.15 (30/Mar/2014)
 . [CHANGE] The backtesting broker ignores volumeLimit when using trade bars.
 . [CHANGE] The backtesting broker now emits the cancelation event when cancelation is requested, not in the next bar.
 . [FIX] Fixed a bug in pyalgotrade.technical.roc.RateOfChange when there was no change and the current value was 0.
-. [FIX] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now set the datetime to that of the beggining of the bar.
+. [FIX] pyalgotrade.tools.resample and pyalgotrade.dataseries.resampled.ResampledBarDataSeries now set the datetime to that of the beginning of the bar.
 
 Version 0.14 (12/Oct/2013)
 . [NEW] Event profiler inspired in QSTK (pyalgotrade.eventprofiler).
@@ -115,7 +115,7 @@ Version 0.13 (26/Aug/2013)
 . [CHANGE] Strategy class was renamed to BacktestingStrategy (the old name is still supported in this version).
 . [CHANGE] Max. drawdown duration is now returned as a datetime.timedelta object.
 . [CHANGE] Sharpe Ratio analyzer was modified to better support intraday trading. The tradingPeriods parameter is not supported anymore.
-. [CHANGE] In order to resubmit the exit order for a position, the orignal exit order has to be canceled first using cancelExit.
+. [CHANGE] In order to resubmit the exit order for a position, the original exit order has to be canceled first using cancelExit.
 . [CHANGE] DataSeries and DataSeries filters (everything inside the pyalgotrade.technical package) were refactored to an event based model.
 . [CHANGE] BarValueDataSeries and BarDataSeries were moved from pyalgotrade.dataseries into pyalgotrade.bards.dataseries.
 . [CHANGE] pyalgotrade.technical.cross.CrossAbove and pyalgotrade.technical.cross.CrossBelow were refactored as functions (pyalgotrade.technical.cross.cross_above and pyalgotrade.technical.cross.cross_below). They are not DataSeries any more.
@@ -164,7 +164,7 @@ Version 0.9 (1/Sep/2012)
 Version 0.8 (28/Aug/2012)
 . [NEW] StrategyPlotter now plots each instrument in a separate subplot. getMainSubplot was replaced by getIntrumentSubplot.
 . [NEW] Strategy.exitPosition allows setting the exit order as GTC or not, or matching the entry order (default).
-. [FIX] Was hitting an AssertionError in the strategy class when overwritting exit orders with new ones.
+. [FIX] Was hitting an AssertionError in the strategy class when overwriting exit orders with new ones.
 . [FIX] Set exit-on-session-close orders as GTC.
 
 Version 0.7 (22/Aug/2012)

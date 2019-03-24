@@ -140,7 +140,7 @@ class TrendEventWindow(SlopeEventWindow):
                 ret = True
             elif ret < self.__negativeThreshold:
                 ret = False
-            else:  # Between negative and postive thresholds.
+            else:  # Between negative and positive thresholds.
                 ret = None
         return ret
 
