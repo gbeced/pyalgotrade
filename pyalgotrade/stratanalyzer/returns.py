@@ -74,7 +74,7 @@ class PositionTracker(object):
         self.__avgPrice = 0.0  # Volume weighted average price per share.
         self.__position = 0.0
         self.__commissions = 0.0
-        self.__totalCommited = 0.0  # The total amount commited to this position.
+        self.__totalCommitted = 0.0  # The total amount committed to this position.
 
     def getPosition(self):
         return self.__position
@@ -101,20 +101,20 @@ class PositionTracker(object):
     def getReturn(self, price=None, includeCommissions=True):
         ret = 0
         pnl = self.getPnL(price=price, includeCommissions=includeCommissions)
-        if self.__totalCommited != 0:
-            ret = pnl / float(self.__totalCommited)
+        if self.__totalCommitted != 0:
+            ret = pnl / float(self.__totalCommitted)
         return ret
 
     def __openNewPosition(self, quantity, price):
         self.__avgPrice = price
         self.__position = quantity
-        self.__totalCommited = self.__avgPrice * abs(self.__position)
+        self.__totalCommitted = self.__avgPrice * abs(self.__position)
 
     def __extendCurrentPosition(self, quantity, price):
         newPosition = self.__instrumentTraits.roundQuantity(self.__position + quantity)
         self.__avgPrice = (self.__avgPrice*abs(self.__position) + price*abs(quantity)) / abs(float(newPosition))
         self.__position = newPosition
-        self.__totalCommited = self.__avgPrice * abs(self.__position)
+        self.__totalCommitted = self.__avgPrice * abs(self.__position)
 
     def __reduceCurrentPosition(self, quantity, price):
         # Check that we're closing or reducing partially
@@ -182,7 +182,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
     def attached(self, strat):
         self.__portfolioReturns = TimeWeightedReturns(strat.getBroker().getEquity())
 
-    # An event will be notified when return are calculated at each bar. The hander should receive 1 parameter:
+    # An event will be notified when return are calculated at each bar. The handler should receive 1 parameter:
     # 1: The current datetime.
     # 2: This analyzer's instance
     def getEvent(self):
@@ -206,7 +206,7 @@ class Returns(stratanalyzer.StrategyAnalyzer):
     A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates time-weighted returns for the
     whole portfolio.
 
-    :param maxLen: The maximum number of values to hold in net and cumulative returs dataseries.
+    :param maxLen: The maximum number of values to hold in net and cumulative returns dataseries.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.

@@ -304,7 +304,7 @@ class BrokerTestCase(BaseTestCase):
         self.assertEqual(order.getSubmitDateTime(), barFeed.getCurrentDateTime())
 
         barFeed.dispatchBars(10, 15, 8, 12)
-        # Check that cancelation event gets emited right away.
+        # Check that cancelation event gets emitted right away.
         brk.cancelOrder(order)
         self.assertTrue(broker.Order.State.CANCELED in orderStates)
 
@@ -1154,7 +1154,7 @@ class MarketOrderTestCase(BaseTestCase):
         self.assertEqual(order.getCommissions(), 1.2)
         self.assertEqual(order.getExecutionInfo().getPrice(), 12)
         self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
-        self.assertEqual(order.getExecutionInfo().getCommission(), 1.2)  # Commision applied in the first fill.
+        self.assertEqual(order.getExecutionInfo().getCommission(), 1.2)  # Commission applied in the first fill.
         # 5 should get filled.
         barFeed.dispatchBars(12, 15, 8, 12, 20)
         self.assertTrue(order.isPartiallyFilled())

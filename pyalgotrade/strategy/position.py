@@ -181,7 +181,7 @@ class Position(object):
         # Check if an order can be submitted in the current state.
         self.__state.canSubmitOrder(self, order)
 
-        # This may raise an exception, so we wan't to submit the order before moving forward and registering
+        # This may raise an exception, so we want to submit the order before moving forward and registering
         # the order in the strategy.
         self.getStrategy().getBroker().submitOrder(order)
 
@@ -209,7 +209,7 @@ class Position(object):
 
     def getShares(self):
         """Returns the number of shares.
-        This will be a possitive number for a long position, and a negative number for a short position.
+        This will be a positive number for a long position, and a negative number for a short position.
 
         .. note::
             If the entry order was not filled, or if the position is closed, then the number of shares will be 0.
@@ -441,7 +441,7 @@ class Position(object):
         return ret
 
 
-# This class is reponsible for order management in long positions.
+# This class is responsible for order management in long positions.
 class LongPosition(Position):
     def __init__(self, strategy, instrument, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone):
         if limitPrice is None and stopPrice is None:
@@ -490,7 +490,7 @@ class LongPosition(Position):
         return ret
 
 
-# This class is reponsible for order management in short positions.
+# This class is responsible for order management in short positions.
 class ShortPosition(Position):
     def __init__(self, strategy, instrument, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone):
         if limitPrice is None and stopPrice is None:

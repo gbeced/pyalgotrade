@@ -34,7 +34,7 @@ def hurst_exp(p, minLags, maxLags):
         pp = np.subtract(p[lag:], p[:-lag])
         #  Write the different lags into a vector
         lagvec.append(lag)
-        #  Calculate the variance of the differnce vector
+        #  Calculate the variance of the difference vector
         tau.append(np.sqrt(np.std(pp)))
     # linear fit to double-log graph (gives power)
     m = np.polyfit(np.log10(lagvec), np.log10(tau), 1)

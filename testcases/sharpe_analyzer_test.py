@@ -93,14 +93,14 @@ class SharpeRatioTestCase(common.TestCase):
         self.__testIGE_BrokerImpl(2)
 
     def testIGE_BrokerWithCommission(self):
-        commision = 0.5
-        initialCash = 42.09 + commision
+        commission = 0.5
+        initialCash = 42.09 + commission
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
         strat = strategy_test.TestStrategy(barFeed, initialCash)
-        strat.getBroker().setCommission(backtesting.FixedPerTrade(commision))
+        strat.getBroker().setCommission(backtesting.FixedPerTrade(commission))
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
         stratAnalyzer = sharpe.SharpeRatio()
@@ -119,7 +119,7 @@ class SharpeRatioTestCase(common.TestCase):
         )  # Adj. Close: 127.64
 
         strat.run()
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09 - commision*2))
+        self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09 - commission*2))
         self.assertEqual(strat.orderUpdatedCalls, 6)
         # The results are slightly different only because I'm taking into account the first bar as well,
         # and I'm also adding commissions.

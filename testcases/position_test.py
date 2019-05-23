@@ -635,7 +635,7 @@ class LongPosTestCase(BaseTestCase):
 
         # Open and close after entry has been partially filled.
         # Cancelations get skipped and the position is left open.
-        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # The idea is to simulate a real scenario where cancelation gets submitted but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
         bf = TestBarFeed(bar.Frequency.DAY)
@@ -691,7 +691,7 @@ class LongPosTestCase(BaseTestCase):
 
         # Open and close after entry has been partially filled.
         # The first cancelation get skipped and a second exit has to be requested to close the position.
-        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # The idea is to simulate a real scenario where cancelation gets submitted but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
         bf = TestBarFeed(bar.Frequency.DAY)
@@ -1156,7 +1156,7 @@ class StopPosTestCase(BaseTestCase):
 
         # Open and close after entry has been partially filled.
         # Cancelations get skipped and the position is left open.
-        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # The idea is to simulate a real scenario where cancelation gets submitted but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
         bf = TestBarFeed(bar.Frequency.DAY)
@@ -1213,7 +1213,7 @@ class StopPosTestCase(BaseTestCase):
 
         # Open and close after entry has been partially filled.
         # The first cancelation get skipped and a second exit has to be requested to close the position.
-        # The idea is to simulate a real scenario where cancelation gets submited but the order gets
+        # The idea is to simulate a real scenario where cancelation gets submitted but the order gets
         # filled before the cancelation gets processed.
         instrument = "orcl"
         bf = TestBarFeed(bar.Frequency.DAY)
