@@ -26,7 +26,8 @@ from testcases import common
 class TestCase(common.TestCase):
     # Check that strategy and custom logs have the proper datetime, this is, the bars date time.
     def testBacktestingLog1(self):
-        code = """from testcases import logger_test_1 logger_test_1.main()"""
+        code = """from testcases import logger_test_1
+logger_test_1.main()"""
         res = common.run_python_code(code)
         expectedLines = [
             "2000-01-01 00:00:00 strategy [INFO] bla",
@@ -37,7 +38,8 @@ class TestCase(common.TestCase):
 
     # Check that strategy and custom logs have the proper datetime, this is, the bars date time.
     def testBacktestingLog2(self):
-        code = """from testcases import logger_test_2 logger_test_2.main()"""
+        code = """from testcases import logger_test_2
+logger_test_2.main()"""
         res = common.run_python_code(code)
         self.assertEqual(len(res.get_output_lines()), 3)
         self.assertEqual(res.get_output_lines()[0], "2000-01-01 00:00:00 strategy [INFO] bla")
@@ -50,7 +52,8 @@ class TestCase(common.TestCase):
 
     # Check that strategy and custom logs have the proper datetime, this is, the current date.
     def testNonBacktestingLog3(self):
-        code = """from testcases import logger_test_3 logger_test_3.main()"""
+        code = """from testcases import logger_test_3
+logger_test_3.main()"""
         res = common.run_python_code(code)
 
         now = datetime.datetime.now()
