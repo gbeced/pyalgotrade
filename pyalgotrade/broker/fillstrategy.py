@@ -261,7 +261,7 @@ class DefaultStrategy(FillStrategy):
     def onOrderFilled(self, broker_, order):
         # Update the volume left.
         if self.__volumeLimit is not None:
-            # We round the volume left here becuase it was not rounded when it was initialized.
+            # We round the volume left here because it was not rounded when it was initialized.
             volumeLeft = order.getInstrumentTraits().roundQuantity(self.__volumeLeft[order.getInstrument()])
             fillQuantity = order.getExecutionInfo().getQuantity()
             assert volumeLeft >= fillQuantity, \

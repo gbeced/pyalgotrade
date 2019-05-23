@@ -55,7 +55,7 @@ class BarFeedEventHandler_TestLoadOrder:
         self.__prevDateTime = dateTime
 
     def getEventCount(self):
-            return self.__count
+        return self.__count
 
 
 class BarFeedEventHandler_TestFilterRange:
@@ -75,7 +75,7 @@ class BarFeedEventHandler_TestFilterRange:
             self.__testcase.assertTrue(bars.getBar(self.__instrument).getDateTime() <= self.__toDate)
 
     def getEventCount(self):
-            return self.__count
+        return self.__count
 
 
 class FeedTestCase(common.TestCase):

@@ -67,7 +67,7 @@ def sharpe_ratio_2(returns, riskFreeRate, firstDateTime, lastDateTime, annualize
     volatility = stats.stddev(returns, 1)
 
     if volatility != 0:
-        # We use 365 instead of 252 becuase we wan't the diff from 1/1/xxxx to 12/31/xxxx to be 1 year.
+        # We use 365 instead of 252 because we want the diff from 1/1/xxxx to 12/31/xxxx to be 1 year.
         yearsTraded = days_traded(firstDateTime, lastDateTime) / 365.0
 
         riskFreeRateForPeriod = riskFreeRate * yearsTraded
