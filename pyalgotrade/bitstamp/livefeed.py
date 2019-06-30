@@ -116,7 +116,6 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
         self.registerInstrument(common.btc_symbol)
-        self.__prevTradeDateTime = None
         self.__thread = None
         self.__enableReconnection = True
         self.__stopped = False
@@ -180,18 +179,10 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             pass
         return ret
 
-    # Bar datetimes should not duplicate. In case trade object datetimes conflict, we just move one slightly forward.
-    def __getTradeDateTime(self, trade):
-        ret = trade.getDateTime()
-        if ret == self.__prevTradeDateTime:
-            ret += datetime.timedelta(microseconds=1)
-        self.__prevTradeDateTime = ret
-        return ret
-
     def __onTrade(self, trade):
         # Build a bar for each trade.
         barDict = {
-            common.btc_symbol: TradeBar(self.__getTradeDateTime(trade), trade)
+            common.btc_symbol: TradeBar(trade.getDateTime(), trade)
             }
         self.__barDicts.append(barDict)
 

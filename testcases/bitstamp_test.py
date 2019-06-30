@@ -72,8 +72,14 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
         # Disable reconnections so the test finishes when ON_DISCONNECTED is pushed.
         self.enableReconection(False)
         self.__events = []
+        self.__lastDateTime = None
 
     def addTrade(self, dateTime, tid, price, amount):
+        # To avoid collisions.
+        if dateTime == self.__lastDateTime:
+            dateTime += datetime.timedelta(microseconds=len(self.__events))
+        self.__lastDateTime = dateTime
+
         eventDict = {
             "data": {
                 "id": tid,
