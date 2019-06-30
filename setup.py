@@ -64,9 +64,8 @@ setup(
         "retrying",
         "scipy",
         "six",
-        "tornado",
         "tweepy",
-        "ws4py>=0.3.4",
+        "websocket-client",
     ],
     extras_require={
         "TALib":  ["Cython", "TA-Lib"],

@@ -19,8 +19,7 @@ services:
 
 before_install:
   - docker pull gbecedillas/pyalgotrade:0.20-py27
-  - cp travis/Dockerfile .
-  - docker build -t pyalgotrade_testcases .
+  - docker build -t pyalgotrade_testcases -f travis/Dockerfile .
   - sudo pip install coveralls
 
 script:

@@ -18,29 +18,41 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import datetime
+import json
 
-from pyalgotrade.websocket import pusher
+import pyalgotrade.logger
 from pyalgotrade.websocket import client
-from pyalgotrade.bitstamp import common
+from pyalgotrade.utils import dt
 
 
-def get_current_datetime():
-    return datetime.datetime.now()
-
-# Bitstamp protocol reference: https://www.bitstamp.net/websocket/
+logger = pyalgotrade.logger.getLogger(__name__)
 
 
-class Trade(pusher.Event):
-    """A trade event."""
+# Bitstamp protocol reference: https://www.bitstamp.net/websocket/v2/
 
-    def __init__(self, dateTime, eventDict):
-        super(Trade, self).__init__(eventDict, True)
-        self.__dateTime = dateTime
+class Event(object):
+    def __init__(self, eventDict):
+        self._eventDict = eventDict
 
+    def __str__(self):
+        return json.dumps(self._eventDict)
+
+    def getDict(self):
+        return self._eventDict
+
+    def getData(self):
+        return self._eventDict.get("data")
+
+
+class TimestampedEvent(Event):
     def getDateTime(self):
-        """Returns the :class:`datetime.datetime` when this event was received."""
-        return self.__dateTime
+        """Returns the :class:`datetime.datetime` when this event was generated."""
+        microtimestamp = int(self.getData()["microtimestamp"])
+        return dt.timestamp_to_datetime(microtimestamp / 1e6)
+
+
+class Trade(TimestampedEvent):
+    """A trade event."""
 
     def getId(self):
         """Returns the trade id."""
@@ -63,16 +75,8 @@ class Trade(pusher.Event):
         return self.getData()["type"] == 1
 
 
-class OrderBookUpdate(pusher.Event):
+class OrderBookUpdate(TimestampedEvent):
     """An order book update event."""
-
-    def __init__(self, dateTime, eventDict):
-        super(OrderBookUpdate, self).__init__(eventDict, True)
-        self.__dateTime = dateTime
-
-    def getDateTime(self):
-        """Returns the :class:`datetime.datetime` when this event was received."""
-        return self.__dateTime
 
     def getBidPrices(self):
         """Returns a list with the top 20 bid prices."""
@@ -91,69 +95,57 @@ class OrderBookUpdate(pusher.Event):
         return [float(ask[1]) for ask in self.getData()["asks"]]
 
 
-class WebSocketClient(pusher.WebSocketClient):
+class WebSocketClient(client.WebSocketClientBase):
     """
     This websocket client class is designed to be running in a separate thread and for that reason
     events are pushed into a queue.
     """
 
-    PUSHER_APP_KEY = "de504dc5763aeef9ff52"
-
     class Event:
-        TRADE = 1
-        ORDER_BOOK_UPDATE = 2
-        CONNECTED = 3
-        DISCONNECTED = 4
+        DISCONNECTED = 1
+        TRADE = 2
+        ORDER_BOOK_UPDATE = 3
 
-    def __init__(self, queue):
-        super(WebSocketClient, self).__init__(WebSocketClient.PUSHER_APP_KEY, 5)
+    def __init__(self, queue, url="wss://ws.bitstamp.net/", ping_interval=15, ping_timeout=5):
+        super(WebSocketClient, self).__init__(url, ping_interval=ping_interval, ping_timeout=ping_timeout)
         self.__queue = queue
+        self.__pending_subscriptions = [
+            "detail_order_book_btcusd",
+            "live_trades_btcusd",
+        ]
 
-    def onMessage(self, msg):
-        # If we can't handle the message, forward it to Pusher WebSocketClient.
-        event = msg.get("event")
+    def onOpened(self):
+        for channel in self.__pending_subscriptions:
+            logger.info("Subscribing to channel %s." % channel)
+            self.send(json.dumps({
+                "event": "bts:subscribe",
+                "data": {
+                    "channel": channel
+                }
+            }))
+
+    def onMessage(self, message):
+        message = json.loads(message)
+
+        event = message.get("event")
         if event == "trade":
-            self.onTrade(Trade(get_current_datetime(), msg))
-        elif event == "data" and msg.get("channel") == "order_book":
-            self.onOrderBookUpdate(OrderBookUpdate(get_current_datetime(), msg))
+            self.onTrade(Trade(message))
+        elif event == "data" and message.get("channel").find("detail_order_book_") == 0:
+            self.onOrderBookUpdate(OrderBookUpdate(message))
+        elif event == "bts:subscription_succeeded":
+            self.__onSubscriptionSucceeded(Event(message))
         else:
-            super(WebSocketClient, self).onMessage(msg)
-
-    ######################################################################
-    # WebSocketClientBase events.
+            self.onUnknownEvent(Event(message))
 
     def onClosed(self, code, reason):
-        common.logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+        logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
         self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
-    def onDisconnectionDetected(self):
-        common.logger.warning("Disconnection detected.")
-        try:
-            self.stopClient()
-        except Exception as e:
-            common.logger.error("Error stopping websocket client: %s." % (str(e)))
-        self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
-
-    ######################################################################
-    # Pusher specific events.
-
-    def onConnectionEstablished(self, event):
-        common.logger.info("Connection established.")
-        self.__queue.put((WebSocketClient.Event.CONNECTED, None))
-
-        channels = ["live_trades", "order_book"]
-        common.logger.info("Subscribing to channels %s." % channels)
-        for channel in channels:
-            self.subscribeChannel(channel)
-
-    def onError(self, event):
-        common.logger.error("Error: %s" % (event))
+    def onError(self, exception):
+        logger.error("Error: %s." % exception)
 
     def onUnknownEvent(self, event):
-        common.logger.warning("Unknown event: %s" % (event))
-
-    ######################################################################
-    # Bitstamp specific
+        logger.warning("Unknown event: %s." % event)
 
     def onTrade(self, trade):
         self.__queue.put((WebSocketClient.Event.TRADE, trade))
@@ -161,11 +153,19 @@ class WebSocketClient(pusher.WebSocketClient):
     def onOrderBookUpdate(self, orderBookUpdate):
         self.__queue.put((WebSocketClient.Event.ORDER_BOOK_UPDATE, orderBookUpdate))
 
+    def __onSubscriptionSucceeded(self, event):
+        channel = event.getDict().get("channel")
+        self.__pending_subscriptions.remove(channel)
+        if not self.__pending_subscriptions:
+            self.setInitialized()
+
 
 class WebSocketClientThread(client.WebSocketClientThreadBase):
     """
     This thread class is responsible for running a WebSocketClient.
     """
 
-    def __init__(self):
-        super(WebSocketClientThread, self).__init__(WebSocketClient)
+    def __init__(self, url="wss://ws.bitstamp.net/", ping_interval=15, ping_timeout=5):
+        super(WebSocketClientThread, self).__init__(
+            WebSocketClient, url, ping_interval=ping_interval, ping_timeout=ping_timeout
+        )

@@ -22,7 +22,6 @@ import unittest
 import datetime
 import time
 import threading
-import json
 
 from six.moves import queue
 
@@ -38,17 +37,20 @@ from pyalgotrade.bitstamp import common
 from pyalgotrade.bitcoincharts import barfeed as btcbarfeed
 from pyalgotrade import strategy
 from pyalgotrade import dispatcher
+from pyalgotrade.utils import dt
 
 
 class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
         self.__queue = queue.Queue()
-        self.__queue.put((wsclient.WebSocketClient.Event.CONNECTED, None))
         for event in events:
             self.__queue.put(event)
         self.__queue.put((wsclient.WebSocketClient.Event.DISCONNECTED, None))
         self.__stop = False
+
+    def waitInitialized(self, timeout):
+        return True
 
     def getQueue(self):
         return self.__queue
@@ -66,21 +68,22 @@ class WebSocketClientThreadMock(threading.Thread):
 
 class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
     def __init__(self):
-        barfeed.LiveTradeFeed.__init__(self)
+        super(TestingLiveTradeFeed, self).__init__()
         # Disable reconnections so the test finishes when ON_DISCONNECTED is pushed.
         self.enableReconection(False)
         self.__events = []
 
     def addTrade(self, dateTime, tid, price, amount):
-        dataDict = {
-            "id": tid,
-            "price": price,
-            "amount": amount,
-            "type": 0,
+        eventDict = {
+            "data": {
+                "id": tid,
+                "price": price,
+                "amount": amount,
+                "microtimestamp": int(dt.datetime_to_timestamp(dateTime) * 1e6),
+                "type": 0,
             }
-        eventDict = {}
-        eventDict["data"] = json.dumps(dataDict)
-        self.__events.append((wsclient.WebSocketClient.Event.TRADE, wsclient.Trade(dateTime, eventDict)))
+        }
+        self.__events.append((wsclient.WebSocketClient.Event.TRADE, wsclient.Trade(eventDict)))
 
     def buildWebSocketClientThread(self):
         return WebSocketClientThreadMock(self.__events)
@@ -292,7 +295,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         self.assertTrue(strat.pos.isOpen())
         self.assertEqual(round(strat.pos.getShares(), 3), 0.3)
         self.assertEqual(len(strat.posExecutionInfo), 1)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
 
     def testBuyAndSellWithPartialFill1(self):
 
@@ -304,7 +307,7 @@ class PaperTradingTestCase(tc_common.TestCase):
             def onBars(self, bars):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
-                elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
+                elif bars.getDateTime() == dt.as_utc(datetime.datetime(2000, 1, 3)):
                     self.pos.exitLimit(101)
 
         barFeed = TestingLiveTradeFeed()
@@ -322,8 +325,8 @@ class PaperTradingTestCase(tc_common.TestCase):
         self.assertTrue(strat.pos.isOpen())
         self.assertEqual(round(strat.pos.getShares(), 3), 0.1)
         self.assertEqual(len(strat.posExecutionInfo), 1)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
 
     def testBuyAndSellWithPartialFill2(self):
 
@@ -335,7 +338,7 @@ class PaperTradingTestCase(tc_common.TestCase):
             def onBars(self, bars):
                 if self.pos is None:
                     self.pos = self.enterLongLimit("BTC", 100, 1, True)
-                elif bars.getDateTime() == datetime.datetime(2000, 1, 3):
+                elif bars.getDateTime() == dt.as_utc(datetime.datetime(2000, 1, 3)):
                     self.pos.exitLimit(101)
 
         barFeed = TestingLiveTradeFeed()
@@ -354,8 +357,8 @@ class PaperTradingTestCase(tc_common.TestCase):
         self.assertFalse(strat.pos.isOpen())
         self.assertEqual(strat.pos.getShares(), 0)
         self.assertEqual(len(strat.posExecutionInfo), 2)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
 
     def testRoundingBugWithTrades(self):
         # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
@@ -390,8 +393,8 @@ class PaperTradingTestCase(tc_common.TestCase):
         self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.01)
         self.assertEqual(strat.pos.getEntryOrder().getRemaining(), 0)
         self.assertEqual(strat.pos.getExitOrder().getRemaining(), 0)
-        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
-        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), wsclient.get_current_datetime().date())
+        self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
+        self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
 
         self.assertFalse(strat.pos.isOpen())
         self.assertEqual(len(strat.posExecutionInfo), 2)

@@ -19,15 +19,18 @@
 """
 
 import datetime
-import time
 
 from six.moves import queue
 
+import pyalgotrade.logger
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import observer
 from pyalgotrade.bitstamp import common
 from pyalgotrade.bitstamp import wsclient
+
+
+logger = pyalgotrade.logger.getLogger(__name__)
 
 
 class TradeBar(bar.Bar):
@@ -115,7 +118,6 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         self.registerInstrument(common.btc_symbol)
         self.__prevTradeDateTime = None
         self.__thread = None
-        self.__wsClientConnected = False
         self.__enableReconnection = True
         self.__stopped = False
         self.__orderBookUpdateEvent = observer.Event()
@@ -125,46 +127,36 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return wsclient.WebSocketClientThread()
 
     def getCurrentDateTime(self):
-        return wsclient.get_current_datetime()
+        return datetime.datetime.now()
 
     def enableReconection(self, enableReconnection):
         self.__enableReconnection = enableReconnection
 
     def __initializeClient(self):
-        common.logger.info("Initializing websocket client.")
-        assert self.__wsClientConnected is False, "Websocket client already connected"
+        logger.info("Initializing websocket client")
 
-        try:
-            # Start the thread that runs the client.
-            self.__thread = self.buildWebSocketClientThread()
-            self.__thread.start()
-        except Exception as e:
-            common.logger.exception("Error connecting : %s" % str(e))
+        # Start the thread that runs the client.
+        self.__thread = self.buildWebSocketClientThread()
+        self.__thread.start()
 
-        # Wait for initialization to complete.
-        while not self.__wsClientConnected and self.__thread.is_alive():
-            self.__dispatchImpl([wsclient.WebSocketClient.Event.CONNECTED])
+        logger.info("Waiting for websocket initialization to complete")
+        initialized = False
+        while not initialized and not self.__stopped and self.__thread.is_alive():
+            initialized = self.__thread.waitInitialized(1)
 
-        if self.__wsClientConnected:
-            common.logger.info("Initialization ok.")
+        if initialized:
+            logger.info("Initialization completed")
         else:
-            common.logger.error("Initialization failed.")
-        return self.__wsClientConnected
-
-    def __onConnected(self):
-        self.__wsClientConnected = True
+            logger.error("Initialization failed")
+        return initialized
 
     def __onDisconnected(self):
-        self.__wsClientConnected = False
-
         if self.__enableReconnection:
-            initialized = False
-            while not self.__stopped and not initialized:
-                common.logger.info("Reconnecting")
-                initialized = self.__initializeClient()
-                if not initialized:
-                    time.sleep(5)
-        else:
+            logger.info("Reconnecting")
+            while not self.__stopped and not self.__initializeClient():
+                pass
+        elif not self.__stopped:
+            logger.info("Stopping")
             self.__stopped = True
 
     def __dispatchImpl(self, eventFilter):
@@ -179,13 +171,11 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
                 self.__onTrade(eventData)
             elif eventType == wsclient.WebSocketClient.Event.ORDER_BOOK_UPDATE:
                 self.__orderBookUpdateEvent.emit(eventData)
-            elif eventType == wsclient.WebSocketClient.Event.CONNECTED:
-                self.__onConnected()
             elif eventType == wsclient.WebSocketClient.Event.DISCONNECTED:
                 self.__onDisconnected()
             else:
                 ret = False
-                common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
+                logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
         except queue.Empty:
             pass
         return ret
@@ -242,10 +232,10 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         try:
             self.__stopped = True
             if self.__thread is not None and self.__thread.is_alive():
-                common.logger.info("Shutting down websocket client.")
+                logger.info("Stopping websocket client.")
                 self.__thread.stop()
         except Exception as e:
-            common.logger.error("Error shutting down client: %s" % (str(e)))
+            logger.error("Error shutting down client: %s" % (str(e)))
 
     # This should not raise.
     def join(self):
