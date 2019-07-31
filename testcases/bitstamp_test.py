@@ -40,6 +40,10 @@ from pyalgotrade import dispatcher
 from pyalgotrade.utils import dt
 
 
+btc_usd_instrument = "BTC/USD"
+btc_symbol = "BTC"
+
+
 class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
         threading.Thread.__init__(self)
@@ -87,7 +91,8 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
                 "amount": amount,
                 "microtimestamp": int(dt.datetime_to_timestamp(dateTime) * 1e6),
                 "type": 0,
-            }
+            },
+            "channel": "live_trades_btcusd",
         }
         self.__events.append((wsclient.WebSocketClient.Event.TRADE, wsclient.Trade(eventDict)))
 
@@ -121,6 +126,7 @@ class HTTPClientMock(object):
             'type': 0 if btcAmount > 0 else 1,
             'price': str(usdAmount),
             'amount': str(abs(btcAmount)),
+            'currency_pair': "BTC/USD",
         }
         self.__openOrders.append(jsonDict)
 
@@ -167,11 +173,11 @@ class HTTPClientMock(object):
         self.__nextOrderId += 1
         return httpclient.Order(jsonDict)
 
-    def buyLimit(self, limitPrice, quantity):
+    def buyLimit(self, currencyPair, limitPrice, quantity):
         assert(quantity > 0)
         return self._buildOrder(limitPrice, quantity)
 
-    def sellLimit(self, limitPrice, quantity):
+    def sellLimit(self, currencyPair, limitPrice, quantity):
         assert(quantity > 0)
         return self._buildOrder(limitPrice, quantity)
 
@@ -246,10 +252,10 @@ class BacktestingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if not self.pos:
-                    self.pos = self.enterLongLimit("BTC", 5.83, 1, True)
+                    self.pos = self.enterLongLimit(btc_usd_instrument, 5.83, 1, True)
 
         barFeed = btcbarfeed.CSVTradeFeed()
-        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
+        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"), instrument=btc_usd_instrument)
         brk = broker.BacktestingBroker(100, barFeed)
         strat = TestStrategy(barFeed, brk)
         strat.run()
@@ -266,10 +272,10 @@ class BacktestingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if not self.pos:
-                    self.pos = self.enterLongLimit("BTC", 4.99, 1, True)
+                    self.pos = self.enterLongLimit(btc_usd_instrument, 4.99, 1, True)
 
         barFeed = btcbarfeed.CSVTradeFeed()
-        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"))
+        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"), instrument=btc_usd_instrument)
         brk = broker.BacktestingBroker(100, barFeed)
         strat = TestStrategy(barFeed, brk)
         with self.assertRaisesRegexp(Exception, "Trade must be >= 5"):
@@ -286,7 +292,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit("BTC", 100, 1, True)
+                    self.pos = self.enterLongLimit(btc_usd_instrument, 100, 1, True)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
@@ -312,7 +318,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit("BTC", 100, 1, True)
+                    self.pos = self.enterLongLimit(btc_usd_instrument, 100, 1, True)
                 elif bars.getDateTime() == dt.as_utc(datetime.datetime(2000, 1, 3)):
                     self.pos.exitLimit(101)
 
@@ -343,7 +349,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit("BTC", 100, 1, True)
+                    self.pos = self.enterLongLimit(btc_usd_instrument, 100, 1, True)
                 elif bars.getDateTime() == dt.as_utc(datetime.datetime(2000, 1, 3)):
                     self.pos.exitLimit(101)
 
@@ -377,7 +383,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit("BTC", 1000, 0.01, True)
+                    self.pos = self.enterLongLimit(btc_usd_instrument, 1000, 0.01, True)
                 elif self.pos.entryFilled() and not self.pos.getExitOrder():
                     self.pos.exitLimit(1000, True)
 
@@ -392,7 +398,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getShares(btc_symbol), 0)
         self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 1000)
         self.assertEqual(strat.pos.getExitOrder().getAvgFillPrice(), 1000)
         self.assertEqual(strat.pos.getEntryOrder().getFilled(), 0.01)
@@ -428,7 +434,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 try:
-                    self.limitOrder("BTC", 10, 1)
+                    self.limitOrder(btc_usd_instrument, 10, 1)
                 except Exception:
                     self.errors += 1
 
@@ -443,7 +449,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertEqual(strat.errors, 4)
-        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getShares(btc_symbol), 0)
         self.assertEqual(brk.getCash(), 0)
 
     def testRanOutOfCash(self):
@@ -454,7 +460,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 try:
-                    self.limitOrder("BTC", 100, 0.1)
+                    self.limitOrder(btc_usd_instrument, 100, 0.1)
                 except Exception:
                     self.errors += 1
 
@@ -468,7 +474,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertEqual(strat.errors, 2)
-        self.assertEqual(brk.getShares("BTC"), 0.1)
+        self.assertEqual(brk.getShares(btc_symbol), 0.1)
         self.assertEqual(brk.getCash(), 0)
 
     def testSellWithoutBTC(self):
@@ -479,7 +485,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 try:
-                    self.limitOrder("BTC", 100, -0.1)
+                    self.limitOrder(btc_usd_instrument, 100, -0.1)
                 except Exception:
                     self.errors += 1
 
@@ -492,7 +498,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertEqual(strat.errors, 2)
-        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getShares(btc_symbol), 0)
         self.assertEqual(brk.getCash(), 0)
 
     def testRanOutOfCoins(self):
@@ -504,11 +510,11 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if not self.bought:
-                    self.limitOrder("BTC", 100, 0.1)
+                    self.limitOrder(btc_usd_instrument, 100, 0.1)
                     self.bought = True
                 else:
                     try:
-                        self.limitOrder("BTC", 100, -0.1)
+                        self.limitOrder(btc_usd_instrument, 100, -0.1)
                     except Exception:
                         self.errors += 1
 
@@ -522,7 +528,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         strat.run()
 
         self.assertEqual(strat.errors, 1)
-        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getShares(btc_symbol), 0)
         self.assertEqual(brk.getCash(), 10)
 
 
@@ -586,7 +592,7 @@ class LiveTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEqual(brk.getShares("BTC"), 0)
+        self.assertEqual(brk.getShares(btc_symbol), 0)
         self.assertEqual(brk.getCash(), 0)
         self.assertEqual(len(strat.orderExecutionInfo), 1)
         self.assertEqual(strat.orderExecutionInfo[0], None)
@@ -605,14 +611,14 @@ class LiveTradingTestCase(tc_common.TestCase):
 
                 if order == self.buyOrder and order.isPartiallyFilled():
                     if self.sellOrder is None:
-                        self.sellOrder = self.limitOrder(common.btc_symbol, 10, -0.5)
+                        self.sellOrder = self.limitOrder(btc_usd_instrument, 10, -0.5)
                         brk.getHTTPClient().addUserTransaction(self.sellOrder.getId(), -0.5, 5, 10, 0.01)
                 elif order == self.sellOrder and order.isFilled():
                     self.stop()
 
             def onBars(self, bars):
                 if self.buyOrder is None:
-                    self.buyOrder = self.limitOrder(common.btc_symbol, 10, 1)
+                    self.buyOrder = self.limitOrder(btc_usd_instrument, 10, 1)
                     brk.getHTTPClient().addUserTransaction(self.buyOrder.getId(), 0.5, -5, 10, 0.01)
 
         barFeed = TestingLiveTradeFeed()
@@ -657,7 +663,7 @@ class WebSocketTestCase(tc_common.TestCase):
         disp.addSubject(barFeed)
 
         def on_bars(dateTime, bars):
-            bars[common.btc_symbol]
+            bars[btc_usd_instrument]
             events["on_bars"] = True
             if events["on_order_book_updated"] is True:
                 disp.stop()

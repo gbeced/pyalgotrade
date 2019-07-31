@@ -33,9 +33,26 @@ LiveBroker = livebroker.LiveBroker
 # strategy.
 
 
-class BacktestingBroker(backtesting.Broker):
-    MIN_TRADE_USD = 5
+class TradeValidatorPredicate(object):
+    def isValidTrade(self, action, instrument, limitPrice, quantity):
+        # https://www.bitstamp.net/fee-schedule/
+        # Our minimum order size is 5 for Euro denominated trading pairs, 5 for USD denominated trading pairs,
+        # and 0.001 BTC for Bitcoin denominated trading pairs.
 
+        base_currency, quote_currency = common.split_currency_pair(instrument)
+        assert base_currency == common.BTC_SYMBOL
+        assert quote_currency == common.USD_SYMBOL
+
+        if base_currency == common.BTC_SYMBOL and quantity < 0.001:
+            return False, "Trade must be >= 0.001 %s" % base_currency
+
+        if limitPrice and quote_currency in common.SUPPORTED_FIAT_CURRENCIES and limitPrice * quantity < 5:
+            return False, "Trade must be >= 5 %s" % quote_currency
+
+        return True, None
+
+
+class BacktestingBroker(backtesting.Broker):
     """A Bitstamp backtesting broker.
 
     :param cash: The initial amount of cash.
@@ -47,7 +64,7 @@ class BacktestingBroker(backtesting.Broker):
 
     .. note::
         * Only limit orders are supported.
-        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
+        * Orders are automatically set as **goodTillCanceled=True** and **allOrNone=False**.
         * BUY_TO_COVER orders are mapped to BUY orders.
         * SELL_SHORT orders are mapped to SELL orders.
     """
@@ -55,9 +72,17 @@ class BacktestingBroker(backtesting.Broker):
     def __init__(self, cash, barFeed, fee=0.0025):
         commission = backtesting.TradePercentage(fee)
         super(BacktestingBroker, self).__init__(cash, barFeed, commission)
+        self._tradeValidatorPredicate = TradeValidatorPredicate()
+
+    def splitCurrencyPair(self, instrument):
+        baseCurrency, _ = common.split_currency_pair(instrument)
+        return baseCurrency, None
 
     def getInstrumentTraits(self, instrument):
         return common.BTCTraits()
+
+    def setTradeValidatorPredicate(self, predicate):
+        self._tradeValidatorPredicate = predicate
 
     def submitOrder(self, order):
         if order.isInitial():
@@ -70,16 +95,14 @@ class BacktestingBroker(backtesting.Broker):
         raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        if instrument != common.btc_symbol:
-            raise Exception("Only BTC instrument is supported")
-
         if action == broker.Order.Action.BUY_TO_COVER:
             action = broker.Order.Action.BUY
         elif action == broker.Order.Action.SELL_SHORT:
             action = broker.Order.Action.SELL
 
-        if limitPrice * quantity < BacktestingBroker.MIN_TRADE_USD:
-            raise Exception("Trade must be >= %s" % (BacktestingBroker.MIN_TRADE_USD))
+        validTrade, reason = self._tradeValidatorPredicate.isValidTrade(action, instrument, limitPrice, quantity)
+        if not validTrade:
+            raise Exception("Invalid trade: %s" % reason)
 
         if action == broker.Order.Action.BUY:
             # Check that there is enough cash.
@@ -89,8 +112,9 @@ class BacktestingBroker(backtesting.Broker):
                 raise Exception("Not enough cash")
         elif action == broker.Order.Action.SELL:
             # Check that there are enough coins.
-            if quantity > self.getShares(common.btc_symbol):
-                raise Exception("Not enough %s" % (common.btc_symbol))
+            base_currency, _ = common.split_currency_pair(instrument)
+            if quantity > self.getShares(base_currency):
+                raise Exception("Not enough %s" % base_currency)
         else:
             raise Exception("Only BUY/SELL orders are supported")
 

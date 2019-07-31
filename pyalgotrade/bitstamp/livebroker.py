@@ -36,7 +36,9 @@ def build_order_from_open_order(openOrder, instrumentTraits):
     else:
         raise Exception("Invalid order type")
 
-    ret = broker.LimitOrder(action, common.btc_symbol, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
+    ret = broker.LimitOrder(
+        action, openOrder.getCurrencyPair(), openOrder.getPrice(), openOrder.getAmount(), instrumentTraits
+    )
     ret.setSubmitted(openOrder.getId(), openOrder.getDateTime())
     ret.setState(broker.Order.State.ACCEPTED)
     return ret
@@ -56,10 +58,14 @@ class TradeMonitor(threading.Thread):
         self.__stop = False
 
     def _getNewTrades(self):
-        userTrades = self.__httpClient.getUserTransactions(httpclient.HTTPClient.UserTransactionType.MARKET_TRADE)
+        # Retrieve market trade transactions.
+        trades = [
+            userTransaction for userTransaction in self.__httpClient.getUserTransactions()
+            if userTransaction.getType() == httpclient.UserTransaction.Type.MARKET_TRADE
+        ]
 
         # Get the new trades only.
-        ret = [t for t in userTrades if t.getId() > self.__lastTradeId]
+        ret = [t for t in trades if t.getId() > self.__lastTradeId]
 
         # Sort by id, so older trades first.
         return sorted(ret, key=lambda t: t.getId())
@@ -126,7 +132,7 @@ class LiveBroker(broker.Broker):
         self.__stop = False
         self.__httpClient = self.buildHTTPClient(clientId, key, secret)
         self.__tradeMonitor = TradeMonitor(self.__httpClient)
-        self.__cash = 0
+        self.__cash = {}
         self.__shares = {}
         self.__activeOrders = {}
 
@@ -145,22 +151,23 @@ class LiveBroker(broker.Broker):
         return httpclient.HTTPClient(clientId, key, secret)
 
     def refreshAccountBalance(self):
-        """Refreshes cash and BTC balance."""
+        """Refreshes all balances."""
 
         self.__stop = True  # Stop running in case of errors.
         common.logger.info("Retrieving account balance.")
-        balance = self.__httpClient.getAccountBalance()
+        account_balance = self.__httpClient.getAccountBalance()
 
         # Cash
-        self.__cash = round(balance.getUSDAvailable(), 2)
-        common.logger.info("%s USD" % (self.__cash))
-        # BTC
-        btc = balance.getBTCAvailable()
-        if btc:
-            self.__shares = {common.btc_symbol: btc}
-        else:
-            self.__shares = {}
-        common.logger.info("%s BTC" % (btc))
+        for currency in common.SUPPORTED_FIAT_CURRENCIES:
+            balance = round(account_balance.getAvailable(currency), 2)
+            common.logger.info("%s %s" % (balance, currency))
+            self.__cash[currency] = balance
+
+        # Crypto
+        for currency in common.SUPPORTED_CRYPTO_CURRENCIES:
+            balance = account_balance.getAvailable(currency)
+            common.logger.info("%s %s" % (balance, currency))
+            self.__shares[currency] = balance
 
         self.__stop = False  # No errors. Keep running.
 
@@ -169,7 +176,10 @@ class LiveBroker(broker.Broker):
         common.logger.info("Retrieving open orders.")
         openOrders = self.__httpClient.getOpenOrders()
         for openOrder in openOrders:
-            self._registerOrder(build_order_from_open_order(openOrder, self.getInstrumentTraits(common.btc_symbol)))
+            assert openOrder.getCurrencyPair() in common.SUPPORTED_CURRENCY_PAIRS
+            self._registerOrder(build_order_from_open_order(
+                openOrder, self.getInstrumentTraits(openOrder.getCurrencyPair())
+            ))
 
         common.logger.info("%d open order/s found" % (len(openOrders)))
         self.__stop = False  # No errors. Keep running.
@@ -185,6 +195,7 @@ class LiveBroker(broker.Broker):
             order = self.__activeOrders.get(trade.getOrderId())
             if order is not None:
                 fee = trade.getFee()
+
                 fillPrice = trade.getBTCUSD()
                 btcAmount = trade.getBTC()
                 dateTime = trade.getDateTime()
@@ -254,12 +265,14 @@ class LiveBroker(broker.Broker):
     # BEGIN broker.Broker interface
 
     def getCash(self, includeShort=True):
-        return self.__cash
+        return self.__cash.get("USD", 0)
 
     def getInstrumentTraits(self, instrument):
+        assert instrument == common.BTC_USD_CURRENCY_PAIR
         return common.BTCTraits()
 
     def getShares(self, instrument):
+        assert instrument == common.BTC_SYMBOL
         return self.__shares.get(instrument, 0)
 
     def getPositions(self):
@@ -270,14 +283,21 @@ class LiveBroker(broker.Broker):
 
     def submitOrder(self, order):
         if order.isInitial():
+            assert order.getInstrument() in common.SUPPORTED_CURRENCY_PAIRS
+
             # Override user settings based on Bitstamp limitations.
             order.setAllOrNone(False)
             order.setGoodTillCanceled(True)
 
+            channelCurrencyPair = common.CURRENCY_PAIR_TO_CHANNEL[order.getInstrument()]
             if order.isBuy():
-                bitstampOrder = self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity())
+                bitstampOrder = self.__httpClient.buyLimit(
+                    channelCurrencyPair, order.getLimitPrice(), order.getQuantity()
+                )
             else:
-                bitstampOrder = self.__httpClient.sellLimit(order.getLimitPrice(), order.getQuantity())
+                bitstampOrder = self.__httpClient.sellLimit(
+                    channelCurrencyPair, order.getLimitPrice(), order.getQuantity()
+                )
 
             order.setSubmitted(bitstampOrder.getId(), bitstampOrder.getDateTime())
             self._registerOrder(order)
@@ -292,8 +312,8 @@ class LiveBroker(broker.Broker):
         raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        if instrument != common.btc_symbol:
-            raise Exception("Only BTC instrument is supported")
+        if instrument != common.BTC_USD_CURRENCY_PAIR:
+            raise Exception("Only BTC/USD pair is supported")
 
         if action == broker.Order.Action.BUY_TO_COVER:
             action = broker.Order.Action.BUY

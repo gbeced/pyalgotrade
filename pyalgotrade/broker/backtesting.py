@@ -191,6 +191,7 @@ class Broker(broker.Broker):
         else:
             self.__commission = commission
         self.__shares = {}
+
         self.__instrumentPrice = {}  # Used by setShares
         self.__activeOrders = {}
         self.__useAdjustedValues = False
@@ -335,8 +336,14 @@ class Broker(broker.Broker):
             ret += instrumentPrice * shares
         return ret
 
+    def splitCurrencyPair(self, instrument):
+        return instrument, None
+
     # Tries to commit an order execution.
     def commitOrderExecution(self, order, dateTime, fillInfo):
+        baseCurrency, quoteCurrency = self.splitCurrencyPair(order.getInstrument())
+        assert quoteCurrency is None, "Multiple currencies not yet supported"
+
         price = fillInfo.getPrice()
         quantity = fillInfo.getQuantity()
 
@@ -366,12 +373,12 @@ class Broker(broker.Broker):
             # Commit the order execution.
             self.__cash = resultingCash
             updatedShares = order.getInstrumentTraits().roundQuantity(
-                self.getShares(order.getInstrument()) + sharesDelta
+                self.getShares(baseCurrency) + sharesDelta
             )
             if updatedShares == 0:
-                del self.__shares[order.getInstrument()]
+                del self.__shares[baseCurrency]
             else:
-                self.__shares[order.getInstrument()] = updatedShares
+                self.__shares[baseCurrency] = updatedShares
 
             # Let the strategy know that the order was filled.
             self.__fillStrategy.onOrderFilled(self, order)
@@ -379,13 +386,11 @@ class Broker(broker.Broker):
             # Notify the order update
             if order.isFilled():
                 self._unregisterOrder(order)
-                self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.FILLED, orderExecutionInfo))
-            elif order.isPartiallyFilled():
-                self.notifyOrderEvent(
-                    broker.OrderEvent(order, broker.OrderEvent.Type.PARTIALLY_FILLED, orderExecutionInfo)
-                )
+                eventType = broker.OrderEvent.Type.FILLED
             else:
-                assert(False)
+                assert order.isPartiallyFilled(), "Order was neither filled completely nor partially"
+                eventType = broker.OrderEvent.Type.PARTIALLY_FILLED
+            self.notifyOrderEvent(broker.OrderEvent(order, eventType, orderExecutionInfo))
         else:
             self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
                 order.getInstrument(),

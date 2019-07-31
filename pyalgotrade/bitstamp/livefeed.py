@@ -34,28 +34,19 @@ logger = pyalgotrade.logger.getLogger(__name__)
 
 
 class TradeBar(bar.Bar):
-    # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__tradeId', '__price', '__amount')
-
     def __init__(self, dateTime, trade):
         self.__dateTime = dateTime
-        self.__tradeId = trade.getId()
-        self.__price = trade.getPrice()
-        self.__amount = trade.getAmount()
-        self.__buy = trade.isBuy()
-
-    def __setstate__(self, state):
-        (self.__dateTime, self.__tradeId, self.__price, self.__amount) = state
-
-    def __getstate__(self):
-        return (self.__dateTime, self.__tradeId, self.__price, self.__amount)
+        self.__trade = trade
 
     def setUseAdjustedValue(self, useAdjusted):
         if useAdjusted:
             raise Exception("Adjusted close is not available")
 
+    def getTrade(self):
+        return self.__trade
+
     def getTradeId(self):
-        return self.__tradeId
+        return self.__trade.getId()
 
     def getFrequency(self):
         return bar.Frequency.TRADE
@@ -64,37 +55,37 @@ class TradeBar(bar.Bar):
         return self.__dateTime
 
     def getOpen(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getHigh(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getLow(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getClose(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getVolume(self):
-        return self.__amount
+        return self.__trade.getAmount()
 
     def getAdjClose(self):
         return None
 
     def getTypicalPrice(self):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getPrice(self):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getUseAdjValue(self):
         return False
 
     def isBuy(self):
-        return self.__buy
+        return self.__trade.isBuy()
 
     def isSell(self):
-        return not self.__buy
+        return not self.__trade.isBuy()
 
 
 class LiveTradeFeed(barfeed.BaseBarFeed):
@@ -115,7 +106,9 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     def __init__(self, maxLen=None):
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
-        self.registerInstrument(common.btc_symbol)
+        currencyPair = common.BTC_USD_CURRENCY_PAIR
+        self.__channels = [common.CURRENCY_PAIR_TO_CHANNEL[currencyPair]]
+        self.registerInstrument(currencyPair)
         self.__thread = None
         self.__enableReconnection = True
         self.__stopped = False
@@ -123,7 +116,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     # Factory method for testing purposes.
     def buildWebSocketClientThread(self):
-        return wsclient.WebSocketClientThread()
+        return wsclient.WebSocketClientThread(currency_pairs=self.__channels)
 
     def getCurrentDateTime(self):
         return datetime.datetime.now()
@@ -180,10 +173,11 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return ret
 
     def __onTrade(self, trade):
+        assert trade.getCurrencyPair() == common.BTC_USD_CURRENCY_PAIR
         # Build a bar for each trade.
         barDict = {
-            common.btc_symbol: TradeBar(trade.getDateTime(), trade)
-            }
+            trade.getCurrencyPair(): TradeBar(trade.getDateTime(), trade)
+        }
         self.__barDicts.append(barDict)
 
     def barsHaveAdjClose(self):

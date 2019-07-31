@@ -23,6 +23,7 @@ import json
 import pyalgotrade.logger
 from pyalgotrade.websocket import client
 from pyalgotrade.utils import dt
+from pyalgotrade.bitstamp import common
 
 
 logger = pyalgotrade.logger.getLogger(__name__)
@@ -42,6 +43,12 @@ class Event(object):
 
     def getData(self):
         return self._eventDict.get("data")
+
+    def _getCurrencyPair(self, channel_prefix):
+        channel = self.getDict()["channel"]
+        assert channel.find(channel_prefix) == 0
+        channelCurrencyPair = channel[len(channel_prefix):]
+        return common.CHANNEL_TO_CURRENCY_PAIR[channelCurrencyPair]
 
 
 class TimestampedEvent(Event):
@@ -74,6 +81,9 @@ class Trade(TimestampedEvent):
         """Returns True if the trade was a sell."""
         return self.getData()["type"] == 1
 
+    def getCurrencyPair(self):
+        return self._getCurrencyPair("live_trades_")
+
 
 class OrderBookUpdate(TimestampedEvent):
     """An order book update event."""
@@ -94,6 +104,9 @@ class OrderBookUpdate(TimestampedEvent):
         """Returns a list with the top 20 ask volumes."""
         return [float(ask[1]) for ask in self.getData()["asks"]]
 
+    def getCurrencyPair(self):
+        return self._getCurrencyPair("detail_order_book_")
+
 
 class WebSocketClient(client.WebSocketClientBase):
     """
@@ -106,13 +119,18 @@ class WebSocketClient(client.WebSocketClientBase):
         TRADE = 2
         ORDER_BOOK_UPDATE = 3
 
-    def __init__(self, queue, url="wss://ws.bitstamp.net/", ping_interval=15, ping_timeout=5):
+    def __init__(
+            self, queue, url="wss://ws.bitstamp.net/", currency_pairs=[common.BTC_USD_CHANNEL],
+            ping_interval=15, ping_timeout=5
+    ):
         super(WebSocketClient, self).__init__(url, ping_interval=ping_interval, ping_timeout=ping_timeout)
+        assert len(currency_pairs), "Missing currency pairs"
         self.__queue = queue
-        self.__pending_subscriptions = [
-            "detail_order_book_btcusd",
-            "live_trades_btcusd",
-        ]
+        self.__pending_subscriptions = []
+
+        for currency_pair in currency_pairs:
+            self.__pending_subscriptions.append("detail_order_book_" + currency_pair)
+            self.__pending_subscriptions.append("live_trades_" + currency_pair)
 
     def onOpened(self):
         for channel in self.__pending_subscriptions:
@@ -165,7 +183,10 @@ class WebSocketClientThread(client.WebSocketClientThreadBase):
     This thread class is responsible for running a WebSocketClient.
     """
 
-    def __init__(self, url="wss://ws.bitstamp.net/", ping_interval=15, ping_timeout=5):
+    def __init__(
+        self, url="wss://ws.bitstamp.net/", currency_pairs=[common.BTC_USD_CHANNEL],
+        ping_interval=15, ping_timeout=5
+    ):
         super(WebSocketClientThread, self).__init__(
-            WebSocketClient, url, ping_interval=ping_interval, ping_timeout=ping_timeout
+            WebSocketClient, url, currency_pairs=currency_pairs, ping_interval=ping_interval, ping_timeout=ping_timeout
         )
