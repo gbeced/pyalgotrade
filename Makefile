@@ -1,5 +1,5 @@
 .PHONY: doc clean build flake8 test testpy27 \
-	docker-build docker-push
+	docker-build docker-push docker-test
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -55,3 +55,6 @@ docker-push: docker-build
 	docker push gbecedillas/pyalgotrade:0.20-py27
 	docker push gbecedillas/pyalgotrade:0.20-py37
 
+docker-test: docker-build
+	docker build -t pyalgotrade_testcases -f travis/Dockerfile .
+	docker run pyalgotrade_testcases /bin/bash -c "cd /tmp/pyalgotrade; ./run_tests.sh"
