@@ -5,7 +5,7 @@ Release checklist
 [ ] Update CHANGELOG.
 [ ] Update version in __init__.py.
 [ ] Update version in setup.py.
-[ ] Update version in docker/build.sh.
+[ ] Update version in Makefile
 [ ] Update version in docker/Dockerfile
 [ ] Update version in travis/Dockerfile
 [ ] Update version in .travis.yml.

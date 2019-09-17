@@ -19,10 +19,10 @@
 """
 
 import datetime
-import time
 
 from six.moves import queue
 
+import pyalgotrade.logger
 from pyalgotrade import bar
 from pyalgotrade import barfeed
 from pyalgotrade import observer
@@ -30,29 +30,23 @@ from pyalgotrade.bitstamp import common
 from pyalgotrade.bitstamp import wsclient
 
 
-class TradeBar(bar.Bar):
-    # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__tradeId', '__price', '__amount')
+logger = pyalgotrade.logger.getLogger(__name__)
 
+
+class TradeBar(bar.Bar):
     def __init__(self, dateTime, trade):
         self.__dateTime = dateTime
-        self.__tradeId = trade.getId()
-        self.__price = trade.getPrice()
-        self.__amount = trade.getAmount()
-        self.__buy = trade.isBuy()
-
-    def __setstate__(self, state):
-        (self.__dateTime, self.__tradeId, self.__price, self.__amount) = state
-
-    def __getstate__(self):
-        return (self.__dateTime, self.__tradeId, self.__price, self.__amount)
+        self.__trade = trade
 
     def setUseAdjustedValue(self, useAdjusted):
         if useAdjusted:
             raise Exception("Adjusted close is not available")
 
+    def getTrade(self):
+        return self.__trade
+
     def getTradeId(self):
-        return self.__tradeId
+        return self.__trade.getId()
 
     def getFrequency(self):
         return bar.Frequency.TRADE
@@ -61,37 +55,37 @@ class TradeBar(bar.Bar):
         return self.__dateTime
 
     def getOpen(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getHigh(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getLow(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getClose(self, adjusted=False):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getVolume(self):
-        return self.__amount
+        return self.__trade.getAmount()
 
     def getAdjClose(self):
         return None
 
     def getTypicalPrice(self):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getPrice(self):
-        return self.__price
+        return self.__trade.getPrice()
 
     def getUseAdjValue(self):
         return False
 
     def isBuy(self):
-        return self.__buy
+        return self.__trade.isBuy()
 
     def isSell(self):
-        return not self.__buy
+        return not self.__trade.isBuy()
 
 
 class LiveTradeFeed(barfeed.BaseBarFeed):
@@ -112,59 +106,49 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     def __init__(self, maxLen=None):
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
-        self.registerInstrument(common.btc_symbol)
-        self.__prevTradeDateTime = None
+        currencyPair = common.BTC_USD_CURRENCY_PAIR
+        self.__channels = [common.CURRENCY_PAIR_TO_CHANNEL[currencyPair]]
+        self.registerInstrument(currencyPair)
         self.__thread = None
-        self.__wsClientConnected = False
         self.__enableReconnection = True
         self.__stopped = False
         self.__orderBookUpdateEvent = observer.Event()
 
     # Factory method for testing purposes.
     def buildWebSocketClientThread(self):
-        return wsclient.WebSocketClientThread()
+        return wsclient.WebSocketClientThread(currency_pairs=self.__channels)
 
     def getCurrentDateTime(self):
-        return wsclient.get_current_datetime()
+        return datetime.datetime.now()
 
     def enableReconection(self, enableReconnection):
         self.__enableReconnection = enableReconnection
 
     def __initializeClient(self):
-        common.logger.info("Initializing websocket client.")
-        assert self.__wsClientConnected is False, "Websocket client already connected"
+        logger.info("Initializing websocket client")
 
-        try:
-            # Start the thread that runs the client.
-            self.__thread = self.buildWebSocketClientThread()
-            self.__thread.start()
-        except Exception as e:
-            common.logger.exception("Error connecting : %s" % str(e))
+        # Start the thread that runs the client.
+        self.__thread = self.buildWebSocketClientThread()
+        self.__thread.start()
 
-        # Wait for initialization to complete.
-        while not self.__wsClientConnected and self.__thread.is_alive():
-            self.__dispatchImpl([wsclient.WebSocketClient.Event.CONNECTED])
+        logger.info("Waiting for websocket initialization to complete")
+        initialized = False
+        while not initialized and not self.__stopped and self.__thread.is_alive():
+            initialized = self.__thread.waitInitialized(1)
 
-        if self.__wsClientConnected:
-            common.logger.info("Initialization ok.")
+        if initialized:
+            logger.info("Initialization completed")
         else:
-            common.logger.error("Initialization failed.")
-        return self.__wsClientConnected
-
-    def __onConnected(self):
-        self.__wsClientConnected = True
+            logger.error("Initialization failed")
+        return initialized
 
     def __onDisconnected(self):
-        self.__wsClientConnected = False
-
         if self.__enableReconnection:
-            initialized = False
-            while not self.__stopped and not initialized:
-                common.logger.info("Reconnecting")
-                initialized = self.__initializeClient()
-                if not initialized:
-                    time.sleep(5)
-        else:
+            logger.info("Reconnecting")
+            while not self.__stopped and not self.__initializeClient():
+                pass
+        elif not self.__stopped:
+            logger.info("Stopping")
             self.__stopped = True
 
     def __dispatchImpl(self, eventFilter):
@@ -179,30 +163,21 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
                 self.__onTrade(eventData)
             elif eventType == wsclient.WebSocketClient.Event.ORDER_BOOK_UPDATE:
                 self.__orderBookUpdateEvent.emit(eventData)
-            elif eventType == wsclient.WebSocketClient.Event.CONNECTED:
-                self.__onConnected()
             elif eventType == wsclient.WebSocketClient.Event.DISCONNECTED:
                 self.__onDisconnected()
             else:
                 ret = False
-                common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
+                logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
         except queue.Empty:
             pass
         return ret
 
-    # Bar datetimes should not duplicate. In case trade object datetimes conflict, we just move one slightly forward.
-    def __getTradeDateTime(self, trade):
-        ret = trade.getDateTime()
-        if ret == self.__prevTradeDateTime:
-            ret += datetime.timedelta(microseconds=1)
-        self.__prevTradeDateTime = ret
-        return ret
-
     def __onTrade(self, trade):
+        assert trade.getCurrencyPair() == common.BTC_USD_CURRENCY_PAIR
         # Build a bar for each trade.
         barDict = {
-            common.btc_symbol: TradeBar(self.__getTradeDateTime(trade), trade)
-            }
+            trade.getCurrencyPair(): TradeBar(trade.getDateTime(), trade)
+        }
         self.__barDicts.append(barDict)
 
     def barsHaveAdjClose(self):
@@ -242,10 +217,10 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         try:
             self.__stopped = True
             if self.__thread is not None and self.__thread.is_alive():
-                common.logger.info("Shutting down websocket client.")
+                logger.info("Stopping websocket client.")
                 self.__thread.stop()
         except Exception as e:
-            common.logger.error("Error shutting down client: %s" % (str(e)))
+            logger.error("Error shutting down client: %s" % (str(e)))
 
     # This should not raise.
     def join(self):

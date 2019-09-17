@@ -497,6 +497,23 @@ class OrderEvent(object):
     def getEventInfo(self):
         return self.__eventInfo
 
+    def __str__(self):
+        eventType = {
+            OrderEvent.Type.SUBMITTED: "submitted",
+            OrderEvent.Type.ACCEPTED: "accepted",
+            OrderEvent.Type.CANCELED: "canceled",
+            OrderEvent.Type.PARTIALLY_FILLED: "partially_filled",
+            OrderEvent.Type.FILLED: "filled",
+        }.get(self.__eventType)
+
+        ret = "Order %s was %s" % (self.__order.getId(), eventType)
+        if self.__eventType in (OrderEvent.Type.PARTIALLY_FILLED, OrderEvent.Type.FILLED):
+            ret += " %s @ %s (fee %s)" % (
+                self.__eventInfo.getQuantity(), self.__eventInfo.getPrice(), self.__eventInfo.getCommission()
+            )
+
+        return ret
+
 
 ######################################################################
 # Base broker class

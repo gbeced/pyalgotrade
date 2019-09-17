@@ -25,6 +25,8 @@ import hashlib
 import requests
 import threading
 
+import six
+
 from pyalgotrade.utils import dt
 from pyalgotrade.bitstamp import common
 
@@ -59,11 +61,9 @@ class AccountBalance(object):
     def getDict(self):
         return self.__jsonDict
 
-    def getUSDAvailable(self):
-        return float(self.__jsonDict["usd_available"])
-
-    def getBTCAvailable(self):
-        return float(self.__jsonDict["btc_available"])
+    def getAvailable(self, currency):
+        key = "%s_available" % currency.lower()
+        return float(self.__jsonDict.get(key, 0))
 
 
 class Order(object):
@@ -77,10 +77,10 @@ class Order(object):
         return int(self.__jsonDict["id"])
 
     def isBuy(self):
-        return self.__jsonDict["type"] == 0
+        return int(self.__jsonDict["type"]) == 0
 
     def isSell(self):
-        return self.__jsonDict["type"] == 1
+        return int(self.__jsonDict["type"]) == 1
 
     def getPrice(self):
         return float(self.__jsonDict["price"])
@@ -91,13 +91,22 @@ class Order(object):
     def getDateTime(self):
         return parse_datetime(self.__jsonDict["datetime"])
 
+    def getCurrencyPair(self):
+        return self.__jsonDict["currency_pair"]
+
 
 class UserTransaction(object):
+    class Type:
+        MARKET_TRADE = 2
+
     def __init__(self, jsonDict):
         self.__jsonDict = jsonDict
 
     def getDict(self):
         return self.__jsonDict
+
+    def getType(self):
+        return int(self.__jsonDict["type"])
 
     def getBTC(self):
         return float(self.__jsonDict["btc"])
@@ -125,13 +134,12 @@ class HTTPClient(object):
     USER_AGENT = "PyAlgoTrade"
     REQUEST_TIMEOUT = 30
 
-    class UserTransactionType:
-        MARKET_TRADE = 2
-
     def __init__(self, clientId, key, secret):
         self.__clientId = clientId
         self.__key = key
         self.__secret = secret
+        if six.PY3:
+            self.__secret = self.__secret.encode()
         self.__nonce = NonceGenerator()
         self.__lock = threading.Lock()
 
@@ -139,6 +147,8 @@ class HTTPClient(object):
         # Build the signature.
         nonce = self.__nonce.getNext()
         message = "%d%s%s" % (nonce, self.__clientId, self.__key)
+        if six.PY3:
+            message = message.encode()
         signature = hmac.new(self.__secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
 
         # Headers
@@ -167,32 +177,28 @@ class HTTPClient(object):
         jsonResponse = response.json()
 
         # Check for errors.
-        if isinstance(jsonResponse, dict):
-            error = jsonResponse.get("error")
-            if error is not None:
-                raise Exception(error)
+        if isinstance(jsonResponse, dict) and jsonResponse.get("status") == "error":
+            raise Exception(jsonResponse.get("reason"))
 
         return jsonResponse
 
     def getAccountBalance(self):
-        url = "https://www.bitstamp.net/api/balance/"
+        url = "https://www.bitstamp.net/api/v2/balance/"
         jsonResponse = self._post(url, {})
         return AccountBalance(jsonResponse)
 
     def getOpenOrders(self):
-        url = "https://www.bitstamp.net/api/open_orders/"
+        url = "https://www.bitstamp.net/api/v2/open_orders/all/"
         jsonResponse = self._post(url, {})
         return [Order(json_open_order) for json_open_order in jsonResponse]
 
     def cancelOrder(self, orderId):
-        url = "https://www.bitstamp.net/api/cancel_order/"
+        url = "https://www.bitstamp.net/api/v2/cancel_order/"
         params = {"id": orderId}
-        jsonResponse = self._post(url, params)
-        if jsonResponse != True:  # noqa: E712
-            raise Exception("Failed to cancel order")
+        return self._post(url, params)
 
-    def buyLimit(self, limitPrice, quantity):
-        url = "https://www.bitstamp.net/api/buy/"
+    def buyLimit(self, currencyPair, limitPrice, quantity):
+        url = "https://www.bitstamp.net/api/v2/buy/%s/" % currencyPair
 
         # Rounding price to avoid 'Ensure that there are no more than 2 decimal places'
         # error.
@@ -208,8 +214,8 @@ class HTTPClient(object):
         jsonResponse = self._post(url, params)
         return Order(jsonResponse)
 
-    def sellLimit(self, limitPrice, quantity):
-        url = "https://www.bitstamp.net/api/sell/"
+    def sellLimit(self, currencyPair, limitPrice, quantity):
+        url = "https://www.bitstamp.net/api/v2/sell/%s/" % currencyPair
 
         # Rounding price to avoid 'Ensure that there are no more than 2 decimal places'
         # error.
@@ -225,13 +231,9 @@ class HTTPClient(object):
         jsonResponse = self._post(url, params)
         return Order(jsonResponse)
 
-    def getUserTransactions(self, transactionType=None):
-        url = "https://www.bitstamp.net/api/user_transactions/"
+    def getUserTransactions(self):
+        url = "https://www.bitstamp.net/api/v2/user_transactions/"
         jsonResponse = self._post(url, {})
-        if transactionType is not None:
-            jsonUserTransactions = filter(
-                lambda jsonUserTransaction: jsonUserTransaction["type"] == transactionType, jsonResponse
-            )
-        else:
-            jsonUserTransactions = jsonResponse
-        return [UserTransaction(jsonUserTransaction) for jsonUserTransaction in jsonUserTransactions]
+        return [
+            UserTransaction(userTransaction) for userTransaction in jsonResponse
+        ]

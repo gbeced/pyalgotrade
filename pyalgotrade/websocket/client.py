@@ -18,163 +18,61 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import json
-import time
 import threading
+
+from six.moves import queue
+import websocket
 
 import pyalgotrade.logger
 
-import six
-from six.moves import queue
-from ws4py.client import tornadoclient
-import tornado
 
-if six.PY3:
-    import asyncio
-    import tornado.platform.asyncio
-
-
-logger = pyalgotrade.logger.getLogger("websocket.client")
-
-
-# This class is responsible for sending keep alive messages and detecting disconnections
-# from the server.
-class KeepAliveMgr(object):
-    def __init__(self, wsClient, maxInactivity, responseTimeout):
-        assert(maxInactivity > 0)
-        assert(responseTimeout > 0)
-        self.__callback = None
-        self.__wsClient = wsClient
-        self.__activityTimeout = maxInactivity
-        self.__responseTimeout = responseTimeout
-        self.__lastSeen = None
-        self.__kaSent = None  # timestamp when the last keep alive was sent.
-
-    def _keepAlive(self):
-        if self.__lastSeen is None:
-            return
-
-        # Check if we're under the inactivity threshold.
-        inactivity = (time.time() - self.__lastSeen)
-        if inactivity <= self.__activityTimeout:
-            return
-
-        # Send keep alive if it was not sent,
-        # or check if we have to timeout waiting for the keep alive response.
-        try:
-            if self.__kaSent is None:
-                self.sendKeepAlive()
-                self.__kaSent = time.time()
-            elif (time.time() - self.__kaSent) > self.__responseTimeout:
-                self.__wsClient.onDisconnectionDetected()
-        except Exception:
-            # Treat an error sending the keep-alive as a diconnection.
-            # print "Error sending keep alive", e
-            self.__wsClient.onDisconnectionDetected()
-
-    def getWSClient(self):
-        return self.__wsClient
-
-    def setAlive(self):
-        self.__lastSeen = time.time()
-        self.__kaSent = None
-
-    def start(self):
-        # Check every second.
-        self.__callback = tornado.ioloop.PeriodicCallback(self._keepAlive, 1000)
-        self.__callback.start()
-
-    def stop(self):
-        if self.__callback is not None:
-            self.__callback.stop()
-
-    # Override to send the keep alive msg.
-    def sendKeepAlive(self):
-        raise NotImplementedError()
-
-    # Return True if the response belongs to a keep alive message, False otherwise.
-    def handleResponse(self, msg):
-        raise NotImplementedError()
+logger = pyalgotrade.logger.getLogger(__name__)
 
 
 # Base clase for websocket clients.
 # To use it call connect and startClient, and stopClient.
 # Note that this class has thread affinity, so build it and use it from the same thread.
-class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
-    def __init__(self, url):
-        super(WebSocketClientBase, self).__init__(url)
-        self.__keepAliveMgr = None
+class WebSocketClientBase(websocket.WebSocketApp):
+    def __init__(self, url, ping_interval, ping_timeout):
+        super(WebSocketClientBase, self).__init__(
+            url, on_message=self.onMessage, on_open=self._on_opened, on_close=self._on_closed, on_error=self.onError
+        )
         self.__connected = False
+        self.__ping_interval = ping_interval
+        self.__ping_timeout = ping_timeout
+        self.__initialized = threading.Event()
 
-    # This is to avoid a stack trace because TornadoWebSocketClient is not implementing _cleanup.
-    def _cleanup(self):
-        ret = None
-        try:
-            ret = super(WebSocketClientBase, self)._cleanup()
-        except Exception:
-            pass
-        return ret
-
-    def getIOLoop(self):
-        return tornado.ioloop.IOLoop.instance()
-
-    # Must be set before calling startClient().
-    def setKeepAliveMgr(self, keepAliveMgr):
-        if self.__keepAliveMgr is not None:
-            raise Exception("KeepAliveMgr already set")
-        self.__keepAliveMgr = keepAliveMgr
-
-    def received_message(self, message):
-        try:
-            msg = json.loads(message.data)
-
-            if self.__keepAliveMgr is not None:
-                self.__keepAliveMgr.setAlive()
-                if self.__keepAliveMgr.handleResponse(msg):
-                    return
-
-            self.onMessage(msg)
-        except Exception as e:
-            self.onUnhandledException(e)
-
-    def opened(self):
+    def _on_opened(self):
         self.__connected = True
-        if self.__keepAliveMgr is not None:
-            self.__keepAliveMgr.start()
-            self.__keepAliveMgr.setAlive()
         self.onOpened()
 
-    def closed(self, code, reason=None):
-        wasConnected = self.__connected
-        self.__connected = False
-        if self.__keepAliveMgr:
-            self.__keepAliveMgr.stop()
-            self.__keepAliveMgr = None
-        tornado.ioloop.IOLoop.instance().stop()
-
-        if wasConnected:
+    def _on_closed(self, code, reason):
+        if self.__connected:
+            self.__connected = False
             self.onClosed(code, reason)
+
+    def setInitialized(self):
+        assert self.isConnected()
+        self.__initialized.set()
+
+    def waitInitialized(self, timeout):
+        return self.__initialized.wait(timeout)
 
     def isConnected(self):
         return self.__connected
 
     def startClient(self):
-        tornado.ioloop.IOLoop.instance().start()
+        self.run_forever(ping_interval=self.__ping_interval, ping_timeout=self.__ping_timeout)
 
     def stopClient(self):
         try:
             if self.__connected:
                 self.close()
-            self.close_connection()
         except Exception as e:
-            logger.warning("Failed to close connection: %s" % (e))
+            logger.error("Failed to close connection: %s" % e)
 
     ######################################################################
     # Overrides
-
-    def onUnhandledException(self, exception):
-        logger.critical("Unhandled exception", exc_info=exception)
-        raise
 
     def onOpened(self):
         pass
@@ -188,48 +86,41 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
     def onDisconnectionDetected(self):
         pass
 
+    def onError(self, exception):
+        pass
+
 
 # Base clase for threads that will run a WebSocketClientBase instances.
-# Subclasses should call super(WebSocketClientThread, self).run() insinde run.
-# Check https://github.com/tornadoweb/tornado/issues/2308
 class WebSocketClientThreadBase(threading.Thread):
-    def __init__(self, wsCls):
+    def __init__(self, wsCls, *args, **kwargs):
         super(WebSocketClientThreadBase, self).__init__()
         self.__queue = queue.Queue()
         self.__wsClient = None
         self.__wsCls = wsCls
-        self.__runEvent = threading.Event()
+        self.__args = args
+        self.__kwargs = kwargs
 
     def getQueue(self):
         return self.__queue
 
-    def waitRunning(self, timeout):
-        return self.__runEvent.wait(timeout)
-
-    def isConnected(self):
-        return self.__wsClient is not None and self.__wsClient.isConnected()
+    def waitInitialized(self, timeout):
+        return self.__wsClient is not None and self.__wsClient.waitInitialized(timeout)
 
     def run(self):
-        self.__runEvent.set()
-
-        if six.PY3:
-            asyncio.set_event_loop_policy(tornado.platform.asyncio.AnyThreadEventLoopPolicy())
-
         # We create the WebSocketClient right in the thread, instead of doing so in the constructor,
         # because it has thread affinity.
         try:
-            self.__wsClient = self.__wsCls(self.__queue)
-            logger.info("Connecting websocket client.")
-            self.__wsClient.connect()
-            logger.info("Running websocket client.")
+            self.__wsClient = self.__wsCls(self.__queue, *self.__args, **self.__kwargs)
+            logger.debug("Running websocket client")
             self.__wsClient.startClient()
-        except Exception:
-            logger.exception("Failed to connect: %s")
+        except Exception as e:
+            logger.exception("Unhandled exception %s" % e)
+            self.__wsClient.stopClient()
 
     def stop(self):
         try:
             if self.__wsClient is not None:
-                logger.info("Stopping websocket client.")
+                logger.debug("Stopping websocket client")
                 self.__wsClient.stopClient()
         except Exception as e:
-            logger.error("Error stopping websocket client: %s." % (str(e)))
+            logger.error("Error stopping websocket client: %s" % e)
