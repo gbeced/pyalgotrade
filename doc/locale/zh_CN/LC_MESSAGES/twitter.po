@@ -1,0 +1,44 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 15:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../twitter.rst:2
+msgid "Twitter support"
+msgstr "推特（Twitter）支持"
+
+#: ../../twitter.rst:4
+msgid ""
+"The twitter package adds support for receiving Twitter events in your "
+"strategy and incorporate those in your trading decisions. Note that since"
+" this is a realtime feed, it only makes sense in paper trading or real "
+"trading scenarios, but not in backtesting."
+msgstr "twitter 包支持在策略中接收推特事件并用于交易决策。"
+"由于是实时的数据源，只在模拟交易和实时交易中有意义，在回测中使用没有任何意义。"
+
+#: ../../twitter.rst:8
+msgid ""
+"Twitter support depends on **tweepy** (https://github.com/tweepy/tweepy) "
+"so be sure to have it installed before moving forward."
+msgstr "推特支持依赖 **tweepy** (https://github.com/tweepy/tweepy) 模块，"
+"因此在继续之前请确保安装了该包。"
+
+#: ../../twitter.rst:11
+msgid "Contents:"
+msgstr "目录："
+

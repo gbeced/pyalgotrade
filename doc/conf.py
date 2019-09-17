@@ -89,6 +89,9 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# -- sphinx-intl configuration -------------------------------------------------
+locale_dirs = ['locale/']
+gettext_compact = False
 
 # -- Options for HTML output ---------------------------------------------------
 

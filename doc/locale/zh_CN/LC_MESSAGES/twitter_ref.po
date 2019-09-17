@@ -1,0 +1,103 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
+"PO-Revision-Date: 2016-09-17 15:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../twitter_ref.rst:2
+msgid "twitter -- Twitter feed reference"
+msgstr "twitter—— 推特数据源参考手册"
+
+#: ../../twitter_ref.rst:5
+msgid "Feed"
+msgstr "数据源"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:1
+#, fuzzy
+msgid "Bases: :class:`pyalgotrade.observer.Subject`"
+msgstr "基类：:class:`pyalgotrade.observer.Subject`"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:1
+msgid ""
+"Class responsible for connecting to Twitter's public stream API and "
+"dispatching events. Check https://dev.twitter.com/docs/streaming-"
+"apis/streams/public for more information."
+msgstr ""
+"此类负责连接推特的开放流 API （public stream API）并分发事件。访问 https://dev.twitter.com/docs"
+"/streaming-apis/streams/public 获取更多信息。"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed
+msgid "Parameters"
+msgstr ""
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:4
+msgid "Consumer key."
+msgstr "Consumer key."
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:6
+msgid "Consumer secret."
+msgstr "Consumer secret."
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:8
+msgid "Access token."
+msgstr "Access token."
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:10
+msgid "Access token secret."
+msgstr "Access token secret."
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:12
+msgid ""
+"A list of phrases which will be used to determine what Tweets will be "
+"delivered on the stream. A phrase may be one or more terms separated by "
+"spaces, and a phrase will match if all of the terms in the phrase are "
+"present in the Tweet, regardless of order and ignoring case."
+msgstr "用于决定推送哪些推特事件的条件（phrase）列表。一个条件可以是空格分割的一或多个条款，如果该条件中所有的条款（忽略大小写及顺序）在该条推特上都有呈现，则符合此条件。"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:16
+msgid ""
+"A list of user IDs, indicating the users whose Tweets should be delivered"
+" on the stream. Following protected users is not supported."
+msgstr "用户ID 列表，用于监控推特上哪些用户的消息流，Following protected users is not supported."
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:19
+msgid "A list of language IDs a defined in http://tools.ietf.org/html/bcp47."
+msgstr "http://tools.ietf.org/html/bcp47 所定义的语言ID列表。"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:23
+msgid ""
+"Go to http://dev.twitter.com and create an app. The consumer key and "
+"secret will be generated for you after that."
+msgstr "访问 http://dev.twitter.com 并创建一个应用会创建需要的 consumer key 和 consumer secret。"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:24
+msgid "Create an access token under the \"Your access token\" section."
+msgstr "在 \"Your access token\" 菜单创建access token。"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed:25
+msgid "At least **track** or **follow** have to be set."
+msgstr "必须传递 **track** 或 **follow** 。"
+
+#: of pyalgotrade.twitter.feed.TwitterFeed.subscribe:1
+msgid ""
+"Subscribe to Twitter events. The event handler will receive a dictionary "
+"with the data as defined in: https://dev.twitter.com/docs/streaming-"
+"apis/messages#Public_stream_messages."
+msgstr ""
+"订阅推特事件，事件处理器会收到 https://dev.twitter.com/docs/streaming-"
+"apis/messages#Public_stream_messages 中所定义数据格式的字典。"
+

@@ -1,0 +1,79 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-13 15:35+0800\n"
+"PO-Revision-Date: 2016-09-17 20:35+0800\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: msgroup <https://github.com/msgroup>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../../sample_rsi2.rst:2
+msgid "RSI2"
+msgstr "RSI2"
+
+#: ../../sample_rsi2.rst:4
+msgid ""
+"This example is based on a strategy known as RSI2 "
+"(http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2)"
+" which requires the following parameters:"
+msgstr "本示例基于著名的 RSI2 策略（"
+"(http://stockcharts.com/school/doku.php?id=chart_school:trading_strategies:rsi2)"
+"），该策略需要如下参数：（翻译不甚准确，请对照代码及原文档理解）"
+
+#: ../../sample_rsi2.rst:7
+msgid "An SMA period for trend identification. We’ll call this entrySMA."
+msgstr "一个用于入场段趋势判断的SMA区间，我们称其为 entrySMA。"
+
+#: ../../sample_rsi2.rst:8
+msgid "A smaller SMA period for the exit point. We’ll call this exitSMA."
+msgstr "一个小一些的 SMA 区间作为退出点。我们称其为 exitSMA。"
+
+#: ../../sample_rsi2.rst:9
+msgid ""
+"An RSI period for entering both short/long positions. We’ll call this "
+"rsiPeriod."
+msgstr "一个用于判断进入长短线买卖点的RSI区间，我们称其为 rsiPeriod。"
+
+#: ../../sample_rsi2.rst:10
+msgid ""
+"An RSI oversold threshold for long position entry. We’ll call this "
+"overSoldThreshold."
+msgstr "一个用于买单的RSI阈值，我们称其为 overSoldThreshold，其范围5-25。"
+
+#: ../../sample_rsi2.rst:11
+msgid ""
+"An RSI overbought threshold for short position entry. We’ll call this "
+"overBoughtThreshold."
+msgstr "一个用于卖单的RSI阈值，我们称其为 overBoughtThreshold，其范围75-95。"
+
+#: ../../sample_rsi2.rst:13
+msgid "Save this code as rsi2.py:"
+msgstr "将如下代码保存为 rsi2.py："
+
+#: ../../sample_rsi2.rst:17
+msgid "and use the following code to execute the strategy:"
+msgstr "使用如下代码执行这个策略："
+
+#: ../../sample_rsi2.rst:21
+msgid "This is what the output should look like:"
+msgstr "输出如下所示："
+
+#: ../../sample_rsi2.rst:25
+msgid "and this is what the plot should look like:"
+msgstr "结果绘图如下："
+
+#: ../../sample_rsi2.rst:29
+msgid "You can get better returns by tunning the different parameters."
+msgstr "通过调节不同的参数你可以获得更好的结果。"
+

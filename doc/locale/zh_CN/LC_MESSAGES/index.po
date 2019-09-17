@@ -1,0 +1,43 @@
+# PyAlgoTrade 文档中文翻译
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# qytz <hhhhhf@foxmail.com>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: qytz <hhhhhf@foxmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../index.rst:7
+msgid "PyAlgoTrade documentation"
+msgstr "PyAlgoTrade 中文文档"
+
+#: ../../index.rst:9
+msgid "Contents:"
+msgstr "目录"
+
+#: ../../index.rst:26
+msgid "Indices and tables"
+msgstr "Indices and tables"
+
+#: ../../index.rst:28
+msgid ":ref:`genindex`"
+msgstr ""
+
+#: ../../index.rst:29
+msgid ":ref:`modindex`"
+msgstr ""
+
+#: ../../index.rst:30
+msgid ":ref:`search`"
+msgstr ""

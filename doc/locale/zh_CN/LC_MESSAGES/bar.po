@@ -1,0 +1,158 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../bar.rst:2
+msgid "bar -- Instrument prices"
+msgstr "bar -- 股票交易价格序列"
+
+#: of pyalgotrade.bar.Bar:1 pyalgotrade.bar.Bars:1 pyalgotrade.bar.Frequency:1
+msgid "Bases: :class:`object`"
+msgstr ""
+
+#: of pyalgotrade.bar.Frequency:1
+msgid "Enum like class for bar frequencies. Valid values are:"
+msgstr "bar数据频率的枚举类，合法的类型有："
+
+#: of pyalgotrade.bar.Frequency:3
+msgid "**Frequency.TRADE**: The bar represents a single trade."
+msgstr "**Frequency.TRADE**: 一个bar代表单次交易。"
+
+#: of pyalgotrade.bar.Frequency:4
+msgid ""
+"**Frequency.SECOND**: The bar summarizes the trading activity during 1 "
+"second."
+msgstr "**Frequency.SECOND**: 一个bar代表1秒内发生的交易的统计。"
+
+#: of pyalgotrade.bar.Frequency:5
+msgid ""
+"**Frequency.MINUTE**: The bar summarizes the trading activity during 1 "
+"minute."
+msgstr "**Frequency.SECOND**: 一个bar代表1分钟内发生的交易的统计。"
+
+#: of pyalgotrade.bar.Frequency:6
+msgid "**Frequency.HOUR**: The bar summarizes the trading activity during 1 hour."
+msgstr "**Frequency.SECOND**: 一个bar代表1小时内发生的交易的统计。"
+
+#: of pyalgotrade.bar.Frequency:7
+msgid "**Frequency.DAY**: The bar summarizes the trading activity during 1 day."
+msgstr "**Frequency.SECOND**: 一个bar代表1天内发生的交易的统计。"
+
+#: of pyalgotrade.bar.Frequency:8
+msgid "**Frequency.WEEK**: The bar summarizes the trading activity during 1 week."
+msgstr "**Frequency.SECOND**: 一个bar代表1周内发生的交易的统计。"
+
+#: of pyalgotrade.bar.Frequency:9
+msgid ""
+"**Frequency.MONTH**: The bar summarizes the trading activity during 1 "
+"month."
+msgstr "**Frequency.SECOND**: 一个bar代表1个月内发生的交易的统计。"
+
+#: of pyalgotrade.bar.Bar:1
+msgid ""
+"A Bar is a summary of the trading activity for a security in a given "
+"period."
+msgstr "**Frequency.SECOND**: 一个bar代表一只股票在给定周期内的交易的统计。"
+
+#: of pyalgotrade.bar.Bar:4
+msgid "This is a base class and should not be used directly."
+msgstr "基类，不能直接使用。"
+
+#: of pyalgotrade.bar.Bar.getDateTime:1
+msgid "Returns the :class:`datetime.datetime`."
+msgstr ""
+
+#: of pyalgotrade.bar.Bar.getOpen:1
+msgid "Returns the opening price."
+msgstr "返回bar开价。"
+
+#: of pyalgotrade.bar.Bar.getHigh:1
+msgid "Returns the highest price."
+msgstr "返回最高价。"
+
+#: of pyalgotrade.bar.Bar.getLow:1
+msgid "Returns the lowest price."
+msgstr "返回最低价。"
+
+#: of pyalgotrade.bar.Bar.getClose:1
+msgid "Returns the closing price."
+msgstr "返回bar收价。"
+
+#: of pyalgotrade.bar.Bar.getVolume:1
+msgid "Returns the volume."
+msgstr "返回成交量。"
+
+#: of pyalgotrade.bar.Bar.getAdjClose:1
+msgid "Returns the adjusted closing price."
+msgstr ""
+
+#: of pyalgotrade.bar.Bar.getFrequency:1
+msgid "The bar's period."
+msgstr "bar的周期"
+
+#: of pyalgotrade.bar.Bar.getTypicalPrice:1
+msgid "Returns the typical price."
+msgstr ""
+
+#: of pyalgotrade.bar.Bar.getPrice:1
+msgid "Returns the closing or adjusted closing price."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars:1
+msgid "A group of :class:`Bar` objects."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars
+msgid "Parameters"
+msgstr ""
+
+#: of pyalgotrade.bar.Bars:3
+msgid "A map of instrument to :class:`Bar` objects."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars:7
+msgid "All bars must have the same datetime."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars.__getitem__:1
+msgid ""
+"Returns the :class:`pyalgotrade.bar.Bar` for the given instrument. If the"
+" instrument is not found an exception is raised."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars.__contains__:1
+msgid ""
+"Returns True if a :class:`pyalgotrade.bar.Bar` for the given instrument "
+"is available."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars.getInstruments:1
+msgid "Returns the instrument symbols."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars.getDateTime:1
+msgid "Returns the :class:`datetime.datetime` for this set of bars."
+msgstr ""
+
+#: of pyalgotrade.bar.Bars.getBar:1
+msgid ""
+"Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None"
+" if the instrument is not found."
+msgstr ""
+

@@ -1,0 +1,302 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2014, Gabriel Martín Becedillas Ruiz
+# This file is distributed under the same license as the PyAlgoTrade
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyAlgoTrade 0.18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-16 17:19+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../barfeed.rst:4
+msgid "barfeed -- Bar providers"
+msgstr "barfeed -- Bar 数据源"
+
+#: of pyalgotrade.barfeed.BaseBarFeed:1
+msgid "Bases: :class:`pyalgotrade.feed.BaseFeed`"
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed:1
+msgid "Base class for :class:`pyalgotrade.bar.Bar` providing feeds."
+msgstr ":class:`pyalgotrade.bar.Bar` 的基类，提供数据源(feeds)"
+
+#: of pyalgotrade.barfeed.BaseBarFeed
+#: pyalgotrade.barfeed.BaseBarFeed.getDataSeries
+#: pyalgotrade.barfeed.csvfeed.GenericBarFeed
+#: pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV
+#: pyalgotrade.barfeed.googlefeed.Feed
+#: pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV
+#: pyalgotrade.barfeed.quandlfeed.Feed pyalgotrade.barfeed.yahoofeed.Feed
+#: pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV
+msgid "Parameters"
+msgstr "参数"
+
+#: of pyalgotrade.barfeed.BaseBarFeed:3
+msgid ""
+"The bars frequency. Valid values defined in "
+":class:`pyalgotrade.bar.Frequency`."
+msgstr "bars 频率，合法的频率参 :class:`pyalgotrade.bar.Frequency`."
+
+#: of pyalgotrade.barfeed.BaseBarFeed:4
+#: pyalgotrade.barfeed.csvfeed.GenericBarFeed:10
+#: pyalgotrade.barfeed.googlefeed.Feed:6
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed:7
+#: pyalgotrade.barfeed.quandlfeed.Feed:7 pyalgotrade.barfeed.yahoofeed.Feed:7
+msgid ""
+"The maximum number of values that the "
+":class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold. Once a "
+"bounded length is full, when new items are added, a corresponding number "
+"of items are discarded from the opposite end. If None then "
+"dataseries.DEFAULT_MAX_LEN is used."
+msgstr ""
+":class:`pyalgotrade.dataseries.bards.BarDataSeries` 保存的最大条目数。一旦"
+"达到最大条目数，添加新的条目后，同等数量的最旧的条目将会被删除。如果为 None "
+"则使用 dataseries.DEFAULT_MAX_LEN is used."
+
+#: of pyalgotrade.barfeed.BaseBarFeed:10 pyalgotrade.barfeed.csvfeed.BarFeed:4
+msgid "This is a base class and should not be used directly."
+msgstr "基类，不能直接使用"
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getNextBars:1
+msgid ""
+"Override to return the next :class:`pyalgotrade.bar.Bars` in the feed or "
+"None if there are no bars."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getNextBars:4
+msgid "This is for BaseBarFeed subclasses and it should not be called directly."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getCurrentBars:1
+msgid "Returns the current :class:`pyalgotrade.bar.Bars`."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getLastBar:1
+msgid ""
+"Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or "
+"None."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getDefaultInstrument:1
+msgid "Returns the last instrument registered."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getRegisteredInstruments:1
+msgid "Returns a list of registered intstrument names."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getDataSeries:1
+msgid ""
+"Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a "
+"given instrument."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getDataSeries:3
+msgid "Instrument identifier. If None, the default instrument is returned."
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getDataSeries
+msgid "Return type"
+msgstr ""
+
+#: of pyalgotrade.barfeed.BaseBarFeed.getDataSeries:5
+msgid ":class:`pyalgotrade.dataseries.bards.BarDataSeries`."
+msgstr ""
+
+#: ../../barfeed.rst:14
+msgid "CSV"
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.BarFeed:1
+msgid "Bases: :class:`pyalgotrade.barfeed.membf.BarFeed`"
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.BarFeed:1
+msgid "Base class for CSV file based :class:`pyalgotrade.barfeed.BarFeed`."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:1
+#: pyalgotrade.barfeed.googlefeed.Feed:1
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed:1
+#: pyalgotrade.barfeed.yahoofeed.Feed:1
+msgid "Bases: :class:`pyalgotrade.barfeed.csvfeed.BarFeed`"
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:1
+msgid ""
+"A BarFeed that loads bars from CSV files that have the following format: "
+"::"
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:7
+msgid "The frequency of the bars. Check :class:`pyalgotrade.bar.Frequency`."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:8
+#: pyalgotrade.barfeed.googlefeed.Feed:4
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed:5
+#: pyalgotrade.barfeed.quandlfeed.Feed:5 pyalgotrade.barfeed.yahoofeed.Feed:5
+msgid ""
+"The default timezone to use to localize bars. Check "
+":mod:`pyalgotrade.marketsession`."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:16
+msgid "The CSV file **must** have the column names in the first row."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:17
+msgid "It is ok if the **Adj Close** column is empty."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:18
+#: pyalgotrade.barfeed.quandlfeed.Feed:13
+msgid "When working with multiple instruments:"
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:20
+#: pyalgotrade.barfeed.googlefeed.Feed:15
+#: pyalgotrade.barfeed.quandlfeed.Feed:15 pyalgotrade.barfeed.yahoofeed.Feed:16
+msgid ""
+"If all the instruments loaded are in the same timezone, then the timezone"
+" parameter may not be specified."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed:21
+msgid ""
+"If any of the instruments loaded are in different timezones, then the "
+"timezone parameter should be set."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV:1
+#: pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV:1
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV:1
+#: pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV:1
+msgid ""
+"Loads bars for a given instrument from a CSV formatted file. The "
+"instrument gets registered in the bar feed."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV:4
+#: pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV:4
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV:4
+#: pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV:4
+msgid "Instrument identifier."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV:6
+#: pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV:6
+#: pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV:6
+msgid "The path to the CSV file."
+msgstr ""
+
+#: of pyalgotrade.barfeed.csvfeed.GenericBarFeed.addBarsFromCSV:8
+#: pyalgotrade.barfeed.googlefeed.Feed.addBarsFromCSV:8
+#: pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV:8
+#: pyalgotrade.barfeed.yahoofeed.Feed.addBarsFromCSV:8
+msgid ""
+"The timezone to use to localize bars. Check "
+":mod:`pyalgotrade.marketsession`."
+msgstr ""
+
+#: ../../barfeed.rst:20
+msgid "Yahoo! Finance"
+msgstr ""
+
+#: of pyalgotrade.barfeed.yahoofeed.Feed:1
+msgid ""
+"A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV "
+"files downloaded from Yahoo! Finance."
+msgstr ""
+
+#: of pyalgotrade.barfeed.quandlfeed.Feed:3
+#: pyalgotrade.barfeed.yahoofeed.Feed:3
+msgid ""
+"The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** or "
+"**pyalgotrade.bar.Frequency.WEEK** are supported."
+msgstr ""
+
+#: of pyalgotrade.barfeed.yahoofeed.Feed:13
+msgid ""
+"Yahoo! Finance csv files lack timezone information. When working with "
+"multiple instruments:"
+msgstr ""
+
+#: of pyalgotrade.barfeed.googlefeed.Feed:16
+#: pyalgotrade.barfeed.quandlfeed.Feed:16 pyalgotrade.barfeed.yahoofeed.Feed:17
+msgid ""
+"If any of the instruments loaded are in different timezones, then the "
+"timezone parameter must be set."
+msgstr ""
+
+#: ../../barfeed.rst:26
+msgid "Google Finance"
+msgstr ""
+
+#: of pyalgotrade.barfeed.googlefeed.Feed:1
+msgid ""
+"A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV "
+"files downloaded from Google Finance."
+msgstr ""
+
+#: of pyalgotrade.barfeed.googlefeed.Feed:3
+msgid ""
+"The frequency of the bars. Only **pyalgotrade.bar.Frequency.DAY** is "
+"currently supported."
+msgstr ""
+
+#: of pyalgotrade.barfeed.googlefeed.Feed:12
+msgid ""
+"Google Finance csv files lack timezone information. When working with "
+"multiple instruments:"
+msgstr ""
+
+#: ../../barfeed.rst:32
+msgid "Quandl"
+msgstr ""
+
+#: of pyalgotrade.barfeed.quandlfeed.Feed:1
+msgid "Bases: :class:`pyalgotrade.barfeed.csvfeed.GenericBarFeed`"
+msgstr ""
+
+#: of pyalgotrade.barfeed.quandlfeed.Feed:1
+msgid ""
+"A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV "
+"files downloaded from Quandl."
+msgstr ":class:`pyalgotrade.barfeed.csvfeed.BarFeed` 从 Quandl 下载的 CSV "
+"文件中加载 bars 数据。"
+
+#: ../../barfeed.rst:38
+msgid "Ninja Trader"
+msgstr ""
+
+#: of pyalgotrade.barfeed.ninjatraderfeed.Feed:1
+msgid ""
+"A :class:`pyalgotrade.barfeed.csvfeed.BarFeed` that loads bars from CSV "
+"files exported from NinjaTrader."
+msgstr ":class:`pyalgotrade.barfeed.csvfeed.BarFeed` ，从 NinjaTrade "
+"导出的 CSV 文件中加载 bars 数据。"
+
+#: of pyalgotrade.barfeed.ninjatraderfeed.Feed:3
+msgid ""
+"The frequency of the bars. Only **pyalgotrade.bar.Frequency.MINUTE** or "
+"**pyalgotrade.bar.Frequency.DAY** are supported."
+msgstr "bars 的频率，只支持 **pyalgotrade.bar.Frequency.MINUTE** 或 "
+"**pyalgotrade.bar.Frequency.DAY**"
+
+#: of pyalgotrade.barfeed.ninjatraderfeed.Feed.addBarsFromCSV:6
+msgid "The path to the file."
+msgstr "文件的路径"
+
