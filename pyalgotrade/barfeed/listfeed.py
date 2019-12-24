@@ -15,7 +15,7 @@
 # limitations under the License.
 
 """
-.. moduleauthor:: Alex McFarlane <alexander.mcfarlane@physics.org>
+.. moduleauthor:: Alex McFarlane <alexander.mcfarlane@physics.org>, Tyler Kontra <tyler@tylerkontra.com>
 """
 
 from pyalgotrade.utils import dt
@@ -24,29 +24,10 @@ from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import bar
 
 import datetime
-import pytz
-
-
-# Interface for csv row parsers.
-class RowParser(object):
-    def parseBar(self, csvRowDict):
-        raise NotImplementedError()
-
-    def getFieldNames(self):
-        raise NotImplementedError()
-
-    def getDelimiter(self):
-        raise NotImplementedError()
-
-
-# Interface for bar filters.
-class BarFilter(object):
-    def includeBar(self, bar_):
-        raise NotImplementedError()
 
 
 class BarFeed(membf.BarFeed):
-    """Base class for CSV file based :class:`pyalgotrade.barfeed.BarFeed`.
+    """Base class for Iterable[Dict] based :class:`pyalgotrade.barfeed.BarFeed`.
 
     .. note::
         This is a base class and should not be used directly.
@@ -78,12 +59,6 @@ class BarFeed(membf.BarFeed):
             loadedBars
         )
         self.addBarsFromSequence(instrument, loadedBars)
-
-    def _addBarsFromDataFrame(self, instrument, df, rowParser):
-        # Load the DataFrame
-        # replicate FastDictReader & reduce to required columns
-        list_of_dicts = df.fillna('').astype(str).to_dict('records')
-        self._addBarsFromListofDicts(instrument, list_of_dicts, rowParser)
 
 
 class Feed(BarFeed):
@@ -155,46 +130,7 @@ class Feed(BarFeed):
 
     def setBarClass(self, barClass):
         self.__barClass = barClass
-
-    def addBarsFromDataFrame(self, instrument, df, timezone=None):
-        """Loads bars for a given instrument from a Pandas DataFrame.
-        The instrument gets registered in the bar feed.
-
-        :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param df: The pandas DataFrame
-        :type df: pd.DataFrame
-        :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
-        :type timezone: A pytz timezone.
-        """
-
-        if timezone is None:
-            timezone = self.__timezone
-
-        rowParser = csvfeed.GenericRowParser(
-            self.__columnNames,
-            self.__dateTimeFormat,
-            self.getDailyBarTime(),
-            self.getFrequency(),
-            timezone,
-            self.__barClass
-        )
-
-        missing_columns = [
-            col for col in self.__columnNames.values()
-            if col not in df.columns
-        ]
-        if missing_columns:
-            raise ValueError('Missing required columns: {}'.format(repr(missing_columns)))
-
-        df = df[self.__columnNames.values()]
-        super(Feed, self)._addBarsFromDataFrame(instrument, df, rowParser)
-
-        if rowParser.barsHaveAdjClose():
-            self.__haveAdjClose = True
-        elif self.__haveAdjClose:
-            raise Exception("Previous bars had adjusted close and these ones don't have.")
-
+        
     def addBarsFromListofDicts(self, instrument, list_of_dicts, timezone=None):
         """Loads bars for a given instrument from a list of dictionaries.
         The instrument gets registered in the bar feed.
