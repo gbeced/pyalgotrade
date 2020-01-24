@@ -49,11 +49,35 @@ class Frequency(object):
 @six.add_metaclass(abc.ABCMeta)
 class Bar(object):
 
-    """A Bar is a summary of the trading activity for a security in a given period.
+    """A Bar is a summary of the trading activity in a given period.
 
     .. note::
         This is a base class and should not be used directly.
     """
+
+    @abc.abstractmethod
+    def getDateTime(self):
+        """Returns the :class:`datetime.datetime`."""
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def getFrequency(self):
+        """The bar's period."""
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def getInstrument(self):
+        """
+        Returns the instrument.
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def getPriceCurrency(self):
+        """
+        Returns the price currency.
+        """
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def setUseAdjustedValue(self, useAdjusted):
@@ -61,11 +85,7 @@ class Bar(object):
 
     @abc.abstractmethod
     def getUseAdjValue(self):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def getDateTime(self):
-        """Returns the :class:`datetime.datetime`."""
+        """Returns True if the adjusted close value will be returned when getPrice is called."""
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -98,11 +118,6 @@ class Bar(object):
         """Returns the adjusted closing price."""
         raise NotImplementedError()
 
-    @abc.abstractmethod
-    def getFrequency(self):
-        """The bar's period."""
-        raise NotImplementedError()
-
     def getTypicalPrice(self):
         """Returns the typical price."""
         return (self.getHigh() + self.getLow() + self.getClose()) / 3.0
@@ -119,6 +134,8 @@ class Bar(object):
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
     __slots__ = (
+        '__instrument',
+        '__priceCurrency',
         '__dateTime',
         '__open',
         '__close',
@@ -131,7 +148,9 @@ class BasicBar(Bar):
         '__extra',
     )
 
-    def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}):
+    def __init__(
+        self, instrument, priceCurrency, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}
+    ):
         if high < low:
             raise Exception("high < low on %s" % (dateTime))
         elif high < open_:
@@ -143,6 +162,8 @@ class BasicBar(Bar):
         elif low > close:
             raise Exception("low > close on %s" % (dateTime))
 
+        self.__instrument = instrument
+        self.__priceCurrency = priceCurrency
         self.__dateTime = dateTime
         self.__open = open_
         self.__close = close
@@ -155,7 +176,9 @@ class BasicBar(Bar):
         self.__extra = extra
 
     def __setstate__(self, state):
-        (self.__dateTime,
+        (self.__instrument,
+            self.__priceCurrency,
+            self.__dateTime,
             self.__open,
             self.__close,
             self.__high,
@@ -168,6 +191,8 @@ class BasicBar(Bar):
 
     def __getstate__(self):
         return (
+            self.__instrument,
+            self.__priceCurrency,
             self.__dateTime,
             self.__open,
             self.__close,
@@ -179,6 +204,12 @@ class BasicBar(Bar):
             self.__useAdjustedValue,
             self.__extra
         )
+
+    def getInstrument(self):
+        return self.__instrument
+
+    def getPriceCurrency(self):
+        return self.__priceCurrency
 
     def setUseAdjustedValue(self, useAdjusted):
         if useAdjusted and self.__adjClose is None:
@@ -244,51 +275,66 @@ class BasicBar(Bar):
 
 class Bars(object):
 
-    """A group of :class:`Bar` objects.
+    """
+    A group of :class:`Bar` objects with the same datetime.
 
-    :param barDict: A map of instrument to :class:`Bar` objects.
-    :type barDict: map.
+    :param bars: A list of :class:`Bar` objects.
+    :type bars: list.
 
     .. note::
         All bars must have the same datetime.
     """
 
-    def __init__(self, barDict):
-        if len(barDict) == 0:
+    def __init__(self, bars):
+        assert isinstance(bars, list), "Invalid type for bars. Must be a list"
+
+        if len(bars) == 0:
             raise Exception("No bars supplied")
+
+        # Maps instrument to currency to bars.
+        self.__barDict = {}
 
         # Check that bar datetimes are in sync
         firstDateTime = None
         firstInstrument = None
-        for instrument, currentBar in six.iteritems(barDict):
+        for currentBar in bars:
             if firstDateTime is None:
                 firstDateTime = currentBar.getDateTime()
-                firstInstrument = instrument
+                firstInstrument = currentBar.getInstrument()
             elif currentBar.getDateTime() != firstDateTime:
                 raise Exception("Bar data times are not in sync. %s %s != %s %s" % (
-                    instrument,
+                    currentBar.getInstrument(),
                     currentBar.getDateTime(),
                     firstInstrument,
                     firstDateTime
                 ))
 
-        self.__barDict = barDict
+            self.__barDict.setdefault(currentBar.getInstrument(), {})[currentBar.getPriceCurrency()] = currentBar
+
         self.__dateTime = firstDateTime
 
     def __getitem__(self, instrument):
-        """Returns the :class:`pyalgotrade.bar.Bar` for the given instrument.
-        If the instrument is not found an exception is raised."""
-        return self.__barDict[instrument]
+        """
+        Returns the :class:`pyalgotrade.bar.Bar` for the given instrument.
+        If the instrument is not found, or there are multiple bars for the same instrument, an exception is raised.
+        """
+
+        barsPerCurrency = self.__barDict[instrument]
+        if len(barsPerCurrency) > 1:
+            raise Exception("Multiple bars for %s" % instrument)
+        for v in barsPerCurrency.values():
+            return v
 
     def __contains__(self, instrument):
         """Returns True if a :class:`pyalgotrade.bar.Bar` for the given instrument is available."""
         return instrument in self.__barDict
 
-    def items(self):
-        return list(self.__barDict.items())
-
-    def keys(self):
-        return list(self.__barDict.keys())
+    def __iter__(self):
+        def bar_gen():
+            for per_instrument_dict in self.__barDict.values():
+                for bar in per_instrument_dict.values():
+                    yield bar
+        return bar_gen()
 
     def getInstruments(self):
         """Returns the instrument symbols."""
@@ -298,6 +344,8 @@ class Bars(object):
         """Returns the :class:`datetime.datetime` for this set of bars."""
         return self.__dateTime
 
-    def getBar(self, instrument):
-        """Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if the instrument is not found."""
-        return self.__barDict.get(instrument, None)
+    def getBar(self, instrument, priceCurrency):
+        """
+        Returns the :class:`pyalgotrade.bar.Bar` for the given instrument and price currency or None if it is not found.
+        """
+        return self.__barDict.get(instrument, {}).get(priceCurrency)
