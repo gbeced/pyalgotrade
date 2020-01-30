@@ -34,24 +34,24 @@ class BarDataSeries(dataseries.SequenceDataSeries):
 
     def __init__(self, maxLen=None):
         super(BarDataSeries, self).__init__(maxLen)
-        self.__openDS = dataseries.SequenceDataSeries(maxLen)
-        self.__closeDS = dataseries.SequenceDataSeries(maxLen)
-        self.__highDS = dataseries.SequenceDataSeries(maxLen)
-        self.__lowDS = dataseries.SequenceDataSeries(maxLen)
-        self.__volumeDS = dataseries.SequenceDataSeries(maxLen)
-        self.__adjCloseDS = dataseries.SequenceDataSeries(maxLen)
-        self.__extraDS = {}
-        self.__useAdjustedValues = False
+        self._openDS = dataseries.SequenceDataSeries(maxLen)
+        self._closeDS = dataseries.SequenceDataSeries(maxLen)
+        self._highDS = dataseries.SequenceDataSeries(maxLen)
+        self._lowDS = dataseries.SequenceDataSeries(maxLen)
+        self._volumeDS = dataseries.SequenceDataSeries(maxLen)
+        self._adjCloseDS = dataseries.SequenceDataSeries(maxLen)
+        self._extraDS = {}
+        self._useAdjustedValues = False
 
-    def __getOrCreateExtraDS(self, name):
-        ret = self.__extraDS.get(name)
+    def _getOrCreateExtraDS(self, name):
+        ret = self._extraDS.get(name)
         if ret is None:
             ret = dataseries.SequenceDataSeries(self.getMaxLen())
-            self.__extraDS[name] = ret
+            self._extraDS[name] = ret
         return ret
 
     def setUseAdjustedValues(self, useAdjusted):
-        self.__useAdjustedValues = useAdjusted
+        self._useAdjustedValues = useAdjusted
 
     def append(self, bar):
         self.appendWithDateTime(bar.getDateTime(), bar)
@@ -59,53 +59,53 @@ class BarDataSeries(dataseries.SequenceDataSeries):
     def appendWithDateTime(self, dateTime, bar):
         assert(dateTime is not None)
         assert(bar is not None)
-        bar.setUseAdjustedValue(self.__useAdjustedValues)
+        bar.setUseAdjustedValue(self._useAdjustedValues)
 
         super(BarDataSeries, self).appendWithDateTime(dateTime, bar)
 
-        self.__openDS.appendWithDateTime(dateTime, bar.getOpen())
-        self.__closeDS.appendWithDateTime(dateTime, bar.getClose())
-        self.__highDS.appendWithDateTime(dateTime, bar.getHigh())
-        self.__lowDS.appendWithDateTime(dateTime, bar.getLow())
-        self.__volumeDS.appendWithDateTime(dateTime, bar.getVolume())
-        self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
+        self._openDS.appendWithDateTime(dateTime, bar.getOpen())
+        self._closeDS.appendWithDateTime(dateTime, bar.getClose())
+        self._highDS.appendWithDateTime(dateTime, bar.getHigh())
+        self._lowDS.appendWithDateTime(dateTime, bar.getLow())
+        self._volumeDS.appendWithDateTime(dateTime, bar.getVolume())
+        self._adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 
         # Process extra columns.
         for name, value in six.iteritems(bar.getExtraColumns()):
-            extraDS = self.__getOrCreateExtraDS(name)
+            extraDS = self._getOrCreateExtraDS(name)
             extraDS.appendWithDateTime(dateTime, value)
 
     def getOpenDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the open prices."""
-        return self.__openDS
+        return self._openDS
 
     def getCloseDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the close prices."""
-        return self.__closeDS
+        return self._closeDS
 
     def getHighDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the high prices."""
-        return self.__highDS
+        return self._highDS
 
     def getLowDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the low prices."""
-        return self.__lowDS
+        return self._lowDS
 
     def getVolumeDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the volume."""
-        return self.__volumeDS
+        return self._volumeDS
 
     def getAdjCloseDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the adjusted close prices."""
-        return self.__adjCloseDS
+        return self._adjCloseDS
 
     def getPriceDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the close or adjusted close prices."""
-        if self.__useAdjustedValues:
-            return self.__adjCloseDS
+        if self._useAdjustedValues:
+            return self._adjCloseDS
         else:
-            return self.__closeDS
+            return self._closeDS
 
     def getExtraDataSeries(self, name):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` for an extra column."""
-        return self.__getOrCreateExtraDS(name)
+        return self._getOrCreateExtraDS(name)

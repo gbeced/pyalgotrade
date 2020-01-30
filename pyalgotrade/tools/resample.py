@@ -57,8 +57,8 @@ class CSVFileWriter(object):
 
 
 def resample_impl(barFeed, frequency, csvFile):
-    instruments = barFeed.getRegisteredInstruments()
-    if len(instruments) != 1:
+    ds = barFeed.getAllDataSeries()
+    if len(ds) != 1:
         raise Exception("Only barfeeds with 1 instrument can be resampled")
 
     csvWriter = CSVFileWriter(csvFile)
@@ -66,7 +66,7 @@ def resample_impl(barFeed, frequency, csvFile):
     def on_bar(ds, dateTime, value):
         csvWriter.writeBar(value)
 
-    insrumentDS = barFeed[instruments[0]]
+    insrumentDS = ds[0]
     resampledDS = resampled.ResampledBarDataSeries(insrumentDS, frequency)
     resampledDS.getNewValueEvent().subscribe(on_bar)
 

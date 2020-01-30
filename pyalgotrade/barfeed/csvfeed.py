@@ -31,6 +31,9 @@ from pyalgotrade import bar
 
 # Interface for csv row parsers.
 class RowParser(object):
+    def getInstrument(self):
+        raise NotImplementedError()
+
     def parseBar(self, csvRowDict):
         raise NotImplementedError()
 
@@ -114,7 +117,7 @@ class BarFeed(membf.BarFeed):
     def setBarFilter(self, barFilter):
         self.__barFilter = barFilter
 
-    def addBarsFromCSV(self, instrument, path, rowParser, skipMalformedBars=False):
+    def addBarsFromCSV(self, path, rowParser, skipMalformedBars=False):
         def parse_bar_skip_malformed(row):
             ret = None
             try:
@@ -138,11 +141,16 @@ class BarFeed(membf.BarFeed):
             if bar_ is not None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):
                 loadedBars.append(bar_)
 
-        self.addBarsFromSequence(instrument, loadedBars)
+        self.addBarsFromSequence(rowParser.getInstrument(), rowParser.getPriceCurrency(), loadedBars)
 
 
 class GenericRowParser(RowParser):
-    def __init__(self, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone, barClass=bar.BasicBar):
+    def __init__(
+            self, instrument, priceCurrency, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone,
+            barClass=bar.BasicBar
+    ):
+        self.__instrument = instrument
+        self.__priceCurrency = priceCurrency
         self.__dateTimeFormat = dateTimeFormat
         self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
@@ -168,6 +176,12 @@ class GenericRowParser(RowParser):
         if self.__timezone:
             ret = dt.localize(ret, self.__timezone)
         return ret
+
+    def getInstrument(self):
+        return self.__instrument
+
+    def getPriceCurrency(self):
+        return self.__priceCurrency
 
     def barsHaveAdjClose(self):
         return self.__haveAdjClose
@@ -200,7 +214,8 @@ class GenericRowParser(RowParser):
                 extra[k] = csvutils.float_or_string(v)
 
         return self.__barClass(
-            dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra
+            self.__instrument, self.__priceCurrency, dateTime, open_, high, low, close, volume, adjClose,
+            self.__frequency, extra=extra
         )
 
 
@@ -271,12 +286,14 @@ class GenericBarFeed(BarFeed):
     def setBarClass(self, barClass):
         self.__barClass = barClass
 
-    def addBarsFromCSV(self, instrument, path, timezone=None, skipMalformedBars=False):
+    def addBarsFromCSV(self, instrument, priceCurrency, path, timezone=None, skipMalformedBars=False):
         """Loads bars for a given instrument from a CSV formatted file.
         The instrument gets registered in the bar feed.
 
         :param instrument: Instrument identifier.
         :type instrument: string.
+        :param priceCurrency: The price currency.
+        :type priceCurrency: string.
         :param path: The path to the CSV file.
         :type path: string.
         :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
@@ -289,11 +306,11 @@ class GenericBarFeed(BarFeed):
             timezone = self.__timezone
 
         rowParser = GenericRowParser(
-            self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(),
-            timezone, self.__barClass
+            instrument, priceCurrency, self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(),
+            self.getFrequency(), timezone, self.__barClass
         )
 
-        super(GenericBarFeed, self).addBarsFromCSV(instrument, path, rowParser, skipMalformedBars=skipMalformedBars)
+        super(GenericBarFeed, self).addBarsFromCSV(path, rowParser, skipMalformedBars=skipMalformedBars)
 
         if rowParser.barsHaveAdjClose():
             self.__haveAdjClose = True

@@ -21,7 +21,6 @@
 import datetime
 
 from six.moves import cPickle
-import pytest
 
 from . import common
 
@@ -106,29 +105,22 @@ class BarsTestCase(common.TestCase):
         b2 = bar.BasicBar("b", PRICE_CURRENCY, dt, 2, 2, 2, 2, 10, 2, bar.Frequency.DAY)
         bars = bar.Bars([b1, b2])
 
-        self.assertEqual(bars["a"].getClose(), 1)
-        self.assertEqual(bars["b"].getClose(), 2)
-        self.assertTrue("a" in bars)
-        self.assertEqual(bars.getInstruments(), ["a", "b"])
+        self.assertEqual(bars["a/%s"%PRICE_CURRENCY].getClose(), 1)
+        self.assertEqual(bars["b/%s"%PRICE_CURRENCY].getClose(), 2)
+        self.assertTrue("a/%s"%PRICE_CURRENCY in bars)
+        self.assertEqual(bars.getPairs(), ["a/%s"%PRICE_CURRENCY, "b/%s"%PRICE_CURRENCY])
         self.assertEqual(bars.getDateTime(), dt)
         self.assertEqual(bars.getBar("a", PRICE_CURRENCY).getClose(), 1)
 
         with self.assertRaises(KeyError):
-            bars["c"]
+            bars["c/%s"%PRICE_CURRENCY]
 
     def testDuplicateInstruments(self):
         dt = datetime.datetime.now()
         b1 = bar.BasicBar("a", "USD", dt, 1, 1, 1, 1, 10, 1, bar.Frequency.DAY)
-        b2 = bar.BasicBar("a", "EUR", dt, 2, 2, 2, 2, 10, 2, bar.Frequency.DAY)
-        b3 = bar.BasicBar("b", "USD", dt, 2, 2, 2, 2, 10, 2, bar.Frequency.DAY)
-        bars = bar.Bars([b1, b2, b3])
-
-        bars["b"]
-        with pytest.raises(Exception):
-            bars["a"]
-        assert bars.getBar("a", "USD") == b1
-        assert bars.getBar("a", "EUR") == b2
-        assert bars.getBar("b", "USD") == b3
+        b2 = bar.BasicBar("a", "USD", dt, 2, 2, 2, 2, 10, 2, bar.Frequency.DAY)
+        with self.assertRaisesRegexp(Exception, "Duplicate bars"):
+            bar.Bars([b1, b2])
 
     def testIter(self):
         dt = datetime.datetime.now()

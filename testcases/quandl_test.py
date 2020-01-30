@@ -41,6 +41,7 @@ except ImportError:
 
 QUANDL_API_KEY = os.getenv("QUANDL_API_KEY")
 assert QUANDL_API_KEY is not None, "QUANDL_API_KEY not set"
+PRICE_CURRENCY = "USD"
 
 
 def bytes_to_str(b):
@@ -67,18 +68,20 @@ class ToolsTestCase(common.TestCase):
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
             quandl.download_daily_bars("WIKI", instrument, 2010, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, path)
+            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path)
             bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
-            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEqual(bf[instrument][-1].getPrice(), 31.3)
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(ds[-1].getOpen(), 31.22)
+            self.assertEqual(ds[-1].getHigh(), 31.33)
+            self.assertEqual(ds[-1].getLow(), 30.93)
+            self.assertEqual(ds[-1].getClose(), 31.3)
+            self.assertEqual(ds[-1].getVolume(), 11716300)
+            self.assertEqual(ds[-1].getPrice(), 31.3)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(ds[-1].getAdjClose(), None)
 
     def testDownloadAndParseDaily_UseAdjClose(self):
         with common.TmpDir() as tmpPath:
@@ -86,21 +89,23 @@ class ToolsTestCase(common.TestCase):
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
             quandl.download_daily_bars("WIKI", instrument, 2010, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, path)
+            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path)
             # Need to setUseAdjustedValues(True) after loading the file because we
             # can't tell in advance if adjusted values are there or not.
             bf.setUseAdjustedValues(True)
             bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
-            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEqual(bf[instrument][-1].getPrice(), bf[instrument][-1].getAdjClose())
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(ds[-1].getOpen(), 31.22)
+            self.assertEqual(ds[-1].getHigh(), 31.33)
+            self.assertEqual(ds[-1].getLow(), 30.93)
+            self.assertEqual(ds[-1].getClose(), 31.3)
+            self.assertEqual(ds[-1].getVolume(), 11716300)
+            self.assertEqual(ds[-1].getPrice(), ds[-1].getAdjClose())
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(ds[-1].getAdjClose(), None)
 
     def testDownloadAndParseDailyNoAdjClose(self):
         with common.TmpDir() as tmpPath:
@@ -115,16 +120,18 @@ class ToolsTestCase(common.TestCase):
             bf.setColumnName("low", "Low")
             bf.setColumnName("close", "Last")
             bf.setColumnName("volume", "Volume")
-            bf.addBarsFromCSV(instrument, path, skipMalformedBars=True)
+            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path, skipMalformedBars=True)
             bf.loadAll()
-            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(year, 6, 13))
-            self.assertEqual(bf[instrument][0].getOpen(), 400.00)
-            self.assertEqual(bf[instrument][0].getHigh(), 503.90)
-            self.assertEqual(bf[instrument][0].getLow(), 400.00)
-            self.assertEqual(bf[instrument][0].getClose(), 455.00)
-            self.assertEqual(bf[instrument][0].getVolume(), 1529232)
-            self.assertEqual(bf[instrument][0].getAdjClose(), None)
-            self.assertEqual(bf[instrument][0].getPrice(), 455.00)
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
+            self.assertEqual(ds[0].getDateTime(), datetime.datetime(year, 6, 13))
+            self.assertEqual(ds[0].getOpen(), 400.00)
+            self.assertEqual(ds[0].getHigh(), 503.90)
+            self.assertEqual(ds[0].getLow(), 400.00)
+            self.assertEqual(ds[0].getClose(), 455.00)
+            self.assertEqual(ds[0].getVolume(), 1529232)
+            self.assertEqual(ds[0].getAdjClose(), None)
+            self.assertEqual(ds[0].getPrice(), 455.00)
 
     def testDownloadAndParseWeekly(self):
         with common.TmpDir() as tmpPath:
@@ -132,22 +139,24 @@ class ToolsTestCase(common.TestCase):
             path = os.path.join(tmpPath, "quandl-aapl-weekly-2010.csv")
             quandl.download_weekly_bars("WIKI", instrument, 2010, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed(frequency=bar.Frequency.WEEK)
-            bf.addBarsFromCSV(instrument, path)
+            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path)
             bf.loadAll()
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
             # Quandl used to report 2010-1-3 as the first week of 2010.
             self.assertTrue(
-                bf[instrument][0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
+                ds[0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
             )
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
-            self.assertEqual(bf[instrument][-1].getOpen(), 325.0)
-            self.assertEqual(bf[instrument][-1].getHigh(), 325.15)
-            self.assertEqual(bf[instrument][-1].getLow(), 323.17)
-            self.assertEqual(bf[instrument][-1].getClose(), 323.6)
-            self.assertEqual(bf[instrument][-1].getVolume(), 7969900)
-            self.assertEqual(bf[instrument][-1].getPrice(), 323.6)
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEqual(ds[-1].getOpen(), 325.0)
+            self.assertEqual(ds[-1].getHigh(), 325.15)
+            self.assertEqual(ds[-1].getLow(), 323.17)
+            self.assertEqual(ds[-1].getClose(), 323.6)
+            self.assertEqual(ds[-1].getVolume(), 7969900)
+            self.assertEqual(ds[-1].getPrice(), 323.6)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(ds[-1].getAdjClose(), None)
 
     def testInvalidFrequency(self):
         with self.assertRaisesRegexp(Exception, "Invalid frequency.*"):
@@ -156,41 +165,44 @@ class ToolsTestCase(common.TestCase):
     def testBuildFeedDaily(self):
         with common.TmpDir() as tmpPath:
             instrument = "ORCL"
-            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
+            bf = quandl.build_feed("WIKI", [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
             bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
-            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEqual(bf[instrument][-1].getPrice(), 31.3)
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(ds[-1].getOpen(), 31.22)
+            self.assertEqual(ds[-1].getHigh(), 31.33)
+            self.assertEqual(ds[-1].getLow(), 30.93)
+            self.assertEqual(ds[-1].getClose(), 31.3)
+            self.assertEqual(ds[-1].getVolume(), 11716300)
+            self.assertEqual(ds[-1].getPrice(), 31.3)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(ds[-1].getAdjClose(), None)
 
     def testBuildFeedWeekly(self):
         with common.TmpDir() as tmpPath:
             instrument = "AAPL"
             bf = quandl.build_feed(
-                "WIKI", [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK,
+                "WIKI", [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, bar.Frequency.WEEK,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
             # Quandl used to report 2010-1-3 as the first week of 2010.
             self.assertTrue(
-                bf[instrument][0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
+                ds[0].getDateTime() in [datetime.datetime(2010, 1, 3), datetime.datetime(2010, 1, 10)]
             )
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
-            self.assertEqual(bf[instrument][-1].getOpen(), 325.0)
-            self.assertEqual(bf[instrument][-1].getHigh(), 325.15)
-            self.assertEqual(bf[instrument][-1].getLow(), 323.17)
-            self.assertEqual(bf[instrument][-1].getClose(), 323.6)
-            self.assertEqual(bf[instrument][-1].getVolume(), 7969900)
-            self.assertEqual(bf[instrument][-1].getPrice(), 323.6)
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEqual(ds[-1].getOpen(), 325.0)
+            self.assertEqual(ds[-1].getHigh(), 325.15)
+            self.assertEqual(ds[-1].getLow(), 323.17)
+            self.assertEqual(ds[-1].getClose(), 323.6)
+            self.assertEqual(ds[-1].getVolume(), 7969900)
+            self.assertEqual(ds[-1].getPrice(), 323.6)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(ds[-1].getAdjClose(), None)
 
     def testInvalidInstrument(self):
         instrument = "inexistent"
@@ -199,14 +211,14 @@ class ToolsTestCase(common.TestCase):
         with self.assertRaisesRegexp(Exception, "404 Client Error: Not Found"):
             with common.TmpDir() as tmpPath:
                 quandl.build_feed(
-                    instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK,
+                    instrument, [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, bar.Frequency.WEEK,
                     authToken=QUANDL_API_KEY
                 )
 
         # Skip errors.
         with common.TmpDir() as tmpPath:
             bf = quandl.build_feed(
-                instrument, [instrument], 2010, 2010, tmpPath, bar.Frequency.WEEK, skipErrors=True,
+                instrument, [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, bar.Frequency.WEEK, skipErrors=True,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
@@ -224,19 +236,21 @@ class ToolsTestCase(common.TestCase):
             instrument = "ADYEN"
             year = 2018
             bf = quandl.build_feed(
-                "EURONEXT", [instrument], year, year, tmpPath, columnNames=column_names, skipMalformedBars=True,
-                authToken=QUANDL_API_KEY
+                "EURONEXT", [instrument], PRICE_CURRENCY, year, year, tmpPath, columnNames=column_names,
+                skipMalformedBars=True, authToken=QUANDL_API_KEY
             )
             bf.setNoAdjClose()
             bf.loadAll()
-            self.assertEqual(bf[instrument][0].getDateTime(), datetime.datetime(year, 6, 13))
-            self.assertEqual(bf[instrument][0].getOpen(), 400.00)
-            self.assertEqual(bf[instrument][0].getHigh(), 503.90)
-            self.assertEqual(bf[instrument][0].getLow(), 400.00)
-            self.assertEqual(bf[instrument][0].getClose(), 455.00)
-            self.assertEqual(bf[instrument][0].getVolume(), 1529232)
-            self.assertEqual(bf[instrument][0].getAdjClose(), None)
-            self.assertEqual(bf[instrument][0].getPrice(), 455.00)
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
+            self.assertEqual(ds[0].getDateTime(), datetime.datetime(year, 6, 13))
+            self.assertEqual(ds[0].getOpen(), 400.00)
+            self.assertEqual(ds[0].getHigh(), 503.90)
+            self.assertEqual(ds[0].getLow(), 400.00)
+            self.assertEqual(ds[0].getClose(), 455.00)
+            self.assertEqual(ds[0].getVolume(), 1529232)
+            self.assertEqual(ds[0].getAdjClose(), None)
+            self.assertEqual(ds[0].getPrice(), 455.00)
 
     def testExtraColumns(self):
         with common.TmpDir() as tmpPath:
@@ -245,16 +259,17 @@ class ToolsTestCase(common.TestCase):
                 "close": "Last"
             }
             bf = quandl.build_feed(
-                "BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames,
+                "BITSTAMP", ["USD"], PRICE_CURRENCY, 2014, 2014, tmpPath, columnNames=columnNames,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
+            ds = bf.getDataSeries("USD", PRICE_CURRENCY)
 
-            self.assertEqual(len(bf["USD"][-1].getExtraColumns()), 3)
-            self.assertEqual(bf["USD"][-1].getExtraColumns()["Bid"], 319.19)
-            self.assertEqual(bf["USD"][-1].getExtraColumns()["Ask"], 319.63)
+            self.assertEqual(len(ds[-1].getExtraColumns()), 3)
+            self.assertEqual(ds[-1].getExtraColumns()["Bid"], 319.19)
+            self.assertEqual(ds[-1].getExtraColumns()["Ask"], 319.63)
 
-            bids = bf["USD"].getExtraDataSeries("Bid")
+            bids = ds.getExtraDataSeries("Bid")
             self.assertEqual(bids[-1], 319.19)
 
     def testNoAdjClose(self):
@@ -265,32 +280,34 @@ class ToolsTestCase(common.TestCase):
                 "adj_close": None
             }
             bf = quandl.build_feed(
-                "BITSTAMP", ["USD"], 2014, 2014, tmpPath, columnNames=columnNames,
+                "BITSTAMP", ["USD"], PRICE_CURRENCY, 2014, 2014, tmpPath, columnNames=columnNames,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
+            ds = bf.getDataSeries("USD", PRICE_CURRENCY)
 
             self.assertFalse(bf.barsHaveAdjClose())
-            self.assertEqual(bf["USD"][-1].getAdjClose(), None)
+            self.assertEqual(ds[-1].getAdjClose(), None)
 
     def testBuildFeedDailyCreatingDir(self):
         tmpPath = tempfile.mkdtemp()
         shutil.rmtree(tmpPath)
         try:
             instrument = "ORCL"
-            bf = quandl.build_feed("WIKI", [instrument], 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
+            bf = quandl.build_feed("WIKI", [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
             bf.loadAll()
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
 
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
-            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEqual(bf[instrument][-1].getPrice(), 31.3)
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(ds[-1].getOpen(), 31.22)
+            self.assertEqual(ds[-1].getHigh(), 31.33)
+            self.assertEqual(ds[-1].getLow(), 30.93)
+            self.assertEqual(ds[-1].getClose(), 31.3)
+            self.assertEqual(ds[-1].getVolume(), 11716300)
+            self.assertEqual(ds[-1].getPrice(), 31.3)
             # Not checking against a specific value since this is going to change
             # as time passes by.
-            self.assertNotEqual(bf[instrument][-1].getAdjClose(), None)
+            self.assertNotEqual(ds[-1].getAdjClose(), None)
         finally:
             shutil.rmtree(tmpPath)
 
@@ -309,15 +326,17 @@ class ToolsTestCase(common.TestCase):
                 "--auth-token=%s" % QUANDL_API_KEY
             ])
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-ORCL-2010-quandl.csv"))
+            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, os.path.join(tmpPath, "WIKI-ORCL-2010-quandl.csv"))
             bf.loadAll()
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 31))
-            self.assertEqual(bf[instrument][-1].getOpen(), 31.22)
-            self.assertEqual(bf[instrument][-1].getHigh(), 31.33)
-            self.assertEqual(bf[instrument][-1].getLow(), 30.93)
-            self.assertEqual(bf[instrument][-1].getClose(), 31.3)
-            self.assertEqual(bf[instrument][-1].getVolume(), 11716300)
-            self.assertEqual(bf[instrument][-1].getPrice(), 31.3)
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
+            self.assertEqual(ds[-1].getOpen(), 31.22)
+            self.assertEqual(ds[-1].getHigh(), 31.33)
+            self.assertEqual(ds[-1].getLow(), 30.93)
+            self.assertEqual(ds[-1].getClose(), 31.3)
+            self.assertEqual(ds[-1].getVolume(), 11716300)
+            self.assertEqual(ds[-1].getPrice(), 31.3)
         finally:
             shutil.rmtree(tmpPath)
 
@@ -337,16 +356,17 @@ class ToolsTestCase(common.TestCase):
                 "--auth-token=%s" % QUANDL_API_KEY
             ])
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-AAPL-2010-quandl.csv"))
+            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, os.path.join(tmpPath, "WIKI-AAPL-2010-quandl.csv"))
             bf.loadAll()
+            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
 
-            self.assertEqual(bf[instrument][-1].getDateTime(), datetime.datetime(2010, 12, 26))
-            self.assertEqual(bf[instrument][-1].getOpen(), 325.0)
-            self.assertEqual(bf[instrument][-1].getHigh(), 325.15)
-            self.assertEqual(bf[instrument][-1].getLow(), 323.17)
-            self.assertEqual(bf[instrument][-1].getClose(), 323.6)
-            self.assertEqual(bf[instrument][-1].getVolume(), 7969900)
-            self.assertEqual(bf[instrument][-1].getPrice(), 323.6)
+            self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 26))
+            self.assertEqual(ds[-1].getOpen(), 325.0)
+            self.assertEqual(ds[-1].getHigh(), 325.15)
+            self.assertEqual(ds[-1].getLow(), 323.17)
+            self.assertEqual(ds[-1].getClose(), 323.6)
+            self.assertEqual(ds[-1].getVolume(), 7969900)
+            self.assertEqual(ds[-1].getPrice(), 323.6)
         finally:
             shutil.rmtree(tmpPath)
 

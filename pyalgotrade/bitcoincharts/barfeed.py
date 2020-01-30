@@ -36,10 +36,12 @@ class TradeBar(bar.Bar):
     # Optimization to reduce memory footprint.
     __slots__ = ('__dateTime', '__price', '__amount')
 
-    def __init__(self, dateTime, price, amount):
+    def __init__(self, dateTime, instrument, priceCurrency, price, amount):
         self.__dateTime = dateTime
         self.__price = price
         self.__amount = amount
+        self.__instrument = instrument
+        self.__priceCurrency = priceCurrency
 
     def __setstate__(self, state):
         (self.__dateTime, self.__price, self.__amount) = state
@@ -56,6 +58,12 @@ class TradeBar(bar.Bar):
 
     def getDateTime(self):
         return self.__dateTime
+
+    def getInstrument(self):
+        return self.__instrument
+
+    def getPriceCurrency(self):
+        return self.__priceCurrency
 
     def getOpen(self, adjusted=False):
         return self.__price
@@ -103,9 +111,17 @@ class UnixTimeFix(object):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, unixTimeFix, timezone=None):
+    def __init__(self, instrument, priceCurrency, unixTimeFix, timezone=None):
+        self.__instrument = instrument
+        self.__priceCurrency = priceCurrency
         self.__unixTimeFix = unixTimeFix
         self.__timezone = timezone
+
+    def getInstrument(self):
+        return self.__instrument
+
+    def getPriceCurrency(self):
+        return self.__priceCurrency
 
     def parseBar(self, csvRowDict):
         unixTime = int(csvRowDict["unixtime"])
@@ -119,7 +135,7 @@ class RowParser(csvfeed.RowParser):
         if self.__timezone:
             dateTime = dt.localize(dateTime, self.__timezone)
 
-        return TradeBar(dateTime, price, amount)
+        return TradeBar(dateTime, self.__instrument, self.__priceCurrency, price, amount)
 
     def getFieldNames(self):
         return ["unixtime", "price", "amount"]
@@ -156,13 +172,17 @@ class CSVTradeFeed(csvfeed.BarFeed):
     def barsHaveAdjClose(self):
         return False
 
-    def addBarsFromCSV(self, path, instrument="BTC", timezone=None, fromDateTime=None, toDateTime=None):
+    def addBarsFromCSV(
+        self, path, instrument="BTC", priceCurrency="USD", timezone=None, fromDateTime=None, toDateTime=None
+    ):
         """Loads bars from a trades CSV formatted file.
 
         :param path: The path to the file.
         :type path: string.
         :param instrument: The instrument identifier.
         :type instrument: string.
+        :param priceCurrency: The price currency.
+        :type priceCurrency: string.
         :param timezone: An optional timezone to use to localize bars. By default bars are loaded in UTC.
         :type timezone: A pytz timezone.
         :param fromDateTime: An optional datetime to use to filter bars to load.
@@ -179,13 +199,13 @@ class CSVTradeFeed(csvfeed.BarFeed):
 
         if timezone is None:
             timezone = self.__timezone
-        rowParser = RowParser(self.__unixTimeFix, timezone)
+        rowParser = RowParser(instrument, priceCurrency, self.__unixTimeFix, timezone)
 
         # Save the barfilter to restore it later.
         prevBarFilter = self.getBarFilter()
         try:
             if fromDateTime or toDateTime:
                 self.setBarFilter(csvfeed.DateRangeFilter(to_utc_if_naive(fromDateTime), to_utc_if_naive(toDateTime)))
-            super(CSVTradeFeed, self).addBarsFromCSV(instrument, path, rowParser)
+            super(CSVTradeFeed, self).addBarsFromCSV(path, rowParser)
         finally:
             self.setBarFilter(prevBarFilter)

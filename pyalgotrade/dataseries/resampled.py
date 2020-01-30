@@ -40,6 +40,8 @@ class AggFunGrouper(resamplebase.Grouper):
 class BarGrouper(resamplebase.Grouper):
     def __init__(self, groupDateTime, bar_, frequency):
         super(BarGrouper, self).__init__(groupDateTime)
+        self.__instrument = bar_.getInstrument()
+        self.__priceCurrency = bar_.getPriceCurrency()
         self.__open = bar_.getOpen()
         self.__high = bar_.getHigh()
         self.__low = bar_.getLow()
@@ -50,6 +52,9 @@ class BarGrouper(resamplebase.Grouper):
         self.__frequency = frequency
 
     def addValue(self, value):
+        assert self.__instrument == value.getInstrument(), "Instrument mismatch"
+        assert self.__priceCurrency == value.getPriceCurrency(), "Price currency mismatch"
+
         self.__high = max(self.__high, value.getHigh())
         self.__low = min(self.__low, value.getLow())
         self.__close = value.getClose()
@@ -59,7 +64,7 @@ class BarGrouper(resamplebase.Grouper):
     def getGrouped(self):
         """Return the grouped value."""
         ret = bar.BasicBar(
-            self.getDateTime(),
+            self.__instrument, self.__priceCurrency, self.getDateTime(),
             self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose,
             self.__frequency
         )

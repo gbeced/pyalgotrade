@@ -35,21 +35,23 @@ class TestCase(common.TestCase):
         self.assertEqual(len(loaded), 9999)
 
         self.assertEqual(loaded[0][0], dt.as_utc(datetime.datetime(2011, 9, 13, 13, 53, 36)))
-        self.assertEqual(loaded[0][1]["BTC"].getDateTime(), dt.as_utc(datetime.datetime(2011, 9, 13, 13, 53, 36)))
-        self.assertEqual(loaded[0][1]["BTC"].getClose(), 5.8)
-        self.assertEqual(loaded[0][1]["BTC"].getPrice(), 5.8)
-        self.assertEqual(loaded[0][1]["BTC"].getVolume(), 1.0)
+        b = loaded[0][1].getBar("BTC", "USD")
+        self.assertEqual(b.getDateTime(), dt.as_utc(datetime.datetime(2011, 9, 13, 13, 53, 36)))
+        self.assertEqual(b.getClose(), 5.8)
+        self.assertEqual(b.getPrice(), 5.8)
+        self.assertEqual(b.getVolume(), 1.0)
 
         self.assertEqual(loaded[-1][0], dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
-        self.assertEqual(loaded[-1][1]["BTC"].getDateTime(), dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
-        self.assertEqual(loaded[-1][1]["BTC"].getClose(), 5.1)
-        self.assertEqual(loaded[-1][1]["BTC"].getPrice(), 5.1)
-        self.assertEqual(loaded[-1][1]["BTC"].getVolume(), 0.39215686)
+        b = loaded[-1][1].getBar("BTC", "USD")
+        self.assertEqual(b.getDateTime(), dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
+        self.assertEqual(b.getClose(), 5.1)
+        self.assertEqual(b.getPrice(), 5.1)
+        self.assertEqual(b.getVolume(), 0.39215686)
 
     def testLoadFilterFrom(self):
         feed = barfeed.CSVTradeFeed()
         feed.addBarsFromCSV(
-            common.get_data_file_path("bitstampUSD.csv"), "bitstampUSD",
+            common.get_data_file_path("bitstampUSD.csv"), "BTC", "USD",
             fromDateTime=dt.as_utc(datetime.datetime(2012, 5, 29))
         )
         loaded = [(dateTime, bars) for dateTime, bars in feed]
@@ -57,28 +59,30 @@ class TestCase(common.TestCase):
         self.assertEqual(len(loaded), 646)
 
         self.assertEqual(loaded[0][0], dt.as_utc(datetime.datetime(2012, 5, 29, 1, 47, 52)))
+        b = loaded[0][1].getBar("BTC", "USD")
         self.assertEqual(
-            loaded[0][1]["bitstampUSD"].getDateTime(),
+            b.getDateTime(),
             dt.as_utc(datetime.datetime(2012, 5, 29, 1, 47, 52))
         )
-        self.assertEqual(loaded[0][1]["bitstampUSD"].getClose(), 5.07)
-        self.assertEqual(loaded[0][1]["bitstampUSD"].getPrice(), 5.07)
-        self.assertEqual(loaded[0][1]["bitstampUSD"].getVolume(), 1.39081288)
+        self.assertEqual(b.getClose(), 5.07)
+        self.assertEqual(b.getPrice(), 5.07)
+        self.assertEqual(b.getVolume(), 1.39081288)
 
         self.assertEqual(loaded[-1][0], dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5)))
+        b = loaded[-1][1].getBar("BTC", "USD")
         self.assertEqual(
-            loaded[-1][1]["bitstampUSD"].getDateTime(),
+            b.getDateTime(),
             dt.as_utc(datetime.datetime(2012, 5, 31, 8, 41, 18, 5))
         )
-        self.assertEqual(loaded[-1][1]["bitstampUSD"].getClose(), 5.1)
-        self.assertEqual(loaded[-1][1]["bitstampUSD"].getPrice(), 5.1)
-        self.assertEqual(loaded[-1][1]["bitstampUSD"].getVolume(), 0.39215686)
+        self.assertEqual(b.getClose(), 5.1)
+        self.assertEqual(b.getPrice(), 5.1)
+        self.assertEqual(b.getVolume(), 0.39215686)
 
     def testLoadFilterFromAndTo(self):
         feed = barfeed.CSVTradeFeed()
         feed.addBarsFromCSV(
             common.get_data_file_path("bitstampUSD.csv"),
-            "bitstampUSD",
+            instrument="BTC", priceCurrency="USD",
             fromDateTime=dt.as_utc(datetime.datetime(2012, 5, 29)),
             toDateTime=datetime.datetime(2012, 5, 31)
         )
@@ -87,17 +91,19 @@ class TestCase(common.TestCase):
         self.assertEqual(len(loaded), 579)
 
         self.assertEqual(loaded[0][0], dt.as_utc(datetime.datetime(2012, 5, 29, 1, 47, 52)))
+        b = loaded[0][1].getBar("BTC", "USD")
         self.assertEqual(
-            loaded[0][1]["bitstampUSD"].getDateTime(),
+            b.getDateTime(),
             dt.as_utc(datetime.datetime(2012, 5, 29, 1, 47, 52))
         )
-        self.assertEqual(loaded[0][1]["bitstampUSD"].getClose(), 5.07)
-        self.assertEqual(loaded[0][1]["bitstampUSD"].getVolume(), 1.39081288)
+        self.assertEqual(b.getClose(), 5.07)
+        self.assertEqual(b.getVolume(), 1.39081288)
 
         self.assertEqual(loaded[-1][0], dt.as_utc(datetime.datetime(2012, 5, 30, 23, 49, 21)))
+        b = loaded[-1][1].getBar("BTC", "USD")
         self.assertEqual(
-            loaded[-1][1]["bitstampUSD"].getDateTime(),
+            b.getDateTime(),
             dt.as_utc(datetime.datetime(2012, 5, 30, 23, 49, 21))
         )
-        self.assertEqual(loaded[-1][1]["bitstampUSD"].getClose(), 5.14)
-        self.assertEqual(loaded[-1][1]["bitstampUSD"].getVolume(), 20)
+        self.assertEqual(b.getClose(), 5.14)
+        self.assertEqual(b.getVolume(), 20)

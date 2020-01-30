@@ -23,6 +23,10 @@ import abc
 import six
 
 
+def get_pair(instrument, priceCurrency):
+    return "%s/%s" % (instrument, priceCurrency)
+
+
 class Frequency(object):
 
     """Enum like class for bar frequencies. Valid values are:
@@ -129,6 +133,9 @@ class Bar(object):
 
     def getExtraColumns(self):
         return {}
+
+    def getPair(self):
+        return get_pair(self.getInstrument(), self.getPriceCurrency())
 
 
 class BasicBar(Bar):
@@ -291,7 +298,6 @@ class Bars(object):
         if len(bars) == 0:
             raise Exception("No bars supplied")
 
-        # Maps instrument to currency to bars.
         self.__barDict = {}
 
         # Check that bar datetimes are in sync
@@ -309,35 +315,31 @@ class Bars(object):
                     firstDateTime
                 ))
 
-            self.__barDict.setdefault(currentBar.getInstrument(), {})[currentBar.getPriceCurrency()] = currentBar
+            pair = currentBar.getPair()
+            assert pair not in self.__barDict, "Duplicate bars %s" % pair
+            self.__barDict[pair] = currentBar
 
         self.__dateTime = firstDateTime
 
-    def __getitem__(self, instrument):
+    def __getitem__(self, pair):
         """
-        Returns the :class:`pyalgotrade.bar.Bar` for the given instrument.
-        If the instrument is not found, or there are multiple bars for the same instrument, an exception is raised.
+        Returns the :class:`pyalgotrade.bar.Bar` for a given pair in this format: INSTRUMENT/PRICE_CURRENCY.
+        If the pair is not found an exception is raised.
         """
+        return self.__barDict[pair]
 
-        barsPerCurrency = self.__barDict[instrument]
-        if len(barsPerCurrency) > 1:
-            raise Exception("Multiple bars for %s" % instrument)
-        for v in barsPerCurrency.values():
-            return v
-
-    def __contains__(self, instrument):
-        """Returns True if a :class:`pyalgotrade.bar.Bar` for the given instrument is available."""
-        return instrument in self.__barDict
+    def __contains__(self, pair):
+        """Returns True if a :class:`pyalgotrade.bar.Bar` for the given pair is available."""
+        return pair in self.__barDict
 
     def __iter__(self):
-        def bar_gen():
-            for per_instrument_dict in self.__barDict.values():
-                for bar in per_instrument_dict.values():
-                    yield bar
-        return bar_gen()
+        return iter(self.__barDict.values())
 
-    def getInstruments(self):
-        """Returns the instrument symbols."""
+    def items(self):
+        return list(self.__barDict.items())
+
+    def getPairs(self):
+        """Returns the pairs in this format: INSTRUMENT/PRICE_CURRENCY."""
         return list(self.__barDict.keys())
 
     def getDateTime(self):
@@ -348,4 +350,10 @@ class Bars(object):
         """
         Returns the :class:`pyalgotrade.bar.Bar` for the given instrument and price currency or None if it is not found.
         """
-        return self.__barDict.get(instrument, {}).get(priceCurrency)
+        return self.__barDict.get("%s/%s" % (instrument, priceCurrency))
+
+    def getBars(self):
+        """
+        Returns all :class:`pyalgotrade.bar.Bar`.
+        """
+        return list(self.__barDict.values())

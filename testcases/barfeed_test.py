@@ -28,6 +28,10 @@ from pyalgotrade import bar
 from pyalgotrade import dispatcher
 
 
+INSTRUMENT = "ORCL"
+PRICE_CURRENCY = "USD"
+
+
 def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
     called = {"called": True}
 
@@ -52,32 +56,56 @@ def check_base_barfeed(testCase, barFeed, barsHaveAdjClose):
 class OptimizerBarFeedTestCase(common.TestCase):
     def testDateTimesNotInOrder(self):
         bars = [
-            bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
-            bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
+            bar.Bars([
+                bar.BasicBar(
+                    INSTRUMENT, PRICE_CURRENCY, datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY
+                )
+            ]),
+            bar.Bars([
+                bar.BasicBar(
+                    INSTRUMENT, PRICE_CURRENCY, datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY
+                )
+            ]),
         ]
-        f = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
+        f = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], bars)
         with self.assertRaisesRegexp(Exception, "Bar date times are not in order.*"):
             for dt, b in f:
                 pass
 
     def testBaseBarFeed(self):
         bars = [
-            bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
-            bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY)}),
+            bar.Bars([
+                bar.BasicBar(
+                    INSTRUMENT, PRICE_CURRENCY, datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY
+                )
+            ]),
+            bar.Bars([
+                bar.BasicBar(
+                    INSTRUMENT, PRICE_CURRENCY, datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, 1, bar.Frequency.DAY
+                )
+            ]),
         ]
-        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
+        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], bars)
         check_base_barfeed(self, barFeed, True)
 
     def testBaseBarFeedNoAdjClose(self):
         bars = [
-            bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, None, bar.Frequency.DAY)}),
-            bar.Bars({"orcl": bar.BasicBar(datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, None, bar.Frequency.DAY)}),
+            bar.Bars([
+                bar.BasicBar(
+                    INSTRUMENT, PRICE_CURRENCY, datetime.datetime(2001, 1, 1), 1, 1, 1, 1, 1, None, bar.Frequency.DAY
+                )
+            ]),
+            bar.Bars([
+                bar.BasicBar(
+                    INSTRUMENT, PRICE_CURRENCY, datetime.datetime(2001, 1, 2), 1, 1, 1, 1, 1, None, bar.Frequency.DAY
+                )
+            ]),
         ]
-        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
+        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], bars)
         check_base_barfeed(self, barFeed, False)
 
     def testEmtpy(self):
-        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], [])
+        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], [])
         self.assertEqual(barFeed.barsHaveAdjClose(), False)
 
 
