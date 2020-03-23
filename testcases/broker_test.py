@@ -25,14 +25,23 @@ from . import common
 from pyalgotrade import broker
 
 
+PRICE_CURRENCY = "USD"
+
+
 class DefaultTraits(broker.InstrumentTraits):
-    def roundQuantity(self, quantity):
+    def getPrecision(self, symbol):
+        ret = 2
+        if symbol != PRICE_CURRENCY:
+            ret = 0
+        return ret
+
+    def roundBaseQuantity(self, quantity):
         return int(quantity)
 
 
 class OrderTestCase(common.TestCase):
     def __buildAcceptedLimitOrder(self, action, limitPrice, quantity):
-        ret = broker.LimitOrder(action, "orcl", limitPrice, quantity, DefaultTraits())
+        ret = broker.LimitOrder(action, "orcl", PRICE_CURRENCY, limitPrice, quantity, DefaultTraits())
         self.assertEqual(ret.getSubmitDateTime(), None)
         ret.switchState(broker.Order.State.SUBMITTED)
         ret.setSubmitted(1, datetime.datetime.now())

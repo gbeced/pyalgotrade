@@ -192,7 +192,7 @@ class AnalyzerTestCase(common.TestCase):
         strat.attachAnalyzer(stratAnalyzer)
 
         strat.run()
-        self.assertTrue(strat.getBroker().getCash() == 1000)
+        self.assertTrue(strat.getBroker().getBalance("USD") == 1000)
         self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
         self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta())
@@ -222,7 +222,7 @@ class AnalyzerTestCase(common.TestCase):
         )  # Adj. Close: 127.64
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == initialCash + (127.64 - 42.09) * quantity)
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == initialCash + (127.64 - 42.09) * quantity)
         self.assertEqual(strat.orderUpdatedCalls, 6)
         self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
         self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta(days=623))

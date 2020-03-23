@@ -54,12 +54,12 @@ class TestCase(common.TestCase):
         ]
 
         # Build a bar dataseries using the test data.
-        barDataSeries = bards.BarDataSeries()
+        barDataSeries = bards.BarDataSeries("ANY", "USD")
         atrDS = atr.ATR(barDataSeries, 14)
         now = datetime.datetime(2000, 1, 1)
         for i in xrange(len(high)):
             b = bar.BasicBar(
-                now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i],
+                "ANY", "USD", now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i],
                 bar.Frequency.DAY
             )
             barDataSeries.append(b)
@@ -89,12 +89,12 @@ class TestCase(common.TestCase):
         ]
 
         # Build a bar dataseries using the test data.
-        barDataSeries = bards.BarDataSeries()
+        barDataSeries = bards.BarDataSeries("ANY", "USD")
         atrDS = atr.ATR(barDataSeries, 14, True)
         now = datetime.datetime(2000, 1, 1)
         for i in xrange(len(high)):
             b = bar.BasicBar(
-                now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i]/2,
+                "ANY", "USD", now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i]/2,
                 bar.Frequency.DAY
             )
             barDataSeries.append(b)

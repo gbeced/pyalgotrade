@@ -55,17 +55,23 @@ class DrawDownHelper(object):
 
 
 class DrawDown(stratanalyzer.StrategyAnalyzer):
-    """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-    max. drawdown and longest drawdown duration for the portfolio."""
+    """
+    A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates max. drawdown and longest drawdown duration
+    for the portfolio.
 
-    def __init__(self):
+    :param currency: The currency to use to calculate returns.
+    :type currency: string.
+    """
+
+    def __init__(self, currency):
         super(DrawDown, self).__init__()
         self.__maxDD = 0
         self.__longestDDDuration = datetime.timedelta()
         self.__currDrawDown = DrawDownHelper()
+        self.__currency = currency
 
     def calculateEquity(self, strat):
-        return strat.getBroker().getEquity()
+        return strat.getBroker().getEquity(self.__currency)
 
     def beforeOnBars(self, strat, bars):
         equity = self.calculateEquity(strat)

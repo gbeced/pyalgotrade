@@ -136,7 +136,7 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        super(ResampledBarDataSeries, self).__init__(maxLen)
+        super(ResampledBarDataSeries, self).__init__(dataSeries.getInstrument(), dataSeries.getPriceCurrency(), maxLen)
         self.initDSResampler(dataSeries, frequency)
 
     def checkNow(self, dateTime):

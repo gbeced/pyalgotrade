@@ -167,7 +167,7 @@ class MonthRange(common.TestCase):
 class DataSeriesTestCase(common.TestCase):
 
     def testResample(self):
-        barDs = bards.BarDataSeries()
+        barDs = bards.BarDataSeries("ANY", "USD")
         resampledDS = resampled_ds.ResampledDataSeries(barDs.getCloseDataSeries(), bar.Frequency.MINUTE, sum)
         resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
 
@@ -205,7 +205,7 @@ class DataSeriesTestCase(common.TestCase):
         self.assertEqual(resampledDS[1], 2)
 
     def testCheckNow(self):
-        barDs = bards.BarDataSeries()
+        barDs = bards.BarDataSeries("ANY", "USD")
         resampledBarDS = resampled_ds.ResampledBarDataSeries(barDs, bar.Frequency.MINUTE)
 
         barDateTime = datetime.datetime(2014, 7, 7, 22, 46, 28, 10000)

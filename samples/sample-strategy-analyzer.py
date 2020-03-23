@@ -9,18 +9,20 @@ from pyalgotrade.stratanalyzer import trades
 from . import sma_crossover
 
 # Load the bars. This file was manually downloaded from Yahoo Finance.
+instrument = "orcl"
+priceCurrency = "USD"
 feed = yahoofeed.Feed()
-feed.addBarsFromCSV("orcl", "orcl-2000-yahoofinance.csv")
+feed.addBarsFromCSV(instrument, priceCurrency, "orcl-2000-yahoofinance.csv")
 
 # Evaluate the strategy with the feed's bars.
-myStrategy = sma_crossover.SMACrossOver(feed, "orcl", 20)
+myStrategy = sma_crossover.SMACrossOver(feed, instrument, priceCurrency, 20)
 
 # Attach different analyzers to a strategy before executing it.
-retAnalyzer = returns.Returns()
+retAnalyzer = returns.Returns(priceCurrency)
 myStrategy.attachAnalyzer(retAnalyzer)
-sharpeRatioAnalyzer = sharpe.SharpeRatio()
+sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
 myStrategy.attachAnalyzer(sharpeRatioAnalyzer)
-drawDownAnalyzer = drawdown.DrawDown()
+drawDownAnalyzer = drawdown.DrawDown(priceCurrency)
 myStrategy.attachAnalyzer(drawDownAnalyzer)
 tradesAnalyzer = trades.Trades()
 myStrategy.attachAnalyzer(tradesAnalyzer)

@@ -3,7 +3,6 @@ from __future__ import print_function
 from pyalgotrade import strategy
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import aligned
-from pyalgotrade import plotter
 from pyalgotrade.barfeed import yahoofeed
 from pyalgotrade.stratanalyzer import sharpe
 
@@ -72,12 +71,17 @@ class StatArbHelper:
 
 
 class StatArb(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument1, instrument2, windowSize):
-        super(StatArb, self).__init__(feed)
+    def __init__(self, feed, instrument1, instrument2, priceCurrency, windowSize):
+        super(StatArb, self).__init__(feed, balances={priceCurrency: 1000000})
         self.setUseAdjustedValues(True)
-        self.__statArbHelper = StatArbHelper(feed[instrument1].getAdjCloseDataSeries(), feed[instrument2].getAdjCloseDataSeries(), windowSize)
+        self.__statArbHelper = StatArbHelper(
+            feed.getDataSeries(instrument1, priceCurrency).getAdjCloseDataSeries(),
+            feed.getDataSeries(instrument2, priceCurrency).getAdjCloseDataSeries(),
+            windowSize
+        )
         self.__i1 = instrument1
         self.__i2 = instrument2
+        self.__priceCurrency = priceCurrency
 
         # These are used only for plotting purposes.
         self.__spread = dataseries.SequenceDataSeries()
@@ -90,29 +94,29 @@ class StatArb(strategy.BacktestingStrategy):
         return self.__hedgeRatio
 
     def __getOrderSize(self, bars, hedgeRatio):
-        cash = self.getBroker().getCash(False)
-        price1 = bars[self.__i1].getAdjClose()
-        price2 = bars[self.__i2].getAdjClose()
+        cash = self.getBroker().getBalance("USD")
+        price1 = bars.getBar(self.__i1, self.__priceCurrency).getAdjClose()
+        price2 = bars.getBar(self.__i2, self.__priceCurrency).getAdjClose()
         size1 = int(cash / (price1 + hedgeRatio * price2))
         size2 = int(size1 * hedgeRatio)
         return (size1, size2)
 
     def buySpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.marketOrder(self.__i1, amount1)
-        self.marketOrder(self.__i2, amount2 * -1)
+        self.marketOrder(self.__i1, self.__priceCurrency, amount1)
+        self.marketOrder(self.__i2, self.__priceCurrency, amount2 * -1)
 
     def sellSpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.marketOrder(self.__i1, amount1 * -1)
-        self.marketOrder(self.__i2, amount2)
+        self.marketOrder(self.__i1, self.__priceCurrency, amount1 * -1)
+        self.marketOrder(self.__i2, self.__priceCurrency, amount2)
 
     def reducePosition(self, instrument):
-        currentPos = self.getBroker().getShares(instrument)
+        currentPos = self.getBroker().getBalance(instrument)
         if currentPos > 0:
-            self.marketOrder(instrument, currentPos * -1)
+            self.marketOrder(instrument, self.__priceCurrency, currentPos * -1)
         elif currentPos < 0:
-            self.marketOrder(instrument, currentPos * -1)
+            self.marketOrder(instrument, self.__priceCurrency, currentPos * -1)
 
     def onBars(self, bars):
         self.__statArbHelper.update()
@@ -121,11 +125,11 @@ class StatArb(strategy.BacktestingStrategy):
         self.__spread.appendWithDateTime(bars.getDateTime(), self.__statArbHelper.getSpread())
         self.__hedgeRatio.appendWithDateTime(bars.getDateTime(), self.__statArbHelper.getHedgeRatio())
 
-        if bars.getBar(self.__i1) and bars.getBar(self.__i2):
+        if bars.getBar(self.__i1, self.__priceCurrency) and bars.getBar(self.__i2, self.__priceCurrency):
             hedgeRatio = self.__statArbHelper.getHedgeRatio()
             zScore = self.__statArbHelper.getZScore()
             if zScore is not None:
-                currentPos = abs(self.getBroker().getShares(self.__i1)) + abs(self.getBroker().getShares(self.__i2))
+                currentPos = abs(self.getBroker().getBalance(self.__i1)) + abs(self.getBroker().getBalance(self.__i2))
                 if abs(zScore) <= 1 and currentPos != 0:
                     self.reducePosition(self.__i1)
                     self.reducePosition(self.__i2)
@@ -137,6 +141,7 @@ class StatArb(strategy.BacktestingStrategy):
 
 def main(plot):
     instruments = ["gld", "gdx"]
+    priceCurrency = "USD"
     windowSize = 50
 
     # Load the bars. These files were manually downloaded from Yahoo Finance.
@@ -145,13 +150,15 @@ def main(plot):
         for instrument in instruments:
             fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
             print("Loading bars from %s" % fileName)
-            feed.addBarsFromCSV(instrument, fileName)
+            feed.addBarsFromCSV(instrument, priceCurrency, fileName)
 
-    strat = StatArb(feed, instruments[0], instruments[1], windowSize)
-    sharpeRatioAnalyzer = sharpe.SharpeRatio()
+    strat = StatArb(feed, instruments[0], instruments[1], priceCurrency, windowSize)
+    sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 
     if plot:
+        from pyalgotrade import plotter
+
         plt = plotter.StrategyPlotter(strat, False, False, True)
         plt.getOrCreateSubplot("hedge").addDataSeries("Hedge Ratio", strat.getHedgeRatioDS())
         plt.getOrCreateSubplot("spread").addDataSeries("Spread", strat.getSpreadDS())

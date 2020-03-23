@@ -91,7 +91,7 @@ class BarFeed(barfeed.BaseBarFeed):
                 # Check if there are duplicate bars (with the same datetime).
                 if self.__currDateTime == smallestDateTime:
                     raise Exception("Duplicate bars found for %s on %s" % (pair, smallestDateTime))
-                assert bars[nextPos].getPair() == pair, "bar/pair mismatch"
+                assert bars[nextPos].pairToKey() == pair, "bar/pair mismatch"
                 ret.append(bars[nextPos])
                 self.__nextPos[pair] += 1
 
@@ -110,15 +110,15 @@ class BarFeed(barfeed.BaseBarFeed):
         if self.__started:
             raise Exception("Can't add more bars once you started consuming bars")
 
-        pair = bar.get_pair(instrument, priceCurrency)
-        self.__bars.setdefault(pair, [])
-        self.__nextPos.setdefault(pair, 0)
+        key = bar.pair_to_key(instrument, priceCurrency)
+        self.__bars.setdefault(key, [])
+        self.__nextPos.setdefault(key, 0)
 
         # Add and sort the bars
-        self.__bars[pair].extend(bars)
-        self.__bars[pair].sort(key=lambda b: b.getDateTime())
+        self.__bars[key].extend(bars)
+        self.__bars[key].sort(key=lambda b: b.getDateTime())
 
-        self.registerDataSeries(pair)
+        self.registerDataSeries(key)
 
     def loadAll(self):
         for dateTime, bars in self:

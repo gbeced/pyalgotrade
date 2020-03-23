@@ -72,7 +72,8 @@ class BaseBarFeed(feed.BaseFeed):
 
     ## BEGIN feed.BaseFeed abstractmethods
     def createDataSeries(self, key, maxLen):
-        ret = bards.BarDataSeries(maxLen)
+        instrument, priceCurrency = bar.key_to_pair(key)
+        ret = bards.BarDataSeries(instrument, priceCurrency, maxLen)
         ret.setUseAdjustedValues(self.__useAdjustedValues)
         return ret
 
@@ -94,7 +95,7 @@ class BaseBarFeed(feed.BaseFeed):
             # Update self.__currentBars and self.__lastBars
             self.__currentBars = bars
             for bar in bars:
-                self.__lastBars[bar.getPair()] = bar
+                self.__lastBars[bar.pairToKey()] = bar
         return (dateTime, bars)
     ## END feed.BaseFeed abstractmethods
 
@@ -126,7 +127,7 @@ class BaseBarFeed(feed.BaseFeed):
         """
         Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument and price currency, or None.
         """
-        return self.__lastBars.get(bar.get_pair(instrument, priceCurrency))
+        return self.__lastBars.get(bar.pair_to_key(instrument, priceCurrency))
 
     def getDataSeries(self, instrument, priceCurrency):
         """
@@ -139,7 +140,7 @@ class BaseBarFeed(feed.BaseFeed):
         :type instrument: string.
         :rtype: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
         """
-        return super(BaseBarFeed, self).getDataSeries(bar.get_pair(instrument, priceCurrency))
+        return super(BaseBarFeed, self).getDataSeries(bar.pair_to_key(instrument, priceCurrency))
 
     def getDispatchPriority(self):
         return dispatchprio.BAR_FEED

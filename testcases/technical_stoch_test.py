@@ -29,6 +29,10 @@ from pyalgotrade.dataseries import bards
 from pyalgotrade import bar
 
 
+INSTRUMENT = "ANY"
+PRICE_CURRENCY = "USD"
+
+
 def values_equal(v1, v2):
     if v1 is not None and v2 is not None:
         return round(v1, 3) == round(v2, 3)
@@ -45,7 +49,9 @@ class TestCase(common.TestCase):
         dateTime = datetime.datetime.now() + datetime.timedelta(seconds=self.__currSeconds)
         self.__currSeconds += 1
         return bar.BasicBar(
-            dateTime, openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice, bar.Frequency.DAY
+            INSTRUMENT, PRICE_CURRENCY, dateTime,
+            openPrice, highPrice, lowPrice, closePrice, closePrice*10, closePrice,
+            bar.Frequency.DAY
         )
 
     def __fillBarDataSeries(self, barDS, closePrices, highPrices, lowPrices):
@@ -58,7 +64,7 @@ class TestCase(common.TestCase):
         lowPrices = [1, 1, 1]
         closePrices = [2, 2, 3]
 
-        barDS = bards.BarDataSeries()
+        barDS = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
         stochFilter = stoch.StochasticOscillator(barDS, 2, 2)
         self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
 
@@ -105,7 +111,7 @@ class TestCase(common.TestCase):
             65.2018, 54.1912, 47.2428, 49.2003, 54.6487
         ]
 
-        barDS = bards.BarDataSeries()
+        barDS = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
         stochFilter = stoch.StochasticOscillator(barDS, 14)
         self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
 
@@ -138,7 +144,7 @@ class TestCase(common.TestCase):
         kValues = [40.3861, 66.8285, 56.7314]
         dValues = [47.2428, 49.2003, 54.6487]
 
-        barDS = bards.BarDataSeries()
+        barDS = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
         stochFilter = stoch.StochasticOscillator(barDS, 14, maxLen=3)
         self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
 
@@ -157,7 +163,7 @@ class TestCase(common.TestCase):
         lowPrices = [1, 1, 1]
         closePrices = [1, 1, 1]
 
-        barDS = bards.BarDataSeries()
+        barDS = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
         stochFilter = stoch.StochasticOscillator(barDS, 2, 2)
         self.__fillBarDataSeries(barDS, closePrices, highPrices, lowPrices)
         self.assertEqual(stochFilter[-1], 0)

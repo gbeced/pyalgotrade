@@ -164,23 +164,24 @@ class PositionTracker(object):
 
 
 class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
-    def __init__(self):
+    def __init__(self, currency):
         super(ReturnsAnalyzerBase, self).__init__()
+        self.__currency = currency
         self.__event = observer.Event()
         self.__portfolioReturns = None
 
     @classmethod
-    def getOrCreateShared(cls, strat):
-        name = cls.__name__
+    def getOrCreateShared(cls, currency, strat):
+        name = "{}_{}".format(cls.__name__, currency)
         # Get or create the shared ReturnsAnalyzerBase.
         ret = strat.getNamedAnalyzer(name)
         if ret is None:
-            ret = ReturnsAnalyzerBase()
+            ret = ReturnsAnalyzerBase(currency)
             strat.attachAnalyzerEx(ret, name)
         return ret
 
     def attached(self, strat):
-        self.__portfolioReturns = TimeWeightedReturns(strat.getBroker().getEquity())
+        self.__portfolioReturns = TimeWeightedReturns(strat.getBroker().getEquity(self.__currency))
 
     # An event will be notified when return are calculated at each bar. The handler should receive 1 parameter:
     # 1: The current datetime.
@@ -195,7 +196,7 @@ class ReturnsAnalyzerBase(stratanalyzer.StrategyAnalyzer):
         return self.__portfolioReturns.getCumulativeReturns()
 
     def beforeOnBars(self, strat, bars):
-        self.__portfolioReturns.update(strat.getBroker().getEquity())
+        self.__portfolioReturns.update(strat.getBroker().getEquity(self.__currency))
 
         # Notify that new returns are available.
         self.__event.emit(bars.getDateTime(), self)
@@ -206,20 +207,23 @@ class Returns(stratanalyzer.StrategyAnalyzer):
     A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates time-weighted returns for the
     whole portfolio.
 
+    :param currency: The currency to use to calculate returns.
+    :type currency: string.
     :param maxLen: The maximum number of values to hold in net and cumulative returns dataseries.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, maxLen=None):
+    def __init__(self, currency, maxLen=None):
         super(Returns, self).__init__()
+        self.__currency = currency
         self.__netReturns = dataseries.SequenceDataSeries(maxLen=maxLen)
         self.__cumReturns = dataseries.SequenceDataSeries(maxLen=maxLen)
 
     def beforeAttach(self, strat):
         # Get or create a shared ReturnsAnalyzerBase
-        analyzer = ReturnsAnalyzerBase.getOrCreateShared(strat)
+        analyzer = ReturnsAnalyzerBase.getOrCreateShared(self.__currency, strat)
         analyzer.getEvent().subscribe(self.__onReturns)
 
     def __onReturns(self, dateTime, returnsAnalyzerBase):

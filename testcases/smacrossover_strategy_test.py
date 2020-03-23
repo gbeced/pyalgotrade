@@ -22,13 +22,15 @@ from . import common
 
 from pyalgotrade import strategy
 from pyalgotrade.barfeed import yahoofeed
+from pyalgotrade.broker import backtesting
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 
 
 class SMACrossOverStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, fastSMA, slowSMA):
-        strategy.BacktestingStrategy.__init__(self, feed, 1000)
+        broker = backtesting.Broker({"USD": 1000}, feed)
+        strategy.BacktestingStrategy.__init__(self, feed, broker)
         ds = feed["orcl"].getPriceDataSeries()
         self.__fastSMADS = ma.SMA(ds, fastSMA)
         self.__slowSMADS = ma.SMA(ds, slowSMA)
@@ -105,7 +107,7 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
             self.__shortPos = self.enterShortPosition(bars)
 
     def onFinish(self, bars):
-        self.__finalValue = self.getBroker().getEquity()
+        self.__finalValue = self.getBroker().getEquity("USD")
 
 
 class MarketOrderStrategy(SMACrossOverStrategy):
@@ -155,7 +157,7 @@ class LimitOrderStrategy(SMACrossOverStrategy):
 class TestSMACrossOver(common.TestCase):
     def __test(self, strategyClass, finalValue):
         feed = yahoofeed.Feed()
-        feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        feed.addBarsFromCSV("orcl", "USD", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         myStrategy = strategyClass(feed, 10, 25)
         myStrategy.run()
         myStrategy.printDebug("Final result:", round(myStrategy.getFinalValue(), 2))

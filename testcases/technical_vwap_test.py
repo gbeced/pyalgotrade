@@ -32,7 +32,7 @@ class VWAPTestCase(common.TestCase):
     def __getFeed(self):
         # Load the feed and process all bars.
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(VWAPTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(VWAPTestCase.Instrument, "USD", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         return barFeed
 
     def testPeriod1_ClosingPrice(self):

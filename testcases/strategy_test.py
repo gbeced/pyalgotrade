@@ -24,6 +24,7 @@ from . import common
 
 from pyalgotrade import strategy
 from pyalgotrade import broker
+from pyalgotrade.broker import backtesting
 from pyalgotrade.barfeed import yahoofeed
 
 
@@ -36,7 +37,8 @@ def get_by_datetime_or_date(dict_, dateTimeOrDate):
 
 class TestStrategy(strategy.BacktestingStrategy):
     def __init__(self, barFeed, cash):
-        strategy.BacktestingStrategy.__init__(self, barFeed, cash)
+        brk = backtesting.Broker({"USD": cash}, barFeed)
+        strategy.BacktestingStrategy.__init__(self, barFeed, brk)
 
         # Maps dates to a tuple of (method, params)
         self.__orderEntry = {}
@@ -81,7 +83,9 @@ class StrategyTestCase(common.TestCase):
 
     def loadDailyBarFeed(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(StrategyTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(
+            StrategyTestCase.TestInstrument, "USD", common.get_data_file_path("orcl-2000-yahoofinance.csv")
+        )
         return barFeed
 
     def createStrategy(self):

@@ -38,7 +38,8 @@ class Event(object):
 
     def __unsubscribeImpl(self, handler):
         assert not self.__emitting
-        self.__handlers.remove(handler)
+        if handler in self.__handlers:
+            self.__handlers.remove(handler)
 
     def __applyChanges(self):
         assert not self.__emitting

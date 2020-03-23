@@ -35,6 +35,9 @@ from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
 
 
+PRICE_CURRENCY = "USD"
+
+
 def buildUTCDateTime(year, month, day, hour, minute):
     ret = datetime.datetime(year, month, day, hour, minute)
     ret = pytz.utc.localize(ret)
@@ -48,7 +51,9 @@ class TradesAnalyzerTestCase(common.TestCase):
         ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFilter = csvfeed.USEquitiesRTH()
         ret.setBarFilter(barFilter)
-        ret.addBarsFromCSV(TradesAnalyzerTestCase.TestInstrument, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        ret.addBarsFromCSV(
+            TradesAnalyzerTestCase.TestInstrument, PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv")
+        )
         return ret
 
     def __createStrategy(self):
@@ -66,7 +71,7 @@ class TradesAnalyzerTestCase(common.TestCase):
 
         strat.run()
 
-        self.assertTrue(strat.getBroker().getCash() == 1000)
+        self.assertTrue(strat.getBroker().getBalance("USD") == 1000)
 
         self.assertTrue(stratAnalyzer.getCount() == 0)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -100,7 +105,7 @@ class TradesAnalyzerTestCase(common.TestCase):
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getCash(), 2),
+            round(strat.getBroker().getBalance("USD"), 2),
             round(1000 + (127.16 - 127.14) + (127.16 - 127.2) + (127.26 - 127.16) - 127.34, 2)
         )
 
@@ -166,7 +171,7 @@ class TradesAnalyzerTestCase(common.TestCase):
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getCash(), 2),
+            round(strat.getBroker().getBalance("USD"), 2),
             round(1000 + (127.16 - 127.14) + (127.16 - 127.2) + (127.26 - 127.16) - 127.34, 2)
         )
 
@@ -221,7 +226,7 @@ class TradesAnalyzerTestCase(common.TestCase):
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getCash(), 2),
+            round(strat.getBroker().getBalance("USD"), 2),
             round(1000 + (127.16 - 127.2) + (127.26 - 127.16) - 127.34 - 0.01*5, 2)
         )
         self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForAllTrades(), numpy.array([0.02, 0.02])))
@@ -292,7 +297,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.16 - 127.14) + (127.16 - 127.2), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.16 - 127.14) + (127.16 - 127.2), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 2)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -333,7 +341,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.16 - 127.14) + (127.16 - 127.2), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.16 - 127.14) + (127.16 - 127.2), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 2)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -369,7 +380,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.14 - 127.16) + (127.2 - 127.16), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.14 - 127.16) + (127.2 - 127.16), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 2)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -410,7 +424,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.14 - 127.16) + (127.2 - 127.16), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.14 - 127.16) + (127.2 - 127.16), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 2)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -446,7 +463,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.2 - 127.14) + (127.2 - 127.16), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.2 - 127.14) + (127.2 - 127.16), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 1)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -480,7 +500,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.2 - 127.14) + (127.16 - 127.14), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.2 - 127.14) + (127.16 - 127.14), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 1)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -514,7 +537,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.14 - 127.2) + (127.16 - 127.2), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.14 - 127.2) + (127.16 - 127.2), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 1)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -548,7 +574,10 @@ class TradesAnalyzerTestCase(common.TestCase):
         )  # 127.2
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (127.14 - 127.16) + (127.14 - 127.2), 2))
+        self.assertEqual(
+            round(strat.getBroker().getBalance("USD"), 2),
+            round(1000 + (127.14 - 127.16) + (127.14 - 127.2), 2)
+        )
 
         self.assertTrue(stratAnalyzer.getCount() == 1)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)

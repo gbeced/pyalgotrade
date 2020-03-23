@@ -26,13 +26,17 @@ import six
 class BarDataSeries(dataseries.SequenceDataSeries):
     """A DataSeries of :class:`pyalgotrade.bar.Bar` instances.
 
+    :param instrument: Instrument identifier.
+    :type instrument: string.
+    :param priceCurrency: The price currency.
+    :type priceCurrency: string.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, maxLen=None):
+    def __init__(self, instrument, priceCurrency, maxLen=None):
         super(BarDataSeries, self).__init__(maxLen)
         self._openDS = dataseries.SequenceDataSeries(maxLen)
         self._closeDS = dataseries.SequenceDataSeries(maxLen)
@@ -42,6 +46,8 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self._adjCloseDS = dataseries.SequenceDataSeries(maxLen)
         self._extraDS = {}
         self._useAdjustedValues = False
+        self._instrument = instrument
+        self._priceCurrency = priceCurrency
 
     def _getOrCreateExtraDS(self, name):
         ret = self._extraDS.get(name)
@@ -49,6 +55,12 @@ class BarDataSeries(dataseries.SequenceDataSeries):
             ret = dataseries.SequenceDataSeries(self.getMaxLen())
             self._extraDS[name] = ret
         return ret
+
+    def getInstrument(self):
+        return self._instrument
+
+    def getPriceCurrency(self):
+        return self._priceCurrency
 
     def setUseAdjustedValues(self, useAdjusted):
         self._useAdjustedValues = useAdjusted
@@ -60,6 +72,10 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         assert(dateTime is not None)
         assert(bar is not None)
         bar.setUseAdjustedValue(self._useAdjustedValues)
+
+        # Check that all bars have the same instrument and price currency.
+        assert self._instrument == bar.getInstrument()
+        assert self._priceCurrency == bar.getPriceCurrency()
 
         super(BarDataSeries, self).appendWithDateTime(dateTime, bar)
 

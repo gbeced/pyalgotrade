@@ -43,11 +43,13 @@ class TutorialsTestCase(common.TestCase):
             res = common.run_sample_module("tutorial-1")
             self.assertEqual(
                 common.head_file("tutorial-1.output", 3),
-                res.get_output_lines(True)[:3]
+                res.get_output_lines(True)[:3],
+                res.get_output()
             )
             self.assertEqual(
                 common.tail_file("tutorial-1.output", 3),
-                res.get_output_lines(True)[-3:]
+                res.get_output_lines(True)[-3:],
+                res.get_output()
             )
             self.assertTrue(res.exit_ok())
 
@@ -56,11 +58,13 @@ class TutorialsTestCase(common.TestCase):
             res = common.run_sample_module("tutorial-2")
             self.assertEqual(
                 common.head_file("tutorial-2.output", 15),
-                res.get_output_lines(True)[:15]
+                res.get_output_lines(True)[:15],
+                res.get_output()
             )
             self.assertEqual(
                 common.tail_file("tutorial-2.output", 3),
-                res.get_output_lines(True)[-3:]
+                res.get_output_lines(True)[-3:],
+                res.get_output()
             )
             self.assertTrue(res.exit_ok())
 
@@ -69,11 +73,13 @@ class TutorialsTestCase(common.TestCase):
             res = common.run_sample_module("tutorial-3")
             self.assertEqual(
                 common.head_file("tutorial-3.output", 30),
-                res.get_output_lines(True)[:30]
+                res.get_output_lines(True)[:30],
+                res.get_output()
             )
             self.assertEqual(
                 common.tail_file("tutorial-3.output", 3),
-                res.get_output_lines(True)[-3:]
+                res.get_output_lines(True)[-3:],
+                res.get_output()
             )
             self.assertTrue(res.exit_ok())
 
@@ -83,7 +89,8 @@ class TutorialsTestCase(common.TestCase):
             lines = res.get_output_lines(True)
             self.assertEqual(
                 common.head_file("tutorial-4.output", len(lines)),
-                lines
+                lines,
+                res.get_output()
             )
             self.assertTrue(res.exit_ok())
 
@@ -120,12 +127,13 @@ class CompInvTestCase(common.TestCase):
         with common.CopyFiles(files, "."):
             res = common.run_sample_module("compinv-1")
 
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             # Skip the first two lines that have debug messages from the broker.
             lines = res.get_output_lines()
             self.assertEqual(
                 lines,
-                common.head_file("compinv-1.output", len(lines))
+                common.head_file("compinv-1.output", len(lines)),
+                res.get_output()
             )
 
 
@@ -134,12 +142,13 @@ class StratAnalyzerTestCase(common.TestCase):
         with common.CopyFiles([os.path.join("testcases", "data", "orcl-2000-yahoofinance.csv")], "."):
             res = common.run_sample_module("sample-strategy-analyzer")
 
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             lines = res.get_output_lines()
-            self.assertGreaterEqual(len(lines), 20)
+            self.assertGreaterEqual(len(lines), 20, res.get_output())
             self.assertEqual(
                 lines,
-                common.head_file("sample-strategy-analyzer.output", len(lines))
+                common.head_file("sample-strategy-analyzer.output", len(lines)),
+                res.get_output()
             )
 
 
@@ -190,8 +199,7 @@ import vwap_momentum
 vwap_momentum.main(False)
 """
             res = common.run_python_code(code)
-
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-1:],
                 common.tail_file("vwap_momentum.output", 1)
@@ -212,7 +220,7 @@ sma_crossover_sample.main(False)
 """
             res = common.run_python_code(code)
 
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-1:],
                 common.tail_file("sma_crossover.output", 1)
@@ -233,7 +241,7 @@ rsi2_sample.main(False)
 """
             res = common.run_python_code(code)
 
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-4:],
                 common.tail_file("rsi2_sample.output", 4)
@@ -253,10 +261,11 @@ import bbands
 bbands.main(False)
 """
             res = common.run_python_code(code)
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-10:],
-                common.tail_file("bbands.output", 10)
+                common.tail_file("bbands.output", 10),
+                res.get_output()
             )
 
     def testEventStudy(self):
@@ -273,7 +282,7 @@ import eventstudy
 eventstudy.main(False)
 """
             res = common.run_python_code(code)
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-1:],
                 common.tail_file("eventstudy.output", 1)
@@ -294,7 +303,7 @@ import quandl_sample
 quandl_sample.main(False)
 """
             res = common.run_python_code(code)
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[0:10],
                 common.head_file("quandl_sample.output", 10)
@@ -325,7 +334,7 @@ import market_timing
 market_timing.main(False)
 """
             res = common.run_python_code(code)
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[-10:],
                 common.tail_file(expected_output, 10)

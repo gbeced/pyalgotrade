@@ -229,28 +229,32 @@ class DefaultStrategy(FillStrategy):
         * If using trade bars, then all the volume from that bar can be used.
     """
 
-    def __init__(self, volumeLimit=0.25):
+    def __init__(self, instrumentTraits, volumeLimit=0.25):
         super(DefaultStrategy, self).__init__()
         self.__volumeLeft = {}
         self.__volumeUsed = {}
+        self.__instrumentTraits = instrumentTraits
         self.setVolumeLimit(volumeLimit)
         self.setSlippageModel(slippage.NoSlippage())
 
     def onBars(self, broker_, bars):
-        volumeLeft = {}
+        self.__volumeUsed = {}
+        self.__volumeLeft = {}
 
-        for instrument in bars.getInstruments():
-            bar = bars[instrument]
-            # Reset the volume available for each instrument.
+        # Reset volumes.
+        for bar in bars.getBars():
+            pair = bar.pairToKey()
+
+            self.__volumeUsed[pair] = 0.0
+
+            # For TRADE bars we can use all the volume available.
             if bar.getFrequency() == pyalgotrade.bar.Frequency.TRADE:
-                volumeLeft[instrument] = bar.getVolume()
-            elif self.__volumeLimit is not None:
-                # We can't round here because there is no order to request the instrument traits.
-                volumeLeft[instrument] = bar.getVolume() * self.__volumeLimit
-            # Reset the volume used for each instrument.
-            self.__volumeUsed[instrument] = 0.0
-
-        self.__volumeLeft = volumeLeft
+                volumeLeft = bar.getVolume()
+            else:
+                volumeLeft = self.__instrumentTraits.round(
+                    bar.getVolume() * self.__volumeLimit, bar.getInstrument(), roundDown=True
+                )
+            self.__volumeLeft[pair] = volumeLeft
 
     def getVolumeLeft(self):
         return self.__volumeLeft
@@ -259,20 +263,21 @@ class DefaultStrategy(FillStrategy):
         return self.__volumeUsed
 
     def onOrderFilled(self, broker_, order):
+        pair = pyalgotrade.bar.pair_to_key(order.getInstrument(), order.getPriceCurrency())
+        instrument = order.getInstrument()
+        fillQuantity = order.getExecutionInfo().getQuantity()
+        assert self.__instrumentTraits.round(fillQuantity, instrument) == fillQuantity
+
         # Update the volume left.
-        if self.__volumeLimit is not None:
-            # We round the volume left here because it was not rounded when it was initialized.
-            volumeLeft = order.getInstrumentTraits().roundQuantity(self.__volumeLeft[order.getInstrument()])
-            fillQuantity = order.getExecutionInfo().getQuantity()
-            assert volumeLeft >= fillQuantity, \
-                "Invalid fill quantity %s. Not enough volume left %s" % (fillQuantity, volumeLeft)
-            self.__volumeLeft[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
-                volumeLeft - fillQuantity
-            )
+        volumeLeft = self.__volumeLeft[pair]
+        assert volumeLeft >= fillQuantity, \
+            "Invalid fill quantity %s. Not enough volume left %s" % (fillQuantity, volumeLeft)
+        self.__volumeLeft[pair] = self.__instrumentTraits.round(volumeLeft - fillQuantity, instrument)
 
         # Update the volume used.
-        self.__volumeUsed[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
-            self.__volumeUsed[order.getInstrument()] + order.getExecutionInfo().getQuantity()
+        self.__volumeUsed[pair] = self.__instrumentTraits.round(
+            self.__volumeUsed[pair] + fillQuantity,
+            instrument
         )
 
     def setVolumeLimit(self, volumeLimit):
@@ -280,12 +285,10 @@ class DefaultStrategy(FillStrategy):
         Set the volume limit.
 
         :param volumeLimit: The proportion of the volume that orders can take up in a bar. Must be > 0 and <= 1.
-            If None, then volume limit is not checked.
         :type volumeLimit: float
         """
 
-        if volumeLimit is not None:
-            assert volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
+        assert volumeLimit is not None and volumeLimit > 0 and volumeLimit <= 1, "Invalid volume limit"
         self.__volumeLimit = volumeLimit
 
     def setSlippageModel(self, slippageModel):
@@ -300,13 +303,8 @@ class DefaultStrategy(FillStrategy):
 
     def __calculateFillSize(self, broker_, order, bar):
         ret = 0
-
-        # If self.__volumeLimit is None then allow all the order to get filled.
-        if self.__volumeLimit is not None:
-            maxVolume = self.__volumeLeft.get(order.getInstrument(), 0)
-            maxVolume = order.getInstrumentTraits().roundQuantity(maxVolume)
-        else:
-            maxVolume = order.getRemaining()
+        instrument = order.getInstrument()
+        maxVolume = self.__instrumentTraits.round(self.__volumeLeft.get(bar.pairToKey(), 0), instrument)
 
         if not order.getAllOrNone():
             ret = min(maxVolume, order.getRemaining())
@@ -316,6 +314,8 @@ class DefaultStrategy(FillStrategy):
         return ret
 
     def fillMarketOrder(self, broker_, order, bar):
+        assert bar.pairToKey() == pyalgotrade.bar.pair_to_key(order.getInstrument(), order.getPriceCurrency())
+
         # Calculate the fill size for the order.
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
@@ -338,11 +338,13 @@ class DefaultStrategy(FillStrategy):
         # Don't slip prices when the bar represents the trading activity of a single trade.
         if bar.getFrequency() != pyalgotrade.bar.Frequency.TRADE:
             price = self.__slippageModel.calculatePrice(
-                order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+                order, price, fillSize, bar, self.__volumeUsed[bar.pairToKey()]
             )
         return FillInfo(price, fillSize)
 
     def fillLimitOrder(self, broker_, order, bar):
+        assert bar.pairToKey() == pyalgotrade.bar.pair_to_key(order.getInstrument(), order.getPriceCurrency())
+
         # Calculate the fill size for the order.
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
@@ -358,6 +360,8 @@ class DefaultStrategy(FillStrategy):
         return ret
 
     def fillStopOrder(self, broker_, order, bar):
+        assert bar.pairToKey() == pyalgotrade.bar.pair_to_key(order.getInstrument(), order.getPriceCurrency())
+
         ret = None
 
         # First check if the stop price was hit so the market order becomes active.
@@ -394,12 +398,14 @@ class DefaultStrategy(FillStrategy):
             # Don't slip prices when the bar represents the trading activity of a single trade.
             if bar.getFrequency() != pyalgotrade.bar.Frequency.TRADE:
                 price = self.__slippageModel.calculatePrice(
-                    order, price, fillSize, bar, self.__volumeUsed[order.getInstrument()]
+                    order, price, fillSize, bar, self.__volumeUsed[bar.pairToKey()]
                 )
             ret = FillInfo(price, fillSize)
         return ret
 
     def fillStopLimitOrder(self, broker_, order, bar):
+        assert bar.pairToKey() == pyalgotrade.bar.pair_to_key(order.getInstrument(), order.getPriceCurrency())
+
         ret = None
 
         # First check if the stop price was hit so the limit order becomes active.

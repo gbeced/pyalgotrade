@@ -23,8 +23,19 @@ import abc
 import six
 
 
-def get_pair(instrument, priceCurrency):
-    return "%s/%s" % (instrument, priceCurrency)
+PAIR_KEY_SEP = "/"
+
+
+def pair_to_key(instrument, priceCurrency):
+    ret = "%s%s%s" % (instrument, PAIR_KEY_SEP, priceCurrency)
+    assert ret.count(PAIR_KEY_SEP) == 1, "Either instrument or priceCurrency contains %s" % PAIR_KEY_SEP
+    return ret
+
+
+def key_to_pair(pair):
+    ret = pair.split(PAIR_KEY_SEP)
+    assert len(ret) == 2
+    return ret[0], ret[1]
 
 
 class Frequency(object):
@@ -134,8 +145,8 @@ class Bar(object):
     def getExtraColumns(self):
         return {}
 
-    def getPair(self):
-        return get_pair(self.getInstrument(), self.getPriceCurrency())
+    def pairToKey(self):
+        return pair_to_key(self.getInstrument(), self.getPriceCurrency())
 
 
 class BasicBar(Bar):
@@ -315,7 +326,7 @@ class Bars(object):
                     firstDateTime
                 ))
 
-            pair = currentBar.getPair()
+            pair = currentBar.pairToKey()
             assert pair not in self.__barDict, "Duplicate bars %s" % pair
             self.__barDict[pair] = currentBar
 

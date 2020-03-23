@@ -1,17 +1,17 @@
 from __future__ import print_function
 
 from pyalgotrade import strategy
-from pyalgotrade import plotter
 from pyalgotrade.tools import quandl
 from pyalgotrade.technical import vwap
 from pyalgotrade.stratanalyzer import sharpe
 
 
 class VWAPMomentum(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument, vwapWindowSize, threshold):
-        super(VWAPMomentum, self).__init__(feed)
+    def __init__(self, feed, instrument, priceCurrency, vwapWindowSize, threshold):
+        super(VWAPMomentum, self).__init__(feed, balances={priceCurrency: 1000000})
         self.__instrument = instrument
-        self.__vwap = vwap.VWAP(feed[instrument], vwapWindowSize)
+        self.__priceCurrency = priceCurrency
+        self.__vwap = vwap.VWAP(feed.getDataSeries(instrument, priceCurrency), vwapWindowSize)
         self.__threshold = threshold
 
     def getVWAP(self):
@@ -22,29 +22,32 @@ class VWAPMomentum(strategy.BacktestingStrategy):
         if vwap is None:
             return
 
-        shares = self.getBroker().getShares(self.__instrument)
-        price = bars[self.__instrument].getClose()
+        shares = self.getBroker().getBalance(self.__instrument)
+        price = bars.getBar(self.__instrument, self.__priceCurrency).getClose()
         notional = shares * price
 
         if price > vwap * (1 + self.__threshold) and notional < 1000000:
-            self.marketOrder(self.__instrument, 100)
+            self.marketOrder(self.__instrument, self.__priceCurrency, 100)
         elif price < vwap * (1 - self.__threshold) and notional > 0:
-            self.marketOrder(self.__instrument, -100)
+            self.marketOrder(self.__instrument, self.__priceCurrency, -100)
 
 
 def main(plot):
     instrument = "AAPL"
+    priceCurrency = "USD"
     vwapWindowSize = 5
     threshold = 0.01
 
     # Download the bars.
-    feed = quandl.build_feed("WIKI", [instrument], 2011, 2012, ".")
+    feed = quandl.build_feed("WIKI", [instrument], priceCurrency, 2011, 2012, ".")
 
-    strat = VWAPMomentum(feed, instrument, vwapWindowSize, threshold)
-    sharpeRatioAnalyzer = sharpe.SharpeRatio()
+    strat = VWAPMomentum(feed, instrument, priceCurrency, vwapWindowSize, threshold)
+    sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 
     if plot:
+        from pyalgotrade import plotter
+
         plt = plotter.StrategyPlotter(strat, True, False, True)
         plt.getInstrumentSubplot(instrument).addDataSeries("vwap", strat.getVWAP())
 

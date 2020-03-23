@@ -35,7 +35,9 @@ class LineBreakTestCase(common.TestCase):
     def __getFeed(self):
         # Load the feed and process all bars.
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(LineBreakTestCase.Instrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(
+            LineBreakTestCase.Instrument, "USD", common.get_data_file_path("orcl-2001-yahoofinance.csv")
+        )
         return barFeed
 
     def test2LineBreak(self):
@@ -110,31 +112,49 @@ class LineBreakTestCase(common.TestCase):
             lb.setMaxLen(2)
 
     def testWhiteBlackReversal(self):
-        bds = bards.BarDataSeries()
+        instrument = "ANY"
+        priceCurrency = "USD"
+
+        bds = bards.BarDataSeries(instrument, priceCurrency)
         lb = linebreak.LineBreak(bds, 2)
-        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 5), 10, 12, 9, 11, 1, None, bar.Frequency.DAY))
+        bds.append(bar.BasicBar(
+            instrument, priceCurrency, datetime.datetime(2008, 3, 5), 10, 12, 9, 11, 1, None, bar.Frequency.DAY
+        ))
         self.assertEqual(len(lb), 1)
-        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 6), 9, 12, 8, 12, 1, None, bar.Frequency.DAY))
+        bds.append(bar.BasicBar(
+            instrument, priceCurrency, datetime.datetime(2008, 3, 6), 9, 12, 8, 12, 1, None, bar.Frequency.DAY
+        ))
         self.assertEqual(len(lb), 1)
         self.assertEqual(lb[-1].isWhite(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 5))
 
-        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 7), 9, 12, 5, 6, 1, None, bar.Frequency.DAY))
+        bds.append(bar.BasicBar(
+            instrument, priceCurrency, datetime.datetime(2008, 3, 7), 9, 12, 5, 6, 1, None, bar.Frequency.DAY
+        ))
         self.assertEqual(len(lb), 2)
         self.assertEqual(lb[-1].isBlack(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 7))
 
     def testBlackWhiteReversal(self):
-        bds = bards.BarDataSeries()
+        instrument = "ANY"
+        priceCurrency = "USD"
+
+        bds = bards.BarDataSeries(instrument, priceCurrency)
         lb = linebreak.LineBreak(bds, 2)
-        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 5), 10, 12, 8, 9, 1, None, bar.Frequency.DAY))
+        bds.append(bar.BasicBar(
+            instrument, priceCurrency, datetime.datetime(2008, 3, 5), 10, 12, 8, 9, 1, None, bar.Frequency.DAY
+        ))
         self.assertEqual(len(lb), 1)
-        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 6), 9, 12, 9, 12, 1, None, bar.Frequency.DAY))
+        bds.append(bar.BasicBar(
+            instrument, priceCurrency, datetime.datetime(2008, 3, 6), 9, 12, 9, 12, 1, None, bar.Frequency.DAY
+        ))
         self.assertEqual(len(lb), 1)
         self.assertEqual(lb[-1].isBlack(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 5))
 
-        bds.append(bar.BasicBar(datetime.datetime(2008, 3, 7), 9, 13, 5, 13, 1, None, bar.Frequency.DAY))
+        bds.append(bar.BasicBar(
+            instrument, priceCurrency, datetime.datetime(2008, 3, 7), 9, 13, 5, 13, 1, None, bar.Frequency.DAY
+        ))
         self.assertEqual(len(lb), 2)
         self.assertEqual(lb[-1].isWhite(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 7))

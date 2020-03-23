@@ -4,13 +4,14 @@ from pyalgotrade.technical import cross
 
 
 class SMACrossOver(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument, smaPeriod):
-        super(SMACrossOver, self).__init__(feed)
+    def __init__(self, feed, instrument, priceCurrency, smaPeriod):
+        super(SMACrossOver, self).__init__(feed, balances={priceCurrency: 1000000})
         self.__instrument = instrument
+        self.__priceCurrency = priceCurrency
         self.__position = None
         # We'll use adjusted close values instead of regular close values.
         self.setUseAdjustedValues(True)
-        self.__prices = feed[instrument].getPriceDataSeries()
+        self.__prices = feed.getDataSeries(instrument, priceCurrency).getPriceDataSeries()
         self.__sma = ma.SMA(self.__prices, smaPeriod)
 
     def getSMA(self):
@@ -30,9 +31,11 @@ class SMACrossOver(strategy.BacktestingStrategy):
         # If a position was not opened, check if we should enter a long position.
         if self.__position is None:
             if cross.cross_above(self.__prices, self.__sma) > 0:
-                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
+                cash = self.getBroker().getBalance(self.__priceCurrency)
+                price = bars.getBar(self.__instrument, self.__priceCurrency).getPrice()
+                shares = int(cash * 0.9 / price)
                 # Enter a buy market order. The order is good till canceled.
-                self.__position = self.enterLong(self.__instrument, shares, True)
+                self.__position = self.enterLong(self.__instrument, self.__priceCurrency, shares, True)
         # Check if we have to exit the position.
         elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
             self.__position.exitMarket()

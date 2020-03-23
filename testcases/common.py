@@ -95,13 +95,13 @@ def compare_tail(fileName, lines, path="samples"):
 
 
 def head_file(fileName, line_count, path="samples"):
-    assert(line_count > 0)
+    assert(line_count >= 0)
     fileLines = get_file_lines(os.path.join(path, fileName))
     return fileLines[0:line_count]
 
 
 def tail_file(fileName, line_count, path="samples"):
-    assert(line_count > 0)
+    assert(line_count >= 0)
     lines = get_file_lines(os.path.join(path, fileName))
     return lines[line_count*-1:]
 

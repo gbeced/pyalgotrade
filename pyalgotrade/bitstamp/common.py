@@ -18,41 +18,59 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-import six
-
 import pyalgotrade.logger
-from pyalgotrade import broker
 
 
 logger = pyalgotrade.logger.getLogger("bitstamp")
 
 
-# SUPPORTED_FIAT_CURRENCIES = ["USD", "EUR"]
-SUPPORTED_FIAT_CURRENCIES = ["USD"]
-# SUPPORTED_CRYPTO_CURRENCIES = ["BTC", "XRP", "LTC", "ETH", "BCH"]
-SUPPORTED_CRYPTO_CURRENCIES = ["BTC"]
-
-
-CURRENCY_PAIR_TO_CHANNEL = {
-    "BTC/USD": "btcusd",
+SUPPORTED_CURRENCY_PAIRS = {
+    "BCH/BTC",
+    "BCH/EUR",
+    "BCH/USD",
+    "BTC/EUR",
+    "BTC/USD",
+    "ETH/BTC",
+    "ETH/EUR",
+    "ETH/USD",
+    "EUR/USD",
+    "LTC/BTC",
+    "LTC/EUR",
+    "LTC/USD",
+    "XRP/BTC",
+    "XRP/EUR",
+    "XRP/USD",
 }
-CHANNEL_TO_CURRENCY_PAIR = {v: k for k, v in six.iteritems(CURRENCY_PAIR_TO_CHANNEL)}
-
-BTC_SYMBOL = "BTC"
-USD_SYMBOL = "USD"
-BTC_USD_CURRENCY_PAIR = "BTC/USD"
-BTC_USD_CHANNEL = CURRENCY_PAIR_TO_CHANNEL[BTC_USD_CURRENCY_PAIR]
-SUPPORTED_CURRENCY_PAIRS = set(CURRENCY_PAIR_TO_CHANNEL.keys())
 
 
-class BTCTraits(broker.InstrumentTraits):
-    def roundQuantity(self, quantity):
-        return round(quantity, 8)
+SYMBOL_DIGITS = {
+    # Fiat currencies
+    "EUR": 2,
+    "USD": 2,
+    # Crypto currencies.
+    "BCH": 8,
+    "BTC": 8,
+    "ETH": 18,
+    "LTC": 8,
+    "XRP": 6,
+}
 
 
-def split_currency_pair(currencyPair):
-    """Splits a currency pair into base currency and quote currency"""
-    assert len(currencyPair) == 7, "Invalid currency pair"
-    assert currencyPair[3] == "/", "Invalid currency pair"
+MINIMUM_TRADE_AMOUNT = {
+    "BTC": 0.001,
+    "EUR": 25,
+    "USD": 25,
+}
 
-    return currencyPair[:3], currencyPair[4:]
+
+def currency_pair_to_channel(currencyPair):
+    assert currencyPair in SUPPORTED_CURRENCY_PAIRS, "Unsupported currency pair %s" % currencyPair
+    return currencyPair.replace("/", "").lower()
+
+
+def channel_to_currency_pair(channel):
+    assert len(channel) == 6
+    ret = "%s/%s" % (channel[0:3], channel[3:])
+    ret = ret.upper()
+    assert ret in SUPPORTED_CURRENCY_PAIRS, "Invalid channel %s" % channel
+    return ret

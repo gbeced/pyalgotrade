@@ -67,7 +67,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
                 )
             ]),
         ]
-        f = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], bars)
+        f = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.pair_to_key(INSTRUMENT, PRICE_CURRENCY)], bars)
         with self.assertRaisesRegexp(Exception, "Bar date times are not in order.*"):
             for dt, b in f:
                 pass
@@ -85,7 +85,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
                 )
             ]),
         ]
-        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], bars)
+        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.pair_to_key(INSTRUMENT, PRICE_CURRENCY)], bars)
         check_base_barfeed(self, barFeed, True)
 
     def testBaseBarFeedNoAdjClose(self):
@@ -101,11 +101,11 @@ class OptimizerBarFeedTestCase(common.TestCase):
                 )
             ]),
         ]
-        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], bars)
+        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.pair_to_key(INSTRUMENT, PRICE_CURRENCY)], bars)
         check_base_barfeed(self, barFeed, False)
 
     def testEmtpy(self):
-        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.get_pair(INSTRUMENT, PRICE_CURRENCY)], [])
+        barFeed = barfeed.OptimizerBarFeed(bar.Frequency.DAY, [bar.pair_to_key(INSTRUMENT, PRICE_CURRENCY)], [])
         self.assertEqual(barFeed.barsHaveAdjClose(), False)
 
 

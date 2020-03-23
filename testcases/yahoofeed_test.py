@@ -234,11 +234,11 @@ class FeedTestCase(common.TestCase):
             marketsession.USEquities.getTimezone()
         )
         for dateTime, bars in barFeed:
-            self.assertTrue(bar.get_pair(INSTRUMENT, PRICE_CURRENCY) in bars)
+            self.assertTrue(bar.pair_to_key(INSTRUMENT, PRICE_CURRENCY) in bars)
             self.assertTrue(INSTRUMENT not in bars)
             bars.getBar(INSTRUMENT, PRICE_CURRENCY)
             with self.assertRaises(KeyError):
-                bars[bar.get_pair("pirulo", PRICE_CURRENCY)]
+                bars[bar.pair_to_key("pirulo", PRICE_CURRENCY)]
 
     def testBounded(self):
         barFeed = yahoofeed.Feed(maxLen=2)

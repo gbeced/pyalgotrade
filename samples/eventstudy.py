@@ -11,7 +11,7 @@ from pyalgotrade.tools import quandl
 
 
 class BuyOnGap(eventprofiler.Predicate):
-    def __init__(self, feed):
+    def __init__(self, feed, instruments, priceCurrency):
         super(BuyOnGap, self).__init__()
 
         stdDevPeriod = 90
@@ -19,8 +19,8 @@ class BuyOnGap(eventprofiler.Predicate):
         self.__returns = {}
         self.__stdDev = {}
         self.__ma = {}
-        for instrument in feed.getRegisteredInstruments():
-            priceDS = feed[instrument].getAdjCloseDataSeries()
+        for instrument in instruments:
+            priceDS = feed.getDataSeries(instrument, priceCurrency).getAdjCloseDataSeries()
             # Returns over the adjusted close values.
             self.__returns[instrument] = roc.RateOfChange(priceDS, 1)
             # StdDev over those returns.
@@ -44,7 +44,7 @@ class BuyOnGap(eventprofiler.Predicate):
             ret = True
         return ret
 
-    def eventOccurred(self, instrument, bards):
+    def eventOccurred(self, instrument, priceCurrency, bards):
         ret = False
         if self.__gappedDown(instrument, bards) and self.__aboveSMA(instrument, bards):
             ret = True
@@ -53,9 +53,10 @@ class BuyOnGap(eventprofiler.Predicate):
 
 def main(plot):
     instruments = ["IBM", "AES", "AIG"]
-    feed = quandl.build_feed("WIKI", instruments, 2008, 2009, ".")
+    priceCurrency = "USD"
+    feed = quandl.build_feed("WIKI", instruments, priceCurrency, 2008, 2009, ".")
 
-    predicate = BuyOnGap(feed)
+    predicate = BuyOnGap(feed, instruments, priceCurrency)
     eventProfiler = eventprofiler.Profiler(predicate, 5, 5)
     eventProfiler.run(feed, True)
 

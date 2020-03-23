@@ -32,6 +32,7 @@ from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import barfeed
 from pyalgotrade.barfeed import membf
 from pyalgotrade.barfeed import ninjatraderfeed
+from pyalgotrade.broker import backtesting
 from pyalgotrade.utils import dt
 from pyalgotrade import marketsession
 
@@ -55,7 +56,8 @@ class TestBarFeed(membf.BarFeed):
 
 class BaseTestStrategy(strategy.BacktestingStrategy):
     def __init__(self, barFeed, instrument, cash=1000000):
-        strategy.BacktestingStrategy.__init__(self, barFeed, cash)
+        broker = backtesting.Broker({"USD": cash}, barFeed)
+        super(BaseTestStrategy, self).__init__(barFeed, broker)
         self.instrument = instrument
         self.orderUpdatedCalls = 0
         self.enterOkCalls = 0
@@ -373,7 +375,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertEqual(strat.orderUpdatedCalls, 6)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 27.37 - 30.69, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + 27.37 - 30.69, 2))
         self.assertTrue(round(strat.getResult(), 3) == -0.108)
         self.assertTrue(round(strat.getNetProfit(), 2) == round(27.37 - 30.69, 2))
         self.assertEqual(strat.positions[0].getAge().days, 2)
@@ -395,7 +397,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.31 - 27.44, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + 30.31 - 27.44, 2))
         self.assertTrue(round(strat.getResult(), 3) == 0.105)
         self.assertTrue(round(strat.getNetProfit(), 2) == round(30.31 - 27.44, 2))
         self.assertEqual(strat.positions[0].getAge().days, 268)
@@ -421,7 +423,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.positions[0].isOpen(), False)
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(48 + 57.63 - 47.94, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(48 + 57.63 - 47.94, 2))
         self.assertTrue(round(strat.getNetProfit(), 2) == round(57.63 - 47.94, 2))
         self.assertEqual(strat.positions[0].getAge().days, 4)
 
@@ -441,7 +443,7 @@ class LongPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(strat.getBroker().getCash() == 10)
+        self.assertTrue(strat.getBroker().getBalance("USD") == 10)
         self.assertTrue(strat.getNetProfit() == 0)
 
     def testUnrealized1(self):
@@ -790,7 +792,7 @@ class ShortPosTestCase(BaseTestCase):
 
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 30.69 - 27.37, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + 30.69 - 27.37, 2))
         self.assertTrue(round(strat.getResult(), 3) == round(0.10817856, 3))
         self.assertTrue(round(strat.getNetProfit(), 2) == round(30.69 - 27.37, 2))
 
@@ -810,7 +812,7 @@ class ShortPosTestCase(BaseTestCase):
 
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertEqual(strat.exitOkCalls, 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + 27.44 - 30.31, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + 27.44 - 30.31, 2))
         self.assertTrue(round(strat.getResult(), 3) == round(-0.104591837, 3))
         self.assertTrue(round(strat.getNetProfit(), 2) == round(27.44 - 30.31, 2))
 
@@ -831,7 +833,7 @@ class ShortPosTestCase(BaseTestCase):
 
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == 23.19)
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == 23.19)
         self.assertTrue(strat.getNetProfit() == 0)
 
     def testShortPositionExitCanceledAndReSubmitted(self):
@@ -858,7 +860,7 @@ class ShortPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 1)
         self.assertEqual(strat.exitOkCalls, 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(25.12 - 23.31, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(25.12 - 23.31, 2))
 
     def testUnrealized(self):
         strat = self.createStrategy(True)
@@ -904,7 +906,7 @@ class LimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == 1004)
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == 1004)
 
     def testShort(self):
         strat = self.createStrategy()
@@ -925,7 +927,7 @@ class LimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 23.31), 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + (29 - 23.31), 2))
 
     def testExitOnEntryNotFilled(self):
         strat = self.createStrategy()
@@ -948,7 +950,7 @@ class LimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == 1000)
 
     def testExitTwice(self):
         strat = self.createStrategy()
@@ -971,7 +973,7 @@ class LimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 25), 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + (26.94 - 25), 2))
 
     def testExitCancelsEntry(self):
         strat = self.createStrategy()
@@ -991,7 +993,7 @@ class LimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 1)
         self.assertEqual(strat.exitOkCalls, 0)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == 1000)
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == 1000)
 
     def testEntryGTCExitNotGTC(self):
         strat = self.createStrategy()
@@ -1012,7 +1014,7 @@ class LimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 0)
         self.assertTrue(strat.exitCanceledCalls == 1)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 - 25, 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 - 25, 2))
 
 
 class StopPosTestCase(BaseTestCase):
@@ -1035,7 +1037,7 @@ class StopPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26 - 25.12), 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + (26 - 25.12), 2))
 
     def testShort(self):
         strat = self.createStrategy()
@@ -1056,7 +1058,7 @@ class StopPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (26.94 - 23.31), 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + (26.94 - 23.31), 2))
 
     def testPartialFillGTC1(self):
         # Open and close after entry has been fully filled.
@@ -1282,7 +1284,7 @@ class StopLimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (28 - 24), 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + (28 - 24), 2))
 
     def testShort(self):
         strat = self.createStrategy()
@@ -1309,4 +1311,4 @@ class StopLimitPosTestCase(BaseTestCase):
         self.assertEqual(strat.enterCanceledCalls, 0)
         self.assertEqual(strat.exitOkCalls, 1)
         self.assertTrue(strat.exitCanceledCalls == 0)
-        self.assertTrue(round(strat.getBroker().getCash(), 2) == round(1000 + (29 - 24), 2))
+        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == round(1000 + (29 - 24), 2))
