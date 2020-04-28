@@ -11,28 +11,28 @@ Loading bars from IEF-2008-yahoofinance.csv
 .
 .
 .
-2013-10-01 00:00:00 strategy [INFO] Best for class US Stocks: VTI
-2013-10-01 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-10-01 00:00:00 strategy [INFO] Best for class US Stocks: VTI/USD
+2013-10-01 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU/USD
 2013-10-01 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
 2013-10-01 00:00:00 strategy [INFO] Best for class Real Estate: None
 2013-10-01 00:00:00 strategy [INFO] Best for class Commodities: None
-2013-10-01 00:00:00 strategy [INFO] Placing market order for -2 VEU shares
+2013-10-01 00:00:00 strategy [INFO] Placing market order for -2 VEU/USD shares
 2013-11-01 00:00:00 strategy [INFO] Rebalancing
-2013-11-01 00:00:00 strategy [INFO] Best for class US Stocks: VTI
-2013-11-01 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-11-01 00:00:00 strategy [INFO] Best for class US Stocks: VTI/USD
+2013-11-01 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU/USD
 2013-11-01 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
-2013-11-01 00:00:00 strategy [INFO] Best for class Real Estate: VNQ
+2013-11-01 00:00:00 strategy [INFO] Best for class Real Estate: VNQ/USD
 2013-11-01 00:00:00 strategy [INFO] Best for class Commodities: None
-2013-11-01 00:00:00 strategy [INFO] Placing market order for -1 VTI shares
-2013-11-01 00:00:00 strategy [INFO] Placing market order for -1 VEU shares
-2013-11-01 00:00:00 strategy [INFO] Placing market order for 39 VNQ shares
+2013-11-01 00:00:00 strategy [INFO] Placing market order for -1 VTI/USD shares
+2013-11-01 00:00:00 strategy [INFO] Placing market order for -1 VEU/USD shares
+2013-11-01 00:00:00 strategy [INFO] Placing market order for 39 VNQ/USD shares
 2013-12-02 00:00:00 strategy [INFO] Rebalancing
-2013-12-02 00:00:00 strategy [INFO] Best for class US Stocks: VTI
-2013-12-02 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU
+2013-12-02 00:00:00 strategy [INFO] Best for class US Stocks: VTI/USD
+2013-12-02 00:00:00 strategy [INFO] Best for class Foreign Stocks: VEU/USD
 2013-12-02 00:00:00 strategy [INFO] Best for class US 10 Year Government Bonds: None
 2013-12-02 00:00:00 strategy [INFO] Best for class Real Estate: None
 2013-12-02 00:00:00 strategy [INFO] Best for class Commodities: None
-2013-12-02 00:00:00 strategy [INFO] Placing market order for -1 VTI shares
-2013-12-02 00:00:00 strategy [INFO] Placing market order for -39 VNQ shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -1 VTI/USD shares
+2013-12-02 00:00:00 strategy [INFO] Placing market order for -39 VNQ/USD shares
 Sharpe ratio: -0.06
 Returns: 32.90 %

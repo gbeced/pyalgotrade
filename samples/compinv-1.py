@@ -8,7 +8,7 @@ from pyalgotrade.utils import stats
 
 
 class MyStrategy(strategy.BacktestingStrategy):
-    def __init__(self, feed, priceCurrency):
+    def __init__(self, feed):
         super(MyStrategy, self).__init__(feed, balances={priceCurrency: 1000000})
 
         # We wan't to use adjusted close prices instead of close.
@@ -16,13 +16,13 @@ class MyStrategy(strategy.BacktestingStrategy):
 
         # Place the orders to get them processed on the first bar.
         orders = {
-            "ibm": 1996,
-            "aes": 22565,
-            "aig": 5445,
-            "orcl": 8582,
+            "ibm/USD": 1996,
+            "aes/USD": 22565,
+            "aig/USD": 5445,
+            "orcl/USD": 8582,
         }
         for instrument, quantity in orders.items():
-            self.marketOrder(instrument, priceCurrency, quantity, onClose=True, allOrNone=True)
+            self.marketOrder(instrument, quantity, onClose=True, allOrNone=True)
 
     def onBars(self, bars):
         pass
@@ -30,13 +30,13 @@ class MyStrategy(strategy.BacktestingStrategy):
 priceCurrency = "USD"
 # Load the bar feed from the CSV file
 feed = quandlfeed.Feed()
-feed.addBarsFromCSV("ibm", priceCurrency, "WIKI-IBM-2011-quandl.csv")
-feed.addBarsFromCSV("aes", priceCurrency, "WIKI-AES-2011-quandl.csv")
-feed.addBarsFromCSV("aig", priceCurrency, "WIKI-AIG-2011-quandl.csv")
-feed.addBarsFromCSV("orcl", priceCurrency, "WIKI-ORCL-2011-quandl.csv")
+feed.addBarsFromCSV("ibm/USD", "WIKI-IBM-2011-quandl.csv")
+feed.addBarsFromCSV("aes/USD", "WIKI-AES-2011-quandl.csv")
+feed.addBarsFromCSV("aig/USD", "WIKI-AIG-2011-quandl.csv")
+feed.addBarsFromCSV("orcl/USD", "WIKI-ORCL-2011-quandl.csv")
 
 # Evaluate the strategy with the feed's bars.
-myStrategy = MyStrategy(feed, priceCurrency)
+myStrategy = MyStrategy(feed)
 
 # Attach returns and sharpe ratio analyzers.
 retAnalyzer = returns.Returns(priceCurrency)

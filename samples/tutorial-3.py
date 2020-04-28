@@ -11,15 +11,14 @@ def safe_round(value, digits):
 
 
 class MyStrategy(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument, priceCurrency):
+    def __init__(self, feed, instrument):
         super(MyStrategy, self).__init__(feed, balances={})
-        self.__rsi = rsi.RSI(feed.getDataSeries(instrument, priceCurrency).getCloseDataSeries(), 14)
+        self.__rsi = rsi.RSI(feed.getDataSeries(instrument).getCloseDataSeries(), 14)
         self.__sma = ma.SMA(self.__rsi, 15)
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
 
     def onBars(self, bars):
-        bar = bars.getBar(self.__instrument, self.__priceCurrency)
+        bar = bars.getBar(self.__instrument)
         self.info("%s %s %s" % (
             bar.getClose(), safe_round(self.__rsi[-1], 2), safe_round(self.__sma[-1], 2)
         ))
@@ -27,8 +26,8 @@ class MyStrategy(strategy.BacktestingStrategy):
 
 # Load the bar feed from the CSV file
 feed = quandlfeed.Feed()
-feed.addBarsFromCSV("orcl", "USD", "WIKI-ORCL-2000-quandl.csv")
+feed.addBarsFromCSV("ORCL/USD", "WIKI-ORCL-2000-quandl.csv")
 
 # Evaluate the strategy with the feed's bars.
-myStrategy = MyStrategy(feed, "orcl", "USD")
+myStrategy = MyStrategy(feed, "ORCL/USD")
 myStrategy.run()

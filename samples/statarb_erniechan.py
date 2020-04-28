@@ -71,17 +71,16 @@ class StatArbHelper:
 
 
 class StatArb(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument1, instrument2, priceCurrency, windowSize):
-        super(StatArb, self).__init__(feed, balances={priceCurrency: 1000000})
+    def __init__(self, feed, instrument1, instrument2, initialBalance, windowSize):
+        super(StatArb, self).__init__(feed, balances=initialBalance)
         self.setUseAdjustedValues(True)
         self.__statArbHelper = StatArbHelper(
-            feed.getDataSeries(instrument1, priceCurrency).getAdjCloseDataSeries(),
-            feed.getDataSeries(instrument2, priceCurrency).getAdjCloseDataSeries(),
+            feed.getDataSeries(instrument1).getAdjCloseDataSeries(),
+            feed.getDataSeries(instrument2).getAdjCloseDataSeries(),
             windowSize
         )
         self.__i1 = instrument1
         self.__i2 = instrument2
-        self.__priceCurrency = priceCurrency
 
         # These are used only for plotting purposes.
         self.__spread = dataseries.SequenceDataSeries()
@@ -95,28 +94,32 @@ class StatArb(strategy.BacktestingStrategy):
 
     def __getOrderSize(self, bars, hedgeRatio):
         cash = self.getBroker().getBalance("USD")
-        price1 = bars.getBar(self.__i1, self.__priceCurrency).getAdjClose()
-        price2 = bars.getBar(self.__i2, self.__priceCurrency).getAdjClose()
+        price1 = bars.getBar(self.__i1).getAdjClose()
+        price2 = bars.getBar(self.__i2).getAdjClose()
         size1 = int(cash / (price1 + hedgeRatio * price2))
         size2 = int(size1 * hedgeRatio)
         return (size1, size2)
 
     def buySpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.marketOrder(self.__i1, self.__priceCurrency, amount1)
-        self.marketOrder(self.__i2, self.__priceCurrency, amount2 * -1)
+        self.marketOrder(self.__i1, amount1)
+        self.marketOrder(self.__i2, amount2 * -1)
 
     def sellSpread(self, bars, hedgeRatio):
         amount1, amount2 = self.__getOrderSize(bars, hedgeRatio)
-        self.marketOrder(self.__i1, self.__priceCurrency, amount1 * -1)
-        self.marketOrder(self.__i2, self.__priceCurrency, amount2)
+        self.marketOrder(self.__i1, amount1 * -1)
+        self.marketOrder(self.__i2, amount2)
+
+    def _getBalanceForInstrument(self, instrument):
+        symbol = instrument.split("/")[0]
+        return self.getBroker().getBalance(symbol)
 
     def reducePosition(self, instrument):
-        currentPos = self.getBroker().getBalance(instrument)
+        currentPos = self._getBalanceForInstrument(instrument)
         if currentPos > 0:
-            self.marketOrder(instrument, self.__priceCurrency, currentPos * -1)
+            self.marketOrder(instrument, currentPos * -1)
         elif currentPos < 0:
-            self.marketOrder(instrument, self.__priceCurrency, currentPos * -1)
+            self.marketOrder(instrument, currentPos * -1)
 
     def onBars(self, bars):
         self.__statArbHelper.update()
@@ -125,11 +128,12 @@ class StatArb(strategy.BacktestingStrategy):
         self.__spread.appendWithDateTime(bars.getDateTime(), self.__statArbHelper.getSpread())
         self.__hedgeRatio.appendWithDateTime(bars.getDateTime(), self.__statArbHelper.getHedgeRatio())
 
-        if bars.getBar(self.__i1, self.__priceCurrency) and bars.getBar(self.__i2, self.__priceCurrency):
+        if bars.getBar(self.__i1) and bars.getBar(self.__i2):
             hedgeRatio = self.__statArbHelper.getHedgeRatio()
             zScore = self.__statArbHelper.getZScore()
             if zScore is not None:
-                currentPos = abs(self.getBroker().getBalance(self.__i1)) + abs(self.getBroker().getBalance(self.__i2))
+                currentPos = abs(self._getBalanceForInstrument(self.__i1)) + \
+                             abs(self._getBalanceForInstrument(self.__i2))
                 if abs(zScore) <= 1 and currentPos != 0:
                     self.reducePosition(self.__i1)
                     self.reducePosition(self.__i2)
@@ -140,19 +144,21 @@ class StatArb(strategy.BacktestingStrategy):
 
 
 def main(plot):
-    instruments = ["gld", "gdx"]
+    instruments = ["gld/USD", "gdx/USD"]
     priceCurrency = "USD"
+    initialBalance = {priceCurrency: 1000000}
     windowSize = 50
 
     # Load the bars. These files were manually downloaded from Yahoo Finance.
     feed = yahoofeed.Feed()
     for year in range(2006, 2012+1):
         for instrument in instruments:
-            fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
+            symbol = instrument.split("/")[0]
+            fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
             print("Loading bars from %s" % fileName)
-            feed.addBarsFromCSV(instrument, priceCurrency, fileName)
+            feed.addBarsFromCSV(instrument, fileName)
 
-    strat = StatArb(feed, instruments[0], instruments[1], priceCurrency, windowSize)
+    strat = StatArb(feed, instruments[0], instruments[1], initialBalance, windowSize)
     sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 

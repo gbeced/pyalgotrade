@@ -27,6 +27,7 @@ from six.moves import queue
 from pyalgotrade import broker
 from pyalgotrade.bitstamp import httpclient
 from pyalgotrade.bitstamp import common
+from pyalgotrade.instrument import build_instrument
 
 
 def build_order_from_open_order(openOrder, instrumentTraits):
@@ -43,6 +44,13 @@ def build_order_from_open_order(openOrder, instrumentTraits):
     ret.setSubmitted(openOrder.getId(), openOrder.getDateTime())
     ret.setState(broker.Order.State.ACCEPTED)
     return ret
+
+
+class InstrumentTraits(broker.InstrumentTraits):
+    def getPrecision(self, symbol):
+        ret = common.SYMBOL_DIGITS.get(symbol)
+        assert ret is not None, "Missing precision for %s" % symbol
+        return ret
 
 
 class TradeMonitor(threading.Thread):
@@ -109,7 +117,8 @@ class LiveBroker(broker.Broker):
     :type key: string.
     :param secret: API secret.
     :type secret: string.
-
+    :param instrumentTraits: Instrument traits.
+    :type instrumentTraits: :class:`pyalgotrade.broker.InstrumentTraits`
 
     .. note::
         * Only limit orders are supported.
@@ -128,13 +137,14 @@ class LiveBroker(broker.Broker):
 
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, clientId, key, secret):
+    def __init__(self, clientId, key, secret, instrumentTraits=InstrumentTraits()):
         super(LiveBroker, self).__init__()
         self.__stop = False
         self.__httpClient = self.buildHTTPClient(clientId, key, secret)
         self.__tradeMonitor = TradeMonitor(self.__httpClient)
         self.__balances = {}
         self.__activeOrders = {}
+        self.__instrumentTraits = instrumentTraits
 
     def _registerOrder(self, order):
         assert(order.getId() not in self.__activeOrders)
@@ -145,6 +155,9 @@ class LiveBroker(broker.Broker):
         assert(order.getId() in self.__activeOrders)
         assert(order.getId() is not None)
         del self.__activeOrders[order.getId()]
+
+    def getInstrumentTraits(self):
+        return self.__instrumentTraits
 
     # Factory method for testing purposes.
     def buildHTTPClient(self, clientId, key, secret):
@@ -170,7 +183,7 @@ class LiveBroker(broker.Broker):
         common.logger.info("Retrieving open orders.")
         openOrders = self.__httpClient.getOpenOrders()
         for openOrder in openOrders:
-            assert openOrder.getCurrencyPair() in common.SUPPORTED_CURRENCY_PAIRS
+            assert openOrder.getCurrencyPair() in common.SUPPORTED_INSTRUMENTS
             self._registerOrder(build_order_from_open_order(
                 openOrder, self.getInstrumentTraits()
             ))
@@ -266,13 +279,13 @@ class LiveBroker(broker.Broker):
 
     def submitOrder(self, order):
         if order.isInitial():
-            assert order.getInstrument() in common.SUPPORTED_CURRENCY_PAIRS
+            assert order.getInstrument() in common.SUPPORTED_INSTRUMENTS
 
             # Override user settings based on Bitstamp limitations.
             order.setAllOrNone(False)
             order.setGoodTillCanceled(True)
 
-            channelCurrencyPair = common.currency_pair_to_channel(order.getInstrument())
+            channelCurrencyPair = common.instrument_to_channel(order.getInstrument())
             if order.isBuy():
                 bitstampOrder = self.__httpClient.buyLimit(
                     channelCurrencyPair, order.getLimitPrice(), order.getQuantity()
@@ -295,7 +308,9 @@ class LiveBroker(broker.Broker):
         raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        if instrument not in common.SUPPORTED_CURRENCY_PAIRS:
+        instrument = build_instrument(instrument)
+
+        if instrument not in common.SUPPORTED_INSTRUMENTS:
             raise Exception("Unsupported instrument %s" % instrument)
 
         if action == broker.Order.Action.BUY_TO_COVER:
@@ -307,8 +322,8 @@ class LiveBroker(broker.Broker):
             raise Exception("Only BUY/SELL orders are supported")
 
         instrumentTraits = self.getInstrumentTraits()
-        limitPrice = round(limitPrice, 2)
-        quantity = instrumentTraits.roundBaseQuantity(quantity)
+        limitPrice = instrumentTraits.round(limitPrice, instrument.priceCurrency)
+        quantity = instrumentTraits.round(quantity, instrument.symbol)
         return broker.LimitOrder(action, instrument, limitPrice, quantity, instrumentTraits)
 
     def createStopOrder(self, action, instrument, stopPrice, quantity):

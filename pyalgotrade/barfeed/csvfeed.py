@@ -27,6 +27,7 @@ from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
+from pyalgotrade.instrument import build_instrument
 
 
 # Interface for csv row parsers.
@@ -141,16 +142,15 @@ class BarFeed(membf.BarFeed):
             if bar_ is not None and (self.__barFilter is None or self.__barFilter.includeBar(bar_)):
                 loadedBars.append(bar_)
 
-        self.addBarsFromSequence(rowParser.getInstrument(), rowParser.getPriceCurrency(), loadedBars)
+        self.addBarsFromSequence(rowParser.getInstrument(), loadedBars)
 
 
 class GenericRowParser(RowParser):
     def __init__(
-            self, instrument, priceCurrency, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone,
+            self, instrument, columnNames, dateTimeFormat, dailyBarTime, frequency, timezone,
             barClass=bar.BasicBar
     ):
-        self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+        self.__instrument = build_instrument(instrument)
         self.__dateTimeFormat = dateTimeFormat
         self.__dailyBarTime = dailyBarTime
         self.__frequency = frequency
@@ -179,9 +179,6 @@ class GenericRowParser(RowParser):
 
     def getInstrument(self):
         return self.__instrument
-
-    def getPriceCurrency(self):
-        return self.__priceCurrency
 
     def barsHaveAdjClose(self):
         return self.__haveAdjClose
@@ -214,7 +211,7 @@ class GenericRowParser(RowParser):
                 extra[k] = csvutils.float_or_string(v)
 
         return self.__barClass(
-            self.__instrument, self.__priceCurrency, dateTime, open_, high, low, close, volume, adjClose,
+            self.__instrument, dateTime, open_, high, low, close, volume, adjClose,
             self.__frequency, extra=extra
         )
 
@@ -286,14 +283,13 @@ class GenericBarFeed(BarFeed):
     def setBarClass(self, barClass):
         self.__barClass = barClass
 
-    def addBarsFromCSV(self, instrument, priceCurrency, path, timezone=None, skipMalformedBars=False):
+    def addBarsFromCSV(self, instrument, path, timezone=None, skipMalformedBars=False):
         """Loads bars for a given instrument from a CSV formatted file.
         The instrument gets registered in the bar feed.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The price currency.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param path: The path to the CSV file.
         :type path: string.
         :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
@@ -305,8 +301,9 @@ class GenericBarFeed(BarFeed):
         if timezone is None:
             timezone = self.__timezone
 
+        instrument = build_instrument(instrument)
         rowParser = GenericRowParser(
-            instrument, priceCurrency, self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(),
+            instrument, self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(),
             self.getFrequency(), timezone, self.__barClass
         )
 

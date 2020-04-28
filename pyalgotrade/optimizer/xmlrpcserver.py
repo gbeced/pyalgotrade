@@ -159,7 +159,7 @@ class Server(xmlrpc_server.SimpleXMLRPCServer):
             loadedBars = []
             for dateTime, bars in self.__barFeed:
                 loadedBars.append(bars)
-            instruments = self.__barFeed.getRegisteredInstruments()
+            instruments = self.__barFeed.getKeys()
             self.__instrumentsAndBars = serialization.dumps((instruments, loadedBars))
             self.__barsFreq = self.__barFeed.getFrequency()
 

@@ -23,7 +23,6 @@ from six.moves import xrange
 
 from pyalgotrade.technical import roc
 from pyalgotrade import dispatcher
-from pyalgotrade.bar import pair_to_key
 
 
 class Results(object):
@@ -78,14 +77,14 @@ class Predicate(object):
     """Base class for event identification. You should subclass this to implement
     the event identification logic."""
 
-    def eventOccurred(self, instrument, priceCurrency, barDS):
-        """Override (**mandatory**) to determine if an event took place in the last bar (barDS[-1]).
+    def eventOccurred(self, instrument, barDS):
+        """
+        Override (**mandatory**) to determine if an event took place in the last bar (barDS[-1]).
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: Price currency.
-        :type priceCurrency: string.
-        :param barDS: The BarDataSeries for the given instrument and price currency.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
+        :param barDS: The BarDataSeries for the given instrument.
         :type barDS: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
         :rtype: boolean.
         """
@@ -150,42 +149,38 @@ class Profiler(object):
         self.__futureRets = {}
         self.__events = {}
 
-    def __addPastReturns(self, instrument, priceCurrency, event):
-        key = pair_to_key(instrument, priceCurrency)
+    def __addPastReturns(self, instrument, event):
         begin = (event.getLookBack() + 1) * -1
         for t in xrange(begin, 0):
             try:
-                ret = self.__rets[key][t]
+                ret = self.__rets[instrument][t]
                 if ret is not None:
                     event.setValue(t+1, ret)
             except IndexError:
                 pass
 
-    def __addCurrentReturns(self, instrument, priceCurrency):
+    def __addCurrentReturns(self, instrument):
         nextTs = []
-        key = pair_to_key(instrument, priceCurrency)
-        for event, t in self.__futureRets[key]:
-            event.setValue(t, self.__rets[key][-1])
+        for event, t in self.__futureRets[instrument]:
+            event.setValue(t, self.__rets[instrument][-1])
             if t < event.getLookForward():
                 t += 1
                 nextTs.append((event, t))
-        self.__futureRets[key] = nextTs
+        self.__futureRets[instrument] = nextTs
 
     def __onBars(self, dateTime, bars):
         for bar in bars.getBars():
             instrument = bar.getInstrument()
-            priceCurrency = bar.getPriceCurrency()
-            key = pair_to_key(instrument, priceCurrency)
-            barDS = self.__feed.getDataSeries(instrument, priceCurrency)
+            barDS = self.__feed.getDataSeries(instrument)
 
-            self.__addCurrentReturns(instrument, priceCurrency)
-            eventOccurred = self.__predicate.eventOccurred(instrument, priceCurrency, barDS)
+            self.__addCurrentReturns(instrument)
+            eventOccurred = self.__predicate.eventOccurred(instrument, barDS)
             if eventOccurred:
                 event = Event(self.__lookBack, self.__lookForward)
-                self.__events[key].append(event)
-                self.__addPastReturns(instrument, priceCurrency, event)
+                self.__events[instrument].append(event)
+                self.__addPastReturns(instrument, event)
                 # Add next return for this instrument at t=1.
-                self.__futureRets[key].append((event, 1))
+                self.__futureRets[instrument].append((event, 1))
 
     def getResults(self):
         """Returns the results of the analysis.
@@ -211,16 +206,15 @@ class Profiler(object):
             self.__rets = {}
             self.__futureRets = {}
 
-            # for instrument in feed.getRegisteredInstruments():
             for barDS in feed.getAllDataSeries():
-                key = pair_to_key(barDS.getInstrument(), barDS.getPriceCurrency())
-                self.__events.setdefault(key, [])
-                self.__futureRets[key] = []
+                instrument = barDS.getInstrument()
+                self.__events.setdefault(instrument, [])
+                self.__futureRets[instrument] = []
                 if useAdjustedCloseForReturns:
                     ds = barDS.getAdjCloseDataSeries()
                 else:
                     ds = barDS.getCloseDataSeries()
-                self.__rets[key] = roc.RateOfChange(ds, 1)
+                self.__rets[instrument] = roc.RateOfChange(ds, 1)
 
             feed.getNewValuesEvent().subscribe(self.__onBars)
             disp = dispatcher.Dispatcher()

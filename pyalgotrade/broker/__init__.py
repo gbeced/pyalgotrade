@@ -24,6 +24,7 @@ import six
 
 from pyalgotrade import observer
 from pyalgotrade import dispatchprio
+from pyalgotrade.instrument import build_instrument, assert_valid_symbol
 
 
 # This class is used to prevent bugs like the one triggered in testcases.bitstamp_test:TestCase.testRoundingBug.
@@ -38,6 +39,7 @@ class InstrumentTraits(object):
         raise NotImplementedError()
 
     def round(self, amount, symbol, roundDown=False):
+        assert_valid_symbol(symbol)
         precision = self.getPrecision(symbol)
         if roundDown:
             factor = 10**self.getPrecision(symbol)
@@ -71,7 +73,8 @@ class Order(object):
     :param action: The order action.
     :type action: :class:`Order.Action`
     :param instrument: Instrument identifier.
-    :type instrument: string.
+    :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+        QUOTE_SYMBOL/PRICE_CURRENCY.
     :param quantity: Order quantity.
     :type quantity: int/float.
 
@@ -139,15 +142,14 @@ class Order(object):
         State.PARTIALLY_FILLED: [State.PARTIALLY_FILLED, State.FILLED, State.CANCELED],
     }
 
-    def __init__(self, type_, action, instrument, priceCurrency, quantity, instrumentTraits):
+    def __init__(self, type_, action, instrument, quantity, instrumentTraits):
         if quantity is not None and quantity <= 0:
-            raise Exception("Invalid quantity")
+            raise Exception("Invalid quantity %s" % quantity)
 
         self.__id = None
         self.__type = type_
         self.__action = action
-        self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+        self.__instrument = build_instrument(instrument)
         self.__quantity = quantity
         self.__instrumentTraits = instrumentTraits
         self.__filled = 0
@@ -176,17 +178,17 @@ class Order(object):
         assert quantity > 0, "Invalid quantity"
         self.__quantity = quantity
 
+    def _roundSymbol(self, amount):
+        return self.__instrumentTraits.round(amount, self.__instrument.symbol)
+
+    def _roundPrice(self, price):
+        return self.__instrumentTraits.round(price, self.__instrument.priceCurrency)
+
     def getInstrument(self):
         """
         Returns the instrument identifier
         """
         return self.__instrument
-
-    def getPriceCurrency(self):
-        """
-        Returns the he currency to use to buy/sell.
-        """
-        return self.__priceCurrency
 
     def getInstrumentTraits(self):
         return self.__instrumentTraits
@@ -305,7 +307,7 @@ class Order(object):
         """
         Returns the number of shares still outstanding.
         """
-        return self.__instrumentTraits.round(self.__quantity - self.__filled, self.__instrument)
+        return self._roundSymbol(self.__quantity - self.__filled)
 
     def getAvgFillPrice(self):
         """
@@ -368,13 +370,11 @@ class Order(object):
             prev_fill = self.__avgFillPrice * self.__filled
             curr_fill = orderExecutionInfo.getPrice() * orderExecutionInfo.getQuantity()
             total_quantity = self.__filled + orderExecutionInfo.getQuantity()
-            self.__avgFillPrice = (prev_fill + curr_fill) / float(total_quantity)
+            self.__avgFillPrice = self._roundPrice((prev_fill + curr_fill) / float(total_quantity))
 
         self.__executionInfo = orderExecutionInfo
-        self.__filled = self.__instrumentTraits.round(
-            self.__filled + orderExecutionInfo.getQuantity(), self.__instrument
-        )
-        self.__commissions += orderExecutionInfo.getCommission()
+        self.__filled = self._roundSymbol(self.__filled + orderExecutionInfo.getQuantity())
+        self.__commissions = self._roundPrice(self.__commissions + orderExecutionInfo.getCommission())
 
         if self.getRemaining() == 0:
             self.switchState(Order.State.FILLED)
@@ -425,9 +425,9 @@ class MarketOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, action, instrument, priceCurrency, quantity, onClose, instrumentTraits):
+    def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
         super(MarketOrder, self).__init__(
-            Order.Type.MARKET, action, instrument, priceCurrency, quantity, instrumentTraits
+            Order.Type.MARKET, action, instrument, quantity, instrumentTraits
         )
         self.__onClose = onClose
 
@@ -447,9 +447,9 @@ class LimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, action, instrument, priceCurrency, limitPrice, quantity, instrumentTraits):
+    def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
         super(LimitOrder, self).__init__(
-            Order.Type.LIMIT, action, instrument, priceCurrency, quantity, instrumentTraits
+            Order.Type.LIMIT, action, instrument, quantity, instrumentTraits
         )
         self.__limitPrice = limitPrice
 
@@ -467,9 +467,9 @@ class StopOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, action, instrument, priceCurrency, stopPrice, quantity, instrumentTraits):
+    def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
         super(StopOrder, self).__init__(
-            Order.Type.STOP, action, instrument, priceCurrency, quantity, instrumentTraits
+            Order.Type.STOP, action, instrument, quantity, instrumentTraits
         )
         self.__stopPrice = stopPrice
 
@@ -489,9 +489,9 @@ class StopLimitOrder(Order):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, action, instrument, priceCurrency, stopPrice, limitPrice, quantity, instrumentTraits):
+    def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
         super(StopLimitOrder, self).__init__(
-            Order.Type.STOP_LIMIT, action, instrument, priceCurrency, quantity, instrumentTraits
+            Order.Type.STOP_LIMIT, action, instrument, quantity, instrumentTraits
         )
         self.__stopPrice = stopPrice
         self.__limitPrice = limitPrice
@@ -637,6 +637,7 @@ class Broker(observer.Subject):
         """
         Returns the balance for a given symbol.
         """
+        assert_valid_symbol(symbol)
         return self.getBalances().get(symbol, 0)
 
     @abc.abstractmethod
@@ -645,7 +646,8 @@ class Broker(observer.Subject):
         Returns a sequence with the orders that are still active.
 
         :param instrument: An optional instrument identifier to return only the active orders for the given instrument.
-        :type instrument: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         """
         raise NotImplementedError()
 
@@ -664,7 +666,7 @@ class Broker(observer.Subject):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def createMarketOrder(self, action, instrument, priceCurrency, quantity, onClose=False):
+    def createMarketOrder(self, action, instrument, quantity, onClose=False):
         """
         Creates a Market order.
         A market order is an order to buy or sell a stock at the best available price.
@@ -674,9 +676,8 @@ class Broker(observer.Subject):
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param quantity: Order quantity.
         :type quantity: int/float.
         :param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close
@@ -687,7 +688,7 @@ class Broker(observer.Subject):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def createLimitOrder(self, action, instrument, priceCurrency, limitPrice, quantity):
+    def createLimitOrder(self, action, instrument, limitPrice, quantity):
         """Creates a Limit order.
         A limit order is an order to buy or sell a stock at a specific price or better.
         A buy limit order can only be executed at the limit price or lower, and a sell limit order can only be executed
@@ -696,9 +697,8 @@ class Broker(observer.Subject):
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param limitPrice: The order price.
         :type limitPrice: float
         :param quantity: Order quantity.
@@ -708,7 +708,7 @@ class Broker(observer.Subject):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def createStopOrder(self, action, instrument, priceCurrency, stopPrice, quantity):
+    def createStopOrder(self, action, instrument, stopPrice, quantity):
         """
         Creates a Stop order.
         A stop order, also referred to as a stop-loss order, is an order to buy or sell a stock once the price of the
@@ -722,9 +722,8 @@ class Broker(observer.Subject):
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: The trigger price.
         :type stopPrice: float
         :param quantity: Order quantity.
@@ -734,7 +733,7 @@ class Broker(observer.Subject):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def createStopLimitOrder(self, action, instrument, priceCurrency, stopPrice, limitPrice, quantity):
+    def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
         """
         Creates a Stop-Limit order.
         A stop-limit order is an order to buy or sell a stock that combines the features of a stop order and a limit
@@ -746,9 +745,8 @@ class Broker(observer.Subject):
         :param action: The order action.
         :type action: Order.Action.BUY, or Order.Action.BUY_TO_COVER, or Order.Action.SELL or Order.Action.SELL_SHORT.
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: The trigger price.
         :type stopPrice: float
         :param limitPrice: The price for the limit order.

@@ -41,7 +41,6 @@ class BarGrouper(resamplebase.Grouper):
     def __init__(self, groupDateTime, bar_, frequency):
         super(BarGrouper, self).__init__(groupDateTime)
         self.__instrument = bar_.getInstrument()
-        self.__priceCurrency = bar_.getPriceCurrency()
         self.__open = bar_.getOpen()
         self.__high = bar_.getHigh()
         self.__low = bar_.getLow()
@@ -53,7 +52,6 @@ class BarGrouper(resamplebase.Grouper):
 
     def addValue(self, value):
         assert self.__instrument == value.getInstrument(), "Instrument mismatch"
-        assert self.__priceCurrency == value.getPriceCurrency(), "Price currency mismatch"
 
         self.__high = max(self.__high, value.getHigh())
         self.__low = min(self.__low, value.getLow())
@@ -64,7 +62,7 @@ class BarGrouper(resamplebase.Grouper):
     def getGrouped(self):
         """Return the grouped value."""
         ret = bar.BasicBar(
-            self.__instrument, self.__priceCurrency, self.getDateTime(),
+            self.__instrument, self.getDateTime(),
             self.__open, self.__high, self.__low, self.__close, self.__volume, self.__adjClose,
             self.__frequency
         )
@@ -136,7 +134,7 @@ class ResampledBarDataSeries(bards.BarDataSeries, DSResampler):
         if not isinstance(dataSeries, bards.BarDataSeries):
             raise Exception("dataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        super(ResampledBarDataSeries, self).__init__(dataSeries.getInstrument(), dataSeries.getPriceCurrency(), maxLen)
+        super(ResampledBarDataSeries, self).__init__(dataSeries.getInstrument(), maxLen)
         self.initDSResampler(dataSeries, frequency)
 
     def checkNow(self, dateTime):

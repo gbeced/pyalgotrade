@@ -48,7 +48,7 @@ class Event(object):
         channel = self.getDict()["channel"]
         assert channel.find(channel_prefix) == 0
         channelCurrencyPair = channel[len(channel_prefix):]
-        return common.CHANNEL_TO_CURRENCY_PAIR[channelCurrencyPair]
+        return common.channel_to_instrument(channelCurrencyPair)
 
 
 class TimestampedEvent(Event):
@@ -120,8 +120,7 @@ class WebSocketClient(client.WebSocketClientBase):
         ORDER_BOOK_UPDATE = 3
 
     def __init__(
-            self, queue, url="wss://ws.bitstamp.net/", currency_pairs=[common.BTC_USD_CHANNEL],
-            ping_interval=15, ping_timeout=5
+            self, queue, currency_pairs, url="wss://ws.bitstamp.net/", ping_interval=15, ping_timeout=5
     ):
         super(WebSocketClient, self).__init__(url, ping_interval=ping_interval, ping_timeout=ping_timeout)
         assert len(currency_pairs), "Missing currency pairs"
@@ -184,9 +183,8 @@ class WebSocketClientThread(client.WebSocketClientThreadBase):
     """
 
     def __init__(
-        self, url="wss://ws.bitstamp.net/", currency_pairs=[common.BTC_USD_CHANNEL],
-        ping_interval=15, ping_timeout=5
+        self, currency_pairs, url="wss://ws.bitstamp.net/", ping_interval=15, ping_timeout=5
     ):
         super(WebSocketClientThread, self).__init__(
-            WebSocketClient, url, currency_pairs=currency_pairs, ping_interval=ping_interval, ping_timeout=ping_timeout
+            WebSocketClient, currency_pairs, url, ping_interval=ping_interval, ping_timeout=ping_timeout
         )

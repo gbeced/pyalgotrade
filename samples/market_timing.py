@@ -23,7 +23,7 @@ class MarketTiming(strategy.BacktestingStrategy):
         self.__sma = {}
         for assetClass in instrumentsByClass:
             for instrument in instrumentsByClass[assetClass]:
-                priceDS = feed.getDataSeries(instrument, self.__priceCurrency).getPriceDataSeries()
+                priceDS = feed.getDataSeries(instrument).getPriceDataSeries()
                 self.__sma[instrument] = ma.SMA(priceDS, 200)
 
     def _shouldRebalance(self, dateTime):
@@ -33,14 +33,14 @@ class MarketTiming(strategy.BacktestingStrategy):
         # If the price is below the SMA, then this instrument doesn't rank at
         # all.
         smas = self.__sma[instrument]
-        price = self.getLastPrice(instrument, self.__priceCurrency)
+        price = self.getLastPrice(instrument)
         if len(smas) == 0 or smas[-1] is None or price < smas[-1]:
             return None
 
         # Rank based on 20 day returns.
         ret = None
         lookBack = 20
-        priceDS = self.getFeed().getDataSeries(instrument, self.__priceCurrency).getPriceDataSeries()
+        priceDS = self.getFeed().getDataSeries(instrument).getPriceDataSeries()
         if len(priceDS) >= lookBack and smas[-1] is not None and smas[-1*lookBack] is not None:
             ret = (priceDS[-1] - priceDS[-1*lookBack]) / float(priceDS[-1*lookBack])
         return ret
@@ -70,7 +70,7 @@ class MarketTiming(strategy.BacktestingStrategy):
             orderSize = self.__sharesToBuy[instrument]
             if orderSize > 0:
                 # Adjust the order size based on available cash.
-                lastPrice = self.getLastPrice(instrument, self.__priceCurrency)
+                lastPrice = self.getLastPrice(instrument)
                 cost = orderSize * lastPrice
                 while cost > remainingCash and orderSize > 0:
                     orderSize -= 1
@@ -81,13 +81,13 @@ class MarketTiming(strategy.BacktestingStrategy):
 
             if orderSize != 0:
                 self.info("Placing market order for %d %s shares" % (orderSize, instrument))
-                self.marketOrder(instrument, self.__priceCurrency, orderSize, goodTillCanceled=True)
+                self.marketOrder(instrument, orderSize, goodTillCanceled=True)
                 self.__sharesToBuy[instrument] -= orderSize
 
     def _logPosSize(self):
         totalEquity = self.getBroker().getEquity(self.__priceCurrency)
         for instrument, balance in six.iteritems(self.getInstrumentBalances()):
-            posSize = balance * self.getLastPrice(instrument, self.__priceCurrency) / totalEquity * 100
+            posSize = balance * self.getLastPrice(instrument) / totalEquity * 100
             self.info("%s - %0.2f %%" % (instrument, posSize))
 
     def _rebalance(self):
@@ -106,9 +106,10 @@ class MarketTiming(strategy.BacktestingStrategy):
             instrument = topByClass[assetClass]
             self.info("Best for class %s: %s" % (assetClass, instrument))
             if instrument is not None:
-                lastPrice = self.getLastPrice(instrument, self.__priceCurrency)
+                symbol = instrument.split("/")[0]
+                lastPrice = self.getLastPrice(instrument)
                 cashForInstrument = round(
-                    cashPerAssetClass - self.getBroker().getBalance(instrument) * lastPrice,
+                    cashPerAssetClass - self.getBroker().getBalance(symbol) * lastPrice,
                     2
                 )
                 # This may yield a negative value and we have to reduce this
@@ -124,8 +125,9 @@ class MarketTiming(strategy.BacktestingStrategy):
 
     def getInstrumentBalances(self):
         return {
-            instrument: balance for instrument, balance in six.iteritems(self.getBroker().getBalances())
-            if instrument != self.__priceCurrency
+            "%s/%s" % (symbol, self.__priceCurrency): balance \
+            for symbol, balance in six.iteritems(self.getBroker().getBalances())
+            if symbol != self.__priceCurrency
         }
 
     def getSMA(self, instrument):
@@ -142,26 +144,25 @@ class MarketTiming(strategy.BacktestingStrategy):
 
 
 def main(plot):
-    instrumentsByClass = {
-        "US Stocks": ["VTI"],
-        "Foreign Stocks": ["VEU"],
-        "US 10 Year Government Bonds": ["IEF"],
-        "Real Estate": ["VNQ"],
-        "Commodities": ["DBC"],
-    }
     priceCurrency = "USD"
+    instrumentsByClass = {
+        "US Stocks": ["VTI/USD"],
+        "Foreign Stocks": ["VEU/USD"],
+        "US 10 Year Government Bonds": ["IEF/USD"],
+        "Real Estate": ["VNQ/USD"],
+        "Commodities": ["DBC/USD"],
+    }
 
     # Load the bars. These files were manually downloaded from Yahoo Finance.
     feed = yahoofeed.Feed()
-    instruments = ["SPY"]
-    for assetClass in instrumentsByClass:
-        instruments.extend(instrumentsByClass[assetClass])
+    instruments = ["SPY/USD"] + sum(instrumentsByClass.values(), [])
 
     for year in range(2007, 2013+1):
         for instrument in instruments:
-            fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
+            symbol = instrument.split("/")[0]
+            fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
             print("Loading bars from %s" % fileName)
-            feed.addBarsFromCSV(instrument, priceCurrency, fileName)
+            feed.addBarsFromCSV(instrument, fileName)
 
     broker = backtesting.Broker({priceCurrency: 10000}, feed)
 

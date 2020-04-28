@@ -23,6 +23,7 @@ import six
 from pyalgotrade import barfeed
 from pyalgotrade import bar
 from pyalgotrade import utils
+from pyalgotrade.instrument import build_instrument
 
 
 # A non real-time BarFeed responsible for:
@@ -41,7 +42,7 @@ class BarFeed(barfeed.BaseBarFeed):
         self.__started = False
         self.__currDateTime = None
 
-    ## BEGIN observer.Subject abstractmethods
+    # BEGIN observer.Subject abstractmethods
     def start(self):
         super(BarFeed, self).start()
         self.__started = True
@@ -55,8 +56,8 @@ class BarFeed(barfeed.BaseBarFeed):
     def eof(self):
         ret = True
         # Check if there is at least one more bar to return.
-        for pair, bars in six.iteritems(self.__bars):
-            nextPos = self.__nextPos[pair]
+        for instrument, bars in six.iteritems(self.__bars):
+            nextPos = self.__nextPos[instrument]
             if nextPos < len(bars):
                 ret = False
                 break
@@ -65,14 +66,14 @@ class BarFeed(barfeed.BaseBarFeed):
     def peekDateTime(self):
         ret = None
 
-        for pair, bars in six.iteritems(self.__bars):
-            nextPos = self.__nextPos[pair]
+        for instrument, bars in six.iteritems(self.__bars):
+            nextPos = self.__nextPos[instrument]
             if nextPos < len(bars):
                 ret = utils.safe_min(ret, bars[nextPos].getDateTime())
         return ret
-    ## END observer.Subject abstractmethods
+    # END observer.Subject abstractmethods
 
-    ## BEGIN barfeed.BaseBarFeed abstractmethods
+    # BEGIN barfeed.BaseBarFeed abstractmethods
     def getCurrentDateTime(self):
         return self.__currDateTime
 
@@ -85,40 +86,41 @@ class BarFeed(barfeed.BaseBarFeed):
 
         # Make a second pass to get all the bars that have the smallest datetime.
         ret = []
-        for pair, bars in six.iteritems(self.__bars):
-            nextPos = self.__nextPos[pair]
+        for instrument, bars in six.iteritems(self.__bars):
+            nextPos = self.__nextPos[instrument]
             if nextPos < len(bars) and bars[nextPos].getDateTime() == smallestDateTime:
                 # Check if there are duplicate bars (with the same datetime).
                 if self.__currDateTime == smallestDateTime:
-                    raise Exception("Duplicate bars found for %s on %s" % (pair, smallestDateTime))
-                assert bars[nextPos].pairToKey() == pair, "bar/pair mismatch"
+                    raise Exception("Duplicate bars found for %s on %s" % (instrument, smallestDateTime))
+                assert bars[nextPos].getInstrument() == instrument, \
+                    "%s != %s" % (bars[nextPos].getInstrument(), instrument)
                 ret.append(bars[nextPos])
-                self.__nextPos[pair] += 1
+                self.__nextPos[instrument] += 1
 
         self.__currDateTime = smallestDateTime
         return bar.Bars(ret)
-    ## END barfeed.BaseBarFeed abstractmethods
+    # END barfeed.BaseBarFeed abstractmethods
 
     def reset(self):
         self.__nextPos = {}
-        for pair in self.__bars.keys():
-            self.__nextPos.setdefault(pair, 0)
+        for instrument in self.__bars.keys():
+            self.__nextPos.setdefault(instrument, 0)
         self.__currDateTime = None
         super(BarFeed, self).reset()
 
-    def addBarsFromSequence(self, instrument, priceCurrency, bars):
+    def addBarsFromSequence(self, instrument, bars):
         if self.__started:
             raise Exception("Can't add more bars once you started consuming bars")
 
-        key = bar.pair_to_key(instrument, priceCurrency)
-        self.__bars.setdefault(key, [])
-        self.__nextPos.setdefault(key, 0)
+        instrument = build_instrument(instrument)
+        self.__bars.setdefault(instrument, [])
+        self.__nextPos.setdefault(instrument, 0)
 
         # Add and sort the bars
-        self.__bars[key].extend(bars)
-        self.__bars[key].sort(key=lambda b: b.getDateTime())
+        self.__bars[instrument].extend(bars)
+        self.__bars[instrument].sort(key=lambda b: b.getDateTime())
 
-        self.registerDataSeries(key)
+        self.registerDataSeries(instrument)
 
     def loadAll(self):
         for dateTime, bars in self:

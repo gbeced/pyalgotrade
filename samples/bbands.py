@@ -8,12 +8,13 @@ from pyalgotrade.broker import backtesting
 
 
 class BBands(strategy.BacktestingStrategy):
-    def __init__(self, feed, broker, instrument, priceCurrency, bBandsPeriod):
+    def __init__(self, feed, broker, instrument, bBandsPeriod):
         super(BBands, self).__init__(feed, brk=broker)
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+        self.__symbol, self.__priceCurrency = instrument.split("/")
+
         self.__bbands = bollinger.BollingerBands(
-            feed.getDataSeries(instrument, priceCurrency).getCloseDataSeries(),
+            feed.getDataSeries(instrument).getCloseDataSeries(),
             bBandsPeriod, 2
         )
 
@@ -29,27 +30,28 @@ class BBands(strategy.BacktestingStrategy):
         if lower is None:
             return
 
-        shares = self.getBroker().getBalance(self.__instrument)
-        bar = bars.getBar(self.__instrument, self.__priceCurrency)
+        shares = self.getBroker().getBalance(self.__symbol)
+        bar = bars.getBar(self.__instrument)
         if shares == 0 and bar.getClose() < lower:
-            sharesToBuy = int(self.getBroker().getBalance("USD") / bar.getClose())
+            sharesToBuy = int(self.getBroker().getBalance(self.__priceCurrency) / bar.getClose())
             self.info("Placing buy market order for %s shares" % sharesToBuy)
-            self.marketOrder(self.__instrument, self.__priceCurrency, sharesToBuy)
+            self.marketOrder(self.__instrument, sharesToBuy)
         elif shares > 0 and bar.getClose() > upper:
             self.info("Placing sell market order for %s shares" % shares)
-            self.marketOrder(self.__instrument, self.__priceCurrency, -1*shares)
+            self.marketOrder(self.__instrument, -1*shares)
 
 
 def main(plot):
-    instrument = "yhoo"
+    symbol = "yhoo"
     priceCurrency = "USD"
+    instrument = "%s/%s" % (symbol, priceCurrency)
     bBandsPeriod = 40
 
     # Download the bars.
-    feed = quandl.build_feed("WIKI", [instrument], priceCurrency, 2011, 2012, ".")
+    feed = quandl.build_feed("WIKI", [symbol], priceCurrency, 2011, 2012, ".")
     broker = backtesting.Broker({priceCurrency: 1000000}, feed)
 
-    strat = BBands(feed, broker, instrument, priceCurrency, bBandsPeriod)
+    strat = BBands(feed, broker, instrument, bBandsPeriod)
     sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 

@@ -27,6 +27,10 @@ from pyalgotrade import logger
 from pyalgotrade.barfeed import membf
 
 
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "orcl/%s" % PRICE_CURRENCY
+
+
 class TestBarFeed(membf.BarFeed):
     def barsHaveAdjClose(self):
         raise NotImplementedError()
@@ -34,7 +38,7 @@ class TestBarFeed(membf.BarFeed):
 
 class Strategy(strategy.BaseStrategy):
     def __init__(self, barFeed, cash):
-        strategy.BaseStrategy.__init__(self, barFeed, backtesting.Broker(cash, barFeed))
+        super(Strategy, self).__init__(barFeed, backtesting.Broker({PRICE_CURRENCY: cash}, barFeed))
 
     def onBars(self, bars):
         self.info("bla")
@@ -44,9 +48,11 @@ class Strategy(strategy.BaseStrategy):
 def main():
     bf = TestBarFeed(bar.Frequency.DAY)
     bars = [
-        bar.BasicBar(datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY),
+        bar.BasicBar(
+            INSTRUMENT, datetime.datetime(2000, 1, 1), 10, 10, 10, 10, 10, 10, bar.Frequency.DAY
+        ),
         ]
-    bf.addBarsFromSequence("orcl", bars)
+    bf.addBarsFromSequence(INSTRUMENT, bars)
 
     strat = Strategy(bf, 1000)
     strat.run()

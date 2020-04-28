@@ -3,15 +3,16 @@ from pyalgotrade.barfeed import quandlfeed
 from pyalgotrade.stratanalyzer import returns
 import sma_crossover
 
+priceCurrency = "USD"
 # Load the bar feed from the CSV file
 feed = quandlfeed.Feed()
-feed.addBarsFromCSV("orcl", "WIKI-ORCL-2000-quandl.csv")
+feed.addBarsFromCSV("ORCL/USD", "WIKI-ORCL-2000-quandl.csv")
 
 # Evaluate the strategy with the feed's bars.
-myStrategy = sma_crossover.SMACrossOver(feed, "orcl", 20)
+myStrategy = sma_crossover.SMACrossOver(feed, "ORCL/USD", 20)
 
 # Attach a returns analyzers to the strategy.
-returnsAnalyzer = returns.Returns()
+returnsAnalyzer = returns.Returns(priceCurrency)
 myStrategy.attachAnalyzer(returnsAnalyzer)
 
 # Attach the plotter to the strategy.

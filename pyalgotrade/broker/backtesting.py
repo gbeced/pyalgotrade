@@ -28,7 +28,8 @@ from pyalgotrade.broker import fillstrategy, InstrumentTraits
 from pyalgotrade import logger
 import pyalgotrade.bar
 from pyalgotrade import barfeed
-from pyalgotrade.symbol import ISO_4217_CURRENCY_CODE_PRECISION
+from pyalgotrade.currency import ISO_4217_CURRENCY_CODE_PRECISION
+from pyalgotrade.instrument import Instrument, build_instrument, assert_valid_currency
 
 
 ######################################################################
@@ -96,7 +97,7 @@ class TradePercentage(Commission):
     def calculate(self, order, price, quantity):
         return order.getInstrumentTraits().round(
             price * quantity * self._percentage,
-            order.getPriceCurrency()
+            order.getInstrument().priceCurrency
         )
 
 
@@ -135,24 +136,24 @@ class BacktestingOrder(object):
 
 
 class MarketOrder(broker.MarketOrder, BacktestingOrder):
-    def __init__(self, action, instrument, priceCurrency, quantity, onClose, instrumentTraits):
-        super(MarketOrder, self).__init__(action, instrument, priceCurrency, quantity, onClose, instrumentTraits)
+    def __init__(self, action, instrument, quantity, onClose, instrumentTraits):
+        super(MarketOrder, self).__init__(action, instrument, quantity, onClose, instrumentTraits)
 
     def process(self, broker_, bar_):
         return broker_.getFillStrategy().fillMarketOrder(broker_, self, bar_)
 
 
 class LimitOrder(broker.LimitOrder, BacktestingOrder):
-    def __init__(self, action, instrument, priceCurrency, limitPrice, quantity, instrumentTraits):
-        super(LimitOrder, self).__init__(action, instrument, priceCurrency, limitPrice, quantity, instrumentTraits)
+    def __init__(self, action, instrument, limitPrice, quantity, instrumentTraits):
+        super(LimitOrder, self).__init__(action, instrument, limitPrice, quantity, instrumentTraits)
 
     def process(self, broker_, bar_):
         return broker_.getFillStrategy().fillLimitOrder(broker_, self, bar_)
 
 
 class StopOrder(broker.StopOrder, BacktestingOrder):
-    def __init__(self, action, instrument, priceCurrency, stopPrice, quantity, instrumentTraits):
-        super(StopOrder, self).__init__(action, instrument, priceCurrency, stopPrice, quantity, instrumentTraits)
+    def __init__(self, action, instrument, stopPrice, quantity, instrumentTraits):
+        super(StopOrder, self).__init__(action, instrument, stopPrice, quantity, instrumentTraits)
         self._stopHit = False
 
     def process(self, broker_, bar_):
@@ -168,9 +169,9 @@ class StopOrder(broker.StopOrder, BacktestingOrder):
 # http://www.sec.gov/answers/stoplim.htm
 # http://www.interactivebrokers.com/en/trading/orders/stopLimit.php
 class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
-    def __init__(self, action, instrument, priceCurrency, stopPrice, limitPrice, quantity, instrumentTraits):
+    def __init__(self, action, instrument, stopPrice, limitPrice, quantity, instrumentTraits):
         super(StopLimitOrder, self).__init__(
-            action, instrument, priceCurrency, stopPrice, limitPrice, quantity, instrumentTraits
+            action, instrument, stopPrice, limitPrice, quantity, instrumentTraits
         )
         self._stopHit = False  # Set to true when the limit order is activated (stop price is hit)
 
@@ -190,7 +191,7 @@ class StopLimitOrder(broker.StopLimitOrder, BacktestingOrder):
 class Broker(broker.Broker):
     """Backtesting broker.
 
-    :param initialBalances: A dictionary that maps an instrument/currency/etc to the account's starting balance.
+    :param initialBalances: A dictionary that maps a currency/stock/etc to the account's starting balance.
     :type initialBalances: dict.
     :param barFeed: The bar feed that will provide the bars.
     :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
@@ -204,6 +205,8 @@ class Broker(broker.Broker):
         super(Broker, self).__init__()
 
         assert isinstance(initialBalances, dict), "initialBalances must be a dictionary"
+        assert all([isinstance(symbol, six.string_types) for symbol in initialBalances.keys()]), \
+            "Some keys are not strings"
         assert isinstance(barFeed, barfeed.BaseBarFeed), "barFeed is not a subclass of barfeed.BaseBarFeed"
 
         self._balances = copy.copy(initialBalances)
@@ -212,13 +215,13 @@ class Broker(broker.Broker):
         self._instrumentTraits = instrumentTraits
 
         self._activeOrders = {}
+        self._instrumentPrice = {}
         self._useAdjustedValues = False
         self._fillStrategy = fillstrategy.DefaultStrategy(self._instrumentTraits)
         self._logger = logger.getLogger(__name__)
 
         # It is VERY important that the broker subscribes to barfeed events before the strategy.
         barFeed.getNewValuesEvent().subscribe(self.onBars)
-        self._allowNegative = False
         self._nextOrderId = 1
         self._started = False
 
@@ -227,10 +230,10 @@ class Broker(broker.Broker):
         self._nextOrderId += 1
         return ret
 
-    def _getBar(self, bars, instrument, priceCurrency):
-        ret = bars.getBar(instrument, priceCurrency)
+    def _getBar(self, bars, instrument):
+        ret = bars.getBar(instrument)
         if ret is None:
-            ret = self._barFeed.getLastBar(instrument, priceCurrency)
+            ret = self._barFeed.getLastBar(instrument)
         return ret
 
     def _registerOrder(self, order):
@@ -245,10 +248,6 @@ class Broker(broker.Broker):
 
     def getLogger(self):
         return self._logger
-
-    def setAllowNegativeCash(self, allowNegativeCash):
-        # Allows negative amounts for the price currency.
-        self._allowNegative = allowNegativeCash
 
     def getBalances(self):
         return copy.copy(self._balances)
@@ -299,20 +298,41 @@ class Broker(broker.Broker):
         if instrument is None:
             ret = list(self._activeOrders.values())
         else:
+            instrument = build_instrument(instrument)
             ret = [order for order in self._activeOrders.values() if order.getInstrument() == instrument]
         return ret
 
     def _getCurrentDateTime(self):
         return self._barFeed.getCurrentDateTime()
 
-    def _getPriceForInstrument(self, instrument, priceCurrency):
+    def _getPriceForInstrument(self, instrument):
         ret = None
 
-        lastBar = self._barFeed.getLastBar(instrument, priceCurrency)
+        lastBar = self._barFeed.getLastBar(instrument)
         if lastBar is not None:
             ret = lastBar.getPrice()
+        else:
+            # Try using the instrument price set by setShares if its available.
+            ret = self._instrumentPrice.get(instrument)
 
         return ret
+
+    def setShares(self, instrument, quantity, price):
+        """
+        Set existing shares before the strategy starts executing.
+
+        :param instrument: Instrument identifier.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
+        :param quantity: The number of shares for the given instrument.
+        :param price: The price for each share.
+        """
+
+        assert not self._started, "Can't setShares once the strategy started executing"
+
+        instrument = build_instrument(instrument)
+        self._balances[instrument.symbol] = quantity
+        self._instrumentPrice[instrument] = price
 
     def getEquity(self, currency):
         """
@@ -321,12 +341,14 @@ class Broker(broker.Broker):
         :param currency: The currency to use to calculate the value for each instrument.
         """
 
+        assert_valid_currency(currency)
+
         ret = 0
         for symbol, shares in six.iteritems(self._balances):
             if symbol == currency:
                 price = 1
             else:
-                price = self._getPriceForInstrument(symbol, currency)
+                price = self._getPriceForInstrument(Instrument(symbol, currency))
             if price is None:
                 raise Exception("Price in %s for %s is missing" % (currency, symbol))
             ret += price * shares
@@ -335,7 +357,8 @@ class Broker(broker.Broker):
     # Tries to commit an order execution.
     def commitOrderExecution(self, order, dateTime, fillInfo):
         instrument = order.getInstrument()
-        priceCurrency = order.getPriceCurrency()
+        instrumentSymbol = instrument.symbol
+        priceCurrency = instrument.priceCurrency
 
         # Calculate deltas.
         price = fillInfo.getPrice()
@@ -354,10 +377,16 @@ class Broker(broker.Broker):
         commission = self.getCommission().calculate(order, price, quantity)
         cost -= commission
 
-        baseBalanceFinal = self.getInstrumentTraits().round(self.getBalance(instrument) + baseDelta, instrument)
-        quoteBalanceFinal = self.getInstrumentTraits().round(self.getBalance(priceCurrency) + cost, priceCurrency)
+        baseBalanceFinal = self.getInstrumentTraits().round(
+            self.getBalance(instrumentSymbol) + baseDelta,
+            instrumentSymbol
+        )
+        quoteBalanceFinal = self.getInstrumentTraits().round(
+            self.getBalance(priceCurrency) + cost,
+            priceCurrency
+        )
 
-        if quoteBalanceFinal >= 0 or self._allowNegative:
+        if quoteBalanceFinal >= 0:
             # Update the order before updating internal state since addExecutionInfo may raise.
             # addExecutionInfo should switch the order state.
             orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
@@ -365,7 +394,7 @@ class Broker(broker.Broker):
 
             # Commit the order execution.
             self._balances[priceCurrency] = quoteBalanceFinal
-            self._balances[instrument] = baseBalanceFinal
+            self._balances[instrumentSymbol] = baseBalanceFinal
 
             # Let the strategy know that the order was filled.
             self._fillStrategy.onOrderFilled(self, order)
@@ -381,11 +410,8 @@ class Broker(broker.Broker):
         else:
             action = "buy" if order.isBuy() else "sell"
             self._logger.debug("Not enough %s to %s %s %s [order %s]" % (
-                priceCurrency, action, order.getQuantity(), instrument, order.getId()
+                priceCurrency, action, order.getQuantity(), instrumentSymbol, order.getId()
             ))
-
-    def _checkSubmitted(self, order):
-        pass
 
     def submitOrder(self, order):
         if order.isInitial():
@@ -395,8 +421,6 @@ class Broker(broker.Broker):
             # Switch from INITIAL -> SUBMITTED
             order.switchState(broker.Order.State.SUBMITTED)
             self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.SUBMITTED, None))
-
-            self._checkSubmitted(order)
         else:
             raise Exception("The order was already processed")
 
@@ -432,8 +456,6 @@ class Broker(broker.Broker):
                 self.notifyOrderEvent(broker.OrderEvent(order, broker.OrderEvent.Type.CANCELED, "Expired"))
 
     def _processOrder(self, order, bar):
-        assert bar.pairToKey() == pyalgotrade.bar.pair_to_key(order.getInstrument(), order.getPriceCurrency())
-
         if not self._preProcessOrder(order, bar):
             return
 
@@ -448,7 +470,7 @@ class Broker(broker.Broker):
     def _onBarsImpl(self, order, bars):
         # IF WE'RE DEALING WITH MULTIPLE INSTRUMENTS WE SKIP ORDER PROCESSING IF THERE IS NO BAR FOR THE ORDER'S
         # INSTRUMENT TO GET THE SAME BEHAVIOUR AS IF WERE BE PROCESSING ONLY ONE INSTRUMENT.
-        bar_ = bars.getBar(order.getInstrument(), order.getPriceCurrency())
+        bar_ = bars.getBar(order.getInstrument())
         if bar_ is not None:
             # Switch from SUBMITTED -> ACCEPTED
             if order.isSubmitted():
@@ -499,7 +521,7 @@ class Broker(broker.Broker):
     def peekDateTime(self):
         return None
 
-    def createMarketOrder(self, action, instrument, priceCurrency, quantity, onClose=False):
+    def createMarketOrder(self, action, instrument, quantity, onClose=False):
         # In order to properly support market-on-close with intraday feeds I'd need to know about different
         # exchange/market trading hours and support specifying routing an order to a specific exchange/market.
         # Even if I had all this in place it would be a problem while paper-trading with a live feed since
@@ -507,17 +529,21 @@ class Broker(broker.Broker):
         if onClose is True and self._barFeed.isIntraday():
             raise Exception("Market-on-close not supported with intraday feeds")
 
-        return MarketOrder(action, instrument, priceCurrency, quantity, onClose, self.getInstrumentTraits())
+        instrument = build_instrument(instrument)
+        return MarketOrder(action, instrument, quantity, onClose, self.getInstrumentTraits())
 
-    def createLimitOrder(self, action, instrument, priceCurrency, limitPrice, quantity):
-        return LimitOrder(action, instrument, priceCurrency, limitPrice, quantity, self.getInstrumentTraits())
+    def createLimitOrder(self, action, instrument, limitPrice, quantity):
+        instrument = build_instrument(instrument)
+        return LimitOrder(action, instrument, limitPrice, quantity, self.getInstrumentTraits())
 
-    def createStopOrder(self, action, instrument, priceCurrency, stopPrice, quantity):
-        return StopOrder(action, instrument, priceCurrency, stopPrice, quantity, self.getInstrumentTraits())
+    def createStopOrder(self, action, instrument, stopPrice, quantity):
+        instrument = build_instrument(instrument)
+        return StopOrder(action, instrument, stopPrice, quantity, self.getInstrumentTraits())
 
-    def createStopLimitOrder(self, action, instrument, priceCurrency, stopPrice, limitPrice, quantity):
+    def createStopLimitOrder(self, action, instrument, stopPrice, limitPrice, quantity):
+        instrument = build_instrument(instrument)
         return StopLimitOrder(
-            action, instrument, priceCurrency, stopPrice, limitPrice, quantity, self.getInstrumentTraits()
+            action, instrument, stopPrice, limitPrice, quantity, self.getInstrumentTraits()
         )
 
     def cancelOrder(self, order):

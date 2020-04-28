@@ -23,6 +23,7 @@ import datetime
 import time
 import threading
 
+import pytest
 from six.moves import queue
 
 from . import common as tc_common
@@ -33,15 +34,16 @@ from pyalgotrade.bitstamp import barfeed
 from pyalgotrade.bitstamp import broker
 from pyalgotrade.bitstamp import wsclient
 from pyalgotrade.bitstamp import httpclient
-from pyalgotrade.bitstamp import common
+from pyalgotrade.bitstamp import livebroker
 from pyalgotrade.bitcoincharts import barfeed as btcbarfeed
 from pyalgotrade import strategy
 from pyalgotrade import dispatcher
 from pyalgotrade.utils import dt
 
 
-btc_usd_instrument = "BTC/USD"
-btc_symbol = "BTC"
+SYMBOL = "BTC"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "BTC/USD"
 
 
 class WebSocketClientThreadMock(threading.Thread):
@@ -72,7 +74,7 @@ class WebSocketClientThreadMock(threading.Thread):
 
 class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
     def __init__(self):
-        super(TestingLiveTradeFeed, self).__init__()
+        super(TestingLiveTradeFeed, self).__init__([INSTRUMENT])
         # Disable reconnections so the test finishes when ON_DISCONNECTED is pushed.
         self.enableReconection(False)
         self.__events = []
@@ -231,15 +233,19 @@ class TestStrategy(test_strategy.BaseStrategy):
             self.ask = ask
 
 
-class InstrumentTraitsTestCase(tc_common.TestCase):
-    def testInstrumentTraits(self):
-        traits = common.BTCTraits()
-        self.assertEqual(traits.roundQuantity(0), 0)
-        self.assertEqual(traits.roundQuantity(1), 1)
-        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1), 3.3)
-        self.assertEqual(traits.roundQuantity(1.1 + 1.1 + 1.1 - 3.3), 0)
-        self.assertEqual(traits.roundQuantity(0.00441376), 0.00441376)
-        self.assertEqual(traits.roundQuantity(0.004413764), 0.00441376)
+@pytest.mark.parametrize("amount, symbol, expected", [
+    (0, "USD", 0),
+    (1, "USD", 1),
+    (1.123, "USD", 1.12),
+    (1.1 + 1.1 + 1.1, "USD", 3.3),
+    (1.1 + 1.1 + 1.1 - 3.3, "USD", 0),
+    (0.00441376, "BTC", 0.00441376),
+    (0.004413764, "BTC", 0.00441376),
+    (10.004413764123499, "ETH", 10.004413764123499),
+])
+def test_instrument_traits(amount, symbol, expected):
+    traits = livebroker.InstrumentTraits()
+    assert traits.round(amount, symbol) == expected
 
 
 class BacktestingTestCase(tc_common.TestCase):
@@ -252,17 +258,20 @@ class BacktestingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if not self.pos:
-                    self.pos = self.enterLongLimit(btc_usd_instrument, 5.83, 1, True)
+                    self.pos = self.enterLongLimit(INSTRUMENT, 5.83, 5, True)
 
         barFeed = btcbarfeed.CSVTradeFeed()
-        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"), instrument=btc_usd_instrument)
-        brk = broker.BacktestingBroker(100, barFeed)
+        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"), instrument=INSTRUMENT)
+        brk = broker.BacktestingBroker({PRICE_CURRENCY: 100}, barFeed)
         strat = TestStrategy(barFeed, brk)
         strat.run()
-        self.assertEqual(strat.pos.getShares(), 1)
+        self.assertEqual(strat.pos.getShares(), 5)
         self.assertEqual(strat.pos.entryActive(), False)
         self.assertEqual(strat.pos.isOpen(), True)
-        self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 5.83)
+        self.assertEqual(
+            strat.pos.getEntryOrder().getAvgFillPrice(),
+            round((3 * 5.83 + 2 * 5.76) / 5.0, 2)
+        )
 
     def testMinTrade(self):
         class TestStrategy(strategy.BaseStrategy):
@@ -272,13 +281,13 @@ class BacktestingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if not self.pos:
-                    self.pos = self.enterLongLimit(btc_usd_instrument, 4.99, 1, True)
+                    self.pos = self.enterLongLimit(INSTRUMENT, 4.99, 1, True)
 
         barFeed = btcbarfeed.CSVTradeFeed()
-        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"), instrument=btc_usd_instrument)
-        brk = broker.BacktestingBroker(100, barFeed)
+        barFeed.addBarsFromCSV(tc_common.get_data_file_path("bitstampUSD.csv"), instrument=INSTRUMENT)
+        brk = broker.BacktestingBroker({PRICE_CURRENCY: 100}, barFeed)
         strat = TestStrategy(barFeed, brk)
-        with self.assertRaisesRegexp(Exception, "Trade must be >= 5"):
+        with self.assertRaisesRegexp(Exception, "USD amount must be >= 25"):
             strat.run()
 
 
@@ -292,7 +301,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit(btc_usd_instrument, 100, 1, True)
+                    self.pos = self.enterLongLimit(INSTRUMENT, 100, 1, True)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
@@ -300,7 +309,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
 
-        brk = broker.PaperTradingBroker(1000, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 1000}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
@@ -318,7 +327,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit(btc_usd_instrument, 100, 1, True)
+                    self.pos = self.enterLongLimit(INSTRUMENT, 100, 1, True)
                 elif bars.getDateTime() == dt.as_utc(datetime.datetime(2000, 1, 3)):
                     self.pos.exitLimit(101)
 
@@ -330,7 +339,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 100, 0.2)
         barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 101, 0.2)
 
-        brk = broker.PaperTradingBroker(1000, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 1000}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
@@ -349,7 +358,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit(btc_usd_instrument, 100, 1, True)
+                    self.pos = self.enterLongLimit(INSTRUMENT, 100, 1, True)
                 elif bars.getDateTime() == dt.as_utc(datetime.datetime(2000, 1, 3)):
                     self.pos.exitLimit(101)
 
@@ -362,7 +371,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 101, 0.2)
         barFeed.addTrade(datetime.datetime(2000, 1, 6), 1, 102, 5)
 
-        brk = broker.PaperTradingBroker(1000, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 1000}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
@@ -373,7 +382,7 @@ class PaperTradingTestCase(tc_common.TestCase):
         self.assertEqual(strat.pos.getExitOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
 
     def testRoundingBugWithTrades(self):
-        # Unless proper rounding is in place 0.01 - 0.00441376 - 0.00445547 - 0.00113077 == 6.50521303491e-19
+        # Unless proper rounding is in place 0.03 - 0.01441376 - 0.01445547 - 0.00113077 == 6.50521303491e-19
         # instead of 0.
 
         class Strategy(TestStrategy):
@@ -383,26 +392,26 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if self.pos is None:
-                    self.pos = self.enterLongLimit(btc_usd_instrument, 1000, 0.01, True)
+                    self.pos = self.enterLongLimit(INSTRUMENT, 1000, 0.03, True)
                 elif self.pos.entryFilled() and not self.pos.getExitOrder():
                     self.pos.exitLimit(1000, True)
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 1000, 1)
-        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 1000, 0.01)
-        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 1000, 0.00441376)
-        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 1000, 0.00445547)
+        barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 1000, 0.03)
+        barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 1000, 0.01441376)
+        barFeed.addTrade(datetime.datetime(2000, 1, 4), 1, 1000, 0.01445547)
         barFeed.addTrade(datetime.datetime(2000, 1, 5), 1, 1000, 0.00113077)
 
-        brk = broker.PaperTradingBroker(1000, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 1000}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEqual(brk.getShares(btc_symbol), 0)
+        self.assertEqual(brk.getBalance(SYMBOL), 0)
         self.assertEqual(strat.pos.getEntryOrder().getAvgFillPrice(), 1000)
         self.assertEqual(strat.pos.getExitOrder().getAvgFillPrice(), 1000)
-        self.assertEqual(strat.pos.getEntryOrder().getFilled(), 0.01)
-        self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.01)
+        self.assertEqual(strat.pos.getEntryOrder().getFilled(), 0.03)
+        self.assertEqual(strat.pos.getExitOrder().getFilled(), 0.03)
         self.assertEqual(strat.pos.getEntryOrder().getRemaining(), 0)
         self.assertEqual(strat.pos.getExitOrder().getRemaining(), 0)
         self.assertEqual(strat.pos.getEntryOrder().getSubmitDateTime().date(), datetime.datetime.now().date())
@@ -414,7 +423,7 @@ class PaperTradingTestCase(tc_common.TestCase):
 
     def testInvalidOrders(self):
         barFeed = TestingLiveTradeFeed()
-        brk = broker.PaperTradingBroker(1000, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 1000}, barFeed)
         with self.assertRaises(Exception):
             brk.createLimitOrder(basebroker.Order.Action.BUY, "none", 1, 1)
         with self.assertRaises(Exception):
@@ -427,16 +436,17 @@ class PaperTradingTestCase(tc_common.TestCase):
             brk.createStopLimitOrder(basebroker.Order.Action.BUY, "none", 1, 1, 1)
 
     def testBuyWithoutCash(self):
+        tc = self
+
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
                 TestStrategy.__init__(self, feed, brk)
                 self.errors = 0
 
             def onBars(self, bars):
-                try:
-                    self.limitOrder(btc_usd_instrument, 10, 1)
-                except Exception:
-                    self.errors += 1
+                with tc.assertRaisesRegexp(Exception, "Not enough USD"):
+                    self.limitOrder(INSTRUMENT, 10, 3)
+                self.errors += 1
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 0.1)
@@ -444,24 +454,29 @@ class PaperTradingTestCase(tc_common.TestCase):
         barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 101, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 0.2)
 
-        brk = broker.PaperTradingBroker(0, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 0}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertEqual(strat.errors, 4)
-        self.assertEqual(brk.getShares(btc_symbol), 0)
-        self.assertEqual(brk.getCash(), 0)
+        self.assertEqual(brk.getBalance(SYMBOL), 0)
+        self.assertEqual(brk.getBalance(PRICE_CURRENCY), 0)
 
     def testRanOutOfCash(self):
+        tc = self
+
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
                 TestStrategy.__init__(self, feed, brk)
                 self.errors = 0
 
             def onBars(self, bars):
-                try:
-                    self.limitOrder(btc_usd_instrument, 100, 0.1)
-                except Exception:
+                # The first order should work, the rest should fail.
+                if self.getBroker().getBalance(PRICE_CURRENCY):
+                    self.limitOrder(INSTRUMENT, 100, 0.3)
+                else:
+                    with tc.assertRaisesRegexp(Exception, "Not enough USD"):
+                        self.limitOrder(INSTRUMENT, 100, 0.3)
                     self.errors += 1
 
         barFeed = TestingLiveTradeFeed()
@@ -469,39 +484,42 @@ class PaperTradingTestCase(tc_common.TestCase):
         barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 10)
 
-        brk = broker.PaperTradingBroker(10.025, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 30.15}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertEqual(strat.errors, 2)
-        self.assertEqual(brk.getShares(btc_symbol), 0.1)
-        self.assertEqual(brk.getCash(), 0)
+        self.assertEqual(brk.getBalance(SYMBOL), 0.3)
+        self.assertEqual(brk.getBalance(PRICE_CURRENCY), 0)
 
     def testSellWithoutBTC(self):
+        tc = self
+
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
                 TestStrategy.__init__(self, feed, brk)
                 self.errors = 0
 
             def onBars(self, bars):
-                try:
-                    self.limitOrder(btc_usd_instrument, 100, -0.1)
-                except Exception:
-                    self.errors += 1
+                with tc.assertRaisesRegexp(Exception, "Not enough BTC"):
+                    self.limitOrder(INSTRUMENT, 100, -0.5)
+                self.errors += 1
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
 
-        brk = broker.PaperTradingBroker(0, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 0}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertEqual(strat.errors, 2)
-        self.assertEqual(brk.getShares(btc_symbol), 0)
-        self.assertEqual(brk.getCash(), 0)
+        self.assertEqual(brk.getBalance(SYMBOL), 0)
+        self.assertEqual(brk.getBalance(PRICE_CURRENCY), 0)
 
     def testRanOutOfCoins(self):
+        tc = self
+
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
                 TestStrategy.__init__(self, feed, brk)
@@ -510,26 +528,27 @@ class PaperTradingTestCase(tc_common.TestCase):
 
             def onBars(self, bars):
                 if not self.bought:
-                    self.limitOrder(btc_usd_instrument, 100, 0.1)
+                    self.limitOrder(INSTRUMENT, 100, 0.5)
                     self.bought = True
+                elif self.getBroker().getBalance(SYMBOL) > 0:
+                    self.limitOrder(INSTRUMENT, 100, -self.getBroker().getBalance(SYMBOL))
                 else:
-                    try:
-                        self.limitOrder(btc_usd_instrument, 100, -0.1)
-                    except Exception:
-                        self.errors += 1
+                    with tc.assertRaisesRegexp(Exception, "Not enough BTC"):
+                        self.limitOrder(INSTRUMENT, 100, -1)
+                    self.errors += 1
 
         barFeed = TestingLiveTradeFeed()
         barFeed.addTrade(datetime.datetime(2000, 1, 1), 1, 100, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 2), 1, 100, 10)
         barFeed.addTrade(datetime.datetime(2000, 1, 3), 1, 100, 10)
 
-        brk = broker.PaperTradingBroker(10.05, barFeed)
+        brk = broker.PaperTradingBroker({PRICE_CURRENCY: 50.5}, barFeed)
         strat = Strategy(barFeed, brk)
         strat.run()
 
         self.assertEqual(strat.errors, 1)
-        self.assertEqual(brk.getShares(btc_symbol), 0)
-        self.assertEqual(brk.getCash(), 10)
+        self.assertEqual(brk.getBalance(SYMBOL), 0)
+        self.assertEqual(brk.getBalance(PRICE_CURRENCY), 50)
 
 
 class LiveTradingTestCase(tc_common.TestCase):
@@ -572,7 +591,7 @@ class LiveTradingTestCase(tc_common.TestCase):
     def testCancelOrder(self):
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
-                TestStrategy.__init__(self, feed, brk)
+                super(Strategy, self).__init__(feed, brk)
 
             def onBars(self, bars):
                 order = self.getBroker().getActiveOrders()[0]
@@ -592,8 +611,8 @@ class LiveTradingTestCase(tc_common.TestCase):
         strat = Strategy(barFeed, brk)
         strat.run()
 
-        self.assertEqual(brk.getShares(btc_symbol), 0)
-        self.assertEqual(brk.getCash(), 0)
+        self.assertEqual(brk.getBalance(SYMBOL), 0)
+        self.assertEqual(brk.getBalance(PRICE_CURRENCY), 0)
         self.assertEqual(len(strat.orderExecutionInfo), 1)
         self.assertEqual(strat.orderExecutionInfo[0], None)
         self.assertEqual(len(strat.ordersUpdated), 1)
@@ -602,23 +621,24 @@ class LiveTradingTestCase(tc_common.TestCase):
     def testBuyAndSell(self):
         class Strategy(TestStrategy):
             def __init__(self, feed, brk):
-                TestStrategy.__init__(self, feed, brk)
+                super(Strategy, self).__init__(feed, brk)
                 self.buyOrder = None
                 self.sellOrder = None
 
-            def onOrderUpdated(self, order):
-                TestStrategy.onOrderUpdated(self, order)
+            def onOrderUpdated(self, orderEvent):
+                super(Strategy, self).onOrderUpdated(orderEvent)
+                order = orderEvent.getOrder()
 
                 if order == self.buyOrder and order.isPartiallyFilled():
                     if self.sellOrder is None:
-                        self.sellOrder = self.limitOrder(btc_usd_instrument, 10, -0.5)
+                        self.sellOrder = self.limitOrder(INSTRUMENT, 10, -0.5)
                         brk.getHTTPClient().addUserTransaction(self.sellOrder.getId(), -0.5, 5, 10, 0.01)
                 elif order == self.sellOrder and order.isFilled():
                     self.stop()
 
             def onBars(self, bars):
                 if self.buyOrder is None:
-                    self.buyOrder = self.limitOrder(btc_usd_instrument, 10, 1)
+                    self.buyOrder = self.limitOrder(INSTRUMENT, 10, 1)
                     brk.getHTTPClient().addUserTransaction(self.buyOrder.getId(), 0.5, -5, 10, 0.01)
 
         barFeed = TestingLiveTradeFeed()
@@ -659,11 +679,11 @@ class WebSocketTestCase(tc_common.TestCase):
         }
 
         disp = dispatcher.Dispatcher()
-        barFeed = barfeed.LiveTradeFeed()
+        barFeed = barfeed.LiveTradeFeed([INSTRUMENT])
         disp.addSubject(barFeed)
 
         def on_bars(dateTime, bars):
-            bars[btc_usd_instrument]
+            bars[INSTRUMENT]
             events["on_bars"] = True
             if events["on_order_book_updated"] is True:
                 disp.stop()

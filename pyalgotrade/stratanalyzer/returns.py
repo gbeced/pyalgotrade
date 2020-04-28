@@ -23,6 +23,7 @@ import math
 from pyalgotrade import stratanalyzer
 from pyalgotrade import observer
 from pyalgotrade import dataseries
+from pyalgotrade.instrument import build_instrument
 
 
 # Helper class to calculate time-weighted returns in a portfolio.
@@ -63,9 +64,13 @@ class TimeWeightedReturns(object):
         return self.__cumRet
 
 
-# Helper class to calculate PnL and returns over a single instrument (not the whole portfolio).
 class PositionTracker(object):
-    def __init__(self, instrumentTraits):
+    """
+    Helper class to calculate position, PnL and returns over a single instrument.
+    """
+
+    def __init__(self, instrument, instrumentTraits):
+        self.__instrument = build_instrument(instrument)
         self.__instrumentTraits = instrumentTraits
         self.reset()
 
@@ -87,8 +92,12 @@ class PositionTracker(object):
 
     def getPnL(self, price=None, includeCommissions=True):
         """
-        Return the PnL that would result if closing the position a the given price.
-        Note that this will be different if commissions are used when the trade is executed.
+        Returns the current PnL.
+
+        :param price: If set the return value will include the that would result if closing the position a the given
+            price.
+        :param includeCommissions: Set to True to subtract commissions from the PnL.
+        :return: float
         """
 
         ret = self.__pnl
@@ -105,24 +114,27 @@ class PositionTracker(object):
             ret = pnl / float(self.__totalCommitted)
         return ret
 
+    def __roundAmount(self, amount):
+        return self.__instrumentTraits.round(amount, self.__instrument.symbol)
+
     def __openNewPosition(self, quantity, price):
         self.__avgPrice = price
         self.__position = quantity
         self.__totalCommitted = self.__avgPrice * abs(self.__position)
 
     def __extendCurrentPosition(self, quantity, price):
-        newPosition = self.__instrumentTraits.roundQuantity(self.__position + quantity)
+        newPosition = self.__roundAmount(self.__position + quantity)
         self.__avgPrice = (self.__avgPrice*abs(self.__position) + price*abs(quantity)) / abs(float(newPosition))
         self.__position = newPosition
         self.__totalCommitted = self.__avgPrice * abs(self.__position)
 
     def __reduceCurrentPosition(self, quantity, price):
         # Check that we're closing or reducing partially
-        assert self.__instrumentTraits.roundQuantity(abs(self.__position) - abs(quantity)) >= 0
+        assert self.__roundAmount(abs(self.__position) - abs(quantity)) >= 0
         pnl = (price - self.__avgPrice) * quantity * -1
 
         self.__pnl += pnl
-        self.__position = self.__instrumentTraits.roundQuantity(self.__position + quantity)
+        self.__position = self.__roundAmount(self.__position + quantity)
         if self.__position == 0:
             self.__avgPrice = 0.0
 

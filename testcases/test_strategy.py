@@ -40,7 +40,8 @@ class TestStrategyMixin(object):
     def scheduleCall(self, dateTime, callable):
         self._scheduled.setdefault(dateTime, []).append(callable)
 
-    def onOrderUpdated(self, order):
+    def onOrderUpdated(self, orderEvent):
+        order = orderEvent.getOrder()
         self.ordersUpdated.append(order)
         self.orderExecutionInfo.append(order.getExecutionInfo())
 
@@ -71,5 +72,5 @@ class BaseStrategy(TestStrategyMixin, strategy.BaseStrategy):
 
 
 class BacktestingStrategy(TestStrategyMixin, strategy.BacktestingStrategy):
-    def __init__(self, barFeed, cash_or_brk=1000000):
-        super(BacktestingStrategy, self).__init__(barFeed, cash_or_brk)
+    def __init__(self, barFeed, balances=None, brk=None):
+        super(BacktestingStrategy, self).__init__(barFeed, balances=balances, brk=brk)

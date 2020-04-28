@@ -7,11 +7,10 @@ from pyalgotrade.stratanalyzer import sharpe
 
 
 class VWAPMomentum(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument, priceCurrency, vwapWindowSize, threshold):
-        super(VWAPMomentum, self).__init__(feed, balances={priceCurrency: 1000000})
+    def __init__(self, feed, instrument, initialBalance, vwapWindowSize, threshold):
+        super(VWAPMomentum, self).__init__(feed, balances=initialBalance)
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
-        self.__vwap = vwap.VWAP(feed.getDataSeries(instrument, priceCurrency), vwapWindowSize)
+        self.__vwap = vwap.VWAP(feed.getDataSeries(instrument), vwapWindowSize)
         self.__threshold = threshold
 
     def getVWAP(self):
@@ -22,26 +21,28 @@ class VWAPMomentum(strategy.BacktestingStrategy):
         if vwap is None:
             return
 
-        shares = self.getBroker().getBalance(self.__instrument)
-        price = bars.getBar(self.__instrument, self.__priceCurrency).getClose()
+        shares = self.getBroker().getBalance(self.__instrument.split("/")[0])
+        price = bars.getBar(self.__instrument).getClose()
         notional = shares * price
 
         if price > vwap * (1 + self.__threshold) and notional < 1000000:
-            self.marketOrder(self.__instrument, self.__priceCurrency, 100)
+            self.marketOrder(self.__instrument, 100)
         elif price < vwap * (1 - self.__threshold) and notional > 0:
-            self.marketOrder(self.__instrument, self.__priceCurrency, -100)
+            self.marketOrder(self.__instrument, -100)
 
 
 def main(plot):
-    instrument = "AAPL"
+    symbol = "AAPL"
     priceCurrency = "USD"
+    instrument = "%s/%s" % (symbol, priceCurrency)
+    initialBalance = {priceCurrency: 1000000}
     vwapWindowSize = 5
     threshold = 0.01
 
     # Download the bars.
-    feed = quandl.build_feed("WIKI", [instrument], priceCurrency, 2011, 2012, ".")
+    feed = quandl.build_feed("WIKI", [symbol], priceCurrency, 2011, 2012, ".")
 
-    strat = VWAPMomentum(feed, instrument, priceCurrency, vwapWindowSize, threshold)
+    strat = VWAPMomentum(feed, instrument, initialBalance, vwapWindowSize, threshold)
     sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 

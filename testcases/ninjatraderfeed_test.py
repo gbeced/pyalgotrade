@@ -31,24 +31,25 @@ from pyalgotrade.utils import dt
 
 
 PRICE_CURRENCY = "USD"
+INSTRUMENT = "spy/%s" % PRICE_CURRENCY
 
 
 class NinjaTraderTestCase(common.TestCase):
     def __loadIntradayBarFeed(self, timeZone=None):
         ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timeZone)
-        ret.addBarsFromCSV("spy", PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        ret.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011.csv"))
         ret.loadAll()
         return ret
 
     def testBaseFeedInterface(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-        barFeed.addBarsFromCSV("spy", PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011.csv"))
         feed_test.tstBaseFeedInterface(self, barFeed)
 
     def testWithTimezone(self):
         timeZone = marketsession.USEquities.getTimezone()
         barFeed = self.__loadIntradayBarFeed(timeZone)
-        ds = barFeed.getDataSeries("spy", PRICE_CURRENCY)
+        ds = barFeed.getDataSeries(INSTRUMENT)
 
         for i, currentBar in enumerate(ds):
             self.assertFalse(dt.datetime_is_naive(currentBar.getDateTime()))
@@ -56,7 +57,7 @@ class NinjaTraderTestCase(common.TestCase):
 
     def testWithoutTimezone(self):
         barFeed = self.__loadIntradayBarFeed(None)
-        ds = barFeed.getDataSeries("spy", PRICE_CURRENCY)
+        ds = barFeed.getDataSeries(INSTRUMENT)
 
         for i, currentBar in enumerate(ds):
             # Datetime must be set to UTC.
@@ -72,7 +73,7 @@ class NinjaTraderTestCase(common.TestCase):
 
         try:
             barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-            barFeed.addBarsFromCSV("spy", PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv"), -5)
+            barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011.csv"), -5)
             self.assertTrue(False, "Exception expected")
         except Exception as e:
             self.assertTrue(str(e).find("timezone as an int parameter is not supported anymore") == 0)
@@ -89,18 +90,18 @@ class NinjaTraderTestCase(common.TestCase):
             dt.localize(datetime.datetime(2011, 3, 11, 16), timezone): 130.84,
         }
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timezone)
-        barFeed.addBarsFromCSV("spy", PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011-03.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011-03.csv"))
         for dateTime, bars in barFeed:
             price = prices.get(bars.getDateTime(), None)
             if price is not None:
-                self.assertTrue(price == bars.getBar("spy", PRICE_CURRENCY).getClose())
+                self.assertTrue(price == bars.getBar(INSTRUMENT).getClose())
 
     def testBounded(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, maxLen=2)
-        barFeed.addBarsFromCSV("spy", PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011-03.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011-03.csv"))
         barFeed.loadAll()
 
-        barDS = barFeed.getDataSeries("spy", PRICE_CURRENCY)
+        barDS = barFeed.getDataSeries(INSTRUMENT)
         self.assertEqual(len(barDS), 2)
         self.assertEqual(len(barDS.getDateTimes()), 2)
         self.assertEqual(len(barDS.getCloseDataSeries()), 2)
@@ -112,7 +113,7 @@ class NinjaTraderTestCase(common.TestCase):
 
     def testBaseBarFeed(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-        barFeed.addBarsFromCSV("spy", PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011.csv"))
         barfeed_test.check_base_barfeed(self, barFeed, False)
 
     def testInvalidFrequency(self):
@@ -120,16 +121,15 @@ class NinjaTraderTestCase(common.TestCase):
             ninjatraderfeed.Feed(bar.Frequency.WEEK)
 
     def testReset(self):
-        instrument = "spy"
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
-        barFeed.addBarsFromCSV(instrument, PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011.csv"))
 
         barFeed.loadAll()
-        ds = barFeed.getDataSeries(instrument, PRICE_CURRENCY)
+        ds = barFeed.getDataSeries(INSTRUMENT)
 
         barFeed.reset()
         barFeed.loadAll()
-        reloadedDs = barFeed.getDataSeries(instrument, PRICE_CURRENCY)
+        reloadedDs = barFeed.getDataSeries(INSTRUMENT)
 
         self.assertEqual(len(reloadedDs), len(ds))
         self.assertNotEqual(reloadedDs, ds)

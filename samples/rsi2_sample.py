@@ -6,22 +6,24 @@ from pyalgotrade.stratanalyzer import sharpe
 
 
 def main(plot):
-    instrument = "DIA"
+    symbol = "DIA"
     priceCurrency = "USD"
+    instrument = "%s/%s" % (symbol, priceCurrency)
     entrySMA = 200
     exitSMA = 5
     rsiPeriod = 2
     overBoughtThreshold = 90
     overSoldThreshold = 10
+    initialBalance = {priceCurrency: 1000000}
 
     # Load the bars. These files were manually downloaded from Yahoo Finance.
     feed = yahoofeed.Feed()
     for year in range(2009, 2013):
-        fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
+        fileName = "%s-%d-yahoofinance.csv" % (symbol, year)
         print("Loading bars from %s" % fileName)
-        feed.addBarsFromCSV(instrument, priceCurrency, fileName)
+        feed.addBarsFromCSV(instrument, fileName)
 
-    strat = rsi2.RSI2(feed, instrument, priceCurrency, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
+    strat = rsi2.RSI2(feed, instrument, initialBalance, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
     sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 

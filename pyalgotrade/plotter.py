@@ -327,9 +327,11 @@ class StrategyPlotter(object):
     :type plotBuySell: boolean.
     :param plotPortfolio: Set to True to get the portfolio value (shares + cash) plotted.
     :type plotPortfolio: boolean.
+    :param equityCurrency: The currency symbol to use to calculate portfolio equity.
+    :type equityCurrency: str.
     """
 
-    def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True):
+    def __init__(self, strat, plotAllInstruments=True, plotBuySell=True, plotPortfolio=True, equityCurrency="USD"):
         self.__dateTimes = set()
 
         self.__plotAllInstruments = plotAllInstruments
@@ -339,6 +341,7 @@ class StrategyPlotter(object):
         self.__portfolioSubplot = None
         if plotPortfolio:
             self.__portfolioSubplot = Subplot()
+        self.__equityCurrency = equityCurrency
 
         strat.getBarsProcessedEvent().subscribe(self.__onBarsProcessed)
         strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
@@ -365,7 +368,9 @@ class StrategyPlotter(object):
 
         # Feed the portfolio evolution subplot.
         if self.__portfolioSubplot:
-            self.__portfolioSubplot.getSeries("Portfolio").addValue(dateTime, strat.getBroker().getEquity())
+            self.__portfolioSubplot.getSeries("Portfolio").addValue(
+                dateTime, strat.getBroker().getEquity(self.__equityCurrency)
+            )
             # This is in case additional dataseries were added to the portfolio subplot.
             self.__portfolioSubplot.onBars(bars)
 

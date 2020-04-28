@@ -6,14 +6,13 @@ from pyalgotrade.technical import ma
 
 
 class MyStrategy(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument, priceCurrency, smaPeriod):
-        super(MyStrategy, self).__init__(feed, balances={priceCurrency: 1000})
+    def __init__(self, feed, instrument, initialBalance, smaPeriod):
+        super(MyStrategy, self).__init__(feed, balances=initialBalance)
         self.__position = None
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
         # We'll use adjusted close values instead of regular close values.
         self.setUseAdjustedValues(True)
-        self.__sma = ma.SMA(feed.getDataSeries(instrument, priceCurrency).getPriceDataSeries(), smaPeriod)
+        self.__sma = ma.SMA(feed.getDataSeries(instrument).getPriceDataSeries(), smaPeriod)
 
     def onEnterOk(self, position):
         execInfo = position.getEntryOrder().getExecutionInfo()
@@ -36,7 +35,7 @@ class MyStrategy(strategy.BacktestingStrategy):
         if self.__sma[-1] is None:
             return
 
-        bar = bars.getBar(self.__instrument, self.__priceCurrency)
+        bar = bars.getBar(self.__instrument)
         # If a position was not opened, check if we should enter a long position.
         if self.__position is None:
             if bar.getPrice() > self.__sma[-1]:
@@ -48,12 +47,13 @@ class MyStrategy(strategy.BacktestingStrategy):
 
 
 def run_strategy(smaPeriod):
+    instrument = "ORCL/USD"
     # Load the bar feed from the CSV file
     feed = quandlfeed.Feed()
-    feed.addBarsFromCSV("orcl", "USD", "WIKI-ORCL-2000-quandl.csv")
+    feed.addBarsFromCSV(instrument, "WIKI-ORCL-2000-quandl.csv")
 
     # Evaluate the strategy with the feed.
-    myStrategy = MyStrategy(feed, "orcl", "USD", smaPeriod)
+    myStrategy = MyStrategy(feed, instrument, {"USD": 1000}, smaPeriod)
     myStrategy.run()
     print("Final portfolio value: $%.2f" % myStrategy.getBroker().getEquity("USD"))
 

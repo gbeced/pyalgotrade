@@ -19,6 +19,7 @@
 """
 
 from pyalgotrade import dispatcher
+from pyalgotrade.instrument import build_instrument
 
 
 # This will test both the feed and subject interface.
@@ -29,5 +30,5 @@ def tstBaseFeedInterface(testCase, feed):
     disp.run()
 
     # This tests the feed.BaseFeed interface.
-    feed.createDataSeries("any", 10)
-    feed.getNextValues()
+    feed.createDataSeries(build_instrument("any/USD"), 10)
+    feed._getNextValues()

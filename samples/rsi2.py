@@ -5,14 +5,14 @@ from pyalgotrade.technical import cross
 
 
 class RSI2(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument, priceCurrency, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
-        super(RSI2, self).__init__(feed, balances={priceCurrency: 1000000})
+    def __init__(self, feed, instrument, initialBalance, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold):
+        super(RSI2, self).__init__(feed, balances=initialBalance)
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+        _, self.__priceCurrency = instrument.split("/")
         # We'll use adjusted close values, if available, instead of regular close values.
         if feed.barsHaveAdjClose():
             self.setUseAdjustedValues(True)
-        self.__priceDS = feed.getDataSeries(instrument, priceCurrency).getPriceDataSeries()
+        self.__priceDS = feed.getDataSeries(instrument).getPriceDataSeries()
         self.__entrySMA = ma.SMA(self.__priceDS, entrySMA)
         self.__exitSMA = ma.SMA(self.__priceDS, exitSMA)
         self.__rsi = rsi.RSI(self.__priceDS, rsiPeriod)
@@ -55,7 +55,7 @@ class RSI2(strategy.BacktestingStrategy):
         if self.__exitSMA[-1] is None or self.__entrySMA[-1] is None or self.__rsi[-1] is None:
             return
 
-        bar = bars.getBar(self.__instrument, self.__priceCurrency)
+        bar = bars.getBar(self.__instrument)
         if self.__longPos is not None:
             if self.exitLongSignal():
                 self.__longPos.exitMarket()
@@ -64,11 +64,11 @@ class RSI2(strategy.BacktestingStrategy):
                 self.__shortPos.exitMarket()
         else:
             if self.enterLongSignal(bar):
-                shares = int(self.getBroker().getBalance("USD") * 0.9 / bar.getPrice())
-                self.__longPos = self.enterLong(self.__instrument, self.__priceCurrency, shares, True)
+                shares = int(self.getBroker().getBalance(self.__priceCurrency) * 0.9 / bar.getPrice())
+                self.__longPos = self.enterLong(self.__instrument, shares, True)
             elif self.enterShortSignal(bar):
-                shares = int(self.getBroker().getBalance("USD") * 0.9 / bar.getPrice())
-                self.__shortPos = self.enterShort(self.__instrument, self.__priceCurrency, shares, True)
+                shares = int(self.getBroker().getBalance(self.__priceCurrency) * 0.9 / bar.getPrice())
+                self.__shortPos = self.enterShort(self.__instrument, shares, True)
 
     def enterLongSignal(self, bar):
         return bar.getPrice() > self.__entrySMA[-1] and self.__rsi[-1] <= self.__overSoldThreshold

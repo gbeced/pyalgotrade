@@ -29,13 +29,13 @@ from pyalgotrade.broker import backtesting
 from pyalgotrade import bar
 
 
-class BaseTestCase(unittest.TestCase):
-    TestInstrument = "orcl"
+PRICE_CURRENCY = "ARS"
+INSTRUMENT = "orcl/%s" % PRICE_CURRENCY
 
 
-class FreeFunctionsTestCase(BaseTestCase):
+class FreeFunctionsTestCase(unittest.TestCase):
     def testStopOrderTriggerBuy(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.MINUTE)
         # Bar is below
         self.assertEqual(
             fillstrategy.get_stop_price_trigger(
@@ -86,7 +86,7 @@ class FreeFunctionsTestCase(BaseTestCase):
         )
 
     def testStopOrderTriggerSell(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.MINUTE)
         # Bar is above
         self.assertEqual(
             fillstrategy.get_stop_price_trigger(
@@ -137,7 +137,7 @@ class FreeFunctionsTestCase(BaseTestCase):
         )
 
     def testLimitOrderTriggerBuy(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.MINUTE)
         # Bar is above
         self.assertEqual(
             fillstrategy.get_limit_price_trigger(
@@ -188,7 +188,7 @@ class FreeFunctionsTestCase(BaseTestCase):
         )
 
     def testLimitOrderTriggerSell(self):
-        barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
+        barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.MINUTE)
         # Bar is below
         self.assertEqual(
             fillstrategy.get_limit_price_trigger(
@@ -239,19 +239,19 @@ class FreeFunctionsTestCase(BaseTestCase):
         )
 
 
-class DefaultStrategyTestCase(BaseTestCase):
+class DefaultStrategyTestCase(unittest.TestCase):
     def setUp(self):
-        BaseTestCase.setUp(self)
-        self.barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.MINUTE)
-        self.strategy = fillstrategy.DefaultStrategy()
+        super(DefaultStrategyTestCase, self).setUp()
+        self.barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.MINUTE)
+        self.strategy = fillstrategy.DefaultStrategy(backtesting.DefaultInstrumentTraits())
 
     def __getFilledMarketOrder(self, quantity, price):
         order = backtesting.MarketOrder(
             broker.Order.Action.BUY,
-            BaseTestCase.TestInstrument,
+            INSTRUMENT,
             quantity,
             False,
-            broker.IntegerTraits()
+            backtesting.DefaultInstrumentTraits()
         )
         order.setState(broker.Order.State.ACCEPTED)
         order.addExecutionInfo(broker.OrderExecutionInfo(price, quantity, 0, datetime.datetime.now()))
@@ -260,14 +260,14 @@ class DefaultStrategyTestCase(BaseTestCase):
     def testVolumeLimitPerBar(self):
         volume = 100
         self.strategy.onBars(None, self.barsBuilder.nextBars(11, 12, 4, 9, volume))
-        self.assertEqual(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 25)
-        self.assertEqual(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 0)
+        self.assertEqual(self.strategy.getVolumeLeft()[INSTRUMENT], 25)
+        self.assertEqual(self.strategy.getVolumeUsed()[INSTRUMENT], 0)
 
         self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(24, 11))
-        self.assertEqual(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
-        self.assertEqual(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
+        self.assertEqual(self.strategy.getVolumeLeft()[INSTRUMENT], 1)
+        self.assertEqual(self.strategy.getVolumeUsed()[INSTRUMENT], 24)
 
         with self.assertRaisesRegexp(Exception, "Invalid fill quantity 25. Not enough volume left 1"):
             self.strategy.onOrderFilled(None, self.__getFilledMarketOrder(25, 11))
-        self.assertEqual(self.strategy.getVolumeLeft()[BaseTestCase.TestInstrument], 1)
-        self.assertEqual(self.strategy.getVolumeUsed()[BaseTestCase.TestInstrument], 24)
+        self.assertEqual(self.strategy.getVolumeLeft()[INSTRUMENT], 1)
+        self.assertEqual(self.strategy.getVolumeUsed()[INSTRUMENT], 24)

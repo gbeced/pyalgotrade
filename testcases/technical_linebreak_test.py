@@ -29,20 +29,23 @@ from pyalgotrade import bar
 from pyalgotrade.dataseries import bards
 
 
-class LineBreakTestCase(common.TestCase):
-    Instrument = "orcl"
+SYMBOL = "ORCL"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
 
+
+class LineBreakTestCase(common.TestCase):
     def __getFeed(self):
         # Load the feed and process all bars.
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(
-            LineBreakTestCase.Instrument, "USD", common.get_data_file_path("orcl-2001-yahoofinance.csv")
+            INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv")
         )
         return barFeed
 
     def test2LineBreak(self):
         barFeed = self.__getFeed()
-        bars = barFeed[LineBreakTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         lineBreak = linebreak.LineBreak(bars, 2)
         barFeed.loadAll()
 
@@ -59,7 +62,7 @@ class LineBreakTestCase(common.TestCase):
 
     def test3LineBreak(self):
         barFeed = self.__getFeed()
-        bars = barFeed[LineBreakTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         lineBreak = linebreak.LineBreak(bars, 3)
         barFeed.loadAll()
 
@@ -74,7 +77,7 @@ class LineBreakTestCase(common.TestCase):
 
     def testLineBreakBounded(self):
         barFeed = self.__getFeed()
-        bars = barFeed[LineBreakTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
 
         # Invalid maxLen, smaller than reversalLines.
         with self.assertRaises(Exception):
@@ -102,58 +105,52 @@ class LineBreakTestCase(common.TestCase):
     def testInvalidReversalLines(self):
         with self.assertRaisesRegexp(Exception, "reversalLines must be greater than 1"):
             barFeed = self.__getFeed()
-            linebreak.LineBreak(barFeed[LineBreakTestCase.Instrument], 1, maxLen=2)
+            linebreak.LineBreak(barFeed[INSTRUMENT], 1, maxLen=2)
 
     def testInvalidMaxLen(self):
         barFeed = self.__getFeed()
-        lb = linebreak.LineBreak(barFeed[LineBreakTestCase.Instrument], 3, maxLen=4)
+        lb = linebreak.LineBreak(barFeed[INSTRUMENT], 3, maxLen=4)
         lb.setMaxLen(3)
         with self.assertRaisesRegexp(Exception, "maxLen can't be smaller than reversalLines"):
             lb.setMaxLen(2)
 
     def testWhiteBlackReversal(self):
-        instrument = "ANY"
-        priceCurrency = "USD"
-
-        bds = bards.BarDataSeries(instrument, priceCurrency)
+        bds = bards.BarDataSeries(INSTRUMENT)
         lb = linebreak.LineBreak(bds, 2)
         bds.append(bar.BasicBar(
-            instrument, priceCurrency, datetime.datetime(2008, 3, 5), 10, 12, 9, 11, 1, None, bar.Frequency.DAY
+            INSTRUMENT, datetime.datetime(2008, 3, 5), 10, 12, 9, 11, 1, None, bar.Frequency.DAY
         ))
         self.assertEqual(len(lb), 1)
         bds.append(bar.BasicBar(
-            instrument, priceCurrency, datetime.datetime(2008, 3, 6), 9, 12, 8, 12, 1, None, bar.Frequency.DAY
+            INSTRUMENT, datetime.datetime(2008, 3, 6), 9, 12, 8, 12, 1, None, bar.Frequency.DAY
         ))
         self.assertEqual(len(lb), 1)
         self.assertEqual(lb[-1].isWhite(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 5))
 
         bds.append(bar.BasicBar(
-            instrument, priceCurrency, datetime.datetime(2008, 3, 7), 9, 12, 5, 6, 1, None, bar.Frequency.DAY
+            INSTRUMENT, datetime.datetime(2008, 3, 7), 9, 12, 5, 6, 1, None, bar.Frequency.DAY
         ))
         self.assertEqual(len(lb), 2)
         self.assertEqual(lb[-1].isBlack(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 7))
 
     def testBlackWhiteReversal(self):
-        instrument = "ANY"
-        priceCurrency = "USD"
-
-        bds = bards.BarDataSeries(instrument, priceCurrency)
+        bds = bards.BarDataSeries(INSTRUMENT)
         lb = linebreak.LineBreak(bds, 2)
         bds.append(bar.BasicBar(
-            instrument, priceCurrency, datetime.datetime(2008, 3, 5), 10, 12, 8, 9, 1, None, bar.Frequency.DAY
+            INSTRUMENT, datetime.datetime(2008, 3, 5), 10, 12, 8, 9, 1, None, bar.Frequency.DAY
         ))
         self.assertEqual(len(lb), 1)
         bds.append(bar.BasicBar(
-            instrument, priceCurrency, datetime.datetime(2008, 3, 6), 9, 12, 9, 12, 1, None, bar.Frequency.DAY
+            INSTRUMENT, datetime.datetime(2008, 3, 6), 9, 12, 9, 12, 1, None, bar.Frequency.DAY
         ))
         self.assertEqual(len(lb), 1)
         self.assertEqual(lb[-1].isBlack(), True)
         self.assertEqual(lb[-1].getDateTime(), datetime.datetime(2008, 3, 5))
 
         bds.append(bar.BasicBar(
-            instrument, priceCurrency, datetime.datetime(2008, 3, 7), 9, 13, 5, 13, 1, None, bar.Frequency.DAY
+            INSTRUMENT, datetime.datetime(2008, 3, 7), 9, 13, 5, 13, 1, None, bar.Frequency.DAY
         ))
         self.assertEqual(len(lb), 2)
         self.assertEqual(lb[-1].isWhite(), True)

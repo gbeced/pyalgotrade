@@ -45,7 +45,7 @@ logger_test_2.main()"""
         self.assertEqual(res.get_output_lines()[0], "2000-01-01 00:00:00 strategy [INFO] bla")
         self.assertEqual(
             res.get_output_lines()[1],
-            "2000-01-02 00:00:00 broker.backtesting [DEBUG] Not enough cash to fill orcl order [1] for 1 share/s"
+            "2000-01-02 00:00:00 pyalgotrade.broker.backtesting [DEBUG] Not enough USD to buy 1 orcl [order 1]"
         )
         self.assertEqual(res.get_output_lines()[2], "2000-01-02 00:00:00 strategy [INFO] bla")
         self.assertTrue(res.exit_ok())

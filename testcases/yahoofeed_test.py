@@ -31,26 +31,26 @@ from pyalgotrade import bar
 from pyalgotrade import marketsession
 
 
-INSTRUMENT = "ORCL"
+SYMBOL = "ORCL"
 PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
 
 
 class BarFeedEventHandler_TestLoadOrder:
-    def __init__(self, testcase, barFeed, instrument, priceCurrency):
+    def __init__(self, testcase, barFeed, instrument):
         self.__testcase = testcase
         self.__count = 0
         self.__prevDateTime = None
         self.__barFeed = barFeed
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
 
     def onBars(self, dateTime, bars):
         self.__count += 1
-        dateTime = bars.getBar(self.__instrument, self.__priceCurrency).getDateTime()
+        dateTime = bars.getBar(self.__instrument).getDateTime()
         if self.__prevDateTime is not None:
             # Check that bars are loaded in order
             self.__testcase.assertTrue(self.__prevDateTime < dateTime)
-            ds = self.__barFeed.getDataSeries(self.__instrument, self.__priceCurrency)
+            ds = self.__barFeed.getDataSeries(self.__instrument)
             # Check that the last value in the dataseries match the current datetime.
             self.__testcase.assertEqual(ds[-1].getDateTime(), dateTime)
             # Check that the datetime for the last value matches that last datetime in the dataseries.
@@ -62,11 +62,10 @@ class BarFeedEventHandler_TestLoadOrder:
 
 
 class BarFeedEventHandler_TestFilterRange:
-    def __init__(self, testcase, instrument, priceCurrency, fromDate, toDate):
+    def __init__(self, testcase, instrument, fromDate, toDate):
         self.__testcase = testcase
         self.__count = 0
         self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
         self.__fromDate = fromDate
         self.__toDate = toDate
 
@@ -75,11 +74,11 @@ class BarFeedEventHandler_TestFilterRange:
 
         if self.__fromDate is not None:
             self.__testcase.assertTrue(
-                bars.getBar(self.__instrument, self.__priceCurrency).getDateTime() >= self.__fromDate
+                bars.getBar(self.__instrument).getDateTime() >= self.__fromDate
             )
         if self.__toDate is not None:
             self.__testcase.assertTrue(
-                bars.getBar(self.__instrument, self.__priceCurrency).getDateTime() <= self.__toDate
+                bars.getBar(self.__instrument).getDateTime() <= self.__toDate
             )
 
     def getEventCount(self):
@@ -88,7 +87,7 @@ class BarFeedEventHandler_TestFilterRange:
 
 class FeedTestCase(common.TestCase):
     def __parseDate(self, date):
-        parser = yahoofeed.RowParser(INSTRUMENT, PRICE_CURRENCY, datetime.time(23, 59), bar.Frequency.DAY)
+        parser = yahoofeed.RowParser(INSTRUMENT, datetime.time(23, 59), bar.Frequency.DAY)
         row = {
             "Date": date,
             "Close": 0,
@@ -105,15 +104,15 @@ class FeedTestCase(common.TestCase):
 
     def testDuplicateBars(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         with self.assertRaisesRegexp(Exception, "Duplicate bars found for.*"):
             barFeed.loadAll()
 
     def testBaseBarFeed(self):
         barFeed = yahoofeed.Feed()
         barFeed.sanitizeBars(True)
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         barfeed_test.check_base_barfeed(self, barFeed, True)
 
     def testInvalidFrequency(self):
@@ -122,7 +121,7 @@ class FeedTestCase(common.TestCase):
 
     def testBaseFeedInterface(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         feed_test.tstBaseFeedInterface(self, barFeed)
 
     def testParseDate_1(self):
@@ -145,11 +144,11 @@ class FeedTestCase(common.TestCase):
 
     def testCSVFeedLoadOrder(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
         # Dispatch and handle events.
-        handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, INSTRUMENT, PRICE_CURRENCY)
+        handler = BarFeedEventHandler_TestLoadOrder(self, barFeed, INSTRUMENT)
         barFeed.getNewValuesEvent().subscribe(handler.onBars)
         while not barFeed.eof():
             barFeed.dispatch()
@@ -158,11 +157,11 @@ class FeedTestCase(common.TestCase):
     def __testFilteredRangeImpl(self, fromDate, toDate):
         barFeed = yahoofeed.Feed()
         barFeed.setBarFilter(csvfeed.DateRangeFilter(fromDate, toDate))
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
 
         # Dispatch and handle events.
-        handler = BarFeedEventHandler_TestFilterRange(self, INSTRUMENT, PRICE_CURRENCY, fromDate, toDate)
+        handler = BarFeedEventHandler_TestFilterRange(self, INSTRUMENT, fromDate, toDate)
         barFeed.getNewValuesEvent().subscribe(handler.onBars)
         while not barFeed.eof():
             barFeed.dispatch()
@@ -182,32 +181,32 @@ class FeedTestCase(common.TestCase):
 
     def testWithoutTimezone(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         for dateTime, bars in barFeed:
-            bar = bars.getBar(INSTRUMENT, PRICE_CURRENCY)
+            bar = bars.getBar(INSTRUMENT)
             self.assertTrue(dt.datetime_is_naive(bar.getDateTime()))
 
     def testWithDefaultTimezone(self):
         barFeed = yahoofeed.Feed(timezone=marketsession.USEquities.getTimezone())
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
-        barFeed.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         for dateTime, bars in barFeed:
-            bar = bars.getBar(INSTRUMENT, PRICE_CURRENCY)
+            bar = bars.getBar(INSTRUMENT)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
 
     def testWithPerFileTimezone(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(
-            INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
             marketsession.USEquities.getTimezone()
         )
         barFeed.addBarsFromCSV(
-            INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2001-yahoofinance.csv"),
+            INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"),
             marketsession.USEquities.getTimezone()
         )
         for dateTime, bars in barFeed:
-            bar = bars.getBar(INSTRUMENT, PRICE_CURRENCY)
+            bar = bars.getBar(INSTRUMENT)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
 
     def testWithIntegerTimezone(self):
@@ -220,7 +219,7 @@ class FeedTestCase(common.TestCase):
         try:
             barFeed = yahoofeed.Feed()
             barFeed.addBarsFromCSV(
-                INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+                INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
                 -3
             )
             self.assertTrue(False, "Exception expected")
@@ -230,26 +229,27 @@ class FeedTestCase(common.TestCase):
     def testMapTypeOperations(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(
-            INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
             marketsession.USEquities.getTimezone()
         )
         for dateTime, bars in barFeed:
-            self.assertTrue(bar.pair_to_key(INSTRUMENT, PRICE_CURRENCY) in bars)
-            self.assertTrue(INSTRUMENT not in bars)
-            bars.getBar(INSTRUMENT, PRICE_CURRENCY)
+            self.assertTrue(INSTRUMENT in bars)
+            bars.getBar(INSTRUMENT)
+            with self.assertRaisesRegexp(Exception, "Invalid instrument format"):
+                SYMBOL not in bars
             with self.assertRaises(KeyError):
-                bars[bar.pair_to_key("pirulo", PRICE_CURRENCY)]
+                bars["pirulo/%s" % PRICE_CURRENCY]
 
     def testBounded(self):
         barFeed = yahoofeed.Feed(maxLen=2)
         barFeed.addBarsFromCSV(
-            INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
             marketsession.USEquities.getTimezone()
         )
         for dateTime, bars in barFeed:
             pass
 
-        barDS = barFeed.getDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        barDS = barFeed.getDataSeries(INSTRUMENT)
         self.assertEqual(len(barDS), 2)
         self.assertEqual(len(barDS.getDateTimes()), 2)
         self.assertEqual(len(barDS.getCloseDataSeries()), 2)
@@ -262,16 +262,16 @@ class FeedTestCase(common.TestCase):
     def testReset(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(
-            INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
+            INSTRUMENT, common.get_data_file_path("orcl-2000-yahoofinance.csv"),
             marketsession.USEquities.getTimezone()
         )
         barFeed.loadAll()
         keys = barFeed.getKeys()
-        ds = barFeed.getDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = barFeed.getDataSeries(INSTRUMENT)
 
         barFeed.reset()
         barFeed.loadAll()
-        reloadedDs = barFeed.getDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        reloadedDs = barFeed.getDataSeries(INSTRUMENT)
 
         self.assertEqual(len(reloadedDs), len(ds))
         self.assertNotEqual(reloadedDs, ds)

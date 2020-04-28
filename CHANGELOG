@@ -1,5 +1,10 @@
 Version 0.21 (TBD)
 . [FIX] Fixed Bitstamp support.
+. [NEW] Multi-currency support.
+. [BREAKING CHANGE] instruments should now include the price currency (symbol/currency).
+. [BREAKING CHANGE] strategy.BacktestingStrategy no longer supports cash in the constructor.
+. [BREAKING CHANGE] backtesting.Broker no longer supports cash in the constructor.
+. [BREAKING CHANGE] strategy.BaseStrategy.onOrderUpdated now receives the order event instead of the order.
 
 Version 0.20 (20/Aug/2018)
 . [NEW] Added support for Python 3.7.

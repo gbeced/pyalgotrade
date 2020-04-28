@@ -32,7 +32,7 @@ import sma_crossover  # noqa: E402
 
 class PlotterTestCase(common.TestCase):
     def testDownloadAndParseDaily(self):
-        instrument = "orcl"
+        instrument = "orcl/USD"
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(instrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         strat = sma_crossover.SMACrossOver(barFeed, instrument, 20)

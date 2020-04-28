@@ -20,6 +20,7 @@
 
 import unittest
 
+import pyalgotrade.broker.backtesting
 from . import broker_backtesting_test
 
 from pyalgotrade import broker
@@ -28,19 +29,20 @@ from pyalgotrade.broker import backtesting
 from pyalgotrade import bar
 
 
-class BaseTestCase(unittest.TestCase):
-    TestInstrument = "orcl"
+SYMBOL = "orcl"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
 
 
-class NoSlippageTestCase(BaseTestCase):
+class NoSlippageTestCase(unittest.TestCase):
     def setUp(self):
-        BaseTestCase.setUp(self)
+        super(NoSlippageTestCase, self).setUp()
         self.slippage = slippage.NoSlippage()
-        self.barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.DAY)
+        self.barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.DAY)
 
     def __test_impl(self, action):
         order = backtesting.MarketOrder(
-            action, BaseTestCase.TestInstrument, 5, False, broker.IntegerTraits()
+            action, INSTRUMENT, 5, False, pyalgotrade.broker.backtesting.DefaultInstrumentTraits()
         )
         price = 10
 
@@ -61,16 +63,16 @@ class NoSlippageTestCase(BaseTestCase):
         self.__test_impl(broker.Order.Action.SELL)
 
 
-class VolumeShareSlippageTestCase(BaseTestCase):
+class VolumeShareSlippageTestCase(unittest.TestCase):
     def setUp(self):
-        BaseTestCase.setUp(self)
+        super(VolumeShareSlippageTestCase, self).setUp()
         self.priceImpact = 0.1
         self.slippage = slippage.VolumeShareSlippage(self.priceImpact)
-        self.barsBuilder = broker_backtesting_test.BarsBuilder(BaseTestCase.TestInstrument, bar.Frequency.DAY)
+        self.barsBuilder = broker_backtesting_test.BarsBuilder(INSTRUMENT, bar.Frequency.DAY)
 
     def __test_impl(self, action):
         order = backtesting.MarketOrder(
-            action, BaseTestCase.TestInstrument, 25, False, broker.IntegerTraits()
+            action, INSTRUMENT, 25, False, pyalgotrade.broker.backtesting.DefaultInstrumentTraits()
         )
         price = 10
         volumeUsed = 0
@@ -110,7 +112,8 @@ class VolumeShareSlippageTestCase(BaseTestCase):
     def test_full_volume_used(self):
         orderSize = 100
         order = backtesting.MarketOrder(
-            broker.Order.Action.BUY, BaseTestCase.TestInstrument, orderSize, False, broker.IntegerTraits()
+            broker.Order.Action.BUY, INSTRUMENT, orderSize, False,
+            pyalgotrade.broker.backtesting.DefaultInstrumentTraits()
         )
         price = 10
         volumeUsed = 0

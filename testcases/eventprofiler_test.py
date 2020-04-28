@@ -26,13 +26,16 @@ from pyalgotrade import eventprofiler
 from pyalgotrade.barfeed import yahoofeed
 
 
+PRICE_CURRENCY = "USD"
+
+
 class Predicate(eventprofiler.Predicate):
     def __init__(self, eventDates):
         self.__dates = eventDates
 
-    def eventOccurred(self, instrument, bards):
+    def eventOccurred(self, instrument, barDS):
         ret = False
-        if bards[-1].getDateTime().date() in self.__dates:
+        if barDS[-1].getDateTime().date() in self.__dates:
             ret = True
         return ret
 
@@ -40,7 +43,7 @@ class Predicate(eventprofiler.Predicate):
 class EventProfilerTestCase(common.TestCase):
     def testNoEvents(self):
         feed = yahoofeed.Feed()
-        feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        feed.addBarsFromCSV("orcl/%s" % PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 
         predicate = Predicate([])
         eventProfiler = eventprofiler.Profiler(predicate, 5, 5)
@@ -49,7 +52,7 @@ class EventProfilerTestCase(common.TestCase):
 
     def testEventsOnBoundary(self):
         feed = yahoofeed.Feed()
-        feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        feed.addBarsFromCSV("orcl/%s" % PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 
         dates = []
         dates.append(datetime.date(2000, 1, 3))
@@ -70,7 +73,7 @@ class EventProfilerTestCase(common.TestCase):
 
     def testOneEvent(self):
         feed = yahoofeed.Feed()
-        feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"))
+        feed.addBarsFromCSV("orcl/%s" % PRICE_CURRENCY, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 
         predicate = Predicate([datetime.date(2000, 1, 11)])
         eventProfiler = eventprofiler.Profiler(predicate, 5, 5)

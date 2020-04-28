@@ -43,9 +43,9 @@ class SharpeRatioTestCase(common.TestCase):
 
     def testNoTrades(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", "USD", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, 1000)
-        stratAnalyzer = sharpe.SharpeRatio()
+        barFeed.addBarsFromCSV("IGE/USD", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = strategy_test.TestStrategy(barFeed, {"USD": 1000})
+        stratAnalyzer = sharpe.SharpeRatio("USD")
         strat.attachAnalyzer(stratAnalyzer)
 
         strat.run()
@@ -59,11 +59,11 @@ class SharpeRatioTestCase(common.TestCase):
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", "USD", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        barFeed.addBarsFromCSV("IGE/USD", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = strategy_test.TestStrategy(barFeed, {"USD": initialCash})
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
-        stratAnalyzer = sharpe.SharpeRatio()
+        stratAnalyzer = sharpe.SharpeRatio("USD")
         strat.attachAnalyzer(stratAnalyzer)
 
         # Disable volume checks to match book results.
@@ -71,13 +71,13 @@ class SharpeRatioTestCase(common.TestCase):
 
         # Manually place the order to get it filled on the first bar.
         order = strat.getBroker().createMarketOrder(
-            broker.Order.Action.BUY, "ige", quantity, True
+            broker.Order.Action.BUY, "IGE/USD", quantity, True
         )  # Adj. Close: 42.09
         order.setGoodTillCanceled(True)
         strat.getBroker().submitOrder(order)
         strat.addOrder(
             datetime.datetime(2007, 11, 13),
-            strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", quantity, True
+            strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "IGE/USD", quantity, True
         )  # Adj. Close: 127.64
         strat.run()
         self.assertEqual(round(strat.getBroker().getBalance("USD"), 2), initialCash + (127.64 - 42.09) * quantity)
@@ -98,24 +98,24 @@ class SharpeRatioTestCase(common.TestCase):
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", "USD", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        barFeed.addBarsFromCSV("IGE/USD", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = strategy_test.TestStrategy(barFeed, {"USD": initialCash})
         strat.getBroker().setCommission(backtesting.FixedPerTrade(commission))
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
-        stratAnalyzer = sharpe.SharpeRatio()
+        stratAnalyzer = sharpe.SharpeRatio("USD")
         strat.attachAnalyzer(stratAnalyzer)
 
         # Disable volume checks to match book results.
         strat.getBroker().getFillStrategy().setVolumeLimit(None)
 
         # Manually place the order to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", 1, True)  # Adj. Close: 42.09
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "IGE/USD", 1, True)  # Adj. Close: 42.09
         order.setGoodTillCanceled(True)
         strat.getBroker().submitOrder(order)
         strat.addOrder(
             datetime.datetime(2007, 11, 13),
-            strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "ige", 1, True
+            strat.getBroker().createMarketOrder, broker.Order.Action.SELL, "IGE/USD", 1, True
         )  # Adj. Close: 127.64
 
         strat.run()
@@ -128,11 +128,11 @@ class SharpeRatioTestCase(common.TestCase):
     def testIntraDay(self):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, marketsession.USEquities.getTimezone())
         barFeed.setBarFilter(csvfeed.USEquitiesRTH())
-        barFeed.addBarsFromCSV("spy", "USD", common.get_data_file_path("nt-spy-minute-2011.csv"))
-        strat = strategy_test.TestStrategy(barFeed, 1000)
-        stratAnalyzer = sharpe.SharpeRatio(False)
+        barFeed.addBarsFromCSV("SPY/USD", common.get_data_file_path("nt-spy-minute-2011.csv"))
+        strat = strategy_test.TestStrategy(barFeed, {"USD": 1000})
+        stratAnalyzer = sharpe.SharpeRatio("USD", False)
         strat.attachAnalyzer(stratAnalyzer)
-        strat.marketOrder("spy", 1)
+        strat.marketOrder("SPY/USD", 1)
 
         strat.run()
 

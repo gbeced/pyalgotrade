@@ -25,7 +25,9 @@ from . import common
 from pyalgotrade import broker
 
 
+QUOTE_SYMBOL = "ORCL"
 PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (QUOTE_SYMBOL, PRICE_CURRENCY)
 
 
 class DefaultTraits(broker.InstrumentTraits):
@@ -41,7 +43,7 @@ class DefaultTraits(broker.InstrumentTraits):
 
 class OrderTestCase(common.TestCase):
     def __buildAcceptedLimitOrder(self, action, limitPrice, quantity):
-        ret = broker.LimitOrder(action, "orcl", PRICE_CURRENCY, limitPrice, quantity, DefaultTraits())
+        ret = broker.LimitOrder(action, INSTRUMENT, limitPrice, quantity, DefaultTraits())
         self.assertEqual(ret.getSubmitDateTime(), None)
         ret.switchState(broker.Order.State.SUBMITTED)
         ret.setSubmitted(1, datetime.datetime.now())
@@ -91,7 +93,7 @@ class OrderTestCase(common.TestCase):
         self.assertTrue(order.isPartiallyFilled())
         self.assertEqual(order.getRemaining(), 2)
         self.assertEqual(order.getFilled(), 9)
-        self.assertEqual(round(order.getAvgFillPrice(), 4), round(1.055555556, 4))
+        self.assertEqual(order.getAvgFillPrice(), round(1.055555556, 2))
         self.assertEqual(order.getExecutionInfo().getQuantity(), 1)
         self.assertEqual(order.getExecutionInfo().getPrice(), 1.5)
 
@@ -99,6 +101,6 @@ class OrderTestCase(common.TestCase):
         self.assertTrue(order.isFilled())
         self.assertEqual(order.getRemaining(), 0)
         self.assertEqual(order.getFilled(), 11)
-        self.assertEqual(round(order.getAvgFillPrice(), 4), round(1.067818182, 4))
+        self.assertEqual(order.getAvgFillPrice(), round(1.067818182, 2))
         self.assertEqual(order.getExecutionInfo().getQuantity(), 2)
         self.assertEqual(order.getExecutionInfo().getPrice(), 1.123)

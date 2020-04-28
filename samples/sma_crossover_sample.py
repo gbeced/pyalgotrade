@@ -6,14 +6,15 @@ from pyalgotrade.stratanalyzer import sharpe
 
 
 def main(plot):
-    instrument = "AAPL"
+    symbol = "AAPL"
     priceCurrency = "USD"
+    instrument = "%s/%s" % (symbol, priceCurrency)
     smaPeriod = 163
 
     # Download the bars.
-    feed = quandl.build_feed("WIKI", [instrument], priceCurrency, 2011, 2012, ".")
+    feed = quandl.build_feed("WIKI", [symbol], priceCurrency, 2011, 2012, ".")
 
-    strat = sma_crossover.SMACrossOver(feed, instrument, priceCurrency, smaPeriod)
+    strat = sma_crossover.SMACrossOver(feed, instrument, smaPeriod)
     sharpeRatioAnalyzer = sharpe.SharpeRatio(priceCurrency)
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 

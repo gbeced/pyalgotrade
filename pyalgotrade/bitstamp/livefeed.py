@@ -28,15 +28,19 @@ from pyalgotrade import barfeed
 from pyalgotrade import observer
 from pyalgotrade.bitstamp import common
 from pyalgotrade.bitstamp import wsclient
+from pyalgotrade.instrument import build_instrument
 
 
 logger = pyalgotrade.logger.getLogger(__name__)
 
 
 class TradeBar(bar.Bar):
-    def __init__(self, dateTime, trade):
-        self.__dateTime = dateTime
+    def __init__(self, trade):
+        self.__dateTime = trade.getDateTime()
         self.__trade = trade
+
+    def getInstrument(self):
+        return build_instrument(self.__trade.getCurrencyPair())
 
     def setUseAdjustedValue(self, useAdjusted):
         if useAdjusted:
@@ -92,6 +96,9 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     """A real-time BarFeed that builds bars from live trades.
 
+    :param instruments: A list of currency pairs.
+    :type instruments: list of :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+        QUOTE_SYMBOL/PRICE_CURRENCY..
     :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded
         from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
@@ -103,12 +110,16 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, maxLen=None):
+    def __init__(self, instruments, maxLen=None):
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
-        self.__barDicts = []
-        currencyPair = common.BTC_USD_CURRENCY_PAIR
-        self.__channels = [common.CURRENCY_PAIR_TO_CHANNEL[currencyPair]]
-        self.registerInstrument(currencyPair)
+        self.__tradeBars = []
+        self.__channels = []
+
+        for instrument in instruments:
+            instrument = build_instrument(instrument)
+            self.__channels.append(common.instrument_to_channel(instrument))
+            self.registerDataSeries(instrument)
+
         self.__thread = None
         self.__enableReconnection = True
         self.__stopped = False
@@ -116,7 +127,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
 
     # Factory method for testing purposes.
     def buildWebSocketClientThread(self):
-        return wsclient.WebSocketClientThread(currency_pairs=self.__channels)
+        return wsclient.WebSocketClientThread(self.__channels)
 
     def getCurrentDateTime(self):
         return datetime.datetime.now()
@@ -173,20 +184,17 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return ret
 
     def __onTrade(self, trade):
-        assert trade.getCurrencyPair() == common.BTC_USD_CURRENCY_PAIR
+        assert trade.getCurrencyPair() in common.SUPPORTED_INSTRUMENTS
         # Build a bar for each trade.
-        barDict = {
-            trade.getCurrencyPair(): TradeBar(trade.getDateTime(), trade)
-        }
-        self.__barDicts.append(barDict)
+        self.__tradeBars.append(TradeBar(trade))
 
     def barsHaveAdjClose(self):
         return False
 
     def getNextBars(self):
         ret = None
-        if len(self.__barDicts):
-            ret = bar.Bars(self.__barDicts.pop(0))
+        if len(self.__tradeBars):
+            ret = bar.Bars([self.__tradeBars.pop(0)])
         return ret
 
     def peekDateTime(self):

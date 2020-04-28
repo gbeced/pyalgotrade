@@ -357,7 +357,7 @@ bccharts_example_1.main()
             if six.PY3:
                 lines = lines[0:1] + [round_csv_line(line, 5, 8) for line in lines[1:]]
 
-            self.assertTrue(res.exit_ok())
+            self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 lines[0:10],
                 common.head_file("30min-bitstampUSD-2.csv", 10, path="testcases/data")

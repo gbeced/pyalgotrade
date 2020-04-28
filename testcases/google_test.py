@@ -25,16 +25,16 @@ from . import common
 from pyalgotrade.barfeed import googlefeed
 
 
-INSTRUMENT = "ORCL"
 PRICE_CURRENCY = "USD"
+INSTRUMENT = "ORCL/%s" % PRICE_CURRENCY
 
 
 class ToolsTestCase(common.TestCase):
     def testParseFile(self):
         bf = googlefeed.Feed()
-        bf.addBarsFromCSV(INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2010-googlefinance.csv"))
+        bf.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2010-googlefinance.csv"))
         bf.loadAll()
-        ds = bf.getDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bf.getDataSeries(INSTRUMENT)
         self.assertEqual(ds[-1].getOpen(), 31.22)
         self.assertEqual(ds[-1].getClose(), 31.30)
         self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
@@ -42,11 +42,11 @@ class ToolsTestCase(common.TestCase):
     def testParseMalformedFile(self):
         bf = googlefeed.Feed()
         bf.addBarsFromCSV(
-            INSTRUMENT, PRICE_CURRENCY, common.get_data_file_path("orcl-2010-googlefinance-malformed.csv"),
+            INSTRUMENT, common.get_data_file_path("orcl-2010-googlefinance-malformed.csv"),
             skipMalformedBars=True
         )
         bf.loadAll()
-        ds = bf.getDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bf.getDataSeries(INSTRUMENT)
         self.assertEqual(ds[-1].getOpen(), 31.22)
         self.assertEqual(ds[-1].getClose(), 31.30)
         self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))

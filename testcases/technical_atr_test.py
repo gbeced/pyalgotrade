@@ -30,6 +30,11 @@ from pyalgotrade.dataseries import bards
 from pyalgotrade import dataseries
 
 
+SYMBOL = "ANY"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
+
+
 class TestCase(common.TestCase):
     def testStockChartsATR(self):
         # Test data from http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:average_true_range_a
@@ -54,12 +59,12 @@ class TestCase(common.TestCase):
         ]
 
         # Build a bar dataseries using the test data.
-        barDataSeries = bards.BarDataSeries("ANY", "USD")
+        barDataSeries = bards.BarDataSeries(INSTRUMENT)
         atrDS = atr.ATR(barDataSeries, 14)
         now = datetime.datetime(2000, 1, 1)
         for i in xrange(len(high)):
             b = bar.BasicBar(
-                "ANY", "USD", now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i],
+                INSTRUMENT, now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i],
                 bar.Frequency.DAY
             )
             barDataSeries.append(b)
@@ -89,12 +94,12 @@ class TestCase(common.TestCase):
         ]
 
         # Build a bar dataseries using the test data.
-        barDataSeries = bards.BarDataSeries("ANY", "USD")
+        barDataSeries = bards.BarDataSeries(INSTRUMENT)
         atrDS = atr.ATR(barDataSeries, 14, True)
         now = datetime.datetime(2000, 1, 1)
         for i in xrange(len(high)):
             b = bar.BasicBar(
-                "ANY", "USD", now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i]/2,
+                INSTRUMENT, now + datetime.timedelta(days=i), close[i], high[i], low[i], close[i], 100, close[i]/2,
                 bar.Frequency.DAY
             )
             barDataSeries.append(b)

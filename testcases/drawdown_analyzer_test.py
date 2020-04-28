@@ -30,13 +30,17 @@ from pyalgotrade import broker
 from pyalgotrade import bar
 
 
-def build_bars_from_closing_prices(closingPrices):
+PRICE_CURRENCY = "USD"
+
+
+def build_bars_from_closing_prices(instrument, closingPrices):
     ret = []
 
     nextDateTime = datetime.datetime.now()
     for closePrice in closingPrices:
         bar_ = bar.BasicBar(
-            nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice, closePrice, bar.Frequency.DAY
+            instrument, nextDateTime, closePrice, closePrice, closePrice, closePrice, closePrice,
+            closePrice, bar.Frequency.DAY
         )
         ret.append(bar_)
         nextDateTime = nextDateTime + datetime.timedelta(days=1)
@@ -183,46 +187,50 @@ class DDHelperCase(common.TestCase):
 class AnalyzerTestCase(common.TestCase):
     def testNoTrades(self):
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        barFeed.addBarsFromCSV("spy", common.get_data_file_path("sharpe-ratio-test-spy.csv"))
-        strat = strategy_test.TestStrategy(barFeed, 1000)
+        barFeed.addBarsFromCSV("ige/%s" % PRICE_CURRENCY, common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+        barFeed.addBarsFromCSV("spy/%s" % PRICE_CURRENCY, common.get_data_file_path("sharpe-ratio-test-spy.csv"))
+        strat = strategy_test.TestStrategy(barFeed, {PRICE_CURRENCY: 1000})
         strat.setBrokerOrdersGTC(True)
         strat.setUseAdjustedValues(True)
-        stratAnalyzer = drawdown.DrawDown()
+        stratAnalyzer = drawdown.DrawDown(PRICE_CURRENCY)
         strat.attachAnalyzer(stratAnalyzer)
 
         strat.run()
-        self.assertTrue(strat.getBroker().getBalance("USD") == 1000)
+        self.assertTrue(strat.getBroker().getBalance(PRICE_CURRENCY) == 1000)
         self.assertEqual(strat.orderUpdatedCalls, 0)
         self.assertTrue(stratAnalyzer.getMaxDrawDown() == 0)
         self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta())
 
     def __testIGE_BrokerImpl(self, quantity):
-        initialCash = 42.09*quantity
+        initialCash = 42.09 * quantity
         # This testcase is based on an example from Ernie Chan's book:
         # 'Quantitative Trading: How to Build Your Own Algorithmic Trading Business'
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV("ige", common.get_data_file_path("sharpe-ratio-test-ige.csv"))
-        strat = strategy_test.TestStrategy(barFeed, initialCash)
+        instrument = "ige/%s" % PRICE_CURRENCY
+        barFeed.addBarsFromCSV(instrument, common.get_data_file_path("sharpe-ratio-test-ige.csv"))
+        strat = strategy_test.TestStrategy(barFeed, {PRICE_CURRENCY: initialCash})
         strat.setUseAdjustedValues(True)
         strat.setBrokerOrdersGTC(True)
-        stratAnalyzer = drawdown.DrawDown()
+        stratAnalyzer = drawdown.DrawDown(PRICE_CURRENCY)
         strat.attachAnalyzer(stratAnalyzer)
 
         # Disable volume checks to match book results.
         strat.getBroker().getFillStrategy().setVolumeLimit(None)
 
-        # Manually place the order to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "ige", quantity, True)  # Adj. Close: 42.09
+        # Manually place the order to get it filled on the first bar. Adj. Close: 42.09
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity, True)
         order.setGoodTillCanceled(True)
         strat.getBroker().submitOrder(order)
         strat.addOrder(
             datetime.datetime(2007, 11, 13), strat.getBroker().createMarketOrder, broker.Order.Action.SELL,
-            "ige", quantity, True
+            instrument, quantity, True
         )  # Adj. Close: 127.64
         strat.run()
 
-        self.assertTrue(round(strat.getBroker().getBalance("USD"), 2) == initialCash + (127.64 - 42.09) * quantity)
+        self.assertEqual(
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
+            initialCash + (127.64 - 42.09) * quantity
+        )
         self.assertEqual(strat.orderUpdatedCalls, 6)
         self.assertTrue(round(stratAnalyzer.getMaxDrawDown(), 5) == 0.31178)
         self.assertTrue(stratAnalyzer.getLongestDrawDownDuration() == datetime.timedelta(days=623))
@@ -234,16 +242,17 @@ class AnalyzerTestCase(common.TestCase):
         self.__testIGE_BrokerImpl(2)
 
     def __testManualImpl(self, closingPrices, cash):
+        instrument = "orcl/%s" % PRICE_CURRENCY
         barFeed = TestBarFeed(bar.Frequency.DAY)
-        bars = build_bars_from_closing_prices(closingPrices)
-        barFeed.addBarsFromSequence("orcl", bars)
+        bars = build_bars_from_closing_prices(instrument, closingPrices)
+        barFeed.addBarsFromSequence(instrument, bars)
 
-        strat = strategy_test.TestStrategy(barFeed, cash)
-        stratAnalyzer = drawdown.DrawDown()
+        strat = strategy_test.TestStrategy(barFeed, {PRICE_CURRENCY: cash})
+        stratAnalyzer = drawdown.DrawDown(PRICE_CURRENCY)
         strat.attachAnalyzer(stratAnalyzer)
 
         # Manually place the order to get it filled on the first bar.
-        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, "orcl", 1, True)
+        order = strat.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, 1, True)
         order.setGoodTillCanceled(True)
         strat.getBroker().submitOrder(order)
 

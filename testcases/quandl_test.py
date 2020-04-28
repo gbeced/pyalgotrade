@@ -64,13 +64,14 @@ class ToolsTestCase(common.TestCase):
 
     def testDownloadAndParseDailyUsingApiKey(self):
         with common.TmpDir() as tmpPath:
-            instrument = "ORCL"
+            symbol = "ORCL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
-            quandl.download_daily_bars("WIKI", instrument, 2010, path, authToken=QUANDL_API_KEY)
+            quandl.download_daily_bars("WIKI", symbol, 2010, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path)
+            bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(ds[-1].getOpen(), 31.22)
@@ -85,16 +86,17 @@ class ToolsTestCase(common.TestCase):
 
     def testDownloadAndParseDaily_UseAdjClose(self):
         with common.TmpDir() as tmpPath:
-            instrument = "ORCL"
+            symbol = "ORCL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             path = os.path.join(tmpPath, "quandl-daily-orcl-2010.csv")
-            quandl.download_daily_bars("WIKI", instrument, 2010, path, authToken=QUANDL_API_KEY)
+            quandl.download_daily_bars("WIKI", symbol, 2010, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path)
+            bf.addBarsFromCSV(instrument, path)
             # Need to setUseAdjustedValues(True) after loading the file because we
             # can't tell in advance if adjusted values are there or not.
             bf.setUseAdjustedValues(True)
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(ds[-1].getOpen(), 31.22)
@@ -109,10 +111,11 @@ class ToolsTestCase(common.TestCase):
 
     def testDownloadAndParseDailyNoAdjClose(self):
         with common.TmpDir() as tmpPath:
-            instrument = "ADYEN"
+            symbol = "ADYEN"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             year = 2018
-            path = os.path.join(tmpPath, "quandl-daily-%s-%s.csv" % (instrument, year))
-            quandl.download_daily_bars("EURONEXT", instrument, year, path, authToken=QUANDL_API_KEY)
+            path = os.path.join(tmpPath, "quandl-daily-%s-%s.csv" % (symbol, year))
+            quandl.download_daily_bars("EURONEXT", symbol, year, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
             bf.setNoAdjClose()
             bf.setColumnName("open", "Open")
@@ -120,9 +123,9 @@ class ToolsTestCase(common.TestCase):
             bf.setColumnName("low", "Low")
             bf.setColumnName("close", "Last")
             bf.setColumnName("volume", "Volume")
-            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path, skipMalformedBars=True)
+            bf.addBarsFromCSV(instrument, path, skipMalformedBars=True)
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[0].getDateTime(), datetime.datetime(year, 6, 13))
             self.assertEqual(ds[0].getOpen(), 400.00)
@@ -135,13 +138,14 @@ class ToolsTestCase(common.TestCase):
 
     def testDownloadAndParseWeekly(self):
         with common.TmpDir() as tmpPath:
-            instrument = "AAPL"
+            symbol = "AAPL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             path = os.path.join(tmpPath, "quandl-aapl-weekly-2010.csv")
-            quandl.download_weekly_bars("WIKI", instrument, 2010, path, authToken=QUANDL_API_KEY)
+            quandl.download_weekly_bars("WIKI", symbol, 2010, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed(frequency=bar.Frequency.WEEK)
-            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, path)
+            bf.addBarsFromCSV(instrument, path)
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             # Quandl used to report 2010-1-3 as the first week of 2010.
             self.assertTrue(
@@ -164,10 +168,11 @@ class ToolsTestCase(common.TestCase):
 
     def testBuildFeedDaily(self):
         with common.TmpDir() as tmpPath:
-            instrument = "ORCL"
-            bf = quandl.build_feed("WIKI", [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
+            symbol = "ORCL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
+            bf = quandl.build_feed("WIKI", [symbol], PRICE_CURRENCY, 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
             self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(ds[-1].getOpen(), 31.22)
             self.assertEqual(ds[-1].getHigh(), 31.33)
@@ -181,13 +186,14 @@ class ToolsTestCase(common.TestCase):
 
     def testBuildFeedWeekly(self):
         with common.TmpDir() as tmpPath:
-            instrument = "AAPL"
+            symbol = "AAPL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             bf = quandl.build_feed(
-                "WIKI", [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, bar.Frequency.WEEK,
+                "WIKI", [symbol], PRICE_CURRENCY, 2010, 2010, tmpPath, bar.Frequency.WEEK,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             # Quandl used to report 2010-1-3 as the first week of 2010.
             self.assertTrue(
@@ -233,15 +239,16 @@ class ToolsTestCase(common.TestCase):
             "volume": "Volume",
         }
         with common.TmpDir() as tmpPath:
-            instrument = "ADYEN"
+            symbol = "ADYEN"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             year = 2018
             bf = quandl.build_feed(
-                "EURONEXT", [instrument], PRICE_CURRENCY, year, year, tmpPath, columnNames=column_names,
+                "EURONEXT", [symbol], PRICE_CURRENCY, year, year, tmpPath, columnNames=column_names,
                 skipMalformedBars=True, authToken=QUANDL_API_KEY
             )
             bf.setNoAdjClose()
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[0].getDateTime(), datetime.datetime(year, 6, 13))
             self.assertEqual(ds[0].getOpen(), 400.00)
@@ -258,12 +265,14 @@ class ToolsTestCase(common.TestCase):
                 "open": "Last",
                 "close": "Last"
             }
+            symbol = "BTC"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             bf = quandl.build_feed(
-                "BITSTAMP", ["USD"], PRICE_CURRENCY, 2014, 2014, tmpPath, columnNames=columnNames,
+                "BITSTAMP", {"USD": symbol}, PRICE_CURRENCY, 2014, 2014, tmpPath, columnNames=columnNames,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
-            ds = bf.getDataSeries("USD", PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(len(ds[-1].getExtraColumns()), 3)
             self.assertEqual(ds[-1].getExtraColumns()["Bid"], 319.19)
@@ -279,12 +288,14 @@ class ToolsTestCase(common.TestCase):
                 "close": "Last",
                 "adj_close": None
             }
+            symbol = "BTC"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             bf = quandl.build_feed(
-                "BITSTAMP", ["USD"], PRICE_CURRENCY, 2014, 2014, tmpPath, columnNames=columnNames,
+                "BITSTAMP", {"USD": symbol}, PRICE_CURRENCY, 2014, 2014, tmpPath, columnNames=columnNames,
                 authToken=QUANDL_API_KEY
             )
             bf.loadAll()
-            ds = bf.getDataSeries("USD", PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertFalse(bf.barsHaveAdjClose())
             self.assertEqual(ds[-1].getAdjClose(), None)
@@ -293,10 +304,11 @@ class ToolsTestCase(common.TestCase):
         tmpPath = tempfile.mkdtemp()
         shutil.rmtree(tmpPath)
         try:
-            instrument = "ORCL"
-            bf = quandl.build_feed("WIKI", [instrument], PRICE_CURRENCY, 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
+            symbol = "ORCL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
+            bf = quandl.build_feed("WIKI", [symbol], PRICE_CURRENCY, 2010, 2010, tmpPath, authToken=QUANDL_API_KEY)
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(ds[-1].getOpen(), 31.22)
@@ -315,20 +327,21 @@ class ToolsTestCase(common.TestCase):
         tmpPath = tempfile.mkdtemp()
         shutil.rmtree(tmpPath)
         try:
-            instrument = "ORCL"
+            symbol = "ORCL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             subprocess.call([
                 "python", "-m", "pyalgotrade.tools.quandl",
                 "--source-code=WIKI",
-                "--table-code=%s" % instrument,
+                "--table-code=%s" % symbol,
                 "--from-year=2010",
                 "--to-year=2010",
                 "--storage=%s" % tmpPath,
                 "--auth-token=%s" % QUANDL_API_KEY
             ])
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, os.path.join(tmpPath, "WIKI-ORCL-2010-quandl.csv"))
+            bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-ORCL-2010-quandl.csv"))
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 31))
             self.assertEqual(ds[-1].getOpen(), 31.22)
@@ -344,11 +357,12 @@ class ToolsTestCase(common.TestCase):
         tmpPath = tempfile.mkdtemp()
         shutil.rmtree(tmpPath)
         try:
-            instrument = "AAPL"
+            symbol = "AAPL"
+            instrument = "%s/%s" % (symbol, PRICE_CURRENCY)
             subprocess.call([
                 "python", "-m", "pyalgotrade.tools.quandl",
                 "--source-code=WIKI",
-                "--table-code=%s" % instrument,
+                "--table-code=%s" % symbol,
                 "--from-year=2010",
                 "--to-year=2010",
                 "--storage=%s" % tmpPath,
@@ -356,9 +370,9 @@ class ToolsTestCase(common.TestCase):
                 "--auth-token=%s" % QUANDL_API_KEY
             ])
             bf = quandlfeed.Feed()
-            bf.addBarsFromCSV(instrument, PRICE_CURRENCY, os.path.join(tmpPath, "WIKI-AAPL-2010-quandl.csv"))
+            bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-AAPL-2010-quandl.csv"))
             bf.loadAll()
-            ds = bf.getDataSeries(instrument, PRICE_CURRENCY)
+            ds = bf.getDataSeries(instrument)
 
             self.assertEqual(ds[-1].getDateTime(), datetime.datetime(2010, 12, 26))
             self.assertEqual(ds[-1].getOpen(), 325.0)
@@ -372,12 +386,12 @@ class ToolsTestCase(common.TestCase):
 
     def testIgnoreErrors(self):
         with common.TmpDir() as tmpPath:
-            instrument = "inexistent"
+            symbol = "inexistent"
             output = check_output(
                 [
                     "python", "-m", "pyalgotrade.tools.quandl",
                     "--source-code=WIKI",
-                    "--table-code=%s" % instrument,
+                    "--table-code=%s" % symbol,
                     "--from-year=2010",
                     "--to-year=2010",
                     "--storage=%s" % tmpPath,
@@ -391,12 +405,12 @@ class ToolsTestCase(common.TestCase):
     def testDontIgnoreErrors(self):
         with self.assertRaises(Exception) as e:
             with common.TmpDir() as tmpPath:
-                instrument = "inexistent"
+                symbol = "inexistent"
                 check_output(
                     [
                         "python", "-m", "pyalgotrade.tools.quandl",
                         "--source-code=WIKI",
-                        "--table-code=%s" % instrument,
+                        "--table-code=%s" % symbol,
                         "--from-year=2010",
                         "--to-year=2010",
                         "--storage=%s" % tmpPath,

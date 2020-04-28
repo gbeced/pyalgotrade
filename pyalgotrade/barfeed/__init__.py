@@ -24,6 +24,7 @@ from pyalgotrade import bar
 from pyalgotrade.dataseries import bards
 from pyalgotrade import feed
 from pyalgotrade import dispatchprio
+from pyalgotrade.instrument import Instrument, build_instrument
 
 
 # This is only for backward compatibility since Frequency used to be defined here and not in bar.py.
@@ -47,8 +48,10 @@ class BaseBarFeed(feed.BaseFeed):
         super(BaseBarFeed, self).__init__(maxLen)
         self.__frequency = frequency
         self.__useAdjustedValues = False
-        self.__currentBars = None
-        self.__lastBars = {}
+        self.__lastBars = None
+        # This dict with have the last bar for each instrument. That last bar for a given instrument may no be present
+        # in self.__lastBars.
+        self.__lastBarByInstrument = {}
 
     # Return the datetime for the current bars.
     @abc.abstractmethod
@@ -70,38 +73,30 @@ class BaseBarFeed(feed.BaseFeed):
         """
         raise NotImplementedError()
 
-    ## BEGIN feed.BaseFeed abstractmethods
+    # BEGIN feed.BaseFeed abstractmethods
     def createDataSeries(self, key, maxLen):
-        instrument, priceCurrency = bar.key_to_pair(key)
-        ret = bards.BarDataSeries(instrument, priceCurrency, maxLen)
+        assert isinstance(key, Instrument)
+        ret = bards.BarDataSeries(key, maxLen)
         ret.setUseAdjustedValues(self.__useAdjustedValues)
         return ret
 
-    def getNextValues(self):
+    def _getNextValues(self):
         dateTime = None
         bars = self.getNextBars()
+
         if bars is not None:
             dateTime = bars.getDateTime()
 
-            # Check that current bar datetimes are greater than the previous one.
-            if self.__currentBars is not None and self.__currentBars.getDateTime() >= dateTime:
-                raise Exception(
-                    "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
-                        self.__currentBars.getDateTime(),
-                        dateTime
-                    )
-                )
+            for new_bar in bars:
+                self.__lastBarByInstrument[new_bar.getInstrument()] = new_bar
+            self.__lastBars = bars
 
-            # Update self.__currentBars and self.__lastBars
-            self.__currentBars = bars
-            for bar in bars:
-                self.__lastBars[bar.pairToKey()] = bar
         return (dateTime, bars)
-    ## END feed.BaseFeed abstractmethods
+    # END feed.BaseFeed abstractmethods
 
     def reset(self):
-        self.__currentBars = None
-        self.__lastBars = {}
+        self.__lastBars = None
+        self.__lastBarByInstrument = {}
         super(BaseBarFeed, self).reset()
 
     def setUseAdjustedValues(self, useAdjusted):
@@ -121,26 +116,31 @@ class BaseBarFeed(feed.BaseFeed):
 
     def getCurrentBars(self):
         """Returns the current :class:`pyalgotrade.bar.Bars`."""
-        return self.__currentBars
+        return self.__lastBars
 
-    def getLastBar(self, instrument, priceCurrency):
+    def getLastBar(self, instrument):
         """
-        Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument and price currency, or None.
-        """
-        return self.__lastBars.get(bar.pair_to_key(instrument, priceCurrency))
-
-    def getDataSeries(self, instrument, priceCurrency):
-        """
-        Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument and price currency or
-        None if it was not found.
+        Returns the last :class:`pyalgotrade.bar.Bar` for a given instrument, or None.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param instrument: The price currency.
-        :type instrument: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
+        """
+        instrument = build_instrument(instrument)
+        return self.__lastBarByInstrument.get(instrument)
+
+    def getDataSeries(self, instrument):
+        """
+        Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument or None if it was not
+        found.
+
+        :param instrument: Instrument identifier.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :rtype: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
         """
-        return super(BaseBarFeed, self).getDataSeries(bar.pair_to_key(instrument, priceCurrency))
+        instrument = build_instrument(instrument)
+        return super(BaseBarFeed, self).getDataSeries(instrument)
 
     def getDispatchPriority(self):
         return dispatchprio.BAR_FEED
@@ -149,10 +149,11 @@ class BaseBarFeed(feed.BaseFeed):
 # This class is used by the optimizer module. The barfeed is already built on the server side,
 # and the bars are sent back to workers.
 class OptimizerBarFeed(BaseBarFeed):
-    def __init__(self, frequency, pairs, bars, maxLen=None):
+    def __init__(self, frequency, instruments, bars, maxLen=None):
         super(OptimizerBarFeed, self).__init__(frequency, maxLen)
-        for pair in pairs:
-            self.registerDataSeries(pair)
+        for instrument in instruments:
+            instrument = build_instrument(instrument)
+            self.registerDataSeries(instrument)
         self.__bars = bars
         self.__nextPos = 0
         self.__currDateTime = None
@@ -160,12 +161,12 @@ class OptimizerBarFeed(BaseBarFeed):
         # Check if bars have adjusted close.
         self.__barsHaveAdjClose = False
         for item in bars:
-            for bar in item:
-                self.__barsHaveAdjClose = bar.getAdjClose() is not None
+            for b in item:
+                self.__barsHaveAdjClose = b.getAdjClose() is not None
                 break
             break
 
-    ## BEGIN observer.Subject abstractmethods
+    # BEGIN observer.Subject abstractmethods
     def start(self):
         super(OptimizerBarFeed, self).start()
 
@@ -183,9 +184,9 @@ class OptimizerBarFeed(BaseBarFeed):
         if self.__nextPos < len(self.__bars):
             ret = self.__bars[self.__nextPos].getDateTime()
         return ret
-    ## END observer.Subject abstractmethods
+    # END observer.Subject abstractmethods
 
-    ## BEGIN BaseBarFeed abstractmethods
+    # BEGIN BaseBarFeed abstractmethods
     def getCurrentDateTime(self):
         return self.__currDateTime
 
@@ -199,5 +200,4 @@ class OptimizerBarFeed(BaseBarFeed):
             self.__currDateTime = ret.getDateTime()
             self.__nextPos += 1
         return ret
-    ## END BaseBarFeed abstractmethods
-
+    # END BaseBarFeed abstractmethods

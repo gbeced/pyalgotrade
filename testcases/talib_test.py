@@ -191,6 +191,10 @@ SAR_LOW = [
     50.20, 51.50
 ]
 
+SYMBOL = "ORCL"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
+
 
 def compare(obtained, expected, decimals=2):
     obtained = round(obtained, decimals)
@@ -199,8 +203,6 @@ def compare(obtained, expected, decimals=2):
 
 
 class TestCase(common.TestCase):
-    TestInstrument = "orcl"
-
     def __loadMedPriceDS(self):
         ret = dataseries.SequenceDataSeries()
         for i in xrange(len(OPEN_VALUES)):
@@ -210,12 +212,12 @@ class TestCase(common.TestCase):
     def __loadBarDS(self):
         seconds = 0
 
-        ret = bards.BarDataSeries("ANY", "USD")
+        ret = bards.BarDataSeries(INSTRUMENT)
         for i in xrange(len(OPEN_VALUES)):
             dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
             ret.append(
                 bar.BasicBar(
-                    "ANY", "USD", dateTime, OPEN_VALUES[i], HIGH_VALUES[i], LOW_VALUES[i], CLOSE_VALUES[i],
+                    INSTRUMENT, dateTime, OPEN_VALUES[i], HIGH_VALUES[i], LOW_VALUES[i], CLOSE_VALUES[i],
                     VOLUME_VALUES[i], CLOSE_VALUES[i], bar.Frequency.DAY
                 )
             )
@@ -225,12 +227,12 @@ class TestCase(common.TestCase):
     def __loadSarTestBarDs(self):
         seconds = 0
 
-        ret = bards.BarDataSeries("ANY", "USD")
+        ret = bards.BarDataSeries(INSTRUMENT)
         for i in xrange(len(SAR_HIGH)):
             dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
             ret.append(
                 bar.BasicBar(
-                    "ANY", "USD", dateTime, SAR_LOW[i], SAR_HIGH[i], SAR_LOW[i], SAR_HIGH[i], 0, SAR_LOW[i],
+                    INSTRUMENT, dateTime, SAR_LOW[i], SAR_HIGH[i], SAR_LOW[i], SAR_HIGH[i], 0, SAR_LOW[i],
                     bar.Frequency.DAY
                 )
             )

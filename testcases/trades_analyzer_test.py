@@ -35,7 +35,9 @@ from pyalgotrade import broker
 from pyalgotrade.broker import backtesting
 
 
+SYMBOL = "SPY"
 PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
 
 
 def buildUTCDateTime(year, month, day, hour, minute):
@@ -45,24 +47,22 @@ def buildUTCDateTime(year, month, day, hour, minute):
 
 
 class TradesAnalyzerTestCase(common.TestCase):
-    TestInstrument = "spy"
-
     def __loadBarFeed(self):
         ret = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE)
         barFilter = csvfeed.USEquitiesRTH()
         ret.setBarFilter(barFilter)
         ret.addBarsFromCSV(
-            TradesAnalyzerTestCase.TestInstrument, PRICE_CURRENCY, common.get_data_file_path("nt-spy-minute-2011.csv")
+            INSTRUMENT, common.get_data_file_path("nt-spy-minute-2011.csv")
         )
         return ret
 
     def __createStrategy(self):
         barFeed = self.__loadBarFeed()
-        return strategy_test.TestStrategy(barFeed, 1000)
+        return strategy_test.TestStrategy(barFeed, {PRICE_CURRENCY: 1000})
 
     def __createPositionStrategy(self):
         barFeed = self.__loadBarFeed()
-        return position_test.TestStrategy(barFeed, TradesAnalyzerTestCase.TestInstrument, 1000)
+        return position_test.TestStrategy(barFeed, INSTRUMENT, 1000)
 
     def testNoTrades(self):
         strat = self.__createStrategy()
@@ -71,7 +71,7 @@ class TradesAnalyzerTestCase(common.TestCase):
 
         strat.run()
 
-        self.assertTrue(strat.getBroker().getBalance("USD") == 1000)
+        self.assertTrue(strat.getBroker().getBalance(PRICE_CURRENCY) == 1000)
 
         self.assertTrue(stratAnalyzer.getCount() == 0)
         self.assertTrue(stratAnalyzer.getEvenCount() == 0)
@@ -85,27 +85,27 @@ class TradesAnalyzerTestCase(common.TestCase):
 
         # Winning trade
         strat.addPosEntry(
-            buildUTCDateTime(2011, 1, 3, 15, 0), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1
+            buildUTCDateTime(2011, 1, 3, 15, 0), strat.enterLong, INSTRUMENT, 1
         )  # 127.14
         strat.addPosExitMarket(buildUTCDateTime(2011, 1, 3, 15, 16))  # 127.16
         # Losing trade
         strat.addPosEntry(
-            buildUTCDateTime(2011, 1, 3, 15, 30), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1
+            buildUTCDateTime(2011, 1, 3, 15, 30), strat.enterLong, INSTRUMENT, 1
         )  # 127.2
         strat.addPosExitMarket(buildUTCDateTime(2011, 1, 3, 15, 31))  # 127.16
         # Winning trade
         strat.addPosEntry(
-            buildUTCDateTime(2011, 1, 3, 15, 38), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1
+            buildUTCDateTime(2011, 1, 3, 15, 38), strat.enterLong, INSTRUMENT, 1
         )  # 127.16
         strat.addPosExitMarket(buildUTCDateTime(2011, 1, 3, 15, 42))  # 127.26
         # Unfinished trade not closed
         strat.addPosEntry(
-            buildUTCDateTime(2011, 1, 3, 15, 47), strat.enterLong, TradesAnalyzerTestCase.TestInstrument, 1
+            buildUTCDateTime(2011, 1, 3, 15, 47), strat.enterLong, INSTRUMENT, 1
         )  # 127.34
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.16 - 127.14) + (127.16 - 127.2) + (127.26 - 127.16) - 127.34, 2)
         )
 
@@ -139,39 +139,39 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Winning trade
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.14
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.16
         # Losing trade
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.2
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 31), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.16
         # Winning trade
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 38), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.16
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 42), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.26
         # Open trade.
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 47), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.34
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.16 - 127.14) + (127.16 - 127.2) + (127.26 - 127.16) - 127.34, 2)
         )
 
@@ -203,30 +203,30 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Losing trade
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.2
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 31), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.16
         # Winning trade
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 38), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.16
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 42), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.26
         # Open trade.
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 47), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.34
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.16 - 127.2) + (127.26 - 127.16) - 127.34 - 0.01*5, 2)
         )
         self.assertTrue(numpy.array_equal(stratAnalyzer.getCommissionsForAllTrades(), numpy.array([0.02, 0.02])))
@@ -254,19 +254,19 @@ class TradesAnalyzerTestCase(common.TestCase):
 
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 38), strat.getBroker().createMarketOrder, broker.Order.Action.BUY,
-            TradesAnalyzerTestCase.TestInstrument, 1
+            INSTRUMENT, 1
         )  # Fill at 127.16
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 42), strat.getBroker().createMarketOrder, broker.Order.Action.SELL,
-            TradesAnalyzerTestCase.TestInstrument, 2
+            INSTRUMENT, 2
         )  # Fill at 127.26
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 53), strat.getBroker().createMarketOrder, broker.Order.Action.BUY,
-            TradesAnalyzerTestCase.TestInstrument, 2
+            INSTRUMENT, 2
         )  # Fill at 127.37
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 58), strat.getBroker().createMarketOrder, broker.Order.Action.SELL,
-            TradesAnalyzerTestCase.TestInstrument, 1
+            INSTRUMENT, 1
         )  # Fill at 127.4
 
         strat.run()
@@ -283,22 +283,22 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.14
         # Exit long and enter short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 2
+            broker.Order.Action.SELL, INSTRUMENT, 2
         )  # 127.16
         # Exit short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 1
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.16 - 127.14) + (127.16 - 127.2), 2)
         )
 
@@ -322,27 +322,27 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.14
         # Exit long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.16
         # Enter short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL_SHORT, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL_SHORT, INSTRUMENT, 1
         )  # 127.16
         # Exit short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 1
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.16 - 127.14) + (127.16 - 127.2), 2)
         )
 
@@ -366,22 +366,22 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL_SHORT, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL_SHORT, INSTRUMENT, 1
         )  # 127.14
         # Exit short and enter long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 2
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 2
         )  # 127.16
         # Exit long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.14 - 127.16) + (127.2 - 127.16), 2)
         )
 
@@ -405,27 +405,27 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL_SHORT, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL_SHORT, INSTRUMENT, 1
         )  # 127.14
         # Exit short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 1
         )  # 127.16
         # Enter long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.16
         # Exit long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.14 - 127.16) + (127.2 - 127.16), 2)
         )
 
@@ -449,22 +449,22 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.14
         # Extend long position
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY, INSTRUMENT, 1
         )  # 127.16
         # Exit long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 2
+            broker.Order.Action.SELL, INSTRUMENT, 2
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.2 - 127.14) + (127.2 - 127.16), 2)
         )
 
@@ -486,22 +486,22 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY, TradesAnalyzerTestCase.TestInstrument, 2
+            broker.Order.Action.BUY, INSTRUMENT, 2
         )  # 127.14
         # Decrease long position
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.16
         # Exit long
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL, INSTRUMENT, 1
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.2 - 127.14) + (127.16 - 127.14), 2)
         )
 
@@ -523,22 +523,22 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL_SHORT, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL_SHORT, INSTRUMENT, 1
         )  # 127.14
         # Extend short position
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL_SHORT, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.SELL_SHORT, INSTRUMENT, 1
         )  # 127.16
         # Exit short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 2
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 2
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.14 - 127.2) + (127.16 - 127.2), 2)
         )
 
@@ -560,22 +560,22 @@ class TradesAnalyzerTestCase(common.TestCase):
         # Enter short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 0), strat.getBroker().createMarketOrder,
-            broker.Order.Action.SELL_SHORT, TradesAnalyzerTestCase.TestInstrument, 2
+            broker.Order.Action.SELL_SHORT, INSTRUMENT, 2
         )  # 127.14
         # Decrease short position
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 16), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 1
         )  # 127.16
         # Exit short
         strat.addOrder(
             buildUTCDateTime(2011, 1, 3, 15, 30), strat.getBroker().createMarketOrder,
-            broker.Order.Action.BUY_TO_COVER, TradesAnalyzerTestCase.TestInstrument, 1
+            broker.Order.Action.BUY_TO_COVER, INSTRUMENT, 1
         )  # 127.2
         strat.run()
 
         self.assertEqual(
-            round(strat.getBroker().getBalance("USD"), 2),
+            round(strat.getBroker().getBalance(PRICE_CURRENCY), 2),
             round(1000 + (127.14 - 127.16) + (127.14 - 127.2), 2)
         )
 

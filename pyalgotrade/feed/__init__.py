@@ -28,7 +28,7 @@ def feed_iterator(feed):
     feed.start()
     try:
         while not feed.eof():
-            yield feed.getNextValuesAndUpdateDS()
+            yield feed._getNextValuesAndUpdateDS()
     finally:
         feed.stop()
         feed.join()
@@ -76,16 +76,16 @@ class BaseFeed(observer.Subject):
     # 1: datetime.datetime.
     # 2: dictionary or dict-like object.
     @abc.abstractmethod
-    def getNextValues(self):
+    def _getNextValues(self):
         raise NotImplementedError()
 
-    ## BEGIN observer.Subject abstractmethods
+    # BEGIN observer.Subject abstractmethods
     def dispatch(self):
-        dateTime, values = self.getNextValuesAndUpdateDS()
+        dateTime, values = self._getNextValuesAndUpdateDS()
         if dateTime is not None:
             self.__event.emit(dateTime, values)
         return dateTime is not None
-    ## END observer.Subject abstractmethods
+    # END observer.Subject abstractmethods
 
     def reset(self):
         keys = list(self.__ds.keys())
@@ -97,8 +97,8 @@ class BaseFeed(observer.Subject):
         if key not in self.__ds:
             self.__ds[key] = self.createDataSeries(key, self.__maxLen)
 
-    def getNextValuesAndUpdateDS(self):
-        dateTime, values = self.getNextValues()
+    def _getNextValuesAndUpdateDS(self):
+        dateTime, values = self._getNextValues()
         if dateTime is not None:
             for key, value in values.items():
                 # Get or create the datseries for each key.

@@ -128,7 +128,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         try:
             posTracker = self.__posTrackers[order.getInstrument()]
         except KeyError:
-            posTracker = returns.PositionTracker(order.getInstrumentTraits())
+            posTracker = returns.PositionTracker(order.getInstrument(), order.getInstrumentTraits())
             self.__posTrackers[order.getInstrument()] = posTracker
 
         # Update the tracker for this order.

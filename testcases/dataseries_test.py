@@ -30,8 +30,9 @@ from pyalgotrade.dataseries import aligned
 from pyalgotrade import bar
 
 
-INSTRUMENT = "ORCL"
+QUOTE_SYMBOL = "ORCL"
 PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (QUOTE_SYMBOL, PRICE_CURRENCY)
 
 
 class TestSequenceDataSeries(common.TestCase):
@@ -149,7 +150,7 @@ class TestSequenceDataSeries(common.TestCase):
 
 class TestBarDataSeries(common.TestCase):
     def testEmpty(self):
-        ds = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bards.BarDataSeries(INSTRUMENT)
         with self.assertRaises(IndexError):
             ds[-1]
         with self.assertRaises(IndexError):
@@ -158,25 +159,25 @@ class TestBarDataSeries(common.TestCase):
             ds[1000]
 
     def testAppendInvalidDatetime(self):
-        ds = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bards.BarDataSeries(INSTRUMENT)
         for i in xrange(10):
             now = datetime.datetime.now() + datetime.timedelta(seconds=i)
-            ds.append(bar.BasicBar(INSTRUMENT, PRICE_CURRENCY, now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+            ds.append(bar.BasicBar(INSTRUMENT, now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
             # Adding the same datetime twice should fail
             with self.assertRaises(Exception):
-                ds.append(bar.BasicBar(INSTRUMENT, PRICE_CURRENCY, now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
+                ds.append(bar.BasicBar(INSTRUMENT, now, 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND))
             # Adding a previous datetime should fail
             with self.assertRaises(Exception):
                 ds.append(bar.BasicBar(
-                    INSTRUMENT, PRICE_CURRENCY, now - datetime.timedelta(seconds=i),
+                    INSTRUMENT, now - datetime.timedelta(seconds=i),
                     0, 0, 0, 0, 0, 0, bar.Frequency.SECOND
                 ))
 
     def testNonEmpty(self):
-        ds = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bards.BarDataSeries(INSTRUMENT)
         for i in xrange(10):
             ds.append(bar.BasicBar(
-                INSTRUMENT, PRICE_CURRENCY, datetime.datetime.now() + datetime.timedelta(seconds=i),
+                INSTRUMENT, datetime.datetime.now() + datetime.timedelta(seconds=i),
                 0, 0, 0, 0, 0, 0, bar.Frequency.SECOND
             ))
 
@@ -188,10 +189,10 @@ class TestBarDataSeries(common.TestCase):
             self.assertTrue(ds[i] == value)
 
     def testNestedDataSeries(self):
-        ds = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bards.BarDataSeries(INSTRUMENT)
         for i in xrange(10):
             ds.append(bar.BasicBar(
-                INSTRUMENT, PRICE_CURRENCY, datetime.datetime.now() + datetime.timedelta(seconds=i),
+                INSTRUMENT, datetime.datetime.now() + datetime.timedelta(seconds=i),
                 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND
             ))
 
@@ -205,10 +206,10 @@ class TestBarDataSeries(common.TestCase):
 
     def testSeqLikeOps(self):
         seq = []
-        ds = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bards.BarDataSeries(INSTRUMENT)
         for i in xrange(10):
             bar_ = bar.BasicBar(
-                INSTRUMENT, PRICE_CURRENCY, datetime.datetime.now() + datetime.timedelta(seconds=i),
+                INSTRUMENT, datetime.datetime.now() + datetime.timedelta(seconds=i),
                 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND
             )
             ds.append(bar_)
@@ -221,11 +222,11 @@ class TestBarDataSeries(common.TestCase):
         self.assertEqual(ds[-2:][-1], seq[-2:][-1])
 
     def testDateTimes(self):
-        ds = bards.BarDataSeries(INSTRUMENT, PRICE_CURRENCY)
+        ds = bards.BarDataSeries(INSTRUMENT)
         firstDt = datetime.datetime.now()
         for i in xrange(10):
             ds.append(bar.BasicBar(
-                INSTRUMENT, PRICE_CURRENCY, firstDt + datetime.timedelta(seconds=i),
+                INSTRUMENT, firstDt + datetime.timedelta(seconds=i),
                 2, 4, 1, 3, 10, 3, bar.Frequency.SECOND
             ))
 

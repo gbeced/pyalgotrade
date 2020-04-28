@@ -81,15 +81,17 @@ def sharpe_ratio_2(returns, riskFreeRate, firstDateTime, lastDateTime, annualize
 
 
 class SharpeRatio(stratanalyzer.StrategyAnalyzer):
-    """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates
-    Sharpe ratio for the whole portfolio.
+    """A :class:`pyalgotrade.stratanalyzer.StrategyAnalyzer` that calculates Sharpe ratio for the whole portfolio.
 
+    :param currency: The currency to use to calculate returns.
+    :type currency: string.
     :param useDailyReturns: True if daily returns should be used instead of the returns for each bar.
     :type useDailyReturns: boolean.
     """
 
-    def __init__(self, useDailyReturns=True):
+    def __init__(self, currency, useDailyReturns=True):
         super(SharpeRatio, self).__init__()
+        self.__currency = currency
         self.__useDailyReturns = useDailyReturns
         self.__returns = []
 
@@ -104,7 +106,7 @@ class SharpeRatio(stratanalyzer.StrategyAnalyzer):
 
     def beforeAttach(self, strat):
         # Get or create a shared ReturnsAnalyzerBase
-        analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(strat)
+        analyzer = returns.ReturnsAnalyzerBase.getOrCreateShared(self.__currency, strat)
         analyzer.getEvent().subscribe(self.__onReturns)
 
     def __onReturns(self, dateTime, returnsAnalyzerBase):

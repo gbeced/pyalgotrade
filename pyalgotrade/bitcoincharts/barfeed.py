@@ -18,12 +18,13 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import datetime
+
 from pyalgotrade import barfeed
 from pyalgotrade import bar
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade.utils import dt
-
-import datetime
+from pyalgotrade.instrument import build_instrument
 
 
 def to_utc_if_naive(dateTime):
@@ -36,12 +37,11 @@ class TradeBar(bar.Bar):
     # Optimization to reduce memory footprint.
     __slots__ = ('__dateTime', '__price', '__amount')
 
-    def __init__(self, dateTime, instrument, priceCurrency, price, amount):
+    def __init__(self, dateTime, instrument, price, amount):
         self.__dateTime = dateTime
         self.__price = price
         self.__amount = amount
-        self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+        self.__instrument = build_instrument(instrument)
 
     def __setstate__(self, state):
         (self.__dateTime, self.__price, self.__amount) = state
@@ -61,9 +61,6 @@ class TradeBar(bar.Bar):
 
     def getInstrument(self):
         return self.__instrument
-
-    def getPriceCurrency(self):
-        return self.__priceCurrency
 
     def getOpen(self, adjusted=False):
         return self.__price
@@ -111,17 +108,13 @@ class UnixTimeFix(object):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, instrument, priceCurrency, unixTimeFix, timezone=None):
-        self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+    def __init__(self, instrument, unixTimeFix, timezone=None):
+        self.__instrument = build_instrument(instrument)
         self.__unixTimeFix = unixTimeFix
         self.__timezone = timezone
 
     def getInstrument(self):
         return self.__instrument
-
-    def getPriceCurrency(self):
-        return self.__priceCurrency
 
     def parseBar(self, csvRowDict):
         unixTime = int(csvRowDict["unixtime"])
@@ -135,7 +128,7 @@ class RowParser(csvfeed.RowParser):
         if self.__timezone:
             dateTime = dt.localize(dateTime, self.__timezone)
 
-        return TradeBar(dateTime, self.__instrument, self.__priceCurrency, price, amount)
+        return TradeBar(dateTime, self.__instrument, price, amount)
 
     def getFieldNames(self):
         return ["unixtime", "price", "amount"]
@@ -173,16 +166,15 @@ class CSVTradeFeed(csvfeed.BarFeed):
         return False
 
     def addBarsFromCSV(
-        self, path, instrument="BTC", priceCurrency="USD", timezone=None, fromDateTime=None, toDateTime=None
+        self, path, instrument="BTC/USD", timezone=None, fromDateTime=None, toDateTime=None
     ):
         """Loads bars from a trades CSV formatted file.
 
         :param path: The path to the file.
         :type path: string.
         :param instrument: The instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The price currency.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param timezone: An optional timezone to use to localize bars. By default bars are loaded in UTC.
         :type timezone: A pytz timezone.
         :param fromDateTime: An optional datetime to use to filter bars to load.
@@ -199,7 +191,8 @@ class CSVTradeFeed(csvfeed.BarFeed):
 
         if timezone is None:
             timezone = self.__timezone
-        rowParser = RowParser(instrument, priceCurrency, self.__unixTimeFix, timezone)
+        instrument = build_instrument(instrument)
+        rowParser = RowParser(instrument, self.__unixTimeFix, timezone)
 
         # Save the barfilter to restore it later.
         prevBarFilter = self.getBarFilter()

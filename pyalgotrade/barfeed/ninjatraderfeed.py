@@ -18,14 +18,16 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+
+import datetime
+
+import pytz
+
 import pyalgotrade.barfeed
 from pyalgotrade.barfeed import csvfeed
 from pyalgotrade import bar
 from pyalgotrade.utils import dt
-
-import pytz
-
-import datetime
+from pyalgotrade.instrument import build_instrument
 
 
 ######################################################################
@@ -59,9 +61,8 @@ class Frequency(object):
 
 
 class RowParser(csvfeed.RowParser):
-    def __init__(self, instrument, priceCurrency, frequency, dailyBarTime, timezone=None):
-        self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+    def __init__(self, instrument, frequency, dailyBarTime, timezone=None):
+        self.__instrument = build_instrument(instrument)
         self.__frequency = frequency
         self.__dailyBarTime = dailyBarTime
         self.__timezone = timezone
@@ -89,9 +90,6 @@ class RowParser(csvfeed.RowParser):
     def getInstrument(self):
         return self.__instrument
 
-    def getPriceCurrency(self):
-        return self.__priceCurrency
-
     def getFieldNames(self):
         return ["Date Time", "Open", "High", "Low", "Close", "Volume"]
 
@@ -106,7 +104,7 @@ class RowParser(csvfeed.RowParser):
         low = float(csvRowDict["Low"])
         volume = float(csvRowDict["Volume"])
         return bar.BasicBar(
-            self.__instrument, self.__priceCurrency, dateTime, open_, high, low, close, volume, None, self.__frequency
+            self.__instrument, dateTime, open_, high, low, close, volume, None, self.__frequency
         )
 
 
@@ -139,14 +137,13 @@ class Feed(csvfeed.BarFeed):
     def barsHaveAdjClose(self):
         return False
 
-    def addBarsFromCSV(self, instrument, priceCurrency, path, timezone=None):
+    def addBarsFromCSV(self, instrument, path, timezone=None):
         """Loads bars for a given instrument from a CSV formatted file.
         The instrument gets registered in the bar feed.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The price currency.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param path: The path to the file.
         :type path: string.
         :param timezone: The timezone to use to localize bars. Check :mod:`pyalgotrade.marketsession`.
@@ -161,5 +158,6 @@ class Feed(csvfeed.BarFeed):
         if timezone is None:
             timezone = self.__timezone
 
-        rowParser = RowParser(instrument, priceCurrency, self.getFrequency(), self.getDailyBarTime(), timezone)
+        instrument = build_instrument(instrument)
+        rowParser = RowParser(instrument, self.getFrequency(), self.getDailyBarTime(), timezone)
         super(Feed, self).addBarsFromCSV(path, rowParser)

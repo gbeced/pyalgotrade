@@ -29,6 +29,7 @@ from pyalgotrade.barfeed import quandlfeed
 from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
+from pyalgotrade.instrument import Instrument
 
 
 # http://www.quandl.com/help/api
@@ -104,7 +105,8 @@ def build_feed(
     :param sourceCode: The dataset source code.
     :type sourceCode: string.
     :param tableCodes: The dataset table codes.
-    :type tableCodes: list.
+        A list of strings or a dictionary that maps a table code to a symbol for the instrument.
+    :type tableCodes: list/dict.
     :param priceCurrency: The price currency.
     :type priceCurrency: string.
     :param fromYear: The first year.
@@ -166,7 +168,11 @@ def build_feed(
                         continue
                     else:
                         raise e
-            ret.addBarsFromCSV(tableCode, priceCurrency, fileName, skipMalformedBars=skipMalformedBars)
+            if isinstance(tableCodes, dict):
+                instrument = Instrument(tableCodes[tableCode], priceCurrency)
+            else:
+                instrument = Instrument(tableCode, priceCurrency)
+            ret.addBarsFromCSV(instrument, fileName, skipMalformedBars=skipMalformedBars)
     return ret
 
 

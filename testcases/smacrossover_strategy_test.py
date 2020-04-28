@@ -27,11 +27,16 @@ from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 
 
+SYMBOL = "ORCL"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
+
+
 class SMACrossOverStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, fastSMA, slowSMA):
-        broker = backtesting.Broker({"USD": 1000}, feed)
-        strategy.BacktestingStrategy.__init__(self, feed, broker)
-        ds = feed["orcl"].getPriceDataSeries()
+        broker = backtesting.Broker({PRICE_CURRENCY: 1000}, feed)
+        super(SMACrossOverStrategy, self).__init__(feed, brk=broker)
+        ds = feed[INSTRUMENT].getPriceDataSeries()
         self.__fastSMADS = ma.SMA(ds, fastSMA)
         self.__slowSMADS = ma.SMA(ds, slowSMA)
         self.__longPos = None
@@ -88,7 +93,7 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
         position.exitMarket()
 
     def onBars(self, bars):
-        bar = bars.getBar("orcl")
+        bar = bars.getBar(INSTRUMENT)
         self.printDebug(
             "%s: O=%s H=%s L=%s C=%s" % (
                 bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()
@@ -107,15 +112,15 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
             self.__shortPos = self.enterShortPosition(bars)
 
     def onFinish(self, bars):
-        self.__finalValue = self.getBroker().getEquity("USD")
+        self.__finalValue = self.getBroker().getEquity(PRICE_CURRENCY)
 
 
 class MarketOrderStrategy(SMACrossOverStrategy):
     def enterLongPosition(self, bars):
-        return self.enterLong("orcl", 10)
+        return self.enterLong(INSTRUMENT, 10)
 
     def enterShortPosition(self, bars):
-        return self.enterShort("orcl", 10)
+        return self.enterShort(INSTRUMENT, 10)
 
     def exitLongPosition(self, bars, position):
         position.exitMarket()
@@ -126,20 +131,20 @@ class MarketOrderStrategy(SMACrossOverStrategy):
 
 class LimitOrderStrategy(SMACrossOverStrategy):
     def __getMiddlePrice(self, bars):
-        bar = bars.getBar("orcl")
+        bar = bars.getBar(INSTRUMENT)
         ret = bar.getLow() + (bar.getHigh() - bar.getLow()) / 2.0
         ret = round(ret, 2)
         return ret
 
     def enterLongPosition(self, bars):
         price = self.__getMiddlePrice(bars)
-        ret = self.enterLongLimit("orcl", price, 10)
+        ret = self.enterLongLimit(INSTRUMENT, price, 10)
         self.printDebug("enterLong:", self.getCurrentDateTime(), price, ret)
         return ret
 
     def enterShortPosition(self, bars):
         price = self.__getMiddlePrice(bars)
-        ret = self.enterShortLimit("orcl", price, 10)
+        ret = self.enterShortLimit(INSTRUMENT, price, 10)
         self.printDebug("enterShort:", self.getCurrentDateTime(), price, ret)
         return ret
 
@@ -157,7 +162,7 @@ class LimitOrderStrategy(SMACrossOverStrategy):
 class TestSMACrossOver(common.TestCase):
     def __test(self, strategyClass, finalValue):
         feed = yahoofeed.Feed()
-        feed.addBarsFromCSV("orcl", "USD", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        feed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         myStrategy = strategyClass(feed, 10, 25)
         myStrategy.run()
         myStrategy.printDebug("Final result:", round(myStrategy.getFinalValue(), 2))

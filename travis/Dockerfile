@@ -10,7 +10,8 @@ RUN pip uninstall -y pyalgotrade
 # For testcases
 RUN pip install tox
 RUN pip install flake8
-RUN pip install statsmodels
+# Newer versions were failing on Python 2.7: ImportError: No module named abc
+RUN pip install statsmodels==0.10.0
 
 # New dependencies for the next version
 RUN pip install websocket-client

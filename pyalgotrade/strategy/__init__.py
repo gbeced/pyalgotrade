@@ -30,6 +30,7 @@ from pyalgotrade import dispatcher
 import pyalgotrade.strategy.position
 from pyalgotrade import logger
 from pyalgotrade.barfeed import resampled
+from pyalgotrade.instrument import build_instrument
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -136,9 +137,10 @@ class BaseStrategy(object):
             self.__analyzers.append(strategyAnalyzer)
             strategyAnalyzer.attached(self)
 
-    def getLastPrice(self, instrument, priceCurrency):
+    def getLastPrice(self, instrument):
         ret = None
-        bar = self.getFeed().getLastBar(instrument, priceCurrency)
+        instrument = build_instrument(instrument)
+        bar = self.getFeed().getLastBar(instrument)
         if bar is not None:
             ret = bar.getPrice()
         return ret
@@ -155,14 +157,13 @@ class BaseStrategy(object):
         """Returns the :class:`datetime.datetime` for the current :class:`pyalgotrade.bar.Bars`."""
         return self.__barFeed.getCurrentDateTime()
 
-    def marketOrder(self, instrument, priceCurrency, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
+    def marketOrder(self, instrument, quantity, onClose=False, goodTillCanceled=False, allOrNone=False):
         """
         Submits a market order.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param quantity: The amount of shares. Positive means buy, negative means sell.
         :type quantity: int/float.
         :param onClose: True if the order should be filled as close to the closing price as possible (Market-On-Close
@@ -177,13 +178,14 @@ class BaseStrategy(object):
         """
 
         ret = None
+        instrument = build_instrument(instrument)
         if quantity > 0:
             ret = self.getBroker().createMarketOrder(
-                pyalgotrade.broker.Order.Action.BUY, instrument, priceCurrency, quantity, onClose
+                pyalgotrade.broker.Order.Action.BUY, instrument, quantity, onClose
             )
         elif quantity < 0:
             ret = self.getBroker().createMarketOrder(
-                pyalgotrade.broker.Order.Action.SELL, instrument, priceCurrency, quantity*-1, onClose
+                pyalgotrade.broker.Order.Action.SELL, instrument, quantity*-1, onClose
             )
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
@@ -191,14 +193,13 @@ class BaseStrategy(object):
             self.getBroker().submitOrder(ret)
         return ret
 
-    def limitOrder(self, instrument, priceCurrency, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def limitOrder(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Submits a limit order.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param limitPrice: Limit price.
         :type limitPrice: float.
         :param quantity: The amount of shares. Positive means buy, negative means sell.
@@ -212,13 +213,14 @@ class BaseStrategy(object):
         """
 
         ret = None
+        instrument = build_instrument(instrument)
         if quantity > 0:
             ret = self.getBroker().createLimitOrder(
-                pyalgotrade.broker.Order.Action.BUY, instrument, priceCurrency, limitPrice, quantity
+                pyalgotrade.broker.Order.Action.BUY, instrument, limitPrice, quantity
             )
         elif quantity < 0:
             ret = self.getBroker().createLimitOrder(
-                pyalgotrade.broker.Order.Action.SELL, instrument, priceCurrency, limitPrice, quantity*-1
+                pyalgotrade.broker.Order.Action.SELL, instrument, limitPrice, quantity*-1
             )
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
@@ -226,14 +228,13 @@ class BaseStrategy(object):
             self.getBroker().submitOrder(ret)
         return ret
 
-    def stopOrder(self, instrument, priceCurrency, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def stopOrder(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Submits a stop order.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: Stop price.
         :type stopPrice: float.
         :param quantity: The amount of shares. Positive means buy, negative means sell.
@@ -247,13 +248,14 @@ class BaseStrategy(object):
         """
 
         ret = None
+        instrument = build_instrument(instrument)
         if quantity > 0:
             ret = self.getBroker().createStopOrder(
-                pyalgotrade.broker.Order.Action.BUY, instrument, priceCurrency, stopPrice, quantity
+                pyalgotrade.broker.Order.Action.BUY, instrument, stopPrice, quantity
             )
         elif quantity < 0:
             ret = self.getBroker().createStopOrder(
-                pyalgotrade.broker.Order.Action.SELL, instrument, priceCurrency, stopPrice, quantity*-1
+                pyalgotrade.broker.Order.Action.SELL, instrument, stopPrice, quantity*-1
             )
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
@@ -261,14 +263,15 @@ class BaseStrategy(object):
             self.getBroker().submitOrder(ret)
         return ret
 
-    def stopLimitOrder(self, instrument, priceCurrency, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def stopLimitOrder(
+            self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False
+    ):
         """
         Submits a stop limit order.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: Stop price.
         :type stopPrice: float.
         :param limitPrice: Limit price.
@@ -284,13 +287,14 @@ class BaseStrategy(object):
         """
 
         ret = None
+        instrument = build_instrument(instrument)
         if quantity > 0:
             ret = self.getBroker().createStopLimitOrder(
-                pyalgotrade.broker.Order.Action.BUY, instrument, priceCurrency, stopPrice, limitPrice, quantity
+                pyalgotrade.broker.Order.Action.BUY, instrument, stopPrice, limitPrice, quantity
             )
         elif quantity < 0:
             ret = self.getBroker().createStopLimitOrder(
-                pyalgotrade.broker.Order.Action.SELL, instrument, priceCurrency, stopPrice, limitPrice, quantity*-1
+                pyalgotrade.broker.Order.Action.SELL, instrument, stopPrice, limitPrice, quantity*-1
             )
         if ret:
             ret.setGoodTillCanceled(goodTillCanceled)
@@ -298,14 +302,13 @@ class BaseStrategy(object):
             self.getBroker().submitOrder(ret)
         return ret
 
-    def enterLong(self, instrument, priceCurrency, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterLong(self, instrument, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a buy :class:`pyalgotrade.broker.MarketOrder` to enter a long position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param quantity: Entry order quantity.
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets
@@ -317,17 +320,16 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.LongPosition(
-            self, instrument, priceCurrency, None, None, quantity, goodTillCanceled, allOrNone
+            self, instrument, None, None, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterShort(self, instrument, priceCurrency, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterShort(self, instrument, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a sell short :class:`pyalgotrade.broker.MarketOrder` to enter a short position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param quantity: Entry order quantity.
         :type quantity: int.
         :param goodTillCanceled: True if the entry order is good till canceled. If False then the order gets
@@ -339,17 +341,16 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.ShortPosition(
-            self, instrument, priceCurrency, None, None, quantity, goodTillCanceled, allOrNone
+            self, instrument, None, None, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterLongLimit(self, instrument, priceCurrency, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterLongLimit(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a buy :class:`pyalgotrade.broker.LimitOrder` to enter a long position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param limitPrice: Limit price.
         :type limitPrice: float.
         :param quantity: Entry order quantity.
@@ -363,17 +364,16 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.LongPosition(
-            self, instrument, priceCurrency, None, limitPrice, quantity, goodTillCanceled, allOrNone
+            self, instrument, None, limitPrice, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterShortLimit(self, instrument, priceCurrency, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterShortLimit(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a sell short :class:`pyalgotrade.broker.LimitOrder` to enter a short position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param limitPrice: Limit price.
         :type limitPrice: float.
         :param quantity: Entry order quantity.
@@ -387,17 +387,16 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.ShortPosition(
-            self, instrument, priceCurrency, None, limitPrice, quantity, goodTillCanceled, allOrNone
+            self, instrument, None, limitPrice, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterLongStop(self, instrument, priceCurrency, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterLongStop(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a buy :class:`pyalgotrade.broker.StopOrder` to enter a long position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: Stop price.
         :type stopPrice: float.
         :param quantity: Entry order quantity.
@@ -411,17 +410,16 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.LongPosition(
-            self, instrument, priceCurrency, stopPrice, None, quantity, goodTillCanceled, allOrNone
+            self, instrument, stopPrice, None, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterShortStop(self, instrument, priceCurrency, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterShortStop(self, instrument, stopPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a sell short :class:`pyalgotrade.broker.StopOrder` to enter a short position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: Stop price.
         :type stopPrice: float.
         :param quantity: Entry order quantity.
@@ -435,17 +433,16 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.ShortPosition(
-            self, instrument, priceCurrency, stopPrice, None, quantity, goodTillCanceled, allOrNone
+            self, instrument, stopPrice, None, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterLongStopLimit(self, instrument, priceCurrency, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterLongStopLimit(self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
         """
         Generates a buy :class:`pyalgotrade.broker.StopLimitOrder` order to enter a long position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: Stop price.
         :type stopPrice: float.
         :param limitPrice: Limit price.
@@ -461,17 +458,18 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.LongPosition(
-            self, instrument, priceCurrency, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone
+            self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone
         )
 
-    def enterShortStopLimit(self, instrument, priceCurrency, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def enterShortStopLimit(
+            self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled=False, allOrNone=False
+    ):
         """
         Generates a sell short :class:`pyalgotrade.broker.StopLimitOrder` order to enter a short position.
 
         :param instrument: Instrument identifier.
-        :type instrument: string.
-        :param priceCurrency: The currency to use to buy/sell.
-        :type priceCurrency: string.
+        :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
         :param stopPrice: The Stop price.
         :type stopPrice: float.
         :param limitPrice: Limit price.
@@ -487,7 +485,7 @@ class BaseStrategy(object):
         """
 
         return pyalgotrade.strategy.position.ShortPosition(
-            self, instrument, priceCurrency, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone
+            self, instrument, stopPrice, limitPrice, quantity, goodTillCanceled, allOrNone
         )
 
     def onEnterOk(self, position):

@@ -26,18 +26,21 @@ from pyalgotrade.technical import vwap
 from pyalgotrade.barfeed import yahoofeed
 
 
-class VWAPTestCase(common.TestCase):
-    Instrument = "orcl"
+SYMBOL = "ORCL"
+PRICE_CURRENCY = "USD"
+INSTRUMENT = "%s/%s" % (SYMBOL, PRICE_CURRENCY)
 
+
+class VWAPTestCase(common.TestCase):
     def __getFeed(self):
         # Load the feed and process all bars.
         barFeed = yahoofeed.Feed()
-        barFeed.addBarsFromCSV(VWAPTestCase.Instrument, "USD", common.get_data_file_path("orcl-2001-yahoofinance.csv"))
+        barFeed.addBarsFromCSV(INSTRUMENT, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
         return barFeed
 
     def testPeriod1_ClosingPrice(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 1)
         barFeed.loadAll()
         for i in xrange(len(bars)):
@@ -45,7 +48,7 @@ class VWAPTestCase(common.TestCase):
 
     def testPeriod1_TypicalPrice(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 1, True)
         barFeed.loadAll()
         for i in xrange(len(bars)):
@@ -53,7 +56,7 @@ class VWAPTestCase(common.TestCase):
 
     def testPeriod2_ClosingPrice(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 2)
         barFeed.loadAll()
         self.assertEqual(vwap_[0], None)
@@ -62,7 +65,7 @@ class VWAPTestCase(common.TestCase):
 
     def testPeriod2_TypicalPrice(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 2, True)
         barFeed.loadAll()
         self.assertEqual(vwap_[0], None)
@@ -71,7 +74,7 @@ class VWAPTestCase(common.TestCase):
 
     def testPeriod50_ClosingPrice(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 50)
         barFeed.loadAll()
         for i in xrange(49):
@@ -81,7 +84,7 @@ class VWAPTestCase(common.TestCase):
 
     def testPeriod50_TypicalPrice(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 50, True)
         barFeed.loadAll()
         for i in xrange(49):
@@ -91,7 +94,7 @@ class VWAPTestCase(common.TestCase):
 
     def testBounded(self):
         barFeed = self.__getFeed()
-        bars = barFeed[VWAPTestCase.Instrument]
+        bars = barFeed[INSTRUMENT]
         vwap_ = vwap.VWAP(bars, 50, True, 2)
         barFeed.loadAll()
 

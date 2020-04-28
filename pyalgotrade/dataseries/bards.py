@@ -19,25 +19,27 @@
 """
 
 from pyalgotrade import dataseries
+from pyalgotrade.bar import Frequency
+from pyalgotrade.instrument import build_instrument
 
 import six
 
 
 class BarDataSeries(dataseries.SequenceDataSeries):
-    """A DataSeries of :class:`pyalgotrade.bar.Bar` instances.
+    """A DataSeries of :class:`pyalgotrade.bar.Bar` instances. All bars must have the same frequency.
 
     :param instrument: Instrument identifier.
-    :type instrument: string.
-    :param priceCurrency: The price currency.
-    :type priceCurrency: string.
+    :type instrument: A :class:`pyalgotrade.instrument.Instrument` or a string formatted like
+            QUOTE_SYMBOL/PRICE_CURRENCY.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, instrument, priceCurrency, maxLen=None):
+    def __init__(self, instrument, maxLen=None):
         super(BarDataSeries, self).__init__(maxLen)
+        self._instrument = build_instrument(instrument)
         self._openDS = dataseries.SequenceDataSeries(maxLen)
         self._closeDS = dataseries.SequenceDataSeries(maxLen)
         self._highDS = dataseries.SequenceDataSeries(maxLen)
@@ -46,8 +48,6 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self._adjCloseDS = dataseries.SequenceDataSeries(maxLen)
         self._extraDS = {}
         self._useAdjustedValues = False
-        self._instrument = instrument
-        self._priceCurrency = priceCurrency
 
     def _getOrCreateExtraDS(self, name):
         ret = self._extraDS.get(name)
@@ -58,9 +58,6 @@ class BarDataSeries(dataseries.SequenceDataSeries):
 
     def getInstrument(self):
         return self._instrument
-
-    def getPriceCurrency(self):
-        return self._priceCurrency
 
     def setUseAdjustedValues(self, useAdjusted):
         self._useAdjustedValues = useAdjusted
@@ -73,9 +70,26 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         assert(bar is not None)
         bar.setUseAdjustedValue(self._useAdjustedValues)
 
-        # Check that all bars have the same instrument and price currency.
+        # Check that all bars have the same instrument and frequency.
         assert self._instrument == bar.getInstrument()
-        assert self._priceCurrency == bar.getPriceCurrency()
+
+        # Check that bars are not served out of order.
+        if len(self):
+            prev_bar = self[-1]
+
+            assert bar.getFrequency() == prev_bar.getFrequency(), "Bars have different frequency"
+
+            if bar.getDateTime() < prev_bar.getDateTime():
+                raise Exception(
+                    "%s bars are not in order. Previous datetime was %s and current datetime is %s" % (
+                        bar.getInstrument(), prev_bar.getDateTime(), bar.getDateTime()
+                    ))
+            # Only Trade bars can have duplicate datetimes.
+            elif bar.getDateTime() == prev_bar.getDateTime() and bar.getFrequency() != Frequency.TRADE:
+                raise Exception(
+                    "%s bars are not in order. Previous datetime was %s and current datetime is %s" % (
+                        bar.getInstrument(), prev_bar.getDateTime(), bar.getDateTime()
+                    ))
 
         super(BarDataSeries, self).appendWithDateTime(dateTime, bar)
 

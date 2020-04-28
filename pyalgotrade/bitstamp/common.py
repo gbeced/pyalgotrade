@@ -19,27 +19,30 @@
 """
 
 import pyalgotrade.logger
+from pyalgotrade.instrument import build_instrument
 
 
 logger = pyalgotrade.logger.getLogger("bitstamp")
 
 
-SUPPORTED_CURRENCY_PAIRS = {
-    "BCH/BTC",
-    "BCH/EUR",
-    "BCH/USD",
-    "BTC/EUR",
-    "BTC/USD",
-    "ETH/BTC",
-    "ETH/EUR",
-    "ETH/USD",
-    "EUR/USD",
-    "LTC/BTC",
-    "LTC/EUR",
-    "LTC/USD",
-    "XRP/BTC",
-    "XRP/EUR",
-    "XRP/USD",
+SUPPORTED_INSTRUMENTS = {
+    build_instrument(pair) for pair in [
+        "BCH/BTC",
+        "BCH/EUR",
+        "BCH/USD",
+        "BTC/EUR",
+        "BTC/USD",
+        "ETH/BTC",
+        "ETH/EUR",
+        "ETH/USD",
+        "EUR/USD",
+        "LTC/BTC",
+        "LTC/EUR",
+        "LTC/USD",
+        "XRP/BTC",
+        "XRP/EUR",
+        "XRP/USD",
+    ]
 }
 
 
@@ -63,14 +66,15 @@ MINIMUM_TRADE_AMOUNT = {
 }
 
 
-def currency_pair_to_channel(currencyPair):
-    assert currencyPair in SUPPORTED_CURRENCY_PAIRS, "Unsupported currency pair %s" % currencyPair
-    return currencyPair.replace("/", "").lower()
+def instrument_to_channel(instrument):
+    assert instrument in SUPPORTED_INSTRUMENTS, "Unsupported currency pair %s" % instrument
+    return (instrument.symbol + instrument.priceCurrency).lower()
 
 
-def channel_to_currency_pair(channel):
+def channel_to_instrument(channel):
     assert len(channel) == 6
     ret = "%s/%s" % (channel[0:3], channel[3:])
     ret = ret.upper()
-    assert ret in SUPPORTED_CURRENCY_PAIRS, "Invalid channel %s" % channel
+    ret = build_instrument(ret)
+    assert ret in SUPPORTED_INSTRUMENTS, "Invalid channel %s" % channel
     return ret

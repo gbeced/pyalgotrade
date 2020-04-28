@@ -22,20 +22,7 @@ import abc
 
 import six
 
-
-PAIR_KEY_SEP = "/"
-
-
-def pair_to_key(instrument, priceCurrency):
-    ret = "%s%s%s" % (instrument, PAIR_KEY_SEP, priceCurrency)
-    assert ret.count(PAIR_KEY_SEP) == 1, "Either instrument or priceCurrency contains %s" % PAIR_KEY_SEP
-    return ret
-
-
-def key_to_pair(pair):
-    ret = pair.split(PAIR_KEY_SEP)
-    assert len(ret) == 2
-    return ret[0], ret[1]
+from pyalgotrade.instrument import Instrument, build_instrument
 
 
 class Frequency(object):
@@ -84,13 +71,6 @@ class Bar(object):
     def getInstrument(self):
         """
         Returns the instrument.
-        """
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def getPriceCurrency(self):
-        """
-        Returns the price currency.
         """
         raise NotImplementedError()
 
@@ -145,15 +125,11 @@ class Bar(object):
     def getExtraColumns(self):
         return {}
 
-    def pairToKey(self):
-        return pair_to_key(self.getInstrument(), self.getPriceCurrency())
-
 
 class BasicBar(Bar):
     # Optimization to reduce memory footprint.
     __slots__ = (
         '__instrument',
-        '__priceCurrency',
         '__dateTime',
         '__open',
         '__close',
@@ -167,7 +143,7 @@ class BasicBar(Bar):
     )
 
     def __init__(
-        self, instrument, priceCurrency, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}
+        self, instrument, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}
     ):
         if high < low:
             raise Exception("high < low on %s" % (dateTime))
@@ -180,8 +156,7 @@ class BasicBar(Bar):
         elif low > close:
             raise Exception("low > close on %s" % (dateTime))
 
-        self.__instrument = instrument
-        self.__priceCurrency = priceCurrency
+        self.__instrument = build_instrument(instrument)
         self.__dateTime = dateTime
         self.__open = open_
         self.__close = close
@@ -195,7 +170,6 @@ class BasicBar(Bar):
 
     def __setstate__(self, state):
         (self.__instrument,
-            self.__priceCurrency,
             self.__dateTime,
             self.__open,
             self.__close,
@@ -206,11 +180,11 @@ class BasicBar(Bar):
             self.__frequency,
             self.__useAdjustedValue,
             self.__extra) = state
+        assert isinstance(self.__instrument, Instrument)
 
     def __getstate__(self):
         return (
             self.__instrument,
-            self.__priceCurrency,
             self.__dateTime,
             self.__open,
             self.__close,
@@ -225,9 +199,6 @@ class BasicBar(Bar):
 
     def getInstrument(self):
         return self.__instrument
-
-    def getPriceCurrency(self):
-        return self.__priceCurrency
 
     def setUseAdjustedValue(self, useAdjusted):
         if useAdjusted and self.__adjClose is None:
@@ -326,22 +297,24 @@ class Bars(object):
                     firstDateTime
                 ))
 
-            pair = currentBar.pairToKey()
-            assert pair not in self.__barDict, "Duplicate bars %s" % pair
-            self.__barDict[pair] = currentBar
+            instrument = currentBar.getInstrument()
+            assert instrument not in self.__barDict, "Duplicate bars %s" % instrument
+            self.__barDict[instrument] = currentBar
 
         self.__dateTime = firstDateTime
 
-    def __getitem__(self, pair):
+    def __getitem__(self, instrument):
         """
-        Returns the :class:`pyalgotrade.bar.Bar` for a given pair in this format: INSTRUMENT/PRICE_CURRENCY.
-        If the pair is not found an exception is raised.
+        Returns the :class:`pyalgotrade.bar.Bar` for a given instrument.
+        If the instrument is not found an exception is raised.
         """
-        return self.__barDict[pair]
+        instrument = build_instrument(instrument)
+        return self.__barDict[instrument]
 
-    def __contains__(self, pair):
-        """Returns True if a :class:`pyalgotrade.bar.Bar` for the given pair is available."""
-        return pair in self.__barDict
+    def __contains__(self, instrument):
+        """Returns True if a :class:`pyalgotrade.bar.Bar` for the given instrument is available."""
+        instrument = build_instrument(instrument)
+        return instrument in self.__barDict
 
     def __iter__(self):
         return iter(self.__barDict.values())
@@ -349,19 +322,20 @@ class Bars(object):
     def items(self):
         return list(self.__barDict.items())
 
-    def getPairs(self):
-        """Returns the pairs in this format: INSTRUMENT/PRICE_CURRENCY."""
+    def getInstruments(self):
+        """Returns the list of instruments"""
         return list(self.__barDict.keys())
 
     def getDateTime(self):
         """Returns the :class:`datetime.datetime` for this set of bars."""
         return self.__dateTime
 
-    def getBar(self, instrument, priceCurrency):
+    def getBar(self, instrument):
         """
-        Returns the :class:`pyalgotrade.bar.Bar` for the given instrument and price currency or None if it is not found.
+        Returns the :class:`pyalgotrade.bar.Bar` for the given instrument or None if it is not found.
         """
-        return self.__barDict.get("%s/%s" % (instrument, priceCurrency))
+        instrument = build_instrument(instrument)
+        return self.__barDict.get(instrument)
 
     def getBars(self):
         """
