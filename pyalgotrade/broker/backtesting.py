@@ -345,6 +345,8 @@ class Broker(broker.Broker):
 
         ret = 0
         for symbol, shares in six.iteritems(self._balances):
+            if shares == 0:
+                continue
             if symbol == currency:
                 price = 1
             else:
