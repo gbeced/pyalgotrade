@@ -33,7 +33,7 @@ class BBands(strategy.BacktestingStrategy):
         shares = self.getBroker().getBalance(self.__symbol)
         bar = bars.getBar(self.__instrument)
         if shares == 0 and bar.getClose() < lower:
-            sharesToBuy = int(self.getBroker().getBalance(self.__priceCurrency) / bar.getClose())
+            sharesToBuy = self.getBroker().getBalance(self.__priceCurrency) // bar.getClose()
             self.info("Placing buy market order for %s shares" % sharesToBuy)
             self.marketOrder(self.__instrument, sharesToBuy)
         elif shares > 0 and bar.getClose() > upper:

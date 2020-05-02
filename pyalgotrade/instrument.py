@@ -38,33 +38,54 @@ class Instrument(object):
 
         self.symbol = symbol
         self.priceCurrency = priceCurrency
-
-    def _str_impl(self):
-        ret = "%s%s%s" % (self.symbol, PAIR_SEP, self.priceCurrency)
-        assert ret.count(PAIR_SEP) == 1, "Either symbol or priceCurrency contains %s" % PAIR_SEP
-        return ret
+        self._str = "%s%s%s" % (symbol, PAIR_SEP, priceCurrency)
 
     def __str__(self):
-        return self._str_impl()
+        return self._str
 
     def __repr__(self):
-        return self._str_impl()
+        return self._str
 
-    # def __eq__(self, other):
-    #     return self.symbol == other.symbol and self.priceCurrency == other.priceCurrency
-    #
-    # def __ne__(self, other):
-    #     return not self.__eq__(other)
-
-    def __cmp__(self, other):
+    def _cmp_elements(self, other):
         if isinstance(other, Instrument):
-            ret = cmp((self.symbol, self.priceCurrency), (other.symbol, other.priceCurrency))
+            ret = (self.symbol, self.priceCurrency), (other.symbol, other.priceCurrency)
         else:
-            ret = cmp(str(self), other)
+            ret = str(self), other
         return ret
 
+    def __eq__(self, other):
+        left, right = self._cmp_elements(other)
+        return left == right
+
+    def __ne__(self, other):
+        left, right = self._cmp_elements(other)
+        return left != right
+
+    def __lt__(self, other):
+        left, right = self._cmp_elements(other)
+        return left < right
+
+    def __le__(self, other):
+        left, right = self._cmp_elements(other)
+        return left <= right
+
+    def __gt__(self, other):
+        left, right = self._cmp_elements(other)
+        return left > right
+
+    def __ge__(self, other):
+        left, right = self._cmp_elements(other)
+        return left >= right
+
+    # def __cmp__(self, other):
+    #     if isinstance(other, Instrument):
+    #         ret = cmp((self.symbol, self.priceCurrency), (other.symbol, other.priceCurrency))
+    #     else:
+    #         ret = cmp(str(self), other)
+    #     return ret
+
     def __hash__(self):
-        return hash(str(self))
+        return hash(self._str)
 
 
 def build_instrument(instrument):

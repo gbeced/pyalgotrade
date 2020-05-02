@@ -16,10 +16,10 @@ clean:
 	find . -name htmlcov -exec rm -rf {} \;
 	# Clean packages
 	rm -rf dist/PyAlgoTrade-*.tar.gz
-	# Clean tox
-	rm -rf .tox
 	# Clean doc
 	cd doc; make clean
+	# Clean tox
+	rm -rf .tox
 
 build:
 	rm -rf dist/PyAlgoTrade-*.tar.gz
@@ -31,6 +31,9 @@ flake8:
 
 testpy27: flake8
 	tox -v -e py27
+
+testpy37: flake8
+	tox -v -e py37
 
 test: flake8
 	tox -v

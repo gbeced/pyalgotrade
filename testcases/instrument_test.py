@@ -48,3 +48,8 @@ def test_as_key():
 def test_cmp():
     assert build_instrument("orcl/USD") == build_instrument("orcl/USD")
     assert build_instrument("orcl/ARS") != build_instrument("orcl/USD")
+
+
+def test_cmp_to_string():
+    assert build_instrument("orcl/USD") == "orcl/USD"
+    assert build_instrument("orcl/ARS") != "orcl/USD"
