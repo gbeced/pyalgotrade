@@ -44,4 +44,4 @@ class PlotterTestCase(common.TestCase):
             png = os.path.join(tmpPath, "plotter_test.png")
             plt.savePlot(png)
             # Check that file size looks ok.
-            self.assertGreater(os.stat(png).st_size, 45000)
+            self.assertGreater(os.stat(png).st_size, 44000)
