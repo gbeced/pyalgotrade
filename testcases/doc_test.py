@@ -378,9 +378,9 @@ bccharts_example_2.main(False)
             self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
                 res.get_output_lines()[0:10],
-                common.head_file("bccharts_example_2.output", 10, path="testcases/data")
+                common.head_file("bccharts_example_2.output", 10)
             )
             self.assertEqual(
                 res.get_output_lines()[-10:],
-                common.tail_file("bccharts_example_2.output", 10, path="testcases/data")
+                common.tail_file("bccharts_example_2.output", 10)
             )

@@ -110,22 +110,18 @@ class Order(object):
         PARTIALLY_FILLED = 5  # Order has been partially filled.
         FILLED = 6  # Order has been completely filled.
 
-        @classmethod
-        def toString(cls, state):
-            if state == cls.INITIAL:
-                return "INITIAL"
-            elif state == cls.SUBMITTED:
-                return "SUBMITTED"
-            elif state == cls.ACCEPTED:
-                return "ACCEPTED"
-            elif state == cls.CANCELED:
-                return "CANCELED"
-            elif state == cls.PARTIALLY_FILLED:
-                return "PARTIALLY_FILLED"
-            elif state == cls.FILLED:
-                return "FILLED"
-            else:
-                raise Exception("Invalid state")
+        @staticmethod
+        def toString(state):
+            ret = {
+                Order.State.INITIAL: "INITIAL",
+                Order.State.SUBMITTED: "SUBMITTED",
+                Order.State.ACCEPTED: "ACCEPTED",
+                Order.State.CANCELED: "CANCELED",
+                Order.State.PARTIALLY_FILLED: "PARTIALLY_FILLED",
+                Order.State.FILLED: "FILLED"
+            }.get(state)
+            assert ret is not None, "Invalid state %s" % state
+            return ret
 
     class Type(object):
         MARKET = 1
@@ -557,6 +553,18 @@ class OrderEvent(object):
         PARTIALLY_FILLED = 4  # Order has been partially filled.
         FILLED = 5  # Order has been completely filled.
 
+        @staticmethod
+        def toString(type):
+            ret = {
+                OrderEvent.Type.SUBMITTED: "SUBMITTED",
+                OrderEvent.Type.ACCEPTED: "ACCEPTED",
+                OrderEvent.Type.CANCELED: "CANCELED",
+                OrderEvent.Type.PARTIALLY_FILLED: "PARTIALLY_FILLED",
+                OrderEvent.Type.FILLED: "FILLED",
+            }.get(type)
+            assert ret is not None, "Invalid type %s" % type
+            return ret
+
     def __init__(self, order, eventyType, eventInfo):
         self.__order = order
         self.__eventType = eventyType
@@ -577,15 +585,15 @@ class OrderEvent(object):
         return self.__eventInfo
 
     def __str__(self):
-        eventType = {
-            OrderEvent.Type.SUBMITTED: "submitted",
-            OrderEvent.Type.ACCEPTED: "accepted",
-            OrderEvent.Type.CANCELED: "canceled",
-            OrderEvent.Type.PARTIALLY_FILLED: "partially_filled",
-            OrderEvent.Type.FILLED: "filled",
-        }.get(self.__eventType)
+        eventType = OrderEvent.Type.toString(self.__eventType).lower()
+        action = {
+            Order.Action.BUY: "Buy",
+            Order.Action.BUY_TO_COVER: "Buy",
+            Order.Action.SELL: "Sell",
+            Order.Action.SELL_SHORT: "Sell",
+        }.get(self.__order.getAction())
 
-        ret = "Order %s was %s" % (self.__order.getId(), eventType)
+        ret = "%s order %s was %s" % (action, self.__order.getId(), eventType)
         if self.__eventType in (OrderEvent.Type.PARTIALLY_FILLED, OrderEvent.Type.FILLED):
             ret += " %s @ %s (fee %s)" % (
                 self.__eventInfo.getQuantity(), self.__eventInfo.getPrice(), self.__eventInfo.getCommission()
