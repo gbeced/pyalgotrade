@@ -94,7 +94,7 @@ class LeastSquaresRegression(technical.EventBasedFilter):
 class SlopeEventWindow(technical.EventWindow):
     def __init__(self, windowSize):
         super(SlopeEventWindow, self).__init__(windowSize)
-        self.__x = np.asarray(range(windowSize))
+        self.__x = np.arange(windowSize)
 
     def getValue(self):
         ret = None
