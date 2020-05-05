@@ -146,7 +146,7 @@ class TrendEventWindow(SlopeEventWindow):
 
 
 class Trend(technical.EventBasedFilter):
-    def __init__(self, dataSeries, trendDays, positiveThreshold=0, negativeThreshold=0, maxLen=None):
+    def __init__(self, dataSeries, windowSize, positiveThreshold=0, negativeThreshold=0, maxLen=None):
         super(Trend, self).__init__(
-            dataSeries, TrendEventWindow(trendDays, positiveThreshold, negativeThreshold), maxLen
+            dataSeries, TrendEventWindow(windowSize, positiveThreshold, negativeThreshold), maxLen
         )
