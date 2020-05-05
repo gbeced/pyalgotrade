@@ -60,7 +60,8 @@ class TradeValidatorPredicate(object):
 
 
 class BacktestingBroker(backtesting.Broker):
-    """A Bitstamp backtesting broker.
+    """
+    A Bitstamp backtesting broker.
 
     :param initialBalances: A dictionary that maps an instrument/currency/etc to the account's starting balance.
     :type initialBalances: dict.
@@ -156,20 +157,6 @@ class BacktestingBroker(backtesting.Broker):
 
 
 class PaperTradingBroker(BacktestingBroker):
-    """A Bitstamp paper trading broker.
-
-    :param cash: The initial amount of cash.
-    :type cash: int/float.
-    :param barFeed: The bar feed that will provide the bars.
-    :type barFeed: :class:`pyalgotrade.barfeed.BarFeed`
-    :param fee: The fee percentage for each order. Defaults to 0.5%.
-    :type fee: float.
-
-    .. note::
-        * Only limit orders are supported.
-        * Orders are automatically set as **goodTillCanceled=True** and  **allOrNone=False**.
-        * BUY_TO_COVER orders are mapped to BUY orders.
-        * SELL_SHORT orders are mapped to SELL orders.
-    """
+    """A Bitstamp paper trading broker."""
 
     pass
