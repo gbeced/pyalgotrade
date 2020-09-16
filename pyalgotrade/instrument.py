@@ -103,15 +103,15 @@ def build_instrument(instrument):
     assert isinstance(instrument, six.string_types), "Invalid instrument %s" % instrument
     parts = instrument.split(PAIR_SEP)
     if len(parts) != 2:
-        raise Exception("Invalid instrument format %s" % instrument)
+        raise Exception("Invalid instrument format {}".format(instrument))
     return Instrument(parts[0], parts[1])
 
 
 def assert_valid_symbol(symbol):
     assert isinstance(symbol, six.string_types)
-    assert PAIR_SEP not in symbol, "symbol expected but received %s" % symbol
+    assert PAIR_SEP not in symbol, "symbol expected but received {}".format(symbol)
 
 
 def assert_valid_currency(currency):
     assert isinstance(currency, six.string_types)
-    assert PAIR_SEP not in currency, "currency expected but received %s" % currency
+    assert PAIR_SEP not in currency, "currency expected but received {}".format(currency)

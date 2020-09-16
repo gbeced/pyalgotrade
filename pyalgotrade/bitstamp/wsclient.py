@@ -24,6 +24,7 @@ import pyalgotrade.logger
 from pyalgotrade.websocket import client
 from pyalgotrade.utils import dt
 from pyalgotrade.bitstamp import common
+from pyalgotrade.instrument import build_instrument
 
 
 logger = pyalgotrade.logger.getLogger(__name__)
@@ -103,6 +104,10 @@ class OrderBookUpdate(TimestampedEvent):
     def getAskVolumes(self):
         """Returns a list with the top 20 ask volumes."""
         return [float(ask[1]) for ask in self.getData()["asks"]]
+
+    def getInstrument(self):
+        """Returns the orderbook instrument."""
+        return build_instrument(self._getCurrencyPair("detail_order_book_"))
 
     def getCurrencyPair(self):
         return self._getCurrencyPair("detail_order_book_")

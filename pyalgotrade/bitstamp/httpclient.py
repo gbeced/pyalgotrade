@@ -44,13 +44,11 @@ def parse_datetime(dateTime):
 
 class NonceGenerator(object):
     def __init__(self):
-        self.__prev = None
+        self._prev = 0
 
     def getNext(self):
-        ret = int(time.time())
-        if self.__prev is not None and ret <= self.__prev:
-            ret = self.__prev + 1
-        self.__prev = ret
+        ret = max(int(time.time()), self._prev + 1)
+        self._prev = ret
         return ret
 
 
