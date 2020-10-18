@@ -37,6 +37,10 @@ def lsreg(x, y):
 def explsrg(x, y):
     x = np.asarray(x)
     y = np.asarray(y)
+    # Return all 0's if a 0 is in y
+    if np.any(y<=0):
+        return 0.0, 0.0, 0.0
+    
     res = stats.linregress(x, np.log(y))
     return res[0], res[1], res[2]
 
@@ -162,7 +166,8 @@ class ExpSlopeEventWindow(technical.EventWindow):
         ret = None
         if self.windowFull():
             y = self.getValues()
-            ret = explsrg(self.__x, y)
+            m, y0, r2 = explsrg(self.__x, y)
+            ret = np.array([m, y0, r2])
         return ret
 
 class SlopeEventWindow(technical.EventWindow):
