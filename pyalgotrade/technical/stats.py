@@ -20,6 +20,7 @@
 
 from pyalgotrade import technical
 
+import numpy as np
 
 class StdDevEventWindow(technical.EventWindow):
     def __init__(self, period, ddof):
@@ -87,3 +88,37 @@ class ZScore(technical.EventBasedFilter):
 
     def __init__(self, dataSeries, period, ddof=0, maxLen=None):
         super(ZScore, self).__init__(dataSeries, ZScoreEventWindow(period, ddof), maxLen)
+
+class GapUpEventWindow(technical.EventWindow):
+    def __init__(self, period, threshhold):
+        assert(period > 0)
+        super(GapUpEventWindow, self).__init__(period)
+        self.__threshhold = threshhold
+
+    def getValue(self):
+        ret = None
+        if self.windowFull():
+            vals = self.getValues()
+            # Avoid divide by 0 error
+            vals = np.where(vals==0, 1E-5, vals)
+            ret = any(1 - vals[1:] / vals[:-1] >= self.__threshhold)
+        return ret
+
+class GapUp(technical.EventBasedFilter):
+    """
+    Gap filter.
+
+    :param dataSeries: The DataSeries instance being filtered.
+    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param period: The number of values to use to calculate the Z-Score.
+    :type period: int.
+    :param threshhold: The gap value we want to filter in decimal form.
+    :param maxLen: The maximum number of values to hold.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
+    :type maxLen: int.
+
+    # TODO: Update to make comparison close vs open.
+    """
+    def __init__(self, dataSeries, period, threshhold, maxLen=None):
+        super(GapUp, self).__init__(dataSeries, GapUpEventWindow(period, threshhold), maxLen)
