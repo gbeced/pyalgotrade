@@ -32,8 +32,43 @@ def lsreg(x, y):
     x = np.asarray(x)
     y = np.asarray(y)
     res = stats.linregress(x, y)
-    return res[0], res[1]
+    return res[0], res[1], res[2]
 
+def explsrg(x, y):
+    x = np.asarray(x)
+    y = np.asarray(y)
+    res = stats.linregress(x, np.log(y))
+    return res[0], res[1], res[2]
+
+class ExpLeastSquaresRegressionWindow(technical.EventWindow):
+    def __init__(self, windowSize):
+        assert(windowSize > 1)
+        super(ExpLeastSquaresRegressionWindow, self).__init__(windowSize)
+        self._timestamps = collections.NumPyDeque(windowSize)
+
+    def onNewValue(self, dateTime, value):
+        technical.EventWindow.onNewValue(self, dateTime, value)
+        if value is not None:
+            timestamp = dt.datetime_to_timestamp(dateTime)
+            if len(self._timestamps):
+                assert(timestamp > self._timestamps[-1])
+            self._timestamps.append(timestamp)
+    
+    def __getValueAtImpl(self, timestamp):
+        ret = None
+        if self.windowFull():
+            a, b, _ = explsrg(self._timestamps.data(), self.getValues())
+            ret = a * timestamp + b
+        return ret
+
+    def getValuesAt(self, dateTime):
+        return self.__getValueAtImpl(dt.datetime_to_timestamp(dateTime))
+
+    def getValue(self):
+        ret = None
+        if self.windowFull():
+            ret = self.__getValueAtImpl(self._timestamps.data()[-1])
+        return ret
 
 class LeastSquaresRegressionWindow(technical.EventWindow):
     def __init__(self, windowSize):
@@ -52,7 +87,7 @@ class LeastSquaresRegressionWindow(technical.EventWindow):
     def __getValueAtImpl(self, timestamp):
         ret = None
         if self.windowFull():
-            a, b = lsreg(self._timestamps.data(), self.getValues())
+            a, b, _ = lsreg(self._timestamps.data(), self.getValues())
             ret = a * timestamp + b
         return ret
 
@@ -65,6 +100,32 @@ class LeastSquaresRegressionWindow(technical.EventWindow):
             ret = self.__getValueAtImpl(self._timestamps.data()[-1])
         return ret
 
+class ExpLeastSquaresRegression(technical.EventBasedFilter):
+    """
+    Calculates values based on an exponential least-squares regression.
+
+    :param dataSeries: The DataSeries instance being filtered.
+    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param windowSize: The number of values to use to calculate the regression.
+    :type windowSize: int.
+    :param maxLen: The maximum number of values to hold.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
+    :type maxLen: int.
+    """
+    def __init__(self, dataSeries, windowSize, maxLen=None):
+        super(ExpLeastSquaresRegression, self).__init__(dataSeries, 
+            ExpLeastSquaresRegressionWindow(windowSize), maxLen)
+
+    def getValueAt(self, dateTime):
+        """
+        Calculates the value at a given time based on the regression line.
+
+        :param dateTime: The datetime to calculate the value at.
+            Will return None if there are not enough values in the underlying DataSeries.
+        :type dateTime: :class:`datetime.datetime`.
+        """
+        return self.getEventWindow().getValueAt(dateTime)
 
 class LeastSquaresRegression(technical.EventBasedFilter):
     """Calculates values based on a least-squares regression.
@@ -79,7 +140,8 @@ class LeastSquaresRegression(technical.EventBasedFilter):
     :type maxLen: int.
     """
     def __init__(self, dataSeries, windowSize, maxLen=None):
-        super(LeastSquaresRegression, self).__init__(dataSeries, LeastSquaresRegressionWindow(windowSize), maxLen)
+        super(LeastSquaresRegression, self).__init__(dataSeries, 
+            LeastSquaresRegressionWindow(windowSize), maxLen)
 
     def getValueAt(self, dateTime):
         """Calculates the value at a given time based on the regression line.
@@ -90,6 +152,18 @@ class LeastSquaresRegression(technical.EventBasedFilter):
         """
         return self.getEventWindow().getValueAt(dateTime)
 
+
+class ExpSlopeEventWindow(technical.EventWindow):
+    def __init__(self, windowSize):
+        super(ExpSlopeEventWindow, self).__init__(windowSize)
+        self.__x = np.asarray(range(windowSize))
+
+    def getValue(self):
+        ret = None
+        if self.windowFull():
+            y = self.getValues()
+            ret = explsrg(self.__x, y)
+        return ret
 
 class SlopeEventWindow(technical.EventWindow):
     def __init__(self, windowSize):
@@ -103,6 +177,25 @@ class SlopeEventWindow(technical.EventWindow):
             ret = lsreg(self.__x, y)[0]
         return ret
 
+class ExpSlope(technical.EventBasedFilter):
+    """
+    The ExpSlope filter calculates the exponential slope of a least-squares regression line.
+
+    :param dataSeries: The DataSeries instance being filtered.
+    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param period: The number of values to use to calculate the slope.
+    :type period: int.
+    :param maxLen: The maximum number of values to hold.
+        Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
+        opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
+    :type maxLen: int.
+
+    .. note::
+        This filter ignores the time elapsed between the different values.
+    """
+    
+    def __init__(self, dataSeries, period, maxLen=None):
+        super(ExpSlope, self).__init__(dataSeries, ExpSlopeEventWindow(period), maxLen)
 
 class Slope(technical.EventBasedFilter):
     """The Slope filter calculates the slope of a least-squares regression line.
