@@ -1,0 +1,29 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details or
+// https://aka.ms/vscode-dev-containers/definitions for sample configurations.
+{
+	"dockerFile": "Dockerfile",
+	"extensions": [
+		"ms-python.python", 
+	// 	"amazonwebservices.aws-toolkit-vscode",
+	// 	"mauve.terraform"
+	],
+	"runArgs": [
+		// Uncomment the next line to use Docker from inside the container. See https://aka.ms/vscode-remote/samples/docker-in-docker for details.
+		// "-v","/var/run/docker.sock:/var/run/docker.sock",
+		// Mount .ssh and .aws directories
+		"-v", "${env:HOME}${env:USERPROFILE}/.ssh/id_rsa:/root/.ssh-localhost/id_rsa:ro",
+		// "-v","${env:HOME}${env:USERPROFILE}/Documents/Business/.aws:/root/.aws",
+		"-v","${env:HOME}${env:USERPROFILE}/.aws:/root/.aws",
+		// "-v","${env:HOME}${env:USERPROFILE}/Documents/Business/.azure:/root/.azure"
+		// Uncomment the next line if you will use a ptrace-based debugger like C++, Go, and Rust
+		// "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined",
+
+		// Uncomment the next line to use a non-root user. On Linux, this will prevent
+		// new files getting created as root, but you may need to update the USER_UID
+		// and USER_GID in .devcontainer/Dockerfile to match your user if not 1000.
+		// "-u", "vscode"
+	],
+
+	// Copy the contents to the correct location and set permissions
+	"postCreateCommand": "mkdir -p ~/.ssh && cp -r ~/.ssh-localhost/* ~/.ssh && chmod 700 ~/.ssh && chmod 600 ~/.ssh/*"
+}
