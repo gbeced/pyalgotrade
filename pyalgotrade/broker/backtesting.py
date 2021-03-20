@@ -389,8 +389,8 @@ class Broker(broker.Broker):
         else:
             self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
                 order.getInstrument(),
-                order.getId(),
-                order.getRemaining()
+                order.getId()
+                # order.getRemaining()
             ))
 
     def submitOrder(self, order):
