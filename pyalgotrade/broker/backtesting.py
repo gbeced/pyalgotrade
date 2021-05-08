@@ -387,11 +387,12 @@ class Broker(broker.Broker):
             else:
                 assert(False)
         else:
-            self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
-                order.getInstrument(),
-                order.getId(),
-                order.getRemaining()
-            ))
+            pass
+            # self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
+            #     order.getInstrument(),
+            #     order.getId(),
+            #     order.getRemaining()
+            # ))
 
     def submitOrder(self, order):
         if order.isInitial():
