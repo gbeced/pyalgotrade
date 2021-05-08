@@ -59,11 +59,17 @@ class MACD(dataseries.SequenceDataSeries):
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
 
     def getSignal(self):
-        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the EMA over the MACD."""
+        """
+        Returns a :class:`pyalgotrade.dataseries.DataSeries` with the EMA
+        over the MACD.
+        """
         return self.__signal
 
     def getHistogram(self):
-        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the histogram (the difference between the MACD and the Signal)."""
+        """
+        Returns a :class:`pyalgotrade.dataseries.DataSeries` with the
+        histogram (the difference between the MACD and the Signal).
+        """
         return self.__histogram
 
     def __onNewValue(self, dataSeries, dateTime, value):
@@ -72,9 +78,10 @@ class MACD(dataseries.SequenceDataSeries):
         signalValue = None
         histogramValue = None
 
-        # We need to skip some values when calculating the fast EMA in order for both EMA
-        # to calculate their first values at the same time.
-        # I'M FORCING THIS BEHAVIOUR ONLY TO MAKE THIS FITLER MATCH TA-Lib MACD VALUES.
+        # We need to skip some values when calculating the fast EMA in order 
+        # for both EMA to calculate their first values at the same time.
+        # I'M FORCING THIS BEHAVIOUR ONLY TO MAKE THIS FITLER MATCH TA-Lib 
+        # MACD VALUES.
         self.__slowEMAWindow.onNewValue(dateTime, value)
         if self.__fastEMASkip > 0:
             self.__fastEMASkip -= 1
@@ -83,8 +90,10 @@ class MACD(dataseries.SequenceDataSeries):
             if self.__fastEMAWindow.windowFull():
                 diff = self.__fastEMAWindow.getValue() - self.__slowEMAWindow.getValue()
 
-        # Make the first MACD value available as soon as the first signal value is available.
-        # I'M FORCING THIS BEHAVIOUR ONLY TO MAKE THIS FITLER MATCH TA-Lib MACD VALUES.
+        # Make the first MACD value available as soon as the first signal 
+        # value is available.
+        # I'M FORCING THIS BEHAVIOUR ONLY TO MAKE THIS FITLER MATCH TA-Lib
+        # MACD VALUES.
         self.__signalEMAWindow.onNewValue(dateTime, diff)
         if self.__signalEMAWindow.windowFull():
             macdValue = diff
