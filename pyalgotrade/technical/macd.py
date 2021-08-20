@@ -38,7 +38,7 @@ class MACD(dataseries.SequenceDataSeries):
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA, maxLen=None):
+    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA=1, maxLen=None):
         assert(fastEMA > 0)
         assert(slowEMA > 0)
         assert(fastEMA < slowEMA)
@@ -57,6 +57,7 @@ class MACD(dataseries.SequenceDataSeries):
         self.__signal = dataseries.SequenceDataSeries(maxLen)
         self.__histogram = dataseries.SequenceDataSeries(maxLen)
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
+        
 
     def getSignal(self):
         """
@@ -74,7 +75,7 @@ class MACD(dataseries.SequenceDataSeries):
 
     def __onNewValue(self, dataSeries, dateTime, value):
         diff = None
-        macdValue = None
+        self.macdValue = None
         signalValue = None
         histogramValue = None
 
@@ -96,10 +97,10 @@ class MACD(dataseries.SequenceDataSeries):
         # MACD VALUES.
         self.__signalEMAWindow.onNewValue(dateTime, diff)
         if self.__signalEMAWindow.windowFull():
-            macdValue = diff
+            self.macdValue = diff
             signalValue = self.__signalEMAWindow.getValue()
-            histogramValue = macdValue - signalValue
+            histogramValue = self.macdValue - signalValue
 
-        self.appendWithDateTime(dateTime, macdValue)
+        self.appendWithDateTime(dateTime, self.macdValue)
         self.__signal.appendWithDateTime(dateTime, signalValue)
         self.__histogram.appendWithDateTime(dateTime, histogramValue)
