@@ -2,11 +2,11 @@ from pyalgotrade import technical
 
 
 class SMAEventWindow_Frac(technical.EventWindow):
-    def __init__(self, fracOfEntry, period):
+    def __init__(self, percent_change, period):
         assert(period > 0)
         super(SMAEventWindow_Frac, self).__init__(period)
         self.__value = None
-        self.fracOfEntry = fracOfEntry
+        self.percent_change = percent_change
 
     def onNewValue(self, dateTime, value):
         firstValue = None
@@ -42,5 +42,7 @@ class STOP_PRICE(technical.EventBasedFilter):
         assert percent_change >= -100, "percent_change must be greater than -100"
         self.percent_change = percent_change
         super(STOP_PRICE, self).__init__(dataSeries, SMAEventWindow_Frac(percent_change, period=1), maxLen)
+
+
 
 
