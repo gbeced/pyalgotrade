@@ -27,33 +27,33 @@ class MACD(dataseries.SequenceDataSeries):
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-    :param fastEMA: The number of values to use to calculate the fast EMA.
-    :type fastEMA: int.
+    :param fastEMA_period: The number of values to use to calculate the fast EMA.
+    :type fastEMA_period: int.
     :param slowEMA: The number of values to use to calculate the slow EMA.
     :type slowEMA: int.
-    :param signalEMA: The number of values to use to calculate the signal EMA.
-    :type signalEMA: int.
+    :param signalEMA_period: The number of values to use to calculate the signal EMA.
+    :type signalEMA_period: int.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA=1, maxLen=None):
-        assert(fastEMA > 0)
-        assert(slowEMA > 0)
-        assert(fastEMA < slowEMA)
-        assert(signalEMA > 0)
+    def __init__(self, dataSeries, fastEMA_period, slowEMA_period, signalEMA_period=1, maxLen=None):
+        assert(fastEMA_period > 0)
+        assert(slowEMA_period > 0)
+        assert(fastEMA_period < slowEMA_period)
+        assert(signalEMA_period > 0)
 
         super(MACD, self).__init__(maxLen)
 
         # We need to skip some values when calculating the fast EMA in order for both EMA
         # to calculate their first values at the same time.
         # I'M FORCING THIS BEHAVIOUR ONLY TO MAKE THIS FITLER MATCH TA-Lib MACD VALUES.
-        self.__fastEMASkip = slowEMA - fastEMA
+        self.__fastEMASkip = slowEMA_period - fastEMA_period
 
-        self.__fastEMAWindow = ma.EMAEventWindow(fastEMA)
-        self.__slowEMAWindow = ma.EMAEventWindow(slowEMA)
-        self.__signalEMAWindow = ma.EMAEventWindow(signalEMA)
+        self.__fastEMAWindow = ma.EMAEventWindow(fastEMA_period)
+        self.__slowEMAWindow = ma.EMAEventWindow(slowEMA_period)
+        self.__signalEMAWindow = ma.EMAEventWindow(signalEMA_period)
         self.__signal = dataseries.SequenceDataSeries(maxLen)
         self.__histogram = dataseries.SequenceDataSeries(maxLen)
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
@@ -110,33 +110,33 @@ class MACD_SIGNAL(dataseries.SequenceDataSeries):
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
-    :param fastEMA: The number of values to use to calculate the fast EMA.
-    :type fastEMA: int.
+    :param fastEMA_period: The number of values to use to calculate the fast EMA.
+    :type fastEMA_period: int.
     :param slowEMA: The number of values to use to calculate the slow EMA.
     :type slowEMA: int.
-    :param signalEMA: The number of values to use to calculate the signal EMA.
-    :type signalEMA: int.
+    :param signalEMA_period: The number of values to use to calculate the signal EMA.
+    :type signalEMA_period: int.
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, fastEMA, slowEMA, signalEMA, maxLen=None):
-        assert(fastEMA > 0)
-        assert(slowEMA > 0)
-        assert(fastEMA < slowEMA)
-        assert(signalEMA > 0)
+    def __init__(self, dataSeries, fastEMA_period, slowEMA_period, signalEMA_period, maxLen=None):
+        assert(fastEMA_period > 0)
+        assert(slowEMA_period > 0)
+        assert(fastEMA_period < slowEMA_period)
+        assert(signalEMA_period > 0)
 
         super(MACD_SIGNAL, self).__init__(maxLen)
 
         # We need to skip some values when calculating the fast EMA in order for both EMA
         # to calculate their first values at the same time.
         # I'M FORCING THIS BEHAVIOUR ONLY TO MAKE THIS FITLER MATCH TA-Lib MACD VALUES.
-        self.__fastEMASkip = slowEMA - fastEMA
+        self.__fastEMASkip = slowEMA_period - fastEMA_period
 
-        self.__fastEMAWindow = ma.EMAEventWindow(fastEMA)
-        self.__slowEMAWindow = ma.EMAEventWindow(slowEMA)
-        self.__signalEMAWindow = ma.EMAEventWindow(signalEMA)
+        self.__fastEMAWindow = ma.EMAEventWindow(fastEMA_period)
+        self.__slowEMAWindow = ma.EMAEventWindow(slowEMA_period)
+        self.__signalEMAWindow = ma.EMAEventWindow(signalEMA_period)
         self.__signal = dataseries.SequenceDataSeries(maxLen)
         self.__histogram = dataseries.SequenceDataSeries(maxLen)
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
