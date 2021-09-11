@@ -18,13 +18,12 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
-from pyalgotrade import feed
-from pyalgotrade import dataseries
+from pyalgotrade import bar, dataseries, feed
 
 
 class MemFeed(feed.BaseFeed):
     def __init__(self, maxLen=None):
-        super(MemFeed, self).__init__(maxLen)
+        super(MemFeed, self).__init__(maxLen, False)
 
         self.__values = []
         self.__nextIdx = 0
@@ -60,11 +59,12 @@ class MemFeed(feed.BaseFeed):
         return dataseries.SequenceDataSeries(maxLen)
 
     def getNextValues(self):
-        ret = (None, None)
+        ret = (None, None, None)
         if self.__nextIdx < len(self.__values):
             ret = self.__values[self.__nextIdx]
             self.__nextIdx += 1
-        return ret
+        assert isinstance(ret, tuple)
+        return ret[0], ret[1], bar.Frequency.UNKNOWN
 
     # Add values to the feed. values should be a sequence of tuples. The tuples should have two elements:
     # 1: datetime.datetime.

@@ -20,11 +20,23 @@
 
 import logging
 import threading
+import sys
+from logging.handlers import RotatingFileHandler, SysLogHandler
+import os
+import coloredlogs
 
 initLock = threading.Lock()
 rootLoggerInitialized = False
 
-log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
+if 'TESTING' in os.environ and os.environ['TESTING'] != '0':
+    log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
+    sys_log = False
+else:
+    log_format = ("%(asctime)s %(name)s %(process)d [%(levelname)s] "
+        "%(module)s - %(funcName)s: %(message)s")
+    sys_log = True
+    coloredlogs.install(level='INFO')
+
 level = logging.INFO
 file_log = None  # File name
 console_log = True
@@ -38,7 +50,8 @@ def init_logger(logger):
     logger.setLevel(level)
 
     if file_log is not None:
-        fileHandler = logging.FileHandler(file_log)
+        fileHandler = RotatingFileHandler(file_log, maxBytes=20*1024*1024,
+                                          backupCount=100)
         init_handler(fileHandler)
         logger.addHandler(fileHandler)
 
@@ -46,6 +59,18 @@ def init_logger(logger):
         consoleHandler = logging.StreamHandler()
         init_handler(consoleHandler)
         logger.addHandler(consoleHandler)
+
+    if sys_log:
+        if sys.platform == "darwin":
+            # Apple made 10.5 more secure by disabling network syslog:
+            address = "/var/run/syslog"
+        elif sys.platform == "linux":
+            address = "/dev/log"
+        else:
+            address = ('localhost', 514)
+        sysHandler = SysLogHandler(address)
+        init_handler(sysHandler)
+        logger.addHandler(sysHandler)
 
 
 def initialize():

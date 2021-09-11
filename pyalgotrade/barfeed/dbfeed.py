@@ -26,9 +26,10 @@ class Database(object):
             self.addBar(instrument, bar, frequency)
 
     def addBarsFromFeed(self, feed):
-        for dateTime, bars in feed:
+        assert len(feed.getAllFrequencies()) == 1
+        for dateTime, bars, _ in feed:
             if bars:
-                self.addBars(bars, feed.getFrequency())
+                self.addBars(bars, feed.getAllFrequencies()[0])
 
     def addBar(self, instrument, bar, frequency):
         raise NotImplementedError()

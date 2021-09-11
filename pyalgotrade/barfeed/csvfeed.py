@@ -286,8 +286,9 @@ class GenericBarFeed(BarFeed):
         if timezone is None:
             timezone = self.__timezone
 
+        assert len(self.getAllFrequencies()) == 1
         rowParser = GenericRowParser(
-            self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getFrequency(),
+            self.__columnNames, self.__dateTimeFormat, self.getDailyBarTime(), self.getAllFrequencies()[0],
             timezone, self.__barClass
         )
 

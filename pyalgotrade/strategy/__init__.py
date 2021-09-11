@@ -24,12 +24,16 @@ import logging
 import six
 
 import pyalgotrade.broker
-from pyalgotrade.broker import backtesting
-from pyalgotrade import observer
-from pyalgotrade import dispatcher
+import pyalgotrade.fsm as fsm
+import pyalgotrade.logger
 import pyalgotrade.strategy.position
-from pyalgotrade import logger
+from pyalgotrade import dispatcher, logger, observer
 from pyalgotrade.barfeed import resampled
+from pyalgotrade.broker import backtesting
+from pyalgotrade.strategy.state import StrategyState
+
+
+log = pyalgotrade.logger.getLogger('strategy')
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -604,3 +608,26 @@ class BacktestingStrategy(BaseStrategy):
         level = logging.DEBUG if debugOn else logging.INFO
         self.getLogger().setLevel(level)
         self.getBroker().getLogger().setLevel(level)
+
+
+class LiveFSMStrategy(BacktestingStrategy):
+    def __init__(self, barFeed, fsmclass, cash_or_brk=1000000):
+        BacktestingStrategy.__init__(self, barFeed, cash_or_brk=cash_or_brk)
+        assert(issubclass(fsmclass, fsm.StrategyFSM))
+        self.__states = StrategyState()
+        self.__fsmclass = fsmclass
+        self.__barfeed = barFeed
+
+    @property
+    def states(self):
+        return self.__states
+
+    def onStart(self):
+        log.info('initializing StrategyFSM...')
+        self.__fsminst = self.__fsmclass(barfeed=self.__barfeed, states=self.__states)
+
+    def onBars(self, bars):
+        try:
+            self.__fsminst.run(bars=bars, states=self.__states)
+        except Exception as e:
+            log.error('Exception while running sate machine. %s' % str(e))

@@ -22,6 +22,7 @@ import csv
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -60,7 +61,7 @@ def run_cmd(cmd):
 
 
 def run_python_code(code):
-    cmd = ["python"]
+    cmd = [sys.executable]
     cmd.append("-u")
     cmd.append("-c")
     cmd.append(code)
@@ -68,7 +69,7 @@ def run_python_code(code):
 
 
 def run_sample_module(module, params=[]):
-    cmd = ["python"]
+    cmd = [sys.executable]
     cmd.append("-u")
     cmd.append("-m")
     cmd.append("samples.%s" % module)

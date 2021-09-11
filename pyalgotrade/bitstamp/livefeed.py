@@ -112,7 +112,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
     def __init__(self, maxLen=None):
         super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
         self.__barDicts = []
-        self.registerInstrument(common.btc_symbol)
+        self.registerInstrument(common.btc_symbol, bar.Frequency.TRADE)
         self.__prevTradeDateTime = None
         self.__thread = None
         self.__wsClientConnected = False

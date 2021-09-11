@@ -39,7 +39,10 @@ setup(
     ],
     packages=[
         'pyalgotrade',
+        'pyalgotrade.apps',
+        'pyalgotrade.apps.utils',
         'pyalgotrade.barfeed',
+        'pyalgotrade.barfeed.driver',
         'pyalgotrade.bitcoincharts',
         'pyalgotrade.bitstamp',
         'pyalgotrade.broker',
@@ -67,6 +70,9 @@ setup(
         "tornado",
         "tweepy",
         "ws4py>=0.3.4",
+        "coloredlogs",
+        "pika",
+        "flask",
     ],
     extras_require={
         "TALib":  ["Cython", "TA-Lib"],

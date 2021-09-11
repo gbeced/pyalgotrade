@@ -92,7 +92,7 @@ def process_symbol(symbol, fromYear, toYear, missingDataVerifierClass):
 
     if filesFound > 0:
         # Process all items.
-        for dateTime, bars in feed:
+        for dateTime, bars, _ in feed:
             pass
 
         missingDataVerifier = missingDataVerifierClass(feed[symbol])

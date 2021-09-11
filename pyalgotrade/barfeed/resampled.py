@@ -62,7 +62,7 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
 
         # Register the same instruments as in the underlying barfeed.
         for instrument in barFeed.getRegisteredInstruments():
-            self.registerInstrument(instrument)
+            self.registerInstrument(instrument, frequency)
 
         self.__values = []
         self.__barFeed = barFeed
@@ -72,15 +72,16 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         barFeed.getNewValuesEvent().subscribe(self.__onNewValues)
 
     def __onNewValues(self, dateTime, value):
+        assert len(self.getAllFrequencies()) == 1
         if self.__range is None:
-            self.__range = resamplebase.build_range(dateTime, self.getFrequency())
-            self.__grouper = BarsGrouper(self.__range.getBeginning(), value, self.getFrequency())
+            self.__range = resamplebase.build_range(dateTime, self.getAllFrequencies()[0])
+            self.__grouper = BarsGrouper(self.__range.getBeginning(), value, self.getAllFrequencies()[0])
         elif self.__range.belongs(dateTime):
             self.__grouper.addValue(value)
         else:
             self.__values.append(self.__grouper.getGrouped())
-            self.__range = resamplebase.build_range(dateTime, self.getFrequency())
-            self.__grouper = BarsGrouper(self.__range.getBeginning(), value, self.getFrequency())
+            self.__range = resamplebase.build_range(dateTime, self.getAllFrequencies()[0])
+            self.__grouper = BarsGrouper(self.__range.getBeginning(), value, self.getAllFrequencies()[0])
 
     def getCurrentDateTime(self):
         return self.__barFeed.getCurrentDateTime()

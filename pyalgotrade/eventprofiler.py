@@ -218,7 +218,7 @@ class Profiler(object):
             feed.getNewValuesEvent().unsubscribe(self.__onBars)
 
 
-def build_plot(profilerResults):
+def build_plot(profilerResults, alpha):
     # Calculate each value.
     x = []
     mean = []
@@ -231,6 +231,7 @@ def build_plot(profilerResults):
 
     # Cleanup
     plt.clf()
+
     # Plot a line with the mean cumulative returns.
     plt.plot(x, mean, color='#0000FF')
 
@@ -255,12 +256,12 @@ def build_plot(profilerResults):
     plt.ylabel('Cumulative returns')
 
 
-def plot(profilerResults):
+def plot(profilerResults, alpha=0):
     """Plots the result of the analysis.
 
     :param profilerResults: The result of the analysis
     :type profilerResults: :class:`Results`.
     """
 
-    build_plot(profilerResults)
+    build_plot(profilerResults, alpha)
     plt.show()

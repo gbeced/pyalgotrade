@@ -57,7 +57,7 @@ class OptimizerBarFeedTestCase(common.TestCase):
         ]
         f = barfeed.OptimizerBarFeed(bar.Frequency.DAY, ["orcl"], bars)
         with self.assertRaisesRegexp(Exception, "Bar date times are not in order.*"):
-            for dt, b in f:
+            for dt, b, freq in f:
                 pass
 
     def testBaseBarFeed(self):

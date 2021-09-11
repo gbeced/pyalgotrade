@@ -43,16 +43,20 @@ class BaseBarFeed(feed.BaseFeed):
         This is a base class and should not be used directly.
     """
 
-    def __init__(self, frequency, maxLen=None):
+    def __init__(self, frequencies, maxLen=None):
         super(BaseBarFeed, self).__init__(maxLen)
-        self.__frequency = frequency
+        if not isinstance(frequencies, list):
+            raise Exception('only frequencies list is accepted')
+        self.__frequencies = frequencies
         self.__useAdjustedValues = False
         self.__defaultInstrument = None
         self.__currentBars = None
+        self.__currentRealtimeBars = None
         self.__lastBars = {}
 
     def reset(self):
         self.__currentBars = None
+        self.__currentRealtimeBars = None
         self.__lastBars = {}
         super(BaseBarFeed, self).reset()
 
@@ -92,30 +96,38 @@ class BaseBarFeed(feed.BaseFeed):
 
     def getNextValues(self):
         dateTime = None
+        freq = None
         bars = self.getNextBars()
         if bars is not None:
+            freq = bars.getBarsFrequency()
             dateTime = bars.getDateTime()
 
             # Check that current bar datetimes are greater than the previous one.
-            if self.__currentBars is not None and self.__currentBars.getDateTime() >= dateTime:
-                raise Exception(
-                    "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
-                        self.__currentBars.getDateTime(),
-                        dateTime
+            if self.__currentBars is not None and self.__currentBars.getDateTime() > dateTime:
+                if freq == self.__currentBars.getBarsFrequency():
+                    raise Exception(
+                        "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
+                            self.__currentBars.getDateTime(),
+                            dateTime
+                        )
                     )
-                )
 
             # Update self.__currentBars and self.__lastBars
             self.__currentBars = bars
             for instrument in bars.getInstruments():
                 self.__lastBars[instrument] = bars[instrument]
-        return (dateTime, bars)
+        return (dateTime, bars, freq)
 
-    def getFrequency(self):
-        return self.__frequency
+    def getAllFrequencies(self):
+        return self.__frequencies
 
     def isIntraday(self):
-        return self.__frequency < bar.Frequency.DAY
+        for i in self.__frequencies:
+            if i < bar.Frequency.DAY:
+                return True
+
+    def getCurrentRealtimeBars(self):
+        return self.__currentRealtimeBars
 
     def getCurrentBars(self):
         """Returns the current :class:`pyalgotrade.bar.Bars`."""
@@ -133,11 +145,11 @@ class BaseBarFeed(feed.BaseFeed):
         """Returns a list of registered intstrument names."""
         return self.getKeys()
 
-    def registerInstrument(self, instrument):
+    def registerInstrument(self, instrument, freq):
         self.__defaultInstrument = instrument
-        self.registerDataSeries(instrument)
+        self.registerDataSeries(instrument, freq)
 
-    def getDataSeries(self, instrument=None):
+    def getDataSeries(self, instrument=None, freq=None):
         """Returns the :class:`pyalgotrade.dataseries.bards.BarDataSeries` for a given instrument.
 
         :param instrument: Instrument identifier. If None, the default instrument is returned.
@@ -146,7 +158,7 @@ class BaseBarFeed(feed.BaseFeed):
         """
         if instrument is None:
             instrument = self.__defaultInstrument
-        return self[instrument]
+        return self[instrument, freq] if freq is not None else self[instrument]
 
     def getDispatchPriority(self):
         return dispatchprio.BAR_FEED
@@ -158,7 +170,7 @@ class OptimizerBarFeed(BaseBarFeed):
     def __init__(self, frequency, instruments, bars, maxLen=None):
         super(OptimizerBarFeed, self).__init__(frequency, maxLen)
         for instrument in instruments:
-            self.registerInstrument(instrument)
+            self.registerInstrument(instrument, frequency)
         self.__bars = bars
         self.__nextPos = 0
         self.__currDateTime = None

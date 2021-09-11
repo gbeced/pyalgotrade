@@ -423,9 +423,10 @@ class Broker(broker.Broker):
     def __postProcessOrder(self, order, bar_):
         # For non-GTC orders and daily (or greater) bars we need to check if orders should expire right now
         # before waiting for the next bar.
+        assert len(self.__barFeed.getAllFrequencies()) == 1
         if not order.getGoodTillCanceled():
             expired = False
-            if self.__barFeed.getFrequency() >= pyalgotrade.bar.Frequency.DAY:
+            if self.__barFeed.getAllFrequencies()[0] >= pyalgotrade.bar.Frequency.DAY:
                 expired = bar_.getDateTime().date() >= order.getAcceptedDateTime().date()
 
             # Cancel the order if it will expire in the next bar.

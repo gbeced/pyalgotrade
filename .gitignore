@@ -17,3 +17,7 @@ doc/_build
 /notebooks
 
 /testcases/credentials.py
+*.log
+*.sqlite
+.DS_Store
+.vscode/settings.json

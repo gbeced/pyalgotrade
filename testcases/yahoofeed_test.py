@@ -181,7 +181,7 @@ class FeedTestCase(common.TestCase):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-        for dateTime, bars in barFeed:
+        for dateTime, bars, _ in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertTrue(dt.datetime_is_naive(bar.getDateTime()))
 
@@ -189,7 +189,7 @@ class FeedTestCase(common.TestCase):
         barFeed = yahoofeed.Feed(timezone=marketsession.USEquities.getTimezone())
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"))
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"))
-        for dateTime, bars in barFeed:
+        for dateTime, bars, _ in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
 
@@ -197,7 +197,7 @@ class FeedTestCase(common.TestCase):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2001-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-        for dateTime, bars in barFeed:
+        for dateTime, bars, _ in barFeed:
             bar = bars.getBar(FeedTestCase.TestInstrument)
             self.assertFalse(dt.datetime_is_naive(bar.getDateTime()))
 
@@ -218,7 +218,7 @@ class FeedTestCase(common.TestCase):
     def testMapTypeOperations(self):
         barFeed = yahoofeed.Feed()
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-        for dateTime, bars in barFeed:
+        for dateTime, bars, _ in barFeed:
             self.assertTrue(FeedTestCase.TestInstrument in bars)
             self.assertFalse(FeedTestCase.TestInstrument not in bars)
             bars[FeedTestCase.TestInstrument]
@@ -228,7 +228,7 @@ class FeedTestCase(common.TestCase):
     def testBounded(self):
         barFeed = yahoofeed.Feed(maxLen=2)
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-        for dateTime, bars in barFeed:
+        for dateTime, bars, _ in barFeed:
             pass
 
         barDS = barFeed[FeedTestCase.TestInstrument]

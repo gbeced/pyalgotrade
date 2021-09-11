@@ -218,7 +218,7 @@ class LiveBroker(broker.Broker):
         self.__tradeMonitor.stop()
 
     def join(self):
-        if self.__tradeMonitor.isAlive():
+        if self.__tradeMonitor.is_alive():
             self.__tradeMonitor.join()
 
     def eof(self):

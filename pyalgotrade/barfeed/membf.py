@@ -72,7 +72,10 @@ class BarFeed(barfeed.BaseBarFeed):
         self.__bars[instrument].extend(bars)
         self.__bars[instrument].sort(key=lambda b: b.getDateTime())
 
-        self.registerInstrument(instrument)
+        assert len(self.getAllFrequencies()) == 1
+        for i in bars:
+            assert i.getFrequency() == self.getAllFrequencies()[0]
+        self.registerInstrument(instrument, self.getAllFrequencies()[0])
 
     def eof(self):
         ret = True
@@ -115,5 +118,5 @@ class BarFeed(barfeed.BaseBarFeed):
         return bar.Bars(ret)
 
     def loadAll(self):
-        for dateTime, bars in self:
+        for dateTime, bars, freq in self:
             pass
