@@ -139,7 +139,7 @@ class Order(object):
 
     def __init__(self, type_, action, instrument, quantity, instrumentTraits):
         if quantity is not None and quantity <= 0:
-            raise Exception("Invalid quantity")
+            raise Exception(f"Invalid quantity: {quantity}")
 
         self.__id = None
         self.__type = type_
