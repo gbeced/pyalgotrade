@@ -51,12 +51,15 @@ class ATREventWindow(technical.EventWindow):
 
         if value is not None and self.windowFull():
             if self.__value is None:
-                self.__value = self.getValues().mean() * self.__multiple
+                self.__value = self.getValues().mean() 
             else:
-                self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize()) * self.__multiple
+                self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize())
 
     def getValue(self):
-        return self.__value
+        if self.__value is not None:
+            return self.__value * self.__multiple
+        else: 
+            return self.__value 
 
 
 class ATR(technical.EventBasedFilter):
