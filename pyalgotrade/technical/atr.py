@@ -25,9 +25,10 @@ from pyalgotrade.dataseries import bards
 # This event window will calculate and hold true-range values.
 # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_true_range_atr.
 class ATREventWindow(technical.EventWindow):
-    def __init__(self, period, useAdjustedValues):
+    def __init__(self, period, multiple, useAdjustedValues):
         assert(period > 1)
         super(ATREventWindow, self).__init__(period)
+        self.__multiple = multiple 
         self.__useAdjustedValues = useAdjustedValues
         self.__prevClose = None
         self.__value = None
@@ -55,7 +56,10 @@ class ATREventWindow(technical.EventWindow):
                 self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize())
 
     def getValue(self):
-        return self.__value 
+        if self.__value != None: 
+            return self.__value * self.__multiple
+        else: 
+            return self.__value 
 
 
 class ATR(technical.EventBasedFilter):
@@ -65,6 +69,8 @@ class ATR(technical.EventBasedFilter):
     :type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
     :param period: The average period. Must be > 1.
     :type period: int.
+    :param multiple: The number by which the ATR value is multiplied. Must be > 0 
+    :type multiple: int 
     :param useAdjustedValues: True to use adjusted Low/High/Close values.
     :type useAdjustedValues: boolean.
     :param maxLen: The maximum number of values to hold.
@@ -73,8 +79,8 @@ class ATR(technical.EventBasedFilter):
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period, useAdjustedValues=True, maxLen=None):
+    def __init__(self, barDataSeries, period, multiple, useAdjustedValues=True, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        super(ATR, self).__init__(barDataSeries, ATREventWindow(period, useAdjustedValues), maxLen)
+        super(ATR, self).__init__(barDataSeries, ATREventWindow(period, multiple, useAdjustedValues), maxLen)
