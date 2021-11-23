@@ -1,6 +1,7 @@
 
 import numpy as np
 from pyalgotrade import technical
+from pyalgotrade.dataseries import bards
 
 class PRICEEventWindow(technical.EventWindow):
     def __init__(self, period=1):
