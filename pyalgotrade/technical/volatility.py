@@ -37,7 +37,10 @@ class VOLATILITYEventWindow(technical.EventWindow):
         if self.__prevClose is None:
             ret = None
         else:
-            ret = (value.getClose(self.__useAdjustedValues) - self.__prevClose) / value.getClose(self.__useAdjustedValues)
+            try: 
+                ret = (value.getClose(self.__useAdjustedValues) - self.__prevClose) / value.getClose(self.__useAdjustedValues)
+            except: 
+                ret = None 
         return ret
 
     def onNewValue(self, dateTime, value):
