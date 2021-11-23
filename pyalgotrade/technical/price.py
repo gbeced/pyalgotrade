@@ -6,7 +6,7 @@ from pyalgotrade.dataseries import bards
 class PRICEEventWindow(technical.EventWindow):
     def __init__(self, period=1):
         assert(period > 0)
-        super(PRICEEventWindow, self).__init__(period=1)
+        super(PRICEEventWindow, self).__init__(period)
         self.__value = None
 
     def onNewValue(self, dateTime, value):
@@ -51,4 +51,4 @@ class PRICE(technical.EventBasedFilter):
         else: 
             pass 
 
-        super(PRICE, self).__init__(dataSeries, PRICEventWindow(period=1), maxLen)
+        super(PRICE, self).__init__(dataSeries, PRICEEventWindow(period=1), maxLen)

@@ -45,7 +45,6 @@ class VOLATILITYEventWindow(technical.EventWindow):
         if pc != None: 
             super(VOLATILITYEventWindow, self).onNewValue(dateTime, pc)
         self.__prevClose = value.getClose(self.__useAdjustedValues)
-
         if value is not None and self.windowFull():
             self.__value = self.getValues().std() 
 
