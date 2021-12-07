@@ -1,4 +1,7 @@
 from pyalgotrade import technical
+from pyalgotrade.dataseries import bards
+import numpy as np 
+
 
 
 class SMAEventWindow_Frac(technical.EventWindow):
@@ -27,7 +30,7 @@ class SMAEventWindow_Frac(technical.EventWindow):
 
 
 class STOP_PRICE(technical.EventBasedFilter):
-    """STOP_Price Indicator using SMA Filter.
+    """STOP_Price Indicator using SMA Filter for PRice. 
 
     :param dataSeries: The DataSeries instance being filtered.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
@@ -45,4 +48,64 @@ class STOP_PRICE(technical.EventBasedFilter):
 
 
 
+class ATREventWindow_Frac(technical.EventWindow):
+    def __init__(self, period, entry_price, stop_price_ATR_frac, useAdjustedValues):
+        assert(period > 1)
+        super(ATREventWindow_Frac, self).__init__(period)
+        self.__useAdjustedValues = useAdjustedValues
+        self.__entry_price = entry_price
+        self.__stop_price_ATR_frac = stop_price_ATR_frac
+        self.__prevClose = None
+        self.__value = None
 
+
+    def _calculateTrueRange(self, value):
+        ret = None
+        if self.__prevClose is None:
+            ret = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
+        else:
+            tr1 = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
+            tr2 = abs(value.getHigh(self.__useAdjustedValues) - self.__prevClose)
+            tr3 = abs(value.getLow(self.__useAdjustedValues) - self.__prevClose)
+            ret = max(max(tr1, tr2), tr3)
+        return ret
+
+    def onNewValue(self, dateTime, value):
+        tr = self._calculateTrueRange(value)
+        super(ATREventWindow_Frac, self).onNewValue(dateTime, tr)
+        self.__prevClose = value.getClose(self.__useAdjustedValues)
+
+        if value is not None and self.windowFull():
+            if self.__value is None:
+                self.__value = self.getValues().mean() 
+            else:
+                self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize())
+
+    def getValue(self):
+        if self.__value is not None: 
+            if self.__entry_price is not None: 
+                return self.__entry_price + self.__value * self.__stop_price_ATR_frac
+            else: 
+                return np.Inf * self.__stop_price_ATR_frac
+        else: 
+            return np.Inf * self.__stop_price_ATR_frac
+        ## TODO, ensure that data feed goes back far enough in time to calculate ATR for stop price, for now just return inf
+
+class ATR_STOP_PRICE(technical.EventBasedFilter): 
+    '''ATR_STOP_PRICE Indicator using SMA Filter for Price. 
+
+    :param dataSeries: The DataSeries instance being filtered.
+    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param period: Number of days to look back to calculate ATR.
+    :type period: int. 
+    :param entry_price: The price at which a position was opened.
+    :type entry_price: float. 
+    :param stop_price_ATR_frac: The number of ATR multiples away from entry_price to use as ATR_STOP_PRICE. (positive if stop profit, else stop loss)
+    :type stop_price_ATR_frac: float.     
+    '''
+    def __init__(self, barDataSeries, period=20, entry_price=None, stop_price_ATR_frac=-2, useAdjustedValues=True, maxLen=None): 
+        
+        if not isinstance(barDataSeries, bards.BarDataSeries):
+            raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
+
+        super(ATR_STOP_PRICE, self).__init__(barDataSeries, ATREventWindow_Frac(period, entry_price, stop_price_ATR_frac, useAdjustedValues), maxLen)
