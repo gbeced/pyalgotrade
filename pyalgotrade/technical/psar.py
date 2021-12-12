@@ -128,6 +128,8 @@ class PSAR(technical.EventBasedFilter):
 
 
     Use this logic to calcualte initial SAR: https://quant.stackexchange.com/questions/35570/how-do-you-calculate-the-initial-prior-sar-value-in-a-parabolic-sar-over-fx-mark
+
+    See this link for PSAR explanation: https://books.mec.biz/tmp/books/218XOTBWY3FEW2CT3EVR.PDF 
     """
     def __init__(self, barDataSeries, init_acceleration_factor=0.02, acceleration_factor_step=0.02, max_acceleration_factor=0.2, previous_day=False, period=2, maxLen=None):
         #Period parameter below is NOT the same period above, below is for storing actual PSAR values
