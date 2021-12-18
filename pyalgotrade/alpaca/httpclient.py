@@ -15,7 +15,7 @@
 # limitations under the License.
 
 """
-.. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
+.. moduleauthor:: Robert Lee
 """
 
 import time
@@ -26,7 +26,7 @@ import requests
 import threading
 
 from pyalgotrade.utils import dt
-from pyalgotrade.bitstamp import common
+from pyalgotrade.alpaca import common
 
 import logging
 logging.getLogger("requests").setLevel(logging.ERROR)

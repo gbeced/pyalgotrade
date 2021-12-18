@@ -22,10 +22,10 @@ import pyalgotrade.logger
 from pyalgotrade import broker
 
 
-logger = pyalgotrade.logger.getLogger("bitstamp")
-btc_symbol = "BTC"
+logger = pyalgotrade.logger.getLogger("alpaca")
+# btc_symbol = "BTC"
 
 
-class BTCTraits(broker.InstrumentTraits):
-    def roundQuantity(self, quantity):
-        return round(quantity, 8)
+# class BTCTraits(broker.InstrumentTraits):
+#     def roundQuantity(self, quantity):
+#         return round(quantity, 8)
