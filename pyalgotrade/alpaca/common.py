@@ -32,8 +32,8 @@ logger = pyalgotrade.logger.getLogger("alpaca")
 def make_async_rest_connection(api_key_id = None, api_secret_key = None):
     
     # credentials
-    api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID_PAPER')
-    api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY_PAPER')
+    api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID')
+    api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY')
 
     if api_key_id is None:
         logger.error('Unable to retrieve API Key ID.')

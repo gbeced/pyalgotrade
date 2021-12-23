@@ -19,11 +19,21 @@
 https://github.com/alpacahq/alpaca-trade-api-python/blob/master/examples/historic_async.py
 
 Example usage:
-    from pyalgotrade.alpaca.common import make_async_rest_connection
-    from pyalgotrade.alpaca.restfeed import get_historic_data
 
-    async_rest = make_async_rest_connection(api_key_id, api_secret_key)
-    results = get_historic_data(async_rest, ['AAPL', 'IBM'], '2021-01-01', '2021-01-10, 'QUOTES')
+    In a script:
+        from pyalgotrade.alpaca.common import make_async_rest_connection
+        from pyalgotrade.alpaca.restfeed import get_historic_data
+
+        async_rest = make_async_rest_connection()
+        results = get_historic_data(async_rest, ['AAPL', 'IBM'], '2021-01-01', '2021-01-10, 'QUOTES')
+        # results = [('AAPL', pandas.DataFrame()), ('IBM', pandas.DataFrame)]
+    
+    In command line:
+        $ python /home/jibi/Documents/repos/pyalgotrade/pyalgotrade/alpaca/restfeed.py
+            --symbols AAPL IBM
+            --start-date 2021-01-01
+            --end-date 2021-01-10
+            --storage /home/jibi/Documents/mochi/sample_data/test.csv
 
 
 """
@@ -158,7 +168,6 @@ if __name__ == '__main__':
                         help="The path were the files will be downloaded to")
     # parser.add_argument("--force-download", action='store_false',
     #                     help="Force downloading even if the files exist")
-
     # Set up variables
     args = parser.parse_args()
 
@@ -166,11 +175,11 @@ if __name__ == '__main__':
     async_rest = common.make_async_rest_connection(args.api_key_id, args.api_secret_key)
 
     # storage
-    if not os.path.exists(args.storage):
-        common.logger.info("Creating %s directory" % (args.storage))
-        os.mkdir(args.storage)
+    # if not os.path.exists(args.storage):
+    #     common.logger.info("Creating %s directory" % (args.storage))
+    #     os.mkdir(args.storage)
     storage = args.storage
-
+    
     # rest of data request
     symbols = args.symbols
     start_date = args.start_date
@@ -183,7 +192,6 @@ if __name__ == '__main__':
     results = loop.run_until_complete(
         get_historic_data(async_rest, symbols, start_date, end_date, datatype, timeframe)
         )
-
     # Stack the results into 1 dataframe
     # Current it is in [(symbol0, df0), (symbol1, df1)] format
     result = None
@@ -193,7 +201,7 @@ if __name__ == '__main__':
         if result is None:
             result = df_i
         else:
-            result = pd.concat([result, df_i], axis = 0, ignore_index = True)
+            result = pd.concat([result, df_i], axis = 0, ignore_index = False)
 
     # save to csv
     result.to_csv(storage)
