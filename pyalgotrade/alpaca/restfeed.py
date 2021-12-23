@@ -17,6 +17,15 @@
 """
 .. moduleauthor:: Robert Lee
 https://github.com/alpacahq/alpaca-trade-api-python/blob/master/examples/historic_async.py
+
+Example usage:
+    from pyalgotrade.alpaca.common import make_async_rest_connection
+    from pyalgotrade.alpaca.restfeed import get_historic_data
+
+    async_rest = make_async_rest_connection(api_key_id, api_secret_key)
+    results = get_historic_data(async_rest, ['AAPL', 'IBM'], '2021-01-01', '2021-01-10, 'QUOTES')
+
+
 """
 
 
@@ -41,32 +50,29 @@ from pyalgotrade.alpaca import common
 
 NY = 'America/New_York'
 
-class DataType(str, Enum):
-    Bars = "Bars"
-    Trades = "Trades"
-    Quotes = "Quotes"
-
-
-def get_data_method(data_type: DataType):
-    if data_type == DataType.Bars:
-        return rest.get_bars_async
-    elif data_type == DataType.Trades:
-        return rest.get_trades_async
-    elif data_type == DataType.Quotes:
-        return rest.get_quotes_async
-    else:
-        raise Exception(f"Unsupoported data type: {data_type}")
-
-
-async def get_historic_data_base(symbols, data_type: DataType, start, end,
-                                 timeframe: TimeFrame = None):
+async def get_historic_data(async_rest, symbols, start_date, end_date,
+                            data_type = 'BARS', timeframe = '1Day'):
     """
-    base function to use with all
-    :param symbols:
-    :param start:
-    :param end:
-    :param timeframe:
-    :return:
+    Retrieve historic data for multiple symbols using Alpaca's get_[datatype]_async
+    from the AsyncRest object.
+
+    Args:
+        async_rest (Alpaca AsyncRest object): See alpaca_trade_api.rest_async.AsyncRest.
+        symbols (list): A list of symbols for which to get data.
+        start_date (str): Start date of time period of data request.
+        end_date (str): End date of time period of data request.
+        data_type (str, optional): One of 'BARS', 'TRADES', or 'QUOTES'. Defaults to 'BARS'.
+        timeframe (str): Frequency of data requested. Format as [amount][unit],
+            where [amount]is an integer, and [unit] is one of Min, Hour, or Day. Defaults to 1Day.
+            Ignored if data_type is not 'BARS'.
+
+    Returns:
+        [(symbol, df),]: List of tuples of (symbol, pandas DataFrame)
+    
+    Usage:
+        async_rest = make_async_rest_connetion()
+        symbols, dfs = 
+
     """
     # Check Python version
     major = sys.version_info.major
@@ -75,24 +81,44 @@ async def get_historic_data_base(symbols, data_type: DataType, start, end,
         raise Exception('asyncio is not support in your python version')
     msg = f"Getting {data_type} data for {len(symbols)} symbols"
     msg += f", timeframe: {timeframe}" if timeframe else ""
-    msg += f" between dates: start={start}, end={end}"
+    msg += f" between dates: start={start_date}, end={end_date}"
     common.logger.info(msg)
 
-    # loop through 1000 symbols at a time
+    # define what data we're trying to get
+    if data_type.upper() == 'BARS':
+        get_data_method = async_rest.get_bars_async
+    elif data_type.upper() == 'TRADES':
+        get_data_method = async_rest.get_trades_async
+    elif data_type.upper() == 'QUOTES':
+        get_data_method = async_rest.get_quotes_async
+    else:
+        raise Exception(f"Unsupoported data type: {data_type}")
+    
+    # Time period of data request
+    start_date = pd.Timestamp(start_date, tz=NY).date().isoformat()
+    end_date = pd.Timestamp(end_date, tz=NY).date().isoformat()
+
+    # ignore timeframe argument if data_type is not 'BARS'
+    if data_type.upper() != 'BARS':
+        timeframe = None
+
+    # Create one task for each symbol
+    # execute up to 1000 tasks each loop
     step_size = 1000
     results = []
     for i in range(0, len(symbols), step_size):
         tasks = []
         for symbol in symbols[i:i+step_size]:
-            args = [symbol, start, end, timeframe.value] if timeframe else \
-                [symbol, start, end]
-            tasks.append(get_data_method(data_type)(*args))
+            args = [symbol, start_date, end_date, timeframe] if timeframe else \
+                [symbol, start_date, end_date]
+            tasks.append(get_data_method(*args))
 
         if minor >= 8:
             results.extend(await asyncio.gather(*tasks, return_exceptions=True))
         else:
             results.extend(await gather_with_concurrency(500, *tasks))
-
+    
+    # notify the user of any bad reuests
     bad_requests = 0
     for response in results:
         if isinstance(response, Exception):
@@ -104,30 +130,6 @@ async def get_historic_data_base(symbols, data_type: DataType, start, end,
           f"empty responses.")
     
     return results
-
-
-# async def get_historic_bars(symbols, start, end, timeframe: TimeFrame):
-#     await get_historic_data_base(symbols, DataType.Bars, start, end, timeframe)
-
-
-# async def get_historic_trades(symbols, start, end, timeframe: TimeFrame):
-#     await get_historic_data_base(symbols, DataType.Trades, start, end)
-
-
-# async def get_historic_quotes(symbols, start, end, timeframe: TimeFrame):
-#     await get_historic_data_base(symbols, DataType.Quotes, start, end)
-
-
-# async def main(symbols, start_time, end_time, timeframe):
-#     start = pd.Timestamp(start_time, tz=NY).date().isoformat()
-#     end = pd.Timestamp(end_time, tz=NY).date().isoformat()
-
-
-
-#     # await get_historic_bars(symbols, start, end, timeframe)
-#     # await get_historic_trades(symbols, start, end, timeframe)
-#     # await get_historic_quotes(symbols, start, end, timeframe)
-
 
 if __name__ == '__main__':
 
@@ -160,47 +162,38 @@ if __name__ == '__main__':
     # Set up variables
     args = parser.parse_args()
 
-    # credentials
-    api_key_id = args.api_key_id or os.environ.get('ALPACA_API_KEY_ID')
-    api_secret_key = args.api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY')
-    # data request
-    symbols = args.symbols
-    start_date = pd.Timestamp(args.start_date, tz=NY).date().isoformat()
-    end_date = pd.Timestamp(args.end_date, tz=NY).date().isoformat()
-    if args.datatype == 'bars':
-        datatype = DataType.Bars
-    elif args.datatype == 'trades':
-        datatype = DataType.Trades
-    elif args.datatype == 'quotes':
-        datatype = DataType.Quotes
-    timeframe = args.timeframe
+    # make rest connection to API
+    async_rest = common.make_async_rest_connection(args.api_key_id, args.api_secret_key)
+
     # storage
     if not os.path.exists(args.storage):
         common.logger.info("Creating %s directory" % (args.storage))
         os.mkdir(args.storage)
     storage = args.storage
 
-    
-    # Make connection
-    base_url = "https://paper-api.alpaca.markets"
-    rest = AsyncRest(key_id=api_key_id,
-                     secret_key=api_secret_key)
-    feed = "sip"  # change to "iex" if only free account
+    # rest of data request
+    symbols = args.symbols
+    start_date = args.start_date
+    end_date = args.end_date
+    datatype = args.datatype.upper()
+    timeframe = args.timeframe
 
-    api = tradeapi.REST(key_id=api_key_id,
-                        secret_key=api_secret_key,
-                        base_url=URL(base_url))
-    
+    # Request the data
     loop = asyncio.get_event_loop()
     results = loop.run_until_complete(
-        get_historic_data_base(symbols, datatype, start_date, end_date, timeframe)
+        get_historic_data(async_rest, symbols, start_date, end_date, datatype, timeframe)
         )
-    # f = open(storage, "w")
-    # f.write(bars)
-    # f.close()
 
+    # Stack the results into 1 dataframe
+    # Current it is in [(symbol0, df0), (symbol1, df1)] format
+    result = None
+    for symbol_i, df_i in results:
+        df_i['symbol'] = symbol_i
+        df_i = df_i.reset_index().set_index(['symbol', 'timestamp'])
+        if result is None:
+            result = df_i
+        else:
+            result = pd.concat([result, df_i], axis = 0, ignore_index = True)
 
-
-# TODO
-# split out function for non-command line use
-# test functions
+    # save to csv
+    result.to_csv(storage)

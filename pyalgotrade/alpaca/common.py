@@ -17,12 +17,51 @@
 """
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
+from enum import Enum
+import os
+
+from alpaca_trade_api.rest_async import AsyncRest
 
 import pyalgotrade.logger
 from pyalgotrade import broker
 
 
 logger = pyalgotrade.logger.getLogger("alpaca")
+
+
+def make_async_rest_connection(api_key_id = None, api_secret_key = None):
+    
+    # credentials
+    api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID_PAPER')
+    api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY_PAPER')
+
+    if api_key_id is None:
+        logger.error('Unable to retrieve API Key ID.')
+    if api_key_id is None:
+        logger.error('Unable to retrieve API Secret Key.')
+    
+    rest = AsyncRest(key_id=api_key_id,
+                    secret_key=api_secret_key)
+    
+    return rest
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # btc_symbol = "BTC"
 
 
