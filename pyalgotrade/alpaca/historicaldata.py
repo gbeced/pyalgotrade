@@ -21,15 +21,15 @@ https://github.com/alpacahq/alpaca-trade-api-python/blob/master/examples/histori
 Example usage:
 
     In a script:
-        from pyalgotrade.alpaca.common import make_async_rest_connection
-        from pyalgotrade.alpaca.restfeed import get_historic_data
+        from pyalgotrade.alpaca.common import make_connection
+        from pyalgotrade.alpaca.historicaldata import get_historical_data
 
-        async_rest = make_async_rest_connection()
-        results = get_historic_data(async_rest, ['AAPL', 'IBM'], '2021-01-01', '2021-01-10, 'QUOTES')
+        async_rest = make_connection(connection_type = 'async_rest')
+        results = await get_historical_data(async_rest, ['AAPL', 'IBM'], '2021-01-01', '2021-01-10, 'QUOTES')
         # results = [('AAPL', pandas.DataFrame()), ('IBM', pandas.DataFrame)]
     
     In command line:
-        $ python /home/jibi/Documents/repos/pyalgotrade/pyalgotrade/alpaca/restfeed.py
+        $ python /home/jibi/Documents/repos/pyalgotrade/pyalgotrade/alpaca/historicaldata.py
             --symbols AAPL IBM
             --start-date 2021-01-01
             --end-date 2021-01-10
@@ -38,32 +38,23 @@ Example usage:
 
 """
 
-
-from enum import Enum
-import datetime
-import os
 import sys
 import asyncio
 import argparse
 
 import pandas as pd
 
-import alpaca_trade_api as tradeapi
-from alpaca_trade_api.rest import TimeFrame, URL
-from alpaca_trade_api.rest_async import gather_with_concurrency, AsyncRest
+from alpaca_trade_api.rest_async import gather_with_concurrency
 
 from pyalgotrade.alpaca import common
-# from pyalgotrade.alpaca import livefeed
-
-# LiveTradeFeed = livefeed.LiveTradeFeed
 
 
 NY = 'America/New_York'
 
-async def get_historic_data(async_rest, symbols, start_date, end_date,
+async def get_historical_data(async_rest, symbols, start_date, end_date,
                             data_type = 'BARS', timeframe = '1Day'):
     """
-    Retrieve historic data for multiple symbols using Alpaca's get_[datatype]_async
+    Retrieve historical data for multiple symbols using Alpaca's get_[datatype]_async
     from the AsyncRest object.
 
     Args:
@@ -78,11 +69,6 @@ async def get_historic_data(async_rest, symbols, start_date, end_date,
 
     Returns:
         [(symbol, df),]: List of tuples of (symbol, pandas DataFrame)
-    
-    Usage:
-        async_rest = make_async_rest_connetion()
-        symbols, dfs = 
-
     """
     # Check Python version
     major = sys.version_info.major
@@ -172,7 +158,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # make rest connection to API
-    async_rest = common.make_async_rest_connection(args.api_key_id, args.api_secret_key)
+    async_rest = common.make_connection('async_rest', args.api_key_id, args.api_secret_key)
 
     # storage
     # if not os.path.exists(args.storage):
@@ -190,7 +176,7 @@ if __name__ == '__main__':
     # Request the data
     loop = asyncio.get_event_loop()
     results = loop.run_until_complete(
-        get_historic_data(async_rest, symbols, start_date, end_date, datatype, timeframe)
+        get_historical_data(async_rest, symbols, start_date, end_date, datatype, timeframe)
         )
     # Stack the results into 1 dataframe
     # Current it is in [(symbol0, df0), (symbol1, df1)] format

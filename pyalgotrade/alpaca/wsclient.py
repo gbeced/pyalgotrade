@@ -34,7 +34,10 @@ def get_current_datetime():
 
 
 class Trade(pusher.Event):
-    """A trade event."""
+    """A trade event.
+    
+    # TODO: use broker specific formats
+    """
 
     def __init__(self, dateTime, eventDict):
         super(Trade, self).__init__(eventDict, True)
@@ -42,7 +45,9 @@ class Trade(pusher.Event):
 
     def getDateTime(self):
         """Returns the :class:`datetime.datetime` when this event was received."""
-        return self.__dateTime
+        # return self.__dateTime
+        # TODO: use event timestamp
+        raise NotImplementedError()
 
     def getId(self):
         """Returns the trade id."""
@@ -66,7 +71,10 @@ class Trade(pusher.Event):
 
 
 class OrderBookUpdate(pusher.Event):
-    """An order book update event."""
+    """An order book update event.
+    
+    # TODO: use broker specific formats
+    """
 
     def __init__(self, dateTime, eventDict):
         super(OrderBookUpdate, self).__init__(eventDict, True)
@@ -92,6 +100,39 @@ class OrderBookUpdate(pusher.Event):
         """Returns a list with the top 20 ask volumes."""
         return [float(ask[1]) for ask in self.getData()["asks"]]
 
+class Bar(pusher.Event):
+    """A bar event.
+    
+    # TODO: use broker specific formats
+    """
+
+    def __init__(self, dateTime, eventDict):
+        super(OrderBookUpdate, self).__init__(eventDict, True)
+        self.__dateTime = dateTime
+
+    def getDateTime(self):
+        """Returns the :class:`datetime.datetime` when this event was received."""
+        # return self.__dateTime
+        raise NotImplementedError()
+
+    def getOpen(self):
+        raise NotImplementedError()
+
+    def getClose(self):
+        raise NotImplementedError()
+
+    def getHigh(self):
+        raise NotImplementedError()
+
+    def getLow(self):
+        raise NotImplementedError()
+
+    def getVolume(self):
+        raise NotImplementedError()
+
+    def getFrequency(self):
+        raise NotImplementedError()
+
 
 class WebSocketClient(pusher.WebSocketClient):
     """
@@ -106,9 +147,10 @@ class WebSocketClient(pusher.WebSocketClient):
         ORDER_BOOK_UPDATE = 2
         CONNECTED = 3
         DISCONNECTED = 4
+        BAR = 5
 
     def __init__(self, queue):
-        super(WebSocketClient, self).__init__(WebSocketClient.PUSHER_APP_KEY, 5)
+        super(WebSocketClient, self).__init__(WebSocketClient.PUSHER_APP_KEY, protocol = 5)
         self.__queue = queue
 
     def onMessage(self, msg):
@@ -155,7 +197,7 @@ class WebSocketClient(pusher.WebSocketClient):
         common.logger.warning("Unknown event: %s" % (event))
 
     ######################################################################
-    # Bitstamp specific
+    # Broker specific
 
     def onTrade(self, trade):
         self.__queue.put((WebSocketClient.Event.TRADE, trade))

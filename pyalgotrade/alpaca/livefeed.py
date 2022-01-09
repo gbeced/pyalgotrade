@@ -15,253 +15,224 @@
 # limitations under the License.
 
 """
-.. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
+.. moduleauthor:: Robert Lee
+    Splits out LiveFeed to allow for both live bar feeds and live trade feeds.
+
 """
 
+import abc
 import datetime
 import time
+import queue
+import threading
 
-from six.moves import queue
+import zmq
+import json
 
-from pyalgotrade import bar
-from pyalgotrade import barfeed
-from pyalgotrade import observer
-from pyalgotrade.bitstamp import common
-from pyalgotrade.bitstamp import wsclient
+from pyalgotrade import feed
+from pyalgotrade import dataseries
 
-
-class TradeBar(bar.Bar):
-    # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__tradeId', '__price', '__amount')
-
-    def __init__(self, dateTime, trade):
-        self.__dateTime = dateTime
-        self.__tradeId = trade.getId()
-        self.__price = trade.getPrice()
-        self.__amount = trade.getAmount()
-        self.__buy = trade.isBuy()
-
-    def __setstate__(self, state):
-        (self.__dateTime, self.__tradeId, self.__price, self.__amount) = state
-
-    def __getstate__(self):
-        return (self.__dateTime, self.__tradeId, self.__price, self.__amount)
-
-    def setUseAdjustedValue(self, useAdjusted):
-        if useAdjusted:
-            raise Exception("Adjusted close is not available")
-
-    def getTradeId(self):
-        return self.__tradeId
-
-    def getFrequency(self):
-        return bar.Frequency.TRADE
-
-    def getDateTime(self):
-        return self.__dateTime
-
-    def getOpen(self, adjusted=False):
-        return self.__price
-
-    def getHigh(self, adjusted=False):
-        return self.__price
-
-    def getLow(self, adjusted=False):
-        return self.__price
-
-    def getClose(self, adjusted=False):
-        return self.__price
-
-    def getVolume(self):
-        return self.__amount
-
-    def getAdjClose(self):
-        return None
-
-    def getTypicalPrice(self):
-        return self.__price
-
-    def getPrice(self):
-        return self.__price
-
-    def getUseAdjValue(self):
-        return False
-
-    def isBuy(self):
-        return self.__buy
-
-    def isSell(self):
-        return not self.__buy
+from pyalgotrade.dataseries import bards, tradeds, quoteds
+from pyalgotrade.alpaca import common
 
 
-class LiveTradeFeed(barfeed.BaseBarFeed):
-
-    """A real-time BarFeed that builds bars from live trades.
-
-    :param maxLen: The maximum number of values that the :class:`pyalgotrade.dataseries.bards.BarDataSeries` will hold.
-        Once a bounded length is full, when new items are added, a corresponding number of items are discarded
-        from the opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
-    :type maxLen: int.
-
-    .. note::
-        Note that a Bar will be created for every trade, so open, high, low and close values will all be the same.
+class LiveFeed(threading.Thread):
+    """A thread that takes incoming messages from Alapaca and publishes them on ZMQ sockets.
     """
 
+    def __init__(self, publishing_address, api_key_id = None, api_secret_key = None):
+        
+        # Create sockets
+        self.__zmq_context = zmq.Context.Instance()
+
+        # for publishing data from the websocket
+        # (from Alpaca's stream.TradingStream and stream.DataStream)
+        self._publishing_address = publishing_address
+        self.__socket = self.__zmq_context.socket(zmq.PUB)
+        self.__socket.bind(self._publishing_address)
+        common.logger.info(
+            'Live feed publishing data at {self._publishing_address}'
+            )
+        
+        # threading stuff
+        self.__stop = False
+        self.__stopped = False
+
+        # make connection
+        stream = common.make_connection(
+            connection_type = 'stream', api_key_id = api_key_id, api_secret_key = api_secret_key)
+    
+    # Threading stuff
+    def start(self):
+        pass
+    
+    def run(self):
+        pass
+    
+    def stop(self):
+        self.__stop = True
+    
+    # Functions to handle incoming messages
+    def publish(self, topic, messages):
+        for message in messages:
+            self.__socket.send_multipart([topic.encode(), message])
+    
+    def publish_with_topic(self, topic):
+        return lambda message: self.publish(topic.encode(), message)
+
+    # subscribe to real time data
+    def subscribe_trade_updates(self):
+        self.stream.subscribe_trade_updates(self.publish_with_topic('BROKER'))
+    
+    def subscribe_trades(self, *symbols, handler_cancel_errors = None, handler_corrections = None):
+        self.stream.subscribe_trades(self.publish_with_topic('TRADES'), symbols, handler_cancel_errors, handler_corrections)
+
+    def subscribe_quotes(self, *symbols):
+        self.stream.subscribe_quotes(self.publish_with_topic('QUOTES'), symbols)    
+
+    def subscribe_bars(self, *symbols):
+        self.stream.subscribe_bars(self.publish_with_topic('BARS'), symbols)
+    
+    def subscribe_dailiy_bars(self, *symbols):
+        self.stream.subscribe_daily_bars(self.publish_with_topic('BARS'), symbols)
+
+    def subscribe_statuses(self, *symbols):
+        self.stream.subscribe_statuses(self.publish_with_topic('STATUSES'), symbols)
+
+    def subscribe_lulds(self, *symbols):
+        self.stream.subscribe_lulds(self.publish_with_topic('LULDS'), symbols)
+    
+    def subscribe_crypto_trades(self, *symbols):
+        self.stream.subscribe_crypto_trades(self.publish_with_topic('TRADES'), symbols)
+
+    def subscribe_crypto_quotes(self, *symbols):
+        self.stream.subscribe_crypto_quotes(self.publish_with_topic('QUOTES'), symbols)
+
+    def subscribe_crypto_bars(self, *symbols):
+        self.stream.subscribe_crypto_bars(self.publish_with_topic('BARS'), symbols)
+
+    def subscribe_crypto_daily_bars(self, *symbols):
+        self.stream.subscribe_crypto_daily_bars(self.publish_with_topic('BARS'), symbols)
+
+class EventQueuer(threading.Thread):
+    """A thread that checks a ZMQ SUB socket for streaming data.
+    """    
+    POLL_FREQUENCY = 0.5
+
+    def __init__(self, liveFeedAddress, topic):
+        super(EventQueuer, self).__init__()
+        
+        self.__zmq_context = zmq.Context.Instance()
+        self.__event_socket = self.__zmq_context.socket(zmq.SUB)
+        self.__event_socket.setsockopt(zmq.SUBSCRIBE, str(topic).encode())
+        self.__event_socket.connect(liveFeedAddress)
+        self.__queue = queue.Queue()
+        self.__stop = False
+
+    def _getNewEvent(self):
+        try:
+            update = self.__data_socket.recv_multipart(zmq.NOBLOCK)
+            update = update['data']
+            return update
+        except zmq.ZMQERROR as exc:
+            if exc.errno == zmq.EAGAIN:
+                # nothing to get
+                return
+            else:
+                raise
+
+    def getQueue(self):
+        return self.__queue
+
+    def start(self):
+        if (newEvent:= self._getNewEvent()):
+            self.__queue.put(newEvent)
+            common.logger.info('New Event: {newEvent}')
+        super(EventQueuer, self).start()
+
+    def run(self):
+        while not self.__stop:
+            try:
+                if (newEvent:= self._getNewTrade()):
+                    self.__queue.put(newEvent)
+                    common.logger.info('New Event: {newEvent}')
+                else:
+                    time.sleep(EventQueuer.POLL_FREQUENCY)
+            except Exception as e:
+                common.logger.critical("Error retrieving new events", exc_info=e)
+
+    def stop(self):
+        self.__stop = True
+
+class BaseLiveDataFeed(feed.BaseFeed):
+    
     QUEUE_TIMEOUT = 0.01
 
-    def __init__(self, maxLen=None):
-        super(LiveTradeFeed, self).__init__(bar.Frequency.TRADE, maxLen)
-        self.__barDicts = []
-        self.registerInstrument(common.btc_symbol)
-        self.__prevTradeDateTime = None
-        self.__thread = None
-        self.__wsClientConnected = False
-        self.__enableReconnection = True
-        self.__stopped = False
-        self.__orderBookUpdateEvent = observer.Event()
+    def __init__(self, liveFeedAddress, topic, maxLen = None):
+        super(BaseLiveDataFeed, self).__init__(maxLen)
+        
+        # Queue to get data from
+        self.__dataQueuer = EventQueuer(liveFeedAddress, topic)
 
-    # Factory method for testing purposes.
-    def buildWebSocketClientThread(self):
-        return wsclient.WebSocketClientThread()
+        # keep track of most recent data
+        self.__currentData = None
+        self.__lastData = None
+    
+    # BEGIN feed.BaseFeed interface
+    def reset(self):
+        self.__currentData = None
+        self.__lastData = {}
+        super(BaseLiveDataFeed, self).reset()
+    
+    @abc.abstrctmethod
+    def createDataSeries(self, key, maxLen):
+        pass
+    
+    def getNextValues(self):
+        # from barfeed.BaseBarFeed.getNextValues
+        dateTime = None
+        data = self.getNextData()
+        if data is not None:
+            dateTime = data.getDateTime
+        
+        self.__currentData = data
+        for instrument in data.getInstruments():
+            self.__lastData[instrument] = data[instrument]
 
-    def getCurrentDateTime(self):
-        return wsclient.get_current_datetime()
+        return (dateTime, data)
 
-    def enableReconection(self, enableReconnection):
-        self.__enableReconnection = enableReconnection
+    # END feed.BaseFeed interface
 
-    def __initializeClient(self):
-        common.logger.info("Initializing websocket client.")
-        assert self.__wsClientConnected is False, "Websocket client already connected"
-
-        try:
-            # Start the thread that runs the client.
-            self.__thread = self.buildWebSocketClientThread()
-            self.__thread.start()
-        except Exception as e:
-            common.logger.exception("Error connecting : %s" % str(e))
-
-        # Wait for initialization to complete.
-        while not self.__wsClientConnected and self.__thread.is_alive():
-            self.__dispatchImpl([wsclient.WebSocketClient.Event.CONNECTED])
-
-        if self.__wsClientConnected:
-            common.logger.info("Initialization ok.")
-        else:
-            common.logger.error("Initialization failed.")
-        return self.__wsClientConnected
-
-    def __onConnected(self):
-        self.__wsClientConnected = True
-
-    def __onDisconnected(self):
-        self.__wsClientConnected = False
-
-        if self.__enableReconnection:
-            initialized = False
-            while not self.__stopped and not initialized:
-                common.logger.info("Reconnecting")
-                initialized = self.__initializeClient()
-                if not initialized:
-                    time.sleep(5)
-        else:
-            self.__stopped = True
-
-    def __dispatchImpl(self, eventFilter):
-        ret = False
-        try:
-            eventType, eventData = self.__thread.getQueue().get(True, LiveTradeFeed.QUEUE_TIMEOUT)
-            if eventFilter is not None and eventType not in eventFilter:
-                return False
-
-            ret = True
-            if eventType == wsclient.WebSocketClient.Event.TRADE:
-                self.__onTrade(eventData)
-            elif eventType == wsclient.WebSocketClient.Event.ORDER_BOOK_UPDATE:
-                self.__orderBookUpdateEvent.emit(eventData)
-            elif eventType == wsclient.WebSocketClient.Event.CONNECTED:
-                self.__onConnected()
-            elif eventType == wsclient.WebSocketClient.Event.DISCONNECTED:
-                self.__onDisconnected()
-            else:
-                ret = False
-                common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
-        except queue.Empty:
-            pass
-        return ret
-
-    # Bar datetimes should not duplicate. In case trade object datetimes conflict, we just move one slightly forward.
-    def __getTradeDateTime(self, trade):
-        ret = trade.getDateTime()
-        if ret == self.__prevTradeDateTime:
-            ret += datetime.timedelta(microseconds=1)
-        self.__prevTradeDateTime = ret
-        return ret
-
-    def __onTrade(self, trade):
-        # Build a bar for each trade.
-        barDict = {
-            common.btc_symbol: TradeBar(self.__getTradeDateTime(trade), trade)
-            }
-        self.__barDicts.append(barDict)
-
-    def barsHaveAdjClose(self):
-        return False
-
-    def getNextBars(self):
+    def getNextData(self):
         ret = None
-        if len(self.__barDicts):
-            ret = bar.Bars(self.__barDicts.pop(0))
-        return ret
-
-    def peekDateTime(self):
-        # Return None since this is a realtime subject.
-        return None
-
-    # This may raise.
-    def start(self):
-        super(LiveTradeFeed, self).start()
-        if self.__thread is not None:
-            raise Exception("Already running")
-        elif not self.__initializeClient():
-            self.__stopped = True
-            raise Exception("Initialization failed")
-
-    def dispatch(self):
-        # Note that we may return True even if we didn't dispatch any Bar
-        # event.
-        ret = False
-        if self.__dispatchImpl(None):
-            ret = True
-        if super(LiveTradeFeed, self).dispatch():
-            ret = True
-        return ret
-
-    # This should not raise.
-    def stop(self):
         try:
-            self.__stopped = True
-            if self.__thread is not None and self.__thread.is_alive():
-                common.logger.info("Shutting down websocket client.")
-                self.__thread.stop()
-        except Exception as e:
-            common.logger.error("Error shutting down client: %s" % (str(e)))
+            ret = self.__dataQueuer.getQueue(block = True, timeout = BaseLiveDataFeed.QUEUE_TIMEOUT)
+            return ret
+        except:
+            return False
 
-    # This should not raise.
-    def join(self):
-        if self.__thread is not None:
-            self.__thread.join()
+class LiveBarFeed(BaseLiveDataFeed):
+    def __init__(self, liveFeedAddress, maxLen = None):
+        super(LiveBarFeed, self).__init__(liveFeedAddress, 'BARS')
+    
+    def createDataSeries(self, key, maxLen):
+        ret = bards.BarDataSeries(maxLen)
+        # real time objects do not use adjusted values
+        ret.setUseAdjustedValues(False)
+        return ret
 
-    def eof(self):
-        return self.__stopped
+class LiveTradeFeed(BaseLiveDataFeed):
+    def __init__(self, liveFeedAddress, maxLen = None):
+        super(LiveBarFeed, self).__init__(liveFeedAddress, 'TRADES')
+    
+    def createDataSeries(self, key, maxLen):
+        ret = tradeds.TradeDataSeries(maxLen)
+        return ret
 
-    def getOrderBookUpdateEvent(self):
-        """
-        Returns the event that will be emitted when the orderbook gets updated.
-
-        Eventh handlers should receive one parameter:
-         1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
-
-        :rtype: :class:`pyalgotrade.observer.Event`.
-        """
-        return self.__orderBookUpdateEvent
+class LiveQuoteFeed(BaseLiveDataFeed):
+    def __init__(self, liveFeedAddress, maxLen = None):
+        super(LiveBarFeed, self).__init__(liveFeedAddress, 'QUOTES')
+    
+    def createDataSeries(self, key, maxLen):
+        ret = quoteds.QuoteDataSeries(maxLen)
+        return ret

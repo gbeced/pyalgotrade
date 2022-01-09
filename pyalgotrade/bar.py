@@ -38,6 +38,7 @@ class Frequency(object):
 
     # It is important for frequency values to get bigger for bigger windows.
     TRADE = -1
+    QUOTE = -1
     SECOND = 1
     MINUTE = 60
     HOUR = 60*60
@@ -240,7 +241,6 @@ class BasicBar(Bar):
 
     def getExtraColumns(self):
         return self.__extra
-
 
 class Bars(object):
 

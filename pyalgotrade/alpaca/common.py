@@ -15,12 +15,13 @@
 # limitations under the License.
 
 """
-.. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
+.. moduleauthor:: Robert Lee
 """
-from enum import Enum
 import os
 
+import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest_async import AsyncRest
+from alpaca_trade_api.stream import Stream
 
 import pyalgotrade.logger
 from pyalgotrade import broker
@@ -28,9 +29,19 @@ from pyalgotrade import broker
 
 logger = pyalgotrade.logger.getLogger("alpaca")
 
+def make_connection(connection_type, api_key_id = None, api_secret_key = None):
+    """Makes a connection to Alpaca.
 
-def make_async_rest_connection(api_key_id = None, api_secret_key = None):
-    
+    https://alpaca.markets/docs/api-documentation/api-v2/
+
+    Args:
+        connection_type: The connection to make to Alpaca. One of [rest, async_rest, stream].
+        api_key_id (str, optional): If none, looks at the environment variable ALPACA_API_KEY_ID.
+            Defaults to None.
+        api_secret_key (str, optional): If none, looks at the environment variable ALPACA_API_SECRET_KEY.
+            Defaults to None.
+    """ 
+
     # credentials
     api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID')
     api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY')
@@ -39,28 +50,15 @@ def make_async_rest_connection(api_key_id = None, api_secret_key = None):
         logger.error('Unable to retrieve API Key ID.')
     if api_key_id is None:
         logger.error('Unable to retrieve API Secret Key.')
+
+    if connection_type == 'async_rest':
+        connection = AsyncRest(key_id=api_key_id, secret_key=api_secret_key)
+    elif connection_type == 'rest':
+        connection = tradeapi.REST(key_id = api_key_id, secret_key = api_secret_key)
+    elif connection_type == 'stream':
+        connection = Stream(data_feed = 'IEX', key_id=api_key_id, secret_key=api_secret_key, raw_data = True)
     
-    rest = AsyncRest(key_id=api_key_id,
-                    secret_key=api_secret_key)
-    
-    return rest
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return connection
 
 # btc_symbol = "BTC"
 
