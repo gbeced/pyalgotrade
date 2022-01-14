@@ -98,7 +98,7 @@ class PSAREventWindow(technical.EventWindow):
             if psar != None: 
                 super(PSAREventWindow, self).onNewValue(dateTime, psar)
         if value is not None and self.windowFull():
-            if previous_day: 
+            if self.previous_day:
                 self.__value = self.getValues()[0] 
             else: 
                 self.__value = self.getValues()[1]
