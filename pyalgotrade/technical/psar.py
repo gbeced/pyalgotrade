@@ -5,7 +5,7 @@ from pyalgotrade.utils import collections
 class PSAREventWindow(technical.EventWindow):
     def __init__(self, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period):
         assert(period > 0)
-        super(PSAREventWindow, self).__init__(period=2) # Different 'period' param than above 
+        super(PSAREventWindow, self).__init__(windowSize=2) 
         self.__value = None 
         self.__numDays = 0 
 
