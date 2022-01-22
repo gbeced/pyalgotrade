@@ -25,12 +25,16 @@ import datetime
 import time
 import queue
 import threading
+import asyncio
+from alpaca_trade_api.entity import Quote
 
 import zmq
 import json
+import pandas as pd
 
 from pyalgotrade import feed
 from pyalgotrade import dataseries
+from pyalgotrade import bar, quote, trade
 
 from pyalgotrade.dataseries import bards, tradeds, quoteds
 from pyalgotrade.alpaca import common
@@ -40,10 +44,10 @@ class LiveFeed(threading.Thread):
     """A thread that takes incoming messages from Alapaca and publishes them on ZMQ sockets.
     """
 
-    def __init__(self, publishing_address, api_key_id = None, api_secret_key = None):
+    def __init__(self, publishing_address = 'tcp://*:34567', api_key_id = None, api_secret_key = None):
         
         # Create sockets
-        self.__zmq_context = zmq.Context.Instance()
+        self.__zmq_context = zmq.Context()
 
         # for publishing data from the websocket
         # (from Alpaca's stream.TradingStream and stream.DataStream)
@@ -51,7 +55,7 @@ class LiveFeed(threading.Thread):
         self.__socket = self.__zmq_context.socket(zmq.PUB)
         self.__socket.bind(self._publishing_address)
         common.logger.info(
-            'Live feed publishing data at {self._publishing_address}'
+            f'Live feed publishing data at {self._publishing_address}'
             )
         
         # threading stuff
@@ -59,70 +63,87 @@ class LiveFeed(threading.Thread):
         self.__stopped = False
 
         # make connection
-        stream = common.make_connection(
-            connection_type = 'stream', api_key_id = api_key_id, api_secret_key = api_secret_key)
+        # use the non-paper connection to get data
+        self.stream = common.make_connection(
+            connection_type = 'stream', api_key_id = api_key_id, api_secret_key = api_secret_key, live = True)
+        
     
-    # Threading stuff
     def start(self):
-        pass
-    
-    def run(self):
-        pass
+        self.stream.run()
     
     def stop(self):
-        self.__stop = True
-    
+        self.__zmq_context.term()
+
+
+    # for dynamic subscription
+    # See https://github.com/alpacahq/alpaca-trade-api-python/blob/master/examples/websockets/dynamic_subscription_example.py
+    # def consumer_thread():
+    #     try:
+    #         # make sure we have an event loop, if not create a new one
+    #         loop = asyncio.get_event_loop()
+    #         loop.set_debug(True)
+    #     except RuntimeError:
+    #         asyncio.set_event_loop(asyncio.new_event_loop())
+
+
     # Functions to handle incoming messages
-    def publish(self, topic, messages):
+    async def publish(self, topic, messages):
         for message in messages:
             self.__socket.send_multipart([topic.encode(), message])
     
     def publish_with_topic(self, topic):
-        return lambda message: self.publish(topic.encode(), message)
+        async def publish(message):
+            msg = json.dumps(message, default = common.json_serializer)
+            self.__socket.send_multipart([topic.encode(), msg.encode()])
+        return publish
+        # async def print_stuff(message):
+        #     print(pd.to_datetime(message['t'].to_unix_nano()))
+        # return print_stuff
 
     # subscribe to real time data
     def subscribe_trade_updates(self):
         self.stream.subscribe_trade_updates(self.publish_with_topic('BROKER'))
     
     def subscribe_trades(self, *symbols, handler_cancel_errors = None, handler_corrections = None):
-        self.stream.subscribe_trades(self.publish_with_topic('TRADES'), symbols, handler_cancel_errors, handler_corrections)
+        self.stream.subscribe_trades(self.publish_with_topic('TRADES'), *symbols, handler_cancel_errors, handler_corrections)
 
     def subscribe_quotes(self, *symbols):
-        self.stream.subscribe_quotes(self.publish_with_topic('QUOTES'), symbols)    
+        self.stream.subscribe_quotes(self.publish_with_topic('QUOTES'), *symbols)    
 
     def subscribe_bars(self, *symbols):
-        self.stream.subscribe_bars(self.publish_with_topic('BARS'), symbols)
+        self.stream.subscribe_bars(self.publish_with_topic('BARS'), *symbols)
     
     def subscribe_dailiy_bars(self, *symbols):
-        self.stream.subscribe_daily_bars(self.publish_with_topic('BARS'), symbols)
+        self.stream.subscribe_daily_bars(self.publish_with_topic('BARS'), *symbols)
 
     def subscribe_statuses(self, *symbols):
-        self.stream.subscribe_statuses(self.publish_with_topic('STATUSES'), symbols)
+        self.stream.subscribe_statuses(self.publish_with_topic('STATUSES'), *symbols)
 
     def subscribe_lulds(self, *symbols):
-        self.stream.subscribe_lulds(self.publish_with_topic('LULDS'), symbols)
+        self.stream.subscribe_lulds(self.publish_with_topic('LULDS'), *symbols)
     
     def subscribe_crypto_trades(self, *symbols):
-        self.stream.subscribe_crypto_trades(self.publish_with_topic('TRADES'), symbols)
+        # self.stream.subscribe_crypto_trades(self.publish_with_topic('TRADES'), symbols)
+        self.stream.subscribe_crypto_trades(self.publish_with_topic('TRADES'), *symbols)
 
     def subscribe_crypto_quotes(self, *symbols):
-        self.stream.subscribe_crypto_quotes(self.publish_with_topic('QUOTES'), symbols)
+        self.stream.subscribe_crypto_quotes(self.publish_with_topic('QUOTES'), *symbols)
 
     def subscribe_crypto_bars(self, *symbols):
-        self.stream.subscribe_crypto_bars(self.publish_with_topic('BARS'), symbols)
+        self.stream.subscribe_crypto_bars(self.publish_with_topic('BARS'), *symbols)
 
     def subscribe_crypto_daily_bars(self, *symbols):
-        self.stream.subscribe_crypto_daily_bars(self.publish_with_topic('BARS'), symbols)
+        self.stream.subscribe_crypto_daily_bars(self.publish_with_topic('BARS'), *symbols)
 
 class EventQueuer(threading.Thread):
     """A thread that checks a ZMQ SUB socket for streaming data.
     """    
     POLL_FREQUENCY = 0.5
 
-    def __init__(self, liveFeedAddress, topic):
+    def __init__(self, liveFeedAddress = 'tcp://localhost:34567', topic = ''):
         super(EventQueuer, self).__init__()
         
-        self.__zmq_context = zmq.Context.Instance()
+        self.__zmq_context = zmq.Context()
         self.__event_socket = self.__zmq_context.socket(zmq.SUB)
         self.__event_socket.setsockopt(zmq.SUBSCRIBE, str(topic).encode())
         self.__event_socket.connect(liveFeedAddress)
@@ -131,10 +152,11 @@ class EventQueuer(threading.Thread):
 
     def _getNewEvent(self):
         try:
-            update = self.__data_socket.recv_multipart(zmq.NOBLOCK)
-            update = update['data']
+            topic, update = self.__event_socket.recv_multipart(zmq.NOBLOCK)
+            update = update.decode()
+            update = json.loads(update, object_hook = common.json_deserializer)
             return update
-        except zmq.ZMQERROR as exc:
+        except zmq.ZMQError as exc:
             if exc.errno == zmq.EAGAIN:
                 # nothing to get
                 return
@@ -147,15 +169,15 @@ class EventQueuer(threading.Thread):
     def start(self):
         if (newEvent:= self._getNewEvent()):
             self.__queue.put(newEvent)
-            common.logger.info('New Event: {newEvent}')
+            # common.logger.info(f'New Event: {newEvent}')
         super(EventQueuer, self).start()
 
     def run(self):
         while not self.__stop:
             try:
-                if (newEvent:= self._getNewTrade()):
+                if (newEvent:= self._getNewEvent()):
                     self.__queue.put(newEvent)
-                    common.logger.info('New Event: {newEvent}')
+                    # common.logger.info(f'New Event: {newEvent}')
                 else:
                     time.sleep(EventQueuer.POLL_FREQUENCY)
             except Exception as e:
@@ -184,7 +206,7 @@ class BaseLiveDataFeed(feed.BaseFeed):
         self.__lastData = {}
         super(BaseLiveDataFeed, self).reset()
     
-    @abc.abstrctmethod
+    @abc.abstractmethod
     def createDataSeries(self, key, maxLen):
         pass
     
@@ -206,7 +228,7 @@ class BaseLiveDataFeed(feed.BaseFeed):
     def getNextData(self):
         ret = None
         try:
-            ret = self.__dataQueuer.getQueue(block = True, timeout = BaseLiveDataFeed.QUEUE_TIMEOUT)
+            ret = self.__dataQueuer.getQueue().get(block = True, timeout = BaseLiveDataFeed.QUEUE_TIMEOUT)
             return ret
         except:
             return False
@@ -236,3 +258,49 @@ class LiveQuoteFeed(BaseLiveDataFeed):
     def createDataSeries(self, key, maxLen):
         ret = quoteds.QuoteDataSeries(maxLen)
         return ret
+
+def fromAlpacaData(alpacaDataPoint):
+    # see https://alpaca.markets/docs/api-documentation/api-v2/market-data/alpaca-data-api-v2/real-time/
+    # bars
+    if alpacaDataPoint['T'] == 'b':
+        data = bar.Bar(
+            dateTime = alpacaDataPoint.get('t'),
+            open_ = alpacaDataPoint.get('o'),
+            high = alpacaDataPoint.get('h'),
+            low = alpacaDataPoint.get('l'),
+            close = alpacaDataPoint.get('c'),
+            volume = alpacaDataPoint.get('v'),
+            adjClose = alpacaDataPoint.get('c'),
+            frequency = None,
+            extra = {'symbol': alpacaDataPoint.get('S')}
+        )
+    # trades
+    elif alpacaDataPoint.get('T') == 't':
+        data = trade.Trade(
+            dateTime = alpacaDataPoint.get('t'),
+            tradeId = alpacaDataPoint.get('i'),
+            price = alpacaDataPoint.get('p'),
+            size = alpacaDataPoint.get('s'),
+            exchange = alpacaDataPoint.get('x'),
+            condition = alpacaDataPoint.get('c'),
+            tape = alpacaDataPoint.get('z'),
+            takerSide = alpacaDataPoint.get('tks'),
+            extra = {'symbol': alpacaDataPoint.get('S')}
+        )
+    # quotes
+    elif alpacaDataPoint.get('T') == 'q':
+        data = quote.Quote(
+            dateTime = alpacaDataPoint.get('t'),
+            askExchange = alpacaDataPoint.get('ax'),
+            askPrice = alpacaDataPoint.get('ap'),
+            askSize = alpacaDataPoint.get('as'),
+            bidExchange = alpacaDataPoint.get('bx'),
+            bidPrice = alpacaDataPoint.get('bp'),
+            bidSize = alpacaDataPoint.get('bs'),
+            condition = alpacaDataPoint.get('c'),
+            tape = alpacaDataPoint.get('z'),
+            extra = {'symbol': alpacaDataPoint.get('S')}
+        )
+    
+    return data
+

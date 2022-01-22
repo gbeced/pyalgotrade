@@ -7,6 +7,7 @@ from pyalgotrade import bar
 Frequency = bar.Frequency
 
 class Quote(object):
+    # TODO: add __str__ and __repr__ method?
     # Optimization to reduce memory footprint.
     __slots__ = (
         '__dateTime',
@@ -16,7 +17,7 @@ class Quote(object):
         '__bid_exchange',
         '__bid_price',
         '__bid_size',
-        '__quote_condition',
+        '__condition',
         '__tape',
         '__extra'
         )
@@ -24,7 +25,7 @@ class Quote(object):
     def __init__(self, dateTime,
         askExchange, askPrice, askSize,
         bidExchange, bidPrice, bidSize,
-        quoteCondition, tape, extra = {}):
+        condition, tape, extra = {}):
 
         self.__dateTime = dateTime
         self.__askExchange = askExchange
@@ -33,7 +34,7 @@ class Quote(object):
         self.__bidExchange = bidExchange
         self.__bidPrice = bidPrice
         self.__bidSize = bidSize
-        self.__quoteCondition = quoteCondition
+        self.__condition = condition
         self.__tape = tape
         self.__extra = extra
 
@@ -45,7 +46,7 @@ class Quote(object):
             self.__bidExchange,
             self.__bidPrice,
             self.__bidSize,
-            self.__quoteCondition,
+            self.__condition,
             self.__tape,
             self.__extra
             ) = state
@@ -59,7 +60,7 @@ class Quote(object):
             self.__bidExchange,
             self.__bidPrice,
             self.__bidSize,
-            self.__quoteCondition,
+            self.__condition,
             self.__tape,
             self.__extra
         )
@@ -88,8 +89,8 @@ class Quote(object):
     def getBidSize(self):
         return self.__bidSize
     
-    def getQuoteCondition(self):
-        return self.__quoteCondition
+    def getCondition(self):
+        return self.__condition
     
     def getTape(self):
         return self.__tape

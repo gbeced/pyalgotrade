@@ -18,6 +18,10 @@
 .. moduleauthor:: Robert Lee
 """
 import os
+from datetime import datetime
+
+import msgpack
+import pandas as pd
 
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest_async import AsyncRest
@@ -29,7 +33,7 @@ from pyalgotrade import broker
 
 logger = pyalgotrade.logger.getLogger("alpaca")
 
-def make_connection(connection_type, api_key_id = None, api_secret_key = None):
+def make_connection(connection_type, api_key_id = None, api_secret_key = None, live = False):
     """Makes a connection to Alpaca.
 
     https://alpaca.markets/docs/api-documentation/api-v2/
@@ -43,9 +47,13 @@ def make_connection(connection_type, api_key_id = None, api_secret_key = None):
     """ 
 
     # credentials
-    api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID')
-    api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY')
-
+    if live:
+        api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID')
+        api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY')
+    else:
+        api_key_id = api_key_id or os.environ.get('ALPACA_API_KEY_ID_PAPER')
+        api_secret_key = api_secret_key or os.environ.get('ALPACA_API_SECRET_KEY_PAPER')
+    
     if api_key_id is None:
         logger.error('Unable to retrieve API Key ID.')
     if api_key_id is None:
@@ -60,9 +68,16 @@ def make_connection(connection_type, api_key_id = None, api_secret_key = None):
     
     return connection
 
-# btc_symbol = "BTC"
+def json_serializer(obj):
+    if isinstance(obj, datetime):
+        return {'_isoformat': obj.isoformat()}
+    elif isinstance(obj, msgpack.ext.Timestamp):
+        return {'_unix_nano': obj.to_unix_nano()}
+    raise TypeError('...')
 
-
-# class BTCTraits(broker.InstrumentTraits):
-#     def roundQuantity(self, quantity):
-#         return round(quantity, 8)
+def json_deserializer(obj):
+    if (_isoformat := obj.get('_isoformat')) is not None:
+        return datetime.fromisoformat(_isoformat)
+    elif (_unix_nano := obj.get('_unix_nano')) is not None:
+        return pd.to_datetime(_unix_nano)
+    return obj

@@ -7,23 +7,58 @@ from pyalgotrade import bar
 Frequency = bar.Frequency
 
 class Trade(object):
-
+    # TODO: add __str__ and __repr__ method?
     # Optimization to reduce memory footprint.
-    __slots__ = ('__dateTime', '__tradeId', '__price', '__size', '__isBuy')
+    __slots__ = (
+        '__dateTime',
+        '__tradeId',
+        '__price',
+        '__size',
+        '__exchange',
+        '__condition',
+        '__tape',
+        '__takerSide',
+        '__extra'
+        )
 
-    def __init__(self, dateTime, tradeId, price, size, isBuy, extra = {}):
+    def __init__(self, dateTime,
+        tradeId, price, size,
+        exchange, condition, tape, takerSide,
+        extra = {}):
+
         self.__dateTime = dateTime
         self.__tradeId = tradeId
         self.__price = price
         self.__size = size
-        self.__isBuy = isBuy
+        self.__exchange = exchange
+        self.__condition = condition
+        self.__tape = tape
+        self.__takerSide = takerSide
         self.__extra = extra
 
     def __setstate__(self, state):
-        (self.__dateTime, self.__tradeId, self.__price, self.__amount, self.__extra) = state
+        (self.__dateTime,
+            self.__tradeId,
+            self.__price,
+            self.__size,
+            self.__exchange,
+            self.__condition,
+            self.__tape,
+            self.__takerSide,
+            self.__extra) = state
 
     def __getstate__(self):
-        return (self.__dateTime, self.__tradeId, self.__price, self.__amount, self.__extra)
+        return (
+            self.__dateTime,
+            self.__tradeId,
+            self.__price,
+            self.__size,
+            self.__exchange,
+            self.__condition,
+            self.__tape,
+            self.__takerSide,
+            self.__extra
+        )
 
     def getFrequency(self):
         return Frequency.TRADE
@@ -40,8 +75,17 @@ class Trade(object):
     def getSize(self):
         return self.__size
 
-    def getIsBuy(self):
-        return self.__isBuy
+    def getExchange(self):
+        return self.__exchange
+
+    def getCondition(self):
+        return self.__condition
+    
+    def getTape(self):
+        return self.__tape
+    
+    def getTakerSide(self):
+        return self.__takerSide
     
     def getExtraColumns(self):
         return self.__extra
