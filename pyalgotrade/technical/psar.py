@@ -15,9 +15,6 @@ class PSAREventWindow(technical.EventWindow):
         self.max_acceleration_factor = max_acceleration_factor
         self.previous_day = previous_day 
 
-        self.init_high_price = None
-        self.init_low_price = None
-
         self.high_prices_trend = []
         self.low_prices_trend = []
 
@@ -27,25 +24,25 @@ class PSAREventWindow(technical.EventWindow):
         self.extreme_point = None 
 
         self.trend_type = None 
+        
+        self.reversal = False 
 
     def _calculatePSAR(self, value):
         psar= None
-        if self.__numDays < 2:
+        if self.__numDays < 3:
             psar= None
-            self.init_high_price = value.getHigh()
-            self.init_low_price = value.getLow()
             self.high_prices_window.append(self.init_high_price)
             self.low_prices_window.append(self.init_low_price)
 
-        elif self.__numDays == 2: 
-            if  value.getHigh() > self.init_high_price:
-                psar = min(self.init_low_price, value.getLow())
+        elif self.__numDays == 3: 
+            if  self.high_prices_window[1] > self.high_prices_window[0]:
+                psar = min(self.low_prices_window)
                 self.trend_type = 'upward'
-                self.extreme_point = value.getLow()
+                self.extreme_point = max(self.high_prices_window)
             else: 
-                psar = max(self.init_high_price, value.getHigh())
+                psar = max(self.high_prices_window)
                 self.trend_type = 'downward'
-                self.extreme_point = value.getHigh()
+                self.extreme_point = min(self.low_prices_window)
 
             self.high_prices_trend.append(value.getHigh())
             self.low_prices_trend.append(value.getLow())
@@ -63,10 +60,14 @@ class PSAREventWindow(technical.EventWindow):
                 psar = min(psar, min(self.low_prices_window)) # ensure that psar is lower than previous 'periods' days worth of lows 
                 if psar > value.getLow(): # If today's psar is greater than today's low, that indicates reversal 
                     self.trend_type = 'downward'
+                    psar = np.max(self.high_prices_trend) ##set current day's psar to high of previous trend
                     self.high_prices_trend = []
                     self.low_prices_trend = []
                     self.accelaration_factor = self.init_acceleration_factor 
-                    self.extreme_point = value.getHigh()
+                    self.extreme_point = value.getLow()
+                    self.reversal = True 
+                else: 
+                    self.reversal = False 
 
             elif self.trend_type == 'downward': 
                 extreme_point = np.min(self.low_prices_trend)
@@ -74,13 +75,17 @@ class PSAREventWindow(technical.EventWindow):
                     self.extreme_point = extreme_point 
                     self.acceleration_factor = min(self.acceleration_factor + self.acceleration_factor_step, self.max_acceleration_factor)
                 psar = prior_psar - self.acceleration_factor * (self.extreme_point - prior_psar) 
-                psar = max(psar, max(self.high_prices_window)) # ensure that psar is higher than previous 'periods' days worth of lows 
+                psar = max(psar, max(self.high_prices_window)) # ensure that psar is higher than previous 'periods' days worth of highs 
                 if psar < value.getHigh(): # if today's psar is lower than today's high, that indicates reversal
                     self.trend_type = 'upward'
+                    psar = np.min(self.low_prices_trend)
                     self.high_prices_trend = []
                     self.low_prices_trend = []
                     self.accelaration_factor = self.init_acceleration_factor 
-                    self.extreme_point = value.getLow()
+                    self.extreme_point = value.getHigh()
+                    self.reversal = True 
+                else:
+                    self.reversal = False 
             else: 
                 pass 
 
