@@ -30,7 +30,7 @@ class PSAREventWindow(technical.EventWindow):
     def _calculatePSAR(self, value):
         psar= None
         if self.__numDays < 3:
-            psar= None
+            psar = None
             self.high_prices_window.append(self.init_high_price)
             self.low_prices_window.append(self.init_low_price)
 
@@ -74,7 +74,7 @@ class PSAREventWindow(technical.EventWindow):
                 if self.extreme_point != extreme_point: 
                     self.extreme_point = extreme_point 
                     self.acceleration_factor = min(self.acceleration_factor + self.acceleration_factor_step, self.max_acceleration_factor)
-                psar = prior_psar - self.acceleration_factor * (self.extreme_point - prior_psar) 
+                psar = prior_psar - self.acceleration_factor * (prior_psar - self.extreme_point) 
                 psar = max(psar, max(self.high_prices_window)) # ensure that psar is higher than previous 'periods' days worth of highs 
                 if psar < value.getHigh(): # if today's psar is lower than today's high, that indicates reversal
                     self.trend_type = 'upward'
