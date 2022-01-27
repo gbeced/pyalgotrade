@@ -3,11 +3,12 @@ from pyalgotrade import technical
 from pyalgotrade.utils import collections
 
 class PSAREventWindow(technical.EventWindow):
-    def __init__(self, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period):
+    def __init__(self, type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period):
         assert(period > 0)
         super(PSAREventWindow, self).__init__(windowSize=2) 
         self.__value = None 
         self.__numDays = 0 
+        self.type_indicator = type_indicator
 
         self.init_acceleration_factor = init_acceleration_factor 
         self.acceleration_factor = init_acceleration_factor
@@ -25,7 +26,8 @@ class PSAREventWindow(technical.EventWindow):
 
         self.trend_type = None 
         
-        self.reversal = False 
+        self.reversal_toUptrend = False 
+        self.reversal_toDowntrend = False 
 
     def _calculatePSAR(self, value):
         psar= None
@@ -65,9 +67,11 @@ class PSAREventWindow(technical.EventWindow):
                     self.low_prices_trend = []
                     self.accelaration_factor = self.init_acceleration_factor 
                     self.extreme_point = value.getLow()
-                    self.reversal = True 
+                    self.reversal_toDowntrend = True 
+                    self.reversal_toUptrend = False 
                 else: 
-                    self.reversal = False 
+                    self.reversal_toDowntrend = False 
+                    self.reversal_toUptrend = False 
 
             elif self.trend_type == 'downward': 
                 extreme_point = np.min(self.low_prices_trend)
@@ -83,9 +87,11 @@ class PSAREventWindow(technical.EventWindow):
                     self.low_prices_trend = []
                     self.accelaration_factor = self.init_acceleration_factor 
                     self.extreme_point = value.getHigh()
-                    self.reversal = True 
+                    self.reversal_toUptrend = True 
+                    self.reversal_toDowntrend = False
                 else:
-                    self.reversal = False 
+                    self.reversal_toUptrend = False 
+                    self.reversal_toDowntrend = False
             else: 
                 pass 
 
@@ -109,13 +115,23 @@ class PSAREventWindow(technical.EventWindow):
                 self.__value = self.getValues()[1]
 
     def getValue(self):
-        return self.__value 
+        if self.type_indicator == 'value':
+            return self.__value 
+        elif self.type_indicator == 'reversal_toUptrend': 
+            return self.reversal_toUptrend
+        elif self.type_indicator == 'reversal_toDowntrend':
+            return self.reversal_toDowntrend
+        else: 
+            print("PSAR indicator type {self.type_indicator} not yet implemented.")
+            return None 
 
 class PSAR(technical.EventBasedFilter):
     """Parabolic SAR Filter.
 
     :param barDataSeries: The BarDataSeries instance being filtered.
     :type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
+    :param type_indicator: Indicates whether reversal signal should be returned or value of PSAR 
+    :type type_indicator: str. 'value', 'reversal_toUptrend', 'reversal_toDowntrend' 
     :param init_acceleration_factor: Initial acceleration factor
     :type init_acceleration_factor: float.
     :param acceleration_factor_step: Step size for acceleration factor 
@@ -136,6 +152,7 @@ class PSAR(technical.EventBasedFilter):
 
     See this link for PSAR explanation: https://books.mec.biz/tmp/books/218XOTBWY3FEW2CT3EVR.PDF 
     """
-    def __init__(self, barDataSeries, init_acceleration_factor=0.02, acceleration_factor_step=0.02, max_acceleration_factor=0.2, previous_day=False, period=2, maxLen=None):
+    def __init__(self, barDataSeries, type_indicator='value', init_acceleration_factor=0.02, acceleration_factor_step=0.02, 
+                 max_acceleration_factor=0.2, previous_day=False, period=2, maxLen=None):
         #Period parameter below is NOT the same period above, below is for storing actual PSAR values
-        super(PSAR, self).__init__(barDataSeries, PSAREventWindow(init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period=2), maxLen)
+        super(PSAR, self).__init__(barDataSeries, PSAREventWindow(type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period=2), maxLen)
