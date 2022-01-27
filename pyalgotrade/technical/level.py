@@ -6,5 +6,5 @@ class LEVEL:
     def __init__(self, level):
         self.level = level
         
-    def getSignal(self):
+    def getValue(self):
         return self.level
