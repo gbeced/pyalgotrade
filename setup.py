@@ -25,7 +25,7 @@ except ImportError:
 
 setup(
     name='PyAlgoTrade',
-    version='0.20.2',
+    version='0.20.3',
     description='Python Algorithmic Trading',
     long_description='Python library for backtesting stock trading strategies.',
     author='Gabriel Martin Becedillas Ruiz',
