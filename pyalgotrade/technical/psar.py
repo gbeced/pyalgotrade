@@ -33,8 +33,8 @@ class PSAREventWindow(technical.EventWindow):
         psar= None
         if self.__numDays < 3:
             psar = None
-            self.high_prices_window.append(self.init_high_price)
-            self.low_prices_window.append(self.init_low_price)
+            self.high_prices_window.append(value.getHigh())
+            self.low_prices_window.append(value.getLow())
 
         elif self.__numDays == 3: 
             if  self.high_prices_window[1] > self.high_prices_window[0]:
