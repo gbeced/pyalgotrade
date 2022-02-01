@@ -52,7 +52,6 @@ class SMAEventWindow(technical.EventWindow):
             assert(firstValue is not None)
 
         super(SMAEventWindow, self).onNewValue(dateTime, value)
-
         if value is not None and self.windowFull():
             if self.__value is None:
                 self.__value = self.getValues().mean()
