@@ -27,6 +27,8 @@ from pyalgotrade.broker import fillstrategy
 from pyalgotrade import logger
 import pyalgotrade.bar
 
+import numpy as np 
+
 
 ######################################################################
 # Commission models
@@ -352,9 +354,21 @@ class Broker(broker.Broker):
             assert(False)
 
         commission = self.getCommission().calculate(order, price, quantity)
-        cost -= commission
-        resultingCash = self.getCash() + cost
-
+        cost_after_comission = cost - commission
+        resultingCash = self.getCash() + cost_after_comission
+        
+        # Change sharesDelta if not enough cash 
+        # (only happens if order.isBuy())
+        while resultingCash < 0: 
+            # Use 95% of previous commission value to estimate cost
+            estimated_cost_after_commission = self.getCash() - 0.95 * commission
+            quantity = np.floor((estimated_cost_after_commission) / price)
+            sharesDelta = quantity 
+            cost = price * quantity * -1
+            commission = self.getCommission().calculate(order, price, quantity)
+            cost_after_comission = cost - commission
+            resultingCash = self.getCash() + cost_after_comission
+            
         # Check that we're ok on cash after the commission.
         if resultingCash >= 0 or self.__allowNegativeCash:
 
@@ -387,12 +401,12 @@ class Broker(broker.Broker):
             else:
                 assert(False)
         else:
-            pass
-            # self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
-            #     order.getInstrument(),
-            #     order.getId(),
-            #     order.getRemaining()
-            # ))
+            # pass
+            self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
+                order.getInstrument(),
+                order.getId(),
+                order.getRemaining()
+            ))
 
     def submitOrder(self, order):
         if order.isInitial():
