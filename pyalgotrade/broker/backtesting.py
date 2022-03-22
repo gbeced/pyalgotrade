@@ -368,6 +368,9 @@ class Broker(broker.Broker):
             commission = self.getCommission().calculate(order, price, quantity)
             cost_after_comission = cost - commission
             resultingCash = self.getCash() + cost_after_comission
+            # Adjust order quantity 
+            fillInfo._FillInfo__quantity = quantity
+            order._Order__quantity = quantity 
             
         # Check that we're ok on cash after the commission.
         if resultingCash >= 0 or self.__allowNegativeCash:
@@ -382,6 +385,7 @@ class Broker(broker.Broker):
             updatedShares = order.getInstrumentTraits().roundQuantity(
                 self.getShares(order.getInstrument()) + sharesDelta
             )
+
             if updatedShares == 0:
                 del self.__shares[order.getInstrument()]
             else:

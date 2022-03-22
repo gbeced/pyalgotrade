@@ -24,9 +24,10 @@ class PRICEEventWindow(technical.EventWindow):
             elif self.min_or_max == "min":
                 self.__value = self.getValues().min()
             else:
-                print("Please set 'min_or_max' to either 'min' or 'max'")
+                raise Exception("Please set 'min_or_max' to either 'min' or 'max'")
 
     def getValue(self):
+        print(self.__value)
         return self.__value
 
 
@@ -53,7 +54,8 @@ class PRICE(technical.EventBasedFilter):
             dataSeries = barDataSeries.getAdjCloseDataSeries()
         else: 
             pass 
-
+        print(type(barDataSeries), type(dataSeries))
+        print(dataSeries)
         super(PRICE, self).__init__(dataSeries, PRICEEventWindow(period=1), maxLen)
         
 class PRICE_WINDOW(technical.EventBasedFilter):
