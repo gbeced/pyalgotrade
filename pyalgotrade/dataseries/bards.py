@@ -32,7 +32,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
     :type maxLen: int.
     """
 
-    def __init__(self, maxLen=None):
+    def __init__(self, useAdjustedValues=True, maxLen=None):
         super(BarDataSeries, self).__init__(maxLen)
         self.__openDS = dataseries.SequenceDataSeries(maxLen)
         self.__closeDS = dataseries.SequenceDataSeries(maxLen)
@@ -41,7 +41,8 @@ class BarDataSeries(dataseries.SequenceDataSeries):
         self.__volumeDS = dataseries.SequenceDataSeries(maxLen)
         self.__adjCloseDS = dataseries.SequenceDataSeries(maxLen)
         self.__extraDS = {}
-        self.__useAdjustedValues = False
+        # self.__useAdjustedValues = False
+        self.__useAdjustedValues = useAdjustedValues 
 
     def __getOrCreateExtraDS(self, name):
         ret = self.__extraDS.get(name)
@@ -63,10 +64,10 @@ class BarDataSeries(dataseries.SequenceDataSeries):
 
         super(BarDataSeries, self).appendWithDateTime(dateTime, bar)
 
-        self.__openDS.appendWithDateTime(dateTime, bar.getOpen())
-        self.__closeDS.appendWithDateTime(dateTime, bar.getClose())
-        self.__highDS.appendWithDateTime(dateTime, bar.getHigh())
-        self.__lowDS.appendWithDateTime(dateTime, bar.getLow())
+        self.__openDS.appendWithDateTime(dateTime, bar.getOpen(self.__useAdjustedValues))
+        self.__closeDS.appendWithDateTime(dateTime, bar.getClose(self.__useAdjustedValues))
+        self.__highDS.appendWithDateTime(dateTime, bar.getHigh(self.__useAdjustedValues))
+        self.__lowDS.appendWithDateTime(dateTime, bar.getLow(self.__useAdjustedValues))
         self.__volumeDS.appendWithDateTime(dateTime, bar.getVolume())
         self.__adjCloseDS.appendWithDateTime(dateTime, bar.getAdjClose())
 

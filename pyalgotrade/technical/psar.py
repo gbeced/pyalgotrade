@@ -3,11 +3,12 @@ from pyalgotrade import technical
 from pyalgotrade.utils import collections
 
 class PSAREventWindow(technical.EventWindow):
-    def __init__(self, type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period):
+    def __init__(self, type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period, useAdjustedValues):
         assert(period > 0)
         super(PSAREventWindow, self).__init__(windowSize=2) 
         self.__value = None 
         self.__numDays = 0 
+        self.__useAdjustedValues = useAdjustedValues
         self.type_indicator = type_indicator
 
         self.init_acceleration_factor = init_acceleration_factor 
@@ -33,8 +34,8 @@ class PSAREventWindow(technical.EventWindow):
         psar= None
         if self.__numDays < 3:
             psar = None
-            self.high_prices_window.append(value.getHigh())
-            self.low_prices_window.append(value.getLow())
+            self.high_prices_window.append(value.getHigh(self.__useAdjustedValues))
+            self.low_prices_window.append(value.getLow(self.__useAdjustedValues))
 
         elif self.__numDays == 3: 
             if  self.high_prices_window[1] > self.high_prices_window[0]:
@@ -46,10 +47,10 @@ class PSAREventWindow(technical.EventWindow):
                 self.trend_type = 'downward'
                 self.extreme_point = min(self.low_prices_window)
 
-            self.high_prices_trend.append(value.getHigh())
-            self.low_prices_trend.append(value.getLow())
-            self.high_prices_window.append(value.getHigh())
-            self.low_prices_window.append(value.getLow())
+            self.high_prices_trend.append(value.getHigh(self.__useAdjustedValues))
+            self.low_prices_trend.append(value.getLow(self.__useAdjustedValues))
+            self.high_prices_window.append(value.getHigh(self.__useAdjustedValues))
+            self.low_prices_window.append(value.getLow(self.__useAdjustedValues))
 
         else:
             prior_psar = self.getValues()[-1]
@@ -60,13 +61,13 @@ class PSAREventWindow(technical.EventWindow):
                     self.acceleration_factor = min(self.acceleration_factor + self.acceleration_factor_step, self.max_acceleration_factor)
                 psar = prior_psar + self.acceleration_factor * (self.extreme_point - prior_psar)
                 psar = min(psar, min(self.low_prices_window)) # ensure that psar is lower than previous 'periods' days worth of lows 
-                if psar > value.getLow(): # If today's psar is greater than today's low, that indicates reversal 
+                if psar > value.getLow(self.__useAdjustedValues): # If today's psar is greater than today's low, that indicates reversal 
                     self.trend_type = 'downward'
                     psar = np.max(self.high_prices_trend) ##set current day's psar to high of previous trend
                     self.high_prices_trend = []
                     self.low_prices_trend = []
                     self.accelaration_factor = self.init_acceleration_factor 
-                    self.extreme_point = value.getLow()
+                    self.extreme_point = value.getLow(self.__useAdjustedValues)
                     self.reversal_toDowntrend = True 
                     self.reversal_toUptrend = False 
                 else: 
@@ -80,13 +81,13 @@ class PSAREventWindow(technical.EventWindow):
                     self.acceleration_factor = min(self.acceleration_factor + self.acceleration_factor_step, self.max_acceleration_factor)
                 psar = prior_psar - self.acceleration_factor * (prior_psar - self.extreme_point) 
                 psar = max(psar, max(self.high_prices_window)) # ensure that psar is higher than previous 'periods' days worth of highs 
-                if psar < value.getHigh(): # if today's psar is lower than today's high, that indicates reversal
+                if psar < value.getHigh(self.__useAdjustedValues): # if today's psar is lower than today's high, that indicates reversal
                     self.trend_type = 'upward'
                     psar = np.min(self.low_prices_trend)
                     self.high_prices_trend = []
                     self.low_prices_trend = []
                     self.accelaration_factor = self.init_acceleration_factor 
-                    self.extreme_point = value.getHigh()
+                    self.extreme_point = value.getHigh(self.__useAdjustedValues)
                     self.reversal_toUptrend = True 
                     self.reversal_toDowntrend = False
                 else:
@@ -95,10 +96,10 @@ class PSAREventWindow(technical.EventWindow):
             else: 
                 pass 
 
-            self.high_prices_trend.append(value.getHigh()) # append today's prices to the price trend list and price deque 
-            self.low_prices_trend.append(value.getLow())
-            self.high_prices_window.append(value.getHigh())
-            self.low_prices_window.append(value.getLow())
+            self.high_prices_trend.append(value.getHigh(self.__useAdjustedValues)) # append today's prices to the price trend list and price deque 
+            self.low_prices_trend.append(value.getLow(self.__useAdjustedValues))
+            self.high_prices_window.append(value.getHigh(self.__useAdjustedValues))
+            self.low_prices_window.append(value.getLow(self.__useAdjustedValues))
 
         return psar 
 
@@ -153,6 +154,6 @@ class PSAR(technical.EventBasedFilter):
     See this link for PSAR explanation: https://books.mec.biz/tmp/books/218XOTBWY3FEW2CT3EVR.PDF 
     """
     def __init__(self, barDataSeries, type_indicator='value', init_acceleration_factor=0.02, acceleration_factor_step=0.02, 
-                 max_acceleration_factor=0.2, previous_day=False, period=2, maxLen=None):
+                 max_acceleration_factor=0.2, previous_day=False, period=2, maxLen=None, useAdjustedValues=True):
         #Period parameter below is NOT the same period above, below is for storing actual PSAR values
-        super(PSAR, self).__init__(barDataSeries, PSAREventWindow(type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period=2), maxLen)
+        super(PSAR, self).__init__(barDataSeries, PSAREventWindow(type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period=2, useAdjustedValues=useAdjustedValues), maxLen)
