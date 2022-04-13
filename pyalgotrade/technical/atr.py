@@ -79,7 +79,7 @@ class ATR(technical.EventBasedFilter):
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period, multiple, useAdjustedValues=True, maxLen=None):
+    def __init__(self, barDataSeries, period, multiple=1, useAdjustedValues=True, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
@@ -140,7 +140,7 @@ class ATRP(technical.EventBasedFilter):
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period, multiple, useAdjustedValues=True, maxLen=None):
+    def __init__(self, barDataSeries, period, multiple=1, useAdjustedValues=True, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
