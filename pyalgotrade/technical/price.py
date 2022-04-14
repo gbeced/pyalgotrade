@@ -4,11 +4,11 @@ from pyalgotrade import technical
 from pyalgotrade.dataseries import bards
 
 class PRICEEventWindow(technical.EventWindow):
-    def __init__(self, period=1, min_or_max="max"):
+    def __init__(self, period=1, max_or_min="max"):
         assert(period > 0)
         super(PRICEEventWindow, self).__init__(period)
         self.__value = None
-        self.min_or_max = min_or_max
+        self.max_or_min = max_or_min
 
     def onNewValue(self, dateTime, value):
         firstValue = None
@@ -19,12 +19,12 @@ class PRICEEventWindow(technical.EventWindow):
         super(PRICEEventWindow, self).onNewValue(dateTime, value)
 
         if value is not None and self.windowFull():
-            if self.min_or_max == "max":
+            if self.max_or_min == "max":
                 self.__value = self.getValues().max()
-            elif self.min_or_max == "min":
+            elif self.max_or_min == "min":
                 self.__value = self.getValues().min()
             else:
-                raise Exception("Please set 'min_or_max' to either 'min' or 'max'")
+                raise Exception("Please set 'max_or_min' to either 'min' or 'max'")
 
     def getValue(self):
         return self.__value
