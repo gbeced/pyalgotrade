@@ -339,7 +339,7 @@ class Broker(broker.Broker):
 
     # Tries to commit an order execution.
     def commitOrderExecution(self, order, dateTime, fillInfo):
-        price = fillInfo.getPrice()
+        price = fillInfo.getPrice() # This is the Open price the bar after submission
         quantity = fillInfo.getQuantity()
 
         if order.isBuy():
@@ -362,7 +362,7 @@ class Broker(broker.Broker):
         while resultingCash < 0: 
             # Use 95% of previous commission value to estimate cost
             estimated_cost_after_commission = self.getCash() - 0.95 * commission
-            quantity = np.floor((estimated_cost_after_commission) / price)
+            quantity = int(np.floor((estimated_cost_after_commission) / price))
             sharesDelta = quantity 
             cost = price * quantity * -1
             commission = self.getCommission().calculate(order, price, quantity)
@@ -372,9 +372,13 @@ class Broker(broker.Broker):
             fillInfo._FillInfo__quantity = quantity
             order._Order__quantity = quantity 
             
+        if quantity <= 0: 
+            quantity = 1 
+            fillInfo._FillInfo__quantity = quantity
+            order._Order__quantity = quantity
+            
         # Check that we're ok on cash after the commission.
         if resultingCash >= 0 or self.__allowNegativeCash:
-
             # Update the order before updating internal state since addExecutionInfo may raise.
             # addExecutionInfo should switch the order state.
             orderExecutionInfo = broker.OrderExecutionInfo(price, quantity, commission, dateTime)
