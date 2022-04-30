@@ -157,7 +157,13 @@ class Trades(stratanalyzer.StrategyAnalyzer):
                     assert price == self.__lastTrade["Price"], "prices should be the same on the same date" #sanity check 
                     self.__lastTrade["Quantity"] += quantity 
                     self.__lastTrade["Commission"] += commission
-                else: 
+                    
+                    if len(broker_.getActiveOrders()) == 0: 
+                        self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                        self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                        self.__lastTrade = {}
+                        
+                else: # Redundancy but keeping it just in case 
                     # Execute last trade 
                     self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
                         self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
@@ -181,6 +187,11 @@ class Trades(stratanalyzer.StrategyAnalyzer):
                 self.__lastTrade["Quantity"] = quantity 
                 self.__lastTrade["Action"] = action
                 self.__lastTrade["Commission"] = commission
+                
+                if len(broker_.getActiveOrders()) == 0: 
+                    self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                    self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                    self.__lastTrade = {}
         else: 
             # Start keeping track of first trade 
             self.__lastTrade["Instr"] = instr 
@@ -189,6 +200,11 @@ class Trades(stratanalyzer.StrategyAnalyzer):
             self.__lastTrade["Quantity"] = quantity 
             self.__lastTrade["Action"] = action
             self.__lastTrade["Commission"] = commission
+            
+            if len(broker_.getActiveOrders()) == 0: 
+                self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                self.__lastTrade = {}
 
     def attached(self, strat):
         strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
