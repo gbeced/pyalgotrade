@@ -52,6 +52,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         self.__evenCommissions = []
         self.__evenTrades = 0
         self.__posTrackers = {}
+        self.__lastTrade = {}
 
     def __updateTrades(self, posTracker):
         price = 0  # The price doesn't matter since the position should be closed.
@@ -123,19 +124,22 @@ class Trades(stratanalyzer.StrategyAnalyzer):
             return
 
         order = orderEvent.getOrder()
+        
+        instr = order.getInstrument()
 
         # Get or create the tracker for this instrument.
         try:
-            posTracker = self.__posTrackers[order.getInstrument()]
+            posTracker = self.__posTrackers[instr]
         except KeyError:
             posTracker = returns.PositionTracker(order.getInstrumentTraits())
-            self.__posTrackers[order.getInstrument()] = posTracker
+            self.__posTrackers[instr] = posTracker
 
         # Update the tracker for this order.
         execInfo = orderEvent.getEventInfo()
         price = execInfo.getPrice()
         commission = execInfo.getCommission()
         action = order.getAction()
+        date = execInfo.getDateTime()
         if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
             quantity = execInfo.getQuantity()
         elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
@@ -143,7 +147,64 @@ class Trades(stratanalyzer.StrategyAnalyzer):
         else:  # Unknown action
             assert(False)
 
-        self.__updatePosTracker(posTracker, price, commission, quantity)
+        # This is to handle the fact that all positions are now size 1, even if they are opened 
+        # on the the same day for a given instrument. Essentially, we are trying to combine all the mini-trades
+        # that constitute the "real" trade (1 trade per instrument per day)
+        if len(self.__lastTrade) != 0:
+            if self.__lastTrade["Instr"] == instr: # Check if new instrument, which means a new group 
+                if self.__lastTrade["Date"] == date: 
+                    # Add current trade to group of previous trades  
+                    assert price == self.__lastTrade["Price"], "prices should be the same on the same date" #sanity check 
+                    self.__lastTrade["Quantity"] += quantity 
+                    self.__lastTrade["Commission"] += commission
+                    
+                    if len(broker_.getActiveOrders()) == 0: 
+                        self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                        self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                        self.__lastTrade = {}
+                        
+                else: # Redundancy but keeping it just in case 
+                    # Execute last trade 
+                    self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                        self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                    
+                    # Start keeping track of current trade 
+                    self.__lastTrade["Instr"] = instr 
+                    self.__lastTrade["Date"] = date 
+                    self.__lastTrade["Price"] = price
+                    self.__lastTrade["Quantity"] = quantity 
+                    self.__lastTrade["Action"] = action
+                    self.__lastTrade["Commission"] = commission
+            else: 
+                # Execute last trade 
+                self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                    self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                
+                # Start keeping track of current trade 
+                self.__lastTrade["Instr"] = instr 
+                self.__lastTrade["Date"] = date 
+                self.__lastTrade["Price"] = price
+                self.__lastTrade["Quantity"] = quantity 
+                self.__lastTrade["Action"] = action
+                self.__lastTrade["Commission"] = commission
+                
+                if len(broker_.getActiveOrders()) == 0: 
+                    self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                    self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                    self.__lastTrade = {}
+        else: 
+            # Start keeping track of first trade 
+            self.__lastTrade["Instr"] = instr 
+            self.__lastTrade["Date"] = date 
+            self.__lastTrade["Price"] = price
+            self.__lastTrade["Quantity"] = quantity 
+            self.__lastTrade["Action"] = action
+            self.__lastTrade["Commission"] = commission
+            
+            if len(broker_.getActiveOrders()) == 0: 
+                self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                self.__lastTrade = {}
 
     def attached(self, strat):
         strat.getBroker().getOrderUpdatedEvent().subscribe(self.__onOrderEvent)
