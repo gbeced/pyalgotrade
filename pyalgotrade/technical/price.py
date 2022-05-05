@@ -52,7 +52,8 @@ class PRICE(technical.EventBasedFilter):
         elif price_type == "Close": 
             dataSeries = barDataSeries.getAdjCloseDataSeries()
         else: 
-            pass 
+            raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
+            
         
         super(PRICE, self).__init__(dataSeries, PRICEEventWindow(period=1), maxLen)
         

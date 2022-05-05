@@ -21,29 +21,46 @@
 from pyalgotrade import dataseries
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import stats
+from pyalgotrade.dataseries import bards
 
 
 class BollingerBands(object):
     """Bollinger Bands filter as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands.
 
-    :param dataSeries: The DataSeries instance being filtered.
-    :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
+    :param barDataSeries: The BarDataSeries instance being filtered.
+    :type barDataSeries: :class:`pyalgotrade.dataseries.bards.BarDataSeries`.
     :param period: The number of values to use in the calculation. Must be > 1.
     :type period: int.
     :param numStdDev: The number of standard deviations to use for the upper and lower bands.
     :type numStdDev: int.
+    :param band: "upper", "middle", or "lower" band  OR "bandwidth"
+    :type band: str
     :param maxLen: The maximum number of values to hold.
         Once a bounded length is full, when new items are added, a corresponding number of items are discarded from the
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
 
-    def __init__(self, dataSeries, period, numStdDev, maxLen=None):
+    def __init__(self, barDataSeries, period, numStdDev, price_type="Typical", band="bandwidth", maxLen=None):
+        if not isinstance(barDataSeries, bards.BarDataSeries):
+            raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
+        if price_type == "High":
+            dataSeries = barDataSeries.getHighDataSeries()
+        elif price_type == "Low": 
+            dataSeries = barDataSeries.getLowDataSeries()
+        elif price_type == "Close": 
+            dataSeries = barDataSeries.getAdjCloseDataSeries()
+        elif price_type == "Typical":
+            dataSeries = barDataSeries.getTypicalPriceDataSeries()
+        else: 
+            raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
+
         self.__sma = ma.SMA(dataSeries, period, maxLen=maxLen)
         self.__stdDev = stats.StdDev(dataSeries, period, maxLen=maxLen)
         self.__upperBand = dataseries.SequenceDataSeries(maxLen)
         self.__lowerBand = dataseries.SequenceDataSeries(maxLen)
         self.__numStdDev = numStdDev
+        self.band = band 
         # It is important to subscribe after sma and stddev since we'll use those values.
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
 
@@ -78,3 +95,20 @@ class BollingerBands(object):
         Returns the lower band as a :class:`pyalgotrade.dataseries.DataSeries`.
         """
         return self.__lowerBand
+
+    def getValue(self): 
+        '''
+        Return last value of chosen band 
+        
+        ''' 
+        if self.band == "upper": 
+            return self.getUpperBand()[-1]
+        elif self.band == "middle":
+            return self.getMiddleBand()[-1]
+        elif self.band == "lower":
+            return self.getLowerBand()[-1]
+        elif self.band == "bandwidth": 
+            return (self.getUpperBand()[-1] - self.getLowerBand()[-1]) / self.getMiddleBand()[-1]
+        else: 
+            raise ValueError(f"Band type {self.band} is not available. Choices are 'upper', \
+                  'middle', or 'lower'")
