@@ -51,6 +51,8 @@ class PRICE(technical.EventBasedFilter):
             dataSeries = barDataSeries.getLowDataSeries()
         elif price_type == "Close": 
             dataSeries = barDataSeries.getAdjCloseDataSeries()
+        elif price_type == "Typical":
+            dataSeries = barDataSeries.getTypicalPriceDataSeries()
         else: 
             raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
             
@@ -82,7 +84,10 @@ class PRICE_WINDOW(technical.EventBasedFilter):
             dataSeries = barDataSeries.getLowDataSeries()
         elif price_type == "Close": 
             dataSeries = barDataSeries.getAdjCloseDataSeries()
+        elif price_type == "Typical":
+            dataSeries = barDataSeries.getTypicalPriceDataSeries()
         else: 
-            pass 
+            raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
+             
 
         super(PRICE_WINDOW, self).__init__(dataSeries, PRICEEventWindow(period=period, max_or_min=max_or_min), maxLen)
