@@ -109,11 +109,13 @@ class BarFeed(barfeed.BaseBarFeed):
                 self.__nextPos[instrument] += 1
 
         if self.__currDateTime == smallestDateTime:
-            raise Exception("Duplicate bars found for %s on %s" % (list(ret.keys()), smallestDateTime))
+            raise Exception(
+                f"Duplicate bars found for {list(ret.keys())} on {smallestDateTime}"
+            )
+
 
         self.__currDateTime = smallestDateTime
         return bar.Bars(ret)
 
     def loadAll(self):
-        for dateTime, bars in self:
-            pass
+        pass

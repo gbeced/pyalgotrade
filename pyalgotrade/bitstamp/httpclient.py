@@ -142,12 +142,10 @@ class HTTPClient(object):
         signature = hmac.new(self.__secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
 
         # Headers
-        headers = {}
-        headers["User-Agent"] = HTTPClient.USER_AGENT
-
+        headers = {"User-Agent": HTTPClient.USER_AGENT}
         # POST data.
         data = {}
-        data.update(params)
+        data |= params
         data["key"] = self.__key
         data["signature"] = signature
         data["nonce"] = nonce
@@ -155,7 +153,7 @@ class HTTPClient(object):
         return (data, headers)
 
     def _post(self, url, params):
-        common.logger.debug("POST to %s with params %s" % (url, str(params)))
+        common.logger.debug(f"POST to {url} with params {str(params)}")
 
         # Serialize access to nonce generation and http requests to avoid
         # sending them in the wrong order.

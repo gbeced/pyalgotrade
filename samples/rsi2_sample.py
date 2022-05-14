@@ -18,7 +18,7 @@ def main(plot):
     feed = yahoofeed.Feed()
     for year in range(2009, 2013):
         fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-        print("Loading bars from %s" % fileName)
+        print(f"Loading bars from {fileName}")
         feed.addBarsFromCSV(instrument, fileName)
 
     strat = rsi2.RSI2(feed, instrument, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)

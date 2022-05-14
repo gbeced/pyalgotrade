@@ -34,7 +34,7 @@ import pyalgotrade.logger
 # http://www.quandl.com/help/api
 
 def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
-    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
+    url = f"http://www.quandl.com/api/v1/datasets/{sourceCode}/{tableCode}.csv"
     params = {
         "trim_start": begin.strftime("%Y-%m-%d"),
         "trim_end": end.strftime("%Y-%m-%d"),
@@ -62,9 +62,8 @@ def download_daily_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     """
 
     bars = download_csv(sourceCode, tableCode, datetime.date(year, 1, 1), datetime.date(year, 12, 31), "daily", authToken)
-    f = open(csvFile, "w")
-    f.write(bars)
-    f.close()
+    with open(csvFile, "w") as f:
+        f.write(bars)
 
 
 def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
@@ -85,9 +84,8 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     begin = dt.get_first_monday(year) - datetime.timedelta(days=1)  # Start on a sunday
     end = dt.get_last_monday(year) - datetime.timedelta(days=1)  # Start on a sunday
     bars = download_csv(sourceCode, tableCode, begin, end, "weekly", authToken)
-    f = open(csvFile, "w")
-    f.write(bars)
-    f.close()
+    with open(csvFile, "w") as f:
+        f.write(bars)
 
 
 def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.Frequency.DAY, timezone=None,
@@ -140,7 +138,7 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
         ret.setColumnName(col, name)
 
     if not os.path.exists(storage):
-        logger.info("Creating %s directory" % (storage))
+        logger.info(f"Creating {storage} directory")
         os.mkdir(storage)
 
     for year in range(fromYear, toYear+1):
@@ -155,11 +153,10 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
                         assert frequency == bar.Frequency.WEEK, "Invalid frequency"
                         download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
                 except Exception as e:
-                    if skipErrors:
-                        logger.error(str(e))
-                        continue
-                    else:
+                    if not skipErrors:
                         raise e
+                    logger.error(str(e))
+                    continue
             ret.addBarsFromCSV(tableCode, fileName, skipMalformedBars=skipMalformedBars)
     return ret
 
@@ -182,7 +179,7 @@ def main():
     logger = pyalgotrade.logger.getLogger("quandl")
 
     if not os.path.exists(args.storage):
-        logger.info("Creating %s directory" % (args.storage))
+        logger.info(f"Creating {args.storage} directory")
         os.mkdir(args.storage)
 
     for year in range(args.from_year, args.to_year+1):

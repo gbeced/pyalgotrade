@@ -37,23 +37,25 @@ def get_limit_price_trigger(action, limitPrice, useAdjustedValues, bar):
     # If the bar is below the limit price, use the open price.
     # If the bar includes the limit price, use the open price or the limit price.
     if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-        if high < limitPrice:
+        if (
+            high >= limitPrice
+            and limitPrice >= low
+            and open_ < limitPrice
+            or high < limitPrice
+        ):  # The limit price was penetrated on open.
             ret = open_
         elif limitPrice >= low:
-            if open_ < limitPrice:  # The limit price was penetrated on open.
-                ret = open_
-            else:
-                ret = limitPrice
-    # If the bar is above the limit price, use the open price.
-    # If the bar includes the limit price, use the open price or the limit price.
+            ret = limitPrice
     elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-        if low > limitPrice:
+        if (
+            low <= limitPrice
+            and limitPrice <= high
+            and open_ > limitPrice
+            or low > limitPrice
+        ):  # The limit price was penetrated on open.
             ret = open_
         elif limitPrice <= high:
-            if open_ > limitPrice:  # The limit price was penetrated on open.
-                ret = open_
-            else:
-                ret = limitPrice
+            ret = limitPrice
     else:  # Unknown action
         assert(False)
     return ret
@@ -69,23 +71,25 @@ def get_stop_price_trigger(action, stopPrice, useAdjustedValues, bar):
     # If the bar is above the stop price, use the open price.
     # If the bar includes the stop price, use the open price or the stop price. Whichever is better.
     if action in [broker.Order.Action.BUY, broker.Order.Action.BUY_TO_COVER]:
-        if low > stopPrice:
+        if (
+            low <= stopPrice
+            and stopPrice <= high
+            and open_ > stopPrice
+            or low > stopPrice
+        ):  # The stop price was penetrated on open.
             ret = open_
         elif stopPrice <= high:
-            if open_ > stopPrice:  # The stop price was penetrated on open.
-                ret = open_
-            else:
-                ret = stopPrice
-    # If the bar is below the stop price, use the open price.
-    # If the bar includes the stop price, use the open price or the stop price. Whichever is better.
+            ret = stopPrice
     elif action in [broker.Order.Action.SELL, broker.Order.Action.SELL_SHORT]:
-        if high < stopPrice:
+        if (
+            high >= stopPrice
+            and stopPrice >= low
+            and open_ < stopPrice
+            or high < stopPrice
+        ):  # The stop price was penetrated on open.
             ret = open_
         elif stopPrice >= low:
-            if open_ < stopPrice:  # The stop price was penetrated on open.
-                ret = open_
-            else:
-                ret = stopPrice
+            ret = stopPrice
     else:  # Unknown action
         assert(False)
 
@@ -264,8 +268,10 @@ class DefaultStrategy(FillStrategy):
             # We round the volume left here becuase it was not rounded when it was initialized.
             volumeLeft = order.getInstrumentTraits().roundQuantity(self.__volumeLeft[order.getInstrument()])
             fillQuantity = order.getExecutionInfo().getQuantity()
-            assert volumeLeft >= fillQuantity, \
-                "Invalid fill quantity %s. Not enough volume left %s" % (fillQuantity, volumeLeft)
+            assert (
+                volumeLeft >= fillQuantity
+            ), f"Invalid fill quantity {fillQuantity}. Not enough volume left {volumeLeft}"
+
             self.__volumeLeft[order.getInstrument()] = order.getInstrumentTraits().roundQuantity(
                 volumeLeft - fillQuantity
             )
@@ -320,12 +326,9 @@ class DefaultStrategy(FillStrategy):
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
             broker_.getLogger().debug(
-                "Not enough volume to fill %s market order [%s] for %s share/s" % (
-                    order.getInstrument(),
-                    order.getId(),
-                    order.getRemaining()
-                )
+                f"Not enough volume to fill {order.getInstrument()} market order [{order.getId()}] for {order.getRemaining()} share/s"
             )
+
             return None
 
         # Unless its a fill-on-close order, use the open price.
@@ -346,16 +349,14 @@ class DefaultStrategy(FillStrategy):
         # Calculate the fill size for the order.
         fillSize = self.__calculateFillSize(broker_, order, bar)
         if fillSize == 0:
-            broker_.getLogger().debug("Not enough volume to fill %s limit order [%s] for %s share/s" % (
-                order.getInstrument(), order.getId(), order.getRemaining())
+            broker_.getLogger().debug(
+                f"Not enough volume to fill {order.getInstrument()} limit order [{order.getId()}] for {order.getRemaining()} share/s"
             )
+
             return None
 
-        ret = None
         price = get_limit_price_trigger(order.getAction(), order.getLimitPrice(), broker_.getUseAdjustedValues(), bar)
-        if price is not None:
-            ret = FillInfo(price, fillSize)
-        return ret
+        return FillInfo(price, fillSize) if price is not None else None
 
     def fillStopOrder(self, broker_, order, bar):
         ret = None
@@ -376,11 +377,10 @@ class DefaultStrategy(FillStrategy):
             # Calculate the fill size for the order.
             fillSize = self.__calculateFillSize(broker_, order, bar)
             if fillSize == 0:
-                broker_.getLogger().debug("Not enough volume to fill %s stop order [%s] for %s share/s" % (
-                    order.getInstrument(),
-                    order.getId(),
-                    order.getRemaining()
-                ))
+                broker_.getLogger().debug(
+                    f"Not enough volume to fill {order.getInstrument()} stop order [{order.getId()}] for {order.getRemaining()} share/s"
+                )
+
                 return None
 
             # If we just hit the stop price we'll use it as the fill price.
@@ -418,11 +418,10 @@ class DefaultStrategy(FillStrategy):
             # Calculate the fill size for the order.
             fillSize = self.__calculateFillSize(broker_, order, bar)
             if fillSize == 0:
-                broker_.getLogger().debug("Not enough volume to fill %s stop limit order [%s] for %s share/s" % (
-                    order.getInstrument(),
-                    order.getId(),
-                    order.getRemaining()
-                ))
+                broker_.getLogger().debug(
+                    f"Not enough volume to fill {order.getInstrument()} stop limit order [{order.getId()}] for {order.getRemaining()} share/s"
+                )
+
                 return None
 
             price = get_limit_price_trigger(

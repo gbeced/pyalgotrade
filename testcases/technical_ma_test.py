@@ -29,10 +29,7 @@ from pyalgotrade import bar
 
 
 def safe_round(number, ndigits):
-    ret = None
-    if number is not None:
-        ret = round(number, ndigits)
-    return ret
+    return round(number, ndigits) if number is not None else None
 
 
 class SMATestCase(common.TestCase):
@@ -105,7 +102,7 @@ class SMATestCase(common.TestCase):
 
     def testSeqLikeOps(self):
         # ds and seq should be the same.
-        seq = [1.0 for i in xrange(10)]
+        seq = [1.0 for _ in xrange(10)]
         ds = self.__buildSMA(1, seq)
 
         # Test length and every item.

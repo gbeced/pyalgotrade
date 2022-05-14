@@ -31,10 +31,7 @@ class Predicate(eventprofiler.Predicate):
         self.__dates = eventDates
 
     def eventOccurred(self, instrument, bards):
-        ret = False
-        if bards[-1].getDateTime().date() in self.__dates:
-            ret = True
-        return ret
+        return bards[-1].getDateTime().date() in self.__dates
 
 
 class EventProfilerTestCase(common.TestCase):
@@ -51,8 +48,7 @@ class EventProfilerTestCase(common.TestCase):
         feed = yahoofeed.Feed()
         feed.addBarsFromCSV("orcl", common.get_data_file_path("orcl-2000-yahoofinance.csv"))
 
-        dates = []
-        dates.append(datetime.date(2000, 1, 3))
+        dates = [datetime.date(2000, 1, 3)]
         dates.append(datetime.date(2000, 1, 4))
         dates.append(datetime.date(2000, 1, 5))
         dates.append(datetime.date(2000, 1, 6))

@@ -139,7 +139,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
             self.__thread = self.buildWebSocketClientThread()
             self.__thread.start()
         except Exception as e:
-            common.logger.exception("Error connecting : %s" % str(e))
+            common.logger.exception(f"Error connecting : {str(e)}")
 
         # Wait for initialization to complete.
         while not self.__wsClientConnected and self.__thread.is_alive():
@@ -185,7 +185,10 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
                 self.__onDisconnected()
             else:
                 ret = False
-                common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
+                common.logger.error(
+                    f"Invalid event received to dispatch: {eventType} - {eventData}"
+                )
+
         except queue.Empty:
             pass
         return ret
@@ -209,10 +212,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return False
 
     def getNextBars(self):
-        ret = None
-        if len(self.__barDicts):
-            ret = bar.Bars(self.__barDicts.pop(0))
-        return ret
+        return bar.Bars(self.__barDicts.pop(0)) if len(self.__barDicts) else None
 
     def peekDateTime(self):
         # Return None since this is a realtime subject.
@@ -245,7 +245,7 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
                 common.logger.info("Shutting down websocket client.")
                 self.__thread.stop()
         except Exception as e:
-            common.logger.error("Error shutting down client: %s" % (str(e)))
+            common.logger.error(f"Error shutting down client: {str(e)}")
 
     # This should not raise.
     def join(self):

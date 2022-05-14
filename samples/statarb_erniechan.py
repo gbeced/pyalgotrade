@@ -109,9 +109,7 @@ class StatArb(strategy.BacktestingStrategy):
 
     def reducePosition(self, instrument):
         currentPos = self.getBroker().getShares(instrument)
-        if currentPos > 0:
-            self.marketOrder(instrument, currentPos * -1)
-        elif currentPos < 0:
+        if currentPos > 0 or currentPos < 0:
             self.marketOrder(instrument, currentPos * -1)
 
     def onBars(self, bars):
@@ -144,7 +142,7 @@ def main(plot):
     for year in range(2006, 2012+1):
         for instrument in instruments:
             fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-            print("Loading bars from %s" % fileName)
+            print(f"Loading bars from {fileName}")
             feed.addBarsFromCSV(instrument, fileName)
 
     strat = StatArb(feed, instruments[0], instruments[1], windowSize)

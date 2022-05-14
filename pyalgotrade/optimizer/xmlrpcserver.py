@@ -53,10 +53,11 @@ class Job(object):
         return self.__id
 
     def getNextParameters(self):
-        ret = None
-        if len(self.__strategyParameters):
-            ret = self.__strategyParameters.pop()
-        return ret
+        return (
+            self.__strategyParameters.pop()
+            if len(self.__strategyParameters)
+            else None
+        )
 
 
 # Restrict to a particular path.
@@ -86,11 +87,7 @@ class Server(xmlrpc_server.SimpleXMLRPCServer):
         self.__startedServingEvent = threading.Event()
         self.__forcedStop = False
         self.__bestResult = None
-        if autoStop:
-            self.__autoStopThread = AutoStopThread(self)
-        else:
-            self.__autoStopThread = None
-
+        self.__autoStopThread = AutoStopThread(self) if autoStop else None
         self.register_introspection_functions()
         self.register_function(self.getInstrumentsAndBars, 'getInstrumentsAndBars')
         self.register_function(self.getBarsFrequency, 'getBarsFrequency')
@@ -141,7 +138,7 @@ class Server(xmlrpc_server.SimpleXMLRPCServer):
                 return
 
             if self.__bestResult is None or result > self.__bestResult:
-                logger.info("Best result so far %s with parameters %s" % (result, parameters))
+                logger.info(f"Best result so far {result} with parameters {parameters}")
                 self.__bestResult = result
 
         self.__resultSinc.push(result, base.Parameters(*parameters))
@@ -156,9 +153,7 @@ class Server(xmlrpc_server.SimpleXMLRPCServer):
         try:
             # Initialize instruments, bars and parameters.
             logger.info("Loading bars")
-            loadedBars = []
-            for dateTime, bars in self.__barFeed:
-                loadedBars.append(bars)
+            loadedBars = [bars for dateTime, bars in self.__barFeed]
             instruments = self.__barFeed.getRegisteredInstruments()
             self.__instrumentsAndBars = serialization.dumps((instruments, loadedBars))
             self.__barsFreq = self.__barFeed.getFrequency()

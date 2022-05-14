@@ -16,13 +16,13 @@ class Strategy(strategy.BaseStrategy):
         # Refer to https://dev.twitter.com/docs/streaming-apis/messages#Public_stream_messages for
         # the information available in data.
         try:
-            self.info("Twitter: %s" % (data["text"]))
+            self.info(f'Twitter: {data["text"]}')
         except KeyError:
             pass
 
     def onBars(self, bars):
         bar = bars[self.__instrument]
-        self.info("Price: %s. Volume: %s." % (bar.getClose(), bar.getVolume()))
+        self.info(f"Price: {bar.getClose()}. Volume: {bar.getVolume()}.")
 
 
 def main():

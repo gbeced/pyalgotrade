@@ -72,11 +72,7 @@ class FixedPerTrade(Commission):
         self.__amount = amount
 
     def calculate(self, order, price, quantity):
-        ret = 0
-        # Only charge the first fill.
-        if order.getExecutionInfo() is None:
-            ret = self.__amount
-        return ret
+        return self.__amount if order.getExecutionInfo() is None else 0
 
 
 class TradePercentage(Commission):
@@ -186,10 +182,7 @@ class Broker(broker.Broker):
 
         assert(cash >= 0)
         self.__cash = cash
-        if commission is None:
-            self.__commission = NoCommission()
-        else:
-            self.__commission = commission
+        self.__commission = NoCommission() if commission is None else commission
         self.__shares = {}
         self.__instrumentPrice = {}  # Used by setShares
         self.__activeOrders = {}
@@ -278,11 +271,15 @@ class Broker(broker.Broker):
         self.__useAdjustedValues = useAdjusted
 
     def getActiveOrders(self, instrument=None):
-        if instrument is None:
-            ret = list(self.__activeOrders.values())
-        else:
-            ret = [order for order in self.__activeOrders.values() if order.getInstrument() == instrument]
-        return ret
+        return (
+            list(self.__activeOrders.values())
+            if instrument is None
+            else [
+                order
+                for order in self.__activeOrders.values()
+                if order.getInstrument() == instrument
+            ]
+        )
 
     def _getCurrentDateTime(self):
         return self.__barFeed.getCurrentDateTime()
@@ -318,12 +315,10 @@ class Broker(broker.Broker):
         # Try gettting the price from the last bar first.
         lastBar = self.__barFeed.getLastBar(instrument)
         if lastBar is not None:
-            ret = lastBar.getPrice()
+            return lastBar.getPrice()
         else:
             # Try using the instrument price set by setShares if its available.
-            ret = self.__instrumentPrice.get(instrument)
-
-        return ret
+            return self.__instrumentPrice.get(instrument)
 
     def getEquity(self):
         """Returns the portfolio value (cash + shares * price)."""
@@ -331,7 +326,7 @@ class Broker(broker.Broker):
         ret = self.getCash()
         for instrument, shares in six.iteritems(self.__shares):
             instrumentPrice = self._getPriceForInstrument(instrument)
-            assert instrumentPrice is not None, "Price for %s is missing" % instrument
+            assert instrumentPrice is not None, f"Price for {instrument} is missing"
             ret += instrumentPrice * shares
         return ret
 
@@ -387,11 +382,9 @@ class Broker(broker.Broker):
             else:
                 assert(False)
         else:
-            self.__logger.debug("Not enough cash to fill %s order [%s] for %s share/s" % (
-                order.getInstrument(),
-                order.getId(),
-                order.getRemaining()
-            ))
+            self.__logger.debug(
+                f"Not enough cash to fill {order.getInstrument()} order [{order.getId()}] for {order.getRemaining()} share/s"
+            )
 
     def submitOrder(self, order):
         if order.isInitial():

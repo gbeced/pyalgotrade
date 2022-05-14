@@ -65,6 +65,6 @@ class DataSeriesFilterTest(common.TestCase):
             ds.append(None)
 
         self.assertEqual(testFilter.getDataSeries(), ds)
-        for i in range(0, len(testFilter)):
+        for i in range(len(testFilter)):
             self.assertEqual(testFilter[i], ds[i])
             self.assertEqual(testFilter.getDataSeries()[i], ds[i])

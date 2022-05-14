@@ -34,13 +34,15 @@ class MarketTiming(strategy.BacktestingStrategy):
         if len(smas) == 0 or smas[-1] is None or price < smas[-1]:
             return None
 
-        # Rank based on 20 day returns.
-        ret = None
         lookBack = 20
         priceDS = self.getFeed()[instrument].getPriceDataSeries()
-        if len(priceDS) >= lookBack and smas[-1] is not None and smas[-1*lookBack] is not None:
-            ret = (priceDS[-1] - priceDS[-1*lookBack]) / float(priceDS[-1*lookBack])
-        return ret
+        return (
+            (priceDS[-1] - priceDS[-1 * lookBack]) / float(priceDS[-1 * lookBack])
+            if len(priceDS) >= lookBack
+            and smas[-1] is not None
+            and smas[-1 * lookBack] is not None
+            else None
+        )
 
     def _getTopByClass(self, assetClass):
         # Find the instrument with the highest rank.
@@ -54,10 +56,10 @@ class MarketTiming(strategy.BacktestingStrategy):
         return ret
 
     def _getTop(self):
-        ret = {}
-        for assetClass in self.__instrumentsByClass:
-            ret[assetClass] = self._getTopByClass(assetClass)
-        return ret
+        return {
+            assetClass: self._getTopByClass(assetClass)
+            for assetClass in self.__instrumentsByClass
+        }
 
     def _placePendingOrders(self):
         # Use less chash just in case price changes too much.
@@ -72,9 +74,9 @@ class MarketTiming(strategy.BacktestingStrategy):
                 while cost > remainingCash and orderSize > 0:
                     orderSize -= 1
                     cost = orderSize * lastPrice
-                if orderSize > 0:
-                    remainingCash -= cost
-                    assert(remainingCash >= 0)
+            if orderSize > 0:
+                remainingCash -= cost
+                assert(remainingCash >= 0)
 
             if orderSize != 0:
                 self.info("Placing market order for %d %s shares" % (orderSize, instrument))
@@ -102,7 +104,7 @@ class MarketTiming(strategy.BacktestingStrategy):
         topByClass = self._getTop()
         for assetClass in topByClass:
             instrument = topByClass[assetClass]
-            self.info("Best for class %s: %s" % (assetClass, instrument))
+            self.info(f"Best for class {assetClass}: {instrument}")
             if instrument is not None:
                 lastPrice = self.getLastPrice(instrument)
                 cashForInstrument = round(cashPerAssetClass - self.getBroker().getShares(instrument) * lastPrice, 2)
@@ -143,13 +145,13 @@ def main(plot):
     # Load the bars. These files were manually downloaded from Yahoo Finance.
     feed = yahoofeed.Feed()
     instruments = ["SPY"]
-    for assetClass in instrumentsByClass:
-        instruments.extend(instrumentsByClass[assetClass])
+    for value in instrumentsByClass.values():
+        instruments.extend(value)
 
     for year in range(2007, 2013+1):
         for instrument in instruments:
             fileName = "%s-%d-yahoofinance.csv" % (instrument, year)
-            print("Loading bars from %s" % fileName)
+            print(f"Loading bars from {fileName}")
             feed.addBarsFromCSV(instrument, fileName)
 
     # Build the strategy and attach some metrics.

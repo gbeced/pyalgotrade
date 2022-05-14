@@ -25,10 +25,7 @@ def compute_diff(values1, values2):
     for i in range(len(values1)):
         v1 = values1[i]
         v2 = values2[i]
-        if v1 is not None and v2 is not None:
-            diff = v1 - v2
-        else:
-            diff = None
+        diff = v1 - v2 if v1 is not None and v2 is not None else None
         ret.append(diff)
     return ret
 
@@ -36,12 +33,12 @@ def compute_diff(values1, values2):
 def _get_stripped(values1, values2, alignLeft):
     if len(values1) > len(values2):
         if alignLeft:
-            values1 = values1[0:len(values2)]
+            values1 = values1[:len(values2)]
         else:
             values1 = values1[len(values1)-len(values2):]
     elif len(values2) > len(values1):
         if alignLeft:
-            values2 = values2[0:len(values1)]
+            values2 = values2[:len(values1)]
         else:
             values2 = values2[len(values2)-len(values1):]
     return values1, values2

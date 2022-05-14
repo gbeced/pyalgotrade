@@ -113,15 +113,11 @@ def is_valid_frequency(frequency):
     assert(isinstance(frequency, int))
     assert(frequency > 1)
 
-    if frequency < bar.Frequency.DAY:
-        ret = True
-    elif frequency == bar.Frequency.DAY:
-        ret = True
-    elif frequency == bar.Frequency.MONTH:
-        ret = True
-    else:
-        ret = False
-    return ret
+    return (
+        frequency < bar.Frequency.DAY
+        or frequency == bar.Frequency.DAY
+        or frequency == bar.Frequency.MONTH
+    )
 
 
 def build_range(dateTime, frequency):

@@ -18,10 +18,7 @@ class BBands(strategy.BacktestingStrategy):
         return self.__bbands
 
     def onOrderUpdated(self, order):
-        if order.isBuy():
-            orderType = "Buy"
-        else:
-            orderType = "Sell"
+        orderType = "Buy" if order.isBuy() else "Sell"
         self.info("%s order %d updated - Status: %s" % (
             orderType, order.getId(), basebroker.Order.State.toString(order.getState())
         ))
@@ -36,10 +33,10 @@ class BBands(strategy.BacktestingStrategy):
         bar = bars[self.__instrument]
         if shares == 0 and bar.getClose() < lower:
             sharesToBuy = int(self.getBroker().getCash(False) / bar.getClose())
-            self.info("Placing buy market order for %s shares" % sharesToBuy)
+            self.info(f"Placing buy market order for {sharesToBuy} shares")
             self.marketOrder(self.__instrument, sharesToBuy)
         elif shares > 0 and bar.getClose() > upper:
-            self.info("Placing sell market order for %s shares" % shares)
+            self.info(f"Placing sell market order for {shares} shares")
             self.marketOrder(self.__instrument, -1*shares)
 
 

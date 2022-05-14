@@ -45,16 +45,14 @@ class MemFeed(feed.BaseFeed):
         pass
 
     def eof(self):
-        if self.__nextIdx < len(self.__values):
-            return False
-        else:
-            return True
+        return self.__nextIdx >= len(self.__values)
 
     def peekDateTime(self):
-        ret = None
-        if self.__nextIdx < len(self.__values):
-            ret = self.__values[self.__nextIdx][0]
-        return ret
+        return (
+            self.__values[self.__nextIdx][0]
+            if self.__nextIdx < len(self.__values)
+            else None
+        )
 
     def createDataSeries(self, key, maxLen):
         return dataseries.SequenceDataSeries(maxLen)

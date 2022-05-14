@@ -38,9 +38,7 @@ def hurst_exp(p, minLags, maxLags):
         tau.append(np.sqrt(np.std(pp)))
     # linear fit to double-log graph (gives power)
     m = np.polyfit(np.log10(lagvec), np.log10(tau), 1)
-    # calculate hurst
-    hurst = m[0]*2
-    return hurst
+    return m[0]*2
 
 
 class HurstExponentEventWindow(technical.EventWindow):
@@ -56,10 +54,11 @@ class HurstExponentEventWindow(technical.EventWindow):
         super(HurstExponentEventWindow, self).onNewValue(dateTime, value)
 
     def getValue(self):
-        ret = None
-        if self.windowFull():
-            ret = hurst_exp(self.getValues(), self.__minLags, self.__maxLags)
-        return ret
+        return (
+            hurst_exp(self.getValues(), self.__minLags, self.__maxLags)
+            if self.windowFull()
+            else None
+        )
 
 
 class HurstExponent(technical.EventBasedFilter):

@@ -99,11 +99,9 @@ class BaseBarFeed(feed.BaseFeed):
             # Check that current bar datetimes are greater than the previous one.
             if self.__currentBars is not None and self.__currentBars.getDateTime() >= dateTime:
                 raise Exception(
-                    "Bar date times are not in order. Previous datetime was %s and current datetime is %s" % (
-                        self.__currentBars.getDateTime(),
-                        dateTime
-                    )
+                    f"Bar date times are not in order. Previous datetime was {self.__currentBars.getDateTime()} and current datetime is {dateTime}"
                 )
+
 
             # Update self.__currentBars and self.__lastBars
             self.__currentBars = bars
@@ -184,10 +182,11 @@ class OptimizerBarFeed(BaseBarFeed):
         pass
 
     def peekDateTime(self):
-        ret = None
-        if self.__nextPos < len(self.__bars):
-            ret = self.__bars[self.__nextPos].getDateTime()
-        return ret
+        return (
+            self.__bars[self.__nextPos].getDateTime()
+            if self.__nextPos < len(self.__bars)
+            else None
+        )
 
     def getNextBars(self):
         ret = None

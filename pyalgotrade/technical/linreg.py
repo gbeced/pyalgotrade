@@ -60,10 +60,11 @@ class LeastSquaresRegressionWindow(technical.EventWindow):
         return self.__getValueAtImpl(dt.datetime_to_timestamp(dateTime))
 
     def getValue(self):
-        ret = None
-        if self.windowFull():
-            ret = self.__getValueAtImpl(self._timestamps.data()[-1])
-        return ret
+        return (
+            self.__getValueAtImpl(self._timestamps.data()[-1])
+            if self.windowFull()
+            else None
+        )
 
 
 class LeastSquaresRegression(technical.EventBasedFilter):

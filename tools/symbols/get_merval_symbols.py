@@ -29,33 +29,45 @@ logger = pyalgotrade.logger.getLogger("get_merval_symbols")
 
 
 def find_company(htmlTree, ticker):
-    ret = None
-    anchor = htmlTree.xpath("//td[1]/a[@href='/q/pr?s=%s']/text()" % (ticker))
-    if anchor:
-        ret = anchor[0]
-    return ret
+    return (
+        anchor[0]
+        if (
+            anchor := htmlTree.xpath(
+                "//td[1]/a[@href='/q/pr?s=%s']/text()" % (ticker)
+            )
+        )
+        else None
+    )
 
 
 def find_sector(htmlTree):
-    ret = None
-    anchor = htmlTree.xpath("//th[1][text() = 'Sector:']/../td/a[1]/text()")
-    if anchor:
-        ret = anchor[0]
-    return ret
+    return (
+        anchor[0]
+        if (
+            anchor := htmlTree.xpath(
+                "//th[1][text() = 'Sector:']/../td/a[1]/text()"
+            )
+        )
+        else None
+    )
 
 
 def find_industry(htmlTree):
-    ret = None
-    anchor = htmlTree.xpath("//th[1][text() = 'Industry:']/../td/a[1]/text()")
-    if anchor:
-        ret = anchor[0]
-    return ret
+    return (
+        anchor[0]
+        if (
+            anchor := htmlTree.xpath(
+                "//th[1][text() = 'Industry:']/../td/a[1]/text()"
+            )
+        )
+        else None
+    )
 
 
 def process_symbol(writer, symbol):
     try:
-        logger.info("Getting info for %s" % (symbol))
-        url = "http://finance.yahoo.com/q/in?s=%s+Industry" % (symbol)
+        logger.info(f"Getting info for {symbol}")
+        url = f"http://finance.yahoo.com/q/in?s={symbol}+Industry"
         htmlTree = lxml.html.parse(url)
 
         company = find_company(htmlTree, symbol)

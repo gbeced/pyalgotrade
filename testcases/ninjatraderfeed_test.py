@@ -88,7 +88,7 @@ class NinjaTraderTestCase(common.TestCase):
         barFeed = ninjatraderfeed.Feed(ninjatraderfeed.Frequency.MINUTE, timezone)
         barFeed.addBarsFromCSV("spy", common.get_data_file_path("nt-spy-minute-2011-03.csv"))
         for dateTime, bars in barFeed:
-            price = prices.get(bars.getDateTime(), None)
+            price = prices.get(bars.getDateTime())
             if price is not None:
                 self.assertTrue(price == bars.getBar("spy").getClose())
 

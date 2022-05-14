@@ -35,17 +35,18 @@ class BarsGrouper(resamplebase.Grouper):
     def addValue(self, value):
         # Update or initialize BarGrouper instances for each instrument.
         for instrument, bar_ in value.items():
-            barGrouper = self.__barGroupers.get(instrument)
-            if barGrouper:
+            if barGrouper := self.__barGroupers.get(instrument):
                 barGrouper.addValue(bar_)
             else:
                 barGrouper = resampled.BarGrouper(self.getDateTime(), bar_, self.__frequency)
                 self.__barGroupers[instrument] = barGrouper
 
     def getGrouped(self):
-        bar_dict = {}
-        for instrument, grouper in self.__barGroupers.items():
-            bar_dict[instrument] = grouper.getGrouped()
+        bar_dict = {
+            instrument: grouper.getGrouped()
+            for instrument, grouper in self.__barGroupers.items()
+        }
+
         return bar.Bars(bar_dict)
 
 
@@ -89,10 +90,7 @@ class ResampledBarFeed(barfeed.BaseBarFeed):
         return self.__barFeed.barsHaveAdjClose()
 
     def getNextBars(self):
-        ret = None
-        if len(self.__values):
-            ret = self.__values.pop(0)
-        return ret
+        return self.__values.pop(0) if len(self.__values) else None
 
     def eof(self):
         return len(self.__values) == 0

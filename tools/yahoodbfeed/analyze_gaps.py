@@ -67,9 +67,11 @@ class MissingDataVerifier:
         prevDateTime = None
         for bar in self.__barDataSeries:
             currentDateTime = bar.getDateTime()
-            if prevDateTime is not None:
-                if (currentDateTime - prevDateTime).days > 1:
-                    self.__processGap(prevDateTime, currentDateTime)
+            if (
+                prevDateTime is not None
+                and (currentDateTime - prevDateTime).days > 1
+            ):
+                self.__processGap(prevDateTime, currentDateTime)
             prevDateTime = currentDateTime
 
 
@@ -91,10 +93,6 @@ def process_symbol(symbol, fromYear, toYear, missingDataVerifierClass):
             feed.addBarsFromCSV(symbol, fileName)
 
     if filesFound > 0:
-        # Process all items.
-        for dateTime, bars in feed:
-            pass
-
         missingDataVerifier = missingDataVerifierClass(feed[symbol])
         missingDataVerifier.run()
     else:
@@ -120,7 +118,7 @@ def main():
 
         stockCallback = lambda stock: process_symbol(stock.getTicker(), fromYear, toYear, missingDataVerifierClass)
         indexCallback = stockCallback
-        symbolsxml.parse(symbolsFile, stockCallback, indexCallback)
+        symbolsxml.parse(symbolsFile, indexCallback, indexCallback)
     except Exception as e:
         logger.error(str(e))
 

@@ -80,8 +80,4 @@ class VolumeShareSlippage(SlippageModel):
         totalVolume = volumeUsed + quantity
         volumeShare = totalVolume / float(bar.getVolume())
         impactPct = volumeShare ** 2 * self.__priceImpact
-        if order.isBuy():
-            ret = price * (1 + impactPct)
-        else:
-            ret = price * (1 - impactPct)
-        return ret
+        return price * (1 + impactPct) if order.isBuy() else price * (1 - impactPct)

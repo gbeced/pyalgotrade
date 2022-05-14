@@ -7,10 +7,7 @@ from pyalgotrade import technical
 # An EventWindow is responsible for making calculations using a window of values.
 class Accumulator(technical.EventWindow):
     def getValue(self):
-        ret = None
-        if self.windowFull():
-            ret = self.getValues().sum()
-        return ret
+        return self.getValues().sum() if self.windowFull() else None
 
 # Build a sequence based DataSeries.
 seqDS = dataseries.SequenceDataSeries()
@@ -18,7 +15,7 @@ seqDS = dataseries.SequenceDataSeries()
 accum = technical.EventBasedFilter(seqDS, Accumulator(3))
 
 # Put in some values.
-for i in range(0, 50):
+for i in range(50):
     seqDS.append(i)
 
 # Get some values.

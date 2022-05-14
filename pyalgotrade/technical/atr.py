@@ -35,13 +35,14 @@ class ATREventWindow(technical.EventWindow):
     def _calculateTrueRange(self, value):
         ret = None
         if self.__prevClose is None:
-            ret = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
-        else:
-            tr1 = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
-            tr2 = abs(value.getHigh(self.__useAdjustedValues) - self.__prevClose)
-            tr3 = abs(value.getLow(self.__useAdjustedValues) - self.__prevClose)
-            ret = max(max(tr1, tr2), tr3)
-        return ret
+            return value.getHigh(self.__useAdjustedValues) - value.getLow(
+                self.__useAdjustedValues
+            )
+
+        tr1 = value.getHigh(self.__useAdjustedValues) - value.getLow(self.__useAdjustedValues)
+        tr2 = abs(value.getHigh(self.__useAdjustedValues) - self.__prevClose)
+        tr3 = abs(value.getLow(self.__useAdjustedValues) - self.__prevClose)
+        return max(max(tr1, tr2), tr3)
 
     def onNewValue(self, dateTime, value):
         tr = self._calculateTrueRange(value)

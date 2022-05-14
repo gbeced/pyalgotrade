@@ -77,7 +77,7 @@ class WebSocketClient(client.WebSocketClientBase):
             "client": "Python-PyAlgoTrade",
             "version": pyalgotrade.__version__
             }
-        url = "ws://ws.pusherapp.com/app/%s?%s" % (appKey, urlencode(params))
+        url = f"ws://ws.pusherapp.com/app/{appKey}?{urlencode(params)}"
         super(WebSocketClient, self).__init__(url)
         self.setKeepAliveMgr(PingKeepAliveMgr(self, maxInactivity, responseTimeout))
 

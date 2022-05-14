@@ -125,7 +125,7 @@ class WebSocketClient(pusher.WebSocketClient):
     # WebSocketClientBase events.
 
     def onClosed(self, code, reason):
-        common.logger.info("Closed. Code: %s. Reason: %s." % (code, reason))
+        common.logger.info(f"Closed. Code: {code}. Reason: {reason}.")
         self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
     def onDisconnectionDetected(self):
@@ -133,7 +133,7 @@ class WebSocketClient(pusher.WebSocketClient):
         try:
             self.stopClient()
         except Exception as e:
-            common.logger.error("Error stopping websocket client: %s." % (str(e)))
+            common.logger.error(f"Error stopping websocket client: {str(e)}.")
         self.__queue.put((WebSocketClient.Event.DISCONNECTED, None))
 
     ######################################################################
@@ -144,15 +144,15 @@ class WebSocketClient(pusher.WebSocketClient):
         self.__queue.put((WebSocketClient.Event.CONNECTED, None))
 
         channels = ["live_trades", "order_book"]
-        common.logger.info("Subscribing to channels %s." % channels)
+        common.logger.info(f"Subscribing to channels {channels}.")
         for channel in channels:
             self.subscribeChannel(channel)
 
     def onError(self, event):
-        common.logger.error("Error: %s" % (event))
+        common.logger.error(f"Error: {event}")
 
     def onUnknownEvent(self, event):
-        common.logger.warning("Unknown event: %s" % (event))
+        common.logger.warning(f"Unknown event: {event}")
 
     ######################################################################
     # Bitstamp specific
@@ -195,4 +195,4 @@ class WebSocketClientThread(client.WebSocketClientThreadBase):
                 common.logger.info("Stopping websocket client.")
                 self.__wsClient.stopClient()
         except Exception as e:
-            common.logger.error("Error stopping websocket client: %s." % (str(e)))
+            common.logger.error(f"Error stopping websocket client: {str(e)}.")

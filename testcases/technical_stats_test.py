@@ -64,9 +64,7 @@ class TestCase(common.TestCase):
         expected = [None, None, None, None, 1.283041407, 1.317884611, 1.440611043, 1.355748299, 1.4123457, -1.831763202, -0.990484842, -0.388358578, 0.449889908, 1.408195169, 1.332948099, 1.867732104, 1.334258333, 1.063608066, 0.939656572, 1.414213562]
         seqDS = dataseries.SequenceDataSeries()
         zscore = stats.ZScore(seqDS, 5)
-        i = 0
-        for value in values:
+        for i, value in enumerate(values):
             seqDS.append(value)
             if i >= 4:
                 self.assertEqual(round(zscore[-1], 4), round(expected[i], 4))
-            i += 1

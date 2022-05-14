@@ -192,23 +192,17 @@ class TestCase(common.TestCase):
         return ret
 
     def __loadBarDS(self):
-        seconds = 0
-
         ret = bards.BarDataSeries()
-        for i in xrange(len(OPEN_VALUES)):
+        for seconds, i in enumerate(xrange(len(OPEN_VALUES))):
             dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
             ret.append(bar.BasicBar(dateTime, OPEN_VALUES[i], HIGH_VALUES[i], LOW_VALUES[i], CLOSE_VALUES[i], VOLUME_VALUES[i], CLOSE_VALUES[i], bar.Frequency.DAY))
-            seconds += 1
         return ret
 
     def __loadSarTestBarDs(self):
-        seconds = 0
-
         ret = bards.BarDataSeries()
-        for i in xrange(len(SAR_HIGH)):
+        for seconds, i in enumerate(xrange(len(SAR_HIGH))):
             dateTime = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
             ret.append(bar.BasicBar(dateTime, SAR_LOW[i], SAR_HIGH[i], SAR_LOW[i], SAR_HIGH[i], 0, SAR_LOW[i], bar.Frequency.DAY))
-            seconds += 1
         return ret
 
     def assertAmountsAreEqual(self, first, second, precision=2):

@@ -30,7 +30,7 @@ class TestCase(common.TestCase):
     def testLoadNoFilter(self):
         feed = barfeed.CSVTradeFeed()
         feed.addBarsFromCSV(common.get_data_file_path("bitstampUSD.csv"))
-        loaded = [(dateTime, bars) for dateTime, bars in feed]
+        loaded = list(feed)
 
         self.assertEquals(len(loaded), 9999)
 
@@ -49,7 +49,7 @@ class TestCase(common.TestCase):
     def testLoadFilterFrom(self):
         feed = barfeed.CSVTradeFeed()
         feed.addBarsFromCSV(common.get_data_file_path("bitstampUSD.csv"), "bitstampUSD", fromDateTime=dt.as_utc(datetime.datetime(2012, 5, 29)))
-        loaded = [(dateTime, bars) for dateTime, bars in feed]
+        loaded = list(feed)
 
         self.assertEquals(len(loaded), 646)
 
@@ -68,7 +68,7 @@ class TestCase(common.TestCase):
     def testLoadFilterFromAndTo(self):
         feed = barfeed.CSVTradeFeed()
         feed.addBarsFromCSV(common.get_data_file_path("bitstampUSD.csv"), "bitstampUSD", fromDateTime=dt.as_utc(datetime.datetime(2012, 5, 29)), toDateTime=datetime.datetime(2012, 5, 31))
-        loaded = [(dateTime, bars) for dateTime, bars in feed]
+        loaded = list(feed)
 
         self.assertEquals(len(loaded), 579)
 

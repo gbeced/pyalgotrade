@@ -44,7 +44,7 @@ def parse_datetime(dateTime):
     # Sample: 20081231 230600
     # This custom parsing works faster than:
     # datetime.datetime.strptime(dateTime, "%Y%m%d %H%M%S")
-    year = int(dateTime[0:4])
+    year = int(dateTime[:4])
     month = int(dateTime[4:6])
     day = int(dateTime[6:8])
     hour = int(dateTime[9:11])

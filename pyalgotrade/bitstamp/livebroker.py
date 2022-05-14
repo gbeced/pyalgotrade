@@ -153,14 +153,11 @@ class LiveBroker(broker.Broker):
 
         # Cash
         self.__cash = round(balance.getUSDAvailable(), 2)
-        common.logger.info("%s USD" % (self.__cash))
+        common.logger.info(f"{self.__cash} USD")
         # BTC
         btc = balance.getBTCAvailable()
-        if btc:
-            self.__shares = {common.btc_symbol: btc}
-        else:
-            self.__shares = {}
-        common.logger.info("%s BTC" % (btc))
+        self.__shares = {common.btc_symbol: btc} if btc else {}
+        common.logger.info(f"{btc} BTC")
 
         self.__stop = False  # No errors. Keep running.
 
@@ -239,7 +236,10 @@ class LiveBroker(broker.Broker):
             if eventType == TradeMonitor.ON_USER_TRADE:
                 self._onUserTrades(eventData)
             else:
-                common.logger.error("Invalid event received to dispatch: %s - %s" % (eventType, eventData))
+                common.logger.error(
+                    f"Invalid event received to dispatch: {eventType} - {eventData}"
+                )
+
         except queue.Empty:
             pass
 
@@ -267,24 +267,26 @@ class LiveBroker(broker.Broker):
         return list(self.__activeOrders.values())
 
     def submitOrder(self, order):
-        if order.isInitial():
-            # Override user settings based on Bitstamp limitations.
-            order.setAllOrNone(False)
-            order.setGoodTillCanceled(True)
-
-            if order.isBuy():
-                bitstampOrder = self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity())
-            else:
-                bitstampOrder = self.__httpClient.sellLimit(order.getLimitPrice(), order.getQuantity())
-
-            order.setSubmitted(bitstampOrder.getId(), bitstampOrder.getDateTime())
-            self._registerOrder(order)
-            # Switch from INITIAL -> SUBMITTED
-            # IMPORTANT: Do not emit an event for this switch because when using the position interface
-            # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
-            order.switchState(broker.Order.State.SUBMITTED)
-        else:
+        if not order.isInitial():
             raise Exception("The order was already processed")
+        # Override user settings based on Bitstamp limitations.
+        order.setAllOrNone(False)
+        order.setGoodTillCanceled(True)
+
+        bitstampOrder = (
+            self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity())
+            if order.isBuy()
+            else self.__httpClient.sellLimit(
+                order.getLimitPrice(), order.getQuantity()
+            )
+        )
+
+        order.setSubmitted(bitstampOrder.getId(), bitstampOrder.getDateTime())
+        self._registerOrder(order)
+        # Switch from INITIAL -> SUBMITTED
+        # IMPORTANT: Do not emit an event for this switch because when using the position interface
+        # the order is not yet mapped to the position and Position.onOrderUpdated will get called.
+        order.switchState(broker.Order.State.SUBMITTED)
 
     def createMarketOrder(self, action, instrument, quantity, onClose=False):
         raise Exception("Market orders are not supported")

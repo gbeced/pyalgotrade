@@ -30,10 +30,7 @@ class HighLowEventWindow(technical.EventWindow):
         ret = None
         if self.windowFull():
             values = self.getValues()
-            if self.__useMin:
-                ret = values.min()
-            else:
-                ret = values.max()
+            ret = values.min() if self.__useMin else values.max()
         return ret
 
 

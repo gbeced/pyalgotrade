@@ -24,8 +24,7 @@ def get_change_percentage(actual, prev):
         raise Exception("Invalid values")
 
     diff = actual-prev
-    ret = diff / float(abs(prev))
-    return ret
+    return diff / float(abs(prev))
 
 
 def safe_min(left, right):

@@ -148,7 +148,7 @@ class TwitterFeed(observer.Subject):
                 logger.info("Shutting down client.")
                 self.__stream.disconnect()
         except Exception as e:
-            logger.error("Error disconnecting stream: %s." % (str(e)))
+            logger.error(f"Error disconnecting stream: {str(e)}.")
 
     def join(self):
         if self.__thread is not None:

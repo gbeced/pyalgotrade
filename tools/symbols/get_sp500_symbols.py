@@ -36,8 +36,9 @@ GICS_SUB_INDUSTRY_COL = 4
 
 def get_html():
     logger.info("Getting S&P 500 Component Stocks from Wikipedia")
-    ret = lxml.html.parse("http://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
-    return ret
+    return lxml.html.parse(
+        "http://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    )
 
 
 def find_table(htmlTree):
