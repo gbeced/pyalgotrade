@@ -17,3 +17,10 @@ doc/_build
 /notebooks
 
 /testcases/credentials.py
+
+/bin
+/lib
+/share
+*.csv
+*.cfg
+*.log
