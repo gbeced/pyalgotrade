@@ -32,7 +32,7 @@ DEFAULT_MAX_LEN = 1024
 def get_checked_max_len(maxLen):
     if maxLen is None:
         maxLen = DEFAULT_MAX_LEN
-    if not maxLen > 0:
+    if maxLen <= 0:
         raise Exception("Invalid maximum length")
     return maxLen
 
@@ -117,10 +117,7 @@ class SequenceDataSeries(DataSeries):
         return self.__newValueEvent
 
     def getValueAbsolute(self, pos):
-        ret = None
-        if pos >= 0 and pos < len(self.__values):
-            ret = self.__values[pos]
-        return ret
+        return self.__values[pos] if pos >= 0 and pos < len(self.__values) else None
 
     def append(self, value):
         """Appends a value."""

@@ -83,7 +83,10 @@ class SMACrossOverStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         bar = bars.getBar("orcl")
-        self.printDebug("%s: O=%s H=%s L=%s C=%s" % (bar.getDateTime(), bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose()))
+        self.printDebug(
+            f"{bar.getDateTime()}: O={bar.getOpen()} H={bar.getHigh()} L={bar.getLow()} C={bar.getClose()}"
+        )
+
 
         if cross.cross_above(self.__fastSMADS, self.__slowSMADS) == 1:
             if self.__shortPos:

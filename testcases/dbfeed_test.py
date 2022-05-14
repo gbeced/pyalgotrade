@@ -86,9 +86,6 @@ class SQLiteFeedTestCase(common.TestCase):
 
             # Load the SQLite feed and process all bars.
             sqliteFeed.loadBars("orcl")
-            for bars in sqliteFeed:
-                pass
-
             # Check that both dataseries have the same bars.
             yahooDS = yahooFeed["orcl"]
             sqliteDS = sqliteFeed["orcl"]
@@ -115,9 +112,6 @@ class SQLiteFeedTestCase(common.TestCase):
 
             # Load the SQLite feed and process all bars.
             sqliteFeed.loadBars("orcl")
-            for bars in sqliteFeed:
-                pass
-
             barDS = sqliteFeed["orcl"]
             self.assertEqual(len(barDS), 2)
             self.assertEqual(len(barDS.getDateTimes()), 2)

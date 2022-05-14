@@ -112,10 +112,12 @@ class BasicRowParser(RowParser):
                 dateTime += self.__timeDelta
             dateTime = dt.localize(dateTime, self.__timezone)
         # Convert the values
-        values = {}
-        for key, value in csvRowDict.items():
-            if key != self.__dateTimeColumn:
-                values[key] = self.__converter(key, value)
+        values = {
+            key: self.__converter(key, value)
+            for key, value in csvRowDict.items()
+            if key != self.__dateTimeColumn
+        }
+
         return (dateTime, values)
 
     def getFieldNames(self):

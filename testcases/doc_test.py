@@ -97,10 +97,7 @@ import csvfeed_1
 """
             res = common.run_python_code(code)
             lines = res.get_output_lines(True)
-            self.assertEqual(
-                common.head_file("csvfeed_1.output", 10),
-                lines[0:10]
-            )
+            self.assertEqual(common.head_file("csvfeed_1.output", 10), lines[:10])
             self.assertEqual(
                 common.tail_file("csvfeed_1.output", 10),
                 lines[-10:]
@@ -296,9 +293,10 @@ quandl_sample.main(False)
             res = common.run_python_code(code)
             self.assertTrue(res.exit_ok())
             self.assertEqual(
-                res.get_output_lines()[0:10],
-                common.head_file("quandl_sample.output", 10)
+                res.get_output_lines()[:10],
+                common.head_file("quandl_sample.output", 10),
             )
+
             self.assertEqual(
                 res.get_output_lines()[-10:],
                 common.tail_file("quandl_sample.output", 10)
@@ -346,13 +344,16 @@ bccharts_example_1.main()
 
             # Float str doesn't behave the same in Pyhton2 and Python3.
             if six.PY3:
-                lines = lines[0:1] + [round_csv_line(line, 5, 8) for line in lines[1:]]
+                lines = lines[:1] + [round_csv_line(line, 5, 8) for line in lines[1:]]
 
             self.assertTrue(res.exit_ok())
             self.assertEqual(
-                lines[0:10],
-                common.head_file("30min-bitstampUSD-2.csv", 10, path="testcases/data")
+                lines[:10],
+                common.head_file(
+                    "30min-bitstampUSD-2.csv", 10, path="testcases/data"
+                ),
             )
+
             self.assertEqual(
                 lines[-10:],
                 common.tail_file("30min-bitstampUSD-2.csv", 10, path="testcases/data")
@@ -368,9 +369,12 @@ bccharts_example_2.main(False)
             res = common.run_python_code(code)
             self.assertTrue(res.exit_ok(), res.get_output())
             self.assertEqual(
-                res.get_output_lines()[0:10],
-                common.head_file("bccharts_example_2.output", 10, path="testcases/data")
+                res.get_output_lines()[:10],
+                common.head_file(
+                    "bccharts_example_2.output", 10, path="testcases/data"
+                ),
             )
+
             self.assertEqual(
                 res.get_output_lines()[-10:],
                 common.tail_file("bccharts_example_2.output", 10, path="testcases/data")

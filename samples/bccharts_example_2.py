@@ -26,7 +26,7 @@ class VWAPMomentum(strategy.BacktestingStrategy):
     def _cancelOrders(self, orders):
         brk = self.getBroker()
         for o in orders:
-            self.info("Canceling order %s" % (o.getId()))
+            self.info(f"Canceling order {o.getId()}")
             brk.cancelOrder(o)
 
     def _buySignal(self, price):
@@ -37,11 +37,11 @@ class VWAPMomentum(strategy.BacktestingStrategy):
         cashAvail = brk.getCash() * 0.98
         size = round(cashAvail / price, 3)
         if len(buyOrders) == 0 and price*size > VWAPMomentum.MIN_TRADE:
-            self.info("Buy %s at %s" % (size, price))
+            self.info(f"Buy {size} at {price}")
             try:
                 self.limitOrder(self.__instrument, price, size)
             except Exception as e:
-                self.error("Failed to buy: %s" % (e))
+                self.error(f"Failed to buy: {e}")
 
     def _sellSignal(self, price):
         buyOrders, sellOrders = self._getActiveOrders()
@@ -50,7 +50,7 @@ class VWAPMomentum(strategy.BacktestingStrategy):
         brk = self.getBroker()
         shares = brk.getShares(self.__instrument)
         if len(sellOrders) == 0 and shares > 0:
-            self.info("Sell %s at %s" % (shares, price))
+            self.info(f"Sell {shares} at {price}")
             self.limitOrder(self.__instrument, price, shares*-1)
 
     def getVWAP(self):
@@ -68,17 +68,11 @@ class VWAPMomentum(strategy.BacktestingStrategy):
             self._sellSignal(price)
 
     def onOrderUpdated(self, order):
-        if order.isBuy():
-            orderType = "Buy"
-        else:
-            orderType = "Sell"
-
+        orderType = "Buy" if order.isBuy() else "Sell"
         exec_info_str = ""
         if order.getExecutionInfo():
-            exec_info_str = " - Price: %s - Amount: %s - Fee: %s" % (
-                order.getExecutionInfo().getPrice(), order.getExecutionInfo().getQuantity(),
-                round(order.getExecutionInfo().getCommission(), 2)
-            )
+            exec_info_str = f" - Price: {order.getExecutionInfo().getPrice()} - Amount: {order.getExecutionInfo().getQuantity()} - Fee: {round(order.getExecutionInfo().getCommission(), 2)}"
+
 
         self.info("%s order %d updated - Status: %s%s" % (
             orderType,

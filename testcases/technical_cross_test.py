@@ -147,7 +147,7 @@ class TestCase(common.TestCase):
 
     def testCrossBelowMany(self):
         count = 100
-        values1 = [0 for i in range(count)]
+        values1 = [0 for _ in range(count)]
         values2 = [-1 if i % 2 == 0 else 1 for i in range(count)]
 
         # Check first value

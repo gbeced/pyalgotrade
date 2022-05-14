@@ -228,9 +228,6 @@ class FeedTestCase(common.TestCase):
     def testBounded(self):
         barFeed = yahoofeed.Feed(maxLen=2)
         barFeed.addBarsFromCSV(FeedTestCase.TestInstrument, common.get_data_file_path("orcl-2000-yahoofinance.csv"), marketsession.USEquities.getTimezone())
-        for dateTime, bars in barFeed:
-            pass
-
         barDS = barFeed[FeedTestCase.TestInstrument]
         self.assertEqual(len(barDS), 2)
         self.assertEqual(len(barDS.getDateTimes()), 2)

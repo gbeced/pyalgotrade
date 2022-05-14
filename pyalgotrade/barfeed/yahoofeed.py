@@ -39,11 +39,10 @@ def parse_date(date):
     # Sample: 2005-12-30
     # This custom parsing works faster than:
     # datetime.datetime.strptime(date, "%Y-%m-%d")
-    year = int(date[0:4])
+    year = int(date[:4])
     month = int(date[5:7])
     day = int(date[8:10])
-    ret = datetime.datetime(year, month, day)
-    return ret
+    return datetime.datetime(year, month, day)
 
 
 class RowParser(csvfeed.RowParser):

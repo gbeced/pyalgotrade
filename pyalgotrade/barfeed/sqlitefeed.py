@@ -37,10 +37,7 @@ class Database(dbfeed.Database):
     def __init__(self, dbFilePath):
         self.__instrumentIds = {}
 
-        # If the file doesn't exist, we'll create it and initialize it.
-        initialize = False
-        if not os.path.exists(dbFilePath):
-            initialize = True
+        initialize = not os.path.exists(dbFilePath)
         self.__connection = sqlite3.connect(dbFilePath)
         self.__connection.isolation_level = None  # To do auto-commit
         if initialize:

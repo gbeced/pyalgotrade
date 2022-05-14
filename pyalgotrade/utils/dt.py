@@ -41,11 +41,11 @@ def localize(dateTime, timeZone):
        and time data so the result is the same UTC time.
     """
 
-    if datetime_is_naive(dateTime):
-        ret = timeZone.localize(dateTime)
-    else:
-        ret = dateTime.astimezone(timeZone)
-    return ret
+    return (
+        timeZone.localize(dateTime)
+        if datetime_is_naive(dateTime)
+        else dateTime.astimezone(timeZone)
+    )
 
 
 def as_utc(dateTime):

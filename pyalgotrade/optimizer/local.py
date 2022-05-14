@@ -76,7 +76,7 @@ def stop_process(p):
     timeout = 3
     p.join(timeout)  # This is necessary to avoid zombie processes.
     while p.is_alive():
-        logger.info("Stopping process %s" % p.pid)
+        logger.info(f"Stopping process {p.pid}")
         p.terminate()
         p.join(timeout)
 
@@ -99,7 +99,7 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
         resultSinc = base.ResultSinc()
 
     # Create and start the server.
-    logger.info("Starting server on port %s" % port)
+    logger.info(f"Starting server on port {port}")
     srv = xmlrpcserver.Server(paramSource, resultSinc, barFeed, "localhost", port, autoStop=False, batchSize=batchSize)
     serverThread = ServerThread(srv)
     serverThread.start()
@@ -107,13 +107,15 @@ def run_impl(strategyClass, barFeed, strategyParameters, batchSize, workerCount=
     srv.waitServing()
 
     try:
-        logger.info("Starting %s workers" % workerCount)
+        logger.info(f"Starting {workerCount} workers")
         # Build the worker processes.
-        for i in range(workerCount):
-            workers.append(multiprocessing.Process(
-                target=worker_process,
-                args=(strategyClass, port, logLevel))
+        workers.extend(
+            multiprocessing.Process(
+                target=worker_process, args=(strategyClass, port, logLevel)
             )
+            for _ in range(workerCount)
+        )
+
         # Start workers
         for process in workers:
             process.start()

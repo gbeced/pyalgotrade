@@ -39,16 +39,16 @@ class BuyOnGap(eventprofiler.Predicate):
         return ret
 
     def __aboveSMA(self, instrument, bards):
-        ret = False
-        if self.__ma[instrument][-1] is not None and bards[-1].getOpen(True) > self.__ma[instrument][-1]:
-            ret = True
-        return ret
+        return (
+            self.__ma[instrument][-1] is not None
+            and bards[-1].getOpen(True) > self.__ma[instrument][-1]
+        )
 
     def eventOccurred(self, instrument, bards):
-        ret = False
-        if self.__gappedDown(instrument, bards) and self.__aboveSMA(instrument, bards):
-            ret = True
-        return ret
+        return bool(
+            self.__gappedDown(instrument, bards)
+            and self.__aboveSMA(instrument, bards)
+        )
 
 
 def main(plot):

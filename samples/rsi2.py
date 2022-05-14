@@ -61,13 +61,12 @@ class RSI2(strategy.BacktestingStrategy):
         elif self.__shortPos is not None:
             if self.exitShortSignal():
                 self.__shortPos.exitMarket()
-        else:
-            if self.enterLongSignal(bar):
-                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
-                self.__longPos = self.enterLong(self.__instrument, shares, True)
-            elif self.enterShortSignal(bar):
-                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
-                self.__shortPos = self.enterShort(self.__instrument, shares, True)
+        elif self.enterLongSignal(bar):
+            shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
+            self.__longPos = self.enterLong(self.__instrument, shares, True)
+        elif self.enterShortSignal(bar):
+            shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
+            self.__shortPos = self.enterShort(self.__instrument, shares, True)
 
     def enterLongSignal(self, bar):
         return bar.getPrice() > self.__entrySMA[-1] and self.__rsi[-1] <= self.__overSoldThreshold

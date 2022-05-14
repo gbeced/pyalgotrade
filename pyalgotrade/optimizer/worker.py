@@ -44,13 +44,10 @@ def retry_on_network_error(function, *args, **kwargs):
 
 class Worker(object):
     def __init__(self, address, port, workerName=None):
-        url = "http://%s:%s/PyAlgoTradeRPC" % (address, port)
+        url = f"http://{address}:{port}/PyAlgoTradeRPC"
         self.__logger = pyalgotrade.logger.getLogger(workerName)
         self.__server = xmlrpc_client.ServerProxy(url, allow_none=True)
-        if workerName is None:
-            self.__workerName = socket.gethostname()
-        else:
-            self.__workerName = workerName
+        self.__workerName = socket.gethostname() if workerName is None else workerName
 
     def getLogger(self):
         return self.__logger
@@ -85,13 +82,16 @@ class Worker(object):
             # Wrap the bars into a feed.
             feed = barfeed.OptimizerBarFeed(barsFreq, instruments, bars)
             # Run the strategy.
-            self.getLogger().info("Running strategy with parameters %s" % (str(parameters)))
+            self.getLogger().info(f"Running strategy with parameters {str(parameters)}")
             result = None
             try:
                 result = self.runStrategy(feed, *parameters)
             except Exception as e:
-                self.getLogger().exception("Error running strategy with parameters %s: %s" % (str(parameters), e))
-            self.getLogger().info("Result %s" % result)
+                self.getLogger().exception(
+                    f"Error running strategy with parameters {str(parameters)}: {e}"
+                )
+
+            self.getLogger().info(f"Result {result}")
             if bestResult is None or result > bestResult:
                 bestResult = result
                 bestParams = parameters
@@ -119,7 +119,7 @@ class Worker(object):
                 job = self.getNextJob()
             self.getLogger().info("Finished running")
         except Exception as e:
-            self.getLogger().exception("Finished running with errors: %s" % (e))
+            self.getLogger().exception(f"Finished running with errors: {e}")
 
 
 def worker_process(strategyClass, address, port, workerName):
@@ -152,10 +152,13 @@ def run(strategyClass, address, port, workerCount=None, workerName=None):
     if workerCount is None:
         workerCount = multiprocessing.cpu_count()
 
-    workers = []
-    # Build the worker processes.
-    for i in range(workerCount):
-        workers.append(multiprocessing.Process(target=worker_process, args=(strategyClass, address, port, workerName)))
+    workers = [
+        multiprocessing.Process(
+            target=worker_process,
+            args=(strategyClass, address, port, workerName),
+        )
+        for _ in range(workerCount)
+    ]
 
     # Start workers
     for process in workers:

@@ -192,10 +192,11 @@ class GenericRowParser(RowParser):
                 self.__haveAdjClose = True
 
         # Process extra columns.
-        extra = {}
-        for k, v in six.iteritems(csvRowDict):
-            if k not in self.__columnNames.values():
-                extra[k] = csvutils.float_or_string(v)
+        extra = {
+            k: csvutils.float_or_string(v)
+            for k, v in six.iteritems(csvRowDict)
+            if k not in self.__columnNames.values()
+        }
 
         return self.__barClass(
             dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra

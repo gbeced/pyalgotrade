@@ -71,8 +71,8 @@ class Formatter(logging.Formatter):
         if Formatter.DATETIME_HOOK is not None:
             newDateTime = Formatter.DATETIME_HOOK()
 
-        if newDateTime is None:
-            ret = super(Formatter, self).formatTime(record, datefmt)
-        else:
-            ret = str(newDateTime)
-        return ret
+        return (
+            super(Formatter, self).formatTime(record, datefmt)
+            if newDateTime is None
+            else str(newDateTime)
+        )

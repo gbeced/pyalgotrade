@@ -94,12 +94,11 @@ class LineBreak(dataseries.SequenceDataSeries):
         assert(len(self))
         lines = self[self.__reversalLines*-1:]
         if breakUp:
-            breakPoint = max([line.getHigh() for line in lines])
-            ret = value > breakPoint
+            breakPoint = max(line.getHigh() for line in lines)
+            return value > breakPoint
         else:
-            breakPoint = min([line.getLow() for line in lines])
-            ret = value < breakPoint
-        return ret
+            breakPoint = min(line.getLow() for line in lines)
+            return value < breakPoint
 
     def __getNextLine(self, bar):
         ret = None
@@ -114,17 +113,17 @@ class LineBreak(dataseries.SequenceDataSeries):
                 elif self.__isReversal(close, False):
                     # Price change is enough to warrant a reversal.
                     ret = Line(close, lastLine.getLow(), bar.getDateTime(), False)
-            else:
-                if close < lastLine.getLow():
-                    # Price extends in the same direction
-                    ret = Line(close, lastLine.getLow(), bar.getDateTime(), False)
-                elif self.__isReversal(close, True):
-                    # Price change is enough to warrant a reversal.
-                    ret = Line(lastLine.getHigh(), close, bar.getDateTime(), True)
+            elif close < lastLine.getLow():
+                # Price extends in the same direction
+                ret = Line(close, lastLine.getLow(), bar.getDateTime(), False)
+            elif self.__isReversal(close, True):
+                # Price change is enough to warrant a reversal.
+                ret = Line(lastLine.getHigh(), close, bar.getDateTime(), True)
         else:
-            white = False
-            if bar.getClose(self.__useAdjustedValues) >= bar.getOpen(self.__useAdjustedValues):
-                white = True
+            white = bar.getClose(self.__useAdjustedValues) >= bar.getOpen(
+                self.__useAdjustedValues
+            )
+
             ret = Line(bar.getLow(self.__useAdjustedValues), bar.getHigh(self.__useAdjustedValues), bar.getDateTime(), white)
         return ret
 

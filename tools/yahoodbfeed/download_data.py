@@ -42,7 +42,7 @@ def get_csv_filename(symbol, year):
 
 def download_files_for_symbol(symbol, fromYear, toYear):
     if not os.path.exists(storage):
-        logger.info("Creating %s directory" % (storage))
+        logger.info(f"Creating {storage} directory")
         os.mkdir(storage)
 
     status = ""
@@ -60,9 +60,9 @@ def download_files_for_symbol(symbol, fromYear, toYear):
             status += "1"
 
     if status.find("1") == -1:
-        logger.fatal("No data found for %s" % (symbol))
+        logger.fatal(f"No data found for {symbol}")
     elif status.lstrip("0").find("0") != -1:
-        logger.fatal("Some bars are missing for %s" % (symbol))
+        logger.fatal(f"Some bars are missing for {symbol}")
 
 
 def main():

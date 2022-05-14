@@ -59,8 +59,7 @@ class NikkeiSpyStrategy(strategy.BacktestingStrategy):
     def onBars(self, bars):
         if bars.getBar(self.__lead):
             if cross.cross_above(self.__adjClose, self.__slowSMA) == 1 and self.__pos is None:
-                shares = self.__calculatePosSize()
-                if shares:
+                if shares := self.__calculatePosSize():
                     self.__pos = self.enterLong(self.__lag, shares)
             elif cross.cross_below(self.__adjClose, self.__fastSMA) == 1 and self.__pos is not None:
                 self.__pos.exitMarket()

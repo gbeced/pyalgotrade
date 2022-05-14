@@ -254,11 +254,12 @@ class Position(object):
         if includeCommissions is False:
             warninghelpers.deprecation_warning("includeCommissions will be deprecated in the next version.", stacklevel=2)
 
-        ret = 0
         price = self.getLastPrice()
-        if price is not None:
-            ret = self.__posTracker.getReturn(price, includeCommissions)
-        return ret
+        return (
+            self.__posTracker.getReturn(price, includeCommissions)
+            if price is not None
+            else 0
+        )
 
     def getPnL(self, includeCommissions=True):
         """
@@ -270,11 +271,14 @@ class Position(object):
         if includeCommissions is False:
             warninghelpers.deprecation_warning("includeCommissions will be deprecated in the next version.", stacklevel=2)
 
-        ret = 0
         price = self.getLastPrice()
-        if price is not None:
-            ret = self.__posTracker.getPnL(price=price, includeCommissions=includeCommissions)
-        return ret
+        return (
+            self.__posTracker.getPnL(
+                price=price, includeCommissions=includeCommissions
+            )
+            if price is not None
+            else 0
+        )
 
     def cancelEntry(self):
         """Cancels the entry order if its active."""
@@ -425,30 +429,60 @@ class LongPosition(Position):
             entryOrder = strategy.getBroker().createMarketOrder(broker.Order.Action.BUY, instrument, quantity, False)
         elif limitPrice is not None and stopPrice is None:
             entryOrder = strategy.getBroker().createLimitOrder(broker.Order.Action.BUY, instrument, limitPrice, quantity)
-        elif limitPrice is None and stopPrice is not None:
+        elif limitPrice is None:
             entryOrder = strategy.getBroker().createStopOrder(broker.Order.Action.BUY, instrument, stopPrice, quantity)
-        elif limitPrice is not None and stopPrice is not None:
-            entryOrder = strategy.getBroker().createStopLimitOrder(broker.Order.Action.BUY, instrument, stopPrice, limitPrice, quantity)
         else:
-            assert(False)
-
+            entryOrder = strategy.getBroker().createStopLimitOrder(broker.Order.Action.BUY, instrument, stopPrice, limitPrice, quantity)
         super(LongPosition, self).__init__(strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares()
         assert(quantity > 0)
         if limitPrice is None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createMarketOrder(broker.Order.Action.SELL, self.getInstrument(), quantity, False)
-        elif limitPrice is not None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createLimitOrder(broker.Order.Action.SELL, self.getInstrument(), limitPrice, quantity)
-        elif limitPrice is None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopOrder(broker.Order.Action.SELL, self.getInstrument(), stopPrice, quantity)
-        elif limitPrice is not None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopLimitOrder(broker.Order.Action.SELL, self.getInstrument(), stopPrice, limitPrice, quantity)
-        else:
-            assert(False)
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createMarketOrder(
+                    broker.Order.Action.SELL, self.getInstrument(), quantity, False
+                )
+            )
 
-        return ret
+        elif limitPrice is not None and stopPrice is None:
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createLimitOrder(
+                    broker.Order.Action.SELL,
+                    self.getInstrument(),
+                    limitPrice,
+                    quantity,
+                )
+            )
+
+        elif limitPrice is None:
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createStopOrder(
+                    broker.Order.Action.SELL,
+                    self.getInstrument(),
+                    stopPrice,
+                    quantity,
+                )
+            )
+
+        else:
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createStopLimitOrder(
+                    broker.Order.Action.SELL,
+                    self.getInstrument(),
+                    stopPrice,
+                    limitPrice,
+                    quantity,
+                )
+            )
 
 
 # This class is reponsible for order management in short positions.
@@ -458,27 +492,60 @@ class ShortPosition(Position):
             entryOrder = strategy.getBroker().createMarketOrder(broker.Order.Action.SELL_SHORT, instrument, quantity, False)
         elif limitPrice is not None and stopPrice is None:
             entryOrder = strategy.getBroker().createLimitOrder(broker.Order.Action.SELL_SHORT, instrument, limitPrice, quantity)
-        elif limitPrice is None and stopPrice is not None:
+        elif limitPrice is None:
             entryOrder = strategy.getBroker().createStopOrder(broker.Order.Action.SELL_SHORT, instrument, stopPrice, quantity)
-        elif limitPrice is not None and stopPrice is not None:
-            entryOrder = strategy.getBroker().createStopLimitOrder(broker.Order.Action.SELL_SHORT, instrument, stopPrice, limitPrice, quantity)
         else:
-            assert(False)
-
+            entryOrder = strategy.getBroker().createStopLimitOrder(broker.Order.Action.SELL_SHORT, instrument, stopPrice, limitPrice, quantity)
         super(ShortPosition, self).__init__(strategy, entryOrder, goodTillCanceled, allOrNone)
 
     def buildExitOrder(self, stopPrice, limitPrice):
         quantity = self.getShares() * -1
         assert(quantity > 0)
         if limitPrice is None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createMarketOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), quantity, False)
-        elif limitPrice is not None and stopPrice is None:
-            ret = self.getStrategy().getBroker().createLimitOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), limitPrice, quantity)
-        elif limitPrice is None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, quantity)
-        elif limitPrice is not None and stopPrice is not None:
-            ret = self.getStrategy().getBroker().createStopLimitOrder(broker.Order.Action.BUY_TO_COVER, self.getInstrument(), stopPrice, limitPrice, quantity)
-        else:
-            assert(False)
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createMarketOrder(
+                    broker.Order.Action.BUY_TO_COVER,
+                    self.getInstrument(),
+                    quantity,
+                    False,
+                )
+            )
 
-        return ret
+        elif limitPrice is not None and stopPrice is None:
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createLimitOrder(
+                    broker.Order.Action.BUY_TO_COVER,
+                    self.getInstrument(),
+                    limitPrice,
+                    quantity,
+                )
+            )
+
+        elif limitPrice is None:
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createStopOrder(
+                    broker.Order.Action.BUY_TO_COVER,
+                    self.getInstrument(),
+                    stopPrice,
+                    quantity,
+                )
+            )
+
+        else:
+            return (
+                self.getStrategy()
+                .getBroker()
+                .createStopLimitOrder(
+                    broker.Order.Action.BUY_TO_COVER,
+                    self.getInstrument(),
+                    stopPrice,
+                    limitPrice,
+                    quantity,
+                )
+            )

@@ -106,7 +106,7 @@ class ToolsTestCase(common.TestCase):
         with common.TmpDir() as tmpPath:
             instrument = "IWG"
             year = 2017
-            path = os.path.join(tmpPath, "quandl-daily-%s-%s.csv" % (instrument, year))
+            path = os.path.join(tmpPath, f"quandl-daily-{instrument}-{year}.csv")
             quandl.download_daily_bars("LSE", instrument, year, path, authToken=QUANDL_API_KEY)
             bf = quandlfeed.Feed()
             bf.setNoAdjClose()
@@ -293,15 +293,20 @@ class ToolsTestCase(common.TestCase):
         shutil.rmtree(tmpPath)
         try:
             instrument = "ORCL"
-            subprocess.call([
-                "python", "-m", "pyalgotrade.tools.quandl",
-                "--source-code=WIKI",
-                "--table-code=%s" % instrument,
-                "--from-year=2010",
-                "--to-year=2010",
-                "--storage=%s" % tmpPath,
-                "--auth-token=%s" % QUANDL_API_KEY
-            ])
+            subprocess.call(
+                [
+                    "python",
+                    "-m",
+                    "pyalgotrade.tools.quandl",
+                    "--source-code=WIKI",
+                    f"--table-code={instrument}",
+                    "--from-year=2010",
+                    "--to-year=2010",
+                    f"--storage={tmpPath}",
+                    f"--auth-token={QUANDL_API_KEY}",
+                ]
+            )
+
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-ORCL-2010-quandl.csv"))
             bf.loadAll()
@@ -320,16 +325,21 @@ class ToolsTestCase(common.TestCase):
         shutil.rmtree(tmpPath)
         try:
             instrument = "AAPL"
-            subprocess.call([
-                "python", "-m", "pyalgotrade.tools.quandl",
-                "--source-code=WIKI",
-                "--table-code=%s" % instrument,
-                "--from-year=2010",
-                "--to-year=2010",
-                "--storage=%s" % tmpPath,
-                "--frequency=weekly",
-                "--auth-token=%s" % QUANDL_API_KEY
-            ])
+            subprocess.call(
+                [
+                    "python",
+                    "-m",
+                    "pyalgotrade.tools.quandl",
+                    "--source-code=WIKI",
+                    f"--table-code={instrument}",
+                    "--from-year=2010",
+                    "--to-year=2010",
+                    f"--storage={tmpPath}",
+                    "--frequency=weekly",
+                    f"--auth-token={QUANDL_API_KEY}",
+                ]
+            )
+
             bf = quandlfeed.Feed()
             bf.addBarsFromCSV(instrument, os.path.join(tmpPath, "WIKI-AAPL-2010-quandl.csv"))
             bf.loadAll()
@@ -349,17 +359,20 @@ class ToolsTestCase(common.TestCase):
             instrument = "inexistent"
             output = check_output(
                 [
-                    "python", "-m", "pyalgotrade.tools.quandl",
+                    "python",
+                    "-m",
+                    "pyalgotrade.tools.quandl",
                     "--source-code=WIKI",
-                    "--table-code=%s" % instrument,
+                    f"--table-code={instrument}",
                     "--from-year=2010",
                     "--to-year=2010",
-                    "--storage=%s" % tmpPath,
+                    f"--storage={tmpPath}",
                     "--frequency=daily",
-                    "--ignore-errors"
+                    "--ignore-errors",
                 ],
-                stderr=subprocess.STDOUT
+                stderr=subprocess.STDOUT,
             )
+
             self.assertIn("quandl [ERROR] 404 Client Error: Not Found", output)
 
     def testDontIgnoreErrors(self):
@@ -368,14 +381,17 @@ class ToolsTestCase(common.TestCase):
                 instrument = "inexistent"
                 check_output(
                     [
-                        "python", "-m", "pyalgotrade.tools.quandl",
+                        "python",
+                        "-m",
+                        "pyalgotrade.tools.quandl",
                         "--source-code=WIKI",
-                        "--table-code=%s" % instrument,
+                        f"--table-code={instrument}",
                         "--from-year=2010",
                         "--to-year=2010",
-                        "--storage=%s" % tmpPath,
-                        "--frequency=daily"
+                        f"--storage={tmpPath}",
+                        "--frequency=daily",
                     ],
-                    stderr=subprocess.STDOUT
+                    stderr=subprocess.STDOUT,
                 )
+
         self.assertIn("404 Client Error: Not Found", bytes_to_str(e.exception.output))

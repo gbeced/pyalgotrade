@@ -266,8 +266,7 @@ class BaseTestCase(common.TestCase):
         else:
             barFeed = self.loadDailyBarFeed()
 
-        strat = TestStrategy(barFeed, BaseTestCase.TestInstrument, 1000)
-        return strat
+        return TestStrategy(barFeed, BaseTestCase.TestInstrument, 1000)
 
 
 class LongPosTestCase(BaseTestCase):

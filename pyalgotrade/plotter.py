@@ -84,9 +84,7 @@ class Series(object):
         raise NotImplementedError()
 
     def plot(self, mplSubplot, dateTimes, color):
-        values = []
-        for dateTime in dateTimes:
-            values.append(self.getValue(dateTime))
+        values = [self.getValue(dateTime) for dateTime in dateTimes]
         mplSubplot.plot(dateTimes, values, color=color, marker=self.getMarker())
 
 
@@ -197,10 +195,7 @@ class HistogramMarker(Series):
 class MACDMarker(HistogramMarker):
     def getColorForValue(self, value, default):
         ret = default
-        if value >= 0:
-            ret = "g"
-        else:
-            ret = "r"
+        ret = "g" if value >= 0 else "r"
         return ret
 
 
@@ -295,8 +290,7 @@ class InstrumentSubplot(Subplot):
 
     def onBars(self, bars):
         super(InstrumentSubplot, self).onBars(bars)
-        bar = bars.getBar(self.__instrument)
-        if bar:
+        if bar := bars.getBar(self.__instrument):
             dateTime = bars.getDateTime()
             self.__instrumentSeries.addValue(dateTime, bar)
 

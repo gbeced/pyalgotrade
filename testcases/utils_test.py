@@ -299,7 +299,7 @@ class NumPyDequeTestCase(CollectionTestCaseBase):
 
         for i in xrange(10):
             d.append(i)
-        self.assertEqual(d[0:3].sum(), 3)
+        self.assertEqual(d[:3].sum(), 3)
 
 
 class ListDequeTestCase(CollectionTestCaseBase):

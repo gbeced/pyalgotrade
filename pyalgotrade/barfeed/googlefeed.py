@@ -46,13 +46,12 @@ def parse_date(date):
                   'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
     date = date.split("-")
     year = int(date[2]) + 2000
-    if year > datetime.datetime.today().year:
+    if year > datetime.datetime.now().year:
         # it's probably 20th century
         year -= 100
     month = int(month_abbr[date[1]])
     day = int(date[0])
-    ret = datetime.datetime(year, month, day)
-    return ret
+    return datetime.datetime(year, month, day)
 
 
 class RowParser(csvfeed.RowParser):

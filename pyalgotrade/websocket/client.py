@@ -165,7 +165,7 @@ class WebSocketClientBase(tornadoclient.TornadoWebSocketClient):
                 self.close()
             self.close_connection()
         except Exception as e:
-            logger.warning("Failed to close connection: %s" % (e))
+            logger.warning(f"Failed to close connection: {e}")
 
     ######################################################################
     # Overrides

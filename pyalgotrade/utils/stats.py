@@ -22,14 +22,8 @@ import numpy
 
 
 def mean(values):
-    ret = None
-    if len(values):
-        ret = numpy.array(values).mean()
-    return ret
+    return numpy.array(values).mean() if len(values) else None
 
 
 def stddev(values, ddof=1):
-    ret = None
-    if len(values):
-        ret = numpy.array(values).std(ddof=ddof)
-    return ret
+    return numpy.array(values).std(ddof=ddof) if len(values) else None

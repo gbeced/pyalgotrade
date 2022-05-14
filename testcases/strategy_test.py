@@ -86,8 +86,7 @@ class StrategyTestCase(common.TestCase):
 
     def createStrategy(self):
         barFeed = self.loadDailyBarFeed()
-        strat = TestStrategy(barFeed, 1000)
-        return strat
+        return TestStrategy(barFeed, 1000)
 
 
 class BrokerOrderTestCase(StrategyTestCase):

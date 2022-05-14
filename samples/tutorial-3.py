@@ -19,9 +19,9 @@ class MyStrategy(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
         bar = bars[self.__instrument]
-        self.info("%s %s %s" % (
-            bar.getClose(), safe_round(self.__rsi[-1], 2), safe_round(self.__sma[-1], 2)
-        ))
+        self.info(
+            f"{bar.getClose()} {safe_round(self.__rsi[-1], 2)} {safe_round(self.__sma[-1], 2)}"
+        )
 
 
 # Load the bar feed from the CSV file

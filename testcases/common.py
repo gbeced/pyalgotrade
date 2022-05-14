@@ -60,18 +60,12 @@ def run_cmd(cmd):
 
 
 def run_python_code(code):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append("-c")
-    cmd.append(code)
+    cmd = ["python", "-u", "-c", code]
     return run_cmd(cmd)
 
 
 def run_sample_module(module, params=[]):
-    cmd = ["python"]
-    cmd.append("-u")
-    cmd.append("-m")
-    cmd.append("samples.%s" % module)
+    cmd = ["python", "-u", "-m", f"samples.{module}"]
     cmd.extend(params)
     return run_cmd(cmd)
 
@@ -84,7 +78,7 @@ def get_file_lines(fileName):
 def compare_head(fileName, lines, path="samples"):
     assert(len(lines) > 0)
     fileLines = get_file_lines(os.path.join(path, fileName))
-    return fileLines[0:len(lines)] == lines
+    return fileLines[:len(lines)] == lines
 
 
 def compare_tail(fileName, lines, path="samples"):
@@ -96,7 +90,7 @@ def compare_tail(fileName, lines, path="samples"):
 def head_file(fileName, line_count, path="samples"):
     assert(line_count > 0)
     fileLines = get_file_lines(os.path.join(path, fileName))
-    return fileLines[0:line_count]
+    return fileLines[:line_count]
 
 
 def tail_file(fileName, line_count, path="samples"):
@@ -113,10 +107,7 @@ def load_test_csv(path):
     for row in reader:
         inputSeq.append(float(row["Input"]))
         expected = row["Expected"]
-        if not expected:
-            expected = None
-        else:
-            expected = float(expected)
+        expected = float(expected) if expected else None
         expectedSeq.append(expected)
 
     return inputSeq, expectedSeq
@@ -138,10 +129,7 @@ def test_from_csv(testcase, filename, filterClassBuilder, roundDecimals=2, maxLe
 
 
 def safe_round(number, ndigits):
-    ret = None
-    if number is not None:
-        ret = round(number, ndigits)
-    return ret
+    return round(number, ndigits) if number is not None else None
 
 
 class CopyFiles:

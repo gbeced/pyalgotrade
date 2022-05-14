@@ -28,10 +28,7 @@ class StdDevEventWindow(technical.EventWindow):
         self.__ddof = ddof
 
     def getValue(self):
-        ret = None
-        if self.windowFull():
-            ret = self.getValues().std(ddof=self.__ddof)
-        return ret
+        return self.getValues().std(ddof=self.__ddof) if self.windowFull() else None
 
 
 class StdDev(technical.EventBasedFilter):

@@ -78,8 +78,7 @@ class TestingLiveTradeFeed(barfeed.LiveTradeFeed):
             "amount": amount,
             "type": 0,
             }
-        eventDict = {}
-        eventDict["data"] = json.dumps(dataDict)
+        eventDict = {"data": json.dumps(dataDict)}
         self.__events.append((wsclient.WebSocketClient.Event.TRADE, wsclient.Trade(dateTime, eventDict)))
 
     def buildWebSocketClientThread(self):
@@ -167,13 +166,10 @@ class HTTPClientMock(object):
         return self._buildOrder(limitPrice, quantity)
 
     def getUserTransactions(self, transactionType=None):
-        # The first call is to retrieve user transactions that should have been
-        # processed already.
-        if not self.__userTransactionsRequested:
-            self.__userTransactionsRequested = True
-            return []
-        else:
+        if self.__userTransactionsRequested:
             return [httpclient.UserTransaction(jsonDict) for jsonDict in self.__userTransactions]
+        self.__userTransactionsRequested = True
+        return []
 
 
 class TestingLiveBroker(broker.LiveBroker):
@@ -192,7 +188,7 @@ class NonceTest(unittest.TestCase):
     def testNonceGenerator(self):
         gen = httpclient.NonceGenerator()
         prevNonce = 0
-        for i in range(1000):
+        for _ in range(1000):
             nonce = gen.getNext()
             self.assertGreater(nonce, prevNonce)
             prevNonce = nonce

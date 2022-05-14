@@ -79,7 +79,7 @@ class BacktestingBroker(backtesting.Broker):
             action = broker.Order.Action.SELL
 
         if limitPrice * quantity < BacktestingBroker.MIN_TRADE_USD:
-            raise Exception("Trade must be >= %s" % (BacktestingBroker.MIN_TRADE_USD))
+            raise Exception(f"Trade must be >= {BacktestingBroker.MIN_TRADE_USD}")
 
         if action == broker.Order.Action.BUY:
             # Check that there is enough cash.
@@ -90,7 +90,7 @@ class BacktestingBroker(backtesting.Broker):
         elif action == broker.Order.Action.SELL:
             # Check that there are enough coins.
             if quantity > self.getShares(common.btc_symbol):
-                raise Exception("Not enough %s" % (common.btc_symbol))
+                raise Exception(f"Not enough {common.btc_symbol}")
         else:
             raise Exception("Only BUY/SELL orders are supported")
 

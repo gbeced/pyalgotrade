@@ -45,8 +45,7 @@ class SOEventWindow(technical.EventWindow):
         if self.windowFull():
             lowestLow, highestHigh = get_low_high_values(self.__useAdjusted, self.getValues())
             currentClose = self.getValues()[-1].getClose(self.__useAdjusted)
-            closeDelta = currentClose - lowestLow
-            if closeDelta:
+            if closeDelta := currentClose - lowestLow:
                 ret = closeDelta / float(highestHigh - lowestLow) * 100
             else:
                 ret = 0.0

@@ -101,10 +101,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
 
     def getPriceDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the close or adjusted close prices."""
-        if self.__useAdjustedValues:
-            return self.__adjCloseDS
-        else:
-            return self.__closeDS
+        return self.__adjCloseDS if self.__useAdjustedValues else self.__closeDS
 
     def getExtraDataSeries(self, name):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` for an extra column."""

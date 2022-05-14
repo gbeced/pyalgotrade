@@ -99,11 +99,8 @@ class PositionTracker(object):
         return ret
 
     def getReturn(self, price=None, includeCommissions=True):
-        ret = 0
         pnl = self.getPnL(price=price, includeCommissions=includeCommissions)
-        if self.__totalCommited != 0:
-            ret = pnl / float(self.__totalCommited)
-        return ret
+        return pnl / float(self.__totalCommited) if self.__totalCommited != 0 else 0
 
     def __openNewPosition(self, quantity, price):
         self.__avgPrice = price
@@ -140,17 +137,12 @@ class PositionTracker(object):
 
             if currPosDirection == tradeDirection:
                 self.__extendCurrentPosition(quantity, price)
+            elif abs(quantity) <= abs(self.__position):
+                self.__reduceCurrentPosition(quantity, price)
             else:
-                # If we're going in the opposite direction we could be:
-                # 1: Partially reducing the current position.
-                # 2: Completely closing the current position.
-                # 3: Completely closing the current position and opening a new one in the opposite direction.
-                if abs(quantity) <= abs(self.__position):
-                    self.__reduceCurrentPosition(quantity, price)
-                else:
-                    newPos = self.__position + quantity
-                    self.__reduceCurrentPosition(self.__position*-1, price)
-                    self.__openNewPosition(newPos, price)
+                newPos = self.__position + quantity
+                self.__reduceCurrentPosition(self.__position*-1, price)
+                self.__openNewPosition(newPos, price)
 
         self.__commissions += commission
 
