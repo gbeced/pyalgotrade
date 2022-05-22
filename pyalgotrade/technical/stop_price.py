@@ -4,12 +4,13 @@ import numpy as np
 
 
 
-class SMAEventWindow_Frac(technical.EventWindow):
-    def __init__(self, percent_change, period):
+class STOP_PRICEEventWindow_Frac(technical.EventWindow):
+    def __init__(self, percent_change, period, entry_price):
         assert(period > 0)
-        super(SMAEventWindow_Frac, self).__init__(period)
+        super(STOP_PRICEEventWindow_Frac, self).__init__(period)
         self.__value = None
         self.percent_change = percent_change
+        self.__entry_price = entry_price
 
     def onNewValue(self, dateTime, value):
         firstValue = None
@@ -17,7 +18,7 @@ class SMAEventWindow_Frac(technical.EventWindow):
             firstValue = self.getValues()[0]
             assert(firstValue is not None)
 
-        super(SMAEventWindow_Frac, self).onNewValue(dateTime, value)
+        super(STOP_PRICEEventWindow_Frac, self).onNewValue(dateTime, value)
 
         if value is not None and self.windowFull():
             if self.__value is None:
@@ -26,7 +27,10 @@ class SMAEventWindow_Frac(technical.EventWindow):
                 self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
 
     def getValue(self):
-        return self.__value * (self.percent_change + 100) / 100
+        if self.__entry_price is not None: 
+            return self.__entry_price * (self.percent_change + 100) / 100
+        else: 
+            return np.Inf * self.percent_change
 
 
 class STOP_PRICE(technical.EventBasedFilter):
@@ -41,17 +45,20 @@ class STOP_PRICE(technical.EventBasedFilter):
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, dataSeries, percent_change, maxLen=None):
+    def __init__(self, dataSeries, percent_change, trailing=False, entry_price=None, maxLen=None):
         assert percent_change >= -100, "percent_change must be greater than -100"
         self.percent_change = percent_change
-        super(STOP_PRICE, self).__init__(dataSeries, SMAEventWindow_Frac(percent_change, period=1), maxLen)
+        self.stop_loss = percent_change < 0
+        self.stop_profit = percent_change >= 0
+        self.trailing = trailing
+        super(STOP_PRICE, self).__init__(dataSeries, STOP_PRICEEventWindow_Frac(percent_change, period=1, entry_price=entry_price), maxLen)
 
 
 
-class ATREventWindow_Frac(technical.EventWindow):
+class ATR_STOP_PRICEEventWindow_Frac(technical.EventWindow):
     def __init__(self, period, entry_price, stop_price_ATR_frac, useAdjustedValues):
         assert(period > 1)
-        super(ATREventWindow_Frac, self).__init__(period)
+        super(ATR_STOP_PRICEEventWindow_Frac, self).__init__(period)
         self.__useAdjustedValues = useAdjustedValues
         self.__entry_price = entry_price
         self.__stop_price_ATR_frac = stop_price_ATR_frac
@@ -72,7 +79,7 @@ class ATREventWindow_Frac(technical.EventWindow):
 
     def onNewValue(self, dateTime, value):
         tr = self._calculateTrueRange(value)
-        super(ATREventWindow_Frac, self).onNewValue(dateTime, tr)
+        super(ATR_STOP_PRICEEventWindow_Frac, self).onNewValue(dateTime, tr)
         self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
@@ -103,9 +110,11 @@ class ATR_STOP_PRICE(technical.EventBasedFilter):
     :param stop_price_ATR_frac: The number of ATR multiples away from entry_price to use as ATR_STOP_PRICE. (positive if stop profit, else stop loss)
     :type stop_price_ATR_frac: float.     
     '''
-    def __init__(self, barDataSeries, period=20, entry_price=None, stop_price_ATR_frac=-2, useAdjustedValues=True, maxLen=None): 
-        
+    def __init__(self, barDataSeries, period=20, trailing=False, entry_price=None, stop_price_ATR_frac=-2, useAdjustedValues=True, maxLen=None): 
+        self.stop_loss = stop_price_ATR_frac < 0
+        self.stop_profit = stop_price_ATR_frac >= 0
+        self.trailing = trailing 
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
 
-        super(ATR_STOP_PRICE, self).__init__(barDataSeries, ATREventWindow_Frac(period, entry_price, stop_price_ATR_frac, useAdjustedValues), maxLen)
+        super(ATR_STOP_PRICE, self).__init__(barDataSeries, ATR_STOP_PRICEEventWindow_Frac(period, entry_price, stop_price_ATR_frac, useAdjustedValues), maxLen)
