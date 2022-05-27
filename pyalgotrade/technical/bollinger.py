@@ -45,13 +45,13 @@ class BollingerBands(object):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         if price_type == "High":
-            dataSeries = barDataSeries.getHighDataSeries()
+            dataSeries = barDataSeries.getAdjHighDataSeries()
         elif price_type == "Low": 
-            dataSeries = barDataSeries.getLowDataSeries()
+            dataSeries = barDataSeries.getAdjLowDataSeries()
         elif price_type == "Close": 
             dataSeries = barDataSeries.getAdjCloseDataSeries()
         elif price_type == "Typical":
-            dataSeries = barDataSeries.getTypicalPriceDataSeries()
+            dataSeries = barDataSeries.getAdjTypicalDataSeries()
         else: 
             raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
 
@@ -61,22 +61,26 @@ class BollingerBands(object):
         self.__lowerBand = dataseries.SequenceDataSeries(maxLen)
         self.__numStdDev = numStdDev
         self.band = band 
+        self.upperValue = None
+        self.lowerValue = None
+        self.middleValue = None 
         # It is important to subscribe after sma and stddev since we'll use those values.
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
 
     def __onNewValue(self, dataSeries, dateTime, value):
-        upperValue = None
-        lowerValue = None
+        self.upperValue = None
+        self.lowerValue = None
 
         if value is not None:
-            sma = self.__sma[-1]
-            if sma is not None:
+            self.sma = self.__sma[-1]
+            self.middleValue = self.sma
+            if self.sma is not None:
                 stdDev = self.__stdDev[-1]
-                upperValue = sma + stdDev * self.__numStdDev
-                lowerValue = sma + stdDev * self.__numStdDev * -1
+                self.upperValue = self.sma + stdDev * self.__numStdDev
+                self.lowerValue = self.sma + stdDev * self.__numStdDev * -1
 
-        self.__upperBand.appendWithDateTime(dateTime, upperValue)
-        self.__lowerBand.appendWithDateTime(dateTime, lowerValue)
+        self.__upperBand.appendWithDateTime(dateTime, self.upperValue)
+        self.__lowerBand.appendWithDateTime(dateTime, self.lowerValue)
 
     def getUpperBand(self):
         """
@@ -98,17 +102,17 @@ class BollingerBands(object):
 
     def getValue(self): 
         '''
-        Return last value of chosen band 
+        Return latest value of chosen band 
         
         ''' 
         if self.band == "upper": 
-            return self.getUpperBand()[-1]
+            return self.upperValue
         elif self.band == "middle":
-            return self.getMiddleBand()[-1]
+            return self.middleValue
         elif self.band == "lower":
-            return self.getLowerBand()[-1]
+            return self.lowerValue
         elif self.band == "bandwidth": 
-            return (self.getUpperBand()[-1] - self.getLowerBand()[-1]) / self.getMiddleBand()[-1]
+            return (self.upperValue - self.lowerValue) / self.middleValue
         else: 
             raise ValueError(f"Band type {self.band} is not available. Choices are 'upper', \
                   'middle', or 'lower'")

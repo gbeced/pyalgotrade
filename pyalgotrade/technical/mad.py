@@ -21,7 +21,7 @@ class MAD(technical.EventBasedFilter):
         self.__sma_fast = ma.SMA(dataSeries, fast_period, maxLen=maxLen)
         self.__sma_slow = ma.SMA(dataSeries, slow_period, maxLen=maxLen)
         
-        self.__mad = dataseries.SequenceDataSeries(maxLen)
+        self.__mad = dataSeries.SequenceDataSeries(maxLen)
         
         # It is important to subscribe after sma and stddev since we'll use those values.
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
