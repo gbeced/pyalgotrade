@@ -104,6 +104,9 @@ class MACD(dataseries.SequenceDataSeries):
         self.appendWithDateTime(dateTime, self.macdValue)
         self.__signal.appendWithDateTime(dateTime, self.signalValue)
         self.__histogram.appendWithDateTime(dateTime, self.histogramValue)
+    
+    def getValue(self):
+        return self.macdValue
 
 class MACD_SIGNAL(dataseries.SequenceDataSeries):
     """Moving Average Convergence-Divergence indicator as described in http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_average_convergence_divergence_macd.
@@ -187,3 +190,6 @@ class MACD_SIGNAL(dataseries.SequenceDataSeries):
         self.appendWithDateTime(dateTime, self.macdValue)
         self.__signal.appendWithDateTime(dateTime, self.signalValue)
         self.__histogram.appendWithDateTime(dateTime, self.histogramValue)
+        
+    def getValue(self):
+        return (self.macdValue, self.signalValue)

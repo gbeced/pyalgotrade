@@ -1,11 +1,12 @@
 import numpy as np
+from pyalgotrade import dataseries
 from pyalgotrade import technical
 from pyalgotrade.technical import ma
 
-class MAD(technical.EventBasedFilter):
-    """Moving Average Distance filter.
+class MAD(object):
+    """Moving Average Distance
 
-    :param dataSeries: The DataSeries instance being filtered.
+    :param dataSeries: The DataSeries instance being filtered for the SMAs in MAD.
     :type dataSeries: :class:`pyalgotrade.dataseries.DataSeries`.
     :param fast_period: The number of values to use to calculate the MAD.
     :type period: int.
@@ -21,23 +22,22 @@ class MAD(technical.EventBasedFilter):
         self.__sma_fast = ma.SMA(dataSeries, fast_period, maxLen=maxLen)
         self.__sma_slow = ma.SMA(dataSeries, slow_period, maxLen=maxLen)
         
-        self.__mad = dataSeries.SequenceDataSeries(maxLen)
+        self.__mad = dataseries.SequenceDataSeries(maxLen)
         
         # It is important to subscribe after sma and stddev since we'll use those values.
         dataSeries.getNewValueEvent().subscribe(self.__onNewValue)
         
-    def __onNewValue(self, dateTime, value):
+    def __onNewValue(self, dataseries, dateTime, value):
         
-        mad = None 
+        self.mad = None 
 
         if value is not None:
-            self.sma_fast = self.__sma[-1]
-            self.sma_slow = self.__sma[-1]
+            self.sma_fast = self.__sma_fast[-1]
+            self.sma_slow = self.__sma_slow[-1]
             if self.sma_fast != None and self.sma_slow != None: 
-                mad = self.sma_fast / self.sma_slow  
-                     
-        self.__mad.appendWithDateTime(dateTime, mad)
+                self.mad = self.sma_fast / self.sma_slow  
+        self.__mad.appendWithDateTime(dateTime, self.mad)
         
     def getValue(self):
-        return self.__mad[-1]
+        return self.mad
 
