@@ -168,6 +168,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
                     self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
                         self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
                     
+                    
                     # Start keeping track of current trade 
                     self.__lastTrade["Instr"] = instr 
                     self.__lastTrade["Date"] = date 
