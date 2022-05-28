@@ -124,7 +124,7 @@ class BarDataSeries(dataseries.SequenceDataSeries):
 
     def getAdjHighDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the adjusted high prices."""
-        return self.__AdjHighDS
+        return self.__adjHighDS
 
     def getAdjLowDataSeries(self):
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the adjusted low prices."""
