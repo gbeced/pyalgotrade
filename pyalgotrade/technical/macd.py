@@ -192,4 +192,4 @@ class MACD_SIGNAL(dataseries.SequenceDataSeries):
         self.__histogram.appendWithDateTime(dateTime, self.histogramValue)
         
     def getValue(self):
-        return (self.macdValue, self.signalValue)
+        return self.signalValue
