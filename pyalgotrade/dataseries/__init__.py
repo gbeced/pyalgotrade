@@ -140,7 +140,6 @@ class SequenceDataSeries(DataSeries):
         assert(len(self.__values) == len(self.__dateTimes))
         self.__dateTimes.append(dateTime)
         self.__values.append(value)
-
         self.getNewValueEvent().emit(self, dateTime, value)
 
     def getDateTimes(self):

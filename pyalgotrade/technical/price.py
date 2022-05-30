@@ -46,13 +46,15 @@ class PRICE(technical.EventBasedFilter):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         if price_type == "High":
-            dataSeries = barDataSeries.getHighDataSeries()
+            dataSeries = barDataSeries.getAdjHighDataSeries()
         elif price_type == "Low": 
-            dataSeries = barDataSeries.getLowDataSeries()
+            dataSeries = barDataSeries.getAdjLowDataSeries()
         elif price_type == "Close": 
             dataSeries = barDataSeries.getAdjCloseDataSeries()
+        elif price_type == "Typical":
+            dataSeries = barDataSeries.getAdjTypicalDataSeries()
         else: 
-            pass 
+            raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
         
         super(PRICE, self).__init__(dataSeries, PRICEEventWindow(period=1), maxLen)
         
@@ -76,12 +78,15 @@ class PRICE_WINDOW(technical.EventBasedFilter):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         if price_type == "High":
-            dataSeries = barDataSeries.getHighDataSeries()
+            dataSeries = barDataSeries.getAdjHighDataSeries()
         elif price_type == "Low": 
-            dataSeries = barDataSeries.getLowDataSeries()
+            dataSeries = barDataSeries.getAdjLowDataSeries()
         elif price_type == "Close": 
             dataSeries = barDataSeries.getAdjCloseDataSeries()
+        elif price_type == "Typical":
+            dataSeries = barDataSeries.getAdjTypicalDataSeries()
         else: 
-            pass 
+            raise ValueError(f"'price_type' must be either 'High', 'Low', 'Close', or 'Typical'")
+             
 
         super(PRICE_WINDOW, self).__init__(dataSeries, PRICEEventWindow(period=period, max_or_min=max_or_min), maxLen)

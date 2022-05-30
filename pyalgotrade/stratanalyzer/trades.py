@@ -80,7 +80,6 @@ class Trades(stratanalyzer.StrategyAnalyzer):
 
     def __updatePosTracker(self, posTracker, price, commission, quantity):
         currentShares = posTracker.getPosition()
-
         if currentShares > 0:  # Current position is long
             if quantity > 0:  # Increase long position
                 posTracker.buy(quantity, price, commission)
@@ -168,6 +167,7 @@ class Trades(stratanalyzer.StrategyAnalyzer):
                     self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
                         self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
                     
+                    
                     # Start keeping track of current trade 
                     self.__lastTrade["Instr"] = instr 
                     self.__lastTrade["Date"] = date 
@@ -175,6 +175,11 @@ class Trades(stratanalyzer.StrategyAnalyzer):
                     self.__lastTrade["Quantity"] = quantity 
                     self.__lastTrade["Action"] = action
                     self.__lastTrade["Commission"] = commission
+                    
+                    if len(broker_.getActiveOrders()) == 0: 
+                        self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
+                        self.__lastTrade["Commission"], self.__lastTrade["Quantity"])
+                        self.__lastTrade = {}
             else: 
                 # Execute last trade 
                 self.__updatePosTracker(posTracker, self.__lastTrade["Price"], \
