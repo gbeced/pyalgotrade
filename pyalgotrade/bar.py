@@ -132,16 +132,17 @@ class BasicBar(Bar):
     )
 
     def __init__(self, dateTime, open_, high, low, close, volume, adjClose, frequency, extra={}):
-        if high < low:
-            raise Exception("high < low on %s" % (dateTime))
-        elif high < open_:
-            raise Exception("high < open on %s" % (dateTime))
-        elif high < close:
-            raise Exception("high < close on %s" % (dateTime))
-        elif low > open_:
-            raise Exception("low > open on %s" % (dateTime))
-        elif low > close:
-            raise Exception("low > close on %s" % (dateTime))
+        if high is not None and low is not None and open is not None and close is not None:   
+            if high < low:
+                raise Exception("high < low on %s" % (dateTime))
+            elif high < open_:
+                raise Exception("high < open on %s" % (dateTime))
+            elif high < close:
+                raise Exception("high < close on %s" % (dateTime))
+            elif low > open_:
+                raise Exception("low > open on %s" % (dateTime))
+            elif low > close:
+                raise Exception("low > close on %s" % (dateTime))
 
         self.__dateTime = dateTime
         self.__open = open_
