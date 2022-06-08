@@ -27,6 +27,7 @@ from pyalgotrade.utils import dt
 from pyalgotrade.utils import csvutils
 from pyalgotrade.barfeed import membf
 from pyalgotrade import bar
+import numpy as np 
 
 
 # Interface for csv row parsers.
@@ -179,17 +180,27 @@ class GenericRowParser(RowParser):
 
     def parseBar(self, csvRowDict):
         dateTime = self._parseDate(csvRowDict[self.__dateTimeColName])
-        open_ = float(csvRowDict[self.__openColName])
-        high = float(csvRowDict[self.__highColName])
-        low = float(csvRowDict[self.__lowColName])
-        close = float(csvRowDict[self.__closeColName])
-        volume = float(csvRowDict[self.__volumeColName])
-        adjClose = None
-        if self.__adjCloseColName is not None:
-            adjCloseValue = csvRowDict.get(self.__adjCloseColName, "")
-            if len(adjCloseValue) > 0:
-                adjClose = float(adjCloseValue)
-                self.__haveAdjClose = True
+        try:
+            open_ = float(csvRowDict[self.__openColName])
+            high = float(csvRowDict[self.__highColName])
+            low = float(csvRowDict[self.__lowColName])
+            close = float(csvRowDict[self.__closeColName])
+            volume = float(csvRowDict[self.__volumeColName])
+            adjClose = None 
+            if self.__adjCloseColName is not None:
+                adjCloseValue = csvRowDict.get(self.__adjCloseColName, "")
+                if len(adjCloseValue) > 0:
+                    adjClose = float(adjCloseValue)
+                    self.__haveAdjClose = True            
+        except:
+            open_ = np.nan
+            high = np.nan
+            low = np.nan
+            close = np.nan
+            volume = np.nan
+            adjClose = np.nan
+            self.__haveAdjClose = True
+        
 
         # Process extra columns.
         extra = {}
