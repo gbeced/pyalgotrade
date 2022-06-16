@@ -38,7 +38,7 @@ class VOLATILITYEventWindow(technical.EventWindow):
             ret = None
         else:
             try: 
-                ret = (value.getClose(self.__useAdjustedValues) - self.__prevClose) / value.getClose(self.__useAdjustedValues)
+                ret = 100*(value.getClose(self.__useAdjustedValues) - self.__prevClose) / value.getClose(self.__useAdjustedValues)
             except: 
                 ret = None 
         return ret
