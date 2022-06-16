@@ -3,9 +3,10 @@ from pyalgotrade import technical
 from pyalgotrade.utils import collections
 
 class PSAREventWindow(technical.EventWindow):
-    def __init__(self, type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period, useAdjustedValues):
+    def __init__(self, type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, 
+                 period, useAdjustedValues):
         assert(period > 0)
-        super(PSAREventWindow, self).__init__(windowSize=2) 
+        super(PSAREventWindow, self).__init__(windowSize=2) # Keeps track of current and pervious PSAR values
         self.__value = None 
         self.__numDays = 0 
         self.__useAdjustedValues = useAdjustedValues
@@ -15,7 +16,6 @@ class PSAREventWindow(technical.EventWindow):
         self.acceleration_factor = init_acceleration_factor
         self.acceleration_factor_step = acceleration_factor_step
         self.max_acceleration_factor = max_acceleration_factor
-        self.previous_day = previous_day 
 
         self.high_prices_trend = []
         self.low_prices_trend = []
@@ -110,10 +110,7 @@ class PSAREventWindow(technical.EventWindow):
             if psar != None: 
                 super(PSAREventWindow, self).onNewValue(dateTime, psar)
         if value is not None and self.windowFull():
-            if self.previous_day:
-                self.__value = self.getValues()[0] 
-            else: 
-                self.__value = self.getValues()[1]
+            self.__value = self.getValues()[1]
 
     def getValue(self):
         if self.type_indicator == 'value':
@@ -139,8 +136,6 @@ class PSAR(technical.EventBasedFilter):
     :type acceleration_factor_step: float.
     :param max_acceleration_factor: Maximum allowable acceleration factor 
     :type max_acceleration_factor: float.
-    :param previous_day: Whether or not previous day PSAR should be returned (if True), else return current day PSAR
-    :type previous_day: bool.
     :param period: Number of days to look back to ensure PSAR in right range 
     :type period: int 
     :param maxLen: The maximum number of values to hold.
@@ -154,6 +149,6 @@ class PSAR(technical.EventBasedFilter):
     See this link for PSAR explanation: https://books.mec.biz/tmp/books/218XOTBWY3FEW2CT3EVR.PDF 
     """
     def __init__(self, barDataSeries, type_indicator='value', init_acceleration_factor=0.02, acceleration_factor_step=0.02, 
-                 max_acceleration_factor=0.2, previous_day=False, period=2, maxLen=None, useAdjustedValues=True):
+                 max_acceleration_factor=0.2, period=2, maxLen=None, useAdjustedValues=True):
         #Period parameter below is NOT the same period above, below is for storing actual PSAR values
-        super(PSAR, self).__init__(barDataSeries, PSAREventWindow(type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, previous_day, period=2, useAdjustedValues=useAdjustedValues), maxLen)
+        super(PSAR, self).__init__(barDataSeries, PSAREventWindow(type_indicator, init_acceleration_factor, acceleration_factor_step, max_acceleration_factor, period=2, useAdjustedValues=useAdjustedValues), maxLen)
