@@ -20,6 +20,7 @@
 
 from pyalgotrade import technical
 from pyalgotrade.dataseries import bards
+import numpy as np 
 
 
 # This event window will calculate and hold percent-change values.

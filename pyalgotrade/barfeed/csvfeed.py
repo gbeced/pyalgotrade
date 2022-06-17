@@ -191,7 +191,7 @@ class GenericRowParser(RowParser):
                 adjCloseValue = csvRowDict.get(self.__adjCloseColName, "")
                 if len(adjCloseValue) > 0:
                     adjClose = float(adjCloseValue)
-                    self.__haveAdjClose = True            
+                    self.__haveAdjClose = True      
         except:
             open_ = np.nan
             high = np.nan
@@ -199,7 +199,8 @@ class GenericRowParser(RowParser):
             close = np.nan
             volume = np.nan
             adjClose = np.nan
-            self.__haveAdjClose = True
+            self.__haveAdjClose = True 
+
         
 
         # Process extra columns.
@@ -207,10 +208,8 @@ class GenericRowParser(RowParser):
         for k, v in six.iteritems(csvRowDict):
             if k not in self.__columnNames.values():
                 extra[k] = csvutils.float_or_string(v)
-
         return self.__barClass(
-            dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra
-        )
+            dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra)
 
 
 class GenericBarFeed(BarFeed):

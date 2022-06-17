@@ -20,6 +20,7 @@
 
 from pyalgotrade import technical
 from pyalgotrade.dataseries import bards
+import numpy as np 
 
 
 # This event window will calculate and hold true-range values.
@@ -50,7 +51,7 @@ class ATREventWindow(technical.EventWindow):
         self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
-            if self.__value is None:
+            if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean() 
             else:
                 self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize())
@@ -111,7 +112,7 @@ class ATRPEventWindow(technical.EventWindow):
         self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
-            if self.__value is None:
+            if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean() 
             else:
                 self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize())
