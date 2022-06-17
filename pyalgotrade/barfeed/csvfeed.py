@@ -208,8 +208,6 @@ class GenericRowParser(RowParser):
         for k, v in six.iteritems(csvRowDict):
             if k not in self.__columnNames.values():
                 extra[k] = csvutils.float_or_string(v)
-        bc = self.__barClass(
-            dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra)
         return self.__barClass(
             dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra)
 
