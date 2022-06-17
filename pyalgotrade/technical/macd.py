@@ -20,6 +20,7 @@
 
 from pyalgotrade.technical import ma
 from pyalgotrade import dataseries
+import numpy as np 
 
 
 class MACD(dataseries.SequenceDataSeries):

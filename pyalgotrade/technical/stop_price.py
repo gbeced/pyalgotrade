@@ -20,8 +20,8 @@ class STOP_PRICEEventWindow_Frac(technical.EventWindow):
 
         super(STOP_PRICEEventWindow_Frac, self).onNewValue(dateTime, value)
 
-        if value is not None and self.windowFull():
-            if self.__value is None:
+        if value is not None and not np.isnan(value) and self.windowFull():
+            if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean()
             else:
                 self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
@@ -83,7 +83,7 @@ class ATR_STOP_PRICEEventWindow_Frac(technical.EventWindow):
         self.__prevClose = value.getClose(self.__useAdjustedValues)
 
         if value is not None and self.windowFull():
-            if self.__value is None:
+            if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean() 
             else:
                 self.__value = (self.__value * (self.getWindowSize() - 1) + tr) / float(self.getWindowSize())

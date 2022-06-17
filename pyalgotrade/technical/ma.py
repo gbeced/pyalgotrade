@@ -52,8 +52,8 @@ class SMAEventWindow(technical.EventWindow):
             assert(firstValue is not None)
 
         super(SMAEventWindow, self).onNewValue(dateTime, value)
-        if value is not None and self.windowFull():
-            if self.__value is None:
+        if value is not None and not np.isnan(value) and self.windowFull():
+            if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean()
             else:
                 self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
@@ -90,7 +90,7 @@ class EMAEventWindow(technical.EventWindow):
 
         # Formula from http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
         if value is not None and self.windowFull():
-            if self.__value is None:
+            if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean()
             else:
                 self.__value = (value - self.__value) * self.__multiplier + self.__value

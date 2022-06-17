@@ -32,7 +32,7 @@ class MAD(object):
         
         self.mad = None 
 
-        if value is not None:
+        if value is not None and not np.isnan(value):
             self.sma_fast = self.__sma_fast[-1]
             self.sma_slow = self.__sma_slow[-1]
             if self.sma_fast != None and self.sma_slow != None: 
