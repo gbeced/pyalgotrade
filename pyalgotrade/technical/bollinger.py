@@ -103,7 +103,6 @@ class BollingerBands(object):
     def getValue(self): 
         '''
         Return latest value of chosen band 
-        
         ''' 
         if self.band == "upper": 
             return self.upperValue
