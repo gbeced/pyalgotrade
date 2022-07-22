@@ -22,14 +22,14 @@ class DonchianChannel(technical.EventBasedFilter):
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, barDataSeries, upperChannelPeriod=50, lowerChannelPeriod=50, maxLen=None):
+    def __init__(self, barDataSeries, period=50, maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         
         dataSeries = barDataSeries.getAdjCloseDataSeries()
         self.__middleChannel = dataseries.SequenceDataSeries(maxLen)
-        self.__upperChannel = High(dataSeries, period=upperChannelPeriod, maxLen=maxLen)
-        self.__lowerChannel = Low(dataSeries, period=lowerChannelPeriod, maxLen=maxLen)
+        self.__upperChannel = High(dataSeries, period=period, maxLen=maxLen)
+        self.__lowerChannel = Low(dataSeries, period=period, maxLen=maxLen)
         self.upperValue = None
         self.lowerValue = None
         self.middleValue = None 
@@ -39,8 +39,8 @@ class DonchianChannel(technical.EventBasedFilter):
         self.middleValue = None
 
         if value is not None:
-            self.upper = self.__upperChannel[-1]
-            self.lower = self.__lowerChannel[-1]
+            self.upper = self.__upperChannel[-2]
+            self.lower = self.__lowerChannel[-2]
             if self.upper is not None and self.lower is not None:
                 self.middleValue = (self.upper + self.lower) / 2
 
