@@ -1,4 +1,3 @@
-from . import common
 from pyalgotrade.technical import donchian
 from pyalgotrade import dataseries
 
@@ -49,7 +48,7 @@ midExpected = [  None, None, None, None, None, None,
         115.1075, 115.625 , 116.315 , 116.315 , 116.315 , 116.315 ,
         116.315 , 116.925 , 116.8, 115.15]
 
-class DonchianTest(common.TestCase):
+class DonchianTest():
     def test0(self):
         barDS = bards.BarDataSeries()
         donDS = donchian.DonchianChannel(barDS, period)
@@ -58,6 +57,6 @@ class DonchianTest(common.TestCase):
             b = bar.BasicBar(now + timedelta(days=i), o, h, l, c, 100, c, bar.Frequency.DAY)
             barDS.append(b)
             # print(i, donDS.getUpperChannel()[i], upperExpected[i])
-            self.assertEqual(common.safe_round(donDS.getUpperChannel()[i], upperExpected))
-            self.assertEqual(common.safe_round(donDS.getLowerChannel()[i], lowerExpected))
-            self.assertEqual(common.safe_round(donDS.getMiddleChannel()[i], midExpected))
+            assert donDS.getUpperChannel()[i]==upperExpected[i], f"{donDS.getUpperChannel()[i]}!={upperExpected[i]}"
+            assert donDS.getLowerChannel()[i]==lowerExpected[i]
+            assert donDS.getMiddleChannel()[i]==midExpected[i]
