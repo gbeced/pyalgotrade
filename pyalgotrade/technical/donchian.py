@@ -1,10 +1,10 @@
 from pyalgotrade import technical
 from pyalgotrade import dataseries
 from pyalgotrade.dataseries import bards
-from .highlow import High, Low
+from .highlow import High, Low, HighLowEventWindow
 
 
-class DonchianChannel(technical.EventBasedFilter):
+class DonchianChannel(HighLowEventWindow):
     """Donchian Channel as described in https://www.investopedia.com/terms/d/donchianchannels.asp.
 
     Donchian Channels calculates the high and low to create an envelope around a
@@ -22,14 +22,17 @@ class DonchianChannel(technical.EventBasedFilter):
         opposite end. If None then dataseries.DEFAULT_MAX_LEN is used.
     :type maxLen: int.
     """
-    def __init__(self, barDataSeries, period=50, maxLen=None):
+    def __init__(self, barDataSeries, period=50, channel="middle", maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         
+        self.channel = channel
         dataSeries = barDataSeries.getAdjCloseDataSeries()
         self.__middleChannel = dataseries.SequenceDataSeries(maxLen)
-        self.__upperChannel = High(dataSeries, period=period, maxLen=maxLen)
-        self.__lowerChannel = Low(dataSeries, period=period, maxLen=maxLen)
+        self.__upperChannel = High(barDataSeries.getAdjHighDataSeries(), 
+            period=period, maxLen=maxLen)
+        self.__lowerChannel = Low(barDataSeries.getAdjLowDataSeries(), 
+            period=period, maxLen=maxLen)
         self.upperValue = None
         self.lowerValue = None
         self.middleValue = None 
@@ -71,7 +74,7 @@ class DonchianChannel(technical.EventBasedFilter):
         if self.channel == "upper":
             return self.upperValue
         elif self.channel == "middle":
-            return (self.middleValue - self.lowerValue) / 2
+            return (self.upperValue + self.lowerValue) / 2
         elif self.channel == "lower":
             return self.lowerValue
         elif self.channel == "channelRange":
