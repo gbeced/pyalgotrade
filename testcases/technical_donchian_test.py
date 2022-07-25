@@ -1,5 +1,9 @@
 from pyalgotrade.technical import donchian
 from pyalgotrade import dataseries
+from pyalgotrade.dataseries import bards
+from pyalgotrade import bar
+from . import common
+from datetime import datetime, timedelta
 
 opens = [118.86, 118.27, 117.4 , 117.26, 116.3 , 116.15, 117.24, 116.38,
         115.47, 114.63, 115.5 , 116.05, 114.59, 115.22, 116.21, 116.,
@@ -48,15 +52,15 @@ midExpected = [  None, None, None, None, None, None,
         115.1075, 115.625 , 116.315 , 116.315 , 116.315 , 116.315 ,
         116.315 , 116.925 , 116.8, 115.15]
 
-class DonchianTest():
-    def test0(self):
+class DonchianTest(common.TestCase):
+
+    def testHighCalc(self):
+        period = 20
         barDS = bards.BarDataSeries()
-        donDS = donchian.DonchianChannel(barDS, period)
+        donDS = donchian.DonchianChannel(barDS, period, channel="upper")
         now = datetime(2020, 1, 1)
-        for i, (o, h, l, c) in enumerate(zip(opens, highs, lows, close)):
+        for i, (o, h, l, c) in enumerate(zip(opens, highs, lows, closes)):
             b = bar.BasicBar(now + timedelta(days=i), o, h, l, c, 100, c, bar.Frequency.DAY)
             barDS.append(b)
             # print(i, donDS.getUpperChannel()[i], upperExpected[i])
-            assert donDS.getUpperChannel()[i]==upperExpected[i], f"{donDS.getUpperChannel()[i]}!={upperExpected[i]}"
-            assert donDS.getLowerChannel()[i]==lowerExpected[i]
-            assert donDS.getMiddleChannel()[i]==midExpected[i]
+            assert donDS[-1]==upperExpected[i], f"{donDS[-1]}!={upperExpected[i]}"
