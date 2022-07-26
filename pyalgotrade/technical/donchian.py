@@ -8,7 +8,7 @@ from pyalgotrade.technical import price
 class DonchianEventWindow(technical.EventWindow):
 
     def __init__(self, period, channel, useAdjustedValues):
-        period += 1
+        # period += 1
         assert(period > 1)
         super(DonchianEventWindow, self).__init__(period)
         self.__channel = channel
@@ -26,17 +26,20 @@ class DonchianEventWindow(technical.EventWindow):
         elif self.__channel == "lower":
             _value = min(self.__lowerChannel)
         elif self.__channel == "middle":
-            _value = (max(self.__upperChannel) - min(self.__lowerChannel)) / 2
+            _value = (max(self.__upperChannel) + min(self.__lowerChannel)) / 2
         elif self.__channel == "channelRange":
             _value = max(self.__upperChannel) - min(self.__lowerChannel)
         else:
             raise ValueError(f"Channel type {self.channel} is not available." +
                     " Choices are 'upper', 'middle', or 'lower'.")
 
+        if _value is not None and self.windowFull():
+            self.__value = self.getValues()[-1]
+
         super(DonchianEventWindow, self).onNewValue(dateTime, _value)
 
-        if _value is not None and self.windowFull():
-            self.__value = self.getValues()[1:][-2]
+        # if _value is not None and self.windowFull():
+        #     self.__value = self.getValues()[1:][-2]
 
     def getValue(self):
         return self.__value

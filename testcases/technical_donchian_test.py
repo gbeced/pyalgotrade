@@ -62,5 +62,24 @@ class DonchianTest(common.TestCase):
         for i, (o, h, l, c) in enumerate(zip(opens, highs, lows, closes)):
             b = bar.BasicBar(now + timedelta(days=i), o, h, l, c, 100, c, bar.Frequency.DAY)
             barDS.append(b)
-            # print(i, donDS.getUpperChannel()[i], upperExpected[i])
-            assert donDS[-1]==upperExpected[i], f"{donDS[-1]}!={upperExpected[i]}"
+            self.assertEqual(common.safe_round(donDS[-1], 2), common.safe_round(upperExpected[i], 2)) #, f"{donDS[-1]}!={upperExpected[i]}"
+
+    def testLowCalc(self):
+        period = 20
+        barDS = bards.BarDataSeries()
+        donDS = donchian.DonchianChannel(barDS, period, channel="lower")
+        now = datetime(2020, 1, 1)
+        for i, (o, h, l, c) in enumerate(zip(opens, highs, lows, closes)):
+            b = bar.BasicBar(now + timedelta(days=i), o, h, l, c, 100, c, bar.Frequency.DAY)
+            barDS.append(b)
+            self.assertEqual(common.safe_round(donDS[-1], 2), common.safe_round(lowerExpected[i], 2))
+
+    def testMidCalc(self):
+        period = 20
+        barDS = bards.BarDataSeries()
+        donDS = donchian.DonchianChannel(barDS, period, channel="middle")
+        now = datetime(2020, 1, 1)
+        for i, (o, h, l, c) in enumerate(zip(opens, highs, lows, closes)):
+            b = bar.BasicBar(now + timedelta(days=i), o, h, l, c, 100, c, bar.Frequency.DAY)
+            barDS.append(b)
+            self.assertEqual(common.safe_round(donDS[-1], 3), common.safe_round(midExpected[i], 3))
