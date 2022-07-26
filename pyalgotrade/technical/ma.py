@@ -56,7 +56,8 @@ class SMAEventWindow(technical.EventWindow):
             if self.__value is None or np.isnan(self.__value):
                 self.__value = self.getValues().mean()
             else:
-                self.__value = self.__value + value / float(self.getWindowSize()) - firstValue / float(self.getWindowSize())
+                self.__value = self.__value + value / float(
+                    self.getWindowSize()) - firstValue / float(self.getWindowSize())
 
     def getValue(self):
         return self.__value
