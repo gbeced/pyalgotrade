@@ -1,6 +1,10 @@
 PyAlgoTrade
 ===========
 
+***
+**This project is deprecated, and no longer mantained. You may be interested in taking a look at [Basana](https://github.com/gbeced/basana).**
+***
+
 [![Build Status](https://travis-ci.org/gbeced/pyalgotrade.png?branch=master)](https://travis-ci.org/gbeced/pyalgotrade)
 [![Coverage Status](https://coveralls.io/repos/gbeced/pyalgotrade/badge.svg?branch=master)](https://coveralls.io/r/gbeced/pyalgotrade?branch=master)
 
