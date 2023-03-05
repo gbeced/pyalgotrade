@@ -2,7 +2,7 @@ PyAlgoTrade
 ===========
 
 ***
-**This project is deprecated, and no longer mantained. You may be interested in taking a look at [Basana](https://github.com/gbeced/basana).**
+**This project is deprecated and is no longer mantained. You may be interested in taking a look at [Basana](https://github.com/gbeced/basana).**
 ***
 
 [![Build Status](https://travis-ci.org/gbeced/pyalgotrade.png?branch=master)](https://travis-ci.org/gbeced/pyalgotrade)
