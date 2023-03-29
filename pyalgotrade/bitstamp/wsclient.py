@@ -18,13 +18,19 @@
 .. moduleauthor:: Gabriel Martin Becedillas Ruiz <gabriel.becedillas@gmail.com>
 """
 
+import json
 import datetime
 
 from six.moves import queue
+from decimal import Decimal
 
 from pyalgotrade.websocket import pusher
 from pyalgotrade.websocket import client
 from pyalgotrade.bitstamp import common
+
+from pyalgotrade.orderbook import Bid, Ask, MarketSnapshot, Assign
+
+VENUE = 'bitstamp'
 
 
 def get_current_datetime():
@@ -65,32 +71,24 @@ class Trade(pusher.Event):
         return self.getData()["type"] == 1
 
 
-class OrderBookUpdate(pusher.Event):
-    """An order book update event."""
+def toBookMessages(bitstamp_json, symbol):
+    """convert a bitstamp json message into a list of book messages"""
+    msg = bitstamp_json
+    if type(msg) != type({}):
+        msg = json.loads(msg)
+    rts = msg.get('timestamp', get_current_datetime())
+    result = []
+    for side, skey in ((Bid, "bids"), (Ask, "asks")):
+        for price, size in msg[skey]:
+            result.append(Assign(rts, VENUE, symbol, Decimal(price), Decimal(size), side))
+    return result
 
-    def __init__(self, dateTime, eventDict):
-        super(OrderBookUpdate, self).__init__(eventDict, True)
-        self.__dateTime = dateTime
 
-    def getDateTime(self):
-        """Returns the :class:`datetime.datetime` when this event was received."""
-        return self.__dateTime
-
-    def getBidPrices(self):
-        """Returns a list with the top 20 bid prices."""
-        return [float(bid[0]) for bid in self.getData()["bids"]]
-
-    def getBidVolumes(self):
-        """Returns a list with the top 20 bid volumes."""
-        return [float(bid[1]) for bid in self.getData()["bids"]]
-
-    def getAskPrices(self):
-        """Returns a list with the top 20 ask prices."""
-        return [float(ask[0]) for ask in self.getData()["asks"]]
-
-    def getAskVolumes(self):
-        """Returns a list with the top 20 ask volumes."""
-        return [float(ask[1]) for ask in self.getData()["asks"]]
+def bookToSnapshot(bitstamp_json, symbol):
+    """convert a bitstamp json book into a MarketSnapshot"""
+    ts = get_current_datetime()
+    data = toBookMessages(bitstamp_json, symbol)
+    return MarketSnapshot(ts, VENUE, symbol, data)
 
 
 class WebSocketClient(pusher.WebSocketClient):
@@ -117,7 +115,7 @@ class WebSocketClient(pusher.WebSocketClient):
         if event == "trade":
             self.onTrade(Trade(get_current_datetime(), msg))
         elif event == "data" and msg.get("channel") == "order_book":
-            self.onOrderBookUpdate(OrderBookUpdate(get_current_datetime(), msg))
+            self.onOrderBookUpdate(bookToSnapshot(msg['data'], 'BTCUSD'))
         else:
             super(WebSocketClient, self).onMessage(msg)
 

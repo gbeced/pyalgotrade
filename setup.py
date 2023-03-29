@@ -57,6 +57,7 @@ setup(
     ],
     install_requires=[
         "matplotlib",
+        "enum34",
         "numpy",
         "python-dateutil",
         "pytz",

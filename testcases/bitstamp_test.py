@@ -38,7 +38,7 @@ from pyalgotrade.bitstamp import common
 from pyalgotrade.bitcoincharts import barfeed as btcbarfeed
 from pyalgotrade import strategy
 from pyalgotrade import dispatcher
-
+from pyalgotrade.orderbook import OrderBook
 
 class WebSocketClientThreadMock(threading.Thread):
     def __init__(self, events):
@@ -208,8 +208,9 @@ class TestStrategy(test_strategy.BaseStrategy):
         feed.getOrderBookUpdateEvent().subscribe(self.__onOrderBookUpdate)
 
     def __onOrderBookUpdate(self, orderBookUpdate):
-        bid = orderBookUpdate.getBidPrices()[0]
-        ask = orderBookUpdate.getAskPrices()[0]
+        book = OrderBook.from_snapshot(orderBookUpdate)
+        bid = book.inside_bid().price
+        ask = book.inside_ask().price
 
         if bid != self.bid or ask != self.ask:
             self.bid = bid

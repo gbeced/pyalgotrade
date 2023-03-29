@@ -259,8 +259,8 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         """
         Returns the event that will be emitted when the orderbook gets updated.
 
-        Eventh handlers should receive one parameter:
-         1. A :class:`pyalgotrade.bitstamp.wsclient.OrderBookUpdate` instance.
+        Event handlers should receive one parameter:
+         1. A :class:`pyalgotrade.orderbook.MarketSnapshot` instance.
 
         :rtype: :class:`pyalgotrade.observer.Event`.
         """
