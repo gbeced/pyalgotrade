@@ -27,8 +27,7 @@ from pyalgotrade import broker
 from pyalgotrade.bitstamp import httpclient
 from pyalgotrade.bitstamp import common
 
-
-def build_order_from_open_order(openOrder, instrumentTraits):
+def build_order_from_open_order(openOrder, instrumentTraits, currency="USD", instrument="BTC"):
     if openOrder.isBuy():
         action = broker.Order.Action.BUY
     elif openOrder.isSell():
@@ -36,7 +35,7 @@ def build_order_from_open_order(openOrder, instrumentTraits):
     else:
         raise Exception("Invalid order type")
 
-    ret = broker.LimitOrder(action, common.btc_symbol, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
+    ret = broker.LimitOrder(action, instrument, openOrder.getPrice(), openOrder.getAmount(), instrumentTraits)
     ret.setSubmitted(openOrder.getId(), openOrder.getDateTime())
     ret.setState(broker.Order.State.ACCEPTED)
     return ret
@@ -126,8 +125,7 @@ class LiveBroker(broker.Broker):
         self.__stop = False
         self.__httpClient = self.buildHTTPClient(clientId, key, secret)
         self.__tradeMonitor = TradeMonitor(self.__httpClient)
-        self.__cash = 0
-        self.__shares = {}
+        self.__currencies = {}
         self.__activeOrders = {}
 
     def _registerOrder(self, order):
@@ -145,22 +143,16 @@ class LiveBroker(broker.Broker):
         return httpclient.HTTPClient(clientId, key, secret)
 
     def refreshAccountBalance(self):
-        """Refreshes cash and BTC balance."""
+        """Refreshes cash and crypto balances."""
 
         self.__stop = True  # Stop running in case of errors.
         common.logger.info("Retrieving account balance.")
         balance = self.__httpClient.getAccountBalance()
 
-        # Cash
-        self.__cash = round(balance.getUSDAvailable(), 2)
-        common.logger.info("%s USD" % (self.__cash))
-        # BTC
-        btc = balance.getBTCAvailable()
-        if btc:
-            self.__shares = {common.btc_symbol: btc}
-        else:
-            self.__shares = {}
-        common.logger.info("%s BTC" % (btc))
+        # set all fiat and crypto currency values
+        for currency in sorted(common.available_fiats.union(common.available_cryptos)):
+            self.__currencies[currency] = balance.getAvailableCurrency(currency)
+            common.logger.info("{} {}".format(self.__currencies[currency], currency))
 
         self.__stop = False  # No errors. Keep running.
 
@@ -266,16 +258,16 @@ class LiveBroker(broker.Broker):
     def getActiveOrders(self, instrument=None):
         return list(self.__activeOrders.values())
 
-    def submitOrder(self, order):
+    def submitOrder(self, order, currency="USD", instrument="BTC"):
         if order.isInitial():
             # Override user settings based on Bitstamp limitations.
             order.setAllOrNone(False)
             order.setGoodTillCanceled(True)
 
             if order.isBuy():
-                bitstampOrder = self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity())
+                bitstampOrder = self.__httpClient.buyLimit(order.getLimitPrice(), order.getQuantity(), currency, instrument)
             else:
-                bitstampOrder = self.__httpClient.sellLimit(order.getLimitPrice(), order.getQuantity())
+                bitstampOrder = self.__httpClient.sellLimit(order.getLimitPrice(), order.getQuantity(), currency, instrument)
 
             order.setSubmitted(bitstampOrder.getId(), bitstampOrder.getDateTime())
             self._registerOrder(order)
@@ -290,8 +282,8 @@ class LiveBroker(broker.Broker):
         raise Exception("Market orders are not supported")
 
     def createLimitOrder(self, action, instrument, limitPrice, quantity):
-        if instrument != common.btc_symbol:
-            raise Exception("Only BTC instrument is supported")
+        if instrument not in common.available_cryptos:
+            raise Exception("Instrument {} not supported".format(instrument))
 
         if action == broker.Order.Action.BUY_TO_COVER:
             action = broker.Order.Action.BUY

@@ -175,7 +175,7 @@ class BaseStrategy(object):
             self.getBroker().submitOrder(ret)
         return ret
 
-    def limitOrder(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False):
+    def limitOrder(self, instrument, limitPrice, quantity, goodTillCanceled=False, allOrNone=False, currency="USD"):
         """Submits a limit order.
 
         :param instrument: Instrument identifier.
