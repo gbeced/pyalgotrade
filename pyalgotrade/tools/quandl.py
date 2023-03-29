@@ -31,10 +31,15 @@ from pyalgotrade.utils import csvutils
 import pyalgotrade.logger
 
 
-# http://www.quandl.com/help/api
+# https://docs.data.nasdaq.com/docs/in-depth-usage
+
+base_url = 'https://data.nasdaq.com/api/v3/datasets'
+
 
 def download_csv(sourceCode, tableCode, begin, end, frequency, authToken):
-    url = "http://www.quandl.com/api/v1/datasets/%s/%s.csv" % (sourceCode, tableCode)
+    
+    url = f'{base_url}/{sourceCode}/{tableCode}/data.csv'
+
     params = {
         "trim_start": begin.strftime("%Y-%m-%d"),
         "trim_end": end.strftime("%Y-%m-%d"),
@@ -61,7 +66,8 @@ def download_daily_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     :type authToken: string.
     """
 
-    bars = download_csv(sourceCode, tableCode, datetime.date(year, 1, 1), datetime.date(year, 12, 31), "daily", authToken)
+    bars = download_csv(sourceCode, tableCode, datetime.date(
+        year, 1, 1), datetime.date(year, 12, 31), "daily", authToken)
     f = open(csvFile, "w")
     f.write(bars)
     f.close()
@@ -82,8 +88,10 @@ def download_weekly_bars(sourceCode, tableCode, year, csvFile, authToken=None):
     :type authToken: string.
     """
 
-    begin = dt.get_first_monday(year) - datetime.timedelta(days=1)  # Start on a sunday
-    end = dt.get_last_monday(year) - datetime.timedelta(days=1)  # Start on a sunday
+    begin = dt.get_first_monday(
+        year) - datetime.timedelta(days=1)  # Start on a sunday
+    end = dt.get_last_monday(
+        year) - datetime.timedelta(days=1)  # Start on a sunday
     bars = download_csv(sourceCode, tableCode, begin, end, "weekly", authToken)
     f = open(csvFile, "w")
     f.write(bars)
@@ -145,37 +153,51 @@ def build_feed(sourceCode, tableCodes, fromYear, toYear, storage, frequency=bar.
 
     for year in range(fromYear, toYear+1):
         for tableCode in tableCodes:
-            fileName = os.path.join(storage, "%s-%s-%d-quandl.csv" % (sourceCode, tableCode, year))
+            fileName = os.path.join(
+                storage, "%s-%s-%d-quandl.csv" % (sourceCode, tableCode, year))
             if not os.path.exists(fileName) or forceDownload:
-                logger.info("Downloading %s %d to %s" % (tableCode, year, fileName))
+                logger.info("Downloading %s %d to %s" %
+                            (tableCode, year, fileName))
                 try:
                     if frequency == bar.Frequency.DAY:
-                        download_daily_bars(sourceCode, tableCode, year, fileName, authToken)
+                        download_daily_bars(
+                            sourceCode, tableCode, year, fileName, authToken)
                     else:
                         assert frequency == bar.Frequency.WEEK, "Invalid frequency"
-                        download_weekly_bars(sourceCode, tableCode, year, fileName, authToken)
+                        download_weekly_bars(
+                            sourceCode, tableCode, year, fileName, authToken)
                 except Exception as e:
                     if skipErrors:
                         logger.error(str(e))
                         continue
                     else:
                         raise e
-            ret.addBarsFromCSV(tableCode, fileName, skipMalformedBars=skipMalformedBars)
+            ret.addBarsFromCSV(tableCode, fileName,
+                               skipMalformedBars=skipMalformedBars)
     return ret
 
 
 def main():
     parser = argparse.ArgumentParser(description="Quandl utility")
 
-    parser.add_argument("--auth-token", required=False, help="An authentication token needed if you're doing more than 50 calls per day")
-    parser.add_argument("--source-code", required=True, help="The dataset source code")
-    parser.add_argument("--table-code", required=True, help="The dataset table code")
-    parser.add_argument("--from-year", required=True, type=int, help="The first year to download")
-    parser.add_argument("--to-year", required=True, type=int, help="The last year to download")
-    parser.add_argument("--storage", required=True, help="The path were the files will be downloaded to")
-    parser.add_argument("--force-download", action='store_true', help="Force downloading even if the files exist")
-    parser.add_argument("--ignore-errors", action='store_true', help="True to keep on downloading files in case of errors")
-    parser.add_argument("--frequency", default="daily", choices=["daily", "weekly"], help="The frequency of the bars. Only daily or weekly are supported")
+    parser.add_argument("--auth-token", required=False,
+                        help="An authentication token needed if you're doing more than 50 calls per day")
+    parser.add_argument("--source-code", required=True,
+                        help="The dataset source code")
+    parser.add_argument("--table-code", required=True,
+                        help="The dataset table code")
+    parser.add_argument("--from-year", required=True,
+                        type=int, help="The first year to download")
+    parser.add_argument("--to-year", required=True, type=int,
+                        help="The last year to download")
+    parser.add_argument("--storage", required=True,
+                        help="The path were the files will be downloaded to")
+    parser.add_argument("--force-download", action='store_true',
+                        help="Force downloading even if the files exist")
+    parser.add_argument("--ignore-errors", action='store_true',
+                        help="True to keep on downloading files in case of errors")
+    parser.add_argument("--frequency", default="daily", choices=[
+                        "daily", "weekly"], help="The frequency of the bars. Only daily or weekly are supported")
 
     args = parser.parse_args()
 
@@ -186,15 +208,19 @@ def main():
         os.mkdir(args.storage)
 
     for year in range(args.from_year, args.to_year+1):
-        fileName = os.path.join(args.storage, "%s-%s-%d-quandl.csv" % (args.source_code, args.table_code, year))
+        fileName = os.path.join(args.storage, "%s-%s-%d-quandl.csv" %
+                                (args.source_code, args.table_code, year))
         if not os.path.exists(fileName) or args.force_download:
-            logger.info("Downloading %s %d to %s" % (args.table_code, year, fileName))
+            logger.info("Downloading %s %d to %s" %
+                        (args.table_code, year, fileName))
             try:
                 if args.frequency == "daily":
-                    download_daily_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
+                    download_daily_bars(
+                        args.source_code, args.table_code, year, fileName, args.auth_token)
                 else:
                     assert args.frequency == "weekly", "Invalid frequency"
-                    download_weekly_bars(args.source_code, args.table_code, year, fileName, args.auth_token)
+                    download_weekly_bars(
+                        args.source_code, args.table_code, year, fileName, args.auth_token)
             except Exception as e:
                 if args.ignore_errors:
                     logger.error(str(e))
