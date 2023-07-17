@@ -76,8 +76,8 @@ class BollingerBands(object):
             self.middleValue = self.sma
             if self.sma is not None:
                 stdDev = self.__stdDev[-1]
-                self.upperValue = self.sma + stdDev * self.__numStdDev[0]
-                self.lowerValue = self.sma + stdDev * self.__numStdDev[1] * -1
+                self.upperValue = self.sma + stdDev * self.__numStdDev
+                self.lowerValue = self.sma + stdDev * self.__numStdDev * -1
 
         self.__upperBand.appendWithDateTime(dateTime, self.upperValue)
         self.__lowerBand.appendWithDateTime(dateTime, self.lowerValue)
