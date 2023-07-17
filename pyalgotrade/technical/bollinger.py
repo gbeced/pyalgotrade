@@ -41,7 +41,7 @@ class BollingerBands(object):
     :type maxLen: int.
     """
 
-    def __init__(self, barDataSeries, period=20, numStdDevUpper=2, numStdDevLower=2, price_type="Typical", band="bandwidth", maxLen=None):
+    def __init__(self, barDataSeries, period=20, numSTD=2, price_type="Typical", band="bandwidth", maxLen=None):
         if not isinstance(barDataSeries, bards.BarDataSeries):
             raise Exception("barDataSeries must be a dataseries.bards.BarDataSeries instance")
         if price_type == "High":
@@ -59,7 +59,7 @@ class BollingerBands(object):
         self.__stdDev = stats.StdDev(dataSeries, period, maxLen=maxLen)
         self.__upperBand = dataseries.SequenceDataSeries(maxLen)
         self.__lowerBand = dataseries.SequenceDataSeries(maxLen)
-        self.__numStdDev = (numStdDevUpper, numStdDevLower)
+        self.__numStdDev = numSTD
         self.band = band 
         self.upperValue = None
         self.lowerValue = None
