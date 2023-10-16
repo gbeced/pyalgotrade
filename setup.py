@@ -66,6 +66,8 @@ setup(
         "six",
         "tweepy",
         "websocket-client",
+        "pandas",
+        "nsedt",
     ],
     extras_require={
         "TALib":  ["Cython", "TA-Lib"],
