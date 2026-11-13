@@ -2,7 +2,7 @@ PyAlgoTrade
 ===========
 
 ***
-**This project is deprecated and is no longer mantained. You may be interested in taking a look at [Basana](https://github.com/gbeced/basana).**
+**This project is deprecated and is no longer mantained. You may be interested in taking a look at [Basana](https://github.com/gbeced/basana) and [Kraken Order Book Mirror](https://github.com/gbeced/kraken-order-book-mirror).**
 ***
 
 [![Build Status](https://travis-ci.org/gbeced/pyalgotrade.png?branch=master)](https://travis-ci.org/gbeced/pyalgotrade)
